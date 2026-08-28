@@ -11,7 +11,7 @@
         <div
             ref="selectWrapper"
             class="sw-select__selection"
-            tabindex="0"
+            :tabindex="disabled ? '-1' : '0'"
             :aria-expanded="expanded ? 'true' : 'false'"
             @click="expand"
             @focus="expand"
@@ -34,7 +34,7 @@
                 v-if="!disabled && isClearable"
                 class="sw-select__select-indicator-hitbox"
                 data-clearable-button
-                :aria-label="$tc('global.sw-select-base.buttonClear')"
+                :aria-label="$t('global.sw-select-base.buttonClear')"
                 @click.prevent.stop="emitClear"
                 @keydown.tab.stop="focusParentSelect"
             >

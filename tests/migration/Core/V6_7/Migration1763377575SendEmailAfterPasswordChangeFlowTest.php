@@ -15,11 +15,16 @@ use Shopware\Core\Migration\V6_7\Migration1763377575SendEmailAfterPasswordChange
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(Migration1763377575SendEmailAfterPasswordChangeFlow::class)]
 class Migration1763377575SendEmailAfterPasswordChangeFlowTest extends TestCase
 {
     use KernelTestBehaviour;
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763377575, (new Migration1763377575SendEmailAfterPasswordChangeFlow())->getCreationTimestamp());
+    }
 
     public function testTimestamp(): void
     {

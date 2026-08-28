@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Command;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
@@ -17,7 +16,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[Group('slow')]
 class ImportEntityCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,8 +42,7 @@ class ImportEntityCommandTest extends TestCase
         ];
         $commandTester->setInputs([self::DEFAULT_CATEGORY_IMPORT_PROFILE_TECHNICAL_NAME]);
 
-        $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessage('The file "' . $noFile . '" does not exist');
+        $this->expectExceptionObject(new FileNotFoundException($noFile));
         $commandTester->execute($args);
     }
 

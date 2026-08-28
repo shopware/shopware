@@ -50,6 +50,11 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                         'sw-media-modal-v2': true,
                     },
                     provide: {
+                        mediaPresignedUploadService: {
+                            prepareUpload: jest.fn(),
+                            uploadToPresignedUrl: jest.fn(),
+                            finalizeUpload: jest.fn(),
+                        },
                         repositoryFactory: {},
                         mediaService: {
                             addListener: () => {},
@@ -215,7 +220,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
         });
 
         const removeButton = wrapper.find('.sw-media-upload-v2__delete-item-button');
-        expect(removeButton.text()).toBe('global.sw-product-image.context.buttonRemove');
+        expect(removeButton.text()).toBe('global.default.remove');
 
         await wrapper.setProps({
             removeButtonLabel: 'test',

@@ -45,11 +45,11 @@ export default {
             return [
                 {
                     value: true,
-                    label: `${this.$tc('sw-flow.modals.downloadAccess.options.grant')}`,
+                    label: `${this.$t('sw-flow.modals.downloadAccess.options.grant')}`,
                 },
                 {
                     value: false,
-                    label: `${this.$tc('sw-flow.modals.downloadAccess.options.revoke')}`,
+                    label: `${this.$t('sw-flow.modals.downloadAccess.options.revoke')}`,
                 },
             ];
         },

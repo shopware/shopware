@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -46,49 +46,34 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[CoversClass(RegisterController::class)]
 #[Package('checkout')]
+#[CoversClass(RegisterController::class)]
 class RegisterControllerTest extends TestCase
 {
     private RegisterControllerTestClass $controller;
 
-    private MockObject&AccountLoginPageLoader $accountLoginPageLoader;
+    private AccountLoginPageLoader&Stub $accountLoginPageLoader;
 
-    private MockObject&CheckoutRegisterPageLoader $checkoutRegisterPageLoader;
+    private CheckoutRegisterPageLoader&Stub $checkoutRegisterPageLoader;
 
-    private MockObject&CartService $cartService;
+    private CartService&Stub $cartService;
 
-    private MockObject&CustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader;
+    private CustomerGroupRegistrationPageLoader&Stub $customerGroupRegistrationPageLoader;
 
-    private MockObject&RegisterRoute $registerRoute;
+    private RegisterRoute&Stub $registerRoute;
 
     private StaticSystemConfigService $systemConfigService;
 
     protected function setUp(): void
     {
-        $this->accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
-        $this->registerRoute = $this->createMock(RegisterRoute::class);
-        $registerConfirmRoute = $this->createMock(RegisterConfirmRoute::class);
-        $this->cartService = $this->createMock(CartService::class);
-        $this->checkoutRegisterPageLoader = $this->createMock(CheckoutRegisterPageLoader::class);
+        $this->accountLoginPageLoader = static::createStub(AccountLoginPageLoader::class);
+        $this->registerRoute = static::createStub(RegisterRoute::class);
+        $this->cartService = static::createStub(CartService::class);
+        $this->checkoutRegisterPageLoader = static::createStub(CheckoutRegisterPageLoader::class);
         $this->systemConfigService = new StaticSystemConfigService();
-        $customerRepository = $this->createMock(EntityRepository::class);
-        $this->customerGroupRegistrationPageLoader = $this->createMock(CustomerGroupRegistrationPageLoader::class);
-        $domainRepository = $this->createMock(EntityRepository::class);
+        $this->customerGroupRegistrationPageLoader = static::createStub(CustomerGroupRegistrationPageLoader::class);
 
-        $this->controller = new RegisterControllerTestClass(
-            $this->accountLoginPageLoader,
-            $this->registerRoute,
-            $registerConfirmRoute,
-            $this->cartService,
-            $this->checkoutRegisterPageLoader,
-            $this->systemConfigService,
-            $customerRepository,
-            $this->customerGroupRegistrationPageLoader,
-            $domainRepository,
-            $this->createMock(HeaderPageletLoaderInterface::class),
-            $this->createMock(FooterPageletLoaderInterface::class),
-        );
+        $this->controller = $this->createController();
     }
 
     public function testAccountRegister(): void
@@ -100,19 +85,21 @@ class RegisterControllerTest extends TestCase
         $dataBag = new RequestDataBag();
         $page = new AccountLoginPage();
 
-        $this->accountLoginPageLoader->expects($this->once())
+        $accountLoginPageLoader = $this->createMock(AccountLoginPageLoader::class);
+        $accountLoginPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
+        $controller = $this->createController(accountLoginPageLoader: $accountLoginPageLoader);
 
-        $this->controller->accountRegisterPage($request, $dataBag, $context);
+        $controller->accountRegisterPage($request, $dataBag, $context);
 
-        static::assertSame($page, $this->controller->renderStorefrontParameters['page']);
-        static::assertSame($dataBag, $this->controller->renderStorefrontParameters['data']);
-        static::assertSame('frontend.account.home.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
-        static::assertSame('[]', $this->controller->renderStorefrontParameters['redirectParameters'] ?? '');
-        static::assertSame('frontend.account.register.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertInstanceOf(AccountRegisterPageLoadedHook::class, $this->controller->calledHook);
+        static::assertSame($page, $controller->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
+        static::assertSame('frontend.account.home.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('[]', $controller->renderStorefrontParameters['redirectParameters'] ?? '');
+        static::assertSame('frontend.account.register.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertInstanceOf(AccountRegisterPageLoadedHook::class, $controller->calledHook);
     }
 
     public function testCheckoutRegister(): void
@@ -126,23 +113,55 @@ class RegisterControllerTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem('test', 'test'));
 
-        $this->checkoutRegisterPageLoader->expects($this->once())
+        $checkoutRegisterPageLoader = $this->createMock(CheckoutRegisterPageLoader::class);
+        $checkoutRegisterPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
 
-        $this->cartService->expects($this->once())
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->once())
             ->method('getCart')
             ->with($context->getToken(), $context)
             ->willReturn($cart);
 
-        $this->controller->checkoutRegisterPage($request, $dataBag, $context);
+        $controller = $this->createController(cartService: $cartService, checkoutRegisterPageLoader: $checkoutRegisterPageLoader);
 
-        static::assertSame($page, $this->controller->renderStorefrontParameters['page']);
-        static::assertSame($dataBag, $this->controller->renderStorefrontParameters['data']);
-        static::assertSame('frontend.checkout.confirm.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
-        static::assertSame('frontend.checkout.register.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertInstanceOf(CheckoutRegisterPageLoadedHook::class, $this->controller->calledHook);
+        $controller->checkoutRegisterPage($request, $dataBag, $context);
+
+        static::assertSame($page, $controller->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
+        static::assertSame('frontend.checkout.confirm.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('frontend.checkout.register.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertFalse($controller->renderStorefrontParameters['loginError'] ?? null);
+        static::assertInstanceOf(CheckoutRegisterPageLoadedHook::class, $controller->calledHook);
+    }
+
+    public function testCheckoutRegisterForwardsLoginError(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+        $request = new Request();
+        $request->attributes->set('_route', 'frontend.checkout.register.page');
+        $request->attributes->set('loginError', true);
+        $request->attributes->set('waitTime', 5);
+        $dataBag = new RequestDataBag();
+        $page = new CheckoutRegisterPage();
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(new LineItem('test', 'test'));
+
+        $checkoutRegisterPageLoader = static::createStub(CheckoutRegisterPageLoader::class);
+        $checkoutRegisterPageLoader->method('load')->willReturn($page);
+
+        $cartService = static::createStub(CartService::class);
+        $cartService->method('getCart')->willReturn($cart);
+
+        $controller = $this->createController(cartService: $cartService, checkoutRegisterPageLoader: $checkoutRegisterPageLoader);
+
+        $controller->checkoutRegisterPage($request, $dataBag, $context);
+
+        static::assertTrue($controller->renderStorefrontParameters['loginError'] ?? null);
+        static::assertSame(5, $controller->renderStorefrontParameters['waitTime'] ?? null);
     }
 
     public function testCustomerGroupRegistration(): void
@@ -156,19 +175,21 @@ class RegisterControllerTest extends TestCase
         $page->setGroup(new CustomerGroupEntity());
         $customerGroupId = Uuid::randomHex();
 
-        $this->customerGroupRegistrationPageLoader->expects($this->once())
+        $customerGroupRegistrationPageLoader = $this->createMock(CustomerGroupRegistrationPageLoader::class);
+        $customerGroupRegistrationPageLoader->expects($this->once())
             ->method('load')
             ->with($request, $context)
             ->willReturn($page);
+        $controller = $this->createController(customerGroupRegistrationPageLoader: $customerGroupRegistrationPageLoader);
 
-        $this->controller->customerGroupRegistration($customerGroupId, $request, $dataBag, $context);
+        $controller->customerGroupRegistration($customerGroupId, $request, $dataBag, $context);
 
-        static::assertSame($page, $this->controller->renderStorefrontParameters['page']);
-        static::assertSame($dataBag, $this->controller->renderStorefrontParameters['data']);
-        static::assertSame('frontend.account.home.page', $this->controller->renderStorefrontParameters['redirectTo'] ?? '');
-        static::assertSame('frontend.account.customer-group-registration.page', $this->controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertSame(json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR), $this->controller->renderStorefrontParameters['errorParameters'] ?? '');
-        static::assertInstanceOf(CustomerGroupRegistrationPageLoadedHook::class, $this->controller->calledHook);
+        static::assertSame($page, $controller->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
+        static::assertSame('frontend.account.home.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('frontend.account.customer-group-registration.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertSame(json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR), $controller->renderStorefrontParameters['errorParameters'] ?? '');
+        static::assertInstanceOf(CustomerGroupRegistrationPageLoadedHook::class, $controller->calledHook);
     }
 
     public function testRegisterSuccess(): void
@@ -178,12 +199,14 @@ class RegisterControllerTest extends TestCase
 
         $request = $this->createRegisterRequest();
         $dataBag = new RequestDataBag();
-        $this->registerRoute
+        $registerRoute = $this->createMock(RegisterRoute::class);
+        $registerRoute
             ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
+        $controller = $this->createController(registerRoute: $registerRoute);
 
-        $response = $this->controller->register($request, $dataBag, $context);
+        $response = $controller->register($request, $dataBag, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
@@ -205,12 +228,14 @@ class RegisterControllerTest extends TestCase
         $expectedDefinition = new DataValidationDefinition('storefront.confirmation');
         $expectedDefinition->add('emailConfirmation', new NotBlank(), new EqualTo(value: 'foo@bar.de'));
         $expectedDefinition->add('passwordConfirmation', new NotBlank(), new EqualTo(value: 'password'));
-        $this->registerRoute
+        $registerRoute = $this->createMock(RegisterRoute::class);
+        $registerRoute
             ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, $expectedDefinition);
+        $controller = $this->createController(registerRoute: $registerRoute);
 
-        $response = $this->controller->register($request, $dataBag, $context);
+        $response = $controller->register($request, $dataBag, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
@@ -226,14 +251,16 @@ class RegisterControllerTest extends TestCase
 
         $this->systemConfigService->set('core.loginRegistration.doubleOptInRegistration', true, $context->getSalesChannelId());
 
-        $this->registerRoute
+        $registerRoute = $this->createMock(RegisterRoute::class);
+        $registerRoute
             ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
+        $controller = $this->createController(registerRoute: $registerRoute);
 
-        $response = $this->controller->register($request, $dataBag, $context);
+        $response = $controller->register($request, $dataBag, $context);
 
-        static::assertSame(['success' => ['account.optInRegistrationAlert']], $this->controller->flashBag);
+        static::assertSame(['success' => ['account.optInRegistrationAlert']], $controller->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('frontend.account.register.page', $response->getTargetUrl());
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -250,14 +277,16 @@ class RegisterControllerTest extends TestCase
 
         $this->systemConfigService->set('core.loginRegistration.doubleOptInGuestOrder', true, $context->getSalesChannelId());
 
-        $this->registerRoute
+        $registerRoute = $this->createMock(RegisterRoute::class);
+        $registerRoute
             ->expects($this->once())
             ->method('register')
             ->with($dataBag, $context, false, new DataValidationDefinition('storefront.confirmation'));
+        $controller = $this->createController(registerRoute: $registerRoute);
 
-        $response = $this->controller->register($request, $dataBag, $context);
+        $response = $controller->register($request, $dataBag, $context);
 
-        static::assertSame(['success' => ['account.optInGuestAlert']], $this->controller->flashBag);
+        static::assertSame(['success' => ['account.optInGuestAlert']], $controller->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('frontend.account.register.page', $response->getTargetUrl());
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -271,12 +300,14 @@ class RegisterControllerTest extends TestCase
         $request = $this->createRegisterRequest();
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects($this->once())
+        $registerRoute = $this->createMock(RegisterRoute::class);
+        $registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+        $controller = $this->createController(registerRoute: $registerRoute);
 
         $this->expectExceptionObject(RoutingException::missingRequestParameter('errorRoute'));
-        $this->controller->register($request, $dataBag, $context);
+        $controller->register($request, $dataBag, $context);
     }
 
     public function testRegisterWithErrorRouteParamEmpty(): void
@@ -289,11 +320,13 @@ class RegisterControllerTest extends TestCase
 
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects($this->once())
+        $registerRoute = $this->createMock(RegisterRoute::class);
+        $registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+        $controller = $this->createController(registerRoute: $registerRoute);
 
-        $response = $this->controller->register($request, $dataBag, $context);
+        $response = $controller->register($request, $dataBag, $context);
 
         static::assertSame('frontend.account.register.page', $request->request->get('errorRoute'));
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -309,11 +342,13 @@ class RegisterControllerTest extends TestCase
 
         $dataBag = new RequestDataBag();
 
-        $this->registerRoute->expects($this->once())
+        $registerRoute = $this->createMock(RegisterRoute::class);
+        $registerRoute->expects($this->once())
             ->method('register')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
+        $controller = $this->createController(registerRoute: $registerRoute);
 
-        $response = $this->controller->register($request, $dataBag, $context);
+        $response = $controller->register($request, $dataBag, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
@@ -336,6 +371,32 @@ class RegisterControllerTest extends TestCase
 
         static::assertSame('affiliate-code', $dataBag->get('affiliateCode'));
         static::assertSame('affiliate-campaign', $dataBag->get('campaignCode'));
+    }
+
+    private function createController(
+        ?AccountLoginPageLoader $accountLoginPageLoader = null,
+        ?RegisterRoute $registerRoute = null,
+        ?CartService $cartService = null,
+        ?CheckoutRegisterPageLoader $checkoutRegisterPageLoader = null,
+        ?CustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader = null,
+    ): RegisterControllerTestClass {
+        $registerConfirmRoute = static::createStub(RegisterConfirmRoute::class);
+        $customerRepository = static::createStub(EntityRepository::class);
+        $domainRepository = static::createStub(EntityRepository::class);
+
+        return new RegisterControllerTestClass(
+            $accountLoginPageLoader ?? $this->accountLoginPageLoader,
+            $registerRoute ?? $this->registerRoute,
+            $registerConfirmRoute,
+            $cartService ?? $this->cartService,
+            $checkoutRegisterPageLoader ?? $this->checkoutRegisterPageLoader,
+            $this->systemConfigService,
+            $customerRepository,
+            $customerGroupRegistrationPageLoader ?? $this->customerGroupRegistrationPageLoader,
+            $domainRepository,
+            static::createStub(HeaderPageletLoaderInterface::class),
+            static::createStub(FooterPageletLoaderInterface::class),
+        );
     }
 
     private function createRegisterRequest(): Request

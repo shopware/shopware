@@ -10,10 +10,6 @@ use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
- *
- * @see \Shopware\Tests\Integration\Core\Framework\Util\FilesystemTest
  */
 #[Package('framework')]
 class Filesystem

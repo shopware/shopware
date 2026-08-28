@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
@@ -38,6 +39,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly ValidatorInterface $validator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -103,7 +105,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
                     $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-                    $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                    $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
                     $config->merge([
                         'documentDate' => $operation->getConfig()['documentDate'] ?? $now,

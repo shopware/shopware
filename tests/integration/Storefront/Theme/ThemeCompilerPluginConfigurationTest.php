@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
@@ -27,6 +28,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlug
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeCompilerPluginConfigurationTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -152,7 +154,7 @@ SCSS;
      */
     private function getConfigurationServiceDbException(array $plugins): ConfigurationService
     {
-        return new ConfigurationServiceException(
+        return new ThemeCompilerPluginConfigurationServiceException(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -183,7 +185,7 @@ SCSS;
 /**
  * @internal
  */
-class ConfigurationServiceException extends ConfigurationService
+class ThemeCompilerPluginConfigurationServiceException extends ConfigurationService
 {
     /**
      * @throws Exception

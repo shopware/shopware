@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentBaseConfigEntity extends Entity
 {
@@ -22,11 +25,18 @@ class DocumentBaseConfigEntity extends Entity
 
     protected ?string $filenameSuffix = null;
 
+    /**
+     * @var array<string, string>|null
+     */
+    protected ?array $filenameInfixes = null;
+
     protected string $documentNumber;
 
     protected bool $global = false;
 
     protected ?string $documentTypeId = null;
+
+    protected ?string $typeName = null;
 
     protected ?string $logoId = null;
 
@@ -34,6 +44,51 @@ class DocumentBaseConfigEntity extends Entity
      * @var array<string, string|bool|array<int, string>>|null
      */
     protected ?array $config = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $pageSize = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $pageOrientation = null;
+
+    /**
+     * @internal
+     */
+    protected ?int $itemsPerPage = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayHeader = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayFooter = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayPageCount = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayCompanyAddress = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayReturnAddress = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayCustomerVatId = null;
 
     protected ?DocumentBaseConfigSalesChannelCollection $salesChannels = null;
 
@@ -61,14 +116,30 @@ class DocumentBaseConfigEntity extends Entity
         $this->salesChannels = $salesChannels;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentTypeId(): ?string
     {
         return $this->documentTypeId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentTypeId(?string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
     }
 
     public function getDocumentNumber(): string
@@ -91,11 +162,17 @@ class DocumentBaseConfigEntity extends Entity
         $this->global = $global;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentType(): ?DocumentTypeEntity
     {
         return $this->documentType;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
         $this->documentType = $documentType;
@@ -155,5 +232,165 @@ class DocumentBaseConfigEntity extends Entity
     public function setFilenameSuffix(?string $filenameSuffix): void
     {
         $this->filenameSuffix = $filenameSuffix;
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    public function getFilenameInfixes(): ?array
+    {
+        return $this->filenameInfixes;
+    }
+
+    /**
+     * @param array<string, string>|null $filenameInfixes
+     */
+    public function setFilenameInfixes(?array $filenameInfixes): void
+    {
+        $this->filenameInfixes = $filenameInfixes;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPageSize(): ?string
+    {
+        return $this->pageSize;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPageSize(?string $pageSize): void
+    {
+        $this->pageSize = $pageSize;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPageOrientation(): ?string
+    {
+        return $this->pageOrientation;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPageOrientation(?string $pageOrientation): void
+    {
+        $this->pageOrientation = $pageOrientation;
+    }
+
+    /**
+     * @internal
+     */
+    public function getItemsPerPage(): ?int
+    {
+        return $this->itemsPerPage;
+    }
+
+    /**
+     * @internal
+     */
+    public function setItemsPerPage(?int $itemsPerPage): void
+    {
+        $this->itemsPerPage = $itemsPerPage;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayHeader(): ?bool
+    {
+        return $this->displayHeader;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayHeader(?bool $displayHeader): void
+    {
+        $this->displayHeader = $displayHeader;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayFooter(): ?bool
+    {
+        return $this->displayFooter;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayFooter(?bool $displayFooter): void
+    {
+        $this->displayFooter = $displayFooter;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayPageCount(): ?bool
+    {
+        return $this->displayPageCount;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayPageCount(?bool $displayPageCount): void
+    {
+        $this->displayPageCount = $displayPageCount;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayCompanyAddress(): ?bool
+    {
+        return $this->displayCompanyAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayCompanyAddress(?bool $displayCompanyAddress): void
+    {
+        $this->displayCompanyAddress = $displayCompanyAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayReturnAddress(): ?bool
+    {
+        return $this->displayReturnAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayReturnAddress(?bool $displayReturnAddress): void
+    {
+        $this->displayReturnAddress = $displayReturnAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayCustomerVatId(): ?bool
+    {
+        return $this->displayCustomerVatId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayCustomerVatId(?bool $displayCustomerVatId): void
+    {
+        $this->displayCustomerVatId = $displayCustomerVatId;
     }
 }

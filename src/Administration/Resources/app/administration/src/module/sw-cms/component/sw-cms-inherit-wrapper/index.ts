@@ -113,6 +113,9 @@ export default Shopware.Component.wrapComponentConfig({
         fullPath() {
             return this.field.concat('.', this.fieldPath);
         },
+        inheritedFieldConfig() {
+            return get(this.inheritedSlotConfig?.[this.element.id], this.field);
+        },
         fieldDefaultValue() {
             return get(this.cmsElements[this.element.type]?.defaultConfig, this.fullPath, BASE_FIELD_FALLBACK.value);
         },
@@ -120,8 +123,6 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async onInheritanceRestore() {
             this.showModal = false;
-
-            set(this.runtimeConfig, this.field, cloneDeep(get(this.baseConfig, this.field, BASE_FIELD_FALLBACK)));
 
             /**
              * Run watchers before removing the slotConfig to ensure sw-cms-form-sync won't
@@ -132,8 +133,15 @@ export default Shopware.Component.wrapComponentConfig({
             unset(this.childConfig, this.field);
 
             if (isEmpty(this.childConfig)) {
+                unset(this.contentEntity!.slotConfig, this.element.id);
+            }
+
+            if (isEmpty(this.contentEntity!.slotConfig)) {
                 set(this.contentEntity!, 'slotConfig', null);
             }
+
+            const inheritedField = this.inheritedFieldConfig ?? get(this.baseConfig, this.field, BASE_FIELD_FALLBACK);
+            set(this.runtimeConfig, this.field, cloneDeep(inheritedField));
 
             this.$emit(EVENTS.RESTORE);
         },
@@ -141,6 +149,14 @@ export default Shopware.Component.wrapComponentConfig({
             if (!this.contentEntity) {
                 return;
             }
+
+            /**
+             * Resolve the inherited field before scaffolding slotConfig, because the empty
+             * scaffold would otherwise shadow the parent-language entry in inheritedSlotConfig.
+             */
+            const inheritedField = cloneDeep(
+                this.inheritedFieldConfig ?? get(this.baseConfig, this.field, BASE_FIELD_FALLBACK),
+            );
 
             if (!this.contentEntity.slotConfig) {
                 this.contentEntity.slotConfig = {};
@@ -150,14 +166,12 @@ export default Shopware.Component.wrapComponentConfig({
                 this.contentEntity.slotConfig[this.element.id] = {};
             }
 
-            const baseField = cloneDeep(get(this.baseConfig, this.field, BASE_FIELD_FALLBACK));
-
             if (!has(this.childConfig, this.field)) {
-                set(this.childConfig!, this.field, baseField);
+                set(this.childConfig!, this.field, inheritedField);
             }
 
-            set(this.childConfig!, this.fullPath, get(baseField, this.fieldPath));
-            set(this.runtimeConfig, this.fullPath, get(baseField, this.fieldPath));
+            set(this.childConfig!, this.fullPath, get(inheritedField, this.fieldPath));
+            set(this.runtimeConfig, this.fullPath, get(inheritedField, this.fieldPath));
 
             this.$emit(EVENTS.REMOVE);
         },

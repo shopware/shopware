@@ -71,12 +71,22 @@ async function createWrapper(props = {}, options = {}, route = categoryDetailCms
 }
 
 describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
+    let initialLanguageId;
+    let initialLanguage;
+
     beforeAll(() => {
         setupCmsEnvironment();
     });
 
     beforeEach(() => {
+        initialLanguageId = Shopware.Store.get('context').api.languageId;
+        initialLanguage = Shopware.Store.get('context').api.language;
         Shopware.Store.get('swCategoryDetail').$reset();
+    });
+
+    afterEach(() => {
+        Shopware.Store.get('context').api.languageId = initialLanguageId;
+        Shopware.Store.get('context').api.language = initialLanguage;
     });
 
     it('should not sync field changes if contentEntity is not provided', async () => {
@@ -126,6 +136,25 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         });
     });
 
+    it('should sync clearing an array field to an empty override', async () => {
+        const contentEntity = {
+            slotConfig: {
+                [defaultElementId]: {
+                    content: {
+                        value: ['image-id'],
+                    },
+                },
+            },
+        };
+        Shopware.Store.get('swCategoryDetail').category = contentEntity;
+
+        const wrapper = await createWrapper();
+
+        wrapper.vm.fieldChangeHandler('content', { value: [] });
+
+        expect(contentEntity.slotConfig[defaultElementId].content).toStrictEqual({ value: [] });
+    });
+
     it('should skip initial setup when oldConfig is undefined', async () => {
         const contentEntity = {
             slotConfig: {},
@@ -161,5 +190,96 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
 
         expect(contentEntity.slotConfig).toBeDefined();
         expect(contentEntity.slotConfig[defaultElementId].content.value).toBe('new value');
+    });
+
+    it('should not sync inherited entity-level slotConfig as local child override', async () => {
+        const contentEntity = {
+            slotConfig: {},
+            translations: [
+                {
+                    languageId: 'parent-language-id',
+                    slotConfig: {
+                        [defaultElementId]: {
+                            content: {
+                                value: 'default - override',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+
+        Shopware.Store.get('swCategoryDetail').category = contentEntity;
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+        const wrapper = await createWrapper();
+
+        wrapper.vm.fieldChangeHandler('content', {
+            value: 'default - override',
+        });
+
+        expect(contentEntity.slotConfig[defaultElementId]).toBeUndefined();
+    });
+
+    it('should sync a field change for a language without its own slot translation', async () => {
+        const contentEntity = {
+            slotConfig: {},
+            translations: [],
+        };
+
+        Shopware.Store.get('swCategoryDetail').category = contentEntity;
+
+        const wrapper = await createWrapper({
+            element: {
+                id: defaultElementId,
+                type: 'text',
+                config: {},
+                translated: {
+                    config: {
+                        content: {
+                            value: 'base content',
+                        },
+                    },
+                },
+            },
+        });
+
+        set(wrapper.vm.element.config, 'content.value', 'child content');
+        await wrapper.vm.$nextTick();
+
+        // The base config is the diff reference of the field watcher, so editing must not touch it.
+        expect(wrapper.vm.element.translated.config.content.value).toBe('base content');
+        expect(contentEntity.slotConfig[defaultElementId].content).toStrictEqual({
+            value: 'child content',
+        });
+    });
+
+    it('should not sync base CMS config as local override for the current language', async () => {
+        const contentEntity = {
+            slotConfig: {},
+            translations: [],
+        };
+
+        Shopware.Store.get('swCategoryDetail').category = contentEntity;
+
+        const wrapper = await createWrapper({
+            element: {
+                ...getDefaultElement(),
+                translated: {
+                    config: {
+                        content: {
+                            value: 'base content',
+                        },
+                    },
+                },
+            },
+        });
+
+        wrapper.vm.fieldChangeHandler('content', {
+            value: 'base content',
+        });
+
+        expect(contentEntity.slotConfig[defaultElementId]).toBeUndefined();
     });
 });

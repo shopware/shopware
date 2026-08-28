@@ -4,11 +4,13 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -43,6 +45,7 @@ class SystemConfigService implements ResetInterface
         private readonly EventDispatcherInterface $dispatcher,
         private readonly SymfonySystemConfigService $symfonySystemConfigService,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -200,9 +203,8 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @param array<mixed>|bool|float|int|string|null $value
-     *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function set(string $key, $value, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
@@ -217,9 +219,8 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @param array<string, array<mixed>|bool|float|int|string|null> $values
-     *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function setMultiple(array $values, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
@@ -293,7 +294,7 @@ class SystemConfigService implements ResetInterface
                     'system_config',
                     [
                         'configuration_value' => Json::encode(['_value' => $value]),
-                        'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                        'updated_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     ],
                     [
                         'id' => $existingIds[$key],
@@ -312,7 +313,7 @@ class SystemConfigService implements ResetInterface
                     'configuration_key' => $key,
                     'configuration_value' => Json::encode(['_value' => $value]),
                     'sales_channel_id' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ],
             );
 
@@ -350,9 +351,7 @@ class SystemConfigService implements ResetInterface
         $this->dispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
-     */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function delete(string $key, ?string $salesChannel = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below

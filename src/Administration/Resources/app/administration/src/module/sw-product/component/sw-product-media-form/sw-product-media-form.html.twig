@@ -38,14 +38,14 @@
                         :source="cover ? cover.mediaId : product.cover.mediaId"
                     />
                     {% endblock %}
-                    <span>{{ $tc('sw-product.mediaForm.coverSubline') }}</span>
+                    <span>{{ $t('sw-product.mediaForm.coverSubline') }}</span>
                 </div>
             </div>
             <div
                 v-else
                 class="sw-product-media-form__cover-image is--placeholder"
             >
-                {{ $tc('sw-product.mediaForm.coverSubline') }}
+                {{ $t('sw-product.mediaForm.coverSubline') }}
             </div>
             {% endblock %}
         </div>

@@ -8,17 +8,16 @@
         {% block sw_promotion_detail_discounts_actions_add %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('promotion.editor'),
                 showOnDisabledElements: true
             }"
             :is-loading="isLoading"
-            ghost
             :disabled="(promotion && promotion.hasOrders) || !acl.can('promotion.editor')"
             variant="secondary"
             @click="onAddDiscount"
         >
-            {{ $tc('sw-promotion.detail.main.discounts.buttonAddDiscount') }}
+            {{ $t('sw-promotion.detail.main.discounts.buttonAddDiscount') }}
         </mt-button>
         {% endblock %}
     </div>

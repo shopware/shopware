@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssocia
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -130,6 +131,18 @@ class ApiExceptionTest extends TestCase
 
         static::assertInstanceOf(ExpectationFailedException::class, $exception);
         static::assertSame('API Expectations failed', $exception->getMessage());
+    }
+
+    public function testExpectationNotSupported(): void
+    {
+        $exception = ApiException::expectationNotSupported();
+
+        static::assertSame(Response::HTTP_EXPECTATION_FAILED, $exception->getStatusCode());
+        static::assertSame(ApiException::API_EXPECTATION_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame(
+            'The "sw-expect-packages" header is not supported on endpoints that do not require authentication. Send it with an authenticated Admin API request.',
+            $exception->getMessage()
+        );
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
@@ -301,5 +314,41 @@ class ApiExceptionTest extends TestCase
             'The Store-API does not support the entity schema endpoint. Use `/store-api/_info/openapi3.json` for the OpenAPI specification.',
             $exception->getMessage()
         );
+    }
+
+    public function testCanNotResolveForeignKeysException(): void
+    {
+        $exception = ApiException::canNotResolveForeignKeysException([
+            ['pointer' => '/0/taxId', 'entity' => 'tax'],
+            ['pointer' => '/1/manufacturerId', 'entity' => 'product_manufacturer'],
+        ]);
+
+        static::assertSame(ApiException::API_INVALID_SYNC_RESOLVERS, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertStringContainsString('Can not resolve foreign key at position /0/taxId. Reference field: tax', $exception->getMessage());
+        static::assertStringContainsString('Can not resolve foreign key at position /1/manufacturerId. Reference field: product_manufacturer', $exception->getMessage());
+        static::assertSame('/0/taxId', $exception->getParameter('pointer-0'));
+        static::assertSame('product_manufacturer', $exception->getParameter('field-1'));
+    }
+
+    public function testApiDefinitionGeneratorNotFound(): void
+    {
+        $exception = ApiException::apiDefinitionGeneratorNotFound('foo');
+
+        static::assertSame(ApiException::API_DEFINITION_GENERATOR_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('Definition generator for format "foo" not found.', $exception->getMessage());
+        static::assertSame('foo', $exception->getParameter('format'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testApiDefinitionGeneratorNotFoundDeprecated(): void
+    {
+        $exception = ApiException::apiDefinitionGeneratorNotFound('foo');
+
+        static::assertSame('FRAMEWORK__API_DEFINITION_GENERATOR_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('A definition generator for format "foo" was not found.', $exception->getMessage());
+        static::assertSame('foo', $exception->getParameter('format'));
     }
 }

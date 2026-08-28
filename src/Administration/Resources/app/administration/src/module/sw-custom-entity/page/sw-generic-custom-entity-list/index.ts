@@ -113,7 +113,7 @@ export default Shopware.Component.wrapComponentConfig({
             return columns.map((column) => {
                 const snippetKey = `${this.customEntityName}.list.${column.ref}`;
                 return {
-                    label: this.$tc(snippetKey),
+                    label: this.$t(snippetKey),
                     property: column.ref,
                     routerLink: 'sw.custom.entity.detail',
                     visible: !column.hidden,
@@ -139,14 +139,14 @@ export default Shopware.Component.wrapComponentConfig({
             const dynamicSnippetKey = `${this.customEntityName}.list.emptyState`;
             const fallbackSnippetKey = 'sw-custom-entity.general.emptyState';
 
-            return this.$te(dynamicSnippetKey) ? this.$tc(dynamicSnippetKey) : this.$tc(fallbackSnippetKey);
+            return this.$te(dynamicSnippetKey) ? this.$t(dynamicSnippetKey) : this.$t(fallbackSnippetKey);
         },
 
         emptyStateSubline(): string {
             const dynamicSnippetKey = `${this.customEntityName}.list.emptyStateSubline`;
             const fallbackSnippetKey = 'sw-custom-entity.general.emptyStateSubline';
 
-            return this.$te(dynamicSnippetKey) ? this.$tc(dynamicSnippetKey) : this.$tc(fallbackSnippetKey);
+            return this.$te(dynamicSnippetKey) ? this.$t(dynamicSnippetKey) : this.$t(fallbackSnippetKey);
         },
 
         assetFilter() {

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -27,6 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PostWriteValidationEvent::class)]
 class PostWriteValidationEventTest extends TestCase
 {
@@ -40,8 +42,8 @@ class PostWriteValidationEventTest extends TestCase
 
         $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
             [ProductDefinition::class, CategoryDefinition::class, ProductTranslationDefinition::class, OrderDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -312,9 +314,10 @@ class PostWriteValidationEventTest extends TestCase
     {
         $commands = [];
 
+        $existence = new EntityExistence('', [], false, false, false, []);
+
         foreach ($commandsArray as $command) {
             $definition = $this->definitionInstanceRegistry->getByEntityName($command['entityName']);
-            $existence = new EntityExistence('', [], false, false, false, []);
             $primaryKey = $command['primaryKey'];
 
             switch ($command['type']) {

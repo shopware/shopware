@@ -8,6 +8,13 @@ import './sw-extension-my-extensions-listing-controls.scss';
 export default {
     template,
 
+    props: {
+        sortingOption: {
+            type: String,
+            default: 'updated-at',
+        },
+    },
+
     emits: [
         'update:active-state',
         'update:sorting-option',
@@ -16,34 +23,40 @@ export default {
     data() {
         return {
             filterByActiveState: false,
-            selectedSortingOption: 'updated-at',
+            selectedSortingOption: this.sortingOption,
             sortingOptions: [
                 {
                     id: 1,
                     value: 'updated-at',
-                    label: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.last-updated'),
+                    label: this.$t('sw-extension.my-extensions.listing.controls.filterOptions.last-updated'),
                 },
                 {
                     id: 2,
                     value: 'name-asc',
-                    label: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-asc'),
+                    label: this.$t('sw-extension.my-extensions.listing.controls.filterOptions.name-asc'),
                 },
                 {
                     id: 3,
                     value: 'name-desc',
-                    label: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-desc'),
+                    label: this.$t('sw-extension.my-extensions.listing.controls.filterOptions.name-desc'),
                 },
             ],
         };
     },
 
     watch: {
+        sortingOption(value) {
+            this.selectedSortingOption = value;
+        },
+
         filterByActiveState(value) {
             this.$emit('update:active-state', value);
         },
 
         selectedSortingOption(value) {
-            this.$emit('update:sorting-option', value);
+            if (value !== this.sortingOption) {
+                this.$emit('update:sorting-option', value);
+            }
         },
     },
 };

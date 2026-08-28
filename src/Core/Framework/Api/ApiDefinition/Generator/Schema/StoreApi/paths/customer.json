@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/customer/wishlist/add/{productId}": {
@@ -20,6 +20,9 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
@@ -32,6 +35,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "No product exists for the given `productId` in this sales channel."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, the logged in customer is a guest, or the wishlist feature is disabled for this sales channel."
                     }
                 },
                 "security": [
@@ -53,16 +68,6 @@
                 "operationId": "readCustomerWishlist",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "name": "sw-include-search-info",
                         "in": "header",
                         "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
@@ -75,6 +80,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -101,6 +109,22 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, the logged in customer is a guest, or the wishlist feature is disabled for this sales channel."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The logged in customer has no wishlist yet."
                     }
                 },
                 "security": [
@@ -150,12 +174,29 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `productIds` parameter is missing."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, the logged in customer is a guest, or the wishlist feature is disabled for this sales channel."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": [],
                         "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }
@@ -190,6 +231,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, the logged in customer is a guest, or the wishlist feature is disabled for this sales channel."
                     },
                     "404": {
                         "description": "The removal of the product failed. Probably because the product could not be found on the wishlist.",

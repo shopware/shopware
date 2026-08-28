@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package fundamentals@after-sales
  */
@@ -667,6 +669,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 value: 'translations.DEFAULT.description',
             },
             {
+                label: 'translations.DEFAULT.descriptionTeaser',
+                value: 'translations.DEFAULT.descriptionTeaser',
+            },
+            {
                 label: 'translations.DEFAULT.metaTitle',
                 value: 'translations.DEFAULT.metaTitle',
             },
@@ -685,6 +691,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.slotConfig',
                 value: 'translations.DEFAULT.slotConfig',
+            },
+            {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
             },
             {
                 label: 'translations.DEFAULT.customFields',
@@ -748,6 +762,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 value: 'translations.DEFAULT.description',
             },
             {
+                label: 'translations.DEFAULT.descriptionTeaser',
+                value: 'translations.DEFAULT.descriptionTeaser',
+            },
+            {
                 label: 'translations.DEFAULT.metaTitle',
                 value: 'translations.DEFAULT.metaTitle',
             },
@@ -766,6 +784,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.slotConfig',
                 value: 'translations.DEFAULT.slotConfig',
+            },
+            {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
             },
             {
                 label: 'translations.DEFAULT.customFields',
@@ -831,6 +857,10 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 value: 'translations.DEFAULT.description',
             },
             {
+                label: 'translations.DEFAULT.descriptionTeaser',
+                value: 'translations.DEFAULT.descriptionTeaser',
+            },
+            {
                 label: 'translations.DEFAULT.metaTitle',
                 value: 'translations.DEFAULT.metaTitle',
             },
@@ -849,6 +879,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.slotConfig',
                 value: 'translations.DEFAULT.slotConfig',
+            },
+            {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
             },
             {
                 label: 'translations.DEFAULT.customFields',

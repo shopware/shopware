@@ -5,7 +5,9 @@ namespace Shopware\Storefront\Page\Navigation;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -17,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('framework')]
+#[Package('discovery')]
 class NavigationPageLoader implements NavigationPageLoaderInterface
 {
     /**
@@ -27,7 +29,8 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCategoryRoute $cmsPageRoute,
-        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
     }
 
@@ -49,6 +52,10 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         $this->loadMetaData($category, $page, $context->getSalesChannel());
         $page->setNavigationId($category->getId());
         $page->setCategory($category);
+
+        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+            $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
+        }
 
         if ($category->getCmsPage()) {
             $page->setCmsPage($category->getCmsPage());

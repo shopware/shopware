@@ -18,28 +18,38 @@ test.describe('Customer Registration Form', () => {
                 },
             },
         });
-
-        await TestDataService.clearCaches();
     });
 
     test(
         'As a customer, I can perform a registration without captcha protection.',
-        { tag: ['@Form', '@Registration', '@Storefront'] },
+        {
+            tag: [
+                '@Form',
+                '@Registration',
+                '@Storefront',
+            ],
+        },
         async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccount, IdProvider, Register }) => {
             const customer = { email: `${IdProvider.getIdPair().uuid}@test.com` };
 
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
             await ShopCustomer.attemptsTo(Register(customer));
 
-            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
+            await StorefrontAccountLogin.page.waitForURL('**/account', { waitUntil: 'commit' });
 
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-        }
+        },
     );
 
     test(
         'As a customer, I can perform a registration with full customer data without captcha protection.',
-        { tag: ['@Form', '@Registration', '@Storefront'] },
+        {
+            tag: [
+                '@Form',
+                '@Registration',
+                '@Storefront',
+            ],
+        },
         async ({ ShopCustomer, StorefrontAccountLogin, StorefrontAccount, IdProvider }) => {
             const locale = getLocale();
             const addressData = getAddressDataFromLocale(locale);
@@ -71,15 +81,21 @@ test.describe('Customer Registration Form', () => {
 
             await StorefrontAccountLogin.registerButton.click();
 
-            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
+            await StorefrontAccountLogin.page.waitForURL('**/account', { waitUntil: 'commit' });
 
             await ShopCustomer.expects(StorefrontAccount.page.getByText(customer.email, { exact: true })).toBeVisible();
-        }
+        },
     );
 
     test(
         'As a customer, I can perform a registration with validation errors without captcha protection.',
-        { tag: ['@Form', '@Registration', '@Storefront'] },
+        {
+            tag: [
+                '@Form',
+                '@Registration',
+                '@Storefront',
+            ],
+        },
         async ({ ShopCustomer, StorefrontAccountLogin, IdProvider }) => {
             const locale = getLocale();
             const addressData = getAddressDataFromLocale(locale);
@@ -115,11 +131,9 @@ test.describe('Customer Registration Form', () => {
             await StorefrontAccountLogin.lastNameInput.fill('Goldblum');
             await StorefrontAccountLogin.registerButton.click();
 
-            await StorefrontAccountLogin.page.waitForLoadState('networkidle');
+            await StorefrontAccountLogin.page.waitForURL('**/account', { waitUntil: 'commit' });
 
-            await ShopCustomer.expects(
-                StorefrontAccountLogin.page.getByText(customer.email, { exact: true })
-            ).toBeVisible();
-        }
+            await ShopCustomer.expects(StorefrontAccountLogin.page.getByText(customer.email, { exact: true })).toBeVisible();
+        },
     );
 });

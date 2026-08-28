@@ -317,7 +317,7 @@ export default {
 
         async onOrderStateSelected(actionName) {
             if (!actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -343,7 +343,7 @@ export default {
 
         async onTransactionStateSelected(actionName) {
             if (!actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -364,7 +364,7 @@ export default {
 
         async onDeliveryStateSelected(actionName) {
             if (!actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -441,7 +441,7 @@ export default {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage,
+                message: this.$t('sw-order.stateCard.labelErrorStateChange') + errorMessage,
             });
         },
     },

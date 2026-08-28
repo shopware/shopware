@@ -7,16 +7,17 @@
     <template v-else>
         {% block sw_settings_listing_default_sales_channel_description %}
         <p class="sw-settings-listing-default-sales-channel__description">
-            {{ $tc('sw-settings-listing.index.defaultSalesChannel.description') }}
+            {{ $t('sw-settings-listing.index.defaultSalesChannel.description') }}
         </p>
         {% endblock %}
 
         {% block sw_settings_listing_default_sales_channel_select %}
         <sw-entity-multi-id-select
             v-model:value="configData[null]['core.defaultSalesChannel.salesChannel']"
+            class="sw-settings-listing-default-sales-channel__select"
             :repository="salesChannelRepository"
-            :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
-            :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+            :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
+            :placeholder="$t('sw-product.visibility.placeholderVisibility')"
             @update:value="updateSalesChannel"
         />
         {% endblock %}
@@ -27,7 +28,7 @@
             <mt-switch
                 v-model="configData[null]['core.defaultSalesChannel.active']"
                 class="sw-settings-listing-default-sales-channel__active-switch"
-                :label="$tc('sw-product.settingsForm.labelActive')"
+                :label="$t('sw-product.settingsForm.labelActive')"
             />
             {% endblock %}
 
@@ -41,7 +42,7 @@
                 @click="displayAdvancedVisibility"
                 @keydown.enter="displayAdvancedVisibility"
             >
-                {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
+                {{ $t('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
             </mt-link>
             {% endblock %}
         </div>
@@ -52,10 +53,10 @@
             v-if="displayVisibilityDetail"
             variant="large"
             class="sw-settings-listing-default-sales-channel__visibility-modal"
-            :title="$tc('sw-product.visibility.textHeadline')"
+            :title="$t('sw-product.visibility.textHeadline')"
             @modal-close="closeAdvancedVisibility"
         >
-            <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
+            <p>{{ $t('sw-product.visibility.visibilityModalDescription') }}</p>
 
             <sw-settings-listing-visibility-detail
                 ref="visibilityConfig"
@@ -68,7 +69,7 @@
                     size="small"
                     @click="closeAdvancedVisibility"
                 >
-                    {{ $tc('global.default.apply') }}
+                    {{ $t('global.default.apply') }}
                 </mt-button>
             </template>
         </sw-modal>

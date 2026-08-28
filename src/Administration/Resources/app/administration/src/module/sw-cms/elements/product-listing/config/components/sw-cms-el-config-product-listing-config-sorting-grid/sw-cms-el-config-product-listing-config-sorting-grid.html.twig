@@ -9,6 +9,8 @@
         :allow-inline-edit="true"
         :show-selection="false"
         plain-appearance
+        @inline-edit-save="onInlineEditSave"
+        @inline-edit-cancel="onInlineEditCancel"
     >
 
         <template #actions="{ item }">
@@ -19,7 +21,7 @@
                 :disabled="disabled || isDefaultSorting(item)"
                 @click="onDelete(item)"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
         </template>
 

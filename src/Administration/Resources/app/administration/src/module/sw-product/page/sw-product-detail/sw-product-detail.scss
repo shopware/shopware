@@ -7,7 +7,7 @@
 
     .sw-product-category-form__search-keyword-field {
         .sw-select-selection-list__input {
-            min-width: 250px;
+            min-width: calc(var(--scale-size-224) + var(--scale-size-26));
         }
     }
 
@@ -20,7 +20,7 @@
 
     .sw-product-detail__button-context-menu {
         .mt-icon {
-            padding: 4px 3px;
+            padding: var(--scale-size-4) var(--scale-size-4);
         }
     }
 }

@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/language": {
@@ -9,19 +9,9 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch languages",
-                "description": "Perform a filtered search for languages.",
+                "description": "Perform a filtered search for languages.\n\n**Available Associations:**\n- `locale` - Locale defining regional settings (date, time, number formats)\n- `translationCode` - Locale used for translating content\n- `children` - Child languages inheriting from this parent language",
                 "operationId": "readLanguages",
                 "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
                     {
                         "name": "sw-include-search-info",
                         "in": "header",
@@ -35,6 +25,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -54,6 +47,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/LanguageListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -68,19 +69,9 @@
                     "Endpoints supporting Criteria "
                 ],
                 "summary": "Fetch languages",
-                "description": "Perform a filtered search for languages.",
+                "description": "Perform a filtered search for languages.\n\n**Available Associations:**\n- `locale` - Locale defining regional settings (date, time, number formats)\n- `translationCode` - Locale used for translating content\n- `children` - Child languages inheriting from this parent language",
                 "operationId": "readLanguagesGet",
                 "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
                     {
                         "x-parameter-group": "criteria"
                     }
@@ -88,6 +79,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/LanguageListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

@@ -3,6 +3,7 @@
  */
 
 import template from './sw-login.html.twig';
+import type { LoginConfig } from '../../../../core/service/login.service';
 import './sw-login.scss';
 
 const { Component } = Shopware;
@@ -21,12 +22,19 @@ export default Component.wrapComponentConfig({
         },
     },
 
-    data() {
+    data(): {
+        shouldRenderDOM: boolean;
+        isLoading: boolean;
+        isLoginSuccess: boolean;
+        isLoginError: boolean;
+        loginConfig: null | LoginConfig;
+    } {
         return {
             shouldRenderDOM: false,
             isLoading: false,
             isLoginSuccess: false,
             isLoginError: false,
+            loginConfig: null,
         };
     },
 
@@ -38,10 +46,22 @@ export default Component.wrapComponentConfig({
 
     computed: {
         title() {
-            const moduleName = this.$tc('sw-login.general.mainMenuItemIndex');
-            const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const moduleName = this.$t('sw-login.general.mainMenuItemIndex');
+            const adminName = this.$t('global.sw-admin-menu.textShopwareAdmin');
 
             return `${moduleName} | ${adminName}`;
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        showBackToLoginLink() {
+            return !!this.$route?.name && this.$route.name !== 'sw.login.index.login';
+        },
+
+        showForgotPasswordLink() {
+            return this.$route?.name === 'sw.login.index.login' && !!this.loginConfig?.useDefault;
         },
     },
 
@@ -64,6 +84,10 @@ export default Component.wrapComponentConfig({
 
         setLoading(val: boolean) {
             this.isLoading = val;
+        },
+
+        setLoginConfig(loginConfig: LoginConfig) {
+            this.loginConfig = loginConfig;
         },
 
         loginError() {

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Subscriber\InstallerLocaleListener;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InstallerLocaleListener::class)]
 class InstallerLocaleListenerTest extends TestCase
 {
@@ -34,7 +36,7 @@ class InstallerLocaleListenerTest extends TestCase
 
         $listener->setInstallerLocale(
             new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
+                static::createStub(HttpKernelInterface::class),
                 $request,
                 HttpKernelInterface::MAIN_REQUEST
             )
@@ -173,7 +175,7 @@ class InstallerLocaleListenerTest extends TestCase
 
         $listener->setInstallerLocale(
             new RequestEvent(
-                $this->createMock(HttpKernelInterface::class),
+                static::createStub(HttpKernelInterface::class),
                 $request,
                 HttpKernelInterface::MAIN_REQUEST
             )

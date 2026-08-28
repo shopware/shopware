@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\Definition\BackendData;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
@@ -14,6 +15,7 @@ use Shopware\Core\System\UsageData\Subscriber\ConsentStateChangedSubscriber;
 /**
  * @internal
  */
+#[Package('data-services')]
 #[CoversClass(ConsentStateChangedSubscriber::class)]
 class ConsentStateChangedSubscriberTest extends TestCase
 {

@@ -17,11 +17,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'sales-channel:maintenance:enable',
     description: 'Enable maintenance mode for a sales channel',
 )]
-#[Package('discovery')]
 class SalesChannelMaintenanceEnableCommand extends Command
 {
     protected bool $setMaintenanceMode = true;

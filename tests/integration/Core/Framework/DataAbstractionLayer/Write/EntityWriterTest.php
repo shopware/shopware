@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\NonUuidFkFieldSerializer;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\TestEntityOneDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\TestEntityTwoDefinition;
@@ -45,6 +46,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityWriterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -563,7 +565,7 @@ class EntityWriterTest extends TestCase
         $media = $this->getMediaRepository()->search(
             new Criteria([$id]),
             Context::createDefaultContext()
-        )->get($id);
+        )->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertStringContainsString('/testFile.jpg', $media->getUrl());
@@ -600,7 +602,7 @@ class EntityWriterTest extends TestCase
         $media = $this->getMediaRepository()->search(
             new Criteria([$id]),
             Context::createDefaultContext()
-        )->get($id);
+        )->getEntities()->get($id);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertStringContainsString('/testFile.jpg', $media->getUrl());
@@ -612,7 +614,7 @@ class EntityWriterTest extends TestCase
 
         $localeId = Uuid::randomHex();
         static::getContainer()->get('locale.repository')->upsert([
-            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => Uuid::randomHex()],
+            ['id' => $localeId, 'name' => 'test', 'territory' => 'tmp', 'code' => 'de-DE-' . Uuid::randomHex()],
         ], Context::createDefaultContext());
 
         static::getContainer()->get('language.repository')->upsert([
@@ -623,7 +625,7 @@ class EntityWriterTest extends TestCase
                 'localeVersionId' => Defaults::LIVE_VERSION,
                 'active' => true,
                 'translationCode' => [
-                    'code' => 'x-tst_' . Uuid::randomHex(),
+                    'code' => 'de-DE-' . Uuid::randomHex(),
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
@@ -739,7 +741,7 @@ class EntityWriterTest extends TestCase
 
         $manufacturer = static::getContainer()->get('product_manufacturer.repository')
             ->search(new Criteria([$manufacturerId]), Context::createDefaultContext())
-            ->get($manufacturerId);
+            ->getEntities()->get($manufacturerId);
 
         static::assertNotNull($manufacturer);
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
@@ -922,7 +924,7 @@ class EntityWriterTest extends TestCase
             $context,
         );
 
-        $product = $productRepository->search(new Criteria([$productId]), $context)->first();
+        $product = $productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertIsArray($product->getCustomFields());
@@ -940,7 +942,7 @@ class EntityWriterTest extends TestCase
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'active' => true,
                     'translationCode' => [
-                        'code' => Uuid::randomHex(),
+                        'code' => 'de-US',
                         'name' => 'Test locale',
                         'territory' => 'test',
                     ],

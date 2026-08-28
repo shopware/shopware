@@ -26,14 +26,16 @@ class Meter
     public function __construct(
         private readonly TransportCollection $transports,
         private readonly MetricConfigProvider $metricConfigProvider,
+        private readonly MetricLabelProcessor $labelProcessor,
         private readonly LoggerInterface $logger,
-        private readonly string $environment
+        private readonly string $environment,
+        private readonly bool $enabled,
     ) {
     }
 
     public function emit(ConfiguredMetric $metric): void
     {
-        if (!Feature::isActive('TELEMETRY_METRICS')) {
+        if (!$this->enabled || !Feature::isActive('TELEMETRY_METRICS')) {
             return;
         }
 
@@ -55,7 +57,12 @@ class Meter
                 return null;
             }
 
-            return Metric::fromConfigured(configuredMetric: $metric, metricConfig: $metricConfig);
+            $processedLabels = $this->labelProcessor->process($metricConfig, $metric->labels);
+            if ($processedLabels === null) {
+                return null;
+            }
+
+            return Metric::fromConfigured(configuredMetric: $metric, metricConfig: $metricConfig, processedLabels: $processedLabels);
         } catch (MissingMetricConfigurationException $exception) {
             $this->logger->error($exception->getMessage(), ['exception' => $exception]);
             if ($this->environment === 'dev' || $this->environment === 'test') {

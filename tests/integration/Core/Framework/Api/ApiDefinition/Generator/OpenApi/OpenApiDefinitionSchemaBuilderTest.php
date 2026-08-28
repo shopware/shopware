@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\Generator\
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\EntityDefinition\SimpleDefinition;
@@ -13,6 +14,7 @@ use Shopware\Tests\Integration\Core\Framework\Api\ApiDefinition\EntityDefinition
 /**
  * @internal
  */
+#[Package('framework')]
 class OpenApiDefinitionSchemaBuilderTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;

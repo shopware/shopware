@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FilesystemConfigMigrationCompilerPass::class)]
 class FilesystemConfigMigrationCompilerPassTest extends TestCase
 {

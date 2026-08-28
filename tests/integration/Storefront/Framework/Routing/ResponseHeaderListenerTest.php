@@ -4,7 +4,8 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -14,17 +15,18 @@ use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ResponseHeaderListenerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
     public function testHomeController(): void
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+        $browser = $this->createCustomSalesChannelBrowser();
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
-        $browser->request('GET', $_SERVER['APP_URL']);
+        $browser->request('GET', '/');
         $response = $browser->getResponse();
 
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -36,12 +38,12 @@ class ResponseHeaderListenerTest extends TestCase
     {
         try {
             $this->toggleNotFoundSubscriber(false);
-            $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
+            $browser = $this->createCustomSalesChannelBrowser();
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM);
 
-            $browser->request('GET', $_SERVER['APP_URL'] . '/not-found');
+            $browser->request('GET', '/not-found');
             $response = $browser->getResponse();
 
             static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -64,7 +66,12 @@ class ResponseHeaderListenerTest extends TestCase
         $browser->request('GET', '/store-api/checkout/cart');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        } else {
+            static::assertSame('1234', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        }
+
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
     }

@@ -4,8 +4,6 @@ import './sw-cms-el-config-product-listing.scss';
 const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-const { has, set, unset } = Shopware.Utils.object;
-
 /**
  * @private
  * @sw-package discovery
@@ -24,8 +22,10 @@ export default {
 
     data() {
         return {
+            activeTab: 'content',
             productSortings: new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api),
             defaultSorting: {},
+            defaultSortingId: null,
             filters: [],
             filterPropertiesTerm: '',
             properties: [],
@@ -36,6 +36,23 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.productListing.config.tab.sorting'),
+                    name: 'sorting',
+                },
+                {
+                    label: this.$t('sw-cms.elements.productListing.config.tab.filter'),
+                    name: 'filter',
+                },
+            ];
+        },
+
         showSortingGrid() {
             return this.element.config.useCustomSorting.value;
         },
@@ -154,6 +171,10 @@ export default {
             return !this.properties.length < 1;
         },
 
+        showProductSortingsSelection() {
+            return this.productSortings.length > 0;
+        },
+
         gridColumns() {
             return [
                 {
@@ -185,17 +206,17 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
                 },
                 {
                     id: 2,
                     value: 'image',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeImage'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeImage'),
                 },
                 {
                     id: 3,
                     value: 'minimal',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
                 },
             ];
         },
@@ -205,43 +226,40 @@ export default {
                 {
                     id: 1,
                     value: null,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelEmptyOption'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelEmptyOption'),
                 },
                 {
                     id: 2,
                     value: 2,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelDefaultOption'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelDefaultOption'),
                 },
                 {
                     id: 3,
                     value: 3,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 3 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 3 }),
                 },
                 {
                     id: 4,
                     value: 4,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 4 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 4 }),
                 },
                 {
                     id: 5,
                     value: 5,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 5 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 5 }),
                 },
                 {
                     id: 6,
                     value: 6,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 6 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 6 }),
                 },
             ];
         },
     },
 
     watch: {
-        productSortings: {
-            deep: true,
-            handler() {
-                this.onUpdateProductSortings();
-            },
+        productSortings() {
+            this.onUpdateProductSortings();
         },
         defaultSorting() {
             if (Object.keys(this.defaultSorting).length === 0) {
@@ -267,29 +285,36 @@ export default {
         },
 
         onUpdateProductSortings() {
-            const path = 'config.availableSortings.value';
+            const newValue = {};
 
             this.productSortings.forEach((item) => {
-                if (has(this.element, `${path}.${item.id}`)) {
-                    return;
-                }
-
-                set(this.element, `${path}.${item.id}`, item.priority);
+                newValue[item.id] = item.priority;
             });
 
-            Object.keys(this.element.config.availableSortings.value).forEach((id) => {
-                const exists = this.productSortings.find((sorting) => sorting.id === id);
+            // add the default sorting to available sortings, so it won't break logic
+            if (this.defaultSorting.id && !this.productSortings.has(this.defaultSorting.id)) {
+                newValue[this.defaultSorting.id] = this.defaultSorting.priority;
 
-                if (exists) {
-                    return;
-                }
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(this.defaultSorting);
+                this.productSortings = collection;
+            }
 
-                unset(this.element, `${path}.${id}`);
-            });
+            this.element.config.availableSortings.value = newValue;
+        },
+
+        onSortingPrioritySave() {
+            this.onUpdateProductSortings();
+        },
+
+        onSortingPriorityCancel(productSorting) {
+            productSorting.priority = this.productSortingsConfigValue[productSorting.id];
         },
 
         async initProductSorting() {
             if (Object.keys(this.productSortingsConfigValue).length === 0) {
+                this.productSortings = new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api);
+
                 return;
             }
 
@@ -341,14 +366,30 @@ export default {
 
         initDefaultSorting() {
             const defaultSortingId = this.element.config.defaultSorting.value;
-            if (defaultSortingId !== '') {
-                const criteria = new Criteria(1, 25);
+            if (!defaultSortingId) {
+                this.defaultSorting = {};
+                this.defaultSortingId = null;
 
-                criteria.addFilter(Criteria.equals('id', defaultSortingId));
+                return;
+            }
 
-                this.productSortingRepository.search(criteria).then((response) => {
-                    this.defaultSorting = response.first() || {};
-                });
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.equals('id', defaultSortingId));
+
+            return this.productSortingRepository.search(criteria).then((response) => {
+                this.defaultSorting = response.first() || {};
+                this.defaultSortingId = this.defaultSorting.id ?? null;
+            });
+        },
+
+        async restoreDefaultSorting() {
+            await this.initDefaultSorting();
+
+            if (this.defaultSorting.id && !this.productSortings.has(this.defaultSorting.id)) {
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(this.defaultSorting);
+                this.productSortings = collection;
             }
         },
 
@@ -395,7 +436,9 @@ export default {
 
             // add the default sorting to available sortings, so it won't break logic
             if (!this.productSortings.has(defaultSorting.id)) {
-                this.productSortings.add(defaultSorting);
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(defaultSorting);
+                this.productSortings = collection;
             }
 
             this.defaultSorting = defaultSorting;

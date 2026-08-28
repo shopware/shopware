@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\Error;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -31,6 +33,9 @@ class AppException extends HttpException
     public const NOT_FOUND = 'FRAMEWORK__APP_NOT_FOUND';
     public const ALREADY_INSTALLED = 'FRAMEWORK__APP_ALREADY_INSTALLED';
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
+    public const APP_REGISTRATION_REJECTED = 'FRAMEWORK__APP_REGISTRATION_REJECTED';
+    public const APP_SECRET_RECOVERY_FAILED = 'FRAMEWORK__APP_SECRET_RECOVERY_FAILED';
+    public const APP_INSTALLATION_INCOMPLETE = 'FRAMEWORK__APP_INSTALLATION_INCOMPLETE';
     public const LICENSE_COULD_NOT_BE_VERIFIED = 'FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED';
     public const INVALID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_CONFIGURATION';
     public const JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN = 'FRAMEWORK__APP_JWT_GENERATION_REQUIRES_CUSTOMER_LOGGED_IN';
@@ -42,9 +47,11 @@ class AppException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
     final public const APP_PAYMENT_INVALID_TRANSACTION_ID = 'APP_PAYMENT__INVALID_TRANSACTION_ID';
     final public const APP_PAYMENT_INTERRUPTED = 'APP_PAYMENT__INTERRUPTED';
+    final public const APP_PAYMENT_GATEWAY_REQUEST_FAILED = 'FRAMEWORK__APP_PAYMENT_GATEWAY_REQUEST_FAILED';
     public const NO_SOURCE_SUPPORTS = 'FRAMEWORK__APP_NO_SOURCE_SUPPORTS';
     public const CANNOT_MOUNT_APP_FILESYSTEM = 'FRAMEWORK__CANNOT_MOUNT_APP_FILESYSTEM';
     public const CHECKOUT_GATEWAY_PAYLOAD_INVALID_CODE = 'FRAMEWORK__APP_CHECKOUT_GATEWAY_PAYLOAD_INVALID';
+    public const APP_TAX_PROVIDER_RESPONSE_INVALID = 'FRAMEWORK__APP_TAX_PROVIDER_RESPONSE_INVALID';
     public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
     public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
     public const APP_ACTION_NOT_FOUND = 'FRAMEWORK__APP_ACTION_NOT_FOUND';
@@ -68,6 +75,10 @@ class AppException extends HttpException
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
+    final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
+    final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
+    final public const CAPABILITY_NOT_GRANTED = 'FRAMEWORK__APP_CAPABILITY_NOT_GRANTED';
+    final public const APP_SYSTEM_REQUEST_NOT_ALLOWED = 'FRAMEWORK__APP_SYSTEM_REQUEST_NOT_ALLOWED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -137,6 +148,37 @@ class AppException extends HttpException
         );
     }
 
+    public static function appRegistrationRejected(string $appName, string $reason, ?\Throwable $previous = null): self
+    {
+        return new AppRegistrationRejectedException(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_REGISTRATION_REJECTED,
+            'App registration for "{{ appName }}" failed: {{ reason }}',
+            ['appName' => $appName, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function appSecretRecoveryFailed(string $appName): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::APP_SECRET_RECOVERY_FAILED,
+            'App "{{ appName }}" did not accept any saved credential candidate. The pending recovery state was kept; retry "bin/console app:secret:rotate {{ appName }}" or "bin/console app:install {{ appName }}". If the registration is permanently lost, run the "reinstall-apps" shop ID change strategy.',
+            ['appName' => $appName]
+        );
+    }
+
+    public static function appInstallationIncomplete(string $appName): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::APP_INSTALLATION_INCOMPLETE,
+            'App "{{ appName }}" has an unfinished installation and cannot be rotated. Run "bin/console app:install {{ appName }}" to complete it — that also recovers the credentials.',
+            ['appName' => $appName]
+        );
+    }
+
     public static function licenseCouldNotBeVerified(string $appName, ?\Throwable $previous = null): self
     {
         return new self(
@@ -156,6 +198,15 @@ class AppException extends HttpException
             'Configuration of app "{{ appName }}" is invalid: {{ error }}',
             ['appName' => $appName, 'error' => $error->getMessage()],
             $previous
+        );
+    }
+
+    public static function appSystemRequestNotAllowed(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SYSTEM_REQUEST_NOT_ALLOWED,
+            $reason,
         );
     }
 
@@ -282,6 +333,26 @@ class AppException extends HttpException
             'The transaction with id {{ transactionId }} is invalid or could not be found.',
             ['transactionId' => $transactionId],
             $e
+        );
+    }
+
+    public static function paymentGatewayRequestFailed(string $appName, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_PAYMENT_GATEWAY_REQUEST_FAILED,
+            'Request from app "{{ appName }}" to payment gateway failed.',
+            ['appName' => $appName],
+            $previous
+        );
+    }
+
+    public static function invalidTaxProviderResponse(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_TAX_PROVIDER_RESPONSE_INVALID,
+            'Tax provider response contains malformed tax data.'
         );
     }
 
@@ -521,6 +592,16 @@ class AppException extends HttpException
         );
     }
 
+    public static function capabilityNotGranted(string $appName, string $permission): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::CAPABILITY_NOT_GRANTED,
+            'App "{{ appName }}" has not been granted the "{{ permission }}" permission.',
+            ['appName' => $appName, 'permission' => $permission]
+        );
+    }
+
     public static function shopIdChangeSuggested(ShopId $shopId, FingerprintComparisonResult $comparisonResult): self
     {
         return new ShopIdChangeSuggestedException($shopId, $comparisonResult);
@@ -565,6 +646,54 @@ class AppException extends HttpException
             self::MANIFEST_NOT_FOUND,
             'No "manifest.xml" file in path "{{ path }}" found. (The file must be placed in the app root folder.)',
             ['path' => $path],
+        );
+    }
+
+    /**
+     * @param list<string> $failedAppNames
+     */
+    public static function shopMoveFailed(array $failedAppNames): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RE_REGISTRATION_FAILED,
+            'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
+            . 'retry each failed app with "bin/console app:secret:rotate <app-name>".',
+            ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
+        );
+    }
+
+    /**
+     * @param list<string> $failedAppNames
+     */
+    public static function reinstallAppsFailed(array $failedAppNames): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RE_REGISTRATION_FAILED,
+            'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
+            . 'run the shop ID change strategy "reinstall-apps" again.',
+            ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
+        );
+    }
+
+    public static function requirementsNotMet(UnmetRequirement ...$violations): self
+    {
+        $violationDetails = array_map(
+            fn (UnmetRequirement $v) => \sprintf(
+                'App "%s" - Requirement "%s": %s',
+                $v->appName,
+                $v->requirementName,
+                $v->actionableResolution
+            ),
+            $violations
+        );
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_REQUIREMENTS_NOT_MET,
+            'The app requirements are not met: {{ violations }}',
+            ['violations' => implode('; ', $violationDetails)]
         );
     }
 }

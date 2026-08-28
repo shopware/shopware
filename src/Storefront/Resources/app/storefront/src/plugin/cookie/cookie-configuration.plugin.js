@@ -315,14 +315,18 @@ export default class CookieConfiguration extends Plugin {
         const languageId = data.languageId;
         const storedHashForLanguage = this._getStoredHashForLanguage(storedHashData, languageId);
 
-        // Show banner for re-consent if:
-        // 1. Hash changed for this language, OR
-        // 2. User has consented before but not for this specific language yet
         const hashChanged = storedHashForLanguage && storedHashForLanguage !== currentHash;
         const noConsentForThisLanguage = hasPreference && !storedHashForLanguage;
 
-        if (hashChanged || noConsentForThisLanguage) {
+        if (hashChanged) {
             await this._resetCookieConfiguration(data);
+            return;
+        }
+
+        // Consented for another language but not this one: show the banner without clearing the
+        // shared `cookie-preference` cookie, so the other language's consent is not reset.
+        if (noConsentForThisLanguage) {
+            this._showCookieBar();
             return;
         }
 
@@ -551,6 +555,14 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
+     * @private
+     * @returns {boolean}
+     */
+    _isLastStateEmpty() {
+        return this.lastState.active.length === 0 && this.lastState.inactive.length === 0;
+    }
+
+    /**
      * Compare the current in-/active cookies to the initialState and return updated cookies only
      *
      * @param active
@@ -560,6 +572,15 @@ export default class CookieConfiguration extends Plugin {
     _getUpdatedCookies(active, inactive) {
         const { lastState } = this;
         const updated = {};
+
+        // When accepting all cookies from the cookie bar, the offcanvas was never opened
+        // and therefore lastState is empty. Treat all cookies as changed in that case.
+        if (this._isLastStateEmpty()) {
+            active.forEach(cookie => { updated[cookie] = true; });
+            inactive.forEach(cookie => { updated[cookie] = false; });
+
+            return updated;
+        }
 
         active.forEach(currentCheckbox => {
             if (lastState.inactive.includes(currentCheckbox)) {
@@ -612,8 +633,7 @@ export default class CookieConfiguration extends Plugin {
         const cookiePermission = CookieStorage.getItem(cookiePreference);
 
         if (!cookiePermission) {
-            const showCookieBarEvent = new CustomEvent('showCookieBar');
-            document.dispatchEvent(showCookieBarEvent);
+            this._showCookieBar();
         }
     }
 
@@ -667,6 +687,16 @@ export default class CookieConfiguration extends Plugin {
     _hideCookieBar() {
         const hideCookieBarEvent = new CustomEvent('hideCookieBar');
         document.dispatchEvent(hideCookieBarEvent);
+    }
+
+    /**
+     * Show the cookie bar regardless of the shared `cookie-preference` cookie, which may already
+     * be set from a consent given for another language.
+     * @private
+     */
+    _showCookieBar() {
+        const showCookieBarEvent = new CustomEvent('showCookieBar');
+        document.dispatchEvent(showCookieBarEvent);
     }
 
     /**

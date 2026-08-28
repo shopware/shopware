@@ -1,0 +1,157 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Country": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "name",
+                    "addressFormat"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "iso": {
+                        "description": "Internationally recognized two-letter country codes. For example, DE, IN, NO, etc.",
+                        "type": "string"
+                    },
+                    "position": {
+                        "description": "Numerical value that indicates the order in which the defined countries must be displayed in the frontend.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "active": {
+                        "description": "When boolean value is `true`, the country is available for selection in the storefront.",
+                        "type": "boolean"
+                    },
+                    "shippingAvailable": {
+                        "description": "The shipping availability for a country is enabled when boolean value is `true`.",
+                        "type": "boolean"
+                    },
+                    "iso3": {
+                        "description": "Internationally recognized three-letter country codes. For example, DEU, IND, NOR, etc.",
+                        "type": "string"
+                    },
+                    "displayStateInRegistration": {
+                        "description": "The country's state is displayed in the address when boolean value is `true`.",
+                        "type": "boolean"
+                    },
+                    "forceStateInRegistration": {
+                        "description": "State details in the address are force included when boolean value is `true`.",
+                        "type": "boolean"
+                    },
+                    "checkVatIdPattern": {
+                        "description": "Verify if VAT ID is valid or not.",
+                        "type": "boolean"
+                    },
+                    "vatIdRequired": {
+                        "description": "Set to true, if VAT ID is to be made mandatory.",
+                        "type": "boolean"
+                    },
+                    "vatIdPattern": {
+                        "description": "Unique VAT ID with country code and numbers, for example - GB999 9999",
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "customerTax": {
+                        "required": [
+                            "enabled",
+                            "currencyId",
+                            "amount"
+                        ],
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "currencyId": {
+                                "type": "string"
+                            },
+                            "amount": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "companyTax": {
+                        "required": [
+                            "enabled",
+                            "currencyId",
+                            "amount"
+                        ],
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "currencyId": {
+                                "type": "string"
+                            },
+                            "amount": {
+                                "type": "number",
+                                "format": "float"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "postalCodeRequired": {
+                        "description": "The postal code is made mandatory specification in the address, when boolean value is `true`.",
+                        "type": "boolean"
+                    },
+                    "checkPostalCodePattern": {
+                        "description": "Verify for valid postal code pattern.",
+                        "type": "boolean"
+                    },
+                    "checkAdvancedPostalCodePattern": {
+                        "description": "Verify for advanced postal code pattern.",
+                        "type": "boolean"
+                    },
+                    "advancedPostalCodePattern": {
+                        "description": "Wildcard formatted zip codes to allow easy searching in the frontend based on initial constants, for example - 24****, 1856**.",
+                        "type": "string"
+                    },
+                    "addressFormat": {
+                        "type": "object"
+                    },
+                    "defaultPostalCodePattern": {
+                        "description": "Default pattern of postal or zip code.",
+                        "type": "string"
+                    },
+                    "isEu": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    },
+                    "states": {
+                        "description": "States/provinces/regions within the country",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CountryState"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

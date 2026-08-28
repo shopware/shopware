@@ -24,7 +24,7 @@ class MediaApiService extends ApiService {
         this.name = 'mediaService';
         this.uploads = [];
         this.$listeners = {};
-        this.cacheDefaultFolder = {};
+        this.maxConcurrentUploads = 5;
     }
 
     hasListeners(uploadTag) {
@@ -148,41 +148,55 @@ class MediaApiService extends ApiService {
         const totalUploads = affectedUploads.length;
         let successUploads = 0;
         let failureUploads = 0;
-        return Promise.all(
-            affectedUploads.map((task) => {
-                if (task.running) {
-                    return Promise.resolve();
-                }
 
-                task.running = true;
-                return this._startUpload(task, tag)
-                    .then(() => {
-                        task.running = false;
-                        successUploads += 1;
-                        affectedListeners.forEach((listener) => {
-                            listener(
-                                this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, tag, {
-                                    targetId: task.targetId,
-                                    successAmount: successUploads,
-                                    failureAmount: failureUploads,
-                                    totalAmount: totalUploads,
-                                }),
-                            );
-                        });
-                    })
-                    .catch((cause) => {
-                        task.error = cause;
-                        task.running = false;
-                        failureUploads += 1;
-                        task.successAmount = successUploads;
-                        task.failureAmount = failureUploads;
-                        task.totalAmount = totalUploads;
-                        affectedListeners.forEach((listener) => {
-                            listener(this._createUploadEvent(UploadEvents.UPLOAD_FAILED, tag, task));
-                        });
+        const iterator = affectedUploads[Symbol.iterator]();
+
+        const runWorker = () => {
+            const { value: task, done } = iterator.next();
+
+            if (done) {
+                return Promise.resolve();
+            }
+
+            if (task.running) {
+                return runWorker();
+            }
+
+            task.running = true;
+
+            return this._startUpload(task, tag)
+                .then(() => {
+                    task.running = false;
+                    successUploads += 1;
+                    affectedListeners.forEach((listener) => {
+                        listener(
+                            this._createUploadEvent(UploadEvents.UPLOAD_FINISHED, tag, {
+                                targetId: task.targetId,
+                                successAmount: successUploads,
+                                failureAmount: failureUploads,
+                                totalAmount: totalUploads,
+                            }),
+                        );
                     });
-            }),
-        );
+                })
+                .catch((cause) => {
+                    task.error = cause;
+                    task.running = false;
+                    failureUploads += 1;
+                    task.successAmount = successUploads;
+                    task.failureAmount = failureUploads;
+                    task.totalAmount = totalUploads;
+                    affectedListeners.forEach((listener) => {
+                        listener(this._createUploadEvent(UploadEvents.UPLOAD_FAILED, tag, task));
+                    });
+                })
+                .then(() => runWorker());
+        };
+
+        const workerCount = Math.min(this.maxConcurrentUploads, affectedUploads.length);
+        const workers = Array.from({ length: workerCount }, () => runWorker());
+
+        return Promise.all(workers);
     }
 
     _startUpload(task, uploadTag = null) {
@@ -318,26 +332,53 @@ class MediaApiService extends ApiService {
     async getDefaultFolderId(entity) {
         const { Criteria } = Shopware.Data;
 
-        if (this.cacheDefaultFolder[entity]) {
-            return this.cacheDefaultFolder[entity];
-        }
-
         const defaultFolderRepository = Shopware.Service('repositoryFactory').create('media_default_folder');
 
         const criteria = new Criteria(1, 1).addFilter(Criteria.equals('entity', entity));
 
-        const items = await defaultFolderRepository.search(criteria);
+        const items = await defaultFolderRepository.search(criteria, {
+            cacheKey: [
+                'media-default-folder',
+                entity,
+            ],
+        });
+
         if (items.length !== 1) {
             return null;
         }
+
         const defaultFolder = items[0];
 
         if (defaultFolder.folder?.id) {
-            this.cacheDefaultFolder[entity] = defaultFolder.folder.id;
             return defaultFolder.folder.id;
         }
 
         return null;
+    }
+
+    downloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                responseType: 'blob',
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    prepareDownloadMedia(mediaId) {
+        const apiRoute = `/_action/${this.getApiBasePath(mediaId)}/download/prepare`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
     }
 }
 

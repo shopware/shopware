@@ -131,7 +131,32 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>
+     * }|array{
+     *     id: string,
+     *     text: string,
+     *     fileName: mixed,
+     *     private: bool,
+     *     fileExtension: mixed,
+     *     fileSize: int|null,
+     *     path: mixed,
+     *     mediaFolderId: mixed,
+     *     title: array<string, string>,
+     *     mediaFolder: array{
+     *         name?: string,
+     *         path?: string,
+     *         defaultFolder?: array{entity: string}
+     *     },
+     *     alt: array<string, string>,
+     *     tags: list<array{
+     *         id: string,
+     *         _count: int
+     *     }>,
+     *     createdAt: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {
@@ -207,17 +232,23 @@ SQL,
                 $id,
             ]));
 
+            $translatedTitles = $this->decodeTranslatedValues((string) ($row['translatedFields'] ?? ''), 'title');
+            $translatedAlts = $this->decodeTranslatedValues((string) ($row['translatedFields'] ?? ''), 'alt');
+            $completion = $this->buildCompletion([
+                ...array_values($translatedTitles),
+                ...array_values($translatedAlts),
+                \is_string($row['file_name'] ?? null) ? $row['file_name'] : null,
+            ]);
+
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
+                    'completion' => $completion,
                 ];
 
                 continue;
             }
-
-            $translatedTitles = $this->decodeTranslatedValues((string) $row['translatedFields'], 'title');
-            $translatedAlts = $this->decodeTranslatedValues((string) $row['translatedFields'], 'alt');
 
             $mediaFolder = [];
 

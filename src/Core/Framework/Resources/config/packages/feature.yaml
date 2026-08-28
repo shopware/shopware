@@ -17,6 +17,10 @@ shopware:
         default: false
         major: true
         toggleable: false
+      - name: v6.9.0.0
+        default: false
+        major: true
+        toggleable: false
       - name: DISABLE_VUE_COMPAT
         default: true
         major: true
@@ -36,11 +40,21 @@ shopware:
         major: true
         toggleable: true
         description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
+      - name: DOCUMENT_GENERATION_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enable the new document generation implementation and its accompanying UI changes."
       - name: PERFORMANCE_TWEAKS
         default: false
         major: true
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
+      - name: TWIG_COMPILE_TIME_OPTIMIZATION
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Optimize static Twig feature flag calls at compile time"
       - name: ENABLE_OPENSEARCH_FOR_ADMIN_API
         default: false
         major: false
@@ -61,6 +75,11 @@ shopware:
         major: false
         toggleable: true
         description: "Defers cart errors that happen during SalesChannelContext creation\nThis feature will be standard as of v6.8.0"
+      - name: SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION
+        default: false
+        major: true
+        toggleable: true
+        description: "Convert shipping price matrix ranges by the active currency factor.\nThis feature will be standard as of v6.8.0"
       - name: REPEATED_PAYMENT_FINALIZE
         default: false
         major: true
@@ -81,3 +100,18 @@ shopware:
         major: true
         toggleable: true
         description: "Replace inline microdata (itemscope/itemprop) with JSON-LD structured data in the Storefront. When enabled, legacy microdata attributes are removed and a <script type=\"application/ld+json\"> block is injected into the <head> instead."
+      - name: BREADCRUMB_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enables the new breadcrumb loading and adds the possibility to build the product breadcrumb using the referrer category."
+      - name: WEBHOOKS_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
+      - name: ADMIN_EXTENSION_TOOLING
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Run the Administration extension tooling (admin:setup-extension-tooling) automatically during composer setup."

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Installer\Requirements\Struct;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequirementCheck::class)]
 #[CoversClass(SystemCheck::class)]
 class SystemCheckTest extends TestCase
@@ -26,15 +28,13 @@ class SystemCheckTest extends TestCase
 
     public function testEmptyNameThrowsException(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Empty name for RequirementCheck provided.');
+        $this->expectExceptionObject(new \RuntimeException('Empty name for RequirementCheck provided.'));
         new SystemCheck('', RequirementCheck::STATUS_SUCCESS, 'installedValue', 'status');
     }
 
     public function testWrongStatusThrowsException(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Invalid status for RequirementCheck, got "wrongStatus", allowed values are "success", "error", "warning".');
+        $this->expectExceptionObject(new \RuntimeException('Invalid status for RequirementCheck, got "wrongStatus", allowed values are "success", "error", "warning".'));
         new SystemCheck('name', 'wrongStatus', 'installedValue', 'status');
     }
 }

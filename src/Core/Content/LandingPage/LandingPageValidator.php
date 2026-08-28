@@ -39,15 +39,14 @@ class LandingPageValidator implements EventSubscriberInterface
     public function preValidate(PostWriteValidationEvent $event): void
     {
         $writeException = $event->getExceptions();
-        $commands = $event->getCommands();
         $violationList = new ConstraintViolationList();
 
-        foreach ($commands as $command) {
-            if (!($command instanceof InsertCommand) || $command->getEntityName() !== LandingPageDefinition::ENTITY_NAME) {
+        foreach ($event->getCommandsForEntity(LandingPageDefinition::ENTITY_NAME) as $command) {
+            if (!$command instanceof InsertCommand) {
                 continue;
             }
 
-            if (!$this->hasAnotherValidCommand($commands, $command)) {
+            if (!$this->hasAnotherValidCommand($event, $command)) {
                 $violationList->addAll(
                     $this->validator->startContext()
                         ->atPath($command->getPath() . '/salesChannels')
@@ -59,14 +58,11 @@ class LandingPageValidator implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param WriteCommand[] $commands
-     */
-    private function hasAnotherValidCommand(array $commands, WriteCommand $command): bool
+    private function hasAnotherValidCommand(PostWriteValidationEvent $event, WriteCommand $command): bool
     {
         $isValid = false;
-        foreach ($commands as $searchCommand) {
-            if ($searchCommand->getEntityName() === LandingPageSalesChannelDefinition::ENTITY_NAME && $searchCommand instanceof InsertCommand) {
+        foreach ($event->getCommandsForEntity(LandingPageSalesChannelDefinition::ENTITY_NAME) as $searchCommand) {
+            if ($searchCommand instanceof InsertCommand) {
                 $searchPrimaryKey = $searchCommand->getPrimaryKey();
                 $searchLandingPageId = $searchPrimaryKey['landing_page_id'] ?? null;
 

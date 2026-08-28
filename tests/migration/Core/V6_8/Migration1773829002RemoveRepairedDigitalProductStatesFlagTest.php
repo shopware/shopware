@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_8\Migration1773829002RemoveRepairedDigitalProductStatesFlag;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(Migration1773829002RemoveRepairedDigitalProductStatesFlag::class)]
 class Migration1773829002RemoveRepairedDigitalProductStatesFlagTest extends TestCase
 {
@@ -22,6 +24,11 @@ class Migration1773829002RemoveRepairedDigitalProductStatesFlagTest extends Test
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773829002, (new Migration1773829002RemoveRepairedDigitalProductStatesFlag())->getCreationTimestamp());
     }
 
     public function testMigration(): void

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -13,11 +14,17 @@ use Shopware\Core\Migration\V6_7\Migration1720603803RemoveDefaultPaymentMethodFl
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1720603803RemoveDefaultPaymentMethodFlows::class)]
 class Migration1720603803RemoveDefaultPaymentMethodFlowsTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720603803, (new Migration1720603803RemoveDefaultPaymentMethodFlows())->getCreationTimestamp());
+    }
 
     public function testUpdate(): void
     {

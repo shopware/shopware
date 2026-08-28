@@ -69,7 +69,7 @@ describe('src/app/init/tabs.init', () => {
             targetVersion: '1.0.0',
             color: '#57D9A3',
             icon: 'regular-products',
-            favicon: 'icon-module-products.png',
+            favicon: 'icon-module-products.svg',
             entity: 'category',
             routes: {
                 index: {
@@ -92,7 +92,7 @@ describe('src/app/init/tabs.init', () => {
             targetVersion: '1.0.0',
             color: '#9AA8B5',
             icon: 'regular-cog',
-            favicon: 'icon-module-settings.png',
+            favicon: 'icon-module-settings.svg',
             entity: 'store_settings',
             routes: {
                 index: {
@@ -136,6 +136,29 @@ describe('src/app/init/tabs.init', () => {
             {
                 label: 'My tab item',
                 componentSectionId: 'foo-component-section-id',
+            },
+        ]);
+    });
+
+    it('should update the visibility of a registered tab item', async () => {
+        // add tab
+        await ui.tabs('visibility-position-id').addTabItem({
+            label: 'My tab item',
+            componentSectionId: 'visibility-component-section-id',
+            visible: true,
+        });
+
+        // toggle visibility
+        await ui.tabs('visibility-position-id').setVisibility({
+            componentSectionId: 'visibility-component-section-id',
+            visible: false,
+        });
+
+        expect(Shopware.Store.get('tabs').tabItems['visibility-position-id']).toEqual([
+            {
+                label: 'My tab item',
+                componentSectionId: 'visibility-component-section-id',
+                visible: false,
             },
         ]);
     });
@@ -211,7 +234,7 @@ describe('src/app/init/tabs.init', () => {
                         targetVersion: '1.0.0',
                         color: '#57D9A3',
                         icon: 'regular-products',
-                        favicon: 'icon-module-products.png',
+                        favicon: 'icon-module-products.svg',
                         entity: 'category',
                     }),
                 }),
@@ -246,7 +269,7 @@ describe('src/app/init/tabs.init', () => {
                         targetVersion: '1.0.0',
                         color: '#9AA8B5',
                         icon: 'regular-cog',
-                        favicon: 'icon-module-settings.png',
+                        favicon: 'icon-module-settings.svg',
                         entity: 'store_settings',
                     }),
                 }),

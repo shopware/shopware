@@ -59,7 +59,7 @@
             ref="resultsList"
             :options="visibleResults"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchInput }, 0)"
+            :empty-message="$t('global.sw-single-select.messageNoResults', { term: searchInput }, 0)"
             :focus-el="$refs.swSelectInput"
             :popover-classes="resultListClasses"
             @paginate="$emit('paginate')"

@@ -2,12 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class TranslationTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -122,7 +122,7 @@ class TranslationTest extends TestCase
     {
         $localeRepo = static::getContainer()->get('locale.repository');
         /** @var LocaleEntity $locale */
-        $locale = $localeRepo->search(new Criteria([$this->getLocaleIdOfSystemLanguage()]), Context::createDefaultContext())->first();
+        $locale = $localeRepo->search(new Criteria([$this->getLocaleIdOfSystemLanguage()]), Context::createDefaultContext())->getEntities()->first();
 
         $this->assertTranslation(
             ['name' => 'system translation'],
@@ -134,7 +134,7 @@ class TranslationTest extends TestCase
         );
     }
 
-    public function testEmptyLanguageIdError(): void
+    public function testEmptyLanguageIdFallsBackToDefaultLanguage(): void
     {
         $baseResource = '/api/category';
         $headerName = $this->getLangHeaderName();
@@ -142,10 +142,10 @@ class TranslationTest extends TestCase
 
         $this->getBrowser()->jsonRequest('GET', $baseResource, [], [$headerName => $langId]);
         $response = $this->getBrowser()->getResponse();
-        static::assertSame(412, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $data = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(RoutingException::LANGUAGE_NOT_FOUND, $data['errors'][0]['code']);
+        static::assertArrayHasKey('data', $data);
     }
 
     public function testInvalidUuidLanguageIdError(): void
@@ -264,7 +264,7 @@ class TranslationTest extends TestCase
                 ],
             ],
             [
-                'code' => 'test',
+                'code' => 'de-DE-3',
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'default', 'territory' => 'translated by default'],
                     $langId => [
@@ -297,7 +297,7 @@ class TranslationTest extends TestCase
                 ],
             ],
             [
-                'code' => 'test',
+                'code' => 'de-DE-3',
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'default', 'territory' => 'translated by default'],
                     $langId => [
@@ -321,7 +321,7 @@ class TranslationTest extends TestCase
 
         $notTranslated = [
             'id' => $id,
-            'code' => 'test',
+            'code' => 'de-DE-3',
             'name' => 'not translated',
             'territory' => 'not translated',
         ];
@@ -662,7 +662,7 @@ class TranslationTest extends TestCase
                 'name' => 'test language ' . $fallbackId,
                 'locale' => [
                     'id' => $fallbackLocaleId,
-                    'code' => 'x-tst_' . $fallbackLocaleId,
+                    'code' => 'de-DE-1',
                     'name' => 'Test locale ' . $fallbackLocaleId,
                     'territory' => 'Test territory ' . $fallbackLocaleId,
                 ],
@@ -680,7 +680,7 @@ class TranslationTest extends TestCase
             'parentId' => $fallbackId,
             'locale' => [
                 'id' => $localeId,
-                'code' => 'x-tst_' . $localeId,
+                'code' => 'de-DE-2',
                 'name' => 'Test locale ' . $localeId,
                 'territory' => 'Test territory ' . $localeId,
             ],

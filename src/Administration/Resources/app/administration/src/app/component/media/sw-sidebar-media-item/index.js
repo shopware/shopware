@@ -3,6 +3,7 @@ import './sw-sidebar-media-item.scss';
 
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
+const { debounce } = Shopware.Utils;
 
 /**
  * @status ready
@@ -97,11 +98,14 @@ export default {
             this.initializeContent();
         },
 
-        onSearchTermChange(searchTerm) {
-            this.term = searchTerm;
+        onSearchTermChange() {
             this.page = 1;
-            this.getList();
+            this.debouncedSearch();
         },
+
+        debouncedSearch: debounce(function debouncedSearch() {
+            this.getList();
+        }, 400),
 
         initializeContent() {
             if (this.disabled) {

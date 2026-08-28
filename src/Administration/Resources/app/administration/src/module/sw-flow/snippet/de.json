@@ -169,7 +169,8 @@
         "placeholderDescription": "Regelbeschreibung eingeben ...",
         "labelType": "Typ",
         "placeholderType": "Regeltyp auswählen ...",
-        "productStatesConditionWarning": "Die Bedingung \"Position mit Produktzustand\" ist veraltet und wird in v6.8 entfernt. Bitte stattdessen \"Position mit Produkttyp\" verwenden.",
+        "deprecatedConditionWarning": "Die Bedingung \"{label}\" ist veraltet und wird mit {version} entfernt. Bitte stattdessen \"{replacement}\" verwenden.",
+        "deprecatedConditionWarningNoReplacement": "Die Bedingung \"{label}\" ist veraltet und wird mit {version} entfernt.",
         "placeholderDelayType": "Verzögerung auswählen ..."
       },
       "tag": {
@@ -198,7 +199,11 @@
       "document": {
         "titleCreateDocument": "Dokumente erzeugen",
         "labelDocumentType": "Dokumente",
-        "placeholderDocumentType": "Dokumente auswählen ..."
+        "placeholderDocumentType": "Dokumente auswählen ...",
+        "labelDocumentTypeSingle": "Dokumenttyp",
+        "placeholderDocumentTypeSingle": "Dokumenttyp auswählen ...",
+        "labelFileFormats": "Dateiformate",
+        "placeholderFileFormats": "Dateiformate auswählen ..."
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Download-Recht setzen",
@@ -294,7 +299,6 @@
       }
     },
     "leavePageModal": {
-      "headline": "Warnung",
       "description": "Ungespeicherte Änderungen vorhanden. Willst Du die Seite trotzdem verlassen?",
       "confirmButton": "Seite verlassen"
     },
@@ -339,7 +343,6 @@
       "request": "Anfrage",
       "message": "Nachricht",
       "sent": "Abgeschickt",
-      "confirm": "Bestätigen",
       "unsubscribe": "Abbestellen",
       "log": "Protokoll",
       "cancelled": "Abgebrochen",

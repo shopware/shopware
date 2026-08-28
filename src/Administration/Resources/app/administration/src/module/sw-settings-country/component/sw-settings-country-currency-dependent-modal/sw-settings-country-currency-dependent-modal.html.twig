@@ -1,7 +1,7 @@
 {% block sw_settings_country_currency_dependent_modal %}
 <sw-modal
     class="sw-settings-country-currency-dependent-modal"
-    :title="$tc('sw-settings-country.detail.currencyDependentValues')"
+    :title="$t('sw-settings-country.detail.currencyDependentValues')"
     @modal-close="closeModal"
 >
 
@@ -66,7 +66,7 @@
                 :disabled="(item.enabled || !acl.can('country.editor')) || undefined"
                 @click="changeCurrencyDependentRow(item.currencyId, false)"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -86,7 +86,7 @@
             variant="secondary"
             @click="closeModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
 
         <mt-button
@@ -96,7 +96,7 @@
             :disabled="!acl.can('country.editor') || undefined"
             @click="saveModal"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

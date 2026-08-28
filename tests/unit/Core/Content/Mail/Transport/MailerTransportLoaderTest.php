@@ -13,6 +13,7 @@ use Shopware\Core\Content\Mail\Transport\MailerTransportLoader;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -29,6 +30,7 @@ use Symfony\Component\Mailer\Transport\Transports;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailerTransportLoader::class)]
 class MailerTransportLoaderTest extends TestCase
 {
@@ -41,9 +43,9 @@ class MailerTransportLoaderTest extends TestCase
             new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => '',
             ]),
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class)
         );
 
         $trans = $loader->fromString('smtp://localhost:25');
@@ -63,9 +65,9 @@ class MailerTransportLoaderTest extends TestCase
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => null,
             ]),
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class)
         );
 
         $mailer = $factory->fromString('null://null');
@@ -93,9 +95,9 @@ class MailerTransportLoaderTest extends TestCase
                 'core.mailerSettings.encryption' => $encryption,
                 'core.mailerSettings.authenticationMethod' => 'cram-md5',
             ]),
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class)
         );
 
         $mailer = $loader->fromString('null://null');
@@ -134,9 +136,9 @@ class MailerTransportLoaderTest extends TestCase
                 'core.mailerSettings.senderAddress' => 'test@example.com',
                 'core.mailerSettings.encryption' => 'tls',
             ]),
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class),
         );
 
         $mailer = $loader->fromString('null://null');
@@ -156,13 +158,12 @@ class MailerTransportLoaderTest extends TestCase
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => '-t bla',
             ]),
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class)
         );
 
-        static::expectException(MailException::class);
-        static::expectExceptionMessage('Given sendmail option "bla" is invalid');
+        $this->expectExceptionObject(MailException::givenSendMailOptionIsInvalid('bla', ['-bs', '-i', '-t']));
 
         $loader->fromString('null://null');
     }
@@ -175,9 +176,9 @@ class MailerTransportLoaderTest extends TestCase
                 'core.mailerSettings.emailAgent' => 'local',
                 'core.mailerSettings.sendMailOptions' => '-t    -i',
             ]),
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class)
         );
 
         $res = $loader->fromString('null://null');
@@ -191,28 +192,27 @@ class MailerTransportLoaderTest extends TestCase
             new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => 'test',
             ]),
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class)
         );
 
-        static::expectException(MailException::class);
-        static::expectExceptionMessage('Invalid mail agent given "test"');
+        $this->expectExceptionObject(MailException::givenMailAgentIsInvalid('test'));
 
         $loader->fromString('null://null');
     }
 
     public function testFactoryNoConnection(): void
     {
-        $config = $this->createMock(SystemConfigService::class);
+        $config = static::createStub(SystemConfigService::class);
         $config->method('get')->willThrowException(TestExceptionFactory::createDriverException('no connection'));
 
         $loader = new MailerTransportLoader(
             $this->getTransportFactory(),
             $config,
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class)
         );
 
         $mailer = $loader->fromString('null://null');
@@ -237,9 +237,9 @@ class MailerTransportLoaderTest extends TestCase
                 'core.mailerSettings.encryption' => 'foo',
                 'core.mailerSettings.authenticationMethod' => 'cram-md5',
             ]),
-            $this->createMock(MailAttachmentsBuilder::class),
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(MailAttachmentsBuilder::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(EntityRepository::class)
         );
 
         $dsns = [
@@ -270,7 +270,7 @@ class MailerTransportLoaderTest extends TestCase
     private function getFactories(): array
     {
         return [
-            'smtp+oauth' => new SmtpOauthTransportFactoryDecorator(new EsmtpTransportFactory(), $this->createMock(SmtpOauthAuthenticator::class)),
+            'smtp+oauth' => new SmtpOauthTransportFactoryDecorator(new EsmtpTransportFactory(), static::createStub(SmtpOauthAuthenticator::class)),
             'smtp' => new EsmtpTransportFactory(),
             'null' => new NullTransportFactory(),
             'sendmail' => new SendmailTransportFactory(),

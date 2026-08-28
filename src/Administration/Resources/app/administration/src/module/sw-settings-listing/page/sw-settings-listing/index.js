@@ -62,8 +62,6 @@ export default {
 
             criteria.addSorting(Criteria.sort('priority', 'DESC'));
 
-            criteria.addFilter(Criteria.equals('locked', false));
-
             return criteria;
         },
 
@@ -79,8 +77,6 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('priority', 'DESC'));
-
-            criteria.addFilter(Criteria.equals('locked', false));
 
             criteria.addFilter(Criteria.contains('label', this.productSortingOptionsSearchTerm));
 
@@ -100,17 +96,17 @@ export default {
                 {
                     property: 'label',
                     routerLink: 'sw.settings.listing.edit',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.name'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.name'),
                 },
                 {
                     property: 'criteria',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.criteria'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.criteria'),
                     multiLine: true,
                 },
                 {
                     property: 'priority',
                     inlineEdit: 'number',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.priority'),
                 },
             ];
         },
@@ -221,7 +217,7 @@ export default {
                     this.isSaveSuccessful = true;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
+                        message: this.$t('sw-settings-listing.general.messageSaveSuccess'),
                     });
                 })
                 .catch((e) => {
@@ -229,7 +225,7 @@ export default {
                         message: e?.response?.data?.errors[0]?.detail || e?.message || 'Unknown error',
                     };
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.general.messageSaveError', options),
+                        message: this.$t('sw-settings-listing.general.messageSaveError', options),
                     });
                 })
                 .finally(() => {
@@ -275,7 +271,7 @@ export default {
                 .delete(item.id)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError'),
+                        message: this.$t('sw-settings-listing.index.productSorting.messageDeleteError'),
                     });
                 })
                 .finally(() => {
@@ -324,9 +320,7 @@ export default {
                     return this.getCustomFieldLabelByCriteriaName(currentField.field);
                 }
 
-                return this.$tc(
-                    `sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`,
-                );
+                return this.$t(`sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`);
             });
 
             return labels.join(', ');
@@ -400,10 +394,6 @@ export default {
             return fieldName.replace(/customFields\./, '');
         },
 
-        isProductSortingEditable(item) {
-            return !item.locked;
-        },
-
         onChangeLanguage() {
             this.fetchProductSortingOptions();
         },
@@ -437,6 +427,21 @@ export default {
 
         onLoadingChanged(loading) {
             this.isLoading = loading;
+        },
+
+        allowProductSortingOptionDelete(productSortingOption) {
+            return !(productSortingOption.locked || this.isItemDefaultSorting(productSortingOption.id));
+        },
+
+        getProductSortingOptionDeleteTooltip(item) {
+            const state = item.locked ? 'locked' : 'default';
+            const snippetKey = `sw-settings-listing.index.productSorting.grid.deleteTooltip.${state}`;
+
+            return {
+                showDelay: 300,
+                message: this.$t(snippetKey),
+                disabled: this.allowProductSortingOptionDelete(item),
+            };
         },
     },
 };

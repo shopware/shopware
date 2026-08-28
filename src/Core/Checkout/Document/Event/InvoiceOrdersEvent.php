@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 final class InvoiceOrdersEvent extends DocumentOrderEvent
 {

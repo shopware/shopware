@@ -18,9 +18,9 @@
         {% block sw_order_create_general_info_summary_sub %}
         <div class="sw-order-create-general-info__summary-sub">
             <div class="sw-order-create-general-info__summary-sub-description">
-                {{ $tc('sw-order.generalTab.info.summary.with') }}
+                {{ $t('sw-order.generalTab.info.summary.with') }}
                 {{ context.shippingMethod.translated.name }}
-                {{ $tc('sw-order.generalTab.info.summary.and') }}
+                {{ $t('sw-order.generalTab.info.summary.and') }}
                 {{ context.paymentMethod.translated.distinguishableName }}
             </div>
         </div>
@@ -38,8 +38,8 @@
                 class="sw-order-create-general-info__order-state-payment"
                 state-type="order_transaction"
                 rounded-style
-                :placeholder="$tc('sw-order.stateCard.draftPlaceholder')"
-                :label="$tc('sw-order.stateCard.headlineTransactionState')"
+                :placeholder="$t('sw-order.stateCard.draftPlaceholder')"
+                :label="$t('sw-order.stateCard.headlineTransactionState')"
                 disabled
             />
         </div>
@@ -51,8 +51,8 @@
                 class="sw-order-create-general-info__order-state-delivery"
                 state-type="order_delivery"
                 rounded-style
-                :placeholder="$tc('sw-order.stateCard.draftPlaceholder')"
-                :label="$tc('sw-order.stateCard.headlineDeliveryState')"
+                :placeholder="$t('sw-order.stateCard.draftPlaceholder')"
+                :label="$t('sw-order.stateCard.headlineDeliveryState')"
                 disabled
             />
         </div>
@@ -64,8 +64,8 @@
                 class="sw-order-create-general-info__order-state-order"
                 rounded-style
                 state-type="order"
-                :placeholder="$tc('sw-order.stateCard.draftPlaceholder')"
-                :label="$tc('sw-order.stateCard.headlineOrderState')"
+                :placeholder="$t('sw-order.stateCard.draftPlaceholder')"
+                :label="$t('sw-order.stateCard.headlineOrderState')"
                 disabled
             />
         </div>
@@ -80,7 +80,7 @@
         size="small"
         :entity-collection="[]"
         disabled
-        :placeholder="$tc('sw-order.generalTab.tagSelect.placeholder')"
+        :placeholder="$t('sw-order.generalTab.tagSelect.placeholder')"
         always-show-placeholder
     />
     {% endblock %}

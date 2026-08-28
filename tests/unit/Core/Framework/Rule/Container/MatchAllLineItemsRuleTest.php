@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
-use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Rule\CountingTrueRule;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -66,7 +66,7 @@ class MatchAllLineItemsRuleTest extends TestCase
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -109,7 +109,7 @@ class MatchAllLineItemsRuleTest extends TestCase
 
         $match = $allLineItemsRule->match(new LineItemScope(
             $this->createLineItemWithCategories($categoryIdsProduct),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -167,7 +167,7 @@ class MatchAllLineItemsRuleTest extends TestCase
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -211,7 +211,7 @@ class MatchAllLineItemsRuleTest extends TestCase
 
         $match = $allLineItemsRule->match(new LineItemScope(
             $this->createLineItemWithCategories($categoryIdsProduct),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -231,28 +231,28 @@ class MatchAllLineItemsRuleTest extends TestCase
         ];
     }
 
-    public function testShouldReturnFalseIfNoLineItemsArePresent(): void
+    public function testReturnsFalseIfNoLineItemsArePresent(): void
     {
         $rule = new MatchAllLineItemsRule();
 
         $match = $rule->match(new CartRuleScope(
             $this->createCart(new LineItemCollection()),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
     }
 
-    public function testShouldReturnFalseWhenScopeIsNotCartOrLineItemScope(): void
+    public function testReturnsFalseWhenScopeIsNotCartOrLineItemScope(): void
     {
         $rule = new MatchAllLineItemsRule();
 
-        $match = $rule->match($this->createMock(RuleScope::class));
+        $match = $rule->match(static::createStub(RuleScope::class));
 
         static::assertFalse($match);
     }
 
-    public function testShouldReturnTrueWhenNoLineItemsOfFilteredTypeExist(): void
+    public function testReturnsTrueWhenNoLineItemsOfFilteredTypeExist(): void
     {
         $rule = new MatchAllLineItemsRule([], null, ['product']);
 
@@ -260,19 +260,15 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createCart(new LineItemCollection([
                 $this->createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
             ])),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
     }
 
-    public function testShouldEvaluateGivenItemsIfTypesAreNotSet(): void
+    public function testEvaluatesAllItemsWhenNoTypesSet(): void
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $condition = $this->createMock(LineItemOfTypeRule::class);
-        $condition->expects($this->exactly(4))
-            ->method('match')
-            ->willReturn(true);
+        $condition = new CountingTrueRule();
 
         $rule = new MatchAllLineItemsRule([$condition], null, null);
 
@@ -285,19 +281,16 @@ class MatchAllLineItemsRuleTest extends TestCase
 
         $match = $rule->match(new CartRuleScope(
             $this->createCart($collection),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
+        static::assertSame(4, $condition->matchCount);
     }
 
-    public function testShouldEvaluateGivenItemsAndFilterByGivenTypes(): void
+    public function testFiltersItemsByGivenTypes(): void
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $condition = $this->createMock(LineItemOfTypeRule::class);
-        $condition->expects($this->exactly(2))
-            ->method('match')
-            ->willReturn(true);
+        $condition = new CountingTrueRule();
 
         $rule = new MatchAllLineItemsRule([$condition], null, ['discount', 'custom']);
 
@@ -309,10 +302,11 @@ class MatchAllLineItemsRuleTest extends TestCase
 
         $match = $rule->match(new CartRuleScope(
             $this->createCart($collection),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
+        static::assertSame(2, $condition->matchCount);
     }
 
     public function testRuleConstraints(): void

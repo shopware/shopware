@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('fundamentals@after-sales')]
@@ -40,10 +41,9 @@ class ImportExportProfileDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of import-export profile.'),
             (new StringField('technical_name', 'technicalName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('label'))->addFlags(new Required()),
             (new StringField('type', 'type'))->setDescription('Import-export type can be orders, customers, categories.'),
             (new BoolField('system_default', 'systemDefault'))->setDescription('When boolean value is true `true`, then its a system default profile.'),
             (new StringField('source_entity', 'sourceEntity'))->addFlags(new Required()),
@@ -54,7 +54,13 @@ class ImportExportProfileDefinition extends EntityDefinition
             new JsonField('update_by', 'updateBy', [], []),
             (new JsonField('config', 'config', [], []))->setDescription('Specifies detailed information about the component.'),
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
-            (new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new Required()),
         ]);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $fields->add((new TranslatedField('label'))->addFlags(new Required()));
+            $fields->add((new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new Required()));
+        }
+
+        return $fields;
     }
 }

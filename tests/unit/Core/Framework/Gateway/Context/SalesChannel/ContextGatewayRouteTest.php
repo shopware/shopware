@@ -23,7 +23,7 @@ class ContextGatewayRouteTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $route = new ContextGatewayRoute($this->createMock(AppContextGateway::class));
+        $route = new ContextGatewayRoute(static::createStub(AppContextGateway::class));
 
         $this->expectException(DecorationPatternException::class);
 

@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .mt-select-result-list-popover-wrapper {
     .mt-select-result__result-item-text {
         flex-direction: row;
@@ -8,12 +6,12 @@
 
     &__length-unit-short-name,
     &__mass-unit-short-name {
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
     }
 
     .mt-select-result > .mt-icon {
         width: 12px;
         height: 12px;
-        color: $color-gray-500;
+        color: var(--color-icon-secondary-default);
     }
 }

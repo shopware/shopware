@@ -13,11 +13,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'es:index:cleanup',
     description: 'Clean outdated indices',
 )]
-#[Package('framework')]
 class ElasticsearchCleanIndicesCommand extends Command
 {
     /**

@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import template from './sw-product-stream-list.html.twig';
 import './sw-product-stream-list.scss';
 
@@ -9,6 +5,7 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -59,13 +56,13 @@ export default {
             return promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-product-stream.detail.messageSaveSuccess', { name: productStream.name }, 0),
+                        message: this.$t('sw-product-stream.detail.messageSaveSuccess', { name: productStream.name }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-product-stream.detail.messageSaveError'),
+                        message: this.$t('sw-product-stream.detail.messageSaveError'),
                     });
                 });
         },
@@ -156,7 +153,7 @@ export default {
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role) || this.allowDelete,
@@ -191,7 +188,7 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('sw-product-stream.general.errorCategory', { name, count }, count),
+                message: this.$t('sw-product-stream.general.errorCategory', { name, count }, count),
             });
         },
 
@@ -205,7 +202,7 @@ export default {
             const behavior = {
                 cloneChildren: true,
                 overwrites: {
-                    name: `${item.name || item.translated.name} ${this.$tc('global.default.copy')}`,
+                    name: `${item.name || item.translated.name} ${this.$t('global.default.copy')}`,
                 },
             };
 
@@ -225,7 +222,7 @@ export default {
                     this.isLoading = false;
 
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 });
         },

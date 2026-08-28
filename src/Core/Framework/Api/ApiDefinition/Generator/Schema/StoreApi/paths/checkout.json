@@ -1,15 +1,108 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
-        "/checkout/cart": {
+        "/shipping-cost/product/{productId}": {
+            "get": {
+                "tags": [
+                    "Cart",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Calculate shipping costs for a product",
+                "description": "Calculates shipping costs for a single product using criteria-based shipping method selection.",
+                "operationId": "readShippingCostByProduct",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "The product identifier.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "criteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The calculated shipping costs.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "shippingCost",
+                                            "deliveryDate",
+                                            "shippingMethod"
+                                        ],
+                                        "properties": {
+                                            "shippingCost": {
+                                                "$ref": "#/components/schemas/CalculatedPrice"
+                                            },
+                                            "deliveryDate": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "earliest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "latest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                }
+                                            },
+                                            "shippingMethod": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No product exists for the given `productId` in this sales channel."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/shipping-cost/cart": {
             "get": {
                 "tags": [
                     "Cart"
                 ],
-                "summary": "Fetch or create a cart",
-                "description": "Used to fetch the current cart or for creating a new one.",
-                "operationId": "readCart",
+                "summary": "Calculate shipping costs for the cart",
+                "description": "Calculates shipping costs for the current cart across available shipping methods.",
+                "operationId": "readShippingCostsByCart",
                 "parameters": [
                     {
                         "name": "sw-language-id",
@@ -24,6 +117,71 @@
                 ],
                 "responses": {
                     "200": {
+                        "description": "The calculated shipping costs.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "shippingCost",
+                                            "deliveryDate",
+                                            "shippingMethod"
+                                        ],
+                                        "properties": {
+                                            "shippingCost": {
+                                                "$ref": "#/components/schemas/CalculatedPrice"
+                                            },
+                                            "deliveryDate": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "earliest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "latest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                }
+                                            },
+                                            "shippingMethod": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/checkout/cart": {
+            "get": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Fetch or create a cart",
+                "description": "Used to fetch the current cart or for creating a new one.",
+                "operationId": "readCart",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
                         "description": "Cart",
                         "content": {
                             "application/json": {
@@ -32,6 +190,10 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -57,6 +219,10 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -76,14 +242,7 @@
                 "operationId": "addLineItem",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -98,6 +257,15 @@
                 "responses": {
                     "200": {
                         "description": "The updated cart.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains sw-context-token value",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -108,6 +276,10 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -137,16 +309,6 @@
                                 "pattern": "^[0-9a-f]{32}$"
                             }
                         }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
                     }
                 ],
                 "responses": {
@@ -159,6 +321,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "One of the given ids does not reference a line item of the current cart."
                     }
                 },
                 "security": [
@@ -176,21 +346,14 @@
                 "operationId": "updateLineItem",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CartItems"
+                                "$ref": "#/components/schemas/CartItemsUpdate"
                             }
                         }
                     }
@@ -205,6 +368,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "A line item cannot be updated, e.g. a quantity that is not a positive integer, a quantity that is not a multiple of the parent quantity or a line item type that does not support updates."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "One of the given ids does not reference a line item of the current cart."
                     }
                 },
                 "security": [
@@ -224,14 +399,7 @@
                 "operationId": "removeLineItem",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -239,7 +407,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["ids"],
+                                "required": [
+                                    "ids"
+                                ],
                                 "properties": {
                                     "ids": {
                                         "description": "A list of product identifiers.",
@@ -266,6 +436,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "One of the given ids does not reference a line item of the current cart."
                     }
                 },
                 "security": [
@@ -285,14 +463,7 @@
                 "operationId": "createOrder",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -329,6 +500,21 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The cart cannot be turned into an order, e.g. because it is empty."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
+                    },
+                    "409": {
+                        "description": "The `hash` sent by the client does not match the current cart content, so the cart changed since it was last read."
                     }
                 },
                 "security": [
@@ -415,11 +601,20 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

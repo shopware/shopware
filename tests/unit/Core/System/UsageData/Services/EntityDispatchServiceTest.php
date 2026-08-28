@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleTag\RuleTagDefinition;
@@ -48,11 +48,11 @@ class EntityDispatchServiceTest extends TestCase
     {
         $this->registry = new StaticDefinitionInstanceRegistry(
             [new ProductDefinition(), new SalesChannelDefinition(), new RuleTagDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $this->shopIdProvider = static::createStub(ShopIdProvider::class);
         $this->shopIdProvider->method('getShopId')->willReturn('current-shop-id');
     }
 
@@ -202,7 +202,7 @@ class EntityDispatchServiceTest extends TestCase
     public function testItStoresCorrectLastRunDate(bool $isConsentGiven, ?\DateTimeImmutable $lastConsentDate, \DateTimeImmutable $now, ?\DateTimeImmutable $expectedLastRunDate): void
     {
         $systemConfigService = new StaticSystemConfigService([]);
-        $consentService = $this->createMock(ConsentService::class);
+        $consentService = static::createStub(ConsentService::class);
         $consentService->method('getConsentState')->willReturn(new ConsentState(
             BackendData::NAME,
             'system',
@@ -294,7 +294,7 @@ class EntityDispatchServiceTest extends TestCase
     {
         $lastConsentDate = new \DateTimeImmutable('2023-07-25T07:00:19.803422+0000');
 
-        $consentService = $this->createMock(ConsentService::class);
+        $consentService = static::createStub(ConsentService::class);
         $consentService->method('getConsentState')->willReturnOnConsecutiveCalls(
             $this->createConsentState(ConsentStatus::REVOKED, $lastConsentDate),
             $this->createConsentState(ConsentStatus::REVOKED, $lastConsentDate->modify('+8 hours')), // should not start new run
@@ -662,7 +662,9 @@ class EntityDispatchServiceTest extends TestCase
             $message = $envelope->getMessage();
             static::assertInstanceOf(IterateEntityMessage::class, $message);
             static::assertNotNull($message->lastRun);
-            ++$foundMessages[$message->entityName][$message->operation->value];
+            $entityName = $message->entityName;
+            static::assertArrayHasKey($entityName, $foundMessages);
+            ++$foundMessages[$entityName][$message->operation->value];
         }
 
         static::assertSame($expectedMessages, $foundMessages);
@@ -707,45 +709,43 @@ class EntityDispatchServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{isConsentGiven: bool, lastConsentDate: ?\DateTimeImmutable, now: ?\DateTimeImmutable, expectedLastRunDate: ?\DateTimeImmutable}>
+     * @return iterable<string, array{isConsentGiven: bool, lastConsentDate: ?\DateTimeImmutable, now: ?\DateTimeImmutable, expectedLastRunDate: ?\DateTimeImmutable}>
      */
-    public static function lastRunDateProvider(): array
+    public static function lastRunDateProvider(): iterable
     {
         $now = new \DateTimeImmutable();
         $lastConsentDate = new \DateTimeImmutable('2023-07-25T07:00:19.803422+0000');
 
-        return [
-            'Consent was never given' => [
-                'isConsentGiven' => false,
-                'lastConsentDate' => null,
-                'now' => $now,
-                'expectedLastRunDate' => null,
-            ],
-            'Consent was revoked' => [
-                'isConsentGiven' => false,
-                'lastConsentDate' => $lastConsentDate,
-                'now' => $now,
-                'expectedLastRunDate' => $lastConsentDate,
-            ],
-            'Consent is given and was never revoked before' => [
-                'isConsentGiven' => true,
-                'lastConsentDate' => null,
-                'now' => $now,
-                'expectedLastRunDate' => $now,
-            ],
-            'Consent is given but was revoked in the past' => [
-                'isConsentGiven' => true,
-                'lastConsentDate' => $lastConsentDate,
-                'now' => $now,
-                'expectedLastRunDate' => $now,
-            ],
+        yield 'Consent was never given' => [
+            'isConsentGiven' => false,
+            'lastConsentDate' => null,
+            'now' => $now,
+            'expectedLastRunDate' => null,
+        ];
+        yield 'Consent was revoked' => [
+            'isConsentGiven' => false,
+            'lastConsentDate' => $lastConsentDate,
+            'now' => $now,
+            'expectedLastRunDate' => $lastConsentDate,
+        ];
+        yield 'Consent is given and was never revoked before' => [
+            'isConsentGiven' => true,
+            'lastConsentDate' => null,
+            'now' => $now,
+            'expectedLastRunDate' => $now,
+        ];
+        yield 'Consent is given but was revoked in the past' => [
+            'isConsentGiven' => true,
+            'lastConsentDate' => $lastConsentDate,
+            'now' => $now,
+            'expectedLastRunDate' => $now,
         ];
     }
 
     private function createConsentService(ConsentStatus $consentStatus, ?string $updatedAt): ConsentService
     {
-        $service = $this->createMock(ConsentService::class);
-        $service->method('getConsentState')->with(BackendData::NAME)->willReturn(new ConsentState(
+        $service = static::createStub(ConsentService::class);
+        $service->method('getConsentState')->willReturn(new ConsentState(
             BackendData::NAME,
             'system',
             'system',
@@ -769,10 +769,10 @@ class EntityDispatchServiceTest extends TestCase
         );
     }
 
-    private function createGatewayStatusService(bool $isAcceptingEntities): GatewayStatusService&MockObject
+    private function createGatewayStatusService(bool $isAcceptingEntities): GatewayStatusService&Stub
     {
-        $service = $this->createMock(GatewayStatusService::class);
-        $service->expects($this->any())->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
+        $service = static::createStub(GatewayStatusService::class);
+        $service->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
 
         return $service;
     }

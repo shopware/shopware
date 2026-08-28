@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-bulk-edit__custom-fields {
     .sw-bulk-edit-custom-fields__change {
         display: flex;
@@ -15,7 +13,7 @@
             padding: 12px 32px;
 
             &:nth-child(even) {
-                background-color: $color-gray-100;
+                background-color: var(--color-background-secondary-default);
             }
 
             .sw-field,

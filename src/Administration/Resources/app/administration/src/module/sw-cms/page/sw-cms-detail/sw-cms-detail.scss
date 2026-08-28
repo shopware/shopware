@@ -15,29 +15,28 @@
     }
 
     .sw-cms-detail__page-info {
-        display: flex;
-        gap: 20px;
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-columns: auto auto minmax(0, max-content);
+        justify-content: start;
+        gap: var(--scale-size-8);
         align-items: center;
-    }
 
-    .sw-cms-detail__back-btn {
-        padding-right: 20px;
-        height: 80px;
-        line-height: 80px;
-        border-right: 1px solid $color-gray-300;
-        color: $color-darkgray-200;
-
-        &:hover {
-            color: $color-shopware-brand-500;
-        }
-
-        .mt-icon {
-            padding: 3px;
+        // Divider between the close button and the title
+        &::before {
+            content: "";
+            grid-column: 2;
+            width: 1px;
+            height: 100%;
+            margin-inline-end: var(--scale-size-16);
+            background: var(--color-border-secondary-default);
         }
     }
 
     .sw-cms-detail__page-name {
         max-width: 260px;
+        white-space: nowrap;
+        overflow: hidden;
         text-overflow: ellipsis;
     }
 
@@ -45,56 +44,56 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: $color-gray-300;
+        color: var(--color-icon-secondary-default);
     }
 
     .sw-cms-detail__page-defaults {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-xxs;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-2xs);
         line-height: 16px;
-        color: $color-white;
+        color: var(--color-static-white);
         padding: 4px 8px;
-        background: $color-gray-500;
+        background: var(--color-zinc-600);
         border-radius: 4px;
     }
 
     .sw-cms-detail__device-actions {
         display: grid;
         grid-template-columns: 24px 24px 24px 24px;
-        grid-column-gap: 20px;
+        grid-column-gap: var(--scale-size-16);
+        margin-inline: var(--scale-size-16);
         align-content: center;
         align-items: center;
         justify-content: start;
         justify-items: center;
 
         .mt-icon {
-            color: $color-gray-300;
+            color: var(--color-icon-secondary-default);
             cursor: pointer;
 
             &:hover {
-                color: $color-darkgray-200;
+                color: var(--color-text-primary-default);
             }
 
             &.is--active {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
 
             &.is--disabled {
                 cursor: not-allowed;
 
                 &:hover {
-                    color: $color-gray-300;
+                    color: var(--color-icon-secondary-default);
                 }
             }
         }
     }
 
+    // Sizes to its content; the former fixed column only left a gap behind
     .sw-cms-detail__actions {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        grid-column-gap: 8px;
-        align-content: center;
+        display: flex;
         align-items: center;
+        gap: var(--scale-size-8);
 
         .sw-field.sw-field--select {
             margin: 0;
@@ -104,7 +103,7 @@
                 padding: 8px 16px;
                 line-height: 22px;
                 height: 40px;
-                font-size: $font-size-xs;
+                font-size: var(--font-size-xs);
             }
         }
     }
@@ -138,12 +137,12 @@
             overflow-y: auto;
             overflow-x: hidden;
             position: relative;
-            background: $color-gray-50;
+            background: var(--color-background-secondary-default);
         }
 
         .sw-cms-detail__empty-stage {
             height: 100%;
-            background: $color-gray-50;
+            background: var(--color-background-secondary-default);
             display: grid;
             align-items: center;
             align-content: center;
@@ -152,8 +151,8 @@
             cursor: auto;
 
             &.is--valid-drop {
-                background-color: $color-shopware-brand-50;
-                border-color: $color-shopware-brand-500;
+                background-color: var(--color-background-brand-default);
+                border-color: var(--color-border-brand-default);
             }
 
             .sw-cms-detail__empty-stage-content {
@@ -164,13 +163,13 @@
 
             h2.sw-cms-detail__empty-stage-headline {
                 font-size: 32px;
-                font-weight: $font-weight-regular;
+                font-weight: var(--font-weight-regular);
                 margin-bottom: 5px;
             }
         }
 
         .sw-cms-stage {
-            background: $color-white;
+            background: var(--color-elevation-surface-raised);
             border: 0 none;
             position: relative;
             margin: auto;

@@ -4,7 +4,13 @@
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
-import type { Router } from 'vue-router';
+import type {
+    NavigationGuardNext,
+    Router,
+    RouteLocationNormalized,
+    RouteLocationNormalizedLoaded,
+    RouteLocationRaw,
+} from 'vue-router';
 import { createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
@@ -13,6 +19,7 @@ import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 
+import MtAvatar from '@shopware-ag/meteor-component-library/dist/esm/MtAvatar';
 import MtBanner from '@shopware-ag/meteor-component-library/dist/esm/MtBanner';
 import MtLoader from '@shopware-ag/meteor-component-library/dist/esm/MtLoader';
 import MtProgressBar from '@shopware-ag/meteor-component-library/dist/esm/MtProgressBar';
@@ -25,8 +32,10 @@ import MtPasswordField from '@shopware-ag/meteor-component-library/dist/esm/MtPa
 import MtSelect from '@shopware-ag/meteor-component-library/dist/esm/MtSelect';
 import MtSlider from '@shopware-ag/meteor-component-library/dist/esm/MtSlider';
 import MtSwitch from '@shopware-ag/meteor-component-library/dist/esm/MtSwitch';
+import MtText from '@shopware-ag/meteor-component-library/dist/esm/MtText';
 import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextField';
 import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
+import MtThemeSelect from '@shopware-ag/meteor-component-library/dist/esm/MtThemeSelect';
 import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
 import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
 import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
@@ -44,18 +53,68 @@ import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
 import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
+import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
+import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
+import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup';
+import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
+import {
+    MtDropdownMenuRoot,
+    MtDropdownMenuTrigger,
+    MtDropdownMenuPortal,
+    MtDropdownMenuSub,
+} from '@shopware-ag/meteor-component-library';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
+import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
+import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
 const { Component, State, Mixin } = Shopware;
+const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
+
+/**
+ * Scopes a transformed block condition chain to the current Vue component instance.
+ * Use it before delegating generated `$swLegacyBlock*` calls to the shared legacy condition runtime.
+ *
+ * @example
+ * getLegacyBlockConditionKey(instance, 'sw_product_detail_base:0');
+ */
+function getLegacyBlockConditionKey(instance: ComponentPublicInstance, chainKey: string): string {
+    const componentUid = instance.$?.uid;
+
+    if (typeof componentUid !== 'number') {
+        return chainKey;
+    }
+
+    return `${componentUid}:${chainKey}`;
+}
+
+type RouteGuardName = 'beforeRouteEnter' | 'beforeRouteLeave' | 'beforeRouteUpdate';
+type RouteGuard = (
+    this: unknown,
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalizedLoaded,
+    next: NavigationGuardNext,
+) => unknown;
+type RouteEnterCallback =
+    Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
+type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
+
+const routeGuardNames: RouteGuardName[] = [
+    'beforeRouteEnter',
+    'beforeRouteLeave',
+    'beforeRouteUpdate',
+];
 
 /**
  * @private
  */
 export default class VueAdapter extends ViewAdapter {
     private resolvedComponentConfigs: Map<string, Promise<ComponentConfig | boolean>>;
+
+    private routeGuardComponents: WeakSet<ComponentConfig>;
 
     private vueComponents: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,6 +130,7 @@ export default class VueAdapter extends ViewAdapter {
 
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
+        this.routeGuardComponents = new WeakSet();
         this.vueComponents = {};
 
         this.app = createApp({
@@ -166,6 +226,59 @@ export default class VueAdapter extends ViewAdapter {
             get: getBlockDataScope,
             enumerable: true,
         });
+        /**
+         * Starts a transformed legacy block condition chain for the current component instance.
+         * Use it only from compiled templates produced by `transform-legacy-block-conditionals`.
+         *
+         * @example
+         * this.$swLegacyBlockIf('sw_card:0', isVisible, {
+         *     segmentCaseIndex: 0,
+         *     renderOrderSegment: 'defaultSlot',
+         * });
+         */
+        this.app.config.globalProperties.$swLegacyBlockIf = function legacyBlockIf(
+            this: ComponentPublicInstance,
+            chainKey: string,
+            expression: unknown,
+            options: LegacyConditionCaseOptions,
+        ): boolean {
+            return legacyIf(getLegacyBlockConditionKey(this, chainKey), expression, options);
+        };
+        /**
+         * Continues a transformed legacy block condition chain for the current component instance.
+         * Use it only from generated replacements for `v-else-if` in legacy-aware block templates.
+         *
+         * @example
+         * this.$swLegacyBlockElseIf('sw_card:0', hasFallback, {
+         *     segmentCaseIndex: 1,
+         *     renderOrderSegment: 'shimExtension',
+         * });
+         */
+        this.app.config.globalProperties.$swLegacyBlockElseIf = function legacyBlockElseIf(
+            this: ComponentPublicInstance,
+            chainKey: string,
+            expression: unknown,
+            options: LegacyConditionCaseOptions,
+        ): boolean {
+            return legacyElseIf(getLegacyBlockConditionKey(this, chainKey), expression, options);
+        };
+        /**
+         * Finishes a transformed legacy block condition chain for the current component instance.
+         * Use it only from generated replacements for `v-else` in legacy-aware block templates.
+         *
+         * @example
+         * this.$swLegacyBlockElse('sw_card:0', {
+         *     segmentCaseIndex: 2,
+         *     renderOrderSegment: 'nativeExtension',
+         * });
+         */
+        this.app.config.globalProperties.$swLegacyBlockElse = function legacyBlockElse(
+            this: ComponentPublicInstance,
+            chainKey: string,
+            options: LegacyConditionCaseOptions,
+        ): boolean {
+            return legacyElse(getLegacyBlockConditionKey(this, chainKey), options);
+        };
 
         /**
          * This is a hack for providing the services to the components.
@@ -334,6 +447,7 @@ export default class VueAdapter extends ViewAdapter {
          * Initialize all meteor components
          */
         const meteorComponents = {
+            MtAvatar,
             MtBanner,
             MtLoader,
             MtProgressBar,
@@ -346,8 +460,10 @@ export default class VueAdapter extends ViewAdapter {
             MtSelect,
             MtSlider,
             MtSwitch,
+            MtText,
             MtTextField,
             MtTextarea,
+            MtThemeSelect,
             MtIcon,
             MtPagination,
             MtSkeletonBar,
@@ -365,6 +481,15 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
             MtSnackbar,
             MtBadge,
+            MtPromoBadge,
+            MtActionMenu,
+            MtActionMenuItem,
+            MtActionMenuGroup,
+            MtDropdownMenuRoot,
+            MtDropdownMenuTrigger,
+            MtDropdownMenuPortal,
+            MtDropdownMenuSub,
+            MtTooltip,
         } as const;
 
         const lazyMeteorComponents = {
@@ -446,11 +571,7 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            this.registerAsyncComponent(
-                componentName,
-                // @ts-expect-error - resolved config does not match completely a standard vue component
-                () => this.componentResolver(componentName),
-            );
+            this.registerAsyncComponent(componentName, () => this.componentResolver(componentName));
 
             const vueComponent = this.app?.component(componentName);
 
@@ -461,7 +582,7 @@ export default class VueAdapter extends ViewAdapter {
         });
     }
 
-    componentResolver(componentName: string) {
+    componentResolver(componentName: string): Promise<ComponentConfig | boolean> {
         if (!this.resolvedComponentConfigs.has(componentName)) {
             this.resolvedComponentConfigs.set(
                 componentName,
@@ -479,7 +600,7 @@ export default class VueAdapter extends ViewAdapter {
             );
         }
 
-        return this.resolvedComponentConfigs.get(componentName);
+        return this.resolvedComponentConfigs.get(componentName) as Promise<ComponentConfig | boolean>;
     }
 
     /**
@@ -517,8 +638,16 @@ export default class VueAdapter extends ViewAdapter {
      * Returns a final Vue component by its name without defineAsyncComponent
      * which cannot be used in the router.
      */
-    getComponentForRoute(componentName: string) {
-        return () => this.componentResolver(componentName);
+    getComponentForRoute(componentName: string): () => Promise<boolean | ComponentConfig> {
+        return async () => {
+            const componentConfig = await this.componentResolver(componentName);
+
+            if (typeof componentConfig !== 'boolean') {
+                this.normalizeRouteGuards(componentConfig);
+            }
+
+            return componentConfig;
+        };
     }
 
     /**
@@ -629,6 +758,7 @@ export default class VueAdapter extends ViewAdapter {
             legacy: false,
             locale: lastKnownLocale,
             fallbackLocale,
+            fallbackWarn: false,
             silentFallbackWarn: true,
             sync: true,
             messages,
@@ -690,7 +820,7 @@ export default class VueAdapter extends ViewAdapter {
                 return '';
             }
 
-            const baseTitle = this.$root.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const baseTitle = this.$root.$t('global.sw-admin-menu.textShopwareAdmin');
 
             if (!this.$route.meta || !this.$route.meta.$module) {
                 return '';
@@ -698,7 +828,7 @@ export default class VueAdapter extends ViewAdapter {
 
             // @ts-expect-error - $module is not typed correctly
             const moduleTitle = this.$route.meta.$module?.title as string;
-            const pageTitle = this.$root.$tc(moduleTitle);
+            const pageTitle = this.$root.$t(moduleTitle);
 
             const params = [
                 baseTitle,
@@ -735,6 +865,155 @@ export default class VueAdapter extends ViewAdapter {
         if (componentConfig.extends) {
             // @ts-expect-error - extends can be a string or a component config
             this.resolveMixins(componentConfig.extends);
+        }
+    }
+
+    // Normalize route guards by collecting inherited and mixin guards and
+    // composing them into one deduplicated guard per hook for route components.
+    private normalizeRouteGuards(componentConfig: ComponentConfig) {
+        if (this.routeGuardComponents.has(componentConfig)) {
+            return;
+        }
+
+        this.routeGuardComponents.add(componentConfig);
+
+        routeGuardNames.forEach((guardName) => {
+            const guards = this.collectRouteGuards(componentConfig, guardName);
+
+            if (!guards.length) {
+                return;
+            }
+
+            this.setRouteGuard(componentConfig, guardName, this.composeRouteGuards(guards, guardName));
+        });
+    }
+
+    private collectRouteGuards(
+        componentConfig: ComponentConfig,
+        guardName: RouteGuardName,
+        visitedConfigs = new Set<ComponentConfig>(),
+        seenGuards = new Set<RouteGuard>(),
+    ): RouteGuard[] {
+        if (visitedConfigs.has(componentConfig)) {
+            return [];
+        }
+
+        visitedConfigs.add(componentConfig);
+
+        const guards: RouteGuard[] = [];
+
+        if (componentConfig.extends && typeof componentConfig.extends !== 'string') {
+            guards.push(...this.collectRouteGuards(componentConfig.extends, guardName, visitedConfigs, seenGuards));
+        }
+
+        componentConfig.mixins?.forEach((mixin) => {
+            if (typeof mixin === 'string') {
+                return;
+            }
+
+            guards.push(...this.collectRouteGuards(mixin as ComponentConfig, guardName, visitedConfigs, seenGuards));
+        });
+
+        const currentGuard = this.getRouteGuard(componentConfig, guardName);
+
+        if (currentGuard && !seenGuards.has(currentGuard)) {
+            seenGuards.add(currentGuard);
+            guards.push(currentGuard);
+        }
+
+        return guards;
+    }
+
+    private composeRouteGuards(guards: RouteGuard[], guardName: RouteGuardName): RouteGuard {
+        return async function composedRouteGuard(this: unknown, to, from, next) {
+            const enterCallbacks: RouteEnterCallback[] = [];
+
+            const runGuard = async (index: number): Promise<void> => {
+                if (index >= guards.length) {
+                    if (guardName === 'beforeRouteEnter' && enterCallbacks.length) {
+                        next((vm) => {
+                            enterCallbacks.forEach((callback) => {
+                                callback(vm);
+                            });
+                        });
+
+                        return;
+                    }
+
+                    next();
+                    return;
+                }
+
+                const guard = guards[index];
+                const forwardRouteResult = next as (result: Exclude<RouteGuardResult, undefined>) => void;
+
+                const continueNavigation = async (result?: RouteGuardResult) => {
+                    if (guardName === 'beforeRouteEnter' && typeof result === 'function') {
+                        enterCallbacks.push(result);
+                        await runGuard(index + 1);
+                        return;
+                    }
+
+                    if (typeof result === 'undefined') {
+                        await runGuard(index + 1);
+                        return;
+                    }
+
+                    // Only beforeRouteEnter callbacks and undefined are handled above;
+                    // all other defined results are forwarded to Vue Router unchanged.
+                    forwardRouteResult(result);
+                };
+
+                if (guard.length >= 3) {
+                    await new Promise<RouteGuardResult | undefined>((resolve, reject) => {
+                        const resolveRouteGuard: NavigationGuardNext = (result?) => {
+                            resolve(result as RouteGuardResult | undefined);
+                        };
+
+                        void Promise.resolve(guard.call(this, to, from, resolveRouteGuard)).catch(reject);
+                    })
+                        .then((result) => continueNavigation(result))
+                        .catch((error) => {
+                            throw error instanceof Error ? error : new Error(String(error));
+                        });
+
+                    return;
+                }
+
+                await continueNavigation((await guard.call(this, to, from, next)) as RouteGuardResult);
+            };
+
+            try {
+                await runGuard(0);
+            } catch (error) {
+                next(error as Error);
+            }
+        };
+    }
+
+    private getRouteGuard(componentConfig: ComponentConfig, guardName: RouteGuardName): RouteGuard | undefined {
+        switch (guardName) {
+            case 'beforeRouteEnter':
+                return componentConfig.beforeRouteEnter as RouteGuard | undefined;
+            case 'beforeRouteLeave':
+                return componentConfig.beforeRouteLeave as RouteGuard | undefined;
+            case 'beforeRouteUpdate':
+                return componentConfig.beforeRouteUpdate as RouteGuard | undefined;
+            default:
+                return undefined;
+        }
+    }
+
+    private setRouteGuard(componentConfig: ComponentConfig, guardName: RouteGuardName, guard: RouteGuard) {
+        switch (guardName) {
+            case 'beforeRouteEnter':
+                componentConfig.beforeRouteEnter = guard;
+                return;
+            case 'beforeRouteLeave':
+                componentConfig.beforeRouteLeave = guard;
+                return;
+            case 'beforeRouteUpdate':
+                componentConfig.beforeRouteUpdate = guard;
         }
     }
 }

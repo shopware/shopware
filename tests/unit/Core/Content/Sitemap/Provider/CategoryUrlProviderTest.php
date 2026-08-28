@@ -7,11 +7,13 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -26,7 +28,6 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -35,15 +36,15 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(CategoryUrlProvider::class)]
 class CategoryUrlProviderTest extends TestCase
 {
-    private readonly ConfigHandler&MockObject $configHandler;
+    private readonly ConfigHandler&Stub $configHandler;
 
-    private readonly Connection&MockObject $connection;
+    private readonly Connection&Stub $connection;
 
-    private readonly CategoryDefinition&MockObject $definition;
+    private readonly CategoryDefinition&Stub $definition;
 
-    private readonly IteratorFactory&MockObject $iteratorFactory;
+    private readonly IteratorFactory&Stub $iteratorFactory;
 
-    private readonly RouterInterface&MockObject $router;
+    private readonly EntityRouteResolver&Stub $entityRouteResolver;
 
     private readonly EventDispatcher&MockObject $dispatcher;
 
@@ -51,15 +52,15 @@ class CategoryUrlProviderTest extends TestCase
 
     private int $categoryResultIncrement;
 
-    private (QueryBuilder&MockObject)|null $queryBuilder = null;
+    private (QueryBuilder&Stub)|null $queryBuilder = null;
 
     protected function setUp(): void
     {
-        $this->configHandler = $this->createMock(ConfigHandler::class);
-        $this->connection = $this->createMock(Connection::class);
-        $this->definition = $this->createMock(CategoryDefinition::class);
-        $this->iteratorFactory = $this->createMock(IteratorFactory::class);
-        $this->router = $this->createMock(RouterInterface::class);
+        $this->configHandler = static::createStub(ConfigHandler::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->definition = static::createStub(CategoryDefinition::class);
+        $this->iteratorFactory = static::createStub(IteratorFactory::class);
+        $this->entityRouteResolver = static::createStub(EntityRouteResolver::class);
         $this->ids = new IdsCollection();
         $this->dispatcher = $this->createMock(EventDispatcher::class);
         $this->categoryResultIncrement = 0;
@@ -67,12 +68,16 @@ class CategoryUrlProviderTest extends TestCase
 
     public function testGetDecorated(): void
     {
+        $this->dispatcher->expects($this->never())->method('dispatch');
+
         static::expectException(DecorationPatternException::class);
         $this->getCategoryUrlProvider()->getDecorated();
     }
 
     public function testGetName(): void
     {
+        $this->dispatcher->expects($this->never())->method('dispatch');
+
         $name = $this->getCategoryUrlProvider()->getName();
         static::assertSame('category', $name);
     }
@@ -134,6 +139,8 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNotNull($this->queryBuilder);
         $context = Generator::generateSalesChannelContext();
 
+        $this->dispatcher->expects($this->once())->method('dispatch')->willReturnArgument(0);
+
         $provider = $this->getCategoryUrlProvider();
         $urlResult = $provider->getUrls($context, 100, 50);
 
@@ -152,6 +159,8 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNotNull($this->queryBuilder);
         $this->configHandler->method('get')->willReturn([]);
         $context = Generator::generateSalesChannelContext();
+
+        $this->dispatcher->expects($this->once())->method('dispatch')->willReturnArgument(0);
 
         $provider = $this->getCategoryUrlProvider();
 
@@ -261,12 +270,13 @@ class CategoryUrlProviderTest extends TestCase
             ],
         ]);
 
-        $this->router->method('generate')->willReturn('category/2/detail');
+        $this->entityRouteResolver->method('getRouteNameForEntityName')->willReturn('frontend.navigation.page');
+        $this->entityRouteResolver->method('generateUrl')->willReturn('category/2/detail');
 
-        $this->queryBuilder = $this->createMock(QueryBuilder::class);
+        $this->queryBuilder = static::createStub(QueryBuilder::class);
         $this->queryBuilder->method('executeQuery')->willReturn($categoryQueryResult);
 
-        $query = $this->createMock(IterableQuery::class);
+        $query = static::createStub(IterableQuery::class);
         $query->method('getQuery')->willReturn($this->queryBuilder);
 
         $this->iteratorFactory->method('createIterator')->willReturn($query);
@@ -281,7 +291,7 @@ class CategoryUrlProviderTest extends TestCase
             $this->connection,
             $this->definition,
             $this->iteratorFactory,
-            $this->router,
+            $this->entityRouteResolver,
             $this->dispatcher
         );
     }

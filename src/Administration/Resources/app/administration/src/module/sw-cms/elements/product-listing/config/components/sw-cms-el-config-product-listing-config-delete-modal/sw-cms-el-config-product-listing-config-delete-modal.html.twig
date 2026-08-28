@@ -3,14 +3,14 @@
     <template #modal-header>
         {% block sw_cms_config_product_listing_delete_modal_header %}
         <h4 class="sw-modal__title">
-            {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.heading', { productSortingName: productSorting.label } ) }}
+            {{ $t('sw-cms.elements.productListing.config.sorting.deleteModal.heading', { productSortingName: productSorting.label } ) }}
         </h4>
         {% endblock %}
     </template>
 
     {% block sw_cms_config_product_listing_delete_modal_body %}
     <p class="sw-cms-el-config-product-listing-config-delete-modal__body">
-        {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.body', { productSortingName: productSorting.label } ) }}
+        {{ $t('sw-cms.elements.productListing.config.sorting.deleteModal.body', { productSortingName: productSorting.label } ) }}
     </p>
     {% endblock %}
 
@@ -23,7 +23,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -34,7 +34,7 @@
             size="small"
             @click="onConfirm"
         >
-            {{ $tc('global.default.delete') }}
+            {{ $t('global.default.delete') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

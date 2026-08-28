@@ -27,7 +27,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -41,7 +41,7 @@
             :disabled="isLoading || !allowSave"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -54,7 +54,7 @@
             <mt-card
                 v-if="!isLoading"
                 position-identifier="sw-settings-state-machine-detail-content"
-                :title="$tc('sw-settings-state-machine.detail.stateMachineCardTitle')"
+                :title="$t('sw-settings-state-machine.detail.stateMachineCardTitle')"
             >
                 <sw-container
                     columns="repeat(auto-fit, minmax(250px, 1fr))"
@@ -64,7 +64,7 @@
 
                     <mt-text-field
                         v-model="stateMachine.name"
-                        :label="$tc('sw-settings-state-machine.detail.fieldLabels.name')"
+                        :label="$t('sw-settings-state-machine.detail.fieldLabels.name')"
                         :error="stateMachineNameError"
                         required
                     />
@@ -74,7 +74,7 @@
 
                     <mt-text-field
                         v-model="stateMachine.technicalName"
-                        :label="$tc('sw-settings-state-machine.detail.fieldLabels.technicalName')"
+                        :label="$t('sw-settings-state-machine.detail.fieldLabels.technicalName')"
                         :disabled="true"
                         required
                     />

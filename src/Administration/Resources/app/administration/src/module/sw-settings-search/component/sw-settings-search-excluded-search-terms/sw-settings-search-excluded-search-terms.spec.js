@@ -30,6 +30,15 @@ async function createWrapper(privileges = [], resetError = false) {
 
             global: {
                 renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'regular-icon',
+                            },
+                        },
+                    },
+                },
                 provide: {
                     validationService: {},
                     repositoryFactory: {
@@ -120,7 +129,7 @@ describe('module/sw-settings-search/component/sw-settings-search-excluded-search
 
         expect(wrapper.vm.searchConfigs.excludedTerms).toEqual([]);
         expect(wrapper.find('.sw-settings-search-excluded-search-terms').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
     });
 
     it('should have pagination on list excluded terms', async () => {

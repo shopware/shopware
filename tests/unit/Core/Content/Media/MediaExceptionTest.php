@@ -578,6 +578,18 @@ class MediaExceptionTest extends TestCase
         static::assertSame(['message' => $message], $exception->getParameters());
     }
 
+    public function testPresignedUploadInvalidConfigurationWithPreviousException(): void
+    {
+        $previousException = new \RuntimeException('S3 client creation failed');
+
+        $exception = MediaException::presignedUploadInvalidConfiguration($previousException->getMessage(), $previousException);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION, $exception->getErrorCode());
+        static::assertSame('Invalid presigned upload configuration: S3 client creation failed', $exception->getMessage());
+        static::assertSame($previousException, $exception->getPrevious());
+    }
+
     public function testPresignedUploadFailed(): void
     {
         $previousException = new \RuntimeException('S3 connection failed');

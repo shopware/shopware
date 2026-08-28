@@ -31,6 +31,13 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         .gallery-slider-thumbnails-col.is-underneath {
             display: none;
         }
+
+        .gallery-slider-thumbnails-col.is-left {
+            .gallery-slider-thumbnails {
+                max-height: 425px;
+                overflow: hidden;
+            }
+        }
     }
 
     &.is-single-image {

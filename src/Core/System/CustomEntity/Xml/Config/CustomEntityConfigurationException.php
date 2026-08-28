@@ -5,10 +5,13 @@ namespace Shopware\Core\System\CustomEntity\Xml\Config;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.8.0 - will be removed, use {@see \Shopware\Core\System\CustomEntity\CustomEntityException} instead
+ * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException} instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class CustomEntityConfigurationException extends HttpException
@@ -18,7 +21,7 @@ class CustomEntityConfigurationException extends HttpException
     final public const INVALID_REFERENCES = 'CUSTOM_ENTITY_INVALID_REFERENCES';
 
     /**
-     * @deprecated tag:v6.8.0 - will be removed, use {@see \Shopware\Core\System\CustomEntity\CustomEntityException::entityNotGiven} instead
+     * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException::entityNotGiven} instead
      *
      * @param string[] $entities
      */
@@ -45,7 +48,7 @@ class CustomEntityConfigurationException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - will be removed, use {@see \Shopware\Core\System\CustomEntity\CustomEntityException::duplicateReferences} instead
+     * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException::duplicateReferences} instead
      *
      * @param string[] $duplicates
      */
@@ -80,7 +83,7 @@ class CustomEntityConfigurationException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - will be removed, use {@see \Shopware\Core\System\CustomEntity\CustomEntityException::invalidReferences} instead
+     * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException::invalidReferences} instead
      *
      * @param string[] $invalidRefs
      */

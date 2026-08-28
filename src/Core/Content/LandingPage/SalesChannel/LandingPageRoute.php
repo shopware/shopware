@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
@@ -22,8 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class LandingPageRoute extends AbstractLandingPageRoute
 {
     /**
@@ -34,6 +35,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
     public function __construct(
         private readonly SalesChannelRepository $landingPageRepository,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
         private readonly LandingPageDefinition $landingPageDefinition,
         private readonly CacheTagCollector $cacheTagCollector,
     ) {
@@ -73,11 +75,11 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $request,
             $this->createCriteria($pageId, $request),
             $context,
-            $landingPage->getTranslation('slotConfig'),
+            $this->buildMergedCmsSlotConfig($landingPage, $context),
             $resolverContext
         );
 
-        $cmsPage = $pages->first();
+        $cmsPage = $pages->getEntities()->first();
         if ($cmsPage === null) {
             throw LandingPageException::notFound($pageId);
         }
@@ -94,6 +96,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
 
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
+        $criteria->addAssociation('translations');
 
         $landingPage = $this->landingPageRepository->search($criteria, $context)->getEntities()->get($landingPageId);
         if (!$landingPage instanceof LandingPageEntity) {
@@ -114,12 +117,23 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if (\is_array($slots) && $slots !== []) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));
         }
 
         return $criteria;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
+    private function buildMergedCmsSlotConfig(LandingPageEntity $landingPage, SalesChannelContext $context): ?array
+    {
+        return $this->cmsSlotConfigInheritanceBuilder->build(
+            $landingPage->getTranslations(),
+            $context,
+        );
     }
 }

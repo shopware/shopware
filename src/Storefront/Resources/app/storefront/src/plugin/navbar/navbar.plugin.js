@@ -36,6 +36,7 @@ export default class NavbarPlugin extends Plugin {
         this._topLevelLinks = this.el.querySelectorAll(`${this.options.topLevelLinksSelector}`);
         this._registerEvents();
         this._isMouseOver = false;
+        this._setCurrentPage();
     }
 
     _registerEvents() {
@@ -52,10 +53,6 @@ export default class NavbarPlugin extends Plugin {
             if (el.getAttribute('href') !== null) {
                 el.addEventListener(clickEvent, this._navigateToLinkOnClick.bind(this, el));
             }
-        });
-
-        window.addEventListener('load', () => {
-            this._setCurrentPage();
         });
     }
 
@@ -104,14 +101,17 @@ export default class NavbarPlugin extends Plugin {
      */
     _navigateToLinkOnClick(topLevelLink, event) {
         if (event.type === 'click' && event.pageX !== 0) {
+            // Only dropdown links lose their native navigation; plain links are handled by the browser.
+            if (!topLevelLink.classList.contains('dropdown-toggle')) {
+                return;
+            }
+
             if (topLevelLink.target === '_blank') {
                 window.open(topLevelLink.href, '_blank', 'noopener, noreferrer');
                 return;
             }
 
-            if (topLevelLink.parentNode.classList.contains('dropdown')) {
-                this._navigateTo(topLevelLink.href);
-            }
+            this._navigateTo(topLevelLink.href);
         }
     }
 

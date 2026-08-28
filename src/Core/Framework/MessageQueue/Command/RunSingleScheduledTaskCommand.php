@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'scheduled-task:run-single',
     description: 'Allows to run one single scheduled task regardless of its schedule.',
 )]
-#[Package('framework')]
 class RunSingleScheduledTaskCommand extends Command
 {
     /**

@@ -1,10 +1,12 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package buyers-experience
  */
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-async function createWrapper() {
+async function createWrapper({ featureActive = false } = {}) {
     return mount(
         await wrapTestComponent('sw-product-modal-variant-generation', {
             sync: true,
@@ -180,8 +182,63 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-tabs': true,
-                    'sw-tabs-item': true,
+                    'sw-tabs': {
+                        name: 'sw-tabs',
+                        props: {
+                            isVertical: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                        },
+                        template: '<div class="sw-tabs"><slot></slot></div>',
+                    },
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        emits: [
+                            'click',
+                        ],
+                        props: {
+                            active: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                        template: '<button class="sw-tabs-item" @click="$emit(\'click\')"><slot></slot></button>',
+                    },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: [
+                            'new-item-active',
+                        ],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                            vertical: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
@@ -220,6 +277,9 @@ async function createWrapper() {
                         },
                     },
                     swProductDetailLoadAll: () => {},
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                 },
             },
         },
@@ -243,6 +303,74 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 },
             };
         });
+    });
+
+    it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-product-modal-variant-generation');
+        expect(tabs.props('isVertical')).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-product-modal-variant-generation');
+        expect(tabs.props('defaultItem')).toBe('options');
+        expect(tabs.props('vertical')).toBe(true);
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-product.variations.configuratorModal.selectOptions',
+                name: 'options',
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should add conditional meteor tab items when variants can be generated', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+
+        await wrapper.setData({
+            variantsNumber: 2,
+        });
+
+        expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')).toEqual([
+            {
+                label: 'sw-product.variations.configuratorModal.selectOptions',
+                name: 'options',
+            },
+            {
+                label: 'sw-product.variations.configuratorModal.priceSurcharges',
+                name: 'prices',
+            },
+            {
+                label: 'sw-product.variations.configuratorModal.defineRestrictions',
+                name: 'restrictions',
+            },
+        ]);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+
+        await wrapper.setData({
+            variantsNumber: 2,
+        });
+
+        wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'prices');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('prices');
+        expect(wrapper.findComponent({ name: 'sw-product-variants-configurator-prices' }).exists()).toBe(true);
     });
 
     it('should remove file for all variants', async () => {
@@ -673,6 +801,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             variantsGenerator: {
                 ...wrapper.vm.variantsGenerator,
                 saveVariants: () => Promise.resolve(),
+                saveVariantRestrictions: () => Promise.resolve(),
+                saveVariantListingConfig: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -714,6 +844,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             variantsGenerator: {
                 generateVariants: () => Promise.resolve(),
                 saveVariants: () => Promise.resolve(),
+                saveVariantRestrictions: () => Promise.resolve(),
+                saveVariantListingConfig: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -1063,6 +1195,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper();
 
         const saveMock = jest.fn().mockReturnValueOnce(Promise.resolve({}));
+        const saveVariantRestrictionsMock = jest.fn(() => Promise.resolve());
+        const saveVariantListingConfigMock = jest.fn(() => Promise.resolve());
 
         await wrapper.setData({
             productRepository: {
@@ -1082,6 +1216,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             },
             variantsGenerator: {
                 saveVariants: () => Promise.resolve(),
+                saveVariantRestrictions: saveVariantRestrictionsMock,
+                saveVariantListingConfig: saveVariantListingConfigMock,
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -1092,6 +1228,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         // productRepository.save should NOT be called - variants are saved via sync API
         // and swProductDetailLoadAll() reloads fresh data from server
         expect(saveMock).not.toHaveBeenCalled();
+        expect(saveVariantRestrictionsMock).toHaveBeenCalledTimes(1);
+        expect(saveVariantListingConfigMock).toHaveBeenCalledTimes(1);
         // The event should still be emitted
         expect(wrapper.emitted('variations-finish-generate')).toHaveLength(1);
     });

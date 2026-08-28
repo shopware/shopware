@@ -59,6 +59,8 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     props: ['dataSource'],
                     template: `
                         <div>
+                          <button class="inline-edit-save" @click="$emit('inline-edit-save', dataSource[0])"></button>
+                          <button class="inline-edit-cancel" @click="$emit('inline-edit-cancel', dataSource[0])"></button>
                           <template v-for="item in dataSource">
                               <slot name="actions" v-bind="{ item: item }"></slot>
                               <slot name="column-fields" v-bind="{ item: item }"></slot>
@@ -85,7 +87,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                 },
             },
             mocks: {
-                $tc: (param) => {
+                $t: (param) => {
                     if (snippets[param]) {
                         return snippets[param];
                     }
@@ -97,14 +99,14 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
             ],
         },
         props: {
-            productSortings,
+            modelValue: productSortings,
             defaultSorting,
         },
     });
 }
 
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid', () => {
-    it('should remove entry from product sortings on delete', async () => {
+    it('should emit the updated product sortings on delete', async () => {
         const productSortings = new EntityCollection('', '', {}, {}, [
             { id: '1a2b3c', locked: false },
             { id: 'foo', locked: false },
@@ -119,7 +121,9 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
 
         await itemFoo.trigger('click');
 
-        expect(wrapper.vm.productSortings.has('foo')).toBeFalsy();
+        const updatedProductSortings = wrapper.emitted('update:modelValue').at(-1)[0];
+
+        expect(updatedProductSortings.has('foo')).toBeFalsy();
     });
 
     it('should not show context menu when item is locked', async () => {
@@ -136,7 +140,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         expect(itemBar.exists()).toBeTruthy();
 
         await wrapper.setProps({
-            productSortings: new EntityCollection('', '', {}, {}, [
+            modelValue: new EntityCollection('', '', {}, {}, [
                 { id: '1a2b3c', locked: false },
                 { id: 'foo', locked: false },
                 { id: 'bar', locked: true },
@@ -170,6 +174,19 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         await wrapper.vm.$forceUpdate();
 
         expect(wrapper.vm.productSortings.get('bar').priority).toBe(7);
+    });
+
+    it('should forward inline edit events', async () => {
+        const productSortings = new EntityCollection('', '', {}, {}, [
+            { id: 'foo', locked: false, priority: 5 },
+        ]);
+        const wrapper = await createWrapper(productSortings);
+
+        await wrapper.find('.inline-edit-save').trigger('click');
+        await wrapper.find('.inline-edit-cancel').trigger('click');
+
+        expect(wrapper.emitted('inline-edit-save')).toEqual([[productSortings.first()]]);
+        expect(wrapper.emitted('inline-edit-cancel')).toEqual([[productSortings.first()]]);
     });
 
     it('should display criteria properly', async () => {

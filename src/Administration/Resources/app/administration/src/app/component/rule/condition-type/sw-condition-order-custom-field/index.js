@@ -1,8 +1,8 @@
 import template from './sw-condition-order-custom-field.html.twig';
 import './sw-condition-order-custom-field.scss';
+import { RULE_BETWEEN_OPERATOR_MIXIN_NAME } from 'src/app/mixin/rule-between-operator.mixin';
 
-const { Component, Filter, Mixin } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { Filter, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -25,6 +25,7 @@ export default {
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
+        Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME),
     ],
 
     computed: {
@@ -107,27 +108,9 @@ export default {
             return this.conditionDataProviderService.getOperatorSetByComponent(this.renderedField);
         },
 
-        currentError() {
-            return (
-                this.conditionValueRenderedFieldError ||
-                this.conditionValueSelectedFieldError ||
-                this.conditionValueSelectedFieldSetError ||
-                this.conditionValueOperatorError ||
-                this.conditionValueRenderedFieldValueError
-            );
-        },
-
         truncateFilter() {
             return Filter.getByName('truncate');
         },
-
-        ...mapPropertyErrors('condition', [
-            'value.renderedField',
-            'value.selectedField',
-            'value.selectedFieldSet',
-            'value.operator',
-            'value.renderedFieldValue',
-        ]),
     },
 
     methods: {

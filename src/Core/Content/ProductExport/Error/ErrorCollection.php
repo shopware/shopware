@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Error>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ErrorCollection extends Collection

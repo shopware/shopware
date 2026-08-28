@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueSizeRestrictListener;
@@ -15,6 +16,7 @@ use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MessageQueueSizeRestrictListener::class)]
 class MessageQueueSizeRestrictListenerTest extends TestCase
 {
@@ -28,7 +30,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $envelope = new Envelope(new \stdClass());
 
-        $event = new SendMessageToTransportsEvent($envelope, ['test' => $this->createMock(SyncTransport::class)]);
+        $event = new SendMessageToTransportsEvent($envelope, ['test' => static::createStub(SyncTransport::class)]);
 
         $listener($event);
     }
@@ -47,7 +49,7 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
         $message->a = str_repeat('a', $maxMessageSizeKiB * 1024);
         $envelope = new Envelope($message);
 
-        $event = new SendMessageToTransportsEvent($envelope, ['test' => $this->createMock(SyncTransport::class)]);
+        $event = new SendMessageToTransportsEvent($envelope, ['test' => static::createStub(SyncTransport::class)]);
 
         $listener($event);
     }
@@ -98,10 +100,9 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $event = new SendMessageToTransportsEvent($envelope, []);
 
-        $this->expectException(MessageQueueException::class);
         // 0.0859375 is the overhead of the serialization
         $size = $maxMessageSizeKiB + 0.0859375;
-        $this->expectExceptionMessage('The message "stdClass" exceeds the ' . $maxMessageSizeKiB . ' KiB size limit with its size of ' . $size . ' KiB.');
+        $this->expectExceptionObject(MessageQueueException::maxQueueMessageSizeExceeded('stdClass', $size, $maxMessageSizeKiB));
 
         $listener($event);
     }

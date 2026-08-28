@@ -4,12 +4,14 @@
     <template #smart-bar-header>
         <h2>
             {% block sw_settings_search_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            <span>{{ $t('sw-settings.index.title') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="12px"
+                size="var(--scale-size-12)"
             />
-            {{ $tc('sw-settings-search.general.mainMenuItemGeneral') }}
+
+            <span>{{ $t('sw-settings-search.general.mainMenuItemGeneral') }}</span>
             {% endblock %}
         </h2>
     </template>
@@ -34,7 +36,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSaveSearchSettings"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -44,30 +46,43 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_search_tabs_header %}
-            <sw-tabs position-identifier="sw-settings-search-header">
-                {% block sw_setting_search_tabs_general %}
-                <sw-tabs-item
-                    v-bind="$props"
-                    class="sw-settings-search__general-tab"
-                    :route="{ name: 'sw.settings.search.index.general' }"
-                    @click="onTabChange"
-                >
-                    {{ $tc('sw-settings-search.page.generalTab') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_settings_search_mt_tabs_header %}
+                <mt-tabs
+                    position-identifier="sw-settings-search-header"
+                    :default-item="$route.name"
+                    :items="settingsSearchTabs"
+                    :small="true"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_setting_search_tabs_live_search %}
-                <sw-tabs-item
-                    v-bind="$props"
-                    class="sw-settings-search__live-search-tab"
-                    :route="{ name: 'sw.settings.search.index.liveSearch' }"
-                >
-                    {{ $tc('sw-settings-search.page.liveSearchTab') }}
-                </sw-tabs-item>
-                {% endblock %}
+            <template v-else>
+                <sw-tabs position-identifier="sw-settings-search-header">
+                    {% block sw_setting_search_tabs_general %}
+                    <sw-tabs-item
+                        v-bind="$props"
+                        class="sw-settings-search__general-tab"
+                        :route="{ name: 'sw.settings.search.index.general' }"
+                        @click="onTabChange"
+                    >
+                        {{ $t('sw-settings-search.page.generalTab') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_setting_search_tabs_after %}{% endblock %}
-            </sw-tabs>
+                    {% block sw_setting_search_tabs_live_search %}
+                    <sw-tabs-item
+                        v-bind="$props"
+                        class="sw-settings-search__live-search-tab"
+                        :route="{ name: 'sw.settings.search.index.liveSearch' }"
+                    >
+                        {{ $t('sw-settings-search.page.liveSearchTab') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_setting_search_tabs_after %}{% endblock %}
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             {% block sw_settings_search_tabs_content %}
@@ -102,13 +117,12 @@
             v-if="isDisplayingLeavePageWarning"
             class="sw_settings_search_leave_modal"
             type="yesno"
-            :text="$tc('sw-settings-search.textLeaveConfirm')"
+            :text="$t('sw-settings-search.textLeaveConfirm')"
             @confirm="onConfirmLeave"
             @close="onCloseLeaveModal"
             @cancel="onCancelLeaveModal"
         />
         {% endblock %}
-
     </template>
     {% endblock %}
 </sw-page>

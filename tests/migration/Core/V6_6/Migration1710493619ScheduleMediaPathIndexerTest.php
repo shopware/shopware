@@ -27,6 +27,11 @@ class Migration1710493619ScheduleMediaPathIndexerTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1710493619, (new Migration1710493619ScheduleMediaPathIndexer())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $queuer = static::getContainer()->get(IndexerQueuer::class);

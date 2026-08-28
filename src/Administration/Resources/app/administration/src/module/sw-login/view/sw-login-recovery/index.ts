@@ -13,21 +13,48 @@ const { debounce } = Shopware.Utils;
 export default Component.wrapComponentConfig({
     template,
 
-    emits: ['is-loading'],
+    emits: [
+        'is-loading',
+        'is-not-loading',
+    ],
 
     inject: [
         'validationApiService',
     ],
 
-    data() {
+    data(): {
+        email: string;
+        isEmailValid: boolean;
+        rateLimitMessage: string;
+        rateLimitTimeout: null | ReturnType<typeof setTimeout>;
+    } {
         return {
             email: '',
             isEmailValid: false,
+            rateLimitMessage: '',
+            rateLimitTimeout: null,
         };
+    },
+
+    computed: {
+        isRateLimited() {
+            return this.rateLimitMessage.length >= 1;
+        },
+
+        showLinkExpiredError() {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            return window.history.state?.linkExpired === true && !this.isRateLimited;
+        },
     },
 
     mounted() {
         this.mountedComponent();
+    },
+
+    beforeUnmount() {
+        if (this.rateLimitTimeout) {
+            clearTimeout(this.rateLimitTimeout);
+        }
     },
 
     methods: {
@@ -46,10 +73,7 @@ export default Component.wrapComponentConfig({
                     this.isEmailValid = isValid;
                 })
                 .catch((error: unknown) => {
-                    // @ts-expect-error
-                    // eslint-disable-next-line max-len
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                    this.displayRecoveryInfo(error.response.data);
+                    this.handleRateLimitError(error);
                 });
         },
 
@@ -68,34 +92,51 @@ export default Component.wrapComponentConfig({
                     this.displayRecoveryInfo();
                 })
                 .catch((error: unknown) => {
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                    this.displayRecoveryInfo(error.response.data);
+                    if (this.handleRateLimitError(error)) {
+                        return;
+                    }
+
+                    // Do not reveal whether the email address exists.
+                    this.displayRecoveryInfo();
                 });
         },
 
-        displayRecoveryInfo(data = null) {
-            let seconds = 0;
+        handleRateLimitError(error: unknown): boolean {
+            /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+            // @ts-expect-error
+            let apiError = error?.response?.data?.errors as unknown;
+            apiError = Array.isArray(apiError) ? apiError[0] : apiError;
 
-            if (data !== null) {
-                // @ts-expect-error
-                let error = data?.errors as unknown;
-
-                error = Array.isArray(error) ? error[0] : error;
-
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                if (parseInt(error?.status, 10) === 429) {
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                    seconds = error?.meta?.parameters?.seconds;
-                }
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            if (parseInt(apiError?.status, 10) !== 429) {
+                return false;
             }
 
+            // @ts-expect-error
+            const seconds = Number(apiError?.meta?.parameters?.seconds) || 10;
+            /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+
+            this.rateLimitMessage = this.$t('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', { seconds }, 0);
+            this.$emit('is-not-loading');
+
+            if (this.rateLimitTimeout) {
+                clearTimeout(this.rateLimitTimeout);
+            }
+
+            this.rateLimitTimeout = setTimeout(() => {
+                this.rateLimitMessage = '';
+                this.rateLimitTimeout = null;
+            }, seconds * 1000);
+
+            return true;
+        },
+
+        displayRecoveryInfo() {
             void this.$router.push({
                 name: 'sw.login.index.recoveryInfo',
-                params: {
-                    waitTime: seconds,
+                state: {
+                    email: this.email,
                 },
             });
         },

@@ -1,6 +1,7 @@
 # Module Layer - AGENTS.md
 
 > **Full Docs**: `technical-docs/02-architecture/03-module-system.md`
+> **Skill**: Module work → follow `shopware-admin-js` (`.agents/skills/shopware-admin-js/SKILL.md`).
 
 ## Module Structure
 
@@ -29,8 +30,8 @@ Module.register('sw-product', {
   entity: 'product',
   title: 'sw-product.general.mainMenuItemGeneral',
   color: '#57D9A3',
-  icon: 'solid-products',
-  
+  icon: 'regular-products',
+
   routes: {
     index: {
       component: 'sw-product-list',
@@ -49,7 +50,7 @@ Module.register('sw-product', {
       }
     }
   },
-  
+
   navigation: [{
     id: 'sw-product',
     label: 'sw-product.general.mainMenuItemGeneral',
@@ -68,7 +69,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
   category: 'permissions',
   parent: 'catalogues',
   key: 'product',
-  
+
   roles: {
     viewer: {
       privileges: ['product:read', 'manufacturer:read'],
@@ -97,12 +98,12 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
 export default {
   inject: ['repositoryFactory', 'acl'],
   mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
-  
+
   computed: {
     repository() {
       return this.repositoryFactory.create('product');
     },
-    
+
     criteria() {
       const criteria = new Criteria(this.page, this.limit);
       criteria.setTerm(this.term);
@@ -110,7 +111,7 @@ export default {
       return criteria;
     }
   },
-  
+
   methods: {
     async getList() {
       this.isLoading = true;
@@ -127,29 +128,29 @@ export default {
 export default {
   inject: ['repositoryFactory', 'acl'],
   mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
-  
+
   computed: {
     repository() {
       return this.repositoryFactory.create('product');
     },
     ...mapPropertyErrors('product', ['name', 'price'])
   },
-  
+
   methods: {
     async loadEntity() {
       const criteria = new Criteria();
       criteria.addAssociation('manufacturer');
-      
+
       this.entity = await this.repository.get(this.entityId, Shopware.Context.api, criteria);
     },
-    
+
     async onSave() {
       await this.repository.save(this.entity, Shopware.Context.api);
-      
+
       // ✅ CRITICAL: Reload to sync origin for change tracking
       this.entity = await this.repository.get(this.entity.id, Shopware.Context.api);
-      
-      this.createNotificationSuccess({ message: this.$tc('sw.product.detail.messageSaved') });
+
+      this.createNotificationSuccess({ message: this.$t('sw.product.detail.messageSaved') });
     }
   }
 };
@@ -175,7 +176,7 @@ export default {
 }
 ```
 
-**Usage**: `this.$tc('sw.product.list.title')`
+**Usage**: `this.$t('sw.product.list.title')`
 
 
 ## Anti-Patterns
@@ -183,7 +184,7 @@ export default {
 ❌ Cross-module imports (modules must be independent)
 ❌ Missing ACL checks in routes/templates
 ❌ Not reloading after save
-❌ Hardcoded strings (use `$tc()` for translations)
+❌ Hardcoded strings (use `$t()` for translations)
 ❌ Large components (split into views/components)
 ❌ Business logic in templates
 

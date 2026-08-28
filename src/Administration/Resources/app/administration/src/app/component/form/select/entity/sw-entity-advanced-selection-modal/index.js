@@ -162,7 +162,7 @@ export default {
 
     computed: {
         modalTitle() {
-            return this.$tc(
+            return this.$t(
                 'global.sw-entity-advanced-selection-modal.title',
                 {
                     entity: this.entityDisplayText,

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Console\Command\Command;
@@ -24,6 +25,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('discovery')]
 class GenerateThumbnailsCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -215,8 +217,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
         }
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not find a folder with name "non-existing-folder"');
+        $this->expectExceptionObject(MediaException::mediaFolderNameNotFound('non-existing-folder'));
 
         $commandTester = new CommandTester($this->thumbnailCommand);
         $commandTester->execute(['--folder-name' => 'non-existing-folder']);
@@ -228,8 +229,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
         }
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided batch size is invalid.');
+        $this->expectExceptionObject(MediaException::invalidBatchSize());
 
         $commandTester = new CommandTester($this->thumbnailCommand);
         $commandTester->execute(['--batch-size' => 'test']);
@@ -240,8 +240,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
 
-        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
-            ->disableOriginalConstructor()->getMock();
+        $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
         $thumbnailServiceMock->expects($this->exactly(\count($this->initialMediaIds) + $newMedia->count()))
             ->method('updateThumbnails')
@@ -263,8 +262,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
 
-        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
-            ->disableOriginalConstructor()->getMock();
+        $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
         $thumbnailServiceMock->expects($this->exactly(\count($this->initialMediaIds) + $newMedia->count()))
             ->method('updateThumbnails')

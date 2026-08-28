@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -24,6 +25,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
+#[Package('framework')]
 class AppServiceTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -249,7 +251,7 @@ class AppServiceTest extends TestCase
         );
         $refreshableApps = $appService->getRefreshableAppInfo($this->context);
 
-        static::assertCount(7, $refreshableApps->getToBeInstalled());
+        static::assertCount(8, $refreshableApps->getToBeInstalled());
         static::assertCount(1, $refreshableApps->getToBeUpdated());
         static::assertCount(1, $refreshableApps->getToBeDeleted());
 
@@ -281,9 +283,8 @@ class AppServiceTest extends TestCase
 
         $fails = $appService->doRefreshApps(new AppInstallParameters(), $this->context);
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
-
-        static::assertCount(8, $manifests); // 2 are not parsable
-        static::assertCount(6, $apps);
+        static::assertCount(9, $manifests); // 2 are not parsable (withRequirements still passes as requirements are not asserted in test env)
+        static::assertCount(7, $apps);
         static::assertCount(2, $fails);
     }
 

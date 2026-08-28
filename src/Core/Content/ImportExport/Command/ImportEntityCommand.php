@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Command;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -29,11 +30,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+#[Package('fundamentals@after-sales')]
 #[AsCommand(
     name: 'import:entity',
     description: 'Import entities from a csv file',
 )]
-#[Package('fundamentals@after-sales')]
 class ImportEntityCommand extends Command
 {
     private const DEFAULT_CHUNK_SIZE = 300;
@@ -48,7 +49,8 @@ class ImportEntityCommand extends Command
         private readonly EntityRepository $profileRepository,
         private readonly ImportExportFactory $importExportFactory,
         private readonly Connection $connection,
-        private readonly FilesystemOperator $filesystem
+        private readonly FilesystemOperator $filesystem,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -108,7 +110,7 @@ class ImportEntityCommand extends Command
             $dryRun
         );
 
-        $startTime = time();
+        $startTime = $this->clock->now()->getTimestamp();
 
         $importExport = $this->importExportFactory->create(
             $log->getId(),
@@ -131,7 +133,7 @@ class ImportEntityCommand extends Command
             $progressBar->setProgress($progress->getOffset());
         } while (!$progress->isFinished());
 
-        $elapsed = time() - $startTime;
+        $elapsed = $this->clock->now()->getTimestamp() - $startTime;
         $io->newLine(2);
 
         if ($printErrors) {
@@ -175,7 +177,7 @@ class ImportEntityCommand extends Command
     {
         $technicalName = $input->getOption('profile-technical-name');
 
-        if (!empty($technicalName)) {
+        if ($technicalName !== null && $technicalName !== '') {
             return $this->profileByTechnicalName($technicalName, $context);
         }
 

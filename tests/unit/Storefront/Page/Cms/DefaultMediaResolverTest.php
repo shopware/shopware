@@ -21,8 +21,8 @@ class DefaultMediaResolverTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $decorated = $this->createMock(AbstractDefaultMediaResolver::class);
-        $translator = $this->createMock(AbstractTranslator::class);
+        $decorated = static::createStub(AbstractDefaultMediaResolver::class);
+        $translator = static::createStub(AbstractTranslator::class);
         $packages = new Packages();
 
         $resolver = new DefaultMediaResolver($decorated, $translator, $packages);
@@ -41,7 +41,7 @@ class DefaultMediaResolverTest extends TestCase
             ->method('trans')
             ->willReturn('media-title');
 
-        $package = $this->createMock(SymfonyPackage::class);
+        $package = static::createStub(SymfonyPackage::class);
         $package->method('getUrl')->willReturn('http://localhost');
 
         $packages = new Packages(null, ['asset' => $package]);
@@ -64,7 +64,7 @@ class DefaultMediaResolverTest extends TestCase
             ->method('getDefaultCmsMediaEntity')
             ->willReturn(null);
 
-        $translator = $this->createMock(AbstractTranslator::class);
+        $translator = static::createStub(AbstractTranslator::class);
         $packages = new Packages();
 
         $resolver = new DefaultMediaResolver($decorated, $translator, $packages);

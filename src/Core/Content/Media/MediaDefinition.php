@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
@@ -21,6 +22,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductCo
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition;
@@ -29,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -47,6 +50,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -55,6 +59,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class MediaDefinition extends EntityDefinition
 {
@@ -83,6 +90,13 @@ class MediaDefinition extends EntityDefinition
     public function getHydratorClass(): string
     {
         return MediaHydrator::class;
+    }
+
+    public function getRestrictDeleteMetaFields(): FieldCollection
+    {
+        return $this->getFields()->filter(
+            static fn (Field $field) => \in_array($field->getPropertyName(), ['id', 'fileName', 'fileExtension'], true)
+        );
     }
 
     protected function defineFields(): FieldCollection
@@ -126,6 +140,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'media_id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('productConfiguratorSettings', ProductConfiguratorSettingDefinition::class, 'media_id'))->addFlags(new SetNullOnDelete()),
+            (new OneToManyAssociationField('productOpenGraphImages', ProductDefinition::class, 'open_graph_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'cover_id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('cmsBlocks', CmsBlockDefinition::class, 'background_media_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('cmsSections', CmsSectionDefinition::class, 'background_media_id'))->addFlags(new RestrictDelete()),
@@ -134,6 +149,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('a11yDocuments', DocumentDefinition::class, 'document_a11y_media_file_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('appPaymentMethods', AppPaymentMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('appShippingMethods', AppShippingMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
+            (new OneToOneAssociationField('documentFile', 'id', 'media_id', DocumentFileDefinition::class, false))->addFlags(new RestrictDelete()),
             (new StringField('file_hash', 'fileHash'))->addFlags(new Computed()),
         ]);
     }

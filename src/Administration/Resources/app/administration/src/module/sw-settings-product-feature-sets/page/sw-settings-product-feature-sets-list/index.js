@@ -119,7 +119,7 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-settings-product-feature-sets.detail.messageSaveSuccess',
                             {
                                 name: productFeatureSets.name,
@@ -131,7 +131,7 @@ export default {
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveError'),
+                        message: this.$t('sw-settings-product-feature-sets.detail.messageSaveError'),
                     });
                 });
         },

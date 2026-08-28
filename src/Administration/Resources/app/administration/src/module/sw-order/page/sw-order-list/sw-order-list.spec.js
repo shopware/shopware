@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
@@ -141,13 +143,17 @@ async function createWrapper() {
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },
             },
         },
     });
+}
+
+function createTransactionCollection(transactions) {
+    return new EntityCollection(null, null, null, new Criteria(1, 25), transactions);
 }
 
 Shopware.Service().register('filterService', () => {
@@ -196,6 +202,43 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
         expect(firstRow.find('.sw-order-list__manual-order-label').exists()).toBeTruthy();
         expect(secondRow.find('.sw-order-list__manual-order-label').exists()).toBeFalsy();
+    });
+
+    it('should render comment tooltip buttons depending on available comments', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    customerComment: 'Customer comment',
+                    internalComment: 'Internal comment',
+                },
+                {
+                    ...mockItem,
+                    customerComment: 'Customer comment',
+                    internalComment: null,
+                },
+                {
+                    ...mockItem,
+                    customerComment: null,
+                    internalComment: 'Internal comment',
+                },
+            ],
+            total: 3,
+        });
+
+        const firstRowButtons = wrapper.find('.sw-data-grid__row--0').findAll('.sw-order-list__tooltip-order-comment');
+        const secondRowButtons = wrapper.find('.sw-data-grid__row--1').findAll('.sw-order-list__tooltip-order-comment');
+        const thirdRowButtons = wrapper.find('.sw-data-grid__row--2').findAll('.sw-order-list__tooltip-order-comment');
+
+        expect(firstRowButtons).toHaveLength(2);
+        expect(firstRowButtons.at(0).classes()).toContain('mt-button--secondary');
+        expect(firstRowButtons.at(1).classes()).toContain('mt-button--primary');
+        expect(secondRowButtons).toHaveLength(1);
+        expect(secondRowButtons.at(0).classes()).toContain('mt-button--secondary');
+        expect(thirdRowButtons).toHaveLength(1);
+        expect(thirdRowButtons.at(0).classes()).toContain('mt-button--primary');
     });
 
     it('should contain empty customer', async () => {
@@ -402,6 +445,18 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(criteria.getAssociation('primaryOrderTransaction').hasAssociation('stateMachineState')).toBe(true);
     });
 
+    it.activeFeatureFlags(['v6.8.0.0'])('should only load primary order associations', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.hasAssociation('primaryOrderDelivery')).toBe(true);
+        expect(criteria.hasAssociation('primaryOrderTransaction')).toBe(true);
+        expect(criteria.hasAssociation('deliveries')).toBe(false);
+        expect(criteria.hasAssociation('transactions')).toBe(false);
+        expect(criteria.hasAssociation('addresses')).toBe(false);
+    });
+
     it('should contain a computed property, called: listFilterOptions', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
@@ -482,4 +537,354 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
         expect(wrapper.vm.filterCriteria).toContainEqual(filter);
     });
+
+    it('should render the delivery address from primaryOrderDelivery', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    primaryOrderDelivery: {
+                        stateMachineState: {
+                            technicalName: 'open',
+                            translated: { name: 'Open' },
+                        },
+                        shippingOrderAddress: {
+                            street: '742 Evergreen Terrace',
+                            zipcode: '99999',
+                            city: 'Springfield',
+                        },
+                    },
+                },
+            ],
+            total: 1,
+        });
+
+        const html = wrapper.html();
+        expect(html).toContain('742 Evergreen Terrace');
+        expect(html).toContain('Springfield');
+        expect(html).toContain('99999');
+    });
+
+    it('should render the delivery state from primaryOrderDelivery', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    primaryOrderDelivery: {
+                        stateMachineState: {
+                            technicalName: 'shipped',
+                            translated: { name: 'Shipped' },
+                        },
+                        shippingOrderAddress: mockItem.primaryOrderDelivery.shippingOrderAddress,
+                    },
+                },
+            ],
+            total: 1,
+        });
+
+        const stateCells = wrapper.findAll('.sw-order-list__state');
+        const stateTexts = stateCells.map((cell) => cell.text());
+        expect(stateTexts).toContain('Shipped');
+    });
+
+    it('should render the transaction state from primaryOrderTransaction', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    primaryOrderTransaction: {
+                        stateMachineState: {
+                            technicalName: 'paid',
+                            translated: { name: 'Paid' },
+                        },
+                    },
+                },
+            ],
+            total: 1,
+        });
+
+        const stateCells = wrapper.findAll('.sw-order-list__state');
+        const stateTexts = stateCells.map((cell) => cell.text());
+        expect(stateTexts).toContain('Paid');
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should not fall back to deliveries and transactions', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+
+        const order = {
+            primaryOrderDelivery: null,
+            primaryOrderTransaction: null,
+            deliveries: [
+                {
+                    stateMachineState: {
+                        technicalName: 'shipped',
+                        translated: { name: 'Fallback Shipped' },
+                    },
+                },
+            ],
+            transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                {
+                    stateMachineState: {
+                        technicalName: 'paid',
+                        translated: { name: 'Fallback Paid' },
+                    },
+                },
+            ]),
+        };
+
+        expect(wrapper.vm.getDelivery(order)).toBeNull();
+        expect(wrapper.vm.transaction(order)).toBeNull();
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - test will be removed when the 6.7 fallback is dropped
+     */
+    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+        it('should fall back to deliveries[0] address when primaryOrderDelivery is null (DAL writes without primaryOrderDeliveryId)', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
+
+            await wrapper.setData({
+                orders: [
+                    {
+                        ...mockItem,
+                        primaryOrderDelivery: null,
+                        deliveries: [
+                            {
+                                stateMachineState: {
+                                    technicalName: 'open',
+                                    translated: { name: 'Open' },
+                                },
+                                shippingOrderAddress: {
+                                    street: 'Fallback Street 1',
+                                    zipcode: '54321',
+                                    city: 'Fallback City',
+                                },
+                            },
+                        ],
+                    },
+                ],
+                total: 1,
+            });
+
+            const html = wrapper.html();
+            expect(html).toContain('Fallback Street 1');
+            expect(html).toContain('Fallback City');
+            expect(html).toContain('54321');
+        });
+
+        it('should fall back to the first delivery when multiple deliveries exist without primaryOrderDelivery', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
+
+            await wrapper.setData({
+                orders: [
+                    {
+                        ...mockItem,
+                        primaryOrderDelivery: null,
+                        deliveries: [
+                            {
+                                stateMachineState: {
+                                    technicalName: 'open',
+                                    translated: { name: 'Open' },
+                                },
+                                shippingOrderAddress: {
+                                    street: 'First Fallback Street',
+                                    zipcode: '11111',
+                                    city: 'First City',
+                                },
+                            },
+                            {
+                                stateMachineState: {
+                                    technicalName: 'shipped',
+                                    translated: { name: 'Shipped' },
+                                },
+                                shippingOrderAddress: {
+                                    street: 'Second Fallback Street',
+                                    zipcode: '22222',
+                                    city: 'Second City',
+                                },
+                            },
+                        ],
+                    },
+                ],
+                total: 1,
+            });
+
+            const html = wrapper.html();
+            expect(html).toContain('First Fallback Street');
+            expect(html).not.toContain('Second Fallback Street');
+        });
+
+        it('should fall back to deliveries[0] state when primaryOrderDelivery is null', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
+
+            await wrapper.setData({
+                orders: [
+                    {
+                        ...mockItem,
+                        primaryOrderDelivery: null,
+                        deliveries: [
+                            {
+                                stateMachineState: {
+                                    technicalName: 'shipped',
+                                    translated: { name: 'Fallback Shipped' },
+                                },
+                                shippingOrderAddress: mockItem.primaryOrderDelivery.shippingOrderAddress,
+                            },
+                        ],
+                    },
+                ],
+                total: 1,
+            });
+
+            const stateCells = wrapper.findAll('.sw-order-list__state');
+            const stateTexts = stateCells.map((cell) => cell.text());
+            expect(stateTexts).toContain('Fallback Shipped');
+        });
+
+        it('should fall back to transactions[0] state when primaryOrderTransaction is null', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
+
+            await wrapper.setData({
+                orders: [
+                    {
+                        ...mockItem,
+                        primaryOrderTransaction: null,
+                        transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                            {
+                                stateMachineState: {
+                                    technicalName: 'paid',
+                                    translated: { name: 'Fallback Paid' },
+                                },
+                            },
+                        ]),
+                    },
+                ],
+                total: 1,
+            });
+
+            const stateCells = wrapper.findAll('.sw-order-list__state');
+            const stateTexts = stateCells.map((cell) => cell.text());
+            expect(stateTexts).toContain('Fallback Paid');
+        });
+
+        it('should fall back to the first transaction that is not cancelled or failed', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
+
+            await wrapper.setData({
+                orders: [
+                    {
+                        ...mockItem,
+                        primaryOrderTransaction: null,
+                        transactions: createTransactionCollection([
+                            {
+                                stateMachineState: {
+                                    technicalName: 'cancelled',
+                                    translated: { name: 'Fallback Cancelled' },
+                                },
+                            },
+                            {
+                                stateMachineState: {
+                                    technicalName: 'paid',
+                                    translated: { name: 'Fallback Paid' },
+                                },
+                            },
+                            {
+                                stateMachineState: {
+                                    technicalName: 'open',
+                                    translated: { name: 'Fallback Open' },
+                                },
+                            },
+                        ]),
+                    },
+                ],
+                total: 1,
+            });
+
+            const stateCells = wrapper.findAll('.sw-order-list__state');
+            const stateTexts = stateCells.map((cell) => cell.text());
+            expect(stateTexts).toContain('Fallback Paid');
+            expect(stateTexts).not.toContain('Fallback Cancelled');
+        });
+
+        it('should fall back to the last transaction when all transactions are cancelled or failed', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
+
+            await wrapper.setData({
+                orders: [
+                    {
+                        ...mockItem,
+                        primaryOrderTransaction: null,
+                        transactions: createTransactionCollection([
+                            {
+                                stateMachineState: {
+                                    technicalName: 'cancelled',
+                                    translated: { name: 'Fallback Cancelled' },
+                                },
+                            },
+                            {
+                                stateMachineState: {
+                                    technicalName: 'failed',
+                                    translated: { name: 'Fallback Failed' },
+                                },
+                            },
+                        ]),
+                    },
+                ],
+                total: 1,
+            });
+
+            const stateCells = wrapper.findAll('.sw-order-list__state');
+            const stateTexts = stateCells.map((cell) => cell.text());
+            expect(stateTexts).toContain('Fallback Failed');
+        });
+
+        it('should render no transaction state when both primaryOrderTransaction and transactions are missing', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
+
+            const order = {
+                ...mockItem,
+                primaryOrderTransaction: null,
+                transactions: [],
+            };
+
+            expect(wrapper.vm.transaction(order)).toBeNull();
+            expect(wrapper.vm.getTransactionState(order)).toBeNull();
+        });
+
+        it('should render no delivery address when both primaryOrderDelivery and deliveries are missing', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
+
+            await wrapper.setData({
+                orders: [
+                    {
+                        ...mockItem,
+                        primaryOrderDelivery: null,
+                        deliveries: [],
+                    },
+                ],
+                total: 1,
+            });
+
+            const html = wrapper.html();
+            expect(html).not.toContain('123 Random street');
+        });
+    }
 });

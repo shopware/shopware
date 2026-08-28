@@ -2,7 +2,7 @@
 <mt-card
     class="sw-settings-shipping-tax-cost"
     position-identifier="sw-settings-shipping-tax-cost"
-    :title="$tc('sw-settings-shipping.detail.tax.fieldName')"
+    :title="$t('sw-settings-shipping.detail.tax.fieldName')"
 >
 
     {% block sw_settings_shipping_detail_shipping_cost_tax_select %}
@@ -11,9 +11,9 @@
         class="sw-settings-shipping__tax-type-selection"
         show-clearable-button
         :disabled="disabled"
-        :label="$tc('sw-settings-shipping.detail.tax.labelTaxType')"
-        :placeholder="$tc('sw-settings-shipping.detail.tax.placeholderTaxType')"
-        :help-text="$tc('sw-settings-shipping.detail.tax.helpText')"
+        :label="$t('sw-settings-shipping.detail.tax.labelTaxType')"
+        :placeholder="$t('sw-settings-shipping.detail.tax.placeholderTaxType')"
+        :help-text="$t('sw-settings-shipping.detail.tax.helpText')"
         :options="shippingCostTaxOptions"
         :error="shippingMethodTaxTypeError"
     />
@@ -32,8 +32,8 @@
         :criteria="taxCriteria"
         :highlight-search-term="false"
         :disabled="disabled"
-        :label="$tc('sw-settings-shipping.detail.tax.labelTaxRate')"
-        :placeholder="$tc('sw-settings-shipping.detail.tax.placeholderTaxRate')"
+        :label="$t('sw-settings-shipping.detail.tax.labelTaxRate')"
+        :placeholder="$t('sw-settings-shipping.detail.tax.placeholderTaxRate')"
         :label-callback="getTaxLabel"
         :error="shippingMethodTaxIdError"
     />

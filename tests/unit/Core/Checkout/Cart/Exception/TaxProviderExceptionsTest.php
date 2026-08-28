@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(TaxProviderExceptions::class)]
 #[Package('checkout')]
+#[CoversClass(TaxProviderExceptions::class)]
 class TaxProviderExceptionsTest extends TestCase
 {
     public function testException(): void

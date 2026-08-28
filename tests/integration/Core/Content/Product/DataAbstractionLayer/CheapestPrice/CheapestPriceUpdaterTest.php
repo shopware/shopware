@@ -10,13 +10,16 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class CheapestPriceUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -63,9 +66,7 @@ class CheapestPriceUpdaterTest extends TestCase
 
         static::assertNotEmpty($cheapestPriceRaw, 'Cheapest price should be stored');
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $cheapestPrice = \unserialize($cheapestPriceRaw);
-        static::assertInstanceOf(CheapestPriceContainer::class, $cheapestPrice);
+        $cheapestPrice = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $cheapestPriceRaw);
 
         $context = new Context(
             new SalesChannelApiSource($salesChannelId1)

@@ -23,9 +23,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemVariantValueRule::class)]
 #[Group('rules')]
-#[Package('checkout')]
 class LineItemVariantValueRuleTest extends TestCase
 {
     private LineItemVariantValueRule $rule;
@@ -65,7 +65,7 @@ class LineItemVariantValueRuleTest extends TestCase
         $cart = new Cart(Uuid::randomHex());
         $cart->setLineItems($lineItems);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new CartRuleScope($cart, $context);
 
         $this->rule->assign(['identifiers' => $identifiers, 'operator' => $operator]);
@@ -86,7 +86,7 @@ class LineItemVariantValueRuleTest extends TestCase
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $lineItem->setPayloadValue('optionIds', $itemOptionIds);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new LineItemScope($lineItem, $context);
 
         $this->rule->assign(['identifiers' => $identifiers, 'operator' => $operator]);
@@ -99,7 +99,7 @@ class LineItemVariantValueRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['identifiers' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
@@ -108,7 +108,7 @@ class LineItemVariantValueRuleTest extends TestCase
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $scope = new LineItemScope($lineItem, $context);
 
         $this->rule->assign(['identifiers' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
@@ -130,6 +130,36 @@ class LineItemVariantValueRuleTest extends TestCase
             'operators' => $operators,
             'isMatchAny' => true,
         ], $configData['operatorSet']);
+    }
+
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemVariantValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+
+        $lineItem = new LineItem(Uuid::randomHex(), $type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        if ($lineItemScope) {
+            $scope = new LineItemScope($lineItem, $context);
+        } else {
+            $cart = new Cart(Uuid::randomHex());
+            $cart->setLineItems(new LineItemCollection([$lineItem]));
+            $scope = new CartRuleScope($cart, $context);
+        }
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
     }
 
     /**

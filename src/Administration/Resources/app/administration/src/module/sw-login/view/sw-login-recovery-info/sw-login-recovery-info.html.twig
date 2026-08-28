@@ -1,38 +1,29 @@
 {% block sw_login_recovery_info %}
 <div class="sw-login-recovery-info">
-    {% block sw_login_recovery_info_headline %}
-    <h2 class="sw-login__form-headline">
-        <router-link
-            class="sw-login__back"
-            :to="{ name: 'sw.login.index.login' }"
-        >
-            <mt-icon
-                class="sw-login__back-arrow"
-                name="regular-long-arrow-left"
-                size="14px"
-            />
-        </router-link>
-
-        <span>{{ $tc('sw-login.recovery.info.headline') }}</span>
-    </h2>
-    {% endblock %}
-
     {% block sw_login_recovery_info_info %}
-    <template v-if="!rateLimitTime">
-        <mt-banner variant="info">
-            {{ $tc('sw-login.recovery.info.info') }}
-        </mt-banner>
+    <div class="sw-login__status">
+        {% block sw_login_recovery_info_icon %}
+        <span class="sw-login__status-icon">
+            <mt-icon
+                name="solid-check-circle"
+                size="24px"
+                decorative
+            />
+        </span>
+        {% endblock %}
 
-        <mt-banner variant="attention">
-            {{ $tc('sw-login.recovery.info.warning') }}
-        </mt-banner>
-    </template>
+        {% block sw_login_recovery_info_headline %}
+        <h1 class="sw-login__status-headline">
+            {{ $t('sw-login.recovery.info.headline') }}
+        </h1>
+        {% endblock %}
 
-    <template v-else>
-        <mt-banner variant="info">
-            {{ $tc('global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED', { seconds: rateLimitTime }, 0) }}
-        </mt-banner>
-    </template>
+        {% block sw_login_recovery_info_text %}
+        <p class="sw-login__content-description">
+            {{ $t('sw-login.recovery.info.info', { email: email ?? $t('sw-login.recovery.info.emailFallback') }) }}
+        </p>
+        {% endblock %}
+    </div>
     {% endblock %}
 </div>
 {% endblock %}

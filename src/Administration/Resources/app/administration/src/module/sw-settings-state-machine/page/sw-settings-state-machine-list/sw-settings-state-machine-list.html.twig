@@ -5,12 +5,12 @@
         {% block sw_settings_state_machine_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_state_machine_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-state-machine.general.mainMenuItemGeneral') }}
+            {{ $t('sw-settings-state-machine.general.mainMenuItemGeneral') }}
             {% endblock %}
 
             {% block sw_settings_state_machine_list_smart_bar_header_amount %}
@@ -66,7 +66,7 @@
                                     params: { id: item.id }
                                 }"
                             >
-                                {{ $tc('global.default.edit') }}
+                                {{ $t('global.default.edit') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>

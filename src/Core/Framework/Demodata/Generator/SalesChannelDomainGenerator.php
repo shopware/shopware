@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class SalesChannelDomainGenerator implements DemodataGeneratorInterface
 {
     /**

@@ -49,6 +49,11 @@ async function createWrapper() {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-icon',
+                            },
+                        },
                     },
                 },
 
@@ -107,7 +112,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
 
         await flushPromises();
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
     });
 
     it('Should not able to remove item without editor privilege', async () => {

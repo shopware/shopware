@@ -34,6 +34,11 @@ SQL
         );
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1772178695, (new Migration1772178695ChangeProductExportProductStreamDeleteRule())->getCreationTimestamp());
+    }
+
     public function testMigrationChangesDeleteRuleToRestrict(): void
     {
         $migration = new Migration1772178695ChangeProductExportProductStreamDeleteRule();

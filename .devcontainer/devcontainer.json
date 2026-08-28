@@ -57,5 +57,8 @@
       }
     },
     "shutdownAction": "none",
+    "remoteEnv": {
+      "PATH": "/usr/local/bin:/usr/bin:${containerEnv:PATH}"
+    },
     "remoteUser": "www-data"
   }

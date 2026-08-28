@@ -8,7 +8,7 @@ async function createWrapper(propsData = {}) {
         {
             global: {
                 mocks: {
-                    $tc: (path, values) => {
+                    $t: (path, values) => {
                         if (values) {
                             return path + Object.values(values);
                         }
@@ -46,7 +46,7 @@ describe('src/module/sw-extension/component/sw-extension-deactivation-modal', ()
             isLicensed: false,
         });
         expect(wrapper.vm.removeHint).toBe(
-            'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel',
+            'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelglobal.default.remove',
         );
     });
 

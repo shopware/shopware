@@ -3,7 +3,6 @@
 namespace Shopware\Core\Maintenance\System\Command;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
@@ -12,16 +11,17 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:update:prepare',
     description: 'Prepares the update process',
 )]
-#[Package('framework')]
 class SystemUpdatePrepareCommand extends Command
 {
     public function __construct(private readonly ContainerInterface $container, private readonly string $shopwareVersion)
@@ -31,7 +31,7 @@ class SystemUpdatePrepareCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output = new ShopwareStyle($input, $output);
+        $output = new SymfonyStyle($input, $output);
 
         $dsn = trim((string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL')));
         if ($dsn === '') {

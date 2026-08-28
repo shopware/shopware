@@ -6,12 +6,12 @@
 
     <template #smart-bar-header>
         <h2>
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="12px"
+                size="var(--scale-size-12)"
             />
-            {{ $tc('sw-settings-units.general.mainMenuItemGeneral') }}
+            {{ $t('sw-settings-units.general.mainMenuItemGeneral') }}
         </h2>
     </template>
 
@@ -24,7 +24,7 @@
             size="default"
             @click="createNewUnit"
         >
-            {{ $tc('sw-settings-units.general.createNewUnit') }}
+            {{ $t('sw-settings-units.general.createNewUnit') }}
         </mt-button>
     </template>
 
@@ -44,8 +44,8 @@
                 <mt-empty-state
                     v-if="!isLoading && isEmpty"
                     :icon="$route.meta.$module.icon"
-                    :headline="$tc('sw-settings-units.empty-state.title')"
-                    :description="$tc('sw-settings-units.empty-state.subline')"
+                    :headline="$t('sw-settings-units.empty-state.title')"
+                    :description="$t('sw-settings-units.empty-state.subline')"
                 />
 
                 <template #grid>
@@ -69,7 +69,7 @@
                                 :disabled="!acl.can('scale_unit.editor') || undefined"
                                 @click="editUnit(item)"
                             >
-                                {{ $tc('global.default.edit') }}
+                                {{ $t('global.default.edit') }}
                             </sw-context-menu-item>
 
                             <sw-context-menu-divider />
@@ -80,7 +80,7 @@
                                 :disabled="!acl.can('scale_unit.deleter') || undefined"
                                 @click="deleteUnit(item)"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                         </template>
 

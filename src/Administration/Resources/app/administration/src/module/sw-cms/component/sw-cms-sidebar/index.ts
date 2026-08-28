@@ -126,7 +126,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.pageTypes.map((pageType) => {
                 return {
                     id: pageType.name,
-                    label: this.$tc(pageType.title),
+                    label: this.$t(pageType.title),
                     value: pageType.name,
                     disabled: this.isDisabledPageType(pageType) || undefined,
                 };
@@ -235,7 +235,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsBlockCategories.map((category) => {
                 return {
                     value: category.value,
-                    label: this.$tc(category.label),
+                    label: this.$t(category.label),
                 };
             });
         },
@@ -246,10 +246,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
-                return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
+                return this.$t('sw-cms.general.disabledAddingBlocksToolTip');
             }
 
-            return this.$tc('sw-cms.detail.sidebar.titleBlockOverview');
+            return this.$t('sw-cms.detail.sidebar.titleBlockOverview');
         },
 
         pageSections() {
@@ -258,15 +258,15 @@ export default Shopware.Component.wrapComponentConfig({
 
         sidebarItemSettings() {
             if (this.selectedBlock !== null) {
-                return this.$tc('sw-cms.detail.sidebar.titleBlockSettings');
+                return this.$t('sw-cms.detail.sidebar.titleBlockSettings');
             }
 
-            return this.$tc('sw-cms.detail.sidebar.titleSectionSettings');
+            return this.$t('sw-cms.detail.sidebar.titleSectionSettings');
         },
 
         tooltipDisabled() {
             return {
-                message: this.$tc('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
+                message: this.$t('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
                 disabled: this.page.type !== 'product_detail',
             };
         },
@@ -439,37 +439,18 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.currentDragSectionIndex !== dropSectionIndex && !dropSectionHasBlock) {
                 dragData.block.isDragging = true;
 
-                // calculate the remove index (this may differ since the block is moved each time it enters a new
-                // section while the dragSectionIndex is the static start index of the drag
-                let removeIndex = dragSectionIndex;
-                if (
-                    this.currentDragSectionIndex !== dragSectionIndex &&
-                    Math.abs(this.currentDragSectionIndex - dropSectionIndex) === 1
-                ) {
-                    removeIndex = this.currentDragSectionIndex;
-                }
-
-                // drag direction is upwards so the currentDragSectionIndex is incremented
-                if (this.currentDragSectionIndex - dropSectionIndex < 0) {
-                    this.currentDragSectionIndex += 1;
-                }
-
-                // drag direction is downwards so the currentDragSectionIndex is decremented
-                if (this.currentDragSectionIndex - dropSectionIndex > 0) {
-                    this.currentDragSectionIndex -= 1;
-                }
+                const oldSection = this.page.sections![this.currentDragSectionIndex];
 
                 dragData.block.sectionId = dropSection.id;
 
                 dropSection.blocks!.add(dragData.block);
-
-                const oldSection = this.page.sections![removeIndex];
 
                 oldSection.blocks!.remove(dragData.block.id);
                 oldSection._origin.blocks!.remove(dragData.block.id);
 
                 this.refreshPosition(oldSection.blocks!);
                 this.refreshPosition(dropSection.blocks!);
+                this.currentDragSectionIndex = dropSectionIndex;
                 return;
             }
 
@@ -654,6 +635,10 @@ export default Shopware.Component.wrapComponentConfig({
         onSectionDelete(sectionId: string) {
             Shopware.Store.get('cmsPage').removeSelectedSection();
             this.page.sections!.remove(sectionId);
+        },
+
+        onNavigatorSectionDelete(sectionId: string) {
+            this.onSectionDelete(sectionId);
             this.$emit('page-save');
         },
 
@@ -667,7 +652,10 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
                 Shopware.Store.get('cmsPage').removeSelectedBlock();
             }
+        },
 
+        onNavigatorBlockDelete(block: Entity<'cms_block'>, section: Entity<'cms_section'>) {
+            this.onBlockDelete(block, section);
             this.$emit('page-save', true);
         },
 

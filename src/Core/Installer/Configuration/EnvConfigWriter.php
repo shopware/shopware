@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Installer\Configuration;
 
-use Defuse\Crypto\Key;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Installer\Controller\ShopConfigurationController;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
+use Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
  * @internal
  *
- * @phpstan-import-type Shop from ShopConfigurationController
+ * @phpstan-import-type Shop from ShopConfigurationService
  */
 #[Package('framework')]
 class EnvConfigWriter
@@ -56,7 +56,7 @@ SHOPWARE_ADMIN_ES_REFRESH_INDICES=0
 ###< shopware/elasticsearch ###
 
 ###> shopware/storefront ###
-STOREFRONT_PROXY_URL=http://localhost
+PROXY_URL=http://localhost
 SHOPWARE_HTTP_CACHE_ENABLED=1
 SHOPWARE_HTTP_DEFAULT_TTL=7200
 ###< shopware/storefront ###
@@ -74,7 +74,7 @@ EOT;
     public function writeConfig(DatabaseConnectionInformation $info, array $shop): void
     {
         $uniqueId = $this->idGenerator->getUniqueId();
-        $secret = Key::createNewRandomKey()->saveToAsciiSafeString();
+        $secret = Random::getString(SystemGenerateAppSecretCommand::APP_SECRET_LENGTH);
 
         // Copy flex default .env if missing
         if (!\is_file($this->projectDir . '/.env')) {

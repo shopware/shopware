@@ -16,7 +16,7 @@ use Shopware\Core\Migration\V6_7\Migration1774359918ProductPriceQuantityRangeMin
 /**
  * @internal
  */
-#[Package('data-services')]
+#[Package('inventory')]
 #[CoversClass(Migration1774359918ProductPriceQuantityRangeMinValues::class)]
 class Migration1774359918ProductPriceQuantityRangeMinValuesTest extends TestCase
 {
@@ -53,6 +53,11 @@ class Migration1774359918ProductPriceQuantityRangeMinValuesTest extends TestCase
         $this->connection->delete('product', ['id' => $this->productId]);
         $this->connection->delete('rule', ['id' => $this->ruleId]);
         $this->connection->delete('rule', ['id' => $this->rule2Id]);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1774359918, (new Migration1774359918ProductPriceQuantityRangeMinValues())->getCreationTimestamp());
     }
 
     public function testCreationTimestamp(): void

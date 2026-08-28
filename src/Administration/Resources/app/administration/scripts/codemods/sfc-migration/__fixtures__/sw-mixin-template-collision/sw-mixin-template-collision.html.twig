@@ -1,0 +1,4 @@
+{% block sw_mixin_template_collision %}
+    {# The template reads the mixin member by name, so its binding cannot be renamed away. #}
+    <p class="sw-mixin-template-collision">{{ salutation(customer, 'no name') }} / {{ shortLabel() }}</p>
+{% endblock %}

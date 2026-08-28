@@ -1,27 +1,76 @@
 {% block sw_help_center %}
 <div class="sw-help-center">
-    <button
-        class="sw-help-center__button"
-        :class="{ 'is--active': showHelpSidebar }"
-        :aria-label="$tc('help-center.sidebar.ariaLabelButtonOpen')"
-        @click="openHelpSidebar"
+    <mt-dropdown-menu-root
+        :open="showHelpSidebar"
+        @update:open="onVisibilityChange"
     >
-        <mt-icon
-            name="regular-question-circle"
-            size="20px"
-        />
+        <mt-dropdown-menu-trigger as-child>
+            <mt-button
+                class="sw-help-center__button"
+                variant="tertiary"
+                square
+                size="default"
+                :aria-label="$t('help-center.sidebar.ariaLabelButtonOpen')"
+            >
+                <template #iconFront>
+                    <mt-icon
+                        name="question-circle"
+                        size="var(--scale-size-20)"
+                    />
+                </template>
 
-        <div class="sw-help-center__badge">
-            <sw-extension-component-section
-                position-identifier="sw-help-center__badge"
-            />
-        </div>
-    </button>
+                <div class="sw-help-center__badge">
+                    <sw-extension-component-section
+                        position-identifier="sw-help-center__badge"
+                    />
+                </div>
+            </mt-button>
+        </mt-dropdown-menu-trigger>
 
-    <sw-help-sidebar
-        v-if="showHelpSidebar"
-        ref="helpSidebar"
-    />
+        <mt-dropdown-menu-portal>
+            {% block sw_help_sidebar %}
+            <mt-action-menu
+                class="sw-help-center__menu"
+                align="end"
+            >
+                {% block sw_help_sidebar_support_content %}
+                <mt-action-menu-group>
+                    {% block sw_help_sidebar_support_documentation %}
+                    <mt-action-menu-item
+                        icon="file-text"
+                        :link="$t('help-center.sidebar.support.documentation.href')"
+                    >
+                        {{ $t('help-center.sidebar.support.documentation.text') }}
+                    </mt-action-menu-item>
+                    {% endblock %}
+
+                    {% block sw_help_sidebar_support_create_support_request %}
+                    <mt-action-menu-item
+                        icon="headset"
+                        :link="$t('help-center.sidebar.support.createSupportRequest.href')"
+                    >
+                        {{ $t('help-center.sidebar.support.createSupportRequest.text') }}
+                    </mt-action-menu-item>
+                    {% endblock %}
+
+                    {% block sw_help_sidebar_support_placeholder %}
+                    {% endblock %}
+                </mt-action-menu-group>
+                {% endblock %}
+
+                <mt-action-menu-group>
+                    <mt-action-menu-item
+                        icon="keyboard"
+                        :shortcut="{ modifiers: ['shift'], key: '?' }"
+                        @select="openShortcutModal"
+                    >
+                        {{ $t('sw-shortcut-overview.title') }}
+                    </mt-action-menu-item>
+                </mt-action-menu-group>
+            </mt-action-menu>
+            {% endblock %}
+        </mt-dropdown-menu-portal>
+    </mt-dropdown-menu-root>
 
     <sw-shortcut-overview
         ref="shortcutModal"

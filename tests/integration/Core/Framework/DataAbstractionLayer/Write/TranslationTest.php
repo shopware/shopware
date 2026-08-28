@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLan
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
@@ -41,6 +42,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class TranslationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -277,13 +279,13 @@ class TranslationTest extends TestCase
                 'name' => 'de-DE',
                 'locale' => [
                     'id' => Uuid::randomHex(),
-                    'code' => 'x-tst_DE2',
+                    'code' => 'de-DE-1',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
                 'translationCode' => [
                     'id' => Uuid::randomHex(),
-                    'code' => 'x-tst_DE3',
+                    'code' => 'de-DE-2',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
@@ -382,7 +384,7 @@ class TranslationTest extends TestCase
             'id' => $germanLanguageId,
             'translationCode' => [
                 'name' => 'Niederländisch',
-                'code' => 'x-nl_NL',
+                'code' => 'nl-NL-2',
                 'territory' => 'Niederlande',
             ],
             'localeId' => $this->getLocaleIdOfSystemLanguage(),
@@ -407,7 +409,7 @@ class TranslationTest extends TestCase
                     'name' => 'default',
                     'shortName' => 'def',
                 ],
-                'x-nl_NL' => [
+                'nl-NL-2' => [
                     'name' => $nlName,
                     'shortName' => $nlShortName,
                 ],
@@ -480,13 +482,13 @@ class TranslationTest extends TestCase
                 'name' => 'de-DE',
                 'locale' => [
                     'id' => Uuid::randomHex(),
-                    'code' => 'x-de_DE',
+                    'code' => 'de-DE-1',
                     'name' => 'locale',
                     'territory' => 'territory',
                 ],
                 'translationCode' => [
                     'id' => Uuid::randomHex(),
-                    'code' => 'x-de_DE2',
+                    'code' => 'de-DE-2',
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
@@ -1043,7 +1045,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                 'name' => 'parent',
                 'locale' => [
                     'id' => $this->ids->get('language-locale'),
-                    'code' => 'language-locale',
+                    'code' => 'de-DE-1',
                     'name' => 'language-locale',
                     'territory' => 'language-locale',
                 ],
@@ -1065,7 +1067,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             'id' => $id,
             'name' => [
                 'en-GB' => 'default',
-                'language-locale' => 'parent language',
+                'de-DE-1' => 'parent language',
             ],
         ];
 
@@ -1105,7 +1107,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
                 'name' => 'parent',
                 'locale' => [
                     'id' => $this->ids->get('language-locale'),
-                    'code' => 'language-locale',
+                    'code' => 'de-DE-1',
                     'name' => 'language-locale',
                     'territory' => 'language-locale',
                 ],
@@ -1127,7 +1129,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             'id' => $id,
             'name' => [
                 'en-GB' => 'default',
-                'language-locale' => 'parent language',
+                'de-DE-1' => 'parent language',
                 $this->ids->get('language-child') => 'child language',
             ],
         ];

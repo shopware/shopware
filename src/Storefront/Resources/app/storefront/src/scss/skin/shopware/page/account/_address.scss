@@ -1,14 +1,17 @@
-.account-address {
-    .address-action-create {
-        font-size: 1.1em;
-        text-align: left;
+// @deprecated tag:v6.8.0 - The components have been removed and the SCSS is not used anymore and the complete file will be removed, also remove the import in the `_base.scss`
+@if not feature('V6_8_0_0') {
+    .account-address {
+        .address-action-create {
+            font-size: 1.1em;
+            text-align: left;
 
-        &:hover {
-            border: $border-width $border-style $border-color;
+            &:hover {
+                border: $border-width $border-style $border-color;
+            }
         }
-    }
 
-    .address-card .card-body .address:first-line {
-        font-weight: $font-weight-bold;
+        .address-card .card-body .address:first-line {
+            font-weight: $font-weight-bold;
+        }
     }
 }

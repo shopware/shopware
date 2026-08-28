@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,15 +28,9 @@ class CurrencyValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        $commands = $event->getCommands();
         $violations = new ConstraintViolationList();
 
-        foreach ($commands as $command) {
-            if (!($command instanceof DeleteCommand) || $command->getEntityName() !== CurrencyDefinition::ENTITY_NAME) {
-                continue;
-            }
-
-            $pk = $command->getPrimaryKey();
+        foreach ($event->getDeletedPrimaryKeys(CurrencyDefinition::ENTITY_NAME) as $pk) {
             $id = mb_strtolower(Uuid::fromBytesToHex($pk['id']));
             if ($id !== Defaults::CURRENCY) {
                 continue;

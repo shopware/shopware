@@ -101,7 +101,6 @@
       "mainMenuHeader": "Deine Themes",
       "captionMediaUpload": "Lade ein Bild hoch",
       "lockedToolTip": "Themes die von einem Plugin installiert wurden sind gesperrt und können nicht gelöscht werden.",
-      "titleError": "Fehler",
       "messageSaveError": "Theme konnte dem Verkaufskanal nicht zugewiesen werden",
       "defaultTab": "Allgemein"
     },
@@ -114,11 +113,9 @@
     },
     "themeListItem": {
       "rename": "Umbenennen",
-      "duplicate": "Duplizieren",
       "emptyText": "Kein Theme zugewiesen",
       "addPreviewImage": "Vorschau hinzufügen",
       "removePreviewImage": "Vorschau entfernen",
-      "notificationDeleteErrorTitle": "Fehler",
       "notificationDeleteErrorMessage": "Das Theme ist noch mindestens einem Verkaufskanal zugewiesen."
     },
     "modal": {
@@ -205,6 +202,11 @@
           "title": "Ungültige Konfiguration",
           "message": "Die Konfiguration ist fehlerhaft. Das Theme kann nicht gespeichert werden."
         }
+      },
+      "asyncCompilation": {
+        "started": "Die Änderungen werden im Hintergrund kompiliert. Sie werden nach ca. 1 Minute sichtbar. Du erhältst eine Benachrichtigung, sobald die Kompilierung abgeschlossen ist.",
+        "completed": "Die Theme-Kompilierung wurde abgeschlossen.",
+        "error": "Die Theme-Kompilierung im Hintergrund ist fehlgeschlagen. Das Theme wurde nicht geändert."
       }
     },
     "themeModal": {

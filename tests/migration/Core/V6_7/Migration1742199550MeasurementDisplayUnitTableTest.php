@@ -36,7 +36,7 @@ class Migration1742199550MeasurementDisplayUnitTableTest extends TestCase
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertEquals('1742199550', (new Migration1742199550MeasurementDisplayUnitTable())->getCreationTimestamp());
+        static::assertSame(1742199550, (new Migration1742199550MeasurementDisplayUnitTable())->getCreationTimestamp());
     }
 
     public function testMigration(): void

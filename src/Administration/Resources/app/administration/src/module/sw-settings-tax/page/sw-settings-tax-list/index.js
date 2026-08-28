@@ -117,9 +117,11 @@ export default {
         async onInlineEditSave(promise, tax) {
             promise
                 .then(() => {
+                    this.invalidateTaxCaches();
+
                     if (this.selectedDefaultTaxRateId === this.defaultTaxRateId) {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
+                            message: this.$t('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
                         });
 
                         return;
@@ -131,22 +133,28 @@ export default {
                         })
                         .then(() => {
                             this.defaultTaxRateId = this.selectedDefaultTaxRateId;
+                            Shopware.Service('cacheService').invalidateCaches({
+                                cacheKey: [
+                                    'shared-data',
+                                    'default-tax-rate-id',
+                                ],
+                            });
 
                             this.createNotificationSuccess({
-                                message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
+                                message: this.$t('sw-settings-tax.detail.messageSaveSuccess', { name: tax.name }, 0),
                             });
                         })
                         .catch(() => {
                             this.getList();
 
                             this.createNotificationError({
-                                message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                                message: this.$t('sw-settings-tax.detail.messageSaveError'),
                             });
                         });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                        message: this.$t('sw-settings-tax.detail.messageSaveError'),
                     });
                 });
         },
@@ -173,7 +181,25 @@ export default {
             this.showDeleteModal = false;
 
             return this.taxRepository.delete(id).then(() => {
+                this.invalidateTaxCaches();
                 this.getList();
+            });
+        },
+
+        invalidateTaxCaches() {
+            const cacheService = Shopware.Service('cacheService');
+
+            cacheService.invalidateCaches({
+                cacheKey: [
+                    'shared-data',
+                    'taxes',
+                ],
+            });
+            cacheService.invalidateCaches({
+                cacheKey: [
+                    'shared-data',
+                    'default-tax-rate-id',
+                ],
             });
         },
 
@@ -206,7 +232,7 @@ export default {
         },
 
         getLabel(tax) {
-            return this.isShopwareDefaultTax(tax) ? this.$tc(`global.tax-rates.${tax.name}`) : tax.name;
+            return this.isShopwareDefaultTax(tax) ? this.$t(`global.tax-rates.${tax.name}`) : tax.name;
         },
 
         isSelectedDefaultRate(tax) {
@@ -244,7 +270,7 @@ export default {
                 const state = taxProvider.active ? 'active' : 'inactive';
 
                 this.createNotificationSuccess({
-                    message: this.$tc(`sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`, 0, {
+                    message: this.$t(`sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`, 0, {
                         name: taxProvider.translated.name,
                     }),
                 });

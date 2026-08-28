@@ -17,8 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language as LanguageDto;
@@ -39,7 +37,6 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogue;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -350,18 +347,18 @@ class SnippetServiceTest extends TestCase
         $snippetSetCollection = new SnippetSetCollection();
         $snippetSetCollection->add($snippetSet);
 
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository([
             static function ($criteria, $context) use ($snippetSetCollection) {
                 return $snippetSetCollection;
             },
         ]);
-        /** @var StaticEntityRepository<SnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([
             static function ($criteria, $context) {
                 return new SnippetCollection();
             },
         ]);
+
+        $this->connection->expects($this->never())->method('fetchOne');
 
         $service = $this->createSnippetService(
             snippetRepository: $snippetRepository,
@@ -396,7 +393,7 @@ class SnippetServiceTest extends TestCase
             ],
         ];
 
-        yield 'es-AR iso falls back to es' => [
+        yield 'es-AR iso loads exact locale and bare language as base' => [
             'iso' => 'es-AR',
             'expectedSnippets' => [
                 'title' => 'Country es-AR',
@@ -411,13 +408,68 @@ class SnippetServiceTest extends TestCase
             ],
         ];
 
-        yield 'country es-EM does not exist - only base es exists' => [
+        yield 'unknown regional variant falls back to agnostic language' => [
             'iso' => 'es-EM',
             'expectedSnippets' => [
                 'title' => 'Agnostic ES',
                 'baseOnly' => 'Agnostic ES',
             ],
         ];
+    }
+
+    public function testGetStorefrontSnippetsUsesRegionalFallbackForExtensionSnippets(): void
+    {
+        // Extension only provides de-DE snippets, not de-AT
+        $this->snippetCollection->add(new MockSnippetFile('extension.de-DE', 'de-DE'));
+
+        $this->connection->expects($this->once())->method('fetchOne')->willReturn('de-AT');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(SnippetsThemeResolveEvent::class, static function (SnippetsThemeResolveEvent $event): void {
+            $event->setUsedThemes(['Storefront']);
+            $event->setUnusedThemes([]);
+        });
+
+        $catalogue = new MessageCatalogue('de-AT', []);
+        $snippetService = $this->createSnippetService($dispatcher);
+        $snippets = $snippetService->getStorefrontSnippets($catalogue, Uuid::randomHex(), null, null);
+
+        static::assertArrayHasKey('extension.button', $snippets);
+        static::assertSame('Jetzt kaufen', $snippets['extension.button']);
+    }
+
+    public function testGetListUsesRegionalFallbackForExtensionSnippets(): void
+    {
+        // Extension only provides de-DE snippets, not de-AT
+        $snippetCollection = new SnippetFileCollection();
+        $snippetCollection->add(new MockSnippetFile('extension.de-DE', 'de-DE'));
+
+        $snippetSet = new SnippetSetEntity();
+        $snippetSet->setId(Uuid::randomHex());
+        $snippetSet->setIso('de-AT');
+        $snippetSet->setName('Deutsch (Österreich)');
+        $snippetSet->setBaseFile('extension.de-DE.json');
+
+        $snippetSetCollection = new SnippetSetCollection();
+        $snippetSetCollection->add($snippetSet);
+
+        $snippetSetRepository = new StaticEntityRepository([$snippetSetCollection]);
+        $snippetRepository = new StaticEntityRepository([new SnippetCollection()]);
+
+        $this->connection->expects($this->never())->method('fetchOne');
+
+        $service = $this->createSnippetService(
+            snippetRepository: $snippetRepository,
+            snippetSetRepository: $snippetSetRepository,
+            snippetFileCollection: $snippetCollection,
+            connection: $this->connection,
+        );
+
+        $result = $service->getList(1, 10, Context::createDefaultContext(), [], []);
+
+        static::assertSame(1, $result['total']);
+        static::assertArrayHasKey('extension.button', $result['data']);
+        static::assertSame('Jetzt kaufen', $result['data']['extension.button'][0]['value']);
     }
 
     private function addThemes(): void
@@ -453,7 +505,7 @@ class SnippetServiceTest extends TestCase
 
         $snippetFileCollection = $snippetFileCollection ?? $this->snippetCollection;
         $connection = $connection ?? $this->connection;
-        $snippetFilterFactory = $snippetFilterFactory ?? $this->createMock(SnippetFilterFactory::class);
+        $snippetFilterFactory = $snippetFilterFactory ?? static::createStub(SnippetFilterFactory::class);
         $extensionDispatcher = $extensionDispatcher ?? new ExtensionDispatcher(new EventDispatcher());
 
         /** @var EntityRepository<SnippetCollection> $snippetRepository */
@@ -473,13 +525,10 @@ class SnippetServiceTest extends TestCase
 
     private function getTranslationLoader(TranslationConfig $config): TranslationLoader
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository([]);
 
         return new TranslationLoader(
@@ -487,9 +536,9 @@ class SnippetServiceTest extends TestCase
             languageRepository: $languageRepository,
             localeRepository: $localeRepository,
             snippetSetRepository: $snippetSetRepository,
-            client: $this->createMock(ClientInterface::class),
+            client: static::createStub(ClientInterface::class),
             config: $config,
-            validator: Validation::createValidator(),
+            eventDispatcher: new EventDispatcher(),
         );
     }
 }

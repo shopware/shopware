@@ -67,9 +67,9 @@ export default {
         },
 
         searchContent() {
-            const entityName = this.$tc(`global.entities.${this.entity}`, 0);
+            const entityName = this.$t(`global.entities.${this.entity}`, 0);
 
-            return this.$tc(
+            return this.$t(
                 'global.sw-search-more-results.labelShowResultsInModuleV2',
                 {
                     entityName: entityName,

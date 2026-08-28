@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class MailTemplateEntity extends Entity
 {
@@ -21,6 +24,8 @@ class MailTemplateEntity extends Entity
     protected ?MailTemplateTypeEntity $mailTemplateType = null;
 
     protected bool $systemDefault;
+
+    protected bool $wasModifiedByUser = false;
 
     protected ?string $senderName = null;
 
@@ -54,6 +59,16 @@ class MailTemplateEntity extends Entity
     public function setSystemDefault(bool $systemDefault): void
     {
         $this->systemDefault = $systemDefault;
+    }
+
+    public function wasModifiedByUser(): bool
+    {
+        return $this->wasModifiedByUser;
+    }
+
+    public function setWasModifiedByUser(bool $wasModifiedByUser): void
+    {
+        $this->wasModifiedByUser = $wasModifiedByUser;
     }
 
     public function getSenderName(): ?string

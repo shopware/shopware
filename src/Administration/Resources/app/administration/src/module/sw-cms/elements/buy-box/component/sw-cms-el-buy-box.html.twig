@@ -17,17 +17,17 @@
 
         {% block sw_cms_el_buy_box_product_tax_info %}
         <div class="sw-cms-el-buy-box__tax-info">
-            {{ $tc('sw-cms.elements.buyBox.component.label.taxInfo') }}
+            {{ $t('sw-cms.elements.buyBox.component.label.taxInfo') }}
         </div>
         {% endblock %}
 
         {% block sw_cms_el_buy_box_product_shipping_info %}
         <ul class="sw-cms-el-buy-box__shipping-info">
             <li v-if="product.shippingFree">
-                {{ $tc('sw-cms.elements.buyBox.component.label.deliveryShippingFree') }}
+                {{ $t('sw-cms.elements.buyBox.component.label.deliveryShippingFree') }}
             </li>
             <li v-if="product.deliveryTime">
-                {{ $tc('sw-cms.elements.buyBox.component.label.deliveryTime', {name: placeholder(product, 'deliveryTime.name', product.deliveryTime.name)}, 0) }}
+                {{ $t('sw-cms.elements.buyBox.component.label.deliveryTime', {name: placeholder(product, 'deliveryTime.name', product.deliveryTime.name)}, 0) }}
             </li>
         </ul>
         {% endblock %}
@@ -35,7 +35,7 @@
         {% block sw_cms_el_buy_box_product_variants %}
         <template v-if="product.parentId || product.childCount > 0">
             <p class="sw-cms-el-buy-box__variant-title">
-                {{ $tc('sw-cms.elements.buyBox.component.label.variants') }}
+                {{ $t('sw-cms.elements.buyBox.component.label.variants') }}
             </p>
             <div class="sw-cms-el-buy-box__variants">
                 <div class="sw-cms-el-buy-box__variant"></div>
@@ -80,7 +80,7 @@
                     href="#"
                     class="sw-cms-el-buy-box__buy-action"
                 >
-                    {{ $tc('sw-cms.elements.buyBox.component.label.actionBuy') }}
+                    {{ $t('sw-cms.elements.buyBox.component.label.actionBuy') }}
                 </a>
             </div>
             {% endblock %}
@@ -91,7 +91,7 @@
         {% block sw_cms_element_buy_box_product_number %}
         <div class="sw-cms-el-buy-box__product-number">
             <span class="sw-cms-el-buy-box__product-number-title">
-                {{ $tc('sw-cms.elements.buyBox.component.label.productNumber') }}
+                {{ $t('sw-cms.elements.buyBox.component.label.productNumber') }}
             </span>
             <span>{{ product.productNumber }}</span>
         </div>
@@ -149,7 +149,7 @@
                     href="#"
                     class="sw-cms-el-buy-box__buy-action"
                 >
-                    {{ $tc('sw-cms.elements.buyBox.component.label.actionBuy') }}
+                    {{ $t('sw-cms.elements.buyBox.component.label.actionBuy') }}
                 </a>
             </div>
             {% endblock %}

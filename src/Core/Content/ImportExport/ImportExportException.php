@@ -39,14 +39,41 @@ class ImportExportException extends HttpException
     final public const IMPORT_COMMAND_FAILED = 'CONTENT__IMPORT_EXPORT__COMMAND_FAILED';
     final public const DUPLICATE_TECHNICAL_NAME = 'CONTENT__IMPORT_EXPORT__DUPLICATE_TECHNICAL_NAME';
     final public const DESERIALIZE_FAILED = 'CONTENT__IMPORT_EXPORT__DESERIALIZE_FAILED';
+    final public const IMPORT_EXPORT_FILE_DOWNLOAD_THROTTLED = 'CONTENT__IMPORT_EXPORT__FILE_DOWNLOAD_THROTTLED';
 
     final public const INVALID_INSTANCE_TYPE = 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE';
     final public const SERIALIZER_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__SERIALIZER_NOT_FOUND';
     final public const UPDATE_ENTITY_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__UPDATE_ENTITY_NOT_FOUND';
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
+    final public const INVALID_EVENT_DATA = 'CONTENT__IMPORT_EXPORT__INVALID_EVENT_DATA';
+
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
+    public static function invalidEventData(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_EVENT_DATA,
+            $message
+        );
+    }
 
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
         return new InvalidFileAccessTokenException();
+    }
+
+    public static function fileDownloadThrottledException(int $waitTime): self
+    {
+        return new self(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            self::IMPORT_EXPORT_FILE_DOWNLOAD_THROTTLED,
+            'Too many attempts to download this file. Please try again in {{ seconds }} seconds.',
+            ['seconds' => $waitTime]
+        );
     }
 
     public static function fileNotFound(string $fileId): ShopwareHttpException

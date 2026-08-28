@@ -26,8 +26,6 @@
             {% endblock %}
             {% endblock %}
 
-            <sw-settings-services-dashboard-banner />
-
             <sw-extension-component-section
                 position-identifier="sw-dashboard__before-content"
                 class="sw-dashboard__before-content"
@@ -42,7 +40,7 @@
                     {% block sw_dashboard_index_content_info_grid_welcome_card_content %}
                     {% block sw_dashboard_index_content_info_grid_welcome_headline %}
                     <h2 class="sw-dashboard-index__card-title">
-                        {{ $tc('sw-dashboard.helpcard.headline') }}
+                        {{ $t('sw-dashboard.helpcard.headline') }}
                     </h2>
                     {% endblock %}
 
@@ -55,11 +53,11 @@
                         >
                             <mt-link
                                 as="a"
-                                :to="$tc(`sw-dashboard.helpcard.${key}Link`)"
+                                :to="$t(`sw-dashboard.helpcard.${key}Link`)"
                                 type="external"
                                 target="_blank"
                             >
-                                {{ $tc(`sw-dashboard.helpcard.${key}`) }}
+                                {{ $t(`sw-dashboard.helpcard.${key}`) }}
                             </mt-link>
                         </li>
                     </ul>
@@ -74,24 +72,23 @@
 
                     {% block sw_dashboard_index_content_feedback_headline %}
                     <h2 class="sw-dashboard-index__card-title">
-                        {{ $tc('sw-dashboard.feedbackCard.headline') }}
+                        {{ $t('sw-dashboard.feedbackCard.headline') }}
                     </h2>
                     {% endblock %}
 
                     {% block sw_dashboard_index_content_feedback_text %}
                     <p class="sw-dashboard-index__card-text">
-                        {{ $tc('sw-dashboard.feedbackCard.text') }}
+                        {{ $t('sw-dashboard.feedbackCard.text') }}
                     </p>
                     {% endblock %}
 
                     {% block sw_dashboard_index_content_feedback_link %}
                     <mt-button
                         class="sw-dashboard-index__card-button"
-                        size="large"
                         variant="secondary"
-                        :link="$tc('sw-dashboard.feedbackCard.feedbackLink')"
+                        :link="$t('sw-dashboard.feedbackCard.feedbackLink')"
                     >
-                        <span>{{ $tc('sw-dashboard.feedbackCard.feedback') }}</span>
+                        <span>{{ $t('sw-dashboard.feedbackCard.feedback') }}</span>
 
                         <template #iconBack>
                             <mt-icon

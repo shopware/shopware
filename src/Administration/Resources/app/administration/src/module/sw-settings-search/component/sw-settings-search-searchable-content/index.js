@@ -14,6 +14,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     emits: ['edit-change'],
@@ -50,7 +51,7 @@ export default {
             searchConfigFields: [],
             fieldConfigs: [
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.name'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.name'),
                     value: 'name',
                     defaultConfigs: {
                         searchable: true,
@@ -59,7 +60,16 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.description'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.parentName'),
+                    value: 'parent.name',
+                    defaultConfigs: {
+                        searchable: false,
+                        ranking: 560,
+                        tokenize: true,
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-search.generalTab.configFields.description'),
                     value: 'description',
                     defaultConfigs: {
                         searchable: false,
@@ -68,7 +78,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.productNumber'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.productNumber'),
                     value: 'productNumber',
                     defaultConfigs: {
                         searchable: true,
@@ -77,7 +87,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.manufacturerNumber'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.manufacturerNumber'),
                     value: 'manufacturerNumber',
                     defaultConfigs: {
                         searchable: true,
@@ -86,7 +96,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.ean'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.ean'),
                     value: 'ean',
                     defaultConfigs: {
                         searchable: true,
@@ -95,7 +105,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.customSearchKeywords'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.customSearchKeywords'),
                     value: 'customSearchKeywords',
                     defaultConfigs: {
                         searchable: true,
@@ -104,7 +114,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.manufacturerName'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.manufacturerName'),
                     value: 'manufacturer.name',
                     defaultConfigs: {
                         searchable: true,
@@ -113,7 +123,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.manufacturerCustomFields'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.manufacturerCustomFields'),
                     value: 'manufacturer.customFields',
                     defaultConfigs: {
                         searchable: false,
@@ -122,7 +132,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.categoriesName'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.categoriesName'),
                     value: 'categories.name',
                     defaultConfigs: {
                         searchable: false,
@@ -131,7 +141,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.categoriesCustomFields'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.categoriesCustomFields'),
                     value: 'categories.customFields',
                     defaultConfigs: {
                         searchable: false,
@@ -140,7 +150,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.tagsName'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.tagsName'),
                     value: 'tags.name',
                     defaultConfigs: {
                         searchable: false,
@@ -149,7 +159,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.metaTitle'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.metaTitle'),
                     value: 'metaTitle',
                     defaultConfigs: {
                         searchable: false,
@@ -158,7 +168,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.metaDescription'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.metaDescription'),
                     value: 'metaDescription',
                     defaultConfigs: {
                         searchable: false,
@@ -167,7 +177,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesValue'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.propertiesValue'),
                     value: 'properties.name',
                     defaultConfigs: {
                         searchable: false,
@@ -176,7 +186,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.variantValue'),
+                    label: this.$t('sw-settings-search.generalTab.configFields.variantValue'),
                     value: 'options.name',
                     defaultConfigs: {
                         searchable: false,
@@ -245,6 +255,19 @@ export default {
                     label: 'sw-settings-search.generalTab.list.columnSplitKeywords',
                     align: 'center',
                     sortable: true,
+                },
+            ];
+        },
+
+        searchableContentTabs() {
+            return [
+                {
+                    label: this.$t('sw-settings-search.generalTab.labelGeneralTab'),
+                    name: this.tabNames.generalTab,
+                },
+                {
+                    label: this.$t('sw-settings-search.generalTab.labelCustomFieldsTab'),
+                    name: this.tabNames.customTab,
                 },
             ];
         },
@@ -345,7 +368,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.loadError'),
+                        message: this.$t('sw-settings-search.notification.loadError'),
                     });
                 })
                 .finally(() => {
@@ -359,13 +382,13 @@ export default {
                 .saveAll(this.searchConfigFields)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
+                        message: this.$t('sw-settings-search.notification.saveSuccess'),
                     });
                     this.$emit('edit-change', false);
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError'),
+                        message: this.$t('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {
@@ -384,12 +407,12 @@ export default {
                 .delete(configFieldId)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
+                        message: this.$t('sw-settings-search.notification.saveSuccess'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError'),
+                        message: this.$t('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {

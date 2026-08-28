@@ -4,6 +4,10 @@ import Debouncer from 'src/helper/debouncer.helper';
 import HttpClient from 'src/service/http-client.service';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
+const PRODUCT_SEARCH_PERFORMED_EVENT = 'product:search-performed';
+const PRODUCT_SEARCH_SUGGESTION_SHOWN_EVENT = 'product:search-suggestion-shown';
+const PRODUCT_SEARCH_SUGGESTION_PRODUCT_VIEWED_EVENT = 'product:search-suggestion-product-viewed';
+
 export default class SearchWidgetPlugin extends Plugin {
 
     static options = {
@@ -12,6 +16,8 @@ export default class SearchWidgetPlugin extends Plugin {
         searchWidgetResultItemSelector: '.js-result',
         searchWidgetInputFieldSelector: 'input[type=search]',
         searchWidgetButtonFieldSelector: 'button[type=submit]',
+        searchWidgetResultListboxSelector: '#search-suggest-listbox',
+        searchWidgetResultInfoSelector: '#search-suggest-result-info',
         searchWidgetUrlDataAttribute: 'data-url',
         searchWidgetCollapseButtonSelector: '.js-search-toggle-btn',
         searchWidgetCollapseClass: 'collapsed',
@@ -37,6 +43,34 @@ export default class SearchWidgetPlugin extends Plugin {
         this.searchSuggestLinks = [];
 
         this._registerEvents();
+        this._restoreSearchTerm();
+    }
+
+    /**
+     * Restores the submitted search term in the input field on the search result page.
+     * The header is rendered via ESI, so neither the search term nor the current route
+     * are available during rendering. Both are taken from the surrounding page instead,
+     * which sets `window.activeRoute` per request in `layout/meta.html.twig`.
+     *
+     * @private
+     */
+    _restoreSearchTerm() {
+        // respect a term which was already rendered server-side
+        if (this._inputField.value !== '') {
+            return;
+        }
+
+        if (window.activeRoute !== 'frontend.search.page') {
+            return;
+        }
+
+        const term = new URL(window.location.href).searchParams.get(this._inputField.name);
+
+        if (!term) {
+            return;
+        }
+
+        this._inputField.value = term;
     }
 
     /**
@@ -75,7 +109,12 @@ export default class SearchWidgetPlugin extends Plugin {
         if (value.length < this.options.searchWidgetMinChars) {
             event.preventDefault();
             event.stopPropagation();
+            return;
         }
+
+        document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_PERFORMED_EVENT, {
+            detail: { term: value },
+        }));
     }
 
     /**
@@ -204,8 +243,7 @@ export default class SearchWidgetPlugin extends Plugin {
                 const searchWidgetButtonField = this.el.querySelector(this.options.searchWidgetButtonFieldSelector);
                 searchWidgetButtonField.insertAdjacentHTML('afterend', content);
 
-                this._inputField.setAttribute('aria-expanded', 'true');
-
+                this._setAccessibilityAttributes();
                 const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
 
                 this.searchSuggestLinks = Array.from(window.focusHandler.getFocusableElements(searchSuggest));
@@ -213,6 +251,12 @@ export default class SearchWidgetPlugin extends Plugin {
                 this.searchSuggestLinks.forEach((item, index) => {
                     item.addEventListener('keydown', this._handleSearchItemKeyEvent.bind(this, index));
                 });
+
+                searchSuggest.addEventListener('click', this._handleSuggestResultClick.bind(this));
+
+                document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_SUGGESTION_SHOWN_EVENT, {
+                    detail: { term: value },
+                }));
 
                 this.$emitter.publish('afterSuggest');
             })
@@ -226,6 +270,29 @@ export default class SearchWidgetPlugin extends Plugin {
     }
 
     /**
+     * Delegated click handler on the rendered suggest dropdown. Fires a
+     * product:search-performed event when the user clicks the "show all
+     * results" link, or a product:search-suggestion-product-viewed event
+     * when the user clicks a product result.
+     * @param {Event} event
+     * @private
+     */
+    _handleSuggestResultClick(event) {
+        if (!event.target.closest('a[href]')) {
+            return;
+        }
+
+        const term = this._inputField.value.trim();
+        const eventName = event.target.closest('.search-suggest-total')
+            ? PRODUCT_SEARCH_PERFORMED_EVENT
+            : PRODUCT_SEARCH_SUGGESTION_PRODUCT_VIEWED_EVENT;
+
+        document.dispatchEvent(new CustomEvent(eventName, {
+            detail: { term },
+        }));
+    }
+
+    /**
      * Remove existing search results popover from DOM
      * @private
      */
@@ -234,9 +301,26 @@ export default class SearchWidgetPlugin extends Plugin {
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
         results.forEach(result => result.remove());
 
-        this._inputField.setAttribute('aria-expanded', 'false');
+        this._removeAccessibilityAttributes();
 
         this.$emitter.publish('clearSuggestResults');
+    }
+
+    _setAccessibilityAttributes() {
+        const listbox = document.querySelector(this.options.searchWidgetResultListboxSelector);
+        if (listbox) {
+            this._inputField.setAttribute('aria-controls', listbox.id);
+        }
+
+        const resultInfo = document.querySelector(this.options.searchWidgetResultInfoSelector);
+        if (resultInfo) {
+            this._inputField.setAttribute('aria-describedby', resultInfo.id);
+        }
+    }
+
+    _removeAccessibilityAttributes() {
+        this._inputField.removeAttribute('aria-controls');
+        this._inputField.removeAttribute('aria-describedby');
     }
 
     /**

@@ -3,12 +3,12 @@
     {% block sw_sales_channel_switch_modal %}
     <sw-modal
         v-if="showUnsavedChangesModal"
-        :title="$tc('sw-sales-channel-switch.titleModalUnsavedChanges')"
+        :title="$t('sw-sales-channel-switch.titleModalUnsavedChanges')"
         variant="small"
         @modal-close="onCloseChangesModal"
     >
         {% block sw_sales_channel_switch_message %}
-        <p>{{ $tc('sw-sales-channel-switch.messageModalUnsavedChanges') }}</p>
+        <p>{{ $t('sw-sales-channel-switch.messageModalUnsavedChanges') }}</p>
         {% endblock %}
         {% block sw_sales_channel_switch_footer %}
         <template #modal-footer>
@@ -18,7 +18,7 @@
                 variant="secondary"
                 @click="onCloseChangesModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -28,7 +28,7 @@
                 variant="secondary"
                 @click="onClickRevertUnsavedChanges"
             >
-                {{ $tc('sw-sales-channel-switch.titleModalButtonRevertUnsavedChanges') }}
+                {{ $t('sw-sales-channel-switch.titleModalButtonRevertUnsavedChanges') }}
             </mt-button>
             {% endblock %}
 
@@ -38,7 +38,7 @@
                 size="small"
                 @click="onClickSaveChanges"
             >
-                {{ $tc('global.default.save') }}
+                {{ $t('global.default.save') }}
             </mt-button>
             {% endblock %}
         </template>
@@ -50,10 +50,10 @@
         id="salesChannelSelect"
         ref="salesChannelSelect"
         :disabled="disabled"
-        :placeholder="$tc('sw-sales-channel-switch.labelDefaultOption')"
+        :placeholder="$t('sw-sales-channel-switch.labelDefaultOption')"
         :label="label"
-        :search-placeholder="$tc('sw-sales-channel-switch.placeholderSelect')"
-        :reset-option="$tc('sw-sales-channel-switch.labelDefaultOption')"
+        :search-placeholder="$t('sw-sales-channel-switch.placeholderSelect')"
+        :reset-option="$t('sw-sales-channel-switch.labelDefaultOption')"
         :value="salesChannelId"
         :criteria="salesChannelCriteria"
         entity="sales_channel"

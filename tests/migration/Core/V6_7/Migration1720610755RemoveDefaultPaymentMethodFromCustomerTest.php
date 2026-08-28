@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
@@ -14,6 +15,7 @@ use Shopware\Core\Migration\V6_7\Migration1720610755RemoveDefaultPaymentMethodFr
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1720610755RemoveDefaultPaymentMethodFromCustomer::class)]
 class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends TestCase
 {
@@ -25,6 +27,11 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720610755, (new Migration1720610755RemoveDefaultPaymentMethodFromCustomer())->getCreationTimestamp());
     }
 
     public function testUpdateMakesColumnNullable(): void

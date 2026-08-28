@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Sso\Controller;
 
 use League\OAuth2\Server\AuthorizationServer;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\Exceptions\SsoUserNotFoundException;
 use Shopware\Core\Framework\Sso\LoginResponseService;
-use Shopware\Core\Framework\Sso\SsoException;
 use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Sso\SsoUser\SsoUserService;
@@ -23,12 +23,15 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class SsoController extends AbstractController
 {
     public function __construct(
@@ -40,6 +43,7 @@ class SsoController extends AbstractController
         private readonly SsoUserService $ssoUserService,
         private readonly SsoUserInvitationMailService $ssoUserInvitationMailService,
         private readonly SsoService $ssoService,
+        private readonly RouterInterface $router,
     ) {
     }
 
@@ -90,12 +94,14 @@ class SsoController extends AbstractController
     {
         $random = $request->getSession()->get(StateValidator::SESSION_KEY);
         if ($random === null) {
-            $referer = $request->headers->get('referer');
-            if ($referer === null) {
-                throw SsoException::refererNotFound();
+            try {
+                $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            } catch (RouteNotFoundException) {
+                // fallback if admin bundle is not installed, the url should work once the bundle is installed
+                $url = EnvironmentHelper::getVariable('APP_URL') . '/admin';
             }
 
-            return $this->redirect($referer);
+            return $this->redirect($url);
         }
 
         $url = $this->loginConfigService->createRedirectUrl($random, $request->query->getBoolean('usePromptLogin'));
@@ -117,7 +123,7 @@ class SsoController extends AbstractController
     #[Route(
         path: '/api/_action/sso/invite-user',
         name: 'api.action.sso.invite-user',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']],
+        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration'], PlatformRequest::ATTRIBUTE_ACL => ['user:create']],
         methods: [Request::METHOD_POST]
     )]
     public function inviteUser(RequestDataBag $requestDataBag, Context $context): JsonResponse

@@ -2,7 +2,7 @@
 <mt-card
     class="sw-settings-listing-option-criteria-grid__criteria-card"
     position-identifier="sw-settings-listing-option-criteria-grid"
-    :title="$tc('sw-settings-listing.base.criteria.title')"
+    :title="$t('sw-settings-listing.base.criteria.title')"
 >
 
     {% block sw_settings_listing_option_criteria_card_toolbar %}
@@ -10,9 +10,11 @@
 
         {% block sw_settings_listing_option_criteria_card_toolbar_select %}
         <sw-single-select
+            class="sw-settings-listing-option-criteria-grid__criteria-select"
             :value="selectedCriteria"
             :options="criteriaOptions"
-            :placeholder="$tc('sw-settings-listing.base.criteria.selectPlaceholder')"
+            :placeholder="$t('sw-settings-listing.base.criteria.selectPlaceholder')"
+            :disabled="productSortingEntity.locked"
             value-property="value"
             label-property="label"
             show-clearable-button
@@ -26,10 +28,11 @@
     <sw-data-grid
         v-if="productSortingEntity && productSortingEntity.fields.length > 0"
         ref="dataGrid"
+        class="sw-settings-listing-option-criteria-grid__data-grid"
         :columns="productSortingEntityColumns"
         :data-source="sortedProductSortingFields"
-        :show-actions="true"
-        :allow-inline-edit="true"
+        :show-actions="!productSortingEntity.locked"
+        :allow-inline-edit="!productSortingEntity.locked"
         :compact-mode="false"
         :show-selection="false"
         plain-appearance
@@ -46,7 +49,7 @@
                 v-if="item.field === 'customField' || (isItemACustomField(item.field) && isInlineEdit)"
                 ref="customFieldSelection"
                 v-model:value="item.name"
-                :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
+                :placeholder="$t('global.sw-single-select.valuePlaceholder')"
                 :criteria="customFieldCriteriaSingleSelect(item)"
                 :label-callback="getCustomFieldName"
                 entity="custom_field"
@@ -85,7 +88,7 @@
                 :options="orderOptions"
                 value-property="value"
                 label-property="label"
-                :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
+                :placeholder="$t('global.sw-single-select.valuePlaceholder')"
             />
             {% endblock %}
         </template>
@@ -99,7 +102,7 @@
                 variant="danger"
                 @click="onRemoveCriteria(item)"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -112,7 +115,7 @@
         v-else
         class="sw-settings-listing-option-criteria-grid__criteria-empty-state"
         title=""
-        :subline="$tc('sw-settings-listing.base.criteria.emptyStateSubline')"
+        :subline="$t('sw-settings-listing.base.criteria.emptyStateSubline')"
     >
 
         {% block sw_settings_listing_option_criteria_card_empty_state_icon %}

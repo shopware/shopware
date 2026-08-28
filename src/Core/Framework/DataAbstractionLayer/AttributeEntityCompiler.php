@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -73,6 +74,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -84,7 +86,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  *     class: class-string<DalField>,
  *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
  *     translated: bool,
- *     args: list<string|false>
+ *     args: list<string|int|false>
  * }
  */
 #[Package('framework')]
@@ -129,8 +131,10 @@ class AttributeEntityCompiler
      *     type: 'entity'|'mapping',
      *     since?: string|null,
      *     parent: string|null,
+     *     inheritance_aware?: bool,
      *     entity_class: class-string<EntityStruct>,
      *     entity_name: string,
+     *     hydrator_class?: class-string<EntityHydrator>,
      *     collection_class?: class-string<EntityCollection<EntityStruct>>,
      *     fields: list<FieldArray>,
      *     source?: string,
@@ -172,6 +176,7 @@ class AttributeEntityCompiler
             'type' => 'entity',
             'since' => $instance->since,
             'parent' => $instance->parent,
+            'inheritance_aware' => $instance->inheritanceAware,
             'entity_class' => $class,
             'entity_name' => $instance->name,
             'hydrator_class' => $instance->hydratorClass,
@@ -208,7 +213,7 @@ class AttributeEntityCompiler
      *     class: class-string<DalField>,
      *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
      *     translated: bool,
-     *     args: list<string|false>
+     *     args: list<string|int|false>
      * }|null
      */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
@@ -303,6 +308,8 @@ class AttributeEntityCompiler
             $field instanceof Password => [$column, $property->getName(), $field->algorithm, $field->hashOptions, $field->for],
             $field instanceof ListFieldAttr => [$column, $property->getName(), $field->fieldType],
             $field->type === FieldType::ENUM => [$column, $property->getName(), $this->getFirstEnumCase($property)],
+            $field->type === FieldType::STRING,
+            $field->type === FieldType::EMAIL => [$column, $property->getName(), $field->maxLength],
             default => [$column, $property->getName()],
         };
     }
@@ -421,6 +428,9 @@ class AttributeEntityCompiler
         if ($field->type === CustomFieldsAttr::TYPE) {
             unset($flags[Required::class]);
         }
+        if (is_a($field->type, WasModifiedByUserField::class, true)) {
+            unset($flags[Required::class]);
+        }
 
         return $flags;
     }
@@ -496,6 +506,7 @@ class AttributeEntityCompiler
     {
         $enumType = $property->getType();
         if (!$enumType instanceof \ReflectionNamedType) {
+            /** @phpstan-ignore class.toStringDeprecated (False positive. See https://github.com/phpstan/phpstan/issues/14963) */
             throw DataAbstractionLayerException::invalidEnumField($property->getName(), $enumType?->__toString() ?? 'null');
         }
 

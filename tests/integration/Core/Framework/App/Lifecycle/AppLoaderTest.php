@@ -4,12 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class AppLoaderTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -21,7 +23,7 @@ class AppLoaderTest extends TestCase
 
         $manifests = $appLoader->load();
 
-        static::assertCount(8, $manifests);
+        static::assertCount(9, $manifests);
         static::assertInstanceOf(Manifest::class, $manifests['minimal']);
     }
 
@@ -40,7 +42,7 @@ class AppLoaderTest extends TestCase
 
         $manifests = $appLoader->load();
 
-        static::assertCount(8, $manifests);
+        static::assertCount(9, $manifests);
         foreach ($manifests as $manifest) {
             static::assertInstanceOf(Manifest::class, $manifest);
         }

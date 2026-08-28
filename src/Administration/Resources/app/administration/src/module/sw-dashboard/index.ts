@@ -4,12 +4,6 @@ Shopware.Component.register('sw-dashboard-statistics', () => import('./component
 Shopware.Component.register('sw-dashboard-index', () => import('./page/sw-dashboard-index'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Shopware.Component.register(
-    'sw-usage-data-consent-banner',
-    () => import('src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner'),
-);
-
 /**
  * @sw-package after-sales
  *
@@ -23,8 +17,8 @@ Shopware.Module.register('sw-dashboard', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#6AD6F0',
-    icon: 'regular-tachometer',
-    favicon: 'icon-module-dashboard.png',
+    icon: 'regular-dashboard',
+    favicon: 'icon-module-dashboard.svg',
 
     routes: {
         index: {
@@ -40,7 +34,7 @@ Shopware.Module.register('sw-dashboard', {
             id: 'sw-dashboard',
             label: 'sw-dashboard.general.mainMenuItemGeneral',
             color: '#6AD6F0',
-            icon: 'regular-tachometer',
+            icon: 'regular-dashboard',
             path: 'sw.dashboard.index',
             position: 10,
         },

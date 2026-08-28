@@ -5,7 +5,7 @@
 >
     {% block sw_extension_my_extensions_index_smart_bar_header %}
     <template #smart-bar-header>
-        {{ $tc('sw-extension.mainMenu.purchased') }}
+        {{ $t('sw-extension.mainMenu.purchased') }}
     </template>
     {% endblock %}
 
@@ -14,7 +14,7 @@
         {% block sw_extension_my_extensions_index_smart_bar_search_slot_search_bar %}
         <sw-search-bar
             initial-search-type="extension"
-            :placeholder="$tc('sw-extension.my-extensions.listing.placeholderSearchBar')"
+            :placeholder="$t('sw-extension.my-extensions.listing.placeholderSearchBar')"
             @search="onSearch"
         />
         {% endblock %}
@@ -25,25 +25,25 @@
     <template #page-tabs>
         {% block sw_extension_my_extensions_index_smart_bar_tabs_app %}
         <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.app', query: queryParams }">
-            {{ $tc('sw-extension.my-extensions.tabs.app') }}
+            {{ $t('sw-extension.my-extensions.tabs.app') }}
         </sw-tabs-item>
         {% endblock %}
 
         {% block sw_extension_my_extensions_index_smart_bar_tabs_theme %}
         <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.theme', query: queryParams }">
-            {{ $tc('sw-extension.my-extensions.tabs.theme') }}
+            {{ $t('sw-extension.my-extensions.tabs.theme') }}
         </sw-tabs-item>
         {% endblock %}
 
         {% block sw_extension_my_extensions_index_smart_bar_tabs_recommendation %}
         <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.recommendation' }">
-            {{ $tc('sw-extension.my-extensions.tabs.recommendation') }}
+            {{ $t('sw-extension.my-extensions.tabs.recommendation') }}
         </sw-tabs-item>
         {% endblock %}
 
         {% block sw_extension_my_extensions_index_smart_bar_tabs_account %}
         <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.account' }">
-            {{ $tc('sw-extension.my-extensions.tabs.shopwareAccount') }}
+            {{ $t('sw-extension.my-extensions.tabs.shopwareAccount') }}
         </sw-tabs-item>
         {% endblock %}
     </template>

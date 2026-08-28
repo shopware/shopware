@@ -9,6 +9,8 @@ const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
 /**
  * @private
  * @sw-package discovery
+ *
+ * Duplicated in `src/app/composables/use-cms-element-deprecated`; change both together.
  */
 export default Mixin.register(
     'cms-element',
@@ -76,7 +78,7 @@ export default Mixin.register(
                             return;
                         }
 
-                        const newValue: unknown = get(this.element, `translated.${path}`, value);
+                        const newValue: unknown = cloneDeep(get(this.element, `translated.${path}`, value));
 
                         set(this.element, path, newValue);
                     },
@@ -84,11 +86,11 @@ export default Mixin.register(
             },
 
             applyContentOverride() {
-                if (!this.contentEntity || !this.contentEntity.slotConfig || !this.element.id) {
+                if (!this.contentEntity || !this.inheritedSlotConfig || !this.element.id) {
                     return;
                 }
 
-                const overrideConfig = this.contentEntity.slotConfig[this.element.id];
+                const overrideConfig = this.inheritedSlotConfig[this.element.id];
 
                 if (!overrideConfig) {
                     return;
@@ -99,7 +101,7 @@ export default Mixin.register(
                         key,
                         value,
                     ]) => {
-                        set(this.element, `config.${key}`, value);
+                        set(this.element, `config.${key}`, cloneDeep(value));
                     },
                 );
             },

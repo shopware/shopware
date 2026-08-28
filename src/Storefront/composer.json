@@ -6,10 +6,17 @@
     "autoload": {
         "psr-4": {
             "Shopware\\Storefront\\": ""
-        }
+        },
+        "exclude-from-classmap": [
+            "Resources/app/storefront/node_modules/"
+        ]
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "symfony/runtime": true
+        }
     },
     "support": {
         "issues": "https://github.com/shopware/shopware/issues",
@@ -28,33 +35,43 @@
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "cocur/slugify": "^4.7.0",
         "doctrine/dbal": "~4.4.0",
+        "guzzlehttp/guzzle": "^7.5.0",
+        "guzzlehttp/psr7": "^2.4",
+        "league/flysystem": "^3.13.0",
+        "mcp/sdk": "^0.7.0",
         "meyfa/php-svg": "^0.16.1",
+        "psr/clock": "^1.0.0",
+        "psr/log": "^3.0.0",
+        "psr/http-client": "^1.0.3",
         "scssphp/scssphp": "v1.12.0",
         "shopware/core": "*",
         "symfony/asset": "~7.4.0",
-        "symfony/cache": "~7.4.0",
+        "symfony/cache": "~7.4.12",
         "symfony/cache-contracts": "~3.6.0",
+        "symfony/clock": "~7.4.0",
         "symfony/console": "~7.4.0",
         "symfony/config": "~7.4.0",
         "symfony/dependency-injection": "~7.4.0",
         "symfony/event-dispatcher": "~7.4.0",
         "symfony/event-dispatcher-contracts": "~3.6.0",
+        "symfony/finder": "~7.4.0",
+        "symfony/filesystem": "~7.4.0",
         "symfony/framework-bundle": "~7.4.0",
         "symfony/http-foundation": "~7.4.0",
-        "symfony/http-kernel": "~7.4.0",
-        "symfony/messenger": "~7.4.0",
-        "symfony/routing": "~7.4.0",
+        "symfony/http-kernel": "~7.4.12",
+        "symfony/messenger": "~7.4.12",
+        "symfony/mime": "~7.4.12",
+        "symfony/routing": "~7.4.12",
+        "symfony/security-core": "~7.4.12",
+        "symfony/serializer": "~7.4.0",
         "symfony/service-contracts": "~3.6.0",
+        "symfony/string": "~7.4.0",
+        "symfony/twig-bridge": "~7.4.12",
+        "symfony/translation-contracts": "~3.6.0",
+        "symfony/ux-twig-component": "~2.35.0",
         "symfony/validator": "~7.4.0",
-        "symfony/security-core": "~7.4.0",
-        "symfony/mime": "~7.4.0",
-        "twig/intl-extra": "^3.10.0",
-        "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.21.1",
-        "symfony/ux-twig-component": "~2.32.0"
-    },
-    "require-dev": {
-        "symfony/css-selector": "~7.4.0",
-        "phpunit/phpunit": "^11.5.19"
+        "twig/intl-extra": "^3.26.0",
+        "twig/string-extra": "^3.24.0",
+        "twig/twig": "^3.26.0"
     }
 }

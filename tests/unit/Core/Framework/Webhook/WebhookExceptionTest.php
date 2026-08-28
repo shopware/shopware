@@ -63,4 +63,13 @@ class WebhookExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE', $exception->getErrorCode());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
+
+    public function testUnsupportedMessage(): void
+    {
+        $e = WebhookException::unsupportedMessage('stdClass');
+
+        static::assertSame('The webhook transport only supports WebhookEventMessage, got "stdClass".', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_UNSUPPORTED_MESSAGE', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
 }

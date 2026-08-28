@@ -12,6 +12,27 @@ const mockModule = {
     baseUrl: 'http://example.com',
 };
 
+const iframeRendererStub = {
+    name: 'sw-iframe-renderer',
+    props: [
+        'src',
+    ],
+    template: '<div class="sw-iframe-renderer-stub"><iframe ref="iframe" :src="src" /></div>',
+};
+
+const routerLinkStub = {
+    props: {
+        to: {
+            type: [
+                String,
+                Object,
+            ],
+            required: true,
+        },
+    },
+    template: '<a @click="$router.push(to)"></a>',
+};
+
 async function createWrapper(back = null, push = jest.fn()) {
     return mount(await wrapTestComponent('sw-extension-sdk-module', { sync: true }), {
         props: {
@@ -23,22 +44,11 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-page': await wrapTestComponent('sw-page'),
                 'sw-loader': true,
                 'sw-my-apps-error-page': true,
-                'sw-iframe-renderer': true,
+                'sw-iframe-renderer': iframeRendererStub,
                 'sw-language-switch': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
-                'router-link': {
-                    props: {
-                        to: {
-                            type: [
-                                String,
-                                Object,
-                            ],
-                            required: true,
-                        },
-                    },
-                    template: '<a @click="$router.push(to)"></a>',
-                },
+                'router-link': routerLinkStub,
                 'sw-search-bar': true,
                 'sw-app-topbar-button': true,
                 'sw-app-topbar-sidebar': true,
@@ -68,6 +78,10 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+        const store = Shopware.Store.get('extensionSdkModules');
+        store.modules = [];
+        store.smartBarButtons = [];
+        store.hiddenSmartBars = [];
     });
 
     it('@slow should time out without menu item after 7000ms', async () => {
@@ -142,5 +156,23 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         });
 
         expect(wrapper.find('.smart-bar__content').exists()).toBeFalsy();
+    });
+
+    it('should rerender the iframe renderer when location id changes', async () => {
+        const store = Shopware.Store.get('extensionSdkModules');
+        const moduleId = await store.addModule(mockModule);
+        await wrapper.setProps({
+            id: moduleId,
+        });
+        const initialInstance = wrapper.findComponent(iframeRendererStub);
+
+        store.modules[0].locationId = 'jest-next';
+        await wrapper.vm.$nextTick();
+
+        const rerenderedInstance = wrapper.findComponent(iframeRendererStub);
+
+        expect(mockModule.locationId).not.toBe('jest-next');
+        expect(wrapper.vm.module.locationId).toBe('jest-next');
+        expect(initialInstance.vm).not.toBe(rerenderedInstance.vm);
     });
 });

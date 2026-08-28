@@ -2,7 +2,7 @@
 <div class="sw-import-export-view-import">
     {% block sw_import_export_view_import_importer %}
     <mt-card
-        :title="$tc('sw-import-export.importer.importLabel')"
+        :title="$t('sw-import-export.importer.importLabel')"
         position-identifier="sw-import-export-view-import"
     >
         <sw-import-export-importer
@@ -15,8 +15,8 @@
     <mt-card
         class="sw-import-export-view-import__activity"
         position-identifier="sw-import-export-view-import-log-activity"
-        :title="$tc('sw-import-export.importer.importActivityLabel')"
-        :subtitle="$tc('sw-import-export.exporter.exportActivityDescription')"
+        :title="$t('sw-import-export.importer.importActivityLabel')"
+        :subtitle="$t('sw-import-export.exporter.exportActivityDescription')"
     >
         {# @deprecated tag:v6.8.0 - Block will be removed. #}
         {% block sw_import_export_view_import_activity_title %}

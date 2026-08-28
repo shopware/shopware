@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -51,7 +52,17 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                 $mapping = $this->createDefaultMapping($matches[0]);
                 $seoMapping = $this->createSeoMapping($context, $mapping);
                 foreach ($seoMapping as $key => $value) {
-                    $seoMapping[$key] = $host . '/' . ltrim($value, '/');
+                    if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_API) {
+                        $seoMapping[$key] = $host . '/' . ltrim($value, '/');
+
+                        continue;
+                    }
+
+                    $externalStorefrontDomain = $this->getExternalStorefrontDomain($context);
+                    if ($externalStorefrontDomain === null) {
+                        continue;
+                    }
+                    $seoMapping[$key] = rtrim($externalStorefrontDomain, '/') . '/' . ltrim($value, '/');
                 }
 
                 return (string) \preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static fn (array $match) => $seoMapping[$match[0]], $content);
@@ -59,6 +70,19 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
             return $content;
         });
+    }
+
+    private function getExternalStorefrontDomain(SalesChannelContext $context): ?string
+    {
+        foreach ($context->getSalesChannel()->getDomains() ?? [] as $domain) {
+            if (!$domain->getIsExternalStorefront() || $domain->getLanguageId() !== $context->getLanguageId()) {
+                continue;
+            }
+
+            return $domain->getUrl();
+        }
+
+        return null;
     }
 
     /**
@@ -73,7 +97,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         foreach ($matches as $match) {
             // remove self::DOMAIN_PLACEHOLDER from start
             // remove # from end
-            $mapping[$match] = substr((string) $match, $placeholder, -1);
+            $mapping[$match] = str_replace('\/', '/', substr((string) $match, $placeholder, -1));
         }
 
         return $mapping;

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiControllerCreateTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -657,12 +659,12 @@ class ApiControllerCreateTest extends TestCase
                 'id' => $parentId,
                 'name' => 'Parent Language',
                 'locale' => [
-                    'code' => 'x-tst_' . Uuid::randomHex(),
+                    'code' => 'de-DE-' . Uuid::randomHex(),
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
                 'translationCode' => [
-                    'code' => 'x-tst_' . Uuid::randomHex(),
+                    'code' => 'de-DE-' . Uuid::randomHex(),
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],

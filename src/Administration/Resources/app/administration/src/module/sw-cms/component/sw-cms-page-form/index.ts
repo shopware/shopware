@@ -120,13 +120,13 @@ export default Shopware.Component.wrapComponentConfig({
                 return section.name;
             }
 
-            return section.type === 'sidebar' ? this.$tc('sw-cms.section.isSidebar') : this.$tc('sw-cms.section.isDefault');
+            return section.type === 'sidebar' ? this.$t('sw-cms.section.isSidebar') : this.$t('sw-cms.section.isDefault');
         },
 
         getSectionPosition(block: Entity<'cms_block'>) {
             return block.sectionPosition === 'main'
-                ? this.$tc('sw-cms.section.positionRight')
-                : this.$tc('sw-cms.section.positionLeft');
+                ? this.$t('sw-cms.section.positionRight')
+                : this.$t('sw-cms.section.positionLeft');
         },
 
         getDeviceActive(viewport: string, section: Entity<'cms_section'>, block: Entity<'cms_block'> | null = null) {

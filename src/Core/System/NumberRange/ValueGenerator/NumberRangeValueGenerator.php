@@ -4,15 +4,21 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\NumberRangeException;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type ValueGeneratorConfig from AbstractValueGenerator
+ */
 #[Package('framework')]
-class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
+class NumberRangeValueGenerator extends AbstractNumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 {
     /**
      * @internal
@@ -35,8 +41,16 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         return $this->endEvent($generatedValue, $type, $context, $salesChannelId, $preview);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - use previewPatternByNumberRangeId() with a concrete number range id instead
+     */
     public function previewPattern(string $definition, ?string $pattern, int $start): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', self::class . '::previewPatternByNumberRangeId')
+        );
+
         $config = $this->getConfiguration($definition, null);
         $config['start'] = $start;
 
@@ -47,6 +61,28 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         $parsedPattern = $this->parsePattern($pattern);
 
         return \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, true) : '';
+    }
+
+    public function previewPatternByNumberRangeId(string $numberRangeId, ?string $pattern = null, ?int $start = null): string
+    {
+        $config = $this->getConfigurationByNumberRangeId($numberRangeId);
+
+        if ($pattern) {
+            $config['pattern'] = $pattern;
+        }
+
+        if ($start !== null) {
+            $config['start'] = $start;
+        }
+
+        $parsedPattern = $this->parsePattern($config['pattern']);
+
+        return \is_array($parsedPattern) ? $this->generate($parsedPattern, $config, true) : '';
+    }
+
+    protected function getDecorated(): AbstractNumberRangeValueGenerator
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**
@@ -77,14 +113,16 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     }
 
     /**
-     * @return array{id: string, pattern: string, start: int}
+     * @return array{id: string, pattern: string, start: int, technical_name: string}
      */
     private function getConfiguration(string $definition, ?string $salesChannelId): array
     {
+        // @deprecated tag:v6.8.0 - When getPreview is removed, this method will expect a sales channel id.
+        // The else case can be removed then.
         if ($salesChannelId) {
-            /** @var array{id: string, pattern: string, start: int}|false $config */
+            /** @var array{id: string, pattern: string, start: int, technical_name: string}|false $config */
             $config = $this->connection->fetchAssociative('
-                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
+                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`, `number_range_type`.`technical_name`
                 FROM number_range
                 INNER JOIN number_range_type ON number_range_type.id = number_range.type_id
                 LEFT JOIN number_range_sales_channel ON number_range.id = number_range_sales_channel.number_range_id
@@ -94,9 +132,9 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                 ORDER BY number_range.global ASC, number_range_type.global ASC
             ', ['typeName' => $definition, 'salesChannelId' => Uuid::fromHexToBytes($salesChannelId)]);
         } else {
-            /** @var array{id: string, pattern: string, start: int}|false $config */
+            /** @var array{id: string, pattern: string, start: int, technical_name: string}|false $config */
             $config = $this->connection->fetchAssociative('
-                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
+                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`, `number_range_type`.`technical_name`
                 FROM number_range
                 INNER JOIN number_range_type ON number_range_type.id = number_range.type_id
                 WHERE `number_range_type`.`technical_name` = :typeName AND (number_range_type.global = 1 OR number_range.global = 1)
@@ -114,7 +152,28 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     }
 
     /**
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @return array{id: string, pattern: string, start: int}
+     */
+    private function getConfigurationByNumberRangeId(string $numberRangeId): array
+    {
+        /** @var array{id: string, pattern: string, start: int}|false $config */
+        $config = $this->connection->fetchAssociative('
+            SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
+            FROM number_range
+            WHERE `number_range`.`id` = :numberRangeId
+        ', ['numberRangeId' => Uuid::fromHexToBytes($numberRangeId)]);
+
+        if (!$config) {
+            throw NumberRangeException::numberRangeNotFound($numberRangeId);
+        }
+
+        $config['start'] = (int) $config['start'];
+
+        return $config;
+    }
+
+    /**
+     * @param ValueGeneratorConfig $config
      * @param array<string> $parsedPattern
      */
     private function generate(array $parsedPattern, array $config, ?bool $preview = false): string

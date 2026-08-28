@@ -11,7 +11,10 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
 
     emits: ['element-update'],
 
@@ -19,7 +22,26 @@ export default {
         Mixin.getByName('cms-element'),
     ],
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.options'),
+                    name: 'options',
+                },
+            ];
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -54,17 +76,17 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
                 },
                 {
                     id: 2,
                     value: 'image',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeImage'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeImage'),
                 },
                 {
                     id: 3,
                     value: 'minimal',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
                 },
             ];
         },
@@ -74,17 +96,17 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStandard'),
                 },
                 {
                     id: 2,
                     value: 'cover',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeCover'),
                 },
                 {
                     id: 3,
                     value: 'contain',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeContain'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeContain'),
                 },
             ];
         },

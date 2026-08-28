@@ -75,7 +75,7 @@ export default {
         },
 
         rootFolderName() {
-            return this.$tc('sw-media.index.rootFolderName');
+            return this.$t('sw-media.index.rootFolderName');
         },
 
         isMoveDisabled() {
@@ -148,7 +148,7 @@ export default {
                 items = await this.mediaFolderRepository.search(criteria, Context.api);
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('global.sw-media-modal-move.notification.errorFetchNavigation.message'),
+                    message: this.$t('global.sw-media-modal-move.notification.errorFetchNavigation.message'),
                 });
             }
 
@@ -175,8 +175,8 @@ export default {
                 await this.mediaFolderRepository.save(item, Context.api);
 
                 this.createNotificationSuccess({
-                    title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc(
+                    title: this.$root.$t('global.default.success'),
+                    message: this.$root.$t(
                         'global.sw-media-modal-move.notification.successSingle.message',
                         {
                             mediaName: this.mediaNameFilter(item),
@@ -188,8 +188,8 @@ export default {
                 return item.id;
             } catch {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc(
+                    title: this.$root.$t('global.default.error'),
+                    message: this.$root.$t(
                         'global.sw-media-modal-move.notification.errorSingle.message',
                         {
                             mediaName: this.mediaNameFilter(item),
@@ -231,15 +231,15 @@ export default {
                 );
 
                 this.createNotificationSuccess({
-                    title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.message'),
+                    title: this.$root.$t('global.default.success'),
+                    message: this.$root.$t('global.sw-media-modal-move.notification.successOverall.message'),
                 });
 
                 this.$emit('media-move-modal-items-move', movedIds);
             } catch {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.message'),
+                    title: this.$root.$t('global.default.error'),
+                    message: this.$root.$t('global.sw-media-modal-move.notification.errorOverall.message'),
                 });
             }
         },

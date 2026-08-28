@@ -1,54 +1,48 @@
 {% block sw_settings_search_search_index %}
 <mt-card
     position-identifier="sw-settings-search-search-index"
-    :title="$tc('sw-settings-search.generalTab.labelSearchIndex')"
+    :title="$t('sw-settings-search.generalTab.labelSearchIndex')"
     :is-loading="isLoading"
 >
-
     {% block sw_settings_search_search_index_description %}
     <mt-banner
         v-if="isRebuildInProgress"
         class="sw-settings-search__search-index-warning-text"
         variant="attention"
+        :title="$t('sw-settings-search.generalTab.textWarningOpenTab')"
     >
-
+        {# @deprecated tag:v6.8.0 - Will be removed. #}
         {% block sw_settings_search_search_index_warning_top %}
-        <p class="sw-settings-search__search-index-warning-top">
-            {{ $tc('sw-settings-search.generalTab.textWarningOpenTab') }}
-        </p>
         {% endblock %}
 
         {% block sw_settings_search_search_index_warning_bottom %}
-        <p>{{ $tc('sw-settings-search.generalTab.textRebuildSearchIndexDescription') }}</p>
+        {{ $t('sw-settings-search.generalTab.textRebuildSearchIndexDescription') }}
         {% endblock %}
-
     </mt-banner>
     {% endblock %}
 
     {% block sw_settings_search_search_index_rebuild_button %}
-    <sw-button-process
-        variant="primary"
-        ghost
+    <mt-button
         class="sw-settings-search__search-index-rebuild-button"
-        :is-loading="isRebuildInProgress"
+        variant="primary"
         :disabled="isRebuildInProgress || !acl.can('product_search_config.editor')"
-        :process-success="isRebuildSuccess"
-        @update:process-success="buildFinish"
+        :is-loading="isRebuildInProgress"
         @click="rebuildSearchIndex"
     >
-        {{ $tc('sw-settings-search.generalTab.buttonRebuildSearchIndex') }}
-    </sw-button-process>
+        {{ $t('sw-settings-search.generalTab.buttonRebuildSearchIndex') }}
+    </mt-button>
 
     {% block sw_settings_search_search_index_lastest_build %}
     <span class="sw-settings-search__search-index-latest-build">
         <template v-if="latestIndex">
-            {{ $tc('sw-settings-search.generalTab.textLastedBuild') }} <sw-time-ago
+            {{ $t('sw-settings-search.generalTab.textLastedBuild') }} <sw-time-ago
                 :date="latestIndex.lastDate"
                 :date-time-format="{ month: '2-digit', day: '2-digit' }"
             />
         </template>
+
         <template v-else>
-            {{ $tc('sw-settings-search.generalTab.textSearchNotIndexedYet') }}
+            {{ $t('sw-settings-search.generalTab.textSearchNotIndexedYet') }}
         </template>
     </span>
     {% endblock %}
@@ -59,23 +53,20 @@
         v-if="progressBarValue"
         class="sw-settings-search__search-index-rebuilding-progress"
     >
-
+        {# @deprecated tag:v6.8.0 - Will be removed. #}
         {% block sw_settings_search_search_index_rebuild_progress_text %}
-        <span class="sw-settings-search__search-index-rebuilding-text">
-            {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
-        </span>
         {% endblock %}
 
         {% block sw_settings_search_search_index_rebuild_progress_bar %}
         <mt-progress-bar
+            :label="$t('sw-settings-search.generalTab.textRebuildingSearchIndex')"
             :model-value="progressBarValue"
             :max-value="100"
         >
-            {{ $tc('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
+            {{ $t('sw-settings-search.generalTab.textRebuildingSearchIndex') }}
         </mt-progress-bar>
         {% endblock %}
     </div>
     {% endblock %}
-
 </mt-card>
 {% endblock %}

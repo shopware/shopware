@@ -25,11 +25,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ProductExportController extends AbstractController
 {
     /**
@@ -46,7 +47,12 @@ class ProductExportController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/product-export/validate', name: 'api.action.product_export.validate', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/product-export/validate',
+        name: 'api.action.product_export.validate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['product_export:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function validate(RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $result = $this->generateExportPreview($dataBag, $context);
@@ -75,7 +81,12 @@ class ProductExportController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/product-export/preview', name: 'api.action.product_export.preview', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/product-export/preview',
+        name: 'api.action.product_export.preview',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['product_export:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function preview(RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $result = $this->generateExportPreview($dataBag, $context);
@@ -106,7 +117,7 @@ class ProductExportController extends AbstractController
     {
         $entity = new ProductExportEntity();
 
-        $entity->setId('');
+        $entity->setId($dataBag->get('id') ?? '');
         $entity->setHeaderTemplate($dataBag->get('headerTemplate') ?? '');
         $entity->setBodyTemplate($dataBag->get('bodyTemplate') ?? '');
         $entity->setFooterTemplate($dataBag->get('footerTemplate') ?? '');
@@ -116,6 +127,8 @@ class ProductExportController extends AbstractController
         $entity->setFileFormat($dataBag->get('fileFormat'));
         $entity->setFileName($dataBag->get('fileName'));
         $entity->setAccessKey($dataBag->get('accessKey'));
+        $entity->setProvider($dataBag->get('provider'));
+        $entity->setFeedLabel($dataBag->get('feedLabel'));
         $entity->setSalesChannelId($dataBag->get('salesChannelId'));
         $entity->setSalesChannelDomainId($dataBag->get('salesChannelDomainId'));
         $entity->setCurrencyId($dataBag->get('currencyId'));

@@ -12,10 +12,7 @@
       "columnDefaultTaxRate": "Tax rate",
       "columnDefault": "Default",
       "buttonAddTax": "Add tax",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Tax \"{name}\" has been deleted.",
-      "buttonDelete": "Delete",
       "taxCardTitle": "Taxes",
       "taxProvider": {
         "cardTitle": "Tax provider",
@@ -44,7 +41,6 @@
       "labelDefaultTaxRate": "Tax rate",
       "placeholderName": "Enter name...",
       "placeholderDefaultTaxRate": "Enter default rate...",
-      "buttonSave": "Save",
       "messageSaveError": "An error occurred while saving the tax rate.",
       "messageSaveSuccess": "Tax rate has been saved.",
       "defaultTaxLabel": "Use as default",

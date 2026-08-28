@@ -21,11 +21,11 @@ use Symfony\Component\Finder\Finder;
 
 use function Symfony\Component\String\s;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:prepare-icons',
     description: 'Prepare the theme icons',
 )]
-#[Package('framework')]
 class ThemePrepareIconsCommand extends Command
 {
     protected function configure(): void

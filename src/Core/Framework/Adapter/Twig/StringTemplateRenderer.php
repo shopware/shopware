@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Filesystem\Path;
@@ -19,6 +20,7 @@ use Twig\Loader\ArrayLoader;
  * @final
  */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class StringTemplateRenderer
 {
     private Environment $twig;

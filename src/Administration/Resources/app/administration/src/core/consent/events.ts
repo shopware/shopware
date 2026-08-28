@@ -17,7 +17,7 @@ type ConsentEvents = {
             status: ConsentAction;
             changed: boolean;
         };
-        product_analytics: {
+        product_analytics?: {
             status: ConsentAction;
             changed: boolean;
         };

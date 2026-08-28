@@ -3,6 +3,7 @@
 namespace Shopware\Core\Test\Stub\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,10 +27,19 @@ use Symfony\Component\Validator\Validation;
  *
  * @extends EntityRepository<TEntityCollection>
  *
- * @phpstan-type ResultTypes EntitySearchResult<TEntityCollection>|AggregationResultCollection|mixed|TEntityCollection|IdSearchResult|array
+ * @phpstan-type ResultTypes EntitySearchResult<TEntityCollection>|AggregationResultCollection|TEntityCollection|IdSearchResult|array<mixed>
+ * @phpstan-type SearchCallable (callable(Criteria, Context): ResultTypes)|(callable(Criteria, Context, StaticEntityRepository<TEntityCollection>): ResultTypes)
  */
 class StaticEntityRepository extends EntityRepository
 {
+    public const CREATE = 'create';
+
+    public const UPDATE = 'update';
+
+    public const UPSERT = 'upsert';
+
+    public const DELETE = 'delete';
+
     /**
      * @var array<array<mixed>>
      */
@@ -46,12 +56,14 @@ class StaticEntityRepository extends EntityRepository
     public array $creates = [];
 
     /**
-     * @var array<array<string, mixed|null>>
+     * Each `delete()` call appends the array of id payloads it was given.
+     *
+     * @var list<array<array<string, mixed|null>>>
      */
     public array $deletes = [];
 
     /**
-     * @param array<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
+     * @param array<SearchCallable|ResultTypes> $searches
      */
     public function __construct(
         public array $searches,
@@ -74,6 +86,25 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
+     * Pins the generic without a call-site annotation when the searches carry no typed
+     * collection to infer it from (empty list, id lists for searchIds, callables):
+     *
+     *     $repository = StaticEntityRepository::of(NewsletterRecipientCollection::class, [[$id]]);
+     *
+     * @template TCollection of EntityCollection
+     *
+     * @param class-string<TCollection> $collectionClass used only to bind the template
+     * @param array<mixed> $searches
+     *
+     * @return StaticEntityRepository<TCollection>
+     */
+    public static function of(string $collectionClass, array $searches = [], ?EntityDefinition $definition = null): self
+    {
+        /** @var StaticEntityRepository<TCollection> */
+        return new self($searches, $definition);
+    }
+
+    /**
      * @return EntitySearchResult<TEntityCollection>
      */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
@@ -82,7 +113,7 @@ class StaticEntityRepository extends EntityRepository
         $callable = $result;
 
         if (\is_callable($callable)) {
-            /** @var callable(Criteria, Context, StaticEntityRepository<TEntityCollection>): ResultTypes $callable */
+            /** @var SearchCallable $callable */
             $result = $callable($criteria, $context, $this);
         }
 
@@ -96,7 +127,7 @@ class StaticEntityRepository extends EntityRepository
 
         if ($result instanceof EntityCollection) {
             /** @var TEntityCollection $result */
-            return new EntitySearchResult($this->getDummyEntityName(), $result->count(), $result, null, $criteria, $context);
+            return new EntitySearchResult($this->getDummyEntityName($result), $result->count(), $result, null, $criteria, $context);
         }
 
         if ($result instanceof AggregationResultCollection) {
@@ -115,7 +146,7 @@ class StaticEntityRepository extends EntityRepository
         $callable = $result;
 
         if (\is_callable($callable)) {
-            /** @var callable(Criteria, Context): ResultTypes $callable */
+            /** @var SearchCallable $callable */
             $result = $callable($criteria, $context);
         }
 
@@ -194,7 +225,7 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
-     * @param callable(Criteria, Context): (ResultTypes)|ResultTypes ...$searches
+     * @param SearchCallable|ResultTypes ...$searches
      */
     public function addSearch(...$searches): void
     {
@@ -202,7 +233,21 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
-     * @param mixed[][] $data
+     * @return list<array<string, mixed>>
+     */
+    public function getPayloads(string $operation): array
+    {
+        return match ($operation) {
+            self::CREATE => $this->flattenPayloads($this->creates),
+            self::UPDATE => $this->flattenPayloads($this->updates),
+            self::UPSERT => $this->flattenPayloads($this->upserts),
+            self::DELETE => $this->flattenPayloads($this->deletes),
+            default => throw new \InvalidArgumentException(\sprintf('Unknown write operation "%s"', $operation)),
+        };
+    }
+
+    /**
+     * @param array<array<string, mixed|null>> $data
      */
     private function getDummyWriteResults(array $data, string $operation, Context $context): NestedEventCollection
     {
@@ -214,7 +259,7 @@ class StaticEntityRepository extends EntityRepository
             $primaryKey = \count($primaryKeys) === 1 ? current($primaryKeys) : $primaryKeys;
 
             $writeResults[] = new EntityWriteResult(
-                empty($primaryKey) ? Uuid::randomHex() : $primaryKey,
+                ($primaryKey === '' || $primaryKey === []) ? Uuid::randomHex() : $primaryKey,
                 $payload,
                 $this->getDummyEntityName(),
                 $operation
@@ -228,6 +273,24 @@ class StaticEntityRepository extends EntityRepository
         }
 
         return new NestedEventCollection([$event]);
+    }
+
+    /**
+     * @param array<array<mixed>> $writePayloads
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function flattenPayloads(array $writePayloads): array
+    {
+        $payloads = [];
+        foreach ($writePayloads as $writePayload) {
+            foreach ($writePayload as $payload) {
+                $payloads[] = $payload;
+            }
+        }
+
+        /** @var list<array<string, mixed>> $payloads */
+        return $payloads;
     }
 
     /**
@@ -251,10 +314,13 @@ class StaticEntityRepository extends EntityRepository
         return $primaryKeys;
     }
 
-    private function getDummyEntityName(): string
+    /**
+     * @param EntityCollection<Entity>|null $entities
+     */
+    private function getDummyEntityName(?EntityCollection $entities = null): string
     {
         if (!$this->definition) {
-            return 'mock';
+            return $entities?->first()?->getApiAlias() ?? 'mock';
         }
 
         return $this->definition->getEntityName();

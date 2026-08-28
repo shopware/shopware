@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\Extension\CanonicalRedirectExtension;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CanonicalRedirectService::class)]
 class CanonicalRedirectServiceTest extends TestCase
 {
@@ -72,6 +74,70 @@ class CanonicalRedirectServiceTest extends TestCase
         static::assertSame('/lorem/ipsum/dolor-sit/amet?foo=bar', $response->getTargetUrl());
     }
 
+    public function testGetRedirectWithQueryParametersAlreadyInCanonicalUrl(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet?foo=bar']);
+        $request->server->set('QUERY_STRING', 'foo=bar');
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/lorem/ipsum/dolor-sit/amet?foo=bar', $response->getTargetUrl());
+    }
+
+    public function testGetRedirectWithDifferentQueryParametersInCanonicalUrl(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet?foo=bar']);
+        $request->server->set('QUERY_STRING', 'baz=qux');
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/lorem/ipsum/dolor-sit/amet?foo=bar', $response->getTargetUrl());
+    }
+
+    public function testCanonicalWithExistingQueryStringPreservesStoredQuery(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/awesome-product?lang=en']);
+        $request->server->set('QUERY_STRING', 'test=123');
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/awesome-product?lang=en', $response->getTargetUrl());
+    }
+
+    public function testCanonicalWithoutQueryStringAppendsRequestQuery(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/awesome-product']);
+        $request->server->set('QUERY_STRING', 'test=123');
+
+        $canonicalRedirectService = new CanonicalRedirectService(
+            $this->getSystemConfigService(true),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/awesome-product?test=123', $response->getTargetUrl());
+    }
+
     public function testExtensionIsDispatched(): void
     {
         $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']);
@@ -85,10 +151,10 @@ class CanonicalRedirectServiceTest extends TestCase
 
         $post = $this->createMock(CallableClass::class);
         $post->expects($this->exactly(1))->method('__invoke');
-        $dispatcher->addListener(ExtensionDispatcher::post(CanonicalRedirectExtension::NAME), $post);
+        $dispatcher->addListener(CanonicalRedirectExtension::onPost(), $post);
 
         $dispatcher->addListener(
-            ExtensionDispatcher::pre(CanonicalRedirectExtension::NAME),
+            CanonicalRedirectExtension::onPre(),
             static function (CanonicalRedirectExtension $extension): void {
                 $extension->stopPropagation();
 
@@ -103,27 +169,25 @@ class CanonicalRedirectServiceTest extends TestCase
     }
 
     /**
-     * @return array<int, array<string, Request|Response>>
+     * @return iterable<string, array<string, Request|Response>>
      */
-    public static function requestDataProvider(): array
+    public static function requestDataProvider(): iterable
     {
-        return [
-            [
-                'request' => self::getRequest([]),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '']),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => true]),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']),
-                'response' => (new Response())->setStatusCode(Response::HTTP_MOVED_PERMANENTLY),
-            ],
+        yield 'HTTP request without canonical URL returns no redirect' => [
+            'request' => self::getRequest([]),
+            'response' => new Response(),
+        ];
+        yield 'HTTP request with canonical URL redirects permanently' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '']),
+            'response' => new Response(),
+        ];
+        yield 'HTTPS request without canonical URL returns no redirect' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => true]),
+            'response' => new Response(),
+        ];
+        yield 'HTTPS request with canonical URL redirects permanently' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']),
+            'response' => (new Response())->setStatusCode(Response::HTTP_MOVED_PERMANENTLY),
         ];
     }
 
@@ -132,7 +196,8 @@ class CanonicalRedirectServiceTest extends TestCase
      */
     private static function getRequest(array $attributes): Request
     {
-        $request = Request::create($_SERVER['APP_URL'], Request::METHOD_GET);
+        $appUrl = \is_string($_SERVER['APP_URL'] ?? null) ? $_SERVER['APP_URL'] : 'http://localhost';
+        $request = Request::create($appUrl, Request::METHOD_GET);
 
         foreach ($attributes as $key => $attribute) {
             $request->attributes->set($key, $attribute);

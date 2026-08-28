@@ -1,18 +1,41 @@
 {% block layout_footer_inner_container %}
     <div class="container">
         {% block layout_footer_navigation %}
-            <div
-                id="footerColumns"
-                class="row footer-columns"
-                data-collapse-footer-columns="true"
-                role="list"
-            >
+            {# @deprecated tag:v6.8.0 - The footer columns wrapper will be a `<ul>` element. The `<div role="list">` fallback will be removed. #}
+            {# `role="list"` is kept on the semantic `<ul>` on purpose: Safari/VoiceOver drops list semantics when the markers are removed (`list-unstyled`). #}
+            {% if feature('v6.8.0.0') %}
+                <ul
+                    id="footerColumns"
+                    class="row footer-columns list-unstyled"
+                    data-collapse-footer-columns="true"
+                    role="list"
+                >
+            {% else %}
+                <div
+                    id="footerColumns"
+                    class="row footer-columns"
+                    data-collapse-footer-columns="true"
+                    role="list"
+                >
+            {% endif %}
                 {% block layout_footer_navigation_hotline %}
-                    <div class="col-md-4 footer-column js-footer-column">
+                    {# @deprecated tag:v6.8.0 - The footer column will be a `<li>` element. The `<div role="listitem">` fallback will be removed. #}
+                    {% if feature('v6.8.0.0') %}
+                        <li class="col-md-4 footer-column js-footer-column pb-4 pb-md-0" role="listitem">
+                    {% else %}
+                        <div class="col-md-4 footer-column js-footer-column pb-4 pb-md-0" role="listitem">
+                    {% endif %}
                         {% block layout_footer_navigation_hotline_headline %}
-                            <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                 id="collapseFooterHotlineTitle"
-                                 role="listitem">
+                            {# @deprecated tag:v6.8.0 - The footer column headline will always be a `<h2>` element. The `<div role="heading">` fallback will be removed. #}
+                            {% if feature('v6.8.0.0') %}
+                                <h2 class="footer-column-headline footer-headline js-footer-column-headline"
+                                     id="collapseFooterHotlineTitle">
+                            {% else %}
+                                <div class="footer-column-headline footer-headline js-footer-column-headline"
+                                     id="collapseFooterHotlineTitle"
+                                     role="heading"
+                                     aria-level="2">
+                            {% endif %}
                                 {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
                                 {% block layout_footer_navigation_hotline_icons %}
@@ -32,7 +55,11 @@
                                         } %}
                                     </button>
                                 {% endblock %}
-                            </div>
+                            {% if feature('v6.8.0.0') %}
+                                </h2>
+                            {% else %}
+                                </div>
+                            {% endif %}
                         {% endblock %}
 
                         {% block layout_footer_navigation_hotline_content %}
@@ -40,8 +67,7 @@
 
                             <div id="collapseFooterHotline"
                                  class="footer-column-content collapse js-footer-column-content footer-contact mb-4 mb-md-0"
-                                 aria-labelledby="collapseFooterHotlineTitle"
-                                 role="listitem">
+                                 aria-labelledby="collapseFooterHotlineTitle">
 
                                 <div class="footer-column-content-inner">
                                     <p class="footer-contact-hotline">
@@ -63,10 +89,16 @@
 
                                     {# Check footer navigation #}
                                     {% if footer.navigation and footer.navigation.tree %}
-                                        {% for footerItem in footer.navigation.tree %}
-                                            {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
-                                                {% set contactUrl = footerItem.category.seoUrl %}
+                                        {% for root in footer.navigation.tree %}
+                                            {% if root.category.cmsPageId == contactCmsPageId and root.category.seoUrl %}
+                                                {% set contactUrl = root.category.seoUrl %}
                                             {% endif %}
+
+                                            {% for footerItem in root.children %}
+                                                {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
+                                                    {% set contactUrl = footerItem.category.seoUrl %}
+                                                {% endif %}
+                                            {% endfor %}
                                         {% endfor %}
                                     {% endif %}
 
@@ -74,51 +106,73 @@
                                         '%url%': contactUrl
                                     })|raw }}
                                 </div>
+                            </div>
 
-                                {% block layout_footer_navigation_revocation_button %}
-                                    {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestTextPage' %}
-                                    {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
-                                    {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
+                            {% block layout_footer_navigation_revocation_button %}
+                                {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestTextPage' %}
+                                {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
+                                {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
 
-                                    {% if revocationRequestCmsPageId and showRevocationButton %}
-                                        {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
+                                {% if revocationRequestCmsPageId and showRevocationButton %}
+                                    {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
 
-                                        {# Check for seoUrl and use it if present #}
-                                        {% for serviceMenuItem in footer.serviceMenu %}
-                                            {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
-                                                {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
+                                    {# Check for seoUrl and use it if present #}
+                                    {% for serviceMenuItem in footer.serviceMenu %}
+                                        {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
+                                            {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {# Check footer navigation #}
+                                    {% if footer.navigation and footer.navigation.tree %}
+                                        {% for root in footer.navigation.tree %}
+                                            {% if root.category.cmsPageId == revocationRequestCmsPageId and root.category.seoUrl %}
+                                                {% set revocationRequestUrl = root.category.seoUrl %}
                                             {% endif %}
-                                        {% endfor %}
 
-                                        {# Check footer navigation #}
-                                        {% if footer.navigation and footer.navigation.tree %}
-                                            {% for footerItem in footer.navigation.tree %}
+                                            {% for footerItem in root.children %}
                                                 {% if footerItem.category.cmsPageId == revocationRequestCmsPageId and footerItem.category.seoUrl %}
                                                     {% set revocationRequestUrl = footerItem.category.seoUrl %}
                                                 {% endif %}
                                             {% endfor %}
-                                        {% endif %}
-
-                                        <div class="footer-revocation-button mt-4">
-                                            {{ revocationRequestSnippetKey|trans({
-                                                '%url%': revocationRequestUrl
-                                            })|raw }}
-                                        </div>
+                                        {% endfor %}
                                     {% endif %}
-                                {% endblock %}
-                            </div>
+
+                                    <div class="footer-revocation-button mt-4">
+                                        {{ revocationRequestSnippetKey|trans({
+                                            '%url%': revocationRequestUrl
+                                        })|raw }}
+                                    </div>
+                                {% endif %}
+                            {% endblock %}
                         {% endblock %}
-                    </div>
+                    {% if feature('v6.8.0.0') %}
+                        </li>
+                    {% else %}
+                        </div>
+                    {% endif %}
                 {% endblock %}
 
                 {% block layout_footer_navigation_columns %}
                     {% for root in footer.navigation.tree %}
                         {% block layout_footer_navigation_column %}
-                            <div class="col-md-4 footer-column js-footer-column">
+                            {# @deprecated tag:v6.8.0 - The footer column will be a `<li>` element. The `<div role="listitem">` fallback will be removed. #}
+                            {% if feature('v6.8.0.0') %}
+                                <li class="col-md-4 footer-column js-footer-column" role="listitem">
+                            {% else %}
+                                <div class="col-md-4 footer-column js-footer-column" role="listitem">
+                            {% endif %}
                                 {% block layout_footer_navigation_information_headline %}
-                                    <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                         id="collapseFooterTitle{{ loop.index }}"
-                                         role="listitem">
+                                    {# @deprecated tag:v6.8.0 - The footer column headline will always be a `<h2>` element. The `<div role="heading">` fallback will be removed. #}
+                                    {% if feature('v6.8.0.0') %}
+                                        <h2 class="footer-column-headline footer-headline js-footer-column-headline"
+                                             id="collapseFooterTitle{{ loop.index }}">
+                                    {% else %}
+                                        <div class="footer-column-headline footer-headline js-footer-column-headline"
+                                             id="collapseFooterTitle{{ loop.index }}"
+                                             role="heading"
+                                             aria-level="2">
+                                    {% endif %}
 
                                         {% if root.category.type == 'folder' %}
                                             {{ root.category.translated.name }}
@@ -149,14 +203,17 @@
                                                 </button>
                                             {% endif %}
                                         {% endblock %}
-                                    </div>
+                                    {% if feature('v6.8.0.0') %}
+                                        </h2>
+                                    {% else %}
+                                        </div>
+                                    {% endif %}
                                 {% endblock %}
 
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
                                          class="footer-column-content collapse js-footer-column-content"
-                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
-                                         role="listitem">
+                                         aria-labelledby="collapseFooterTitle{{ loop.index }}">
 
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}
@@ -187,11 +244,19 @@
                                         </div>
                                     </div>
                                 {% endblock %}
-                            </div>
+                            {% if feature('v6.8.0.0') %}
+                                </li>
+                            {% else %}
+                                </div>
+                            {% endif %}
                         {% endblock %}
                     {% endfor %}
                 {% endblock %}
-            </div>
+            {% if feature('v6.8.0.0') %}
+                </ul>
+            {% else %}
+                </div>
+            {% endif %}
         {% endblock %}
 
         {% block layout_footer_payment_shipping_logos %}
@@ -249,7 +314,7 @@
                 <div class="container">
                     {% block layout_footer_service_menu_content %}
                         <ul class="footer-service-menu-list list-unstyled d-flex flex-wrap justify-content-center">
-                            {% for serviceMenuItem in footer.serviceMenu %}
+                            {%- for serviceMenuItem in footer.serviceMenu -%}
                                 {% block layout_footer_service_menu_item %}
                                     <li class="footer-service-menu-item">
                                         <a class="footer-service-menu-link"
@@ -260,7 +325,7 @@
                                         </a>
                                     </li>
                                 {% endblock %}
-                            {% endfor %}
+                            {%- endfor -%}
                         </ul>
                     {% endblock %}
                 </div>
@@ -285,10 +350,16 @@
 
                         {# Check footer navigation #}
                         {% if footer.navigation and footer.navigation.tree %}
-                            {% for footerItem in footer.navigation.tree %}
-                                {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
-                                    {% set shippingUrl = footerItem.category.seoUrl %}
+                            {% for root in footer.navigation.tree %}
+                                {% if root.category.cmsPageId == shippingCmsPageId and root.category.seoUrl %}
+                                    {% set shippingUrl = root.category.seoUrl %}
                                 {% endif %}
+
+                                {% for footerItem in root.children %}
+                                    {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
+                                        {% set shippingUrl = footerItem.category.seoUrl %}
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                         {% endif %}
 

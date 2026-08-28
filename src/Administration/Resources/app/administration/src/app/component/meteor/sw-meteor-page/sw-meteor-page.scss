@@ -7,6 +7,10 @@
     width: 100%;
     height: 100%;
 
+    // The head area below queries this. It sits on the parent, an element cannot query its own size.
+    container-type: inline-size;
+    container-name: sw-meteor-page;
+
     .sw-meteor-page__content {
         position: static;
         height: auto;
@@ -54,22 +58,43 @@
     }
 
     .sw-meteor-page__head-area {
-        color: #0c1f34;
+        color: var(--color-text-primary-default);
         position: sticky;
         top: 0;
         display: grid;
-        grid-row-gap: 24px;
-        grid-column-gap: 8px;
-        grid-template-columns: 1fr minmax(0, 960px) 1fr;
+        grid-row-gap: var(--scale-size-24);
+
+        // No column gap: the outer columns are empty, a gap would only indent the content.
+        grid-template-columns: 1fr minmax(0, $content-width) 1fr;
         width: 100%;
-        background: $color-white;
-        padding: 12px 12px 0;
+        background: var(--color-elevation-surface-default);
+        padding-inline: var(--scale-size-12);
         z-index: $z-index-page-header;
         margin-bottom: 48px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-secondary-default);
+
+        // The negative margin bleeds the divider through the padding to full width
+        &::before {
+            content: "";
+            grid-row: 1;
+            grid-column: 1 / -1;
+            align-self: end;
+            height: 1px;
+            margin-inline: calc(var(--scale-size-12) * -1);
+            background: var(--color-border-secondary-default);
+        }
 
         .sw-meteor-page__smart-bar-navigation {
-            margin-bottom: 12px;
+            margin-bottom: var(--scale-size-12);
+        }
+    }
+
+    // Without the smart bar the top bar divider would only double the head area border
+    &.sw-meteor-page--hide-smart-bar .sw-meteor-page__head-area {
+        margin-bottom: 0;
+
+        &::before {
+            content: none;
         }
     }
 
@@ -86,32 +111,13 @@
         top: 100%;
         height: 4px;
         width: 100%;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 20%), transparent);
+        background: linear-gradient(to bottom, var(--color-elevation-shadow-default), transparent);
     }
 
+    // The search bar brings the same 72px top bar rhythm as the sw-page head area.
     .sw-meteor-page__head-area-top-bar-content {
+        grid-row: 1;
         grid-column: 2/3;
-
-        .sw-search-bar {
-            height: auto;
-        }
-
-        .sw-search-bar__container {
-            max-width: unset;
-            margin: 0;
-            padding: 0;
-        }
-
-        &::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            width: 100%;
-            display: block;
-            height: 1px;
-            background-color: $color-gray-300;
-            transform: translate(0, 12px);
-        }
     }
 
     .sw-meteor-page__head-area-global-actions {
@@ -119,11 +125,16 @@
         grid-column: 3;
         align-self: center;
         justify-self: end;
-        margin-right: 32px;
         display: flex;
         align-content: flex-end;
         justify-content: flex-end;
-        gap: 16px;
+        gap: var(--scale-size-8);
+        margin-inline-start: var(--scale-size-8);
+    }
+
+    // Expanded keeps 16px to the actions, collapsed joins their plain 8px button row
+    .sw-meteor-page__head-area:has(.sw-search-bar__field-wrapper) .sw-meteor-page__head-area-global-actions {
+        margin-inline-start: var(--scale-size-16);
     }
 
     .sw-meteor-page__smart-bar-tabs {
@@ -139,6 +150,24 @@
 
         .sw-tabs__custom-content {
             display: none;
+        }
+    }
+
+    // Narrow head area: the outer columns collapse and the content runs full width
+    @container sw-meteor-page (max-width: 1400px) {
+        .sw-meteor-page__head-area {
+            grid-template-columns: 0 minmax(0, 1fr) auto;
+        }
+
+        .sw-meteor-page__smart-bar,
+        .sw-meteor-page__smart-bar-tabs {
+            grid-column: 2 / -1;
+        }
+
+        // Matched through its own root to outrank the equally specific max-width/centering base rule.
+        .sw-search-bar .sw-search-bar__container {
+            max-width: none;
+            margin-inline: 0;
         }
     }
 }
@@ -181,9 +210,9 @@
             .sw-meteor-page__smart-bar-title {
                 @include truncate;
 
-                color: #0c1f34;
+                color: var(--color-text-primary-default);
                 line-height: 1.2;
-                font-size: $font-size-xl;
+                font-size: var(--font-size-xl);
                 margin-right: 8px;
                 margin-bottom: 0;
                 min-width: 20%;
@@ -212,7 +241,7 @@
 
         .mt-button {
             margin: 6px 4px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
 
             &:first-child {
                 margin-left: 0;

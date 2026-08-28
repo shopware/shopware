@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Storybook;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -13,9 +13,11 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -29,38 +31,39 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorybookService::class)]
 class StorybookServiceTest extends TestCase
 {
     /**
-     * @var SalesChannelRepository<SalesChannelProductCollection>&MockObject
+     * @var SalesChannelRepository<SalesChannelProductCollection>&Stub
      */
-    private SalesChannelRepository&MockObject $productRepository;
+    private SalesChannelRepository&Stub $productRepository;
 
     /**
-     * @var EntityRepository<MediaCollection>&MockObject
+     * @var EntityRepository<MediaCollection>&Stub
      */
-    private EntityRepository&MockObject $mediaRepository;
+    private EntityRepository&Stub $mediaRepository;
 
     /**
-     * @var EntityRepository<SalesChannelCollection>&MockObject
+     * @var EntityRepository<SalesChannelCollection>&Stub
      */
-    private EntityRepository&MockObject $salesChannelRepository;
+    private EntityRepository&Stub $salesChannelRepository;
 
-    private AbstractSalesChannelContextFactory&MockObject $contextFactory;
+    private AbstractSalesChannelContextFactory&Stub $contextFactory;
 
-    private DatabaseSalesChannelThemeLoader&MockObject $themeLoader;
+    private DatabaseSalesChannelThemeLoader&Stub $themeLoader;
 
-    private ThemeRuntimeConfigStorage&MockObject $themeRuntimeConfigStorage;
+    private ThemeRuntimeConfigStorage&Stub $themeRuntimeConfigStorage;
 
     protected function setUp(): void
     {
-        $this->productRepository = $this->createMock(SalesChannelRepository::class);
-        $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->salesChannelRepository = $this->createMock(EntityRepository::class);
-        $this->contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
-        $this->themeLoader = $this->createMock(DatabaseSalesChannelThemeLoader::class);
-        $this->themeRuntimeConfigStorage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $this->productRepository = static::createStub(SalesChannelRepository::class);
+        $this->mediaRepository = static::createStub(EntityRepository::class);
+        $this->salesChannelRepository = static::createStub(EntityRepository::class);
+        $this->contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
+        $this->themeLoader = static::createStub(DatabaseSalesChannelThemeLoader::class);
+        $this->themeRuntimeConfigStorage = static::createStub(ThemeRuntimeConfigStorage::class);
     }
 
     public function testCreateSalesChannelContextReturnsSalesChannelContext(): void
@@ -72,7 +75,6 @@ class StorybookServiceTest extends TestCase
             ->willReturn($this->createSalesChannelIdSearchResult($salesChannelId));
 
         $this->contextFactory->method('create')
-            ->with('', $salesChannelId)
             ->willReturn($salesChannelContext);
 
         $result = $this->createService()->createSalesChannelContext();
@@ -93,11 +95,9 @@ class StorybookServiceTest extends TestCase
     public function testGetThemeIdReturnsThemeIdFromTechnicalName(): void
     {
         $this->themeLoader->method('load')
-            ->with('sales-channel-id')
             ->willReturn(['Storefront']);
 
         $this->themeRuntimeConfigStorage->method('getThemeIdByTechnicalName')
-            ->with('Storefront')
             ->willReturn('theme-id-123');
 
         $result = $this->createService()->getThemeId('sales-channel-id');
@@ -109,10 +109,11 @@ class StorybookServiceTest extends TestCase
     {
         $this->themeLoader->method('load')->willReturn([]);
 
-        $this->themeRuntimeConfigStorage->expects($this->never())
+        $themeRuntimeConfigStorage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $themeRuntimeConfigStorage->expects($this->never())
             ->method('getThemeIdByTechnicalName');
 
-        $result = $this->createService()->getThemeId('sales-channel-id');
+        $result = $this->createService($themeRuntimeConfigStorage)->getThemeId('sales-channel-id');
 
         static::assertNull($result);
     }
@@ -163,6 +164,7 @@ class StorybookServiceTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $product = new SalesChannelProductEntity();
+        $product->internalSetEntityData(ProductDefinition::ENTITY_NAME, new FieldVisibility([]));
         $product->setId('product-id-123');
         $product->setUniqueIdentifier('product-id-123');
 
@@ -235,7 +237,7 @@ class StorybookServiceTest extends TestCase
         static::assertNull($result['product']);
     }
 
-    private function createService(): StorybookService
+    private function createService(?ThemeRuntimeConfigStorage $themeRuntimeConfigStorage = null): StorybookService
     {
         return new StorybookService(
             $this->productRepository,
@@ -243,7 +245,7 @@ class StorybookServiceTest extends TestCase
             $this->salesChannelRepository,
             $this->contextFactory,
             $this->themeLoader,
-            $this->themeRuntimeConfigStorage,
+            $themeRuntimeConfigStorage ?? $this->themeRuntimeConfigStorage,
         );
     }
 

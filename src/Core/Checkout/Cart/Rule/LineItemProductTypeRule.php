@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraint;
 
 /**
  * @final
@@ -52,9 +51,6 @@ class LineItemProductTypeRule extends Rule
         return false;
     }
 
-    /**
-     * @return array<string, array<int, Constraint>>
-     */
     public function getConstraints(): array
     {
         return [
@@ -69,7 +65,7 @@ class LineItemProductTypeRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productType', $this->productTypeRegistry?->getTypes() ?? [
                 ProductDefinition::TYPE_PHYSICAL,
                 ProductDefinition::TYPE_DIGITAL,

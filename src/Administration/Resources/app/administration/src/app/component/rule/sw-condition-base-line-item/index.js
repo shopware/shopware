@@ -3,6 +3,10 @@ import './sw-condition-base-line-item.scss';
 
 const { EntityCollection } = Shopware.Data;
 
+const NON_GENERIC_MATCH_ANY_CONDITIONS = [
+    'cartLineItem',
+];
+
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -41,22 +45,33 @@ export default {
         },
 
         allowMatchesAll() {
-            if (this.conditionScopes) {
-                return this.conditionScopes.includes('cart');
+            const inCartScope = this.conditionScopes ? this.conditionScopes.includes('cart') : true;
+
+            if (!inCartScope) {
+                return false;
             }
 
-            return true;
+            if (NON_GENERIC_MATCH_ANY_CONDITIONS.includes(this.condition.type)) {
+                return true;
+            }
+
+            const config = Shopware.Store.get('ruleConditionsConfig').getConfigForType(this.condition.type);
+
+            const operatorMatchAny = !!config?.operatorSet?.isMatchAny;
+            const configMatchAny = Object.values(config?.fields ?? {}).some((field) => field?.config?.isMatchAny);
+
+            return operatorMatchAny || configMatchAny;
         },
 
         matchesAllOptions() {
             return [
                 {
                     value: false,
-                    label: this.$tc('global.sw-condition.condition.lineItemCondition.any'),
+                    label: this.$t('global.sw-condition.condition.lineItemCondition.any'),
                 },
                 {
                     value: true,
-                    label: this.$tc('global.sw-condition.condition.lineItemCondition.all'),
+                    label: this.$t('global.sw-condition.condition.lineItemCondition.all'),
                 },
             ];
         },
@@ -106,10 +121,12 @@ export default {
 
         createEntity(condition) {
             const entity = this.ruleConditionRepository.create();
+
             Object.keys(condition).forEach((key) => {
                 if (key === 'id') {
                     return;
                 }
+
                 entity[key] = condition[key];
             });
 

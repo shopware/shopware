@@ -12,21 +12,23 @@ use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationQueryGenerator::class)]
 class MigrationQueryGeneratorTest extends TestCase
 {
-    private SchemaBuilder&MockObject $schemaBuilder;
+    private SchemaBuilder&Stub $schemaBuilder;
 
-    private MySQLSchemaManager&MockObject $schemaManager;
+    private MySQLSchemaManager&Stub $schemaManager;
 
     private MigrationQueryGenerator $generator;
 
@@ -34,14 +36,14 @@ class MigrationQueryGeneratorTest extends TestCase
     {
         $platform = new MySQLPlatform();
 
-        $this->schemaBuilder = $this->createMock(SchemaBuilder::class);
-        $this->schemaManager = $this->createMock(MySQLSchemaManager::class);
+        $this->schemaBuilder = static::createStub(SchemaBuilder::class);
+        $this->schemaManager = static::createStub(MySQLSchemaManager::class);
 
-        $charsetMetadataProvider = $this->createMock(CharsetMetadataProvider::class);
+        $charsetMetadataProvider = static::createStub(CharsetMetadataProvider::class);
         $charsetMetadataProvider->method('getDefaultCharsetCollation')
             ->willReturn('utf8mb4_unicode_ci');
 
-        $collationMetadataProvider = $this->createMock(CollationMetadataProvider::class);
+        $collationMetadataProvider = static::createStub(CollationMetadataProvider::class);
         $collationMetadataProvider->method('getCollationCharset')
             ->willReturn('utf8mb4');
         $this->schemaManager->method('createComparator')->willReturn(new Comparator(
@@ -51,7 +53,7 @@ class MigrationQueryGeneratorTest extends TestCase
             new DefaultTableOptions('utf8mb4', 'utf8mb4_unicode_ci'),
         ));
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('createSchemaManager')->willReturn($this->schemaManager);
         $connection->method('getDatabasePlatform')->willReturn($platform);
 
@@ -60,7 +62,7 @@ class MigrationQueryGeneratorTest extends TestCase
 
     public function testGenerateQueriesForExistingTable(): void
     {
-        $entityDefinition = $this->createMock(EntityDefinition::class);
+        $entityDefinition = static::createStub(EntityDefinition::class);
 
         $this->schemaManager->method('tableExists')->willReturn(true);
 
@@ -77,7 +79,7 @@ class MigrationQueryGeneratorTest extends TestCase
 
     public function testGenerateQueriesForNewTable(): void
     {
-        $entityDefinition = $this->createMock(EntityDefinition::class);
+        $entityDefinition = static::createStub(EntityDefinition::class);
 
         $this->schemaManager->method('tablesExist')->willReturn(false);
 

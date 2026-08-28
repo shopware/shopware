@@ -27,6 +27,7 @@ Shopware.Component.register(
     () => import('./component/sw-customer-imitate-customer-modal'),
 );
 Shopware.Component.register('sw-customer-card', () => import('./component/sw-customer-card'));
+Shopware.Component.register('sw-customer-convert-guest-modal', () => import('./component/sw-customer-convert-guest-modal'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -37,9 +38,9 @@ Module.register('sw-customer', {
     description: 'sw-customer.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#F88962',
-    icon: 'solid-users',
-    favicon: 'icon-module-customers.png',
+    color: 'var(--color-pumpkin-500)',
+    icon: 'regular-users',
+    favicon: 'icon-module-customers.svg',
     entity: 'customer',
 
     routes: {
@@ -118,7 +119,7 @@ Module.register('sw-customer', {
         {
             id: 'sw-customer',
             label: 'sw-customer.general.mainMenuItemGeneral',
-            color: '#F88962',
+            color: 'var(--color-pumpkin-500)',
             icon: 'regular-users',
             position: 40,
             privilege: 'customer.viewer',
@@ -126,7 +127,7 @@ Module.register('sw-customer', {
         {
             path: 'sw.customer.index',
             label: 'sw-customer.general.mainMenuItemList',
-            color: '#F88962',
+            color: 'var(--color-pumpkin-500)',
             icon: 'regular-users',
             parent: 'sw-customer',
             privilege: 'customer.viewer',

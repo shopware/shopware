@@ -6,8 +6,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RouteScopeWhitelistInterface;
 use Shopware\Storefront\Controller\StorybookController;
 
-#[Package('framework')]
-class StorybookRouteScopeAllowList implements RouteScopeWhitelistInterface
+/**
+ * @internal
+ */
+#[Package('discovery')]
+final class StorybookRouteScopeAllowList implements RouteScopeWhitelistInterface
 {
     public function applies(string $controllerClass): bool
     {

@@ -41,8 +41,7 @@ class SnippetFilterFactoryTest extends TestCase
         ]);
 
         if ($expectedResult === null) {
-            $this->expectException(SnippetException::class);
-            $this->expectExceptionMessage(\sprintf('The filter "%s" was not found in "Shopware\Core\System\Snippet\Filter\SnippetFilterFactory".', $filterName));
+            $this->expectExceptionObject(SnippetException::filterNotFound($filterName, SnippetFilterFactory::class));
         }
 
         $result = $factory->getFilter($filterName);

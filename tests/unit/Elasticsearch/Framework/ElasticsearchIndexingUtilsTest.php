@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -17,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ElasticsearchIndexingUtils::class)]
 class ElasticsearchIndexingUtilsTest extends TestCase
 {

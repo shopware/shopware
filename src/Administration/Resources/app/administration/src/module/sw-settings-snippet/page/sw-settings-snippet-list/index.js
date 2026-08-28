@@ -20,7 +20,6 @@ export default {
         'userService',
         'repositoryFactory',
         'acl',
-        'userConfigService',
     ],
 
     mixins: [
@@ -61,7 +60,7 @@ export default {
     computed: {
         identifier() {
             return this.snippetSets
-                ? this.$tc(
+                ? this.$t(
                       'sw-settings-snippet.list.identifier',
                       {
                           setName: this.metaName,
@@ -92,10 +91,6 @@ export default {
 
             criteria.addFilter(Criteria.equalsAny('id', this.queryIds));
             criteria.addSorting(Criteria.sort('name', 'ASC'));
-
-            if (this.term) {
-                criteria.setTerm(this.term);
-            }
 
             return criteria;
         },
@@ -133,7 +128,7 @@ export default {
         },
 
         contextMenuEditSnippet() {
-            return this.acl.can('snippet.editor') ? this.$tc('global.default.edit') : this.$tc('global.default.view');
+            return this.acl.can('snippet.editor') ? this.$t('global.default.edit') : this.$t('global.default.view');
         },
 
         hasActiveFilters() {
@@ -230,21 +225,14 @@ export default {
         },
 
         async getFilterSettings() {
-            const userConfig = await this.getUserConfig();
+            const userConfig = (await Shopware.Service('userConfigService').search(['grid.filter.setting-snippet-list']))
+                ?.data?.['grid.filter.setting-snippet-list'];
 
-            this.filterSettings = userConfig.data['grid.filter.setting-snippet-list']
-                ? userConfig.data['grid.filter.setting-snippet-list']
-                : this.createFilterSettings();
-        },
-
-        getUserConfig() {
-            return this.userConfigService.search([
-                'grid.filter.setting-snippet-list',
-            ]);
+            this.filterSettings = userConfig || this.createFilterSettings();
         },
 
         saveUserConfig() {
-            return this.userConfigService.upsert({
+            return Shopware.Service('userConfigService').upsert({
                 'grid.filter.setting-snippet-list': this.filterSettings,
             });
         },
@@ -427,7 +415,7 @@ export default {
             this.$router.push({ name: 'sw.settings.snippet.index' });
 
             this.createNotificationError({
-                message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage'),
+                message: this.$t('sw-settings-snippet.general.errorBackRoutingMessage'),
             });
         },
 
@@ -435,7 +423,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         inlineSaveSuccessMessage(key) {
-            const messageSaveSuccess = this.$tc('sw-settings-snippet.list.messageSaveSuccess', { key }, this.queryIdCount);
+            const messageSaveSuccess = this.$t('sw-settings-snippet.list.messageSaveSuccess', { key }, this.queryIdCount);
 
             this.createNotificationSuccess({
                 message: messageSaveSuccess,
@@ -443,7 +431,7 @@ export default {
         },
 
         inlineSaveErrorMessage(key) {
-            const messageSaveError = this.$tc('sw-settings-snippet.list.messageSaveError', { key }, this.queryIdCount);
+            const messageSaveError = this.$t('sw-settings-snippet.list.messageSaveError', { key }, this.queryIdCount);
 
             this.createNotificationError({
                 message: messageSaveError,
@@ -660,7 +648,7 @@ export default {
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
             };
         },
 

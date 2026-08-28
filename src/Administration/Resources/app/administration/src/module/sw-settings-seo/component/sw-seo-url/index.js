@@ -8,6 +8,17 @@ import './sw-seo-url.scss';
 
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
+const { Defaults } = Shopware;
+
+/**
+ * Sequences that are not URL-allowed inside a SEO path: a `%` that is not
+ * part of a valid percent-escape, the fragment marker `#`, backslashes and
+ * ASCII control characters. Query strings (`?`) and valid `%XX` escapes are
+ * allowed. Keep this regex in sync with
+ * `Shopware\\Core\\Content\\Seo\\Validation\\Constraint\\ValidSeoPathInfo::DISALLOWED_CHARACTERS_PATTERN`.
+ */
+// eslint-disable-next-line no-control-regex
+const DISALLOWED_SEO_PATH_CHARS = /%(?![0-9A-Fa-f]{2})|[#\\\x00-\x1F\x7F]/;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -91,7 +102,7 @@ export default {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        isHeadlessSalesChannel() {
+        isUnsupportedSalesChannel() {
             if (!Shopware.Store.get('swSeoUrl')) {
                 return true;
             }
@@ -104,12 +115,64 @@ export default {
                 return entry.id === this.currentSalesChannelId;
             });
 
-            // from Defaults.php
-            return this.currentSalesChannelId !== null && salesChannel?.typeId === 'f183ee5650cf4bdb8a774337575067a6';
+            // Product comparison and agentic commerce sales channels do not serve SEO URLs.
+            const unsupportedTypeIds = [
+                Defaults.productComparisonTypeId,
+                Defaults.agenticCommerceTypeId,
+            ];
+
+            return this.currentSalesChannelId !== null && unsupportedTypeIds.includes(salesChannel?.typeId);
+        },
+
+        currentSalesChannel() {
+            const salesChannelCollection = Shopware.Store.get('swSeoUrl')?.salesChannelCollection;
+
+            return salesChannelCollection?.find((entry) => entry.id === this.currentSalesChannelId) ?? null;
+        },
+
+        currentSalesChannelIsHeadless() {
+            return this.currentSalesChannel?.typeId === Defaults.apiSalesChannelTypeId;
+        },
+
+        headlessExternalStorefrontUrl() {
+            const url = this.currentSalesChannel?.domains?.find(
+                (domain) => domain.isExternalStorefront && domain.languageId === Shopware.Context.api.languageId,
+            )?.url;
+
+            if (!url || url.endsWith('/')) {
+                return url ?? null;
+            }
+
+            return `${url}/`;
         },
 
         seoUrlHelptext() {
-            return this.isHeadlessSalesChannel ? this.$tc('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
+            if (this.isUnsupportedSalesChannel) {
+                return this.$t('sw-seo-url.textSeoUrlsNotSupported');
+            }
+
+            if (this.currentSalesChannelIsHeadless && !this.headlessExternalStorefrontUrl) {
+                return this.$t('sw-seo-url-template-card.general.textExternalStorefrontRequired');
+            }
+
+            return null;
+        },
+
+        seoPathInfoError() {
+            const seoPathInfo = this.currentSeoUrl?.seoPathInfo;
+
+            if (typeof seoPathInfo !== 'string' || seoPathInfo === '') {
+                return null;
+            }
+
+            if (!DISALLOWED_SEO_PATH_CHARS.test(seoPathInfo)) {
+                return null;
+            }
+
+            return {
+                code: 'CONTENT__SEO_URL_INVALID_CHARACTERS',
+                detail: this.$t('sw-seo-url.errorInvalidCharacters'),
+            };
         },
 
         hasAdditionalSeoSlot() {
@@ -117,7 +180,10 @@ export default {
         },
 
         allowInput() {
-            return this.hasDefaultTemplate || this.currentSalesChannelId !== null;
+            return (
+                (this.hasDefaultTemplate || this.currentSalesChannelId !== null) &&
+                (!this.currentSalesChannelIsHeadless || !!this.headlessExternalStorefrontUrl)
+            );
         },
     },
 
@@ -150,6 +216,7 @@ export default {
         initSalesChannelCollection() {
             const salesChannelCriteria = new Criteria(1, this.resultLimit);
             salesChannelCriteria.addAssociation('type');
+            salesChannelCriteria.addAssociation('domains');
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
                 Shopware.Store.get('swSeoUrl').salesChannelCollection = salesChannelCollection;
@@ -238,6 +305,7 @@ export default {
 
             Shopware.Store.get('swSeoUrl').currentSeoUrl = currentSeoUrl;
         },
+
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
             this.$emit('on-change-sales-channel', salesChannelId);

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Clock\Clock;
 
 #[Package('fundamentals@after-sales')]
 abstract class DaysSinceRule extends Rule
@@ -37,7 +38,7 @@ abstract class DaysSinceRule extends Rule
             return false;
         }
 
-        $dateTime = (new \DateTime())
+        $dateTime = \DateTime::createFromImmutable(Clock::get()->now())
             ->setTimestamp($date->getTimestamp())
             ->setTime(0, 0);
 

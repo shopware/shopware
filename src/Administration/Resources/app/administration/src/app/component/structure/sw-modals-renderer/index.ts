@@ -2,6 +2,7 @@ import type { buttonProps } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 import type { ModalItemEntry } from 'src/app/store/modals.store';
 import DOMPurify from 'dompurify';
 import template from './sw-modals-renderer.html.twig';
+import './sw-modals-renderer.scss';
 
 /**
  * @sw-package framework

@@ -49,7 +49,16 @@ class CmsSlotsDataResolver
         }
     }
 
-    private function __resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    {
+        return $this->extensions->publish(
+            name: CmsSlotsDataResolveExtension::NAME,
+            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
+            function: $this->_resolve(...),
+        );
+    }
+
+    private function _resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
     {
         $criteriaList = $this->extensions->publish(
             name: CmsSlotsDataCollectExtension::NAME,
@@ -74,15 +83,6 @@ class CmsSlotsDataResolver
                 resolverContext: $resolverContext,
             ),
             function: $this->enrichCmsSlots(...),
-        );
-    }
-
-    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
-    {
-        return $this->extensions->publish(
-            name: CmsSlotsDataResolveExtension::NAME,
-            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
-            function: $this->__resolve(...),
         );
     }
 
@@ -143,7 +143,7 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param string[][] $directReads
+     * @param array<string, array<string>> $directReads
      *
      * @return array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
      */
@@ -175,18 +175,17 @@ class CmsSlotsDataResolver
     private function fetchByCriteria(array $searches, SalesChannelContext $context): array
     {
         $searchResults = [];
+
         foreach ($searches as $definitionClass => $criteriaObjects) {
+            $definition = $this->definitionRegistry->get($definitionClass);
+            $repository = $this->getSalesChannelApiRepository($definition);
+
+            if (!$repository instanceof SalesChannelRepository) {
+                $repository = $this->getApiRepository($definition);
+            }
+
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
-                $definition = $this->definitionRegistry->get($definitionClass);
-
-                $repository = $this->getSalesChannelApiRepository($definition);
-
-                if ($repository) {
-                    $result = $repository->search($criteria, $context);
-                } else {
-                    $repository = $this->getApiRepository($definition);
-                    $result = $repository->search($criteria, $context->getContext());
-                }
+                $result = $repository instanceof SalesChannelRepository ? $repository->search($criteria, $context) : $repository->search($criteria, $context->getContext());
 
                 $searchResults[$definitionClass][$criteriaHash] = $result;
             }
@@ -198,7 +197,7 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, CriteriaCollection> $criteriaCollections
      *
-     * @return array{0: array<string, array<string>>, 1: array<string, array<string, Criteria>>}
+     * @return array{array<string, array<string>>, array<string, array<string, Criteria>>}
      */
     private function optimizeCriteriaObjects(array $criteriaCollections): array
     {
@@ -222,10 +221,7 @@ class CmsSlotsDataResolver
             }
         }
 
-        foreach ($directReads as $definition => $idLists) {
-            /** @var array<string, array<string>> $directReads */
-            $directReads[$definition] = array_merge(...$idLists);
-        }
+        $directReads = array_map(static fn (array $directRead) => array_merge(...$directRead), $directReads);
 
         return [
             array_filter($directReads),
@@ -359,9 +355,18 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
+                $searchResult = $entities[$definition];
+                $filtered = $searchResult->getEntities()->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
-                $result->add($key, $filtered);
+                // ElementDataCollection expects the result wrapper, not the inner collection
+                $result->add($key, new EntitySearchResult(
+                    $this->definitionRegistry->get($definition)->getEntityName(),
+                    $filtered->count(),
+                    $filtered,
+                    $searchResult->getAggregations(),
+                    $searchResult->getCriteria(),
+                    $searchResult->getContext(),
+                ));
             }
         }
     }

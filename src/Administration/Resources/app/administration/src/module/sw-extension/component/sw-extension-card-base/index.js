@@ -3,6 +3,14 @@ import './sw-extension-card-base.scss';
 
 const { Utils, Filter } = Shopware;
 
+const DATE_ONLY_FORMAT = {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+    hour: undefined,
+    minute: undefined,
+};
+
 /**
  * @sw-package checkout
  * @private
@@ -18,7 +26,10 @@ export default {
         'cacheApiService',
     ],
 
-    emits: ['update-list'],
+    emits: [
+        'update-list',
+        'select-change',
+    ],
 
     mixins: ['sw-extension-error'],
 
@@ -27,10 +38,21 @@ export default {
             type: Object,
             required: true,
         },
+        selected: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        bulkLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
         return {
+            DATE_ONLY_FORMAT,
             isLoading: false,
             showUninstallModal: false,
             showRemovalModal: false,
@@ -45,6 +67,10 @@ export default {
     },
 
     computed: {
+        showLoader() {
+            return this.isLoading || this.bulkLoading;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
@@ -155,6 +181,19 @@ export default {
             );
         },
 
+        configLink() {
+            if (!this.extension.configurable) {
+                return null;
+            }
+
+            return {
+                name: 'sw.extension.config',
+                params: {
+                    namespace: this.extension.name,
+                },
+            };
+        },
+
         link() {
             if (this.openLink) {
                 return this.openLink;
@@ -169,19 +208,19 @@ export default {
                 };
             }
 
-            return null;
+            return this.configLink;
         },
 
         consentAffirmationModalActionLabel() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.acceptAndUpdate');
+            return this.$t('sw-extension-store.component.sw-extension-permissions-modal.acceptAndUpdate');
         },
 
         consentAffirmationModalCloseLabel() {
-            return this.$tc('global.default.cancel');
+            return this.$t('global.default.cancel');
         },
 
         consentAffirmationModalTitle() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions',
                 {
                     extensionLabel: this.extension.label,
@@ -191,7 +230,7 @@ export default {
         },
 
         consentAffirmationModalDescription() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions',
                 {
                     extensionLabel: this.extension.label,
@@ -359,7 +398,7 @@ export default {
                 return;
             }
 
-            this.permissionModalActionLabel = this.$tc(
+            this.permissionModalActionLabel = this.$t(
                 'sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall',
             );
             this.showPermissionsModal = true;

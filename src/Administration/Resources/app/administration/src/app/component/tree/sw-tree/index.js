@@ -230,6 +230,7 @@ export default {
             showDeleteModal: false,
             toDeleteItem: null,
             checkedElementsChildCount: 0,
+            focusInByMouse: false,
         };
     },
 
@@ -326,14 +327,37 @@ export default {
             // Focus handling
             this.$el.addEventListener('focusin', this.handleFocusIn);
             this.$el.addEventListener('keydown', this.handleKeyDown);
+
+            // Capture, because the drag directive stops the propagation of mousedown on tree items
+            this.$el.addEventListener('mousedown', this.handleMouseDown, true);
+
+            /* The button can be released anywhere, so the tree would never learn about the end of a
+             * drag out of it and would keep treating the next keyboard focus as a mouse one.
+             */
+            document.addEventListener('mouseup', this.handleMouseUp);
+            document.addEventListener('touchend', this.handleMouseUp);
         },
 
         beforeUnmountedComponent() {
             this.$el.removeEventListener('focusin', this.handleFocusIn);
             this.$el.removeEventListener('keydown', this.handleKeyDown);
+            this.$el.removeEventListener('mousedown', this.handleMouseDown, true);
+            document.removeEventListener('mouseup', this.handleMouseUp);
+            document.removeEventListener('touchend', this.handleMouseUp);
+        },
+
+        handleMouseDown() {
+            this.focusInByMouse = true;
+        },
+
+        handleMouseUp() {
+            this.focusInByMouse = false;
         },
 
         handleFocusIn(event) {
+            const byMouse = this.focusInByMouse;
+            this.focusInByMouse = false;
+
             // Check if focus in already in the tree on any tree item
             if (event.target.classList.contains('sw-tree-item') || event.target.classList.contains('sw-tree-item__toggle')) {
                 // If focus is already on a tree item, do nothing
@@ -346,18 +370,30 @@ export default {
                 return;
             }
 
-            /* Check recursively if any tree item is active, if yes, focus on it.
-             * If no tree item is active, focus on the tree item closest to the event target.
+            /* The inline naming of a tree item relies on the focus staying inside the confirm field,
+             * otherwise the submit is lost when the tree scrolls away below the cursor.
              */
+            if (event.target.closest('.sw-confirm-field')) {
+                return;
+            }
+
+            const closestTreeItem = event.target.closest('.sw-tree-item');
             const activeTreeItem = this.$el.querySelector('.sw-tree-item[aria-current="page"]');
 
-            if (activeTreeItem) {
-                activeTreeItem.focus();
-            } else {
-                const closestTreeItem = event.target.closest('.sw-tree-item') || this.$el.querySelector('.sw-tree-item');
+            /* A mouse press has to keep the focus on the item it hit, because the active item is
+             * still the previously opened one and its focus ring would stay behind on it. Keyboard
+             * focus enters the tree at the active item instead, to mark the current position.
+             */
+            const treeItem =
+                (byMouse ? closestTreeItem : null) ??
+                activeTreeItem ??
+                closestTreeItem ??
+                this.$el.querySelector('.sw-tree-item');
 
-                closestTreeItem?.focus();
-            }
+            /* Scrolling the tree while the mouse button is still down moves the clicked element away
+             * from the cursor, which swallows the click. Keyboard focus must stay visible though.
+             */
+            treeItem?.focus({ preventScroll: byMouse });
         },
 
         handleKeyDown(event) {
@@ -610,6 +646,8 @@ export default {
                 const childCount = hasChildCountProperty ? item[this.childCountProperty] : 0;
 
                 const alreadyLoadedTreeItem = this.findById(item.id);
+                const initialOpened =
+                    alreadyLoadedTreeItem?.initialOpened ?? (this.initiallyExpandedRoot && item.parentId === null);
 
                 treeItems.push({
                     data: item,
@@ -618,7 +656,7 @@ export default {
                     parentId: parentId,
                     childCount: childCount,
                     children: this.getTreeItems(item.id),
-                    initialOpened: this.initiallyExpandedRoot && item.parentId === null,
+                    initialOpened,
                     active: false,
                     activeElementId: this.routeParamsActiveElementId,
                     checked: alreadyLoadedTreeItem?.checked ?? !!this.checkItemsInitial,

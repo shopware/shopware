@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\BehaviorListingProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(BehaviorListingProcessor::class)]
 class BehaviorProcessorTest extends TestCase
 {
@@ -19,7 +21,7 @@ class BehaviorProcessorTest extends TestCase
     {
         $request = new Request(['no-aggregations' => true]);
         $criteria = new Criteria();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         (new BehaviorListingProcessor())->prepare($request, $criteria, $context);
 
@@ -30,7 +32,7 @@ class BehaviorProcessorTest extends TestCase
     {
         $request = new Request(['only-aggregations' => true]);
         $criteria = new Criteria();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         (new BehaviorListingProcessor())->prepare($request, $criteria, $context);
 

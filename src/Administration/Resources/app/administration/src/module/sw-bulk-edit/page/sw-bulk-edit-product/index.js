@@ -3,7 +3,7 @@ import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
 
 const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
@@ -20,7 +20,6 @@ export default {
         'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
-        'userConfigService',
     ],
 
     data() {
@@ -29,7 +28,13 @@ export default {
             isLoadedData: false,
             isSaveSuccessful: false,
             displayAdvancePricesModal: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             isDisabledListPrice: true,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             isDisabledRegulationPrice: true,
             bulkEditProduct: {},
             bulkEditSelected: [],
@@ -119,7 +124,10 @@ export default {
 
             criteria.getAssociation('properties').addSorting(Criteria.sort('name', 'ASC', true));
 
-            criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
+            criteria
+                .getAssociation('prices')
+                .addSorting(Criteria.sort('quantityStart', 'ASC', true))
+                .addAssociation('rule');
 
             criteria.getAssociation('tags').addSorting(Criteria.sort('name', 'ASC'));
 
@@ -280,9 +288,7 @@ export default {
                             ? this.$t('sw-bulk-edit.product.prices.listPrice.label')
                             : this.$t('sw-bulk-edit.product.prices.listPrice.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.listPrice.placeholderListPrice'),
-                        disabled: this.isChild
-                            ? this.bulkEditProduct?.isPriceInherited?.isInherited
-                            : this.isDisabledListPrice,
+                        disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
                     },
                 },
                 {
@@ -296,9 +302,7 @@ export default {
                             ? this.$t('sw-bulk-edit.product.prices.regulationPrice.label')
                             : this.$t('sw-bulk-edit.product.prices.regulationPrice.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.regulationPrice.placeholderRegulationPrice'),
-                        disabled: this.isChild
-                            ? this.bulkEditProduct?.isPriceInherited?.isInherited
-                            : this.isDisabledRegulationPrice,
+                        disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
                     },
                 },
             ];
@@ -346,6 +350,8 @@ export default {
                         allowAdd: true,
                         allowRemove: true,
                         changeLabel: this.$t('sw-bulk-edit.product.property.changeLabel'),
+                        emptyStateTitle: this.$t('sw-bulk-edit.product.property.titleEmptyState'),
+                        emptyStateDescription: this.$t('sw-bulk-edit.product.property.descriptionEmptyState'),
                         disabled: this.bulkEditProduct?.properties?.isInherited,
                         isAssociation: false,
                         showInheritanceSwitcher: false,
@@ -808,6 +814,36 @@ export default {
             }, {});
         },
 
+        selectedPriceRules() {
+            const collection = new EntityCollection(this.ruleRepository.route, this.ruleRepository.entityName, Context.api);
+
+            if (!this.product?.prices?.length) {
+                return collection;
+            }
+
+            const seen = new Set();
+            this.product.prices.forEach((price) => {
+                if (!price.ruleId || seen.has(price.ruleId)) {
+                    return;
+                }
+                seen.add(price.ruleId);
+
+                const rule = this.rules?.find?.((r) => r.id === price.ruleId) ?? price.rule;
+                if (rule) {
+                    collection.push(rule);
+                    return;
+                }
+
+                collection.push({
+                    id: price.ruleId,
+                    name: price.ruleName,
+                    ruleName: price.ruleName,
+                });
+            });
+
+            return collection;
+        },
+
         hasPreferenceUnitsChanged() {
             return this.preferenceUnits.length !== this.lengthUnit || this.preferenceUnits.weight !== this.weightUnit;
         },
@@ -912,10 +948,11 @@ export default {
             ];
 
             Promise.all(promises).then(() => {
-                this.loadBulkEditData();
-
                 const product = this.isChild ? this.parentProduct : this.productRepository.create();
                 Shopware.Store.get('swProductDetail').product = product;
+
+                this.loadBulkEditData();
+                this.setDefaultBooleanProductValues();
                 this.definePricesBulkEdit();
 
                 if (this.isChild) {
@@ -985,7 +1022,15 @@ export default {
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
+            this.getBulkEditFormGroups().forEach((bulkEditForms) => {
+                bulkEditForms.forEach((bulkEditForm) => {
+                    this.defineBulkEditData(bulkEditForm.name);
+                });
+            });
+        },
+
+        getBulkEditFormGroups() {
+            return [
                 this.generalFormFields,
                 this.deliverabilityFormFields,
                 this.pricesFormFields,
@@ -999,10 +1044,21 @@ export default {
                 this.sellingPackagingFields,
                 this.essentialCharacteristicsFormFields,
             ];
+        },
 
-            bulkEditFormGroups.forEach((bulkEditForms) => {
+        setDefaultBooleanProductValues() {
+            if (this.isChild) {
+                return;
+            }
+
+            this.getBulkEditFormGroups().forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
-                    this.defineBulkEditData(bulkEditForm.name);
+                    if (bulkEditForm.type !== 'bool') {
+                        return;
+                    }
+
+                    this.product[bulkEditForm.name] ??= false;
+                    this.bulkEditProduct[bulkEditForm.name].value ??= false;
                 });
             });
         },
@@ -1110,11 +1166,6 @@ export default {
                 return;
             }
 
-            if (item === 'price') {
-                this.isDisabledListPrice = !this.bulkEditProduct.price.isChanged;
-                this.isDisabledRegulationPrice = !this.bulkEditProduct.price.isChanged;
-            }
-
             if (value && typeof value !== 'boolean') {
                 this.product[item] = Array.isArray(value) ? value : [value];
             }
@@ -1138,6 +1189,7 @@ export default {
         onProcessData() {
             let hasListPrice = false;
             let hasRegulationPrice = false;
+            let hasPriceChange = false;
 
             Object.keys(this.bulkEditProduct).forEach((key) => {
                 const bulkEditField = cloneDeep(this.bulkEditProduct[key]);
@@ -1147,14 +1199,25 @@ export default {
 
                 if (key === 'listPrice') {
                     hasListPrice = true;
+                    hasPriceChange = true;
 
                     return;
                 }
 
                 if (key === 'regulationPrice') {
                     hasRegulationPrice = true;
+                    hasPriceChange = true;
 
                     return;
+                }
+
+                if (
+                    [
+                        'price',
+                        'purchasePrices',
+                    ].includes(key)
+                ) {
+                    hasPriceChange = true;
                 }
 
                 let bulkEditValue = this.product[key];
@@ -1192,6 +1255,25 @@ export default {
                     change.mappingReferenceField = 'ruleId';
                 }
 
+                // Variants inherit the parent's visibilities all-or-nothing: they own no
+                // `product_visibility` rows until they override. A plain ADD/REMOVE bulk
+                // edit therefore either persists nothing (REMOVE finds no own rows) or
+                // drops the whole inherited set (ADD materializes only the added channel).
+                // We instead route the change through a dedicated handler path that rebuilds
+                // each variant's effective set (its own rows when it overrides, otherwise the
+                // inherited parent set) with the removed channels dropped and the added ones
+                // merged in.
+                if (
+                    this.isChild &&
+                    key === 'visibilities' &&
+                    [
+                        'add',
+                        'remove',
+                    ].includes(bulkEditField.type)
+                ) {
+                    this.transformVariantVisibilityChange(change);
+                }
+
                 if (this.isChild && change.value !== null && types.isArray(change.value)) {
                     change.value.forEach((association) => {
                         delete association.id;
@@ -1200,6 +1282,14 @@ export default {
 
                 this.bulkEditSelected.push(change);
             });
+
+            if (hasPriceChange && !this.bulkEditProduct.taxId?.isChanged && this.taxRate?.id) {
+                this.bulkEditSelected.push({
+                    field: 'taxId',
+                    type: 'overwrite',
+                    value: this.taxRate.id,
+                });
+            }
 
             if (hasListPrice) {
                 this.processListPrice();
@@ -1210,23 +1300,103 @@ export default {
             }
         },
 
+        transformVariantVisibilityChange(change) {
+            // Always flag the change so the bulk-edit handler routes it through the
+            // per-variant path and never falls back to the generic ADD/REMOVE flow
+            // (which ignores the inherited set the variant does not own).
+            change.removedSalesChannelIds = [];
+            change.addedVisibilities = [];
+            change.inheritedVisibilities = [];
+
+            // The selector holds the sales channels to add or to remove (depending on the
+            // change type). When the field is left inherited the value is null and there
+            // is nothing to do.
+            const selectedVisibilities = Array.isArray(change.value) ? change.value : [];
+
+            if (change.type === 'remove') {
+                change.removedSalesChannelIds = selectedVisibilities
+                    .map((visibility) => visibility?.salesChannelId)
+                    .filter(Boolean);
+            } else {
+                change.addedVisibilities = selectedVisibilities
+                    .filter((visibility) => visibility?.salesChannelId)
+                    .map((visibility) => ({
+                        salesChannelId: visibility.salesChannelId,
+                        visibility: visibility.visibility,
+                    }));
+            }
+
+            // The parent's inherited set is the fallback base for variants that do not
+            // override visibilities; the handler needs the `visibility` value to recreate
+            // the rows when materializing the effective set.
+            if (this.parentProductFrozen) {
+                const parentProduct = JSON.parse(this.parentProductFrozen);
+                const parentVisibilities = Array.isArray(parentProduct?.visibilities) ? parentProduct.visibilities : [];
+
+                change.inheritedVisibilities = parentVisibilities.map((visibility) => ({
+                    salesChannelId: visibility.salesChannelId,
+                    visibility: visibility.visibility,
+                }));
+            }
+        },
+
         processListPrice() {
             const priceField = this.bulkEditSelected.find((dataField) => {
-                return dataField.field === 'price' && !types.isEmpty(dataField.value);
+                return dataField.field === 'price';
             });
+
+            if (priceField?.value === null) {
+                return;
+            }
 
             if (priceField) {
                 priceField.value[0].listPrice = this.product?.listPrice[0];
+            } else {
+                // Add price change when only listPrice is changed - price payload is required for API
+                this.bulkEditSelected.push({
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        {
+                            currencyId: this.currency.id,
+                            gross: null,
+                            net: null,
+                            linked: true,
+                            listPrice: this.product?.listPrice[0],
+                            regulationPrice: null,
+                        },
+                    ],
+                });
             }
         },
 
         processRegulationPrice() {
             const priceField = this.bulkEditSelected.find((dataField) => {
-                return dataField.field === 'price' && !types.isEmpty(dataField.value);
+                return dataField.field === 'price';
             });
+
+            if (priceField?.value === null) {
+                return;
+            }
 
             if (priceField) {
                 priceField.value[0].regulationPrice = this.product?.regulationPrice[0];
+            } else {
+                // Add price change when only regulationPrice is changed - price payload is required for API
+                this.bulkEditSelected.push({
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        {
+                            currencyId: this.currency.id,
+                            gross: null,
+                            net: null,
+                            linked: true,
+                            listPrice: null,
+                            regulationPrice: this.product?.regulationPrice[0],
+                        },
+                    ],
+                });
             }
         },
 
@@ -1277,7 +1447,7 @@ export default {
                 return Promise.resolve();
             }
 
-            return this.userConfigService.upsert({
+            return Shopware.Service('userConfigService').upsert({
                 'measurement.preferenceUnits': {
                     length: this.lengthUnit,
                     weight: this.weightUnit,
@@ -1300,9 +1470,8 @@ export default {
         },
 
         async loadPreferenceUnits() {
-            const response = await this.userConfigService.search(['measurement.preferenceUnits']);
-
-            const preferenceUnits = response.data['measurement.preferenceUnits'] || {
+            const preferenceUnits = (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))
+                ?.data?.['measurement.preferenceUnits'] || {
                 length: 'mm',
                 weight: 'kg',
             };
@@ -1313,63 +1482,72 @@ export default {
         },
 
         onRuleChange(rules) {
-            if (rules.length > this.product?.prices.length) {
-                const newPriceRule = this.priceRepository.create();
-
-                newPriceRule.productId = this.product?.id;
-                newPriceRule.quantityStart = 1;
-                newPriceRule.quantityEnd = null;
-                newPriceRule.currencyId = this.defaultCurrency.id;
-                newPriceRule.price = [
-                    {
-                        currencyId: this.defaultCurrency.id,
-                        gross: 0,
-                        linked: this.defaultPrice.linked,
-                        net: 0,
-                        listPrice: null,
-                        regulationPrice: null,
-                    },
-                ];
-
-                if (this.defaultPrice.listPrice) {
-                    newPriceRule.price[0].listPrice = {
-                        currencyId: this.defaultCurrency.id,
-                        gross: this.defaultPrice.listPrice.gross,
-                        linked: this.defaultPrice.listPrice.linked,
-                        net: this.defaultPrice.listPrice.net,
-                    };
-                }
-
-                if (this.defaultPrice.regulationPrice) {
-                    newPriceRule.price[0].regulationPrice = {
-                        currencyId: this.defaultCurrency.id,
-                        gross: this.defaultPrice.regulationPrice.gross,
-                        linked: this.defaultPrice.regulationPrice.linked,
-                        net: this.defaultPrice.regulationPrice.net,
-                    };
-                }
-
-                rules.forEach((rule) => {
-                    if (this.product?.prices.some((item) => item.ruleId === rule.ruleId)) {
-                        return;
-                    }
-
-                    newPriceRule.ruleId = rule.id;
-                    newPriceRule.ruleName = rule.name;
-
-                    this.product?.prices.add(newPriceRule);
-                });
-
+            if (!this.product?.prices) {
                 return;
             }
 
-            this.product?.prices.forEach((price) => {
-                if (rules.some((rule) => price.ruleId === rule.ruleId)) {
+            const selectedRuleIds = new Set(rules.map((rule) => rule.id));
+            const existingRuleIds = new Set(this.product.prices.map((price) => price.ruleId));
+
+            // Add price entries for newly selected rules
+            rules.forEach((rule) => {
+                if (existingRuleIds.has(rule.id)) {
                     return;
                 }
 
-                this.product?.prices.remove(price.id);
+                this.product.prices.add(this.createPriceRuleEntry(rule));
             });
+
+            // Remove price entries for rules that are no longer selected
+            this.product.prices.getIds().forEach((priceId) => {
+                const price = this.product.prices.get(priceId);
+                if (!price || selectedRuleIds.has(price.ruleId)) {
+                    return;
+                }
+
+                this.product.prices.remove(priceId);
+            });
+        },
+
+        createPriceRuleEntry(rule) {
+            const newPriceRule = this.priceRepository.create();
+
+            newPriceRule.productId = this.product?.id;
+            newPriceRule.quantityStart = 1;
+            newPriceRule.quantityEnd = null;
+            newPriceRule.currencyId = this.defaultCurrency.id;
+            newPriceRule.ruleId = rule.id;
+            newPriceRule.ruleName = rule.name;
+            newPriceRule.price = [
+                {
+                    currencyId: this.defaultCurrency.id,
+                    gross: 0,
+                    linked: this.defaultPrice.linked,
+                    net: 0,
+                    listPrice: null,
+                    regulationPrice: null,
+                },
+            ];
+
+            if (this.defaultPrice.listPrice) {
+                newPriceRule.price[0].listPrice = {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.listPrice.gross,
+                    linked: this.defaultPrice.listPrice.linked,
+                    net: this.defaultPrice.listPrice.net,
+                };
+            }
+
+            if (this.defaultPrice.regulationPrice) {
+                newPriceRule.price[0].regulationPrice = {
+                    currencyId: this.defaultCurrency.id,
+                    gross: this.defaultPrice.regulationPrice.gross,
+                    linked: this.defaultPrice.regulationPrice.linked,
+                    net: this.defaultPrice.regulationPrice.net,
+                };
+            }
+
+            return newPriceRule;
         },
 
         onInheritanceRestore(item) {

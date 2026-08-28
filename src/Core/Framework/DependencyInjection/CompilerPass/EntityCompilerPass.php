@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
@@ -79,6 +80,7 @@ class EntityCompilerPass implements CompilerPassInterface
                         new Reference(EntityAggregatorInterface::class),
                         new Reference('event_dispatcher'),
                         new Reference(EntityLoadedEventFactory::class),
+                        new Reference(DalSearchInstrumentor::class),
                     ]
                 );
                 $container->setDefinition($repositoryId, $repository);

@@ -13,7 +13,7 @@ use Shopware\Core\Migration\V6_7\Migration1754892246FixWordingMistakeInEmailTemp
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 #[CoversClass(Migration1754892246FixWordingMistakeInEmailTemplates::class)]
 class Migration1754892246FixWordingMistakeInEmailTemplatesTest extends TestCase
 {
@@ -24,6 +24,11 @@ class Migration1754892246FixWordingMistakeInEmailTemplatesTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1754892246, (new Migration1754892246FixWordingMistakeInEmailTemplates())->getCreationTimestamp());
     }
 
     public function testMigrationOfUnmodifiedTranslation(): void

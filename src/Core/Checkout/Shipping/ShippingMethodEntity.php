@@ -19,6 +19,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class ShippingMethodEntity extends Entity implements IdAware, RuleIdAware
 {

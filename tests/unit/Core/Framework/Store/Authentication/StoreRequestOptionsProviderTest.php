@@ -42,7 +42,7 @@ class StoreRequestOptionsProviderTest extends TestCase
             $this->configureUserRepositorySearchMock(new UserCollection(), $this->once()),
             $systemConfigService,
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $authHeaders = $provider->getAuthenticationHeader(
@@ -65,7 +65,7 @@ class StoreRequestOptionsProviderTest extends TestCase
             $this->configureUserRepositorySearchMock(new UserCollection(), $this->once()),
             $systemConfigService,
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $authHeaders = $provider->getAuthenticationHeader(
@@ -85,9 +85,9 @@ class StoreRequestOptionsProviderTest extends TestCase
 
         $provider = new StoreRequestOptionsProvider(
             $this->configureUserRepositorySearchMock(new UserCollection([$user]), $this->once()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $authHeaders = $provider->getAuthenticationHeader(
@@ -102,9 +102,9 @@ class StoreRequestOptionsProviderTest extends TestCase
     {
         $provider = new StoreRequestOptionsProvider(
             $this->configureUserRepositorySearchMock(new UserCollection(), $this->never()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $this->expectExceptionObject(StoreException::invalidContextSourceUser(AdminApiSource::class));
@@ -118,9 +118,9 @@ class StoreRequestOptionsProviderTest extends TestCase
     {
         $provider = new StoreRequestOptionsProvider(
             $this->configureUserRepositorySearchMock(new UserCollection(), $this->once()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $authHeaders = $provider->getAuthenticationHeader(
@@ -140,9 +140,9 @@ class StoreRequestOptionsProviderTest extends TestCase
 
         $provider = new StoreRequestOptionsProvider(
             $this->configureUserRepositorySearchMock(new UserCollection([$user]), $this->once()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $authHeaders = $provider->getAuthenticationHeader(
@@ -157,9 +157,9 @@ class StoreRequestOptionsProviderTest extends TestCase
     {
         $provider = new StoreRequestOptionsProvider(
             $this->configureUserRepositorySearchMock(new UserCollection(), $this->once()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $authHeaders = $provider->getAuthenticationHeader(
@@ -173,9 +173,9 @@ class StoreRequestOptionsProviderTest extends TestCase
     {
         $provider = new StoreRequestOptionsProvider(
             $this->configureUserRepositorySearchMock(new UserCollection(), $this->never()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $this->expectExceptionObject(StoreException::invalidContextSource(SystemSource::class, SalesChannelApiSource::class));
@@ -196,7 +196,7 @@ class StoreRequestOptionsProviderTest extends TestCase
             $this->configureUserRepositorySearchMock(new UserCollection(), $this->never()),
             $systemConfigService,
             new InstanceService('sw-version', 'instance-id'),
-            $this->createMock(LocaleProvider::class)
+            static::createStub(LocaleProvider::class)
         );
 
         $queries = $provider->getDefaultQueryParameters(Context::createDefaultContext());
@@ -220,7 +220,7 @@ class StoreRequestOptionsProviderTest extends TestCase
 
         $provider = new StoreRequestOptionsProvider(
             $this->configureUserRepositorySearchMock(new UserCollection(), $this->never()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new InstanceService('sw-version', 'instance-id'),
             $localeProvider
         );

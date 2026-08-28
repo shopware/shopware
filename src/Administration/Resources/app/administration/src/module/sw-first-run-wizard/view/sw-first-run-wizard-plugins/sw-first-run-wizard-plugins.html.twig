@@ -1,16 +1,16 @@
 {% block sw_first_run_wizard_plugins %}
 <div class="sw-first-run-wizard-plugins">
     <h3 class="recommended-plugins__headline recommended-plugins__headline-main">
-        {{ $tc('sw-first-run-wizard.recommendedPlugins.headline') }}
+        {{ $t('sw-first-run-wizard.recommendedPlugins.headline') }}
     </h3>
 
     <p
         class="recommended-plugins__description"
-        v-html="$tc('sw-first-run-wizard.recommendedPlugins.message')"
+        v-html="$t('sw-first-run-wizard.recommendedPlugins.message')"
     ></p>
 
     <div class="select-region">
-        <p>{{ $tc('sw-first-run-wizard.recommendedPlugins.availableInRegion') }}</p>
+        <p>{{ $t('sw-first-run-wizard.recommendedPlugins.availableInRegion') }}</p>
 
         <div class="regions">
             <sw-label
@@ -33,7 +33,7 @@
         v-if="categories.length"
         class="select-category"
     >
-        <p>{{ $tc('sw-first-run-wizard.recommendedPlugins.category') }}</p>
+        <p>{{ $t('sw-first-run-wizard.recommendedPlugins.category') }}</p>
 
         <div class="categories">
             <sw-label
@@ -61,7 +61,7 @@
         v-show="showCategoryLead"
         class="recommended-plugins__headline"
     >
-        {{ $tc('sw-first-run-wizard.recommendedPlugins.topRecommendations') }}
+        {{ $t('sw-first-run-wizard.recommendedPlugins.topRecommendations') }}
     </h3>
 
     <div
@@ -86,7 +86,7 @@
         v-show="showNotCategoryLead"
         class="recommended-plugins__headline"
     >
-        {{ $tc('sw-first-run-wizard.recommendedPlugins.otherRecommendations') }}
+        {{ $t('sw-first-run-wizard.recommendedPlugins.otherRecommendations') }}
     </h3>
 
     <div

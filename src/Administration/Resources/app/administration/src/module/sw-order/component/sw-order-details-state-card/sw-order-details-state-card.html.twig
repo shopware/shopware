@@ -17,7 +17,7 @@
             {% block sw_order_detail_state_card_state_select %}
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
@@ -73,7 +73,7 @@
                 icon="regular-long-arrow-right"
                 @click="onShowStatusHistory"
             >
-                {{ $tc('sw-order.stateCard.labelShowHistoryModal') }}
+                {{ $t('sw-order.stateCard.labelShowHistoryModal') }}
             </sw-external-link>
             {% endblock %}
 

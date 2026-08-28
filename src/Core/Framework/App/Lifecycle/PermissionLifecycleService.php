@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Privileges\Privileges;
@@ -19,6 +20,7 @@ class PermissionLifecycleService
     public function __construct(
         private readonly Connection $connection,
         private readonly Privileges $privileges,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -57,7 +59,7 @@ class PermissionLifecycleService
             'UPDATE `acl_role` SET `deleted_at` = :datetime WHERE id = :id',
             [
                 'id' => Uuid::fromHexToBytes($roleId),
-                'datetime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'datetime' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }

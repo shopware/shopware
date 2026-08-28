@@ -1,13 +1,13 @@
 {% block sw_advanced_selection_product %}
 <sw-entity-advanced-selection-modal
     entity-name="product"
-    :entity-display-text="$tc('global.sw-entity-advanced-selection-modal.entity.product')"
+    :entity-display-text="$t('global.sw-entity-advanced-selection-modal.entity.product')"
     store-key="advancedSelection.product"
     :entity-context="productContext"
     :entity-columns="productColumns"
     :entity-filters="productFilters"
     :entity-associations="productAssociations"
-    empty-icon="solid-products"
+    empty-icon="regular-products"
     v-bind="$attrs"
     @selection-submit="$emit('selection-submit', $event)"
     @modal-close="$emit('modal-close', $event)"

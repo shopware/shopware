@@ -2,7 +2,7 @@
 <sw-modal
     class="sw-media-modal-replace"
     size="420px"
-    :title="$tc('global.sw-media-modal-replace.titleModal')"
+    :title="$t('global.sw-media-modal-replace.titleModal')"
     @modal-close="emitCloseReplaceModal"
 >
 
@@ -23,7 +23,7 @@
         class="sw-media-modal-replace__file-extension-warning"
         variant="attention"
     >
-        {{ $tc('global.sw-media-modal-replace.warningFileExtension', { extension: newFileExtension }, 0) }}
+        {{ $t('global.sw-media-modal-replace.warningFileExtension', { extension: newFileExtension }, 0) }}
     </mt-banner>
 
     {% block sw_media_modal_replace_modal_footer %}
@@ -34,7 +34,7 @@
             variant="secondary"
             @click="emitCloseReplaceModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -46,7 +46,7 @@
             :disabled="!isUploadDataSet"
             @click="replaceMediaItem"
         >
-            {{ $tc('global.sw-media-modal-replace.buttonReplace') }}
+            {{ $t('global.sw-media-modal-replace.buttonReplace') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Database\TableHelper;
@@ -84,22 +85,30 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Shopware\Core\Framework\Util\UtilException} instead of {@see TableNotFoundException}
-     *
      * @param non-empty-string $table
      */
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [], description: 'Will no longer throw TableNotFoundException for a missing table but return false.')]
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
         if (Feature::isActive('v6.8.0.0')) {
             return TableHelper::indexExists($connection, $table, $index);
         }
 
-        $exists = $connection->fetchOne(
+        return (bool) $connection->fetchOne(
             'SHOW INDEXES FROM `' . $table . '` WHERE `key_name` LIKE :index',
             ['index' => $index]
         );
+    }
 
-        return !empty($exists);
+    /**
+     * @see NonStandardFkGuard
+     *
+     * @internal Temporary workaround, will be removed once MySQL fixes bug #118151; safe to call
+     *           from extension migrations in the meantime.
+     */
+    protected function executeDdlStatement(Connection $connection, string $sql): void
+    {
+        NonStandardFkGuard::executeDdl($connection, $sql);
     }
 
     protected function dropTableIfExists(Connection $connection, string $table): void
@@ -114,7 +123,7 @@ abstract class MigrationStep
     protected function dropColumnIfExists(Connection $connection, string $table, string $columnName): bool
     {
         try {
-            $connection->executeStatement(\sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $columnName));
+            NonStandardFkGuard::executeDdl($connection, \sprintf('ALTER TABLE `%s` DROP COLUMN `%s`', $table, $columnName));
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;
@@ -139,7 +148,7 @@ abstract class MigrationStep
         $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $foreignKeyName);
 
         try {
-            $connection->executeStatement($sql);
+            NonStandardFkGuard::executeDdl($connection, $sql);
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;
@@ -164,7 +173,7 @@ abstract class MigrationStep
         $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $indexName);
 
         try {
-            $connection->executeStatement($sql);
+            NonStandardFkGuard::executeDdl($connection, $sql);
         } catch (\Throwable $e) {
             if ($e instanceof TableNotFoundException) {
                 return false;

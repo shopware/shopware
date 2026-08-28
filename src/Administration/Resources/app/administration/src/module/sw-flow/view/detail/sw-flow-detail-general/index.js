@@ -41,28 +41,28 @@ export default {
             return [
                 {
                     property: 'dataExecuted',
-                    label: this.$tc('sw-flow.detail.labelLogDateExecuted'),
+                    label: this.$t('sw-flow.detail.labelLogDateExecuted'),
                     naturalSorting: true,
                     primary: true,
                 },
                 {
                     property: 'trigger',
-                    label: this.$tc('sw-flow.detail.labelLogTrigger'),
+                    label: this.$t('sw-flow.detail.labelLogTrigger'),
                     sortable: false,
                 },
                 {
                     property: 'triggerValue',
-                    label: this.$tc('sw-flow.detail.labelLogTriggerValue'),
+                    label: this.$t('sw-flow.detail.labelLogTriggerValue'),
                     sortable: false,
                 },
                 {
                     property: 'actions',
-                    label: this.$tc('sw-flow.detail.labelLogActions'),
+                    label: this.$t('sw-flow.detail.labelLogActions'),
                     sortable: false,
                 },
                 {
                     property: 'success',
-                    label: this.$tc('sw-flow.detail.labelLogSuccess'),
+                    label: this.$t('sw-flow.detail.labelLogSuccess'),
                     sortable: false,
                 },
             ];

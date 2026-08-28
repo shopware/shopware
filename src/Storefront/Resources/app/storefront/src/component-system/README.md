@@ -15,9 +15,6 @@ For Twig components that have to implement interactive functionality via JavaScr
 3. **Better events instead of overrides**
     The current override technique of the plugin system was not reintroduced to the component system, as it showed some major flaws, as overrides could only happen once which can lead to conflicts between different Shopware extensions. Instead there is a central event system which is easier to use and offers a more robust public interface. In addition, it offers special interception events, for example, to manipulate request data before it is sent.
 
-4. **No imports**
-    We decided to make everything related to the component system available via global scope. This means it is available at the `window` object level and can directly be used in plain JavaScript. No imports or bundling is necessary. You can still use the bundling as it is available today or use your own build processes if desired, but the component scripts target for plain JavaScript that don't need to be build in conjunction with our core files.
-
 ## Overview
 
 The JavaScript component system consists of two main parts:
@@ -100,6 +97,24 @@ Shopware generates an importmap for all components based on the Twig component t
 
 When the script is loaded, Shopware will automatically initialize the component class on all elements matching the selector. This also applies to elements that might be added later. You do not need to do this manually. Shopware will observe the DOM tree and initialize components also on elements that are dynamically added to the document.
 
+## Build and dev server
+
+Component scripts/styles are built with Vite from `Resources/views/components/` and then loaded via import map at runtime.
+
+From project root:
+
+```bash
+# Full storefront build
+composer build:js:storefront
+```
+
+For local development with live reload:
+```bash
+composer storefront:dev-server
+```
+
+When the dev server is running, Shopware serves component JS/CSS from the Vite server. When it is stopped, Shopware falls back to published production assets.
+
 ## Component Configuration
 
 ### Data Attributes
@@ -122,7 +137,7 @@ The passed options are merged with the default options that you define as a stat
 
 ## Directory Structure & Component Script Loading
 
-Component scripts are automatically loaded via ES module loading. Your component script should have the same name as the Twig file of your component and should be placed in the same directory. Shopware will automatically collect all component script files and generate an importmap for them. Just make sure that an element within your component template has the `data-component` attribute set.
+Component scripts are automatically loaded via ES module loading. Your component script should have the same name as the Twig file of your component and should be placed in the same directory. During the component build, Shopware collects component script/style files and generates build artifacts plus an import map reference for runtime loading. Just make sure that an element within your component template has the `data-component` attribute set.
 
 Example structure:
 
@@ -130,22 +145,24 @@ Example structure:
 views/
   components/
     MyComponentNamespace/
-      MyComponent.thml.twig
-      MyComopnent.js
+      MyComponent.html.twig
+      MyComponent.js
       MyComponent.scss
 ```
 
-If you are using the index naming of anonymous components, the correposnding SCSS and JS files have to use the same pattern. This naming provides the possibility to use the directory name as the component name.
+If you are using the index naming of anonymous components, the corresponding style and JS files must follow the same pattern. This naming provides the possibility to use the directory name as the component name.
 
 ```
 views/
   components/
     MyComponentNamespace/
         MyComponent/
-            index.thml.twig
+            index.html.twig
             index.js
             index.scss
 ```
+
+Styles can be either `*.scss` or `*.css` per component. A component may define only one style source (`MyComponent.scss` or `MyComponent.css`, never both).
 
 Both of the above described structures will still result in a component which can be called with:
 
@@ -191,7 +208,6 @@ If you want to have an even more component-style approach, you can simply pass t
     {# Some component logic ... #}
 </div>
 ```
-
 
 ## Component Communication
 

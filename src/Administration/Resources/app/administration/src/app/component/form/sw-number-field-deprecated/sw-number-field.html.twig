@@ -30,7 +30,7 @@
             :class="numberAlignEnd ? 'sw-field--number__align-end' : ''"
             :placeholder="placeholder"
             :disabled="disabled"
-            :aria-label="ariaLabel && $tc(ariaLabel)"
+            :aria-label="ariaLabel && $t(ariaLabel)"
             autocomplete="off"
             @input="onInput"
             @keydown.up="increaseNumberByStep"

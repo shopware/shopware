@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import useTheme from 'src/app/composables/use-theme';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
@@ -22,6 +23,7 @@ export default {
         'integrationService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -58,6 +60,8 @@ export default {
             timezoneOptions: [],
             mediaDefaultFolderId: null,
             showMediaModal: false,
+            // Only edited for the own user — the theme select is hidden otherwise.
+            userTheme: useTheme().theme.value,
         };
     },
 
@@ -82,7 +86,7 @@ export default {
         },
 
         fullName() {
-            return this.salutation(this.user, this.$tc('sw-users-permissions.users.user-detail.labelNewUser'));
+            return this.salutation(this.user, this.$t('sw-users-permissions.users.user-detail.labelNewUser'));
         },
 
         userRepository() {
@@ -159,7 +163,7 @@ export default {
             return [
                 {
                     property: 'accessKey',
-                    label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey'),
+                    label: this.$t('sw-users-permissions.users.user-detail.labelAccessKey'),
                 },
             ];
         },
@@ -192,6 +196,14 @@ export default {
                     label: language.customLabel,
                 };
             });
+        },
+
+        mcpGrantedPrivileges() {
+            if (!this.user?.aclRoles) {
+                return [];
+            }
+
+            return [...new Set(this.user.aclRoles.flatMap((role) => role.privileges ?? []))];
         },
     },
 
@@ -319,7 +331,7 @@ export default {
                 const expression = `user.${this.user.id}.email`;
                 const error = new ShopwareError({
                     code: 'USER_EMAIL_ALREADY_EXISTS',
-                    detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
+                    detail: this.$t('sw-users-permissions.users.user-detail.errorEmailUsed'),
                 });
 
                 Shopware.Store.get('error').addApiError({
@@ -396,19 +408,17 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            if (this.currentUser.id === this.user.id) {
-                await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-            }
-
-            const isEmailValid = await this.checkEmail();
-
-            if (!isEmailValid) {
-                return;
-            }
-
-            this.isLoading = true;
-
             try {
+                if (this.currentUser.id === this.user.id) {
+                    await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                }
+
+                const isEmailValid = await this.checkEmail();
+
+                if (!isEmailValid) {
+                    return;
+                }
+
                 await this.userRepository.save(this.user, context);
 
                 if (this.currentUser.id === this.user.id) {
@@ -416,6 +426,7 @@ export default {
                         await this.updateAuthToken();
                     }
                     await this.updateCurrentUser();
+                    await useTheme().saveUserTheme(this.userTheme);
                 }
 
                 this.createdComponent();
@@ -424,8 +435,8 @@ export default {
                 this.isSaveSuccessful = true;
             } catch (exception) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc(
+                    title: this.$t('global.default.error'),
+                    message: this.$t(
                         'sw-users-permissions.users.user-detail.notification.saveError.message',
                         { name: this.fullName },
                         0,
@@ -484,6 +495,23 @@ export default {
             }
 
             this.onCloseDetailModal();
+        },
+
+        onMcpAllowlistUpdate(allowlist) {
+            if (!this.userId) {
+                return;
+            }
+
+            this.userService
+                .saveMcpAllowlist(this.userId, allowlist)
+                .then(() => {
+                    this.user.mcpAllowlist = allowlist;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-users-permissions.users.user-detail.mcpAllowlistSaveError'),
+                    });
+                });
         },
 
         onCloseDeleteModal() {

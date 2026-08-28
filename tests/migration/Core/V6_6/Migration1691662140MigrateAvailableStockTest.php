@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1691662140MigrateAvailableStock;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1691662140MigrateAvailableStock::class)]
 class Migration1691662140MigrateAvailableStockTest extends TestCase
 {
@@ -42,6 +44,11 @@ class Migration1691662140MigrateAvailableStockTest extends TestCase
             );
         } catch (\Throwable) {
         }
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1691662140, (new Migration1691662140MigrateAvailableStock())->getCreationTimestamp());
     }
 
     public function testStockMigration(): void

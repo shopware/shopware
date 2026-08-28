@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Profiling\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Twig\DoctrineExtension;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DoctrineExtension::class)]
 class DoctrineExtensionTest extends TestCase
 {

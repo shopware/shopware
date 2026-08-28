@@ -5,11 +5,20 @@
 import { mount } from '@vue/test-utils';
 import useSystem from '../../../../app/composables/use-system';
 
-async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'https://sso.test') {
+const originalNavigatorLanguage = navigator.language;
+const originalNavigatorLanguages = navigator.languages;
+
+async function createWrapper(
+    loginSuccessfull,
+    useDefault = true,
+    ssoUrl = 'https://sso.test',
+    loginError = null,
+    configFails = false,
+) {
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
             },
             provide: {
                 loginService: {
@@ -19,7 +28,7 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
                         }
 
                         return new Promise((resolve, reject) => {
-                            const response = {
+                            const response = loginError ?? {
                                 config: {
                                     url: 'test.test.de',
                                 },
@@ -52,6 +61,10 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
                         localStorage.setItem('rememberMe', `${+duration}`);
                     },
                     getLoginTemplateConfig: () => {
+                        if (configFails) {
+                            return Promise.reject(new Error('Failed to load login config'));
+                        }
+
                         return Promise.resolve({ useDefault: useDefault, ssoProviders: [], url: ssoUrl });
                     },
                 },
@@ -92,8 +105,22 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
 }
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
-    beforeAll(() => {
-        useSystem().locales.value.push(navigator.language);
+    beforeEach(() => {
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
+
+        localStorage.removeItem('sw-admin-locale');
+
+        Object.defineProperty(window.navigator, 'language', {
+            value: originalNavigatorLanguage,
+            configurable: true,
+        });
+        Object.defineProperty(window.navigator, 'languages', {
+            value: originalNavigatorLanguages,
+            configurable: true,
+        });
+
+        useSystem().locales.value = [];
+        useSystem().registerAdminLocale('en-GB');
     });
 
     it('should show a warning if the login is rate limited', async () => {
@@ -123,6 +150,109 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
     });
 
+    it('should show an inline error banner for invalid credentials', async () => {
+        const invalidCredentialsError = {
+            config: {
+                url: 'test.test.de',
+            },
+            response: {
+                data: {
+                    errors: {
+                        status: 401,
+                        code: '6',
+                    },
+                },
+            },
+        };
+
+        const { wrapper, usernameInput, passwordInput } = await createWrapper(
+            false,
+            true,
+            'https://sso.test',
+            invalidCredentialsError,
+        );
+
+        await usernameInput.setValue('Username');
+        await passwordInput.setValue('Password');
+
+        expect(wrapper.find('.sw-login__error-banner').exists()).toBe(false);
+
+        await wrapper.get('.sw-login-login').trigger('submit');
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-login__error-banner').text()).toBe('["sw-login.index.messageInvalidCredentials"]');
+    });
+
+    it('should show a generic error banner for malformed login error responses', async () => {
+        const malformedError = {
+            config: {
+                url: 'test.test.de',
+            },
+            response: {},
+        };
+
+        const { wrapper, usernameInput, passwordInput } = await createWrapper(
+            false,
+            true,
+            'https://sso.test',
+            malformedError,
+        );
+
+        await usernameInput.setValue('Username');
+        await passwordInput.setValue('Password');
+
+        await wrapper.get('.sw-login-login').trigger('submit');
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-login__error-banner').text()).toBe(
+            '["sw-login.index.messageGeneralRequestError",{"url":"test.test.de"}]',
+        );
+        expect(wrapper.emitted('is-not-loading')).toBeTruthy();
+    });
+
+    it('should show a generic error banner without a URL when the malformed response has none', async () => {
+        const malformedError = {
+            response: {},
+        };
+
+        const { wrapper, usernameInput, passwordInput } = await createWrapper(
+            false,
+            true,
+            'https://sso.test',
+            malformedError,
+        );
+
+        await usernameInput.setValue('Username');
+        await passwordInput.setValue('Password');
+
+        await wrapper.get('.sw-login-login').trigger('submit');
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-login__error-banner').text()).toBe('["sw-login.index.messageGeneralError"]');
+    });
+
+    it('should emit the loaded login config so the page does not need to fetch it again', async () => {
+        const { wrapper } = await createWrapper(true);
+
+        expect(wrapper.emitted('config-loaded')).toEqual([
+            [
+                { useDefault: true, ssoProviders: [], url: 'https://sso.test' },
+            ],
+        ]);
+    });
+
+    it('should fall back to the password login when the login config request fails', async () => {
+        const { wrapper, usernameInput, passwordInput } = await createWrapper(true, true, 'https://sso.test', null, true);
+
+        expect(wrapper.find('.sw-login__view-loader').exists()).toBe(false);
+        expect(wrapper.find('.sw-login__sso').exists()).toBe(false);
+        expect(usernameInput.exists()).toBe(true);
+        expect(passwordInput.exists()).toBe(true);
+    });
+
     it('should handle login', async () => {
         const { wrapper, usernameInput, passwordInput, rememberMeCheckbox } = await createWrapper(true);
 
@@ -143,6 +273,27 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
     });
 
+    it('should use the system fallback locale when browser and english fallbacks are unavailable', async () => {
+        Object.defineProperty(window.navigator, 'language', {
+            value: 'es-ES',
+            configurable: true,
+        });
+        Object.defineProperty(window.navigator, 'languages', {
+            value: ['es-ES'],
+            configurable: true,
+        });
+
+        useSystem().locales.value = [];
+        useSystem().registerAdminLocale('de-DE');
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale('de-DE');
+
+        const setAdminLocaleSpy = jest.spyOn(Shopware.Store.get('session'), 'setAdminLocale');
+
+        await createWrapper(true);
+
+        expect(setAdminLocaleSpy).toHaveBeenCalledWith('de-DE');
+    });
+
     it('should redirect for SSO login', async () => {
         const navigateToSpy = jest.fn();
         const component = await wrapTestComponent('sw-login-login', { sync: true });
@@ -151,7 +302,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         mount(component, {
             global: {
                 mocks: {
-                    $tc: (...args) => JSON.stringify([...args]),
+                    $t: (...args) => JSON.stringify([...args]),
                 },
                 provide: {
                     loginService: {

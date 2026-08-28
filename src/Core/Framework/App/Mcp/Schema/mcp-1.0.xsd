@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="mcp">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="mcp-tools" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="mcp-tool" type="mcpTool" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:unique name="uniqueToolName">
+                        <xs:selector xpath="mcp-tool"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
+                </xs:element>
+                <xs:element name="mcp-prompts" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="mcp-prompt" type="mcpPrompt" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:unique name="uniquePromptName">
+                        <xs:selector xpath="mcp-prompt"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
+                </xs:element>
+                <xs:element name="mcp-resources" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="mcp-resource" type="mcpResource" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:unique name="uniqueResourceName">
+                        <xs:selector xpath="mcp-resource"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="capabilityName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-zA-Z0-9_-]+"/>
+            <xs:minLength value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="translatable">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="lang" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="mcpTool">
+        <xs:sequence>
+            <xs:element name="label" type="translatable" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Human-readable display name shown in MCP client UIs (e.g. Claude Desktop, Cursor). Maps to the MCP protocol "title" field. Without a label, clients fall back to the machine-readable "name" attribute.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="translatable" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="input-schema" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="property" type="inputProperty" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="required-privileges" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="privilege" type="xs:string" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="capabilityName" use="required"/>
+        <xs:attribute name="url" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="mcpPrompt">
+        <xs:sequence>
+            <xs:element name="label" type="translatable" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Human-readable display name shown in MCP client UIs. Maps to the MCP protocol "title" field.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="translatable" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="capabilityName" use="required"/>
+        <xs:attribute name="url" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="mcpResource">
+        <xs:sequence>
+            <xs:element name="label" type="translatable" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Human-readable display name shown in MCP client UIs. Maps to the MCP protocol "title" field.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="translatable" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="capabilityName" use="required"/>
+        <xs:attribute name="uri" type="xs:string" use="required"/>
+        <xs:attribute name="url" type="xs:string" use="required"/>
+        <xs:attribute name="mime-type" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="inputProperty">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="type" use="optional" default="string">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="string"/>
+                    <xs:enumeration value="integer"/>
+                    <xs:enumeration value="number"/>
+                    <xs:enumeration value="boolean"/>
+                    <xs:enumeration value="array"/>
+                    <xs:enumeration value="object"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="description" type="xs:string" use="optional"/>
+        <xs:attribute name="required" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+</xs:schema>

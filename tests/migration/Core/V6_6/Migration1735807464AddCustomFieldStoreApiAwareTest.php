@@ -27,6 +27,11 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1735807464, (new Migration1735807464AddCustomFieldStoreApiAware())->getCreationTimestamp());
+    }
+
     public function testCustomFieldHasStoreApiAwareColumn(): void
     {
         $this->rollback();

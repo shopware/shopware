@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
@@ -15,6 +16,7 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 class StreamConditionPropertyMappingTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -41,7 +43,7 @@ class StreamConditionPropertyMappingTest extends TestCase
         $regex = '/product:(.*?)\[(.*?)]/s';
         preg_match($regex, $js, $matches);
 
-        if (empty($matches[2])) {
+        if ($matches === [] || $matches[2] === '') {
             static::fail('could not find product properties in product-stream-condition.service.js');
         }
 

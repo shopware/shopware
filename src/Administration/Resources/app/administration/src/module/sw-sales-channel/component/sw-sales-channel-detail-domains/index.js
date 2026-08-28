@@ -5,7 +5,7 @@
 import template from './sw-sales-channel-detail-domains.html.twig';
 import './sw-sales-channel-detail-domains.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
@@ -61,6 +61,10 @@ export default {
             return this.repositoryFactory.create(this.salesChannel.domains.entity, this.salesChannel.domains.source);
         },
 
+        salesChannelIsHeadless() {
+            return this.salesChannel?.typeId === Defaults.apiSalesChannelTypeId;
+        },
+
         currentDomainModalTitle() {
             if (!this.isEditingDomain) {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
@@ -91,20 +95,44 @@ export default {
         },
 
         currencyCriteria() {
-            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
+            const criteria = new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
+            const selectableCurrencyIds = this.selectableCurrencyIds;
+
+            if (selectableCurrencyIds.length > 0) {
+                criteria.addFilter(Criteria.equalsAny('id', selectableCurrencyIds));
+            }
+
+            return criteria;
+        },
+
+        selectableCurrencyIds() {
+            const currencyIds =
+                this.salesChannel.currencies?.getIds?.() ??
+                (this.salesChannel.currencies ?? []).map((currency) => currency.id);
+
+            [
+                this.salesChannel.currencyId,
+                this.currentDomain?.currencyId,
+            ].forEach((currencyId) => {
+                if (currencyId && !currencyIds.includes(currencyId)) {
+                    currencyIds.push(currencyId);
+                }
+            });
+
+            return currencyIds;
         },
 
         hreflangLocalisationOptions() {
             return [
                 {
-                    name: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIso'),
+                    name: this.$t('sw-sales-channel.detail.hreflang.domainSettings.byIso'),
                     value: false,
-                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIsoHelpText'),
+                    helpText: this.$t('sw-sales-channel.detail.hreflang.domainSettings.byIsoHelpText'),
                 },
                 {
-                    name: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviation'),
+                    name: this.$t('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviation'),
                     value: true,
-                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviationHelpText'),
+                    helpText: this.$t('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviationHelpText'),
                 },
             ];
         },
@@ -136,6 +164,18 @@ export default {
             criteria.addFields('name', 'technicalName');
 
             return criteria;
+        },
+
+        isExternalStorefrontDisabled() {
+            if (!this.currentDomain.languageId) {
+                return false;
+            }
+
+            const usedLanguageIds = this.salesChannel.domains
+                .filter((domain) => domain.id !== this.currentDomain.id && domain.isExternalStorefront)
+                .map((domain) => domain.languageId);
+
+            return usedLanguageIds.includes(this.currentDomain.languageId);
         },
     },
 
@@ -256,15 +296,27 @@ export default {
             this.currentDomain.measurementUnits = this.currentDomainBackup.measurementUnits;
         },
 
-        setInitialCurrency(domain) {
-            const currency = this.salesChannel.currencies.first();
+        setInitialCurrency(domain, currencyId = null) {
+            const currency = currencyId
+                ? this.salesChannel.currencies.get(currencyId)
+                : this.salesChannel.currencies.first();
+
+            if (!currency) {
+                return;
+            }
+
             domain.currency = currency;
             domain.currencyId = currency.id;
             this.currentDomain = domain;
         },
 
-        setInitialLanguage(domain) {
-            const language = this.salesChannel.languages.first();
+        setInitialLanguage(domain, languageId = null) {
+            const language = languageId ? this.salesChannel.languages.get(languageId) : this.salesChannel.languages.first();
+
+            if (!language) {
+                return;
+            }
+
             domain.language = language;
             domain.languageId = language.id;
             this.currentDomain = domain;
@@ -288,17 +340,17 @@ export default {
             };
         },
 
-        onClickOpenCreateDomainModal() {
+        onClickOpenCreateDomainModal({ languageId = null, currencyId = null } = {}) {
             const domain = this.domainRepository.create(Context.api);
 
             this.setCurrentDomainBackup(domain);
 
-            if (this.salesChannel.currencies.length === 1) {
-                this.setInitialCurrency(domain);
+            if (currencyId || this.salesChannel.currencies.length === 1) {
+                this.setInitialCurrency(domain, currencyId);
             }
 
-            if (this.salesChannel.languages.length === 1) {
-                this.setInitialLanguage(domain);
+            if (languageId || this.salesChannel.languages.length === 1) {
+                this.setInitialLanguage(domain, languageId);
             }
 
             this.setInitialMeasurementUnits(domain);
@@ -354,7 +406,7 @@ export default {
         onConfirmDeleteDomain(domain) {
             if (domain.productExports.length > 0) {
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'sw-sales-channel.detail.messageDeleteDomainError',
                         {
                             url: this.unicodeUriFilter(domain.url),
@@ -381,10 +433,12 @@ export default {
 
         onLanguageSelect(id) {
             this.onOptionSelect('language', this.salesChannel.languages.get(id));
-        },
 
-        onCurrencySelect(id) {
-            this.onOptionSelect('currency', this.salesChannel.currencies.get(id));
+            if (!this.currentDomain.isExternalStorefront || !this.isExternalStorefrontDisabled) {
+                return;
+            }
+
+            this.currentDomain.isExternalStorefront = false;
         },
 
         onOptionSelect(name, entity) {

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\FindVariant;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(FoundCombination::class)]
 class FoundCombinationTest extends TestCase
 {

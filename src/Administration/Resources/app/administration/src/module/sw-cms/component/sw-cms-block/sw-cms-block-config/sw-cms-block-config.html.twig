@@ -18,7 +18,7 @@
                 name="regular-duplicate"
                 size="16"
             />
-            {{ $tc('global.default.duplicate') }}
+            {{ $t('global.default.duplicate') }}
         </li>
         {% endblock %}
 
@@ -48,9 +48,9 @@
 
         <mt-text-field
             :model-value="block.name"
-            :label="$tc('sw-cms.detail.label.blockNameField')"
-            :placeholder="$tc('sw-cms.detail.label.blockNameFieldPlaceholder')"
-            :help-text="$tc('sw-cms.detail.tooltip.blockNameField')"
+            :label="$t('sw-cms.detail.label.blockNameField')"
+            :placeholder="$t('sw-cms.detail.label.blockNameFieldPlaceholder')"
+            :help-text="$t('sw-cms.detail.tooltip.blockNameField')"
             @update:model-value="onBlockNameChange"
         />
         {% endblock %}
@@ -58,8 +58,8 @@
         {% block sw_cms_block_config_background_color_field %}
         <mt-colorpicker
             v-model="block.backgroundColor"
-            :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
-            :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
+            :label="$t('sw-cms.detail.label.backgroundColorLabel')"
+            :placeholder="$t('sw-cms.detail.label.backgroundColorField')"
         />
         {% endblock %}
 
@@ -67,7 +67,7 @@
         <sw-media-compact-upload-v2
             :source="block && block.backgroundMedia && block.backgroundMedia.id ? block.backgroundMedia : null"
             :upload-tag="uploadTag"
-            :label="$tc('sw-cms.detail.label.backgroundMediaLabel')"
+            :label="$t('sw-cms.detail.label.backgroundMediaLabel')"
             :default-folder="cmsPageState.pageEntityName"
             :allow-multi-select="false"
             @media-upload-remove-image="removeMedia"
@@ -82,7 +82,7 @@
         {% block sw_cms_block_config_background_image_position_field %}
         <mt-select
             v-model="block.backgroundMediaMode"
-            :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
+            :label="$t('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!block.backgroundMediaId"
             :options="backgroundModeOptions"
         />

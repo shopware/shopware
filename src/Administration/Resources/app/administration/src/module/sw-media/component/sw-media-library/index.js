@@ -4,6 +4,14 @@ import './sw-media-library.scss';
 const { Mixin, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
+const getDefaultMediaSorting = () => {
+    if (Feature.isActive('v6.8.0.0')) {
+        return { sortBy: 'createdAt', sortDirection: 'desc' };
+    }
+
+    return { sortBy: 'fileName', sortDirection: 'asc' };
+};
+
 /**
  * @sw-package discovery
  */
@@ -50,7 +58,7 @@ export default {
         limit: {
             type: Number,
             required: false,
-            default: 25,
+            default: 100,
             validValues: [
                 1,
                 5,
@@ -118,11 +126,12 @@ export default {
             folderLoaderDone: false,
             items: [],
             subFolders: [],
+            itemTotal: 0,
+            folderTotal: 0,
             currentFolder: null,
             parentFolder: null,
             presentation: 'medium-preview',
-            sorting: { sortBy: 'fileName', sortDirection: 'asc' },
-            folderSorting: { sortBy: 'name', sortDirection: 'asc' },
+            sorting: getDefaultMediaSorting(),
         };
     },
 
@@ -157,7 +166,7 @@ export default {
         rootFolder() {
             const root = this.mediaFolderRepository.create(Context.api);
             root.id = '';
-            root.name = this.$tc('sw-media.index.rootFolderName');
+            root.name = this.$t('sw-media.index.rootFolderName');
 
             return root;
         },
@@ -174,12 +183,34 @@ export default {
             return this.gridPresentation === 'list-preview';
         },
 
+        allLoaded() {
+            return this.itemLoaderDone && this.folderLoaderDone;
+        },
+
+        loadMoreLoadsEverything() {
+            const foldersComplete =
+                this.folderLoaderDone || (this.folderTotal > 0 && this.folderTotal - this.subFolders.length <= this.limit);
+            const itemsComplete =
+                this.itemLoaderDone || (this.itemTotal > 0 && this.itemTotal - this.items.length <= this.limit);
+
+            return foldersComplete && itemsComplete;
+        },
+
         showLoadMoreButton() {
+            if (this.isLoading || this.shouldDisplayEmptyState || this.allLoaded) {
+                return false;
+            }
+
+            // when a single "load more" would already load everything, only the "load all" button is shown
+            return !this.loadMoreLoadsEverything;
+        },
+
+        showLoadAllButton() {
             if (this.isLoading || this.shouldDisplayEmptyState) {
                 return false;
             }
 
-            return !(this.itemLoaderDone && this.folderLoaderDone);
+            return !this.allLoaded;
         },
 
         nextMediaCriteria() {
@@ -221,7 +252,7 @@ export default {
 
         nextFoldersCriteria() {
             const criteria = new Criteria(this.pageFolder, this.limit)
-                .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
+                .addSorting(Criteria.sort('name', 'asc'))
                 .setTerm(this.term);
 
             if (!this.term) {
@@ -257,7 +288,6 @@ export default {
         },
 
         sorting() {
-            this.mapFolderSorting();
             this.refreshList();
         },
 
@@ -309,6 +339,8 @@ export default {
 
             this.subFolders = [];
             this.items = [];
+            this.itemTotal = 0;
+            this.folderTotal = 0;
 
             this.isLoading = true;
 
@@ -336,19 +368,16 @@ export default {
             this.loadItems();
         },
 
-        mapFolderSorting() {
-            switch (this.sorting.sortBy) {
-                case 'createdAt':
-                    this.folderSorting.sortBy = 'createdAt';
-                    this.folderSorting.sortDirection = this.sorting.sortDirection;
-                    break;
-                case 'fileName':
-                    this.folderSorting.sortBy = 'name';
-                    this.folderSorting.sortDirection = this.sorting.sortDirection;
-                    break;
-                default:
-                    this.folderSorting.sortBy = 'name';
-                    this.folderSorting.sortDirection = 'asc';
+        async loadAll() {
+            if (this.isLoading === true) {
+                return;
+            }
+
+            // stop once everything is loaded, or when a load made no progress (e.g. a failed request)
+            let loadedCount = -1;
+            while (!this.allLoaded && this.items.length + this.subFolders.length !== loadedCount) {
+                loadedCount = this.items.length + this.subFolders.length;
+                await this.loadItems();
             }
         },
 
@@ -418,6 +447,7 @@ export default {
 
             const media = await this.mediaRepository.search(criteria, Context.api);
 
+            this.itemTotal = media.total ?? 0;
             this.itemLoaderDone = this.isLoaderDone(criteria, media);
 
             this.pageItem += 1;
@@ -432,6 +462,7 @@ export default {
 
             const subFolders = await this.mediaFolderRepository.search(this.nextFoldersCriteria, Context.api);
 
+            this.folderTotal = subFolders.total ?? 0;
             this.folderLoaderDone = this.isLoaderDone(this.nextFoldersCriteria, subFolders);
 
             this.pageFolder += 1;

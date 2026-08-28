@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(ApiAware::class)]
 #[Package('framework')]
+#[CoversClass(ApiAware::class)]
 class ApiAwareTest extends TestCase
 {
     public function testDefaultAllowsBothApis(): void

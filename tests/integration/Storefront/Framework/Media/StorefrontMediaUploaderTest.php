@@ -38,8 +38,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailIllegalFileType(): void
     {
-        $this->expectException(StorefrontFrameworkException::class);
-        $this->expectExceptionMessage('Type "application/vnd.ms-excel" of provided file is not allowed for documents');
+        $this->expectExceptionObject(StorefrontFrameworkException::fileTypeNotAllowed('application/vnd.ms-excel', 'documents'));
 
         $file = $this->getUploadFixture('empty.xls');
         $this->getUploadService()->upload($file, 'test', 'documents', Context::createDefaultContext());
@@ -47,8 +46,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailFilenameContainsPhp(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided filename "contains.php.pdf" is not permitted: contains PHP related file extension');
+        $this->expectExceptionObject(MediaException::illegalFileName('contains.php.pdf', 'contains PHP related file extension'));
 
         $file = $this->getUploadFixture('contains.php.pdf');
         $this->getUploadService()->upload($file, 'test', 'documents', Context::createDefaultContext());
@@ -66,8 +64,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadDocumentFailIllegalImageType(): void
     {
-        $this->expectException(StorefrontFrameworkException::class);
-        $this->expectExceptionMessage('Type "image/webp" of provided file is not allowed for images');
+        $this->expectExceptionObject(StorefrontFrameworkException::fileTypeNotAllowed('image/webp', 'images'));
 
         $file = $this->getUploadFixture('image.webp');
         $this->getUploadService()->upload($file, 'test', 'images', Context::createDefaultContext());

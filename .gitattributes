@@ -1,5 +1,4 @@
 /.github export-ignore
-/.gitlab export-ignore
 /.run export-ignore
 /.vscode export-ignore
 /adr export-ignore
@@ -12,7 +11,6 @@
 /.editorconfig export-ignore
 /.envrc export-ignore
 /.gitignore export-ignore
-/.gitlab-ci.yml export-ignore
 /.gitpod.Dockerfile export-ignore
 /.gitpod.yml export-ignore
 /.nvmrc export-ignore
@@ -29,8 +27,8 @@
 /intellij.yaml export-ignore
 /LICENSE export-ignore
 /phpbench.json export-ignore
-/phpstan.neon export-ignore
-/phpstan-baseline.neon export-ignore
+/phpstan.neon.dist export-ignore
+/phpstan-baseline.php export-ignore
 /phpunit.xml.dist export-ignore
 /rector.php export-ignore
 /sonar-project.properties export-ignore
@@ -38,3 +36,5 @@
 # Use union merge strategy for these files to avoid merge conflicts
 /RELEASE_INFO-*.md merge=union
 /UPGRADE-*.md merge=union
+
+.github/workflows/*.lock.yml linguist-generated=true merge=ours

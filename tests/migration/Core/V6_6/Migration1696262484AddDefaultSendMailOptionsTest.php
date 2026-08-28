@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1696262484AddDefaultSendMailOptions;
@@ -13,9 +14,15 @@ use Shopware\Core\Migration\V6_6\Migration1696262484AddDefaultSendMailOptions;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1696262484AddDefaultSendMailOptions::class)]
 class Migration1696262484AddDefaultSendMailOptionsTest extends TestCase
 {
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1696262484, (new Migration1696262484AddDefaultSendMailOptions())->getCreationTimestamp());
+    }
+
     public function testValueNotExist(): void
     {
         $connection = KernelLifecycleManager::getConnection();

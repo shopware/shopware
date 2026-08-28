@@ -15,7 +15,7 @@
         {% block sw_order_line_items_grid_sales_channel_line_item_filter %}
         <sw-card-filter
             ref="itemFilter"
-            :placeholder="$tc('sw-order.createBase.placeholderSearchBarItem')"
+            :placeholder="$t('sw-order.createBase.placeholderSearchBarItem')"
             @sw-card-filter-term-change="onSearchTermChange"
         >
 
@@ -26,14 +26,13 @@
                     {% block sw_order_line_items_grid_sales_channel_add_existing_product %}
                     <mt-button
                         class="sw-order-line-items-grid-sales-channel__add-product"
-                        ghost
                         size="small"
                         :disabled="isAddNewItemButtonDisabled || undefined"
                         variant="secondary"
                         data-analytics-id="sw-order-line-items-grid-sales-channel.add-existing-product"
                         @click="onInsertExistingItem"
                     >
-                        {{ $tc('sw-order.createBase.buttonAddProduct') }}
+                        {{ $t('sw-order.createBase.buttonAddProduct') }}
                     </mt-button>
                     {% endblock %}
 
@@ -43,7 +42,6 @@
                     >
                         <template #button>
                             <mt-button
-                                ghost
                                 size="small"
                                 square
                                 :disabled="isAddNewItemButtonDisabled || undefined"
@@ -62,14 +60,14 @@
                             data-analytics-id="sw-order-line-items-grid-sales-channel.add-custom-item"
                             @click="onInsertBlankItem"
                         >
-                            {{ $tc('sw-order.createBase.buttonAddBlankProduct') }}
+                            {{ $t('sw-order.createBase.buttonAddBlankProduct') }}
                         </sw-context-menu-item>
                         <sw-context-menu-item
                             class="sw-order-line-items-grid-sales-channel__add-credit-item"
                             data-analytics-id="sw-order-line-items-grid-sales-channel.add-credit-item"
                             @click="onInsertCreditItem"
                         >
-                            {{ $tc('sw-order.createBase.buttonAddCredit') }}
+                            {{ $t('sw-order.createBase.buttonAddCredit') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </sw-context-button>
@@ -89,8 +87,8 @@
         {% block sw_order_line_items_grid_sales_channel_grid_no_items %}
         <mt-empty-state
             v-if="cartLineItems.length === 0"
-            icon="solid-products"
-            :headline="$tc('sw-order.createBase.messageEmptyItem')"
+            icon="regular-products"
+            :headline="$t('sw-order.createBase.messageEmptyItem')"
         />
         {% endblock %}
 
@@ -135,12 +133,12 @@
 
                     {% block sw_order_line_items_grid_column_payload_options %}
                     <mt-link
-                        v-if="item.payload && item.payload.options"
+                        v-if="item.payload && item.payload.options && canOpenProduct(item)"
                         type="external"
                         target="_blank"
                         class="sw-order-line-items-grid-sales-channel__item-payload-options"
-                        :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                        :to="$router.resolve({ name: 'sw.product.detail', params: { id: item.identifier || item.id } }).href"
+                        :title="$t('sw-order.detailBase.contextMenuShowProduct')"
+                        :to="$router.resolve(getProductRoute(item)).href"
                     >
                         <sw-product-variant-info :variations="item.payload.options">
                             <div class="sw-order-line-items-grid__item-label">
@@ -268,14 +266,14 @@
             <template #actions="{ item }">
                 {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
                 <sw-context-menu-item
-                    :disabled="!isProductItem(item) || !item.payload || undefined"
+                    :disabled="!canOpenProduct(item) || undefined"
                     icon="regular-eye"
-                    :router-link="{ name: 'sw.product.detail', params: { id: item.id } }"
+                    :router-link="getProductRoute(item)"
                     target="_blank"
                     rel="noopener"
                 >
                     {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
-                    {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
+                    {{ $t('sw-order.createBase.contextMenuShowProduct') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -287,7 +285,7 @@
                     @click="onDeleteItem(item, itemIndex)"
                 >
                     {% block sw_order_line_items_grid_sales_channel_grid_actions_delete_label %}
-                    {{ $tc('sw-order.detailBase.contextMenuDelete') }}
+                    {{ $t('sw-order.detailBase.contextMenuDelete') }}
                     {% endblock %}
 
                 </sw-context-menu-item>
@@ -305,7 +303,7 @@
                     @click="onDeleteSelectedItems"
                     @keydown.enter="onDeleteSelectedItems"
                 >
-                    {{ $tc('global.default.delete') }}
+                    {{ $t('global.default.delete') }}
                 </a>
                 {% endblock %}
             </template>

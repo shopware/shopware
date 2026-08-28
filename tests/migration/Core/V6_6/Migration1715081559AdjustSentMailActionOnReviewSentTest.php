@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1715081559AdjustSentMailActionOnReviewSent;
@@ -15,6 +16,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1715081559AdjustSentMailActionOnReviewSent::class)]
 class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
 {
@@ -26,6 +28,11 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
     protected function setUp(): void
     {
         $this->migration = new Migration1715081559AdjustSentMailActionOnReviewSent();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1715081559, (new Migration1715081559AdjustSentMailActionOnReviewSent())->getCreationTimestamp());
     }
 
     /**

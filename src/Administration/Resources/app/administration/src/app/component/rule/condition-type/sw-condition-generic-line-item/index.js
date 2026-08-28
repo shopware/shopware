@@ -1,5 +1,5 @@
 import template from './../sw-condition-generic/sw-condition-generic.html.twig';
-import './sw-condition-generic-line-item.scss';
+import '../sw-condition-generic/sw-condition-generic.scss';
 
 const { Mixin } = Shopware;
 const { getPlaceholderSnippet } = Shopware.Utils.genericRuleCondition;
@@ -24,7 +24,7 @@ export default {
 
     methods: {
         getPlaceholder(fieldType) {
-            return this.$tc(getPlaceholderSnippet(fieldType));
+            return this.$t(getPlaceholderSnippet(fieldType));
         },
     },
 };

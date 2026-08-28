@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Symfony\Component\Asset\Exception\InvalidArgumentException;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\UrlPackage;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[\Shopware\Core\Framework\Log\Package('framework')]
 #[CoversClass(AssetPackageService::class)]
 class AssetPackageServiceTest extends TestCase
 {
@@ -57,8 +59,7 @@ class AssetPackageServiceTest extends TestCase
     public function testCreateWithoutAppUrl(): void
     {
         $this->setEnvVars(['APP_URL' => '']);
-        $this->expectException(AdapterException::class);
-        $this->expectExceptionMessage('Invalid asset URL. Check the "APP_URL" environment variable. Error message: "/bundles/test" is not a valid URL.');
+        $this->expectExceptionObject(AdapterException::invalidAssetUrl(new InvalidArgumentException('"/bundles/test" is not a valid URL.')));
         $this->getPackages();
     }
 

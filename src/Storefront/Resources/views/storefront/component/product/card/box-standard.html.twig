@@ -4,6 +4,7 @@
         {% set name = product.translated.name %}
         {% set brand = product.manufacturer.translated.name|default('') %}
         {% set price = product.calculatedPrice.unitPrice %}
+        {% set sku = product.productNumber %}
 
         {% set cover = product.cover.media %}
         {% set variation = product.variation %}
@@ -15,7 +16,11 @@
         {% set childCount = product.childCount %}
         {% set routeArguments = childCount > 0 and searchTerm ? { productId: id, search: searchTerm } : { productId: id } %}
 
-        <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name, brand, price}|json_encode }}">
+        {% if referrerCategoryId %}
+            {% set routeArguments = routeArguments|merge({ referrerCategoryId: referrerCategoryId }) %}
+        {% endif %}
+
+        <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name, brand, price, sku}|json_encode }}">
             {% block component_product_box_content %}
                 <div class="card-body">
                     {% block component_product_box_badges %}
@@ -151,7 +156,7 @@
 
                             {% block component_product_box_description %}
                                 <p class="product-description mb-0">
-                                    {{ product.translated.description|striptags|raw }}
+                                    {{ (product.translated.description ?? product.translated.descriptionTeaser)|striptags|raw }}
                                 </p>
                             {% endblock %}
 

@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CartLoadRoute::class)]
 #[Package('checkout')]
+#[CoversClass(CartLoadRoute::class)]
 class CartLoadRouteTest extends TestCase
 {
     public function testLoadCartCreatesNewCart(): void
@@ -39,25 +39,25 @@ class CartLoadRouteTest extends TestCase
             ->with('test')
             ->willThrowException(CartException::tokenNotFound('test'));
 
-        $calculatedCart = new Cart('calculated');
-        $calculator = $this->createMock(CartCalculator::class);
-        $calculator
-            ->expects($this->once())
-            ->method('calculate')
-            ->with($newCart, $this->createMock(SalesChannelContext::class))
-            ->willReturn($calculatedCart);
-
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
             ->expects($this->once())
             ->method('getToken')
             ->willReturn('test');
 
+        $calculatedCart = new Cart('calculated');
+        $calculator = $this->createMock(CartCalculator::class);
+        $calculator
+            ->expects($this->once())
+            ->method('calculate')
+            ->with($newCart, $salesChannelContext)
+            ->willReturn($calculatedCart);
+
         $cartLoadRoute = new CartLoadRoute(
             $persister,
             $factory,
             $calculator,
-            $this->createMock(TaxProviderProcessor::class),
+            static::createStub(TaxProviderProcessor::class),
         );
 
         static::assertSame($calculatedCart, $cartLoadRoute->load(new Request(), $salesChannelContext)->getCart());

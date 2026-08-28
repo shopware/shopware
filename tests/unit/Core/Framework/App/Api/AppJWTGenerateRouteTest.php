@@ -9,50 +9,53 @@ use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppJWTGenerateRoute::class)]
 class AppJWTGenerateRouteTest extends TestCase
 {
     public function testNotLoggedIn(): void
     {
         $appJWTGenerateRoute = new AppJWTGenerateRoute(
-            $this->createMock(Connection::class),
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(Connection::class),
+            static::createStub(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
+            new NativeClock()
         );
 
         $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('JWT generation requires customer to be logged in');
+        $this->expectExceptionObject(AppException::jwtGenerationRequiresCustomerLoggedIn());
         $appJWTGenerateRoute->generate('test', $context);
     }
 
     public function testNotExistingApp(): void
     {
         $appJWTGenerateRoute = new AppJWTGenerateRoute(
-            $this->createMock(Connection::class),
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(Connection::class),
+            static::createStub(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
+            new NativeClock()
         );
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Could not find app with identifier "test"');
+        $this->expectExceptionObject(AppException::notFound('test'));
         $appJWTGenerateRoute->generate('test', $context);
     }
 
     public function testGenerate(): void
     {
         $shopId = ShopId::v2('shop-id');
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -68,7 +71,7 @@ class AppJWTGenerateRouteTest extends TestCase
             'shipping_method:read',
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchAssociative')
             ->willReturn(['id' => 'extension-1', 'app_secret' => '454545454545454545454545454544545454545', 'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR)]);
@@ -77,6 +80,7 @@ class AppJWTGenerateRouteTest extends TestCase
             $connection,
             $shopIdProvider,
             $inAppPurchase,
+            new NativeClock()
         );
 
         $context = Generator::generateSalesChannelContext();

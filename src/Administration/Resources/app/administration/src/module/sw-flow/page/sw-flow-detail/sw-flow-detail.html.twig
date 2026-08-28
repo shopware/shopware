@@ -2,7 +2,7 @@
 <sw-page class="sw-flow-detail">
     {% block sw_flow_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(flow, 'name', $tc('sw-flow.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(flow, 'name', $t('sw-flow.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
@@ -11,7 +11,7 @@
         {% block sw_flow_detail_smart_bar_actions_save %}
         <sw-button-process
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('flow.editor'),
                 position: 'bottom',
                 showOnDisabledElements: true
@@ -24,7 +24,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -42,27 +42,40 @@
 
         <sw-card-view :class="{'sw-flow-detail__template': isTemplate }">
             {% block sw_flow_tabs_header %}
-            <sw-tabs position-identifier="sw-flow-detail">
-                {% block sw_flow_tabs_header_general %}
-                <sw-tabs-item
-                    class="sw-flow-detail__tab-general"
-                    :route="routeDetailTab('general')"
-                >
-                    {{ $tc('sw-flow.page.tabGeneral') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_flow_tabs_header_mt_tabs %}
+                <mt-tabs
+                    position-identifier="sw-flow-detail"
+                    :default-item="$route.name"
+                    :items="flowDetailTabs"
+                    :small="true"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_flow_tabs_header_builder %}
-                <sw-tabs-item
-                    class="sw-flow-detail__tab-flow"
-                    :route="routeDetailTab('flow')"
-                >
-                    {{ $tc('sw-flow.page.tabFlow') }}
-                </sw-tabs-item>
-                {% endblock %}
+            <template v-else>
+                <sw-tabs position-identifier="sw-flow-detail">
+                    {% block sw_flow_tabs_header_general %}
+                    <sw-tabs-item
+                        class="sw-flow-detail__tab-general"
+                        :route="routeDetailTab('general')"
+                    >
+                        {{ $t('sw-flow.page.tabGeneral') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_flow_tabs_header_extension %}{% endblock %}
-            </sw-tabs>
+                    {% block sw_flow_tabs_header_builder %}
+                    <sw-tabs-item
+                        class="sw-flow-detail__tab-flow"
+                        :route="routeDetailTab('flow')"
+                    >
+                        {{ $t('sw-flow.page.tabFlow') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_flow_tabs_header_extension %}{% endblock %}
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             <mt-banner
@@ -70,7 +83,7 @@
                 variant="attention"
                 class="sw-flow-detail__warning"
             >
-                {{ $tc('sw-flow.flowNotification.messageWarningSave') }}
+                {{ $t('sw-flow.flowNotification.messageWarningSave') }}
             </mt-banner>
 
             {% block sw_flow_tabs_content %}

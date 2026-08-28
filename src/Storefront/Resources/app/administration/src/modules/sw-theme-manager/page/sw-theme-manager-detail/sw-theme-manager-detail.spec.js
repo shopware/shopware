@@ -16,11 +16,16 @@ describe('sw-theme-manager-detail', () => {
         ensureThemeMixinRegistered();
 
         jest.isolateModules(() => {
-            require('./index');
+            Shopware.Component.register('sw-theme-manager-detail', require('./index').default);
         });
     });
 
-    async function createWrapper({ aclCan = true, themeServiceOverrides = {}, themeOverrides = {} } = {}) {
+    async function createWrapper({
+        aclCan = true,
+        themeServiceOverrides = {},
+        themeOverrides = {},
+        featureActive = false,
+    } = {}) {
         const component = await Shopware.Component.build('sw-theme-manager-detail');
         component.methods.createdComponent = jest.fn();
 
@@ -33,15 +38,19 @@ describe('sw-theme-manager-detail', () => {
         };
 
         const defaultFolderRepository = {
-            search: jest.fn(() => Promise.resolve({
-                first: () => ({ folder: { id: 'default-folder-id' } }),
-            })),
+            search: jest.fn(() =>
+                Promise.resolve({
+                    first: () => ({ folder: { id: 'default-folder-id' } }),
+                }),
+            ),
         };
 
         const salesChannelRepository = {
-            search: jest.fn(() => Promise.resolve({
-                getIds: () => ['sc-1'],
-            })),
+            search: jest.fn(() =>
+                Promise.resolve({
+                    getIds: () => ['sc-1'],
+                }),
+            ),
         };
 
         const themeService = {
@@ -50,11 +59,13 @@ describe('sw-theme-manager-detail', () => {
             assignTheme: jest.fn(() => Promise.resolve()),
             resetTheme: jest.fn(() => Promise.resolve()),
             getStructuredFields: jest.fn(() => Promise.resolve({ tabs: {}, configInheritance: [] })),
-            getConfiguration: jest.fn(() => Promise.resolve({
-                currentFields: {},
-                fields: {},
-                baseThemeFields: {},
-            })),
+            getConfiguration: jest.fn(() =>
+                Promise.resolve({
+                    currentFields: {},
+                    fields: {},
+                    baseThemeFields: {},
+                }),
+            ),
             ...themeServiceOverrides,
         };
 
@@ -89,20 +100,74 @@ describe('sw-theme-manager-detail', () => {
                     'sw-media-modal-v2': true,
                     'sw-media-upload-v2': true,
                     'sw-modal': true,
-                    'sw-page': true,
+                    'sw-page': {
+                        template: `
+                            <div class="sw-page">
+                                <slot name="search-bar"></slot>
+                                <slot name="smart-bar-header"></slot>
+                                <slot name="smart-bar-actions"></slot>
+                                <slot name="content"></slot>
+                                <slot name="sidebar"></slot>
+                            </div>
+                        `,
+                    },
                     'sw-search-bar': true,
                     'sw-select-field': true,
                     'sw-sidebar': true,
                     'sw-sidebar-media-item': true,
                     'sw-skeleton': true,
-                    'sw-tabs': true,
+                    'sw-tabs': {
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"></div>',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: false,
+                                default: () => [],
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                    },
                     'sw-tabs-item': true,
                     'sw-text-field': true,
                     'sw-upload-listener': true,
                     'sw-url-field': true,
                     'mt-button': true,
+                    'mt-card': true,
+                    'mt-colorpicker': true,
                     'mt-icon': true,
+                    'mt-select': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs"></div>',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                    },
                     'mt-text-field': true,
+                    'mt-url-field': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -123,14 +188,40 @@ describe('sw-theme-manager-detail', () => {
                     acl: {
                         can: jest.fn(() => aclCan),
                     },
-                    feature: {},
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                 },
                 mocks: {
                     $t: (key) => key,
-                    $tc: (key) => key,
                     $route: { params: { id: 'theme-id' } },
                     $router: { push: jest.fn() },
                     $createTitle: jest.fn(() => 'title'),
+                },
+            },
+        });
+    }
+
+    async function showContentWithTabs(wrapper) {
+        wrapper.vm.getTabLabel = jest.fn((key, fallback) => fallback || key);
+
+        await wrapper.setData({
+            defaultTheme: {
+                id: 'default-theme-id',
+                name: 'Storefront',
+            },
+            structuredThemeFields: {
+                tabs: {
+                    default: {
+                        labelSnippetKey: 'default',
+                        label: 'Default',
+                        blocks: {},
+                    },
+                    layout: {
+                        labelSnippetKey: 'layout',
+                        label: 'Layout',
+                        blocks: {},
+                    },
                 },
             },
         });
@@ -162,6 +253,7 @@ describe('sw-theme-manager-detail', () => {
 
     it('should keep default tab first without reordering other tabs', async () => {
         const wrapper = await createWrapper();
+        wrapper.vm.getTabLabel = jest.fn((key) => key);
 
         wrapper.vm.structuredThemeFields = {
             tabs: {
@@ -176,6 +268,82 @@ describe('sw-theme-manager-detail', () => {
             'layout',
             'advanced',
         ]);
+    });
+
+    it('renders fallback sw-tabs while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await showContentWithTabs(wrapper);
+
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('defaultItem')).toBe('default');
+        expect(tabs.props('positionIdentifier')).toBe('theme-manager-detail-tabs');
+        expect(tabs.props('items')).toEqual([
+            {
+                name: 'default',
+                label: 'Default',
+            },
+            {
+                name: 'layout',
+                label: 'Layout',
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('renders mt-tabs with the item API while the major feature flag is active', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await showContentWithTabs(wrapper);
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('defaultItem')).toBe('default');
+        expect(tabs.props('positionIdentifier')).toBe('theme-manager-detail-tabs');
+        expect(tabs.props('items')).toEqual([
+            {
+                name: 'default',
+                label: 'Default',
+            },
+            {
+                name: 'layout',
+                label: 'Layout',
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('hides mt-tabs when only a single tab is available', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        wrapper.vm.getTabLabel = jest.fn((key, fallback) => fallback || key);
+
+        await wrapper.setData({
+            defaultTheme: {
+                id: 'default-theme-id',
+                name: 'Storefront',
+            },
+            structuredThemeFields: {
+                tabs: {
+                    default: {
+                        labelSnippetKey: 'default',
+                        label: 'Default',
+                        blocks: {},
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.tabItems).toHaveLength(1);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('updates active content when mt-tabs emits a new active item', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await showContentWithTabs(wrapper);
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        await tabs.vm.$emit('new-item-active', 'layout');
+
+        expect(wrapper.vm.activeTab).toBe('layout');
     });
 
     it('sanitizes CSS values', async () => {
@@ -260,6 +428,111 @@ describe('sw-theme-manager-detail', () => {
         expect(selectBind.config.componentName).toBe('sw-single-select');
     });
 
+    it('builds meteor inheritance config for fields handling their own label and help text', async () => {
+        const wrapper = await createWrapper();
+        const removeInheritance = jest.fn();
+        const restoreInheritance = jest.fn();
+
+        const bind = wrapper.vm.getBind(
+            {
+                type: 'checkbox',
+                custom: { componentName: 'sw-checkbox-field' },
+            },
+            {
+                isInheritField: true,
+                isInherited: true,
+                removeInheritance,
+                restoreInheritance,
+            },
+            'parent',
+        );
+
+        expect(bind.config).toEqual(
+            expect.objectContaining({
+                isInheritanceField: true,
+                isInherited: true,
+                inheritanceRemove: removeInheritance,
+                inheritanceRestore: restoreInheritance,
+                inheritedValue: 'parent',
+            }),
+        );
+    });
+
+    it('passes inheritance bindings to boolean theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            currentValue: true,
+            isInheritField: true,
+            isInherited: true,
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const bind = wrapper.vm.getBind(
+            {
+                type: 'switch',
+                label: 'Switch',
+                helpText: 'Switch help',
+            },
+            inheritance,
+            false,
+        );
+
+        expect(bind).toEqual({
+            type: 'switch',
+            config: expect.objectContaining({
+                label: 'Switch',
+                helpText: 'Switch help',
+                mapInheritance: inheritance,
+                isInheritanceField: true,
+                isInherited: true,
+                inheritanceRemove: inheritance.removeInheritance,
+                inheritanceRestore: inheritance.restoreInheritance,
+                inheritedValue: false,
+            }),
+        });
+    });
+
+    it('attaches inheritance event listeners to fields handling inheritance themselves', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const eventListeners = wrapper.vm.getElementEventListeners({ type: 'checkbox' }, inheritance);
+
+        expect(eventListeners).toEqual({
+            'inheritance-remove': inheritance.removeInheritance,
+            'inheritance-restore': inheritance.restoreInheritance,
+        });
+    });
+
+    it('does not pass inheritance bindings to non-meteor theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            currentValue: 'parent',
+            isInheritField: true,
+            isInherited: true,
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const textBind = wrapper.vm.getBind({ type: 'text' }, inheritance, 'parent');
+
+        expect(textBind.config.mapInheritance).toBeUndefined();
+    });
+
+    it('does not attach inheritance event listeners to regular theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        expect(wrapper.vm.getElementEventListeners({ type: 'text' }, inheritance)).toEqual({});
+    });
+
     it('gets snippets with prefix fallback and warns when missing', async () => {
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const wrapper = await createWrapper();
@@ -313,7 +586,12 @@ describe('sw-theme-manager-detail', () => {
         const wrapper = await createWrapper({
             themeOverrides: {
                 getOrigin: () => ({
-                    salesChannels: new Map([['sc-1', {}]]),
+                    salesChannels: new Map([
+                        [
+                            'sc-1',
+                            {},
+                        ],
+                    ]),
                 }),
             },
         });
@@ -330,10 +608,12 @@ describe('sw-theme-manager-detail', () => {
         const error = {
             response: {
                 data: {
-                    errors: [{
-                        code: 'THEME__INVALID_SCSS_VAR',
-                        detail: 'Bad var',
-                    }],
+                    errors: [
+                        {
+                            code: 'THEME__INVALID_SCSS_VAR',
+                            detail: 'Bad var',
+                        },
+                    ],
                 },
             },
         };
@@ -348,10 +628,12 @@ describe('sw-theme-manager-detail', () => {
         await wrapper.vm.onValidate();
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(expect.objectContaining({
-            title: 'sw-theme-manager.detail.validate.failed',
-            autoClose: false,
-        }));
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'sw-theme-manager.detail.validate.failed',
+                autoClose: false,
+            }),
+        );
     });
 
     it('saves theme config via API with reset and validation', async () => {
@@ -364,17 +646,23 @@ describe('sw-theme-manager-detail', () => {
 
         await wrapper.vm.saveThemeConfig();
 
-        expect(themeService.updateTheme).toHaveBeenCalledWith('theme-id', { config: { foo: 'bar' } }, { reset: true, validate: true });
+        expect(themeService.updateTheme).toHaveBeenCalledWith(
+            'theme-id',
+            { config: { foo: 'bar' } },
+            { reset: true, validate: true },
+        );
     });
 
     it('handles compiling error on save', async () => {
         const error = {
             response: {
                 data: {
-                    errors: [{
-                        code: 'THEME__COMPILING_ERROR',
-                        detail: 'Compile error',
-                    }],
+                    errors: [
+                        {
+                            code: 'THEME__COMPILING_ERROR',
+                            detail: 'Compile error',
+                        },
+                    ],
                 },
             },
         };
@@ -386,21 +674,25 @@ describe('sw-theme-manager-detail', () => {
         await wrapper.vm.onSaveTheme();
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(expect.objectContaining({
-            title: 'sw-theme-manager.detail.error.themeCompile.title',
-            autoClose: false,
-        }));
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'sw-theme-manager.detail.error.themeCompile.title',
+                autoClose: false,
+            }),
+        );
     });
 
     it('handles invalid configuration errors on save', async () => {
         const error = {
             response: {
                 data: {
-                    errors: [{
-                        code: 'THEME__INVALID_SCSS_VAR',
-                        detail: 'Invalid var',
-                        meta: { parameters: { name: 'config-field' } },
-                    }],
+                    errors: [
+                        {
+                            code: 'THEME__INVALID_SCSS_VAR',
+                            detail: 'Invalid var',
+                            meta: { parameters: { name: 'config-field' } },
+                        },
+                    ],
                 },
             },
         };
@@ -412,10 +704,12 @@ describe('sw-theme-manager-detail', () => {
         await wrapper.vm.onSaveTheme();
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(expect.objectContaining({
-            title: 'sw-theme-manager.detail.error.invalidConfiguration.title',
-            autoClose: true,
-        }));
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'sw-theme-manager.detail.error.invalidConfiguration.title',
+                autoClose: true,
+            }),
+        );
         expect(wrapper.vm.themeConfigErrors['config-field']).toBeDefined();
     });
 

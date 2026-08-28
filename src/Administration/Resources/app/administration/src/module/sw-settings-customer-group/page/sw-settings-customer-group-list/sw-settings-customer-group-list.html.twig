@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="customer_group"
-            :placeholder="$tc('sw-settings-customer-group.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-customer-group.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -17,12 +17,12 @@
         {% block sw_settings_customer_group_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_customer_group_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-customer-group.general.mainMenuItemGeneral') }}
+            {{ $t('sw-settings-customer-group.general.mainMenuItemGeneral') }}
             {% endblock %}
 
             {% block sw_settings_customer_group_list_smart_bar_header_amount %}
@@ -49,7 +49,7 @@
         {% block sw_settings_customer_group_list_actions_create %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('customer_groups.creator'),
                 showOnDisabledElements: true
             }"
@@ -59,7 +59,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.customer.group.create' })"
         >
-            {{ $tc('sw-settings-customer-group.general.buttonCreate') }}
+            {{ $t('sw-settings-customer-group.general.buttonCreate') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -104,7 +104,7 @@
                                 size="small"
                                 @click="deleteCustomerGroups"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                         </template>
 
@@ -115,7 +115,7 @@
                                 :disabled="!acl.can('customer_groups.deleter') || undefined"
                                 @click="onContextMenuDelete(item)"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                         </template>
 
@@ -125,14 +125,14 @@
                                 size="small"
                                 @click="deleteCustomerGroup(item)"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                         </template>
 
                         {% block sw_settings_customer_group_list_grid_column_display_gross %}
                         <template #column-displayGross="{ item }">
                             {% block sw_settings_customer_group_list_grid_column_display_gross_inner %}
-                            {{ $tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, +item.displayGross) }}
+                            {{ $t('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, +item.displayGross) }}
                                 {% endblock %}
                         </template>
                         {% endblock %}
@@ -148,7 +148,7 @@
         <mt-empty-state
             v-if="!isLoading && !total && isValidTerm(term)"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-empty-state.messageNoResultTitle')"
+            :headline="$t('sw-empty-state.messageNoResultTitle')"
             :link-text="$t('sw-empty-state.messageNoResultLink')"
             :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
         />

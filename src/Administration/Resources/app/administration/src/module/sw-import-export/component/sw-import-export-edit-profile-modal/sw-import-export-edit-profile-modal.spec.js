@@ -55,6 +55,7 @@ async function createWrapper(
         parentProfileTotal: 1,
         missingRequiredFieldsLength: 0,
         systemRequiredFields: {},
+        featureActive: false,
     },
 ) {
     return mount(
@@ -68,8 +69,33 @@ async function createWrapper(
                     'sw-select-base': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: [
+                            'new-item-active',
+                        ],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
                     'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-modal': {
+                        name: 'sw-modal__wrapped',
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
                     'sw-import-export-edit-profile-general': true,
                     'sw-import-export-edit-profile-field-indicators': true,
                     'sw-import-export-edit-profile-import-settings': true,
@@ -94,6 +120,9 @@ async function createWrapper(
                     importExportUpdateByMapping: {
                         removeUnusedMappings: () => {},
                     },
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && params.featureActive,
+                    },
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},
@@ -105,6 +134,82 @@ async function createWrapper(
 }
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal', () => {
+    it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('sw-tabs-stub').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper(defaultProps, {
+            featureActive: true,
+        });
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-import-export-edit-profile-modal');
+        expect(tabs.props('defaultItem')).toBe('general');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-import-export.profile.generalTab',
+                name: 'general',
+            },
+            {
+                label: 'sw-import-export.profile.mappingsTab',
+                name: 'mappings',
+            },
+            {
+                label: 'sw-import-export.profile.advancedTab',
+                name: 'advanced',
+            },
+        ]);
+        expect(wrapper.find('sw-tabs-stub').exists()).toBe(false);
+        expect(wrapper.find('sw-import-export-edit-profile-general-stub').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper(defaultProps, {
+            featureActive: true,
+        });
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        await tabs.vm.$emit('new-item-active', 'mappings');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('mappings');
+        expect(wrapper.find('sw-import-export-edit-profile-general-stub').exists()).toBe(false);
+        expect(wrapper.find('sw-import-export-edit-profile-modal-mapping-stub').exists()).toBe(true);
+    });
+
+    it('should not render the advanced meteor tab for export profiles', async () => {
+        const wrapper = await createWrapper(
+            {
+                ...defaultProps,
+                profile: {
+                    ...mockProfile,
+                    type: 'export',
+                },
+            },
+            {
+                featureActive: true,
+            },
+        );
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-import-export.profile.generalTab',
+                name: 'general',
+            },
+            {
+                label: 'sw-import-export.profile.mappingsTab',
+                name: 'mappings',
+            },
+        ]);
+    });
+
     it('should save profile successful', async () => {
         const wrapper = await createWrapper();
 

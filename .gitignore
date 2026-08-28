@@ -26,10 +26,13 @@ Thumbs.db
 yalc.lock
 
 # AI/LLM Development Tools
-.claude/
+# Ignore everything in .claude/ EXCEPT the skills symlink for Claude Code.
+.claude/*
+!.claude/skills
 .codex/
 .cursor/
 .cursorrules
+.cursorignore
 .tabnine/
 .ai/
 .llm/
@@ -37,12 +40,25 @@ yalc.lock
 .aiderignore
 .kite/
 .codewhispererignore
+.chunkhound*
+
+# GIT worktrees
+.worktrees
+
+# MCP client configuration (contains credentials)
+.mcp.json
 
 # Composer
 /composer.phar
 /auth.json
 /vendor/*
 /composer.lock
+
+# Generated Administration extension tooling projections
+# (composer admin:setup-extension-tooling)
+/tsconfig.json
+/eslint.config.mjs
+/.zed/
 
 # Generated database schema files
 /schema
@@ -115,14 +131,13 @@ app/config/parameters.yml
 .env.dev
 
 # Local AI/LLM overrides
+# Claude.local.md
 *.local.md
+# AGENTS.override.md
+*.override.md
 *.cursorignore.local
 *.cursorindexingignore.local
 *.tabnineignore.local
-
-# AI/LLM Documentation
-CLAUDE.md
-GEMINI.md
 
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
@@ -132,6 +147,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 /.shopware-project.yml
 /.tinkerwell
 /shop
+.codex
 
 .php-cs-fixer.cache
 
@@ -162,7 +178,7 @@ config/routes*
 config/routes/*
 !config/routes/test/
 config/services*
-!/config/services_test.xml
+!/config/services_test.php
 
 custom
 !/custom/scripts/boot
@@ -194,3 +210,8 @@ danger.phar
 
 # Vite deps
 **/.tmp/vite/*
+
+# gh aw run snapshots — personal scratch, do not commit. Track the README
+# inside the directory as a marker.
+.github/aw/logs/*
+!.github/aw/logs/README.md

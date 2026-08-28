@@ -1,4 +1,3 @@
-
 # Twig UX components
 
 Guidelines to write uniform Twig UX components that follow our best practices and keep extensibility in mind.
@@ -139,7 +138,7 @@ MyPlugin/
   src/
     Resources/
       config/
-        services.xml
+        services.php
       views/
         components/
           Button/
@@ -596,6 +595,70 @@ components/Alert
 
 ## JavaScript
 
-You can add a corresponding JS file for your component. This file is automatically loaded within the template if your component is used on the site. This JS will be integrated as it is, without a bundling process or similar. You can use it for any form of JavaScript to add frontend business logic to your component. It can be plain JS or you can make use of a new component system that we added as an alternative to the current JS plugin system, which can help you create simple encapsulated logic for your component.
+You can add a corresponding JS/TS file for your component. Component JavaScript is built with Vite into ES modules and loaded via import map when the component is used on a page. You can use plain JS/TS or the Shopware component system to add encapsulated frontend logic.
 
 For more information you can have a look at the [README.md](../../app/storefront/src/component-system/README.md).
+
+## Vite build essentials
+
+### Build and publish from project root
+
+Use the Composer commands from the project root:
+
+```bash
+# Full Storefront JS build (includes component build + publish)
+composer build:js:storefront
+```
+
+### Dev server from project root
+
+For local development with hot reload and live component imports, start the Storefront Vite dev server:
+
+```bash
+composer storefront:dev-server
+```
+
+In dev mode, Shopware loads component JS/CSS directly from the running Vite server.
+Normal theme files are also compiled and served with Vite in dev-server mode, so you can work with all together.
+When the dev server stops, Shopware falls back to published production assets.
+
+### What the pipeline does
+
+1. Vite builds component JS/TS/SCSS/CSS from `Resources/views/components/` into `Resources/public/storefront/components/`.
+2. `assets:install` publishes those files into `public/bundles/<bundle>/storefront/components/`.
+3. Theme compile reads bundle-local Vite manifests and injects component imports/styles at runtime.
+
+### Custom Vite config for apps/plugins
+
+A bundle can provide `Resources/app/storefront/vite.components.config.mts`. Use the shared Shopware factory and only override what you need:
+
+```ts
+import path from 'node:path';
+import { createComponentBuildConfig } from '../../../../../../src/Storefront/Resources/app/storefront/build/vite/component-config-factory';
+
+export default async () => {
+    const storefrontAppDir = import.meta.dirname;
+
+    return createComponentBuildConfig({
+        componentRoot: path.resolve(storefrontAppDir, '../../views/components'),
+        outDir: path.resolve(storefrontAppDir, '../../public/storefront/components'),
+        namespace: 'MyExtension',
+        storefrontAppDir,
+        sourcemap: true,
+    });
+};
+```
+
+### Build security defaults
+
+When bundle-local dependencies are installed during `build:components`, lifecycle scripts are blocked by default:
+
+- With lockfile: `npm ci --include=dev --ignore-scripts`
+- Without lockfile: `npm install --prefer-offline --include=dev --ignore-scripts`
+
+This reduces supply-chain risk for CI and untrusted extension sources.
+Only enable install scripts in trusted environments by setting:
+
+```bash
+ALLOW_EXTENSION_INSTALL_SCRIPTS=1
+```

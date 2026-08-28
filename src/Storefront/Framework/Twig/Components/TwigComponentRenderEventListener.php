@@ -12,13 +12,10 @@ use Symfony\UX\TwigComponent\Event\PreRenderEvent;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[AsEventListener]
 class TwigComponentRenderEventListener
 {
-    /**
-     * @internal
-     */
     public function __construct(
         private readonly string $environment
     ) {

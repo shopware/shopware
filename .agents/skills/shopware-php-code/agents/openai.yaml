@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shopware PHP Code"
+  short_description: "Apply Shopware PHP architecture and BC rules."
+  default_prompt: "Implement this Shopware PHP change."

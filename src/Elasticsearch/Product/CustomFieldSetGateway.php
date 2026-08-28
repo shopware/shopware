@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Elasticsearch\Product\CustomFieldSetGatewayTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Elasticsearch\Product\CustomFieldSetGatewayTest
  */
 #[Package('framework')]
 class CustomFieldSetGateway

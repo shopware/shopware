@@ -3,7 +3,8 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -24,6 +25,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\SearchController;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -43,15 +45,15 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 #[CoversClass(SearchController::class)]
 class SearchControllerTest extends TestCase
 {
-    private SearchPageLoader&MockObject $searchPageLoader;
+    private SearchPageLoader&Stub $searchPageLoader;
 
-    private SuggestPageLoader&MockObject $suggestPageLoader;
+    private SuggestPageLoader&Stub $suggestPageLoader;
 
-    private AbstractProductSearchRoute&MockObject $productSearchRoute;
+    private AbstractProductSearchRoute&Stub $productSearchRoute;
 
     private SearchController $searchController;
 
@@ -59,32 +61,26 @@ class SearchControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->searchPageLoader = $this->createMock(SearchPageLoader::class);
-        $this->suggestPageLoader = $this->createMock(SuggestPageLoader::class);
-        $this->productSearchRoute = $this->createMock(AbstractProductSearchRoute::class);
-
-        $this->searchController = new SearchController(
-            $this->searchPageLoader,
-            $this->suggestPageLoader,
-            $this->productSearchRoute
-        );
+        $this->searchPageLoader = static::createStub(SearchPageLoader::class);
+        $this->suggestPageLoader = static::createStub(SuggestPageLoader::class);
+        $this->productSearchRoute = static::createStub(AbstractProductSearchRoute::class);
 
         $this->container = new ContainerBuilder();
-        $this->container->set(SystemConfigService::class, $this->createMock(SystemConfigService::class));
-        $this->container->set(SeoUrlPlaceholderHandlerInterface::class, $this->createMock(SeoUrlPlaceholderHandlerInterface::class));
-        $this->container->set(MediaUrlPlaceholderHandlerInterface::class, $this->createMock(MediaUrlPlaceholderHandlerInterface::class));
+        $this->container->set(SystemConfigService::class, static::createStub(SystemConfigService::class));
+        $this->container->set(SeoUrlPlaceholderHandlerInterface::class, static::createStub(SeoUrlPlaceholderHandlerInterface::class));
+        $this->container->set(MediaUrlPlaceholderHandlerInterface::class, static::createStub(MediaUrlPlaceholderHandlerInterface::class));
         $this->container->set('event_dispatcher', new EventDispatcher());
-        $this->container->set(RequestTransformerInterface::class, $this->createMock(RequestTransformerInterface::class));
-        $this->container->set('http_kernel', $this->createMock(HttpKernelInterface::class));
-        $this->container->set('router', static::createMock(RouterInterface::class));
-        $this->container->set('twig', static::createMock(Environment::class));
+        $this->container->set(RequestTransformerInterface::class, static::createStub(RequestTransformerInterface::class));
+        $this->container->set('http_kernel', static::createStub(HttpKernelInterface::class));
+        $this->container->set('router', static::createStub(RouterInterface::class));
+        $this->container->set('twig', static::createStub(Environment::class));
 
-        $this->searchController->setContainer($this->container);
+        $this->searchController = $this->createSearchController();
     }
 
     public function testSearchWithManyProductsFound(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $product1 = new ProductEntity();
         $product1->setProductNumber('test_1');
@@ -149,18 +145,20 @@ class SearchControllerTest extends TestCase
 
         $this->container->set('twig', $twig);
 
-        $this->container->set('router', $this->createMock(RouterInterface::class));
+        $this->container->set('router', static::createStub(RouterInterface::class));
 
-        $this->searchPageLoader->expects($this->once())->method('load')->willReturn($searchPage);
+        $searchPageLoader = $this->createMock(SearchPageLoader::class);
+        $searchPageLoader->expects($this->once())->method('load')->willReturn($searchPage);
+        $searchController = $this->createSearchController($searchPageLoader);
 
-        $response = $this->searchController->search($context, $request);
+        $response = $searchController->search($context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testSearchWithNoProductsFound(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $searchPage = new SearchPage();
         $searchPage->setListing(new ProductListingResult(
@@ -216,22 +214,26 @@ class SearchControllerTest extends TestCase
 
         $this->container->set('twig', $twig);
 
-        $this->container->set('router', $this->createMock(RouterInterface::class));
+        $this->container->set('router', static::createStub(RouterInterface::class));
 
-        $this->searchPageLoader->expects($this->once())->method('load')->willReturn($searchPage);
+        $searchPageLoader = $this->createMock(SearchPageLoader::class);
+        $searchPageLoader->expects($this->once())->method('load')->willReturn($searchPage);
+        $searchController = $this->createSearchController($searchPageLoader);
 
-        $response = $this->searchController->search($context, $request);
+        $response = $searchController->search($context, $request);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testSearchWithoutSearchParameterShouldRedirectToHomePage(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
-        $this->searchPageLoader->expects($this->once())
+        $searchPageLoader = $this->createMock(SearchPageLoader::class);
+        $searchPageLoader->expects($this->once())
             ->method('load')
             ->willThrowException(RoutingException::missingRequestParameter('search'));
+        $searchController = $this->createSearchController($searchPageLoader);
 
         $request = new Request(
             query: ['search' => 'test'],
@@ -241,7 +243,7 @@ class SearchControllerTest extends TestCase
         $requestStack->push($request);
         $this->container->set('request_stack', $requestStack);
 
-        $twig = static::createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $this->container->set('twig', $twig);
 
         $router = static::createMock(RouterInterface::class);
@@ -260,33 +262,81 @@ class SearchControllerTest extends TestCase
 
         $this->container->set('router', $router);
 
-        $this->searchController->search($context, $request);
+        $searchController->search($context, $request);
     }
 
     public function testSearchError(): void
     {
         $exception = RoutingException::invalidRequestParameter('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
-        $this->searchPageLoader->expects($this->once())
+        $searchPageLoader = $this->createMock(SearchPageLoader::class);
+        $searchPageLoader->expects($this->once())
             ->method('load')
             ->willThrowException($exception);
+        $searchController = $this->createSearchController($searchPageLoader);
 
         static::expectExceptionObject($exception);
-        $this->searchController->search($context, new Request());
+        $searchController->search($context, new Request());
     }
 
-    public function testSearchHandleFirstHit(): void
+    /**
+     * @return iterable<string, array{0: callable(ProductEntity): void, 1: string}>
+     */
+    public static function firstHitIdentifierProvider(): iterable
+    {
+        yield 'productNumber' => [
+            static fn (ProductEntity $p) => $p->setProductNumber('SW-100'),
+            'sw-100',
+        ];
+
+        yield 'productNumber matches search term in original casing' => [
+            static fn (ProductEntity $p) => $p->setProductNumber('SW-100'),
+            'SW-100',
+        ];
+
+        yield 'productNumber matches search term with surrounding whitespace' => [
+            static fn (ProductEntity $p) => $p->setProductNumber('SW-100'),
+            '  SW-100  ',
+        ];
+
+        yield 'ean' => [
+            static fn (ProductEntity $p) => $p->setEan('4006381333931'),
+            '4006381333931',
+        ];
+
+        yield 'ean matches search term with alphabetic characters' => [
+            static fn (ProductEntity $p) => $p->setEan('BC1010'),
+            'bc1010',
+        ];
+
+        yield 'manufacturerNumber' => [
+            static fn (ProductEntity $p) => $p->setManufacturerNumber('MPN-XYZ'),
+            'mpn-xyz',
+        ];
+
+        yield 'manufacturerNumber matches search term in original casing' => [
+            static fn (ProductEntity $p) => $p->setManufacturerNumber('MPN-XYZ'),
+            'MPN-XYZ',
+        ];
+    }
+
+    /**
+     * @param callable(ProductEntity): void $configureProduct
+     */
+    #[DataProvider('firstHitIdentifierProvider')]
+    public function testSearchHandleFirstHit(callable $configureProduct, string $searchTerm): void
     {
         $request = new Request();
-        $request->query->set('search', 'test');
+        $request->query->set('search', $searchTerm);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $product = new ProductEntity();
-        $product->setProductNumber('test');
+        $product->setProductNumber('different-number');
         $product->setId('123');
+        $configureProduct($product);
 
         $searchPage = new SearchPage();
         $searchPage->setListing(new ProductListingResult(
@@ -309,7 +359,7 @@ class SearchControllerTest extends TestCase
         $router
             ->expects($this->once())
             ->method('generate')
-            ->with('frontend.detail.page', ['productId' => '123'])
+            ->with(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => '123'])
             ->willReturn('http://localhost/product/123');
 
         $requestContext = new RequestContext();
@@ -327,9 +377,92 @@ class SearchControllerTest extends TestCase
         static::assertSame(302, $response->getStatusCode());
         static::assertInstanceOf(StorefrontRedirectEvent::class, $redirectEvent);
         static::assertSame(Response::HTTP_FOUND, $redirectEvent->getStatus());
-        static::assertSame('frontend.detail.page', $redirectEvent->getRoute());
+        static::assertSame(ProductPageSeoUrlRoute::ROUTE_NAME, $redirectEvent->getRoute());
         static::assertSame([
             'productId' => '123',
         ], $redirectEvent->getParameters());
+    }
+
+    public function testSearchDoesNotRedirectWhenFieldExcludedByConfig(): void
+    {
+        $searchPageLoader = $this->createMock(SearchPageLoader::class);
+        $controller = $this->createSearchController($searchPageLoader, ['productNumber']);
+
+        $context = static::createStub(SalesChannelContext::class);
+
+        $product = new ProductEntity();
+        $product->setProductNumber('different-number');
+        $product->setEan('4006381333931');
+        $product->setId('123');
+
+        $searchPage = new SearchPage();
+        $searchPage->setListing(new ProductListingResult(
+            ProductDefinition::ENTITY_NAME,
+            1,
+            new ProductCollection([$product]),
+            null,
+            new Criteria(),
+            $context->getContext(),
+        ));
+
+        $request = new Request(
+            query: ['search' => '4006381333931'],
+            attributes: [
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
+                RequestTransformer::STOREFRONT_URL => 'http://localhost/search?search=4006381333931',
+            ],
+        );
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+        $this->container->set('request_stack', $requestStack);
+        $this->container->set(ScriptExecutor::class, static::createStub(ScriptExecutor::class));
+
+        $templateFinder = $this->createMock(TemplateFinder::class);
+        $templateFinder
+            ->expects($this->once())
+            ->method('find')
+            ->with('@Storefront/storefront/page/search/index.html.twig')
+            ->willReturn('@Storefront/storefront/page/search/index.html.twig');
+        $this->container->set(TemplateFinder::class, $templateFinder);
+
+        $twig = static::createMock(Environment::class);
+        $twig->expects($this->once())
+            ->method('render')
+            ->willReturn('rendered');
+        $this->container->set('twig', $twig);
+
+        $router = static::createMock(RouterInterface::class);
+        $router->expects($this->never())->method('generate');
+        $this->container->set('router', $router);
+
+        $searchPageLoader->expects($this->once())->method('load')->willReturn($searchPage);
+
+        $response = $controller->search($context, $request);
+
+        static::assertNotInstanceOf(RedirectResponse::class, $response);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    /**
+     * @param list<string>|null $redirectOnSingleHitFields
+     */
+    private function createSearchController(?SearchPageLoader $searchPageLoader = null, ?array $redirectOnSingleHitFields = null): SearchController
+    {
+        $controller = $redirectOnSingleHitFields === null
+            ? new SearchController(
+                $searchPageLoader ?? $this->searchPageLoader,
+                $this->suggestPageLoader,
+                $this->productSearchRoute,
+            )
+            : new SearchController(
+                $searchPageLoader ?? $this->searchPageLoader,
+                $this->suggestPageLoader,
+                $this->productSearchRoute,
+                $redirectOnSingleHitFields,
+            );
+        $controller->setContainer($this->container);
+
+        return $controller;
     }
 }

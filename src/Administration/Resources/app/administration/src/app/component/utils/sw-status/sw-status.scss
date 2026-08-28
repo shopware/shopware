@@ -1,60 +1,58 @@
-@import "~scss/variables";
-
 .sw-status {
     display: flex;
     align-items: center;
     gap: 6px;
     padding: 4px 8px;
-    font-size: $font-size-xxs;
-    line-height: $font-size-xxs;
-    border-radius: $font-size-xxs * 2;
+    font-size: var(--font-size-2xs);
+    line-height: var(--font-size-2xs);
+    border-radius: var(--border-radius-round);
 
     .sw-color-badge {
         margin: 0;
     }
 
     &--gray {
-        background-color: $color-gray-300;
-        color: $color-gray-900;
+        background-color: var(--color-background-tertiary-default);
+        color: var(--color-text-primary-default);
 
         .sw-color-badge {
-            background-color: $color-gray-900;
+            background-color: var(--color-icon-secondary-default);
         }
     }
 
     &--blue {
-        background-color: $color-shopware-brand-50;
-        color: $color-shopware-brand-500;
+        background-color: var(--color-background-brand-default);
+        color: var(--color-text-primary-default);
 
         .sw-color-badge {
-            background-color: $color-shopware-brand-500;
+            background-color: var(--color-icon-brand-default);
         }
     }
 
     &--red {
-        background-color: $color-crimson-50;
-        color: $color-crimson-500;
+        background-color: var(--color-background-critical-default);
+        color: var(--color-text-primary-default);
 
         .sw-color-badge {
-            background-color: $color-crimson-500;
+            background-color: var(--color-icon-critical-default);
         }
     }
 
     &--orange {
-        background-color: $color-pumpkin-spice-50;
-        color: $color-pumpkin-spice-700;
+        background-color: var(--color-background-attention-default);
+        color: var(--color-text-primary-default);
 
         .sw-color-badge {
-            background-color: $color-pumpkin-spice-700;
+            background-color: var(--color-icon-attention-default);
         }
     }
 
     &--green {
-        background-color: $color-emerald-50;
-        color: $color-emerald-700;
+        background-color: var(--color-background-positive-default);
+        color: var(--color-text-primary-default);
 
         .sw-color-badge {
-            background-color: $color-emerald-700;
+            background-color: var(--color-icon-positive-default);
         }
     }
 }

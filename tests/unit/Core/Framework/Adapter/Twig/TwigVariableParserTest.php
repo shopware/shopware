@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\ArrayLoader;
@@ -12,6 +13,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TwigVariableParser::class)]
 class TwigVariableParserTest extends TestCase
 {
@@ -71,6 +73,16 @@ TWIG;
     {{ foo.group.name }}
 {% endfor %}
 
+{% for foo in product.foo|sort((a, b) => a.position <=> b.position) %}
+    {{ foo.bar.baz }}
+{% endfor %}
+
+{% set foo = product.test %}
+{% for bar in foo %}
+    {% set baz = bar.shop %}
+    {{ baz.ware }}
+{% endfor %}
+
 TWIG;
 
         $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
@@ -83,6 +95,11 @@ TWIG;
             'product.options',
             'product.options.group.name',
             'product.stock',
+            'product.foo',
+            'product.foo.bar.baz',
+            'product.test',
+            'product.test.shop',
+            'product.test.shop.ware',
         ];
 
         sort($expected);

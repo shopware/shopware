@@ -3,24 +3,25 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\StorybookController;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Storybook\StorybookService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 use Twig\TemplateWrapper;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorybookController::class)]
 class StorybookControllerTest extends TestCase
 {
@@ -30,44 +31,17 @@ class StorybookControllerTest extends TestCase
 
     private StorybookTwigEnvironment $twig;
 
-    private TwigComponentHelper&MockObject $twigComponentHelper;
-
-    private StorybookService&MockObject $storybookService;
+    private StorybookService&Stub $storybookService;
 
     protected function setUp(): void
     {
         $this->twig = new StorybookTwigEnvironment();
-        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
-        $this->storybookService = $this->createMock(StorybookService::class);
-    }
-
-    public function testStorybookThrowsNotFoundInNonDevEnvironment(): void
-    {
-        $controller = $this->createController('prod');
-
-        $this->expectException(NotFoundHttpException::class);
-
-        $controller->storybook('my-component', new Request());
-    }
-
-    public function testStorybookThrowsNotFoundWhenComponentNotRegistered(): void
-    {
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn(new TwigComponentCollection());
-
-        $controller = $this->createController('dev');
-
-        $this->expectException(NotFoundHttpException::class);
-
-        $controller->storybook('unknown-component', $this->createStorybookRequest());
+        $this->storybookService = static::createStub(StorybookService::class);
     }
 
     public function testStorybookRendersComponentSuccessfully(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
 
         $this->storybookService->method('createSalesChannelContext')
             ->willReturn($salesChannelContext);
@@ -80,7 +54,7 @@ class StorybookControllerTest extends TestCase
 
         $this->twig->renderOutput = '<div>rendered component</div>';
 
-        $response = $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $response = $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame('<div>rendered component</div>', $response->getContent());
@@ -92,30 +66,23 @@ class StorybookControllerTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
-
         $this->storybookService->method('createSalesChannelContext')
             ->willReturn($salesChannelContext);
 
         $this->storybookService->method('getThemeId')
-            ->with($salesChannelId)
             ->willReturn('theme-id-123');
 
         $request = $this->createStorybookRequest();
 
-        $this->createController('dev')->storybook('my-button', $request);
+        $this->createController()->storybook('my-button', $request);
 
         static::assertSame('theme-id-123', $request->attributes->get('theme-id'));
         static::assertSame($salesChannelId, $request->attributes->get('sw-sales-channel-id'));
     }
 
-    public function testStorybookSetsContextAndThemeIdAsGlobalsOnTwig(): void
+    public function testStorybookPassesContextAndThemeIdViaRenderContext(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
 
         $this->storybookService->method('createSalesChannelContext')
             ->willReturn($salesChannelContext);
@@ -123,18 +90,43 @@ class StorybookControllerTest extends TestCase
         $this->storybookService->method('getThemeId')
             ->willReturn('theme-id-123');
 
-        $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
-        static::assertSame($salesChannelContext, $this->twig->globals['context']);
-        static::assertSame('theme-id-123', $this->twig->globals['themeId']);
+        static::assertSame($salesChannelContext, $this->twig->renderContext['context']);
+        static::assertSame('theme-id-123', $this->twig->renderContext['themeId']);
+    }
+
+    public function testStorybookDoesNotLeakContextAndThemeIdIntoTwigGlobalsAcrossRequests(): void
+    {
+        $firstContext = Generator::generateSalesChannelContext();
+        $secondContext = Generator::generateSalesChannelContext();
+
+        $storybookService = $this->createMock(StorybookService::class);
+        $storybookService->expects($this->exactly(2))
+            ->method('createSalesChannelContext')
+            ->willReturnOnConsecutiveCalls($firstContext, $secondContext);
+
+        $storybookService->expects($this->exactly(2))
+            ->method('getThemeId')
+            ->willReturnOnConsecutiveCalls('theme-id-1', 'theme-id-2');
+
+        $storybookService->expects($this->exactly(2))
+            ->method('resolveComponentProps')
+            ->willReturn([]);
+
+        $controller = $this->createController($storybookService);
+        $controller->storybook('my-button', $this->createStorybookRequest());
+        $controller->storybook('my-button', $this->createStorybookRequest());
+
+        static::assertArrayNotHasKey('context', $this->twig->globals);
+        static::assertArrayNotHasKey('themeId', $this->twig->globals);
+        static::assertSame($secondContext, $this->twig->renderContext['context']);
+        static::assertSame('theme-id-2', $this->twig->renderContext['themeId']);
     }
 
     public function testStorybookReturns500OnTwigRuntimeError(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
 
         $this->storybookService->method('createSalesChannelContext')
             ->willReturn($salesChannelContext);
@@ -142,9 +134,9 @@ class StorybookControllerTest extends TestCase
         $this->storybookService->method('getThemeId')->willReturn(null);
         $this->storybookService->method('resolveComponentProps')->willReturn([]);
 
-        $this->twig->renderException = new \Twig\Error\RuntimeError('Template rendering failed');
+        $this->twig->renderException = new RuntimeError('Template rendering failed');
 
-        $response = $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $response = $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         $content = $response->getContent();
         static::assertSame(500, $response->getStatusCode());
@@ -158,18 +150,15 @@ class StorybookControllerTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
-
         $this->storybookService->method('createSalesChannelContext')
             ->willReturn($salesChannelContext);
 
         $this->storybookService->method('getThemeId')->willReturn(null);
         $this->storybookService->method('resolveComponentProps')->willReturn([]);
 
-        $this->twig->createTemplateException = new \Twig\Error\SyntaxError('Unexpected token');
+        $this->twig->createTemplateException = new SyntaxError('Unexpected token');
 
-        $response = $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $response = $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         $content = $response->getContent();
         static::assertSame(500, $response->getStatusCode());
@@ -182,9 +171,6 @@ class StorybookControllerTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
         $expectedProps = ['label' => 'Click me', 'disabled' => 'true'];
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
 
         $this->storybookService->method('createSalesChannelContext')
             ->willReturn($salesChannelContext);
@@ -201,7 +187,7 @@ class StorybookControllerTest extends TestCase
             return '';
         };
 
-        $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         static::assertSame($expectedProps, $capturedProps);
     }
@@ -213,9 +199,6 @@ class StorybookControllerTest extends TestCase
 
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
-
         $this->storybookService->method('createSalesChannelContext')
             ->willReturn($salesChannelContext);
 
@@ -225,7 +208,7 @@ class StorybookControllerTest extends TestCase
         $request = new Request();
         $request->headers->set('Origin', $customDomain);
 
-        $response = $this->createController('dev')->storybook('my-button', $request);
+        $response = $this->createController()->storybook('my-button', $request);
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame($customDomain, $response->headers->get('Access-Control-Allow-Origin'));
@@ -235,7 +218,7 @@ class StorybookControllerTest extends TestCase
     {
         $this->setEnvVars(['STORYBOOK_DOMAIN' => 'http://my-dev-store.example.com:6006']);
 
-        $controller = $this->createController('dev');
+        $controller = $this->createController();
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -250,21 +233,12 @@ class StorybookControllerTest extends TestCase
         return $request;
     }
 
-    private function createController(string $environment): StorybookController
+    private function createController(?StorybookService $storybookService = null): StorybookController
     {
         return new StorybookController(
-            $environment,
             $this->twig,
-            $this->twigComponentHelper,
-            $this->storybookService,
+            $storybookService ?? $this->storybookService,
         );
-    }
-
-    private function createCollectionWithComponent(string $componentName): TwigComponentCollection
-    {
-        $component = new TwigComponent($componentName, '/path/to/' . $componentName . '.html.twig', 'Storefront');
-
-        return new TwigComponentCollection([$component]);
     }
 }
 
@@ -291,6 +265,11 @@ class StorybookTwigEnvironment extends Environment
      */
     public array $globals = [];
 
+    /**
+     * @var array<string, mixed>
+     */
+    public array $renderContext = [];
+
     public function __construct()
     {
         parent::__construct(new ArrayLoader([]));
@@ -316,6 +295,8 @@ class StorybookTwigEnvironment extends Environment
      */
     public function render($name, array $context = []): string
     {
+        $this->renderContext = $context;
+
         if ($this->renderException !== null) {
             throw $this->renderException;
         }

@@ -17,6 +17,7 @@ interface bundlesSinglePluginResponse {
     html?: string;
     baseUrl?: null | string;
     type?: 'app' | 'plugin';
+    sourceType?: string;
     version?: string;
     // Properties below this line are only available for apps
     integrationId?: string;
@@ -538,6 +539,7 @@ class ApplicationBootstrapper {
             'coreDirectives',
             'locale',
             'store',
+            'theme',
         ];
 
         const initContainer = this.getContainer('init');
@@ -691,6 +693,7 @@ class ApplicationBootstrapper {
                     bundleVersion: bundle.version,
                     iframeSrc: bundle.baseUrl,
                     bundleType: bundle.type,
+                    sourceType: bundle.sourceType,
                 });
             },
         );
@@ -808,6 +811,7 @@ class ApplicationBootstrapper {
         iframeSrc,
         bundleVersion,
         bundleType,
+        sourceType,
     }: {
         active?: boolean;
         integrationId?: string;
@@ -815,6 +819,7 @@ class ApplicationBootstrapper {
         iframeSrc: string;
         bundleVersion?: string;
         bundleType?: 'app' | 'plugin';
+        sourceType?: string;
     }): void {
         const bundles = Shopware.Context.app.config.bundles;
         let permissions = null;
@@ -830,6 +835,7 @@ class ApplicationBootstrapper {
             baseUrl: string;
             version?: string;
             type: 'app' | 'plugin';
+            sourceType?: string;
             permissions: Record<string, unknown>;
         } = {
             active,
@@ -838,6 +844,7 @@ class ApplicationBootstrapper {
             baseUrl: iframeSrc,
             version: bundleVersion,
             type: bundleType ?? 'plugin',
+            sourceType,
             permissions: {},
         };
 

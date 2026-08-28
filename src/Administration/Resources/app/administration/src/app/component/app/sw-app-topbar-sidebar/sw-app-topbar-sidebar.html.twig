@@ -1,33 +1,63 @@
-<template v-if="sidebars && sidebars.length === 1">
-    <button
-        v-tooltip="{ message: sidebars[0].title, placement: 'right' }"
-        class="sw-app-topbar-sidebar__icon"
-        :class="{ 'sw-app-topbar-sidebar__icon-active': sidebars[0].active }"
-        :aria-label="$tc('sidebar.ariaLabelButtonOpen')"
-        @click="setActiveSidebar(sidebars[0].locationId)"
+<template v-if="sidebars.length === 1">
+    <mt-tooltip
+        :content="$t(sidebars[0].title)"
+        placement="bottom"
+        :delay-duration-in-ms="500"
     >
-        <mt-icon
-            :name="sidebars[0].icon"
-            :size="20"
-        />
-    </button>
-</template>
-
-<template v-if="sidebars.length && sidebars.length > 1">
-    <sw-context-button>
-        <template
-            v-for="sidebar in sidebars"
-            :key="sidebar.title"
-        >
-            <sw-context-menu-item
-                @click="setActiveSidebar(sidebar.locationId)"
+        <template #default="{ onFocus, ...tooltipProps }">
+            <mt-button
+                v-bind="tooltipProps"
+                class="sw-app-topbar-sidebar__icon"
+                :class="{ 'sw-app-topbar-sidebar__icon-active': sidebars[0].active }"
+                :aria-label="$t(sidebars[0].active ? 'sidebar.ariaLabelButtonClose' : 'sidebar.ariaLabelButtonOpen')"
+                :aria-expanded="sidebars[0].active ? 'true' : 'false'"
+                variant="tertiary"
+                size="default"
+                square
+                @focus="showTooltipOnKeyboardFocus($event, onFocus)"
+                @click="toggleSidebar(sidebars[0].locationId)"
             >
                 <mt-icon
-                    :name="sidebar.icon"
-                    :size="14"
+                    :name="sidebars[0].icon"
+                    :size="20"
                 />
-                {{ $t(sidebar.title) }}
-            </sw-context-menu-item>
+            </mt-button>
         </template>
-    </sw-context-button>
+    </mt-tooltip>
+</template>
+
+<template v-else-if="sidebars.length > 1">
+    <mt-dropdown-menu-root>
+        <mt-dropdown-menu-trigger as-child>
+            <mt-button
+                class="sw-app-topbar-sidebar__icon"
+                :class="{ 'sw-app-topbar-sidebar__icon-active': hasActiveSidebar }"
+                :aria-label="$t('sidebar.ariaLabelButtonOpen')"
+                variant="tertiary"
+                size="default"
+                square
+            >
+                <mt-icon
+                    name="regular-ellipsis-h"
+                    :size="16"
+                />
+            </mt-button>
+        </mt-dropdown-menu-trigger>
+
+        <mt-dropdown-menu-portal>
+            <mt-action-menu
+                side="bottom"
+                align="end"
+            >
+                <mt-action-menu-item
+                    v-for="sidebar in sidebars"
+                    :key="sidebar.locationId"
+                    :icon="sidebar.icon"
+                    @select="setActiveSidebar(sidebar.locationId)"
+                >
+                    {{ $t(sidebar.title) }}
+                </mt-action-menu-item>
+            </mt-action-menu>
+        </mt-dropdown-menu-portal>
+    </mt-dropdown-menu-root>
 </template>

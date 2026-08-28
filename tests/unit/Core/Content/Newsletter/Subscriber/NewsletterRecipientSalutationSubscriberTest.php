@@ -34,6 +34,8 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->connection->expects($this->never())->method('executeStatement');
+
         static::assertSame([
             NewsletterEvents::NEWSLETTER_RECIPIENT_WRITTEN_EVENT => 'setDefaultSalutation',
         ], $this->salutationSubscriber->getSubscribedEvents());

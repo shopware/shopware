@@ -7,7 +7,9 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeC
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
@@ -16,10 +18,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -46,6 +51,9 @@ readonly class MediaUploadService
         private HttpClientInterface $httpClient,
         private EntityRepository $thumbnailRepository,
         private EntityRepository $thumbnailSizeRepository,
+        private FileUrlValidatorInterface $fileUrlValidator,
+        private TrustedUrlResolver $trustedUrlResolver,
+        private bool $enableUrlValidation = true,
     ) {
     }
 
@@ -136,7 +144,8 @@ readonly class MediaUploadService
         Context $context,
         MediaUploadParameters $params = new MediaUploadParameters()
     ): string {
-        $params->fillDefaultFileName(basename($url));
+        $decodedUrl = urldecode($url);
+        $params->fillDefaultFileName(basename($decodedUrl));
 
         if ($params->mimeType === null) {
             throw MediaException::mimeTypeNotProvided();
@@ -144,7 +153,10 @@ readonly class MediaUploadService
 
         if ($params->deduplicate) {
             $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('path', $url));
+            $criteria->addFilter(new OrFilter([
+                new EqualsFilter('path', $url),
+                new EqualsFilter('path', $decodedUrl),
+            ]));
 
             if ($mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId()) {
                 return $mediaId;
@@ -155,7 +167,7 @@ readonly class MediaUploadService
             'id' => $params->id ?? Uuid::randomHex(),
             'userId' => $this->getUserIdFromContext($context),
             'private' => $params->private ?? false,
-            'path' => $url,
+            'path' => $decodedUrl,
             'fileSize' => $this->getContentSizeFromValidExternalUrl($url),
             'fileName' => $params->getFileNameWithoutExtension(),
             'fileExtension' => $params->getFileNameExtension(),
@@ -202,27 +214,43 @@ readonly class MediaUploadService
     }
 
     /**
-     * Validate if $url matches the pattern of an external URL. Throws an exception if not.
+     * @deprecated tag:v6.8.0 - Use {@see assertValidExternalUrl()} on an injected MediaUploadService instance or
+     * {@see isExternalUrl()} and throw an exception instead.
      */
     public static function validateExternalUrl(string $url): void
     {
-        if (!preg_match('/^https?:\/\/.+/', $url)) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'MediaUploadService::validateExternalUrl() is deprecated, use assertValidExternalUrl() on an injected MediaUploadService instance instead.'
+        );
+
+        if (!self::isExternalUrl($url)) {
             throw MediaException::invalidUrl($url);
         }
     }
 
     /**
-     * Wrapper around {@see validateExternalUrl()} without throwing an exception
+     * Validates that $url is a well-formed external HTTP(S) URL and does not target a private or reserved IP range.
+     * Throws an exception if either check fails.
+     */
+    public function assertValidExternalUrl(string $url): void
+    {
+        if (!self::isExternalUrl($url)) {
+            throw MediaException::invalidUrl($url);
+        }
+
+        if ($this->enableUrlValidation && !$this->fileUrlValidator->isValid($url)) {
+            throw MediaException::illegalUrl($url);
+        }
+    }
+
+    /**
+     * Returns true if $url looks like an external HTTP(S) URL (format check only, no IP validation).
+     * Use this to distinguish a URL-based media path from a local file path.
      */
     public static function isExternalUrl(string $url): bool
     {
-        try {
-            static::validateExternalUrl($url);
-
-            return true;
-        } catch (MediaException) {
-            return false;
-        }
+        return (bool) preg_match('/^https?:\/\/.+/', $url);
     }
 
     private function upload(MediaFile $media, Context $context, MediaUploadParameters $params): string
@@ -291,9 +319,21 @@ readonly class MediaUploadService
 
     private function getContentSizeFromValidExternalUrl(string $url): int
     {
-        $this->validateExternalUrl($url);
+        $this->assertValidExternalUrl($url);
 
-        $headers = $this->httpClient->request('HEAD', $url)->getHeaders();
+        $resolved = $this->trustedUrlResolver->resolve($url);
+
+        $client = $this->httpClient;
+        $options = [
+            'max_redirects' => 0,
+            'resolve' => [$resolved->host => $resolved->ip],
+        ];
+
+        if ($this->enableUrlValidation) {
+            $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
+        }
+
+        $headers = $client->request('HEAD', $url, $options)->getHeaders();
         if (!\array_key_exists('content-length', $headers)) {
             throw MediaException::fileNotFound($url);
         }
@@ -313,14 +353,15 @@ readonly class MediaUploadService
         $thumbnailPayloads = [];
 
         foreach ($thumbnails as $thumbnail) {
-            $this->validateExternalUrl($thumbnail->url);
+            $this->assertValidExternalUrl($thumbnail->url);
+            $decodedUrl = urldecode($thumbnail->url);
 
             $sizeId = $this->getOrCreateThumbnailSize($thumbnail->width, $thumbnail->height, $context);
 
             $thumbnailPayloads[] = [
                 'id' => Uuid::randomHex(),
                 'mediaId' => $mediaId,
-                'path' => $thumbnail->url,
+                'path' => $decodedUrl,
                 'width' => $thumbnail->width,
                 'height' => $thumbnail->height,
                 'mediaThumbnailSizeId' => $sizeId,

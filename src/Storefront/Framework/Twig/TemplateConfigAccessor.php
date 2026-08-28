@@ -2,32 +2,49 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\Asset\Packages;
+use Symfony\Component\Asset\Package as AssetPackage;
 
-#[Package('framework')]
+#[Package('discovery')]
 class TemplateConfigAccessor
 {
     /**
+     * @var array<string, AssetPackage>
+     */
+    private array $packages;
+
+    /**
      * @internal
+     *
+     * @param iterable<string, AssetPackage> $packages
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
-        private readonly Packages $packages,
+        private readonly string $kernelEnvironment = 'prod',
+        iterable $packages = [],
     ) {
+        $this->packages = \is_array($packages) ? $packages : iterator_to_array($packages);
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use SystemConfigService in PHP code instead. Twig code can continue using config().
+     *
      * @return string|bool|array<mixed>|float|int|null
      */
     public function config(string $key, ?string $salesChannelId)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'SystemConfigService')
+        );
+
         $static = $this->getStatic();
 
         if (\array_key_exists($key, $static)) {
@@ -46,63 +63,61 @@ class TemplateConfigAccessor
     }
 
     /**
-     * @return array<int, string> $items
+     * @return list<string> $items
      */
     public function scripts(): array
     {
-        $scripts = [];
+        return array_values($this->themeScripts->getThemeScripts());
+    }
 
-        foreach ($this->themeScripts->getThemeScripts() as $script) {
-            if (!str_starts_with($script, 'js/components/')) {
-                $scripts[] = $script;
+    /**
+     * Returns the full import map data: top-level imports, optional scoped imports for extensions,
+     * and optional ordered lists of CSS and JS URLs.
+     *
+     * When the Vite component dev server is running it writes a flag file that
+     * IS the complete map (all entries already contain full dev-server URLs).
+     * That map is returned with `isDevServer: true` added so that the template
+     * can treat dev-server component CSS as a replacement for the compiled theme
+     * stylesheet (the dev server re-compiles component SCSS on the fly).
+     *
+     * In production the stored map contains relative bundle paths from theme compile.
+     * They are resolved to request-aware URLs via the `asset` package at render time.
+     * The `styles` key, if present, lists the component CSS files at
+     * public/storefront/components/ that must be loaded alongside the regular
+     * compiled theme stylesheet.
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>, scripts?: list<string>, themeId?: string, isDevServer?: bool}
+     */
+    public function importMap(): array
+    {
+        // Vite dev server running: the flag file already provides the complete map.
+        // Only active in the dev environment — never in production or test.
+        if ($this->kernelEnvironment === 'dev') {
+            $devMap = $this->themeScripts->getDevImportMap();
+            if ($devMap !== null) {
+                return $devMap + ['isDevServer' => true];
             }
         }
 
-        return $scripts;
+        return $this->resolveImportMapUrls($this->themeScripts->getImportMap() ?? ['imports' => []]);
     }
 
     /**
-     * @return array<string, mixed>
+     * Returns all theme config fields that have `"scss": true` (the default) as a key/value
+     * map so Twig can render custom properties with context-appropriate escaping.
+     *
+     * Delegates to ThemeConfigValueAccessor::getCssVarValues() so values are resolved
+     * the same way as theme_config() — media URLs substituted, cached per sales channel.
+     *
+     * @return array<string, string|int>
      */
-    public function componentImportMap(): array
+    public function themeCssVars(SalesChannelContext $context, ?string $themeId): array
     {
-        $componentImportMap = [];
-        $themeScripts = $this->themeScripts->getThemeScripts();
-
-        // Filter theme scripts to component scripts only.
-        $componentScripts = array_filter($themeScripts, function ($script) {
-            return str_contains($script, 'js/components/');
-        });
-
-        // Create import map based on component tag.
-        foreach ($componentScripts as $componentScript) {
-            $componentTag = $this->getComponentTagFromScriptPath($componentScript);
-            $componentImportMap[$componentTag] = $this->packages->getUrl($componentScript, 'theme');
-        }
-
-        return $componentImportMap;
+        return $this->themeConfigAccessor->getCssVarValues($context, $themeId);
     }
 
     /**
-     * Derives the component tag from the script path.
-     * Example: js/components/Sw/Product/BuyButton.js => Sw:Product:BuyButton
-     * Example: js/components/Sw/Product/Detail/Reviews/index.js => Sw:Product:Detail:Reviews
-     */
-    private function getComponentTagFromScriptPath(string $path): string
-    {
-        $tag = str_replace('js/components/', '', $path);
-        $tag = str_replace('.js', '', $tag);
-        $tag = str_replace('/', ':', $tag);
-
-        if (str_ends_with($tag, ':index')) {
-            $tag = substr($tag, 0, -\strlen(':index'));
-        }
-
-        return $tag;
-    }
-
-    /**
-     * @return array<string, int|string|bool> $items
+     * @return array<string, int|string|bool>
      */
     private function getStatic(): array
     {
@@ -113,5 +128,59 @@ class TemplateConfigAccessor
             'cms.tosCmsPageId' => '00B9A8636F954277AE424E6C1C36A1F5',
             'confirm.revocationNotice' => true,
         ];
+    }
+
+    /**
+     * @param array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>, scripts?: list<string>, themeId?: string, isDevServer?: bool} $importMap
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>, scripts?: list<string>, themeId?: string, isDevServer?: bool}
+     */
+    private function resolveImportMapUrls(array $importMap): array
+    {
+        $package = $this->packages['asset'] ?? null;
+        if ($package === null) {
+            return $importMap;
+        }
+
+        $resolvedImports = [];
+        foreach ($importMap['imports'] as $specifier => $path) {
+            $resolvedImports[$specifier] = $package->getUrl($path);
+        }
+        $importMap['imports'] = $resolvedImports;
+
+        if (isset($importMap['scopes'])) {
+            $resolvedScopes = [];
+            foreach ($importMap['scopes'] as $scopeKey => $scopedImports) {
+                $resolvedScopeKey = $this->stripQueryString($package->getUrl($scopeKey));
+                foreach ($scopedImports as $specifier => $path) {
+                    $resolvedScopes[$resolvedScopeKey][$specifier] = $package->getUrl($path);
+                }
+            }
+            $importMap['scopes'] = $resolvedScopes;
+        }
+
+        if (isset($importMap['styles'])) {
+            $importMap['styles'] = array_map(
+                fn (string $path): string => $package->getUrl($path),
+                $importMap['styles'],
+            );
+        }
+
+        return $importMap;
+    }
+
+    /**
+     * Import-map scope keys are matched by URL prefix. Query strings on scope keys
+     * break that prefix matching against module URLs and therefore must be removed.
+     */
+    private function stripQueryString(string $url): string
+    {
+        $queryPos = strpos($url, '?');
+
+        if ($queryPos === false) {
+            return $url;
+        }
+
+        return substr($url, 0, $queryPos);
     }
 }

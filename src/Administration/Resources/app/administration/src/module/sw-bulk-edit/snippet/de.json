@@ -1,7 +1,6 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Mehrfachänderung",
       "descriptionTextModule": "Modul zur Mehrfachänderung von Daten",
       "defaultChangeLabel": "Ändern:"
     },
@@ -83,7 +82,9 @@
       },
       "property": {
         "cardTitle": "Eigenschaften",
-        "changeLabel": "Ändern: Eigenschaften"
+        "changeLabel": "Ändern: Eigenschaften",
+        "titleEmptyState": "Es wurden noch keine Eigenschaftsänderungen ausgewählt.",
+        "descriptionEmptyState": "Die Mehrfachänderung zeigt hier nur Eigenschaften an, die geändert werden. Bereits zugewiesene Produkteigenschaften werden hier nicht angezeigt."
       },
       "deliverability": {
         "cardTitle": "Lieferbarkeit",
@@ -259,7 +260,21 @@
         "description": "Mehrfachänderung abgeschlossen.",
         "instruction": "Mehrfachänderung erfolgreich abgeschlossen.",
         "buttonDownload": "Download",
-        "messageNoDocumentsFound": "Keine Dokumente vorhanden"
+        "messageNoDocumentsFound": "Keine Dokumente vorhanden",
+        "documentGenerationSkipped": "{count} Dokument wurde nicht erzeugt, weil es bereits existiert. | {count} Dokumente wurden nicht erzeugt, weil sie bereits existieren.",
+        "documentGenerationFailed": "{count} Dokument konnte nicht erzeugt werden. | {count} Dokumente konnten nicht erzeugt werden.",
+        "failedDocuments": {
+          "columnOrder": "Bestellung",
+          "columnDocumentType": "Dokumenttyp",
+          "downloadResult": "Ergebnis herunterladen",
+          "downloadHeadline": "Fehlgeschlagene Dokumente",
+          "documentTypes": {
+            "invoice": "Rechnung",
+            "cancellationInvoice": "Stornorechnung",
+            "creditNote": "Gutschrift",
+            "deliveryNote": "Lieferschein"
+          }
+        }
       },
       "error": {
         "title": "Mehrfachänderung - Fehler",
@@ -326,7 +341,8 @@
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDatePicker": "Datum",
           "labelTextarea": "Kommentar",
-          "placeholderTextarea": ""
+          "labelFileFormats": "Dateiformate",
+          "placeholderFileFormats": "Dateiformate auswählen ..."
         },
         "generateCancellationInvoice": {
           "label": "Erstellen: Stornorechnung",

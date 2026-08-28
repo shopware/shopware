@@ -3,7 +3,6 @@ import './sw-extension-file-upload.scss';
 import pluginErrorHandler from '../../service/extension-error-handler.service';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
@@ -16,7 +15,6 @@ export default {
 
     inject: [
         'extensionStoreActionService',
-        'repositoryFactory',
     ],
 
     mixins: [
@@ -30,25 +28,6 @@ export default {
             shouldHideConfirmModal: false,
             pluginUploadUserConfig: null,
         };
-    },
-
-    computed: {
-        userConfigRepository() {
-            return this.repositoryFactory.create('user_config');
-        },
-
-        currentUser() {
-            return Shopware.Store.get('session').currentUser;
-        },
-
-        userConfigCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.equals('key', USER_CONFIG_KEY));
-            criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));
-
-            return criteria;
-        },
     },
 
     created() {
@@ -83,7 +62,7 @@ export default {
                         .updateExtensionData()
                         .then(() => {
                             return this.createNotificationSuccess({
-                                message: this.$tc('sw-extension.my-extensions.fileUpload.messageUploadSuccess'),
+                                message: this.$t('sw-extension.my-extensions.fileUpload.messageUploadSuccess'),
                             });
                         });
                 })
@@ -96,7 +75,7 @@ export default {
                         }
 
                         const message = [
-                            this.$tc(error.message),
+                            this.$t(error.message),
                             error.details,
                         ]
                             .filter(Boolean)
@@ -118,7 +97,7 @@ export default {
         },
 
         showStoreError(error) {
-            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
+            const docLink = this.$t('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
             this.createNotificationError({
                 message: `${error.message} ${docLink}`,
                 autoClose: false,
@@ -138,19 +117,13 @@ export default {
             this.confirmModalVisible = false;
         },
 
-        getUserConfig() {
-            return this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then((response) => {
-                if (response.length) {
-                    this.pluginUploadUserConfig = response.first();
-                } else {
-                    this.pluginUploadUserConfig = this.userConfigRepository.create(Shopware.Context.api);
-                    this.pluginUploadUserConfig.key = USER_CONFIG_KEY;
-                    this.pluginUploadUserConfig.userId = this.currentUser?.id;
-                    this.pluginUploadUserConfig.value = {
-                        hide_upload_warning: false,
-                    };
-                }
-            });
+        async getUserConfig() {
+            this.pluginUploadUserConfig = {
+                key: USER_CONFIG_KEY,
+                value: (await Shopware.Service('userConfigService').search([USER_CONFIG_KEY]))?.data?.[USER_CONFIG_KEY] || {
+                    hide_upload_warning: false,
+                },
+            };
         },
 
         saveConfig(value) {
@@ -158,9 +131,13 @@ export default {
                 hide_upload_warning: value,
             };
 
-            this.userConfigRepository.save(this.pluginUploadUserConfig, Shopware.Context.api).then(() => {
-                this.getUserConfig();
-            });
+            Shopware.Service('userConfigService')
+                .upsert({
+                    [USER_CONFIG_KEY]: this.pluginUploadUserConfig.value,
+                })
+                .then(() => {
+                    this.getUserConfig();
+                });
         },
     },
 };

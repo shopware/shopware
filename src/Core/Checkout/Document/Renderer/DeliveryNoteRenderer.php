@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
@@ -37,6 +38,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -101,7 +103,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
                     $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-                    $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                    $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
                     $customConfig = $operation->getConfig()['custom'] ?? [];
 
                     $config->merge([

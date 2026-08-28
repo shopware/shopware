@@ -1,6 +1,6 @@
 {% block sw_product_modal_delivery %}
 <sw-modal
-    :title="$tc('sw-product.variations.deliveryModal.modalHeadline')"
+    :title="$t('sw-product.variations.deliveryModal.modalHeadline')"
     class="sw-product-modal-delivery"
     :is-loading="isLoading"
     @modal-close="$emit('modal-close')"
@@ -9,42 +9,57 @@
     {% block sw_product_modal_delivery_sidebar %}
     <div class="sw-product-modal-delivery__sidebar">
         {% block sw_product_modal_delivery_sidebar_tabs %}
-        <sw-tabs
-            is-vertical
-            position-identifier="sw-product-modal-delivery"
-        >
-            {% block sw_product_modal_delivery_sidebar_tabs_items %}
-            <sw-tabs-item
-                :active="activeTab == 'order'"
-                @click="activeTab = 'order'"
-            >
-                {{ $tc('sw-product.variations.deliveryModal.order') }}
-            </sw-tabs-item>
-            <sw-tabs-item
-                :active="activeTab == 'media'"
-                @click="activeTab = 'media'"
-            >
-                {{ $tc('sw-product.variations.deliveryModal.media') }}
-            </sw-tabs-item>
-            <sw-tabs-item
-                :active="activeTab == 'listing'"
-                @click="activeTab = 'listing'"
-            >
-                {{ $tc('sw-product.variations.deliveryModal.listing') }}
-            </sw-tabs-item>
+        <template v-if="feature.isActive('v6.8.0.0')">
+            {% block sw_product_modal_delivery_sidebar_mt_tabs %}
+            <mt-tabs
+                vertical
+                position-identifier="sw-product-modal-delivery"
+                :default-item="activeTab"
+                :items="deliveryTabs"
+                :small="true"
+                @new-item-active="activeTab = $event"
+            />
             {% endblock %}
-        </sw-tabs>
+        </template>
+
+        <template v-else>
+            <sw-tabs
+                is-vertical
+                position-identifier="sw-product-modal-delivery"
+            >
+                {% block sw_product_modal_delivery_sidebar_tabs_items %}
+                <sw-tabs-item
+                    :active="activeTab == 'order'"
+                    @click="activeTab = 'order'"
+                >
+                    {{ $t('sw-product.variations.deliveryModal.order') }}
+                </sw-tabs-item>
+                <sw-tabs-item
+                    :active="activeTab == 'media'"
+                    @click="activeTab = 'media'"
+                >
+                    {{ $t('sw-product.variations.deliveryModal.media') }}
+                </sw-tabs-item>
+                <sw-tabs-item
+                    :active="activeTab == 'listing'"
+                    @click="activeTab = 'listing'"
+                >
+                    {{ $t('sw-product.variations.deliveryModal.listing') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </sw-tabs>
+        </template>
         {% endblock %}
 
         {% block sw_product_modal_delivery_sidebar_descriptions %}
         <p v-if="activeTab == 'order'">
-            {{ $tc('sw-product.variations.deliveryModal.orderExplanation') }}
+            {{ $t('sw-product.variations.deliveryModal.orderExplanation') }}
         </p>
         <p v-if="activeTab == 'media'">
-            {{ $tc('sw-product.variations.deliveryModal.mediaExplanation') }}
+            {{ $t('sw-product.variations.deliveryModal.mediaExplanation') }}
         </p>
         <p v-if="activeTab == 'listing'">
-            {{ $tc('sw-product.variations.deliveryModal.listingExplanation') }}
+            {{ $t('sw-product.variations.deliveryModal.listingExplanation') }}
         </p>
         {% endblock %}
     </div>
@@ -86,14 +101,14 @@
             variant="secondary"
             @click="cancelDeliveryConfiguration"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
         {% block sw_product_modal_delivery_footer_button_save %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product.editor'),
                 showOnDisabledElements: true
             }"
@@ -103,7 +118,7 @@
             size="small"
             @click="saveDeliveryConfiguration"
         >
-            {{ $tc('sw-product.variations.deliveryModal.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

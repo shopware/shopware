@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -11,6 +13,8 @@ const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
     POUND: 'fce3465831e8639bb2ea165d0fcf1e8b',
 };
+
+let lastProductSearchCriteria = null;
 
 function mockContext() {
     return {
@@ -232,7 +236,7 @@ async function createWrapper() {
                 meta: {
                     $module: {
                         entity: 'product',
-                        icon: 'solid-content',
+                        icon: 'regular-content',
                     },
                 },
             },
@@ -255,6 +259,7 @@ async function createWrapper() {
                             if (name === 'product') {
                                 return {
                                     search: (criteria) => {
+                                        lastProductSearchCriteria = criteria;
                                         const productData = getProductData(criteria);
 
                                         return Promise.resolve(productData);
@@ -372,8 +377,18 @@ describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
+        lastProductSearchCriteria = null;
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         const data = await createWrapper();
         wrapper = data.wrapper;
+    });
+
+    afterEach(() => {
+        wrapper?.unmount();
+        jest.restoreAllMocks();
     });
 
     it('should sort grid when sorting for price', async () => {
@@ -406,6 +421,12 @@ describe('module/sw-product/page/sw-product-list', () => {
         // verify that grid did not crash when sorting for prices
         const skeletonElement = wrapper.find('.sw-data-grid-skeleton');
         expect(skeletonElement.exists()).toBe(false);
+    });
+
+    it('loads currencies through the shared cache path', async () => {
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.currencies).toEqual(getCurrencyData());
     });
 
     it('should sort products by different currencies', async () => {
@@ -583,6 +604,10 @@ describe('module/sw-product/page/sw-product-list', () => {
             term: 'foo',
         });
         await wrapper.vm.$nextTick();
+        // Setting `term` triggers the listing mixin's search watcher, which runs its own getList.
+        // Let that settle against the real service before installing the counting mocks, so the
+        // assertion only counts the explicit getList below (otherwise the watcher's call leaks in).
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -716,6 +741,100 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(products[0].productNumber).toBe('SW10001');
     });
 
+    it('should promote inherited manufacturer variants when searching by product number with a manufacturer filter', async () => {
+        const manufacturerId = 'manufacturer-a';
+        const parentId = 'parent-product-id';
+        const variantId = 'variant-product-id';
+
+        await wrapper.setData({
+            term: 'SW10001',
+        });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.filterCriteria.push(Criteria.equalsAny('manufacturer.id', [manufacturerId]));
+
+        const buildSearchResult = (products) => {
+            return Object.assign([...products], {
+                total: products.length,
+                criteria: mockCriteria(),
+                context: mockContext(),
+            });
+        };
+
+        const buildProduct = (product) => {
+            return {
+                active: true,
+                stock: 333,
+                availableStock: 333,
+                available: true,
+                price: mockPrices(),
+                manufacturer: {
+                    name: 'Manufacturer A',
+                },
+                ...product,
+            };
+        };
+
+        let variantFound = false;
+        wrapper.vm.productRepository.search = jest.fn(async (criteria, context) => {
+            lastProductSearchCriteria = criteria;
+
+            const hasManufacturerFilter = criteria.filters.some((filter) => filter.field === 'manufacturer.id');
+
+            if (!variantFound) {
+                if (criteria.term === 'SW10001' && hasManufacturerFilter && context?.inheritance) {
+                    variantFound = true;
+
+                    return buildSearchResult([
+                        buildProduct({
+                            id: variantId,
+                            parentId,
+                            productNumber: 'SW10001-variant',
+                            manufacturer: null,
+                        }),
+                    ]);
+                }
+
+                return buildSearchResult([]);
+            }
+
+            const promotedParentQuery = criteria.queries?.some((query) => {
+                const values = Array.isArray(query.query.value) ? query.query.value : [query.query.value];
+
+                return query.query.field === 'id' && values.includes(parentId);
+            });
+
+            if (!promotedParentQuery) {
+                return buildSearchResult([]);
+            }
+
+            return buildSearchResult([
+                buildProduct({
+                    id: parentId,
+                    productNumber: 'SW10001',
+                }),
+            ]);
+        });
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(wrapper.vm.productRepository.search).toHaveBeenNthCalledWith(
+            1,
+            expect.anything(),
+            expect.objectContaining({
+                inheritance: true,
+            }),
+        );
+        expect(
+            lastProductSearchCriteria.queries.some((query) => {
+                return query.query.field === 'id' && `${query.query.value}`.includes(parentId);
+            }),
+        ).toBe(true);
+        expect(wrapper.vm.total).toBe(1);
+        expect(wrapper.vm.products[0].id).toBe(parentId);
+    });
+
     it('should consider criteria filters via updateCriteria', async () => {
         await wrapper.vm.getList();
         await flushPromises();
@@ -725,5 +844,55 @@ describe('module/sw-product/page/sw-product-list', () => {
         await flushPromises();
 
         expect(wrapper.vm.filterCriteria).toContainEqual(filter);
+    });
+
+    it('should extend category equals filters via updateCriteria', async () => {
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        const filter = Criteria.equals('categories.id', 'category-1');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toStrictEqual([
+            Criteria.multi('OR', [
+                filter,
+                Criteria.equalsAny('product.streams.categories.id', [
+                    'category-1',
+                ]),
+            ]),
+        ]);
+    });
+
+    it('should normalize merged category filters before searching products', async () => {
+        const filterService = Shopware.Service('filterService');
+        filterService.mergeWithStoredFilters = jest.fn(() => {
+            const mergedCriteria = new Criteria(1, 25);
+            mergedCriteria.addFilter(
+                Criteria.equalsAny('categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+            );
+
+            return mergedCriteria;
+        });
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(lastProductSearchCriteria.parse().filter).toEqual([
+            Criteria.multi('OR', [
+                Criteria.equalsAny('categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+                Criteria.equalsAny('product.streams.categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+            ]),
+            Criteria.equals('product.parentId', null),
+        ]);
     });
 });

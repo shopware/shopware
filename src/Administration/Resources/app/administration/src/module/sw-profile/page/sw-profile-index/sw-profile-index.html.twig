@@ -8,7 +8,7 @@
 
     <template #smart-bar-header>
         {% block sw_profile_index_headline %}
-        <h2>{{ $tc('sw-profile.general.headlineProfile') }}</h2>
+        <h2>{{ $t('sw-profile.general.headlineProfile') }}</h2>
         {% endblock %}
     </template>
 
@@ -23,7 +23,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-profile.index.buttonSaveLabel') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -31,34 +31,47 @@
     <template #content>
         <sw-card-view>
             {% block sw_profile_index_tabs %}
-            <sw-tabs
-                position-identifier="sw-profile-index"
-            >
-                {% block sw_profile_index_tabs_item_general %}
-                <sw-tabs-item
-                    :route="{ name: 'sw.profile.index.general' }"
-                    :title="$tc('sw-profile.tabGeneral.title')"
-                >
-                    {{ $tc('sw-profile.tabGeneral.title') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_profile_index_mt_tabs %}
+                <mt-tabs
+                    position-identifier="sw-profile-index"
+                    :default-item="$route.name"
+                    :items="profileTabs"
+                    :small="true"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_profile_index_tabs_item_search_preferences %}
-                <sw-tabs-item
-                    :route="{ name: 'sw.profile.index.searchPreferences' }"
-                    :title="$tc('sw-profile.tabSearchPreferences.title')"
+            <template v-else>
+                <sw-tabs
+                    position-identifier="sw-profile-index"
                 >
-                    {{ $tc('sw-profile.tabSearchPreferences.title') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {% block sw_profile_index_tabs_item_general %}
+                    <sw-tabs-item
+                        :route="{ name: 'sw.profile.index.general' }"
+                        :title="$t('sw-profile.tabGeneral.title')"
+                    >
+                        {{ $t('sw-profile.tabGeneral.title') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                <sw-tabs-item
-                    :route="{ name: 'sw.profile.index.privacyPreferences' }"
-                    :title="$tc('sw-profile.tabPrivacyPreferences.title')"
-                >
-                    {{ $tc('sw-profile.tabPrivacyPreferences.title') }}
-                </sw-tabs-item>
-            </sw-tabs>
+                    {% block sw_profile_index_tabs_item_search_preferences %}
+                    <sw-tabs-item
+                        :route="{ name: 'sw.profile.index.searchPreferences' }"
+                        :title="$t('sw-profile.tabSearchPreferences.title')"
+                    >
+                        {{ $t('sw-profile.tabSearchPreferences.title') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    <sw-tabs-item
+                        :route="{ name: 'sw.profile.index.privacyPreferences' }"
+                        :title="$t('sw-profile.tabPrivacyPreferences.title')"
+                    >
+                        {{ $t('sw-profile.tabPrivacyPreferences.title') }}
+                    </sw-tabs-item>
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             {% block sw_profile_index_router_view %}
@@ -84,9 +97,13 @@
                             languageId,
                             isDisabled,
                             userRepository,
+                            userTheme,
+                            userModuleIconColors,
                         }"
                         @new-password-change="onChangeNewPassword"
                         @new-password-confirm-change="onChangeNewPasswordConfirm"
+                        @user-theme-change="onChangeUserTheme"
+                        @user-module-icon-colors-change="onChangeUserModuleIconColors"
                         @media-upload="setMediaItem"
                         @media-remove="onUnlinkAvatar"
                         @media-open="openMediaModal"

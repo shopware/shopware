@@ -3,65 +3,103 @@
     {% block sw_profile_index_general_information %}
     <mt-card
         position-identifier="sw-profile-index-general"
-        :title="$tc('sw-profile.index.titleInfoCard')"
+        :title="$t('sw-profile.index.titleInfoCard')"
         :is-loading="isUserLoading || !languageId"
     >
-        <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
+        <div class="sw-profile-index-general__grid sw-profile-index-general__information-grid">
             {% block sw_profile_index_general_information_firstname %}
-
             <mt-text-field
                 v-model="user.firstName"
                 name="sw-field--user-firstName"
-                :label="$tc('sw-profile.index.labelFirstNameField')"
+                class="sw-profile-index-general__grid-firstName"
+                :label="$t('sw-profile.index.labelFirstNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
             {% endblock %}
 
             {% block sw_profile_index_general_information_lastname %}
-
             <mt-text-field
                 v-model="user.lastName"
                 name="sw-field--user-lastName"
-                :label="$tc('sw-profile.index.labelLastNameField')"
+                class="sw-profile-index-general__grid-lastName"
+                :label="$t('sw-profile.index.labelLastNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
             {% endblock %}
-        </sw-container>
 
-        <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
             {% block sw_profile_index_general_information_username %}
-
             <mt-text-field
                 v-model="user.username"
                 name="sw-field--user-username"
-                :label="$tc('sw-profile.index.labelUsernameField')"
+                class="sw-profile-index-general__grid-username"
+                :label="$t('sw-profile.index.labelUsernameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
             {% endblock %}
 
+            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
+            {% block sw_profile_index_general_information_email %}
+            <mt-text-field
+                v-model="user.email"
+                name="sw-field--user-email"
+                class="sw-profile-index-general__grid-email"
+                validation="email"
+                required
+                :label="$t('sw-profile.index.labelEmailField')"
+                :disabled="!acl.can('user.update_profile')"
+            />
+            {% endblock %}
+
+            {% block sw_profile_index_general_image %}
+            <template v-if="acl.can('media.creator')">
+                {% block sw_profile_index_general_image_content %}
+                <sw-upload-listener
+                    auto-upload
+                    upload-tag="sw-profile-upload-tag"
+                    @media-upload-finish="onUploadMedia"
+                />
+                <sw-media-upload-v2
+                    class="sw-profile-index-general__grid-profile-picture"
+                    upload-tag="sw-profile-upload-tag"
+                    :source="avatarMediaItem"
+                    :source-context="user"
+                    :default-folder="userRepository.schema.entity"
+                    :label="$t('sw-profile.index.labelUploadAvatar')"
+                    :disabled="!acl.can('user.update_profile')"
+                    :allow-multi-select="false"
+                    @media-drop="onDropMedia"
+                    @media-upload-sidebar-open="onOpenMedia"
+                    @media-upload-remove-image="onRemoveMedia"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </div>
+    </mt-card>
+    {% endblock %}
+
+    <!-- Keeps the injection points of the removed profile image card available for apps -->
+    <sw-extension-component-section position-identifier="sw-profile-index-general-image__before" />
+    <sw-extension-component-section position-identifier="sw-profile-index-general-image" />
+    <sw-extension-component-section position-identifier="sw-profile-index-general-image__after" />
+
+    {% block sw_profile_index_general_user_interface %}
+    <mt-card
+        position-identifier="sw-profile-index-general-user-interface"
+        :title="$t('sw-users-permissions.users.user-detail.labelUserInterface')"
+        :is-loading="isUserLoading || !languageId"
+    >
+        <div class="sw-profile-index-general__grid sw-profile-index-general__user-interface-grid">
             {% block sw_profile_index_general_information_language %}
             <mt-select
                 v-model="user.localeId"
                 name="sw-field--user-localeId"
-                :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
+                class="sw-profile-index-general__grid-language"
+                :label="$t('sw-users-permissions.users.user-detail.labelLanguage')"
                 :disabled="!acl.can('user.update_profile')"
-                :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
+                :placeholder="$t('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
                 :options="localeOptions"
-            />
-            {% endblock %}
-        </sw-container>
-
-        <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
-            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
-            {% block sw_profile_index_general_information_email %}
-
-            <mt-text-field
-                v-model="user.email"
-                name="sw-field--user-email"
-                validation="email"
-                required
-                :label="$tc('sw-profile.index.labelEmailField')"
-                :disabled="!acl.can('user.update_profile')"
+                hide-clearable-button
             />
             {% endblock %}
 
@@ -69,44 +107,35 @@
             <sw-single-select
                 v-model:value="user.timeZone"
                 name="sw-field--user-timeZone"
-                class="sw-profile--timezone"
+                class="sw-profile--timezone sw-profile-index-general__grid-timezone"
                 :options="timezoneOptions"
                 required
-                :label="$tc('sw-users-permissions.users.user-detail.labelTimezone')"
+                :label="$t('sw-users-permissions.users.user-detail.labelTimezone')"
                 :is-loading="timezoneOptions.length <= 0"
                 :disabled="!acl.can('user.update_profile')"
             />
             {% endblock %}
-        </sw-container>
-    </mt-card>
-    {% endblock %}
 
-    {% block sw_profile_index_general_image %}
-    <mt-card
-        v-if="acl.can('media.creator')"
-        position-identifier="sw-profile-index-general-image"
-        :title="$tc('sw-profile.index.titleImageCard')"
-        :is-loading="isUserLoading || !languageId"
-    >
-        {% block sw_profile_index_general_image_content %}
-        <sw-upload-listener
-            auto-upload
-            upload-tag="sw-profile-upload-tag"
-            @media-upload-finish="onUploadMedia"
-        />
-        <sw-media-upload-v2
-            upload-tag="sw-profile-upload-tag"
-            :source="avatarMediaItem"
-            :source-context="user"
-            :default-folder="userRepository.schema.entity"
-            :label="$tc('sw-profile.index.labelUploadAvatar')"
-            :disabled="!acl.can('user.update_profile')"
-            :allow-multi-select="false"
-            @media-drop="onDropMedia"
-            @media-upload-sidebar-open="onOpenMedia"
-            @media-upload-remove-image="onRemoveMedia"
-        />
-        {% endblock %}
+            {% block sw_profile_index_general_information_theme %}
+            <mt-theme-select
+                v-model="computedUserTheme"
+                name="sw-field--user-theme"
+                class="sw-profile--theme sw-profile-index-general__grid-theme"
+                :label="$t('sw-profile.index.labelThemeField') + ' (Experimental)'"
+            />
+            {% endblock %}
+
+            {% block sw_profile_index_general_information_module_icon_colors %}
+            <mt-select
+                v-model="computedUserModuleIconColors"
+                name="sw-field--user-moduleIconColors"
+                class="sw-profile--module-icon-colors sw-profile-index-general__grid-module-icon-colors"
+                :label="$t('sw-profile.index.labelModuleIconColorsField')"
+                :options="moduleIconColorsOptions"
+                hide-clearable-button
+            />
+            {% endblock %}
+        </div>
     </mt-card>
     {% endblock %}
 
@@ -114,32 +143,36 @@
     <mt-card
         v-if="showPasswordChangeCard"
         position-identifier="sw-profile-index-general-password"
-        :title="$tc('sw-profile.index.titlePasswordCard')"
+        :title="$t('sw-profile.index.titlePasswordCard')"
         :is-loading="isUserLoading || !languageId"
     >
-        {% block sw_profile_index_general_password_new_password %}
-        <mt-password-field
-            v-model="computedNewPassword"
-            name="sw-field--computedNewPassword"
-            :label="$tc('sw-profile.index.labelNewPassword')"
-            :disabled="!acl.can('user.update_profile')"
-            :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
-            :error="userPasswordError"
-            autocomplete="new-password"
-        />
-        {% endblock %}
+        <div class="sw-profile-index-general__grid sw-profile-index-general__password-grid">
+            {% block sw_profile_index_general_password_new_password %}
+            <mt-password-field
+                v-model="computedNewPassword"
+                name="sw-field--computedNewPassword"
+                class="sw-profile-index-general__grid-new-password"
+                :label="$t('sw-profile.index.labelNewPassword')"
+                :disabled="!acl.can('user.update_profile')"
+                :placeholder="$t('sw-profile.index.placeholderNewPassword')"
+                :error="userPasswordError"
+                autocomplete="new-password"
+            />
+            {% endblock %}
 
-        {% block sw_profile_index_general_password_new_password_confirm %}
-        <mt-password-field
-            v-model="computedNewPasswordConfirm"
-            name="sw-field--computedNewPasswordConfirm"
-            :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
-            :disabled="!acl.can('user.update_profile')"
-            :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
-            :validation="computedNewPassword === computedNewPasswordConfirm"
-            autocomplete="new-password"
-        />
-        {% endblock %}
+            {% block sw_profile_index_general_password_new_password_confirm %}
+            <mt-password-field
+                v-model="computedNewPasswordConfirm"
+                name="sw-field--computedNewPasswordConfirm"
+                class="sw-profile-index-general__grid-new-password-confirm"
+                :label="$t('sw-profile.index.labelNewPasswordConfirm')"
+                :disabled="!acl.can('user.update_profile')"
+                :placeholder="$t('sw-profile.index.placeholderNewPasswordConfirm')"
+                :validation="computedNewPassword === computedNewPasswordConfirm"
+                autocomplete="new-password"
+            />
+            {% endblock %}
+        </div>
     </mt-card>
     {% endblock %}
 </div>

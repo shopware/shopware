@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\RequirementsController;
 use Shopware\Core\Installer\Requirements\RequirementsValidatorInterface;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
@@ -20,6 +21,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RequirementsController::class)]
 class RequirementsControllerTest extends TestCase
 {

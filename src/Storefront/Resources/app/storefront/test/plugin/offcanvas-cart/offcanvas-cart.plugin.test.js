@@ -56,6 +56,9 @@ describe('OffCanvasCartPlugin tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         document.body.innerHTML = '<div class="header-cart"><a class="header-cart-btn">€ 0,00</a></div>';

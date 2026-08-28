@@ -24,11 +24,315 @@ shopware:
                   parameters:
                     buckets: [0, 512, 1024, 2048, 4096, 8192, 16384, 32768]
 
+                scheduled_task.backlog.max_lateness_seconds:
+                    # scheduler stalled or backed up; sampled by the telemetry.collect_periodic_metrics task
+                    description: 'Max seconds a scheduled task is past its next execution time'
+                    type: 'gauge'
+                    unit: 's'
+
+                scheduled_task.failed.count:
+                    # tasks in the 'failed' state never rerun on their own; sampled by the telemetry.collect_periodic_metrics task
+                    description: 'Scheduled tasks in the terminal failed state'
+                    type: 'gauge'
+
+                messenger.message.handled.count:
+                    description: 'Messages handled by the worker, per outcome'
+                    type: 'counter'
+                    labels:
+                        # MessageGroupResolver (known: indexer, webhook, scheduled-task, mail, business, system, other)
+                        message_group:
+                            policy: open
+                        result:
+                            allowed_values: [handled, retried, failed]
+
+                messenger.message.handling.duration:
+                    # recorded for every outcome; the result label separates success latency from failure latency,
+                    # so slow failures (e.g. external-call timeouts eating worker slots) stay visible
+                    # instead of being averaged into the healthy path
+                    description: 'Time from message received to a terminal outcome (handled/failed)'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # low-ms cache/webhook messages up to multi-second indexing/import jobs
+                        buckets: [1, 10, 50, 100, 500, 1000, 5000, 30000]
+                    labels:
+                        message_group:
+                            policy: open
+                        result:
+                            allowed_values: [handled, retried, failed]
+
+                messenger.queue.depth:
+                    # sampled periodically by the telemetry.collect_periodic_metrics task; transport=failed is the
+                    # dead-letter queue depth. Only transports that implement MessageCountAwareInterface are reported.
+                    description: 'Pending messages per transport'
+                    type: 'gauge'
+                    labels:
+                        # transport config name, passed through unmapped (known core: async, low_priority, failed; custom transports reported as-is)
+                        # values are naturally bound by transports configuration
+                        transport:
+                            policy: open
+
+                scheduled_task.run.duration:
+                    # per-task-name performance signal, kept separate from overall messenger noise;
+                    # only terminal outcomes are recorded (retried attempts are covered by the messenger metrics)
+                    description: 'Scheduled task execution duration (worker received to handled/failed), per task/outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # sub-second cache invalidation up to long sitemap/product-export generation
+                        buckets: [10, 100, 1000, 10000, 60000, 300000, 600000]
+                    labels:
+                        # see TaskNameResolver
+                        task_name:
+                            policy: open
+                        result:
+                            allowed_values: [success, failed]
+
                 dal.associations.count:
                     description: 'Number of associations loaded'
                     type: 'histogram'
+
+                indexer.run.duration:
+                    # the result label keeps failed-run latency out of the healthy distribution.
+                    description: 'Duration of a single entity indexer run (EntityIndexer::handle), per indexer/mode/outcome. Full re-index and partial (post-write) updates have different profiles; compare each mode on its own.'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # tens of ms per batch up to minute-plus on heavy indexers; >1min falls in the overflow bucket
+                        buckets: [10, 100, 1000, 10000, 60000]
+                    labels:
+                        # indexer technical name, passed through unmapped (known core: product.indexer, category.indexer, ...; plugin indexers expected)
+                        indexer:
+                            policy: open
+                        mode:
+                            allowed_values: [full, partial]
+                        result:
+                            allowed_values: [success, failed]
+
+                indexer.batch.size:
+                    # records handled per message handle; paired with run.duration this gives per-record indexing cost
+                    description: 'Records processed per entity indexer run (EntityIndexingMessage id count)'
+                    type: 'histogram'
+                    parameters:
+                        # anchored on the default iterate page size of 50 (IteratorFactory); partial updates
+                        # range from single writes up to a few hundred ids on bulk writes
+                        buckets: [1, 10, 50, 100, 250, 500]
+                    labels:
+                        indexer:
+                            policy: open
+                        mode:
+                            allowed_values: [full, partial]
+
+                dal.search.duration:
+                    description: 'Duration of DAL read/search/aggregate operations. The es_aware and backend labels together reveal OpenSearch scaling possibilities: es_aware=yes with backend=sql marks a query eligible for OpenSearch but served by SQL. Each operation is measured once per top-level call (a search does not double-count its internal id-search/aggregate), so operation samples can be compared or summed without overlap.'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # sub-ms indexed lookups up to multi-hundred-ms complex searches/aggregations
+                        buckets: [0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500]
+                    labels:
+                        # EntityGroupResolver (known: product, category, customer, order, media, content, cms, rule, system, b2b, other)
+                        entity_group:
+                            policy: open
+                        operation:
+                            allowed_values: [search, searchIds, aggregate]
+                        es_aware:
+                            allowed_values: ['yes', 'no']
+                        # elasticsearch when the ES bundle served the result, else sql (bundle inactive or ES fell back to SQL);
+                        # es_aware=no with backend=elasticsearch is impossible
+                        backend:
+                            allowed_values: [sql, elasticsearch]
 
                 database.locks.count:
                     description: 'Number of database locks'
                     enabled: true
                     type: 'counter'
+
+                cart.calculation.duration:
+                    description: 'Cart calculation wall time'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [1, 10, 50, 100, 500, 1000, 2500]
+                    labels:
+                        # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
+                        sales_channel_type:
+                            policy: open
+                        has_promotions:
+                            allowed_values: ['yes', 'no']
+
+                cart.line_items.count:
+                    description: 'Line items at end of cart calculation'
+                    type: 'histogram'
+                    parameters:
+                        buckets: [1, 5, 20, 50, 100, 250]
+                    labels:
+                        sales_channel_type:
+                            policy: open
+
+                cart.errors.count:
+                    # per-calculation count of warning/error entries (notices excluded); spikes flag checkout friction
+                    description: 'Warning/error cart errors present after calculation (informational notices excluded)'
+                    type: 'counter'
+
+                order.placed.count:
+                    description: 'Orders placed'
+                    type: 'counter'
+                    labels:
+                        # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
+                        sales_channel_type:
+                            policy: open
+                        # Payment method technical name. Default core config allows its built-in methods; every other
+                        # (plugin/app) method collapses to the `other` replacement value, while `none` marks orders
+                        # with no attributable payment method. Deployments widen this list to surface further providers.
+                        payment_method:
+                            allowed_values: [payment_invoicepayment, payment_prepayment, payment_cashpayment, none, other]
+
+                order.line_items.count:
+                    description: 'Line items per placed order'
+                    type: 'histogram'
+                    parameters:
+                        buckets: [1, 2, 5, 10, 20, 50, 100, 250]
+                    labels:
+                        sales_channel_type:
+                            policy: open
+
+                http.server.request.duration:
+                    description: 'Main HTTP request wall time'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # typical web requests (25ms–1s) through long-running admin/sync/import-export (up to 60s)
+                        buckets: [25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 30000, 60000]
+                    labels:
+                        # AreaResolver (known: storefront, store-api, admin-api, sync-api, payment, other)
+                        area:
+                            policy: open
+                        # DomainResolver (polymorphic per area; functional / action / entity groups + other)
+                        domain:
+                            policy: open
+                        # OperationResolver (admin-api CRUD only; none otherwise)
+                        operation:
+                            allowed_values: [read, write, delete, none]
+                        status_class:
+                            allowed_values: ['2xx', '3xx', '4xx', '5xx']
+
+                http.server.request.queries.count:
+                    description: 'SQL statements per main request'
+                    type: 'histogram'
+                    parameters:
+                        # a handful of queries on cached/store-api requests up to thousands on import-export, indexing and sync
+                        buckets: [10, 50, 200, 1000, 5000]
+                    labels:
+                        area:
+                            policy: open
+                        domain:
+                            policy: open
+                        operation:
+                            allowed_values: [read, write, delete, none]
+
+                http.server.request.memory.peak:
+                    description: 'Peak memory per main request'
+                    type: 'histogram'
+                    unit: 'byte'
+                    parameters:
+                        # 16MB–512MB covers typical requests; 1GB/2GB catch import-export, indexing and other heavy jobs
+                        buckets: [16777216, 33554432, 67108864, 134217728, 268435456, 536870912, 1073741824, 2147483648]
+                    labels:
+                        area:
+                            policy: open
+                        domain:
+                            policy: open
+                        operation:
+                            allowed_values: [read, write, delete, none]
+
+                number_range.allocation.duration:
+                    # IncrementStorage::reserve duration; rising p95/p99 with storage=mysql under order load =
+                    # number_range_state row-lock contention, the leading indicator for switching to the Redis storage
+                    description: 'Number range increment reservation duration, per type/storage/outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # single indexed statement; anything beyond tens of ms indicates lock contention
+                        buckets: [1, 5, 10, 50, 100, 1000]
+                    labels:
+                        # see NumberRangeTypeResolver
+                        number_range_type:
+                            policy: open
+                        # configured storage key (known core: mysql, redis; plugin-registered backends pass through)
+                        storage:
+                            policy: open
+                        # a reserve failing on lock wait timeout is the contention signal itself
+
+                api.sync.operations.count:
+                    description: 'Operations per Sync API request'
+                    type: 'histogram'
+                    parameters:
+                        buckets: [1, 5, 10, 25, 50, 100, 500]
+
+                api.sync.entities.affected:
+                    # pre-aggregated per request: one emit per (entity_group, action) pair
+                    description: 'Entities written/deleted via the Sync API, per entity group and action'
+                    type: 'counter'
+                    labels:
+                        # see EntityGroupResolver
+                        entity_group:
+                            policy: open
+                        action:
+                            allowed_values: [upsert, delete]
+
+                api.sync.duration:
+                    description: 'Total Sync API request duration'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        # small payloads up to bulk imports
+                        buckets: [10, 100, 1000, 10000, 60000, 300000]
+                    labels:
+                        # 'default' = no explicit behavior requested (synchronous indexing)
+                        indexing_behavior:
+                            allowed_values: ['use-queue-indexing', 'disable-indexing', 'default']
+                        # failed requests are timed too, kept out of the healthy distribution
+
+                flow.execution.duration:
+                    # end-to-end flow engine wall time; one inbound event fans out across all matched flows, each timed separately.
+                    # heavy actions that offload to queue (mail, webhooks) are not included in the flow engine wall time
+                    # and are covered by the queue metrics.
+                    # the result label keeps failed-run latency out of the healthy distribution.
+                    description: 'Flow execution wall time per matched flow, per trigger group and outcome'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [1, 10, 50, 100, 500, 1000, 5000]
+                    labels:
+                        # see TriggerGroupResolver
+                        trigger_group:
+                            policy: open
+                        result:
+                            allowed_values: [success, failed]
+
+                mail.send.count:
+                    # result=sent means the mail was handed off (default delivery is async), not delivered;
+                    # actual delivery is covered by messenger.message.handled.count (message_group=mail)
+                    description: 'Mail send handoffs, per mail group and outcome'
+                    type: 'counter'
+                    labels:
+                        # see MailGroupResolver (uses the triggering event name; mails sent outside a flow resolve to other)
+                        mail_group:
+                            policy: open
+                        result:
+                            allowed_values: [sent, failed]
+
+                mail.send.duration:
+                    # AbstractMailSender::send() enqueues the mail and returns before the transport runs, so this is
+                    # the handoff time, not the SMTP round-trip (that runs in a worker: messenger.message.handling.duration,
+                    # message_group=mail). Only a synchronous mailer transport (uncommon in prod) makes this the full send.
+                    description: 'Mail send handoff duration (AbstractMailSender::send)'
+                    type: 'histogram'
+                    unit: 'ms'
+                    parameters:
+                        buckets: [10, 50, 100, 500, 1000, 5000, 30000]
+                    labels:
+                        # failures are timed too, but kept out of the healthy distribution
+                        result:
+                            allowed_values: [sent, failed]

@@ -94,10 +94,6 @@ export class Telemetry {
                     return;
                 }
 
-                if (to.name === from.name) {
-                    return;
-                }
-
                 this.dispatchEvent('page_change', { from, to });
             });
         });

@@ -17,18 +17,15 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-skeleton-bar', () => {
-    it('should render the deprecated skeleton-bar when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-skeleton-bar implementation.
+    it.deprecated('v6.8.0.0')('should render the deprecated skeleton-bar', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('sw-skeleton-bar-deprecated');
         expect(wrapper.html()).not.toContain('mt-skeleton-bar');
     });
 
-    it('should render the mt-skeleton-bar when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
-
+    it.activeFeatureFlags(['ENABLE_METEOR_COMPONENTS'])('should render the mt-skeleton-bar', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-skeleton-bar');

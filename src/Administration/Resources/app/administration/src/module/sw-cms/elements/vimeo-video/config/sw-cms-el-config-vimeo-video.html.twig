@@ -62,7 +62,7 @@
                 {% block sw_cms_element_vimeo_video_config_autoplay %}
                 <mt-switch
                     v-model="element.config.autoplay.value"
-                    :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
+                    :help-text="$t('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
                     :disabled="isInherited"
                     :label="$t('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
                 />
@@ -78,7 +78,7 @@
             <template #default="{ isInherited }">
                 <mt-switch
                     v-model="element.config.doNotTrack.value"
-                    :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
+                    :help-text="$t('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
                     :disabled="isInherited"
                     :label="$t('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
                 />
@@ -204,7 +204,7 @@
                     :source="previewSource"
                     :allow-multi-select="false"
                     :default-folder="cmsPageState.pageEntityName"
-                    :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+                    :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
                     :disabled="isInherited"
                     @media-upload-sidebar-open="onOpenMediaModal"
                     @media-upload-remove-image="onImageRemove"
@@ -223,7 +223,7 @@
                             class="sw-cms-el-config-image__preview-info"
                             variant="info"
                         >
-                            {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+                            {{ $t('sw-cms.detail.label.mappingEmptyPreview') }}
                         </mt-banner>
                     </div>
                 </template>
@@ -242,7 +242,7 @@
             <sw-media-modal-v2
                 v-if="mediaModalIsOpen"
                 variant="full"
-                :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+                :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
                 :entity-context="cmsPageState.entityName"
                 :allow-multi-select="false"
                 :initial-folder-id="cmsPageState.defaultMediaFolderId"

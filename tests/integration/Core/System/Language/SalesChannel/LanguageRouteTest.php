@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -14,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
+#[Package('fundamentals@discovery')]
 #[Group('store-api')]
 class LanguageRouteTest extends TestCase
 {
@@ -124,13 +126,13 @@ class LanguageRouteTest extends TestCase
         static::getContainer()->get('locale.repository')->create([
             [
                 'id' => $this->ids->get('locale-1'),
-                'code' => 'locale-1',
+                'code' => 'de-DE-1',
                 'name' => 'locale-1',
                 'territory' => 'locale-1',
             ],
             [
                 'id' => $this->ids->get('locale-2'),
-                'code' => 'locale-2',
+                'code' => 'de-DE-2',
                 'name' => 'locale-2',
                 'territory' => 'locale-2',
             ],

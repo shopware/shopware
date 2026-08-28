@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -16,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,11 +25,12 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('inventory')]
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -160,7 +161,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get('messenger.default_bus')
+            static::getContainer()->get('messenger.default_bus'),
+            new NativeClock(),
         );
     }
 

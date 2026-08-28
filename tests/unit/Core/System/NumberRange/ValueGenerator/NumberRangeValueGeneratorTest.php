@@ -9,19 +9,25 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
+use Shopware\Core\System\NumberRange\NumberRangeException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternDate;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NumberRangeValueGenerator::class)]
 class NumberRangeValueGeneratorTest extends TestCase
 {
@@ -50,7 +56,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         $numberRangeValueGenerator = new NumberRangeValueGenerator(
             new ValueGeneratorPatternRegistry([
                 new ValueGeneratorPatternIncrement(
-                    new IncrementSqlStorage($connection),
+                    new IncrementSqlStorage($connection, new NativeClock()),
                 ),
             ]),
             $dispatcher,
@@ -114,6 +120,111 @@ class NumberRangeValueGeneratorTest extends TestCase
         );
     }
 
+    public function testPreviewPatternByNumberRangeIdUsesPersistedNumberRange(): void
+    {
+        $numberRangeId = Uuid::randomHex();
+
+        $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
+        $incrPattern->method('getPatternId')->willReturn('n');
+        $incrPattern->expects($this->once())
+            ->method('generate')
+            ->with(
+                static::callback(static fn (array $config): bool => $config['id'] === $numberRangeId && $config['pattern'] === 'ABC{n}' && $config['start'] === 10),
+                [],
+                true
+            )
+            ->willReturn('10');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'id' => $numberRangeId,
+                'pattern' => 'ABC{n}',
+                'start' => '10',
+            ]);
+
+        $generator = new NumberRangeValueGenerator(
+            new ValueGeneratorPatternRegistry([$incrPattern]),
+            new EventDispatcher(),
+            $connection,
+        );
+
+        static::assertSame('ABC10', $generator->previewPatternByNumberRangeId($numberRangeId));
+    }
+
+    public function testPreviewPatternByNumberRangeIdUsesOverrides(): void
+    {
+        $numberRangeId = Uuid::randomHex();
+
+        $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
+        $incrPattern->method('getPatternId')->willReturn('n');
+        $incrPattern->expects($this->once())
+            ->method('generate')
+            ->with(
+                static::callback(static fn (array $config): bool => $config['id'] === $numberRangeId && $config['pattern'] === 'ORD-{n}' && $config['start'] === 42),
+                [],
+                true
+            )
+            ->willReturn('42');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'id' => $numberRangeId,
+                'pattern' => 'ABC{n}',
+                'start' => '10',
+            ]);
+
+        $generator = new NumberRangeValueGenerator(
+            new ValueGeneratorPatternRegistry([$incrPattern]),
+            new EventDispatcher(),
+            $connection,
+        );
+
+        static::assertSame('ORD-42', $generator->previewPatternByNumberRangeId($numberRangeId, 'ORD-{n}', 42));
+    }
+
+    public function testPreviewPatternByNumberRangeIdThrowsForMissingNumberRange(): void
+    {
+        $numberRangeId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn(false);
+
+        $generator = new NumberRangeValueGenerator(
+            new ValueGeneratorPatternRegistry([]),
+            new EventDispatcher(),
+            $connection,
+        );
+
+        $this->expectExceptionObject(NumberRangeException::numberRangeNotFound($numberRangeId));
+
+        $generator->previewPatternByNumberRangeId($numberRangeId);
+    }
+
+    public function testDeprecatedPreviewPatternThrowsWhenMajorFeatureIsActive(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())
+            ->method('fetchAssociative');
+
+        $generator = new NumberRangeValueGenerator(
+            new ValueGeneratorPatternRegistry([]),
+            new EventDispatcher(),
+            $connection,
+        );
+
+        Feature::fake(['v6.8.0.0'], function () use ($generator): void {
+            $this->expectException(FeatureException::class);
+
+            $generator->previewPattern('customer', '{n}', 0);
+        });
+    }
+
     public function testGenerateExtraCharsAllPatterns(): void
     {
         $value = $this->getGenerator('Pre_!"§$%&/()=_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, Context::createDefaultContext(), null);
@@ -125,7 +236,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     private function getGenerator(string $pattern): NumberRangeValueGenerator
     {
-        $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
+        $incrPattern = static::createStub(ValueGeneratorPatternIncrement::class);
         $incrPattern->method('getPatternId')->willReturn('n');
         $incrPattern->method('generate')->willReturn('5');
 

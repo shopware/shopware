@@ -1,9 +1,9 @@
 {% block sw_multi_tag_select_validation_valid_message %}
-{{ $tc('global.sw-multi-tag-ip-select.addIpAddress') }}
+{{ $t('global.sw-multi-tag-ip-select.addIpAddress') }}
 {% endblock %}
 
 {% block sw_multi_tag_select_validation_invalid_message %}
-{{ $tc('global.sw-multi-tag-ip-select.enterValidIp') }}
+{{ $t('global.sw-multi-tag-ip-select.enterValidIp') }}
 {% endblock %}
 
 {% block sw_multi_tag_select_validation_invalid %}
@@ -17,7 +17,7 @@
     @click="addSpecific(knownIp.value)"
 >
     <span>
-        {{ knownIp.value }} ({{ $te(knownIp.name) ? $tc(knownIp.name) : knownIp.name }})
+        {{ knownIp.value }} ({{ $te(knownIp.name) ? $t(knownIp.name) : knownIp.name }})
     </span>
 </div>
 {% endblock %}
@@ -28,7 +28,7 @@
         name="selection-label-property"
         v-bind="{ item, index, labelProperty, valueProperty}"
     >
-        {{ getKey(item, labelProperty) }} ({{ $te(getKnownIp(item).name) ? $tc(getKnownIp(item).name) : getKnownIp(item).name }})
+        {{ getKey(item, labelProperty) }} ({{ $te(getKnownIp(item).name) ? $t(getKnownIp(item).name) : getKnownIp(item).name }})
     </slot>
 </template>
 <template v-else>

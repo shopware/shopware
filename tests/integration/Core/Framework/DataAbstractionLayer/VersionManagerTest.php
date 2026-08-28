@@ -12,12 +12,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ManyToOneProductDefinition;
@@ -30,6 +32,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class VersionManagerTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
@@ -159,6 +162,51 @@ class VersionManagerTest extends TestCase
         static::getContainer()->get('product.repository')->merge($versionId, $context);
 
         static::assertTrue($called);
+    }
+
+    public function testMergeKeepsInsertOperationForEntityCreatedAndUpdatedInVersion(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $pageRepository = static::getContainer()->get('cms_page.repository');
+        $versionRepository = static::getContainer()->get('version.repository');
+
+        $versionId = Uuid::randomHex();
+        $pageId = Uuid::randomHex();
+
+        $versionRepository->create([['id' => $versionId]], $context);
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $pageRepository->create([[
+            'id' => $pageId,
+            'type' => 'landingpage',
+        ]], $versionContext);
+
+        $pageRepository->update([[
+            'id' => $pageId,
+            'cssClass' => 'updated',
+        ]], $versionContext);
+
+        $pageWriteResult = null;
+
+        $this->addEventListener(
+            static::getContainer()->get('event_dispatcher'),
+            'cms_page.written',
+            static function (EntityWrittenEvent $event) use (&$pageWriteResult, $pageId): void {
+                foreach ($event->getWriteResults() as $writeResult) {
+                    if ($writeResult->getPrimaryKey() !== $pageId) {
+                        continue;
+                    }
+
+                    $pageWriteResult = $writeResult;
+                }
+            }
+        );
+
+        $pageRepository->merge($versionId, $context);
+
+        static::assertInstanceOf(EntityWriteResult::class, $pageWriteResult);
+        static::assertSame(EntityWriteResult::OPERATION_INSERT, $pageWriteResult->getOperation());
     }
 
     public function testWhenNotAddingFKThenItShouldNotBeAvailable(): void

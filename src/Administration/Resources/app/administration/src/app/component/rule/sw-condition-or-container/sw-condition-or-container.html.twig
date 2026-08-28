@@ -12,7 +12,7 @@
             v-if="index > 0"
             class="condition-content__spacer--or"
         >
-            {{ $tc('global.sw-condition.condition.or') }}
+            {{ $t('global.sw-condition.condition.or') }}
         </div>
 
         <sw-condition-tree-node
@@ -35,7 +35,7 @@
             variant="primary"
             @click="onAddPlaceholder"
         >
-            {{ $tc('global.sw-condition.condition.AddOrCondition') }}
+            {{ $t('global.sw-condition.condition.AddOrCondition') }}
         </mt-button>
         <mt-button
             v-if="level !== 0"
@@ -47,7 +47,7 @@
             variant="primary"
             @click="onAddAndContainer"
         >
-            {{ $tc('global.sw-condition.condition.AddSubCondition') }}
+            {{ $t('global.sw-condition.condition.AddSubCondition') }}
         </mt-button>
 
         <mt-button
@@ -58,8 +58,8 @@
             variant="secondary"
             @click="onDeleteAll"
         >
-            <span v-if="level !== 0">{{ $tc('global.sw-condition.condition.deleteConditions') }}</span>
-            <span v-else>{{ $tc('global.sw-condition.condition.deleteAllConditions') }}</span>
+            <span v-if="level !== 0">{{ $t('global.sw-condition.condition.deleteConditions') }}</span>
+            <span v-else>{{ $t('global.sw-condition.condition.deleteAllConditions') }}</span>
         </mt-button>
     </div>
     {% endblock %}

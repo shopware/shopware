@@ -3,15 +3,17 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\FindVariant;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 class FindProductVariantRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -37,6 +40,9 @@ class FindProductVariantRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = static::getContainer()->get('product.repository');
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create('test', TestDefaults::SALES_CHANNEL);
@@ -106,6 +112,39 @@ class FindProductVariantRouteTest extends TestCase
         static::assertSame($this->ids->get('redL'), $result->getFoundCombination()->getVariantId());
     }
 
+    public function testFindSkipsHiddenCloseoutVariantsWhenConfigured(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $this->repository->update(
+            [
+                ['id' => $this->ids->get('redXL'), 'stock' => 0, 'isCloseout' => true],
+            ],
+            Context::createDefaultContext()
+        );
+
+        $switched = $this->ids->get('Color');
+
+        $options = [
+            $this->ids->get('Color') => $this->ids->get('Red'),
+            $this->ids->get('Size') => $this->ids->get('XL'),
+        ];
+
+        $result = $this->findProductVariantRoute->load(
+            $this->ids->get('base'),
+            new Request(
+                [
+                    'switchedGroup' => $switched,
+                    'options' => $options,
+                ]
+            ),
+            $this->context
+        );
+
+        static::assertSame($this->ids->get('redL'), $result->getFoundCombination()->getVariantId());
+    }
+
     public function testFindNoCombinable(): void
     {
         $switched = $this->ids->get('new');
@@ -114,12 +153,10 @@ class FindProductVariantRouteTest extends TestCase
             $this->ids->get('new') => $this->ids->get('new'),
         ];
 
-        static::expectException(VariantNotFoundException::class);
-        static::expectExceptionMessage(
-            'Variant for productId '
-            . $this->ids->get('base') . ' with options {"' . $this->ids->get('new') . '":"' . $this->ids->get('new')
-            . '"} not found.'
-        );
+        $this->expectExceptionObject(ProductException::variantNotFound(
+            $this->ids->get('base'),
+            [$this->ids->get('new') => $this->ids->get('new')]
+        ));
 
         $this->findProductVariantRoute->load(
             $this->ids->get('base'),

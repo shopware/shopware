@@ -9,7 +9,7 @@
     {% block sw_custom_field_type_date_container_type %}
     <mt-select
         v-model="currentCustomField.config.dateType"
-        :label="$tc('sw-settings-custom-field.customField.detail.labelDateType')"
+        :label="$t('sw-settings-custom-field.customField.detail.labelDateType')"
         :options="types"
     />
     {% endblock %}
@@ -18,7 +18,7 @@
     <mt-select
         v-if="['time', 'datetime'].includes(currentCustomField.config.dateType)"
         v-model="currentCustomField.config.config.time_24hr"
-        :label="$tc('sw-settings-custom-field.customField.detail.labelTimeForm')"
+        :label="$t('sw-settings-custom-field.customField.detail.labelTimeForm')"
         :options="timeForms"
     />
     {% endblock %}

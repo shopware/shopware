@@ -39,13 +39,13 @@ import { CreateDocument } from '@tasks/ShopAdmin/Orders/CreateDocumentViaAPI';
 /**
  * Rules
  */
-import { CreateRule } from '@tasks/ShopAdmin/RuleBuilder/CreateRule';
 import { CreateRuleBillingCountry } from '@tasks/ShopAdmin/RuleBuilder/CreateRuleBillingCountry';
 
 /**
  * Flows
  */
 import { CreateFlowForValidation } from '@tasks/ShopAdmin/FlowBuilder/CreateFlowForValidation';
+import { WaitForFlowValidationSideEffects } from '@tasks/ShopAdmin/FlowBuilder/WaitForFlowValidationSideEffects';
 
 export const test = mergeTests(
     GenerateVariants,
@@ -56,7 +56,7 @@ export const test = mergeTests(
     CustomerGroupActivation,
     AddCreditItem,
     CreateDocument,
-    CreateRule,
     CreateRuleBillingCountry,
     CreateFlowForValidation,
+    WaitForFlowValidationSideEffects,
 );

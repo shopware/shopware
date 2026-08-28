@@ -66,7 +66,7 @@ export default {
 
                     if (transformedMapping.length === 1) {
                         this.createNotificationWarning({
-                            message: this.$tc('sw-import-export.profile.messageCsvTemplateUploadWarning'),
+                            message: this.$t('sw-import-export.profile.messageCsvTemplateUploadWarning'),
                             duration: 10000,
                         });
                     }
@@ -74,11 +74,11 @@ export default {
                 .catch((error) => {
                     this.profile.mapping = [];
                     this.$emit('next-disable');
-                    let message = this.$tc('sw-import-export.profile.messageCsvTemplateUploadError');
+                    let message = this.$t('sw-import-export.profile.messageCsvTemplateUploadError');
 
                     const errorCode = error.response?.data?.errors?.[0]?.code;
                     if (errorCode === 'CONTENT__IMPORT_EXPORT_FILE_EMPTY') {
-                        message = this.$tc('sw-import-export.profile.messageCsvTemplateUploadEmptyError');
+                        message = this.$t('sw-import-export.profile.messageCsvTemplateUploadEmptyError');
                     }
 
                     this.createNotificationError({

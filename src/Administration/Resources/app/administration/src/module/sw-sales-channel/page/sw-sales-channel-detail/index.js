@@ -2,10 +2,29 @@
  * @sw-package discovery
  */
 
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-sales-channel-detail.html.twig';
+import './sw-sales-channel-detail.scss';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
+const objectHelper = Shopware.Utils.object;
+const ShopwareError = Shopware.Classes.ShopwareError;
+
+const REQUIRED_BASE_FIELDS = [
+    'name',
+    'customerGroupId',
+    'currencyId',
+    'languageId',
+    'paymentMethodId',
+    'shippingMethodId',
+    'countryId',
+    'navigationCategoryId',
+];
+
+const REQUIRED_PRODUCT_EXPORT_FIELDS = [
+    'name',
+];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,9 +33,17 @@ export default {
     inject: [
         'repositoryFactory',
         'exportTemplateService',
+        'systemConfigApiService',
         'acl',
         'feature',
     ],
+
+    provide() {
+        return {
+            /** @deprecated tag:v6.8.0 - Will be removed */
+            swSalesChannelDetailGetAgenticCommerceExportConfig: () => this.agenticCommerceExportConfig,
+        };
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -40,9 +67,12 @@ export default {
                 templateOptions: [],
                 templates: null,
                 templateName: null,
+                previousTemplateName: null,
                 showTemplateModal: false,
                 selectedTemplate: null,
             },
+            /** @deprecated tag:v6.8.0 - Will be removed */
+            agenticCommerceExportConfig: [],
         };
     },
 
@@ -97,8 +127,105 @@ export default {
             return this.salesChannel.typeId === Defaults.apiSalesChannelTypeId;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        isAgenticCommerce() {
+            if (!this.salesChannel) {
+                return this.$route.params.typeId === Defaults.agenticCommerceTypeId;
+            }
+
+            return this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        hasSwagAgenticCommercePlugin() {
+            return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        showAgenticCommerceDeprecationBanner() {
+            return this.isAgenticCommerce && !this.hasSwagAgenticCommercePlugin;
+        },
+
+        isProductExportChannel() {
+            return this.isProductComparison || this.isAgenticCommerce;
+        },
+
+        salesChannelDetailTabs() {
+            const createRouteTab = (label, routeName, additionalProperties = {}) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    ...additionalProperties,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const tabs = [
+                createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base'),
+            ];
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.productExport.tabInsights',
+                        'sw.sales.channel.detail.productExportInsights',
+                    ),
+                );
+            }
+
+            if (this.isHeadless || this.isStorefront) {
+                tabs.push(createRouteTab('sw-sales-channel.detail.tabProducts', 'sw.sales.channel.detail.products'));
+            }
+
+            if (!this.isProductExportChannel) {
+                tabs.push(
+                    createRouteTab('sw-sales-channel.detail.tabTheme', 'sw.sales.channel.detail.theme', {
+                        disabled: this.isLoading,
+                    }),
+                );
+            }
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.agenticCommerce.tabIntegration',
+                        'sw.sales.channel.detail.agenticCommerceIntegration',
+                    ),
+                );
+            }
+
+            if (this.isProductExportChannel && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.tabProductComparison',
+                        'sw.sales.channel.detail.productComparison',
+                    ),
+                );
+            }
+
+            if (this.isStorefront) {
+                tabs.push(createRouteTab('sw-sales-channel.detail.tabAnalytics', 'sw.sales.channel.detail.analytics'));
+            }
+
+            if (this.isHeadless || this.isStorefront) {
+                tabs.push(createRouteTab('sw-sales-channel.detail.tabAgenticFiles', 'sw.sales.channel.detail.agenticFiles'));
+            }
+
+            return tabs;
+        },
+
         salesChannelRepository() {
-            return this.repositoryFactory.create('sales_channel');
+            // Sync keeps removed language mappings and the new languageId in one write, so the
+            // default language validation sees the post-write state instead of rejecting the
+            // removal of the previous default.
+            return this.repositoryFactory.create('sales_channel', null, { useSync: true });
         },
 
         salesChannelAnalyticsRepository() {
@@ -116,13 +243,18 @@ export default {
         storefrontSalesChannelCriteria() {
             const criteria = new Criteria(1, 25);
 
-            return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontSalesChannelTypeId));
+            return criteria.addFilter(
+                Criteria.equalsAny('typeId', [
+                    Defaults.storefrontSalesChannelTypeId,
+                    Defaults.apiSalesChannelTypeId,
+                ]),
+            );
         },
 
         tooltipSave() {
             if (!this.allowSaving) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSaving,
                     showOnDisabledElements: true,
                 };
@@ -139,11 +271,36 @@ export default {
         allowSaving() {
             return this.acl.can('sales_channel.editor');
         },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        defaultAgenticCommerceExportConfig() {
+            return [
+                {
+                    provider: 'open-ai',
+                    systemConfigDomain: 'core.openAiProductExport',
+                    titleSnippet: 'sw-sales-channel.detail.agenticCommerce.openAiSettingsTitle',
+                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-provider',
+                },
+                {
+                    provider: 'google',
+                    systemConfigDomain: 'core.googleProductExport',
+                    titleSnippet: 'sw-sales-channel.detail.agenticCommerce.googleSettingsTitle',
+                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-provider',
+                },
+            ];
+        },
     },
 
     watch: {
         '$route.params.id'() {
             this.createdComponent();
+        },
+
+        salesChannel: {
+            deep: true,
+            handler() {
+                this.clearResolvedRequiredSalesChannelFieldErrors();
+            },
         },
     },
 
@@ -152,6 +309,16 @@ export default {
     },
 
     methods: {
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        onClickInstallAgenticCommercePlugin() {
+            if (this.$router.hasRoute('sw.extension.store.detail')) {
+                this.$router.push({ name: 'sw.extension.store.detail', params: { id: '21761' } });
+                return;
+            }
+
+            this.$router.push({ name: 'sw.extension.store.landing-page' });
+        },
+
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-sales-channel-detail__salesChannel',
@@ -163,11 +330,20 @@ export default {
         },
 
         loadEntityData() {
-            if (!this.$route.params.id) {
+            const hasRouteId = Boolean(this.$route.params.id);
+            const hasRouteTypeId = Boolean(this.$route.params.typeId);
+
+            if (!hasRouteId && hasRouteTypeId && this.salesChannel?.id) {
+                this.loadAgenticCommerceExportConfig();
                 return;
             }
 
-            if (this.$route.params.typeId) {
+            if (!hasRouteId) {
+                return;
+            }
+
+            if (hasRouteTypeId) {
+                this.loadAgenticCommerceExportConfig();
                 return;
             }
 
@@ -186,13 +362,13 @@ export default {
                 .then((entity) => {
                     this.salesChannel = entity;
 
-                    // eslint-disable-next-line inclusive-language/use-inclusive-words
-                    if (!this.salesChannel.maintenanceIpWhitelist) {
-                        // eslint-disable-next-line inclusive-language/use-inclusive-words
-                        this.salesChannel.maintenanceIpWhitelist = [];
+                    if (!this.salesChannel.maintenanceIpAllowlist) {
+                        this.salesChannel.maintenanceIpAllowlist = [];
                     }
 
                     this.generateAccessUrl();
+                    this.loadAgenticCommerceExportConfig();
+                    this.detectCurrentTemplate();
 
                     this.isLoading = false;
                 });
@@ -201,9 +377,9 @@ export default {
         getLoadSalesChannelCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addAssociation('paymentMethods');
-            criteria.addAssociation('shippingMethods');
-            criteria.addAssociation('countries');
+            criteria.getAssociation('paymentMethods').addSorting(Criteria.sort('distinguishableName', 'ASC'));
+            criteria.getAssociation('shippingMethods').addSorting(Criteria.sort('name', 'ASC'));
+            criteria.getAssociation('countries').addSorting(Criteria.sort('name', 'ASC'));
             criteria.getAssociation('currencies').addSorting(Criteria.sort('name', 'ASC'));
             criteria.addAssociation('domains');
             criteria
@@ -211,6 +387,7 @@ export default {
                 .addSorting(Criteria.sort('name', 'ASC'))
                 .addFilter(Criteria.equals('active', true));
             criteria.addAssociation('analytics');
+            criteria.addAssociation('salesChannelFiles');
 
             criteria.addAssociation('productExports');
             criteria.addAssociation('productExports.salesChannelDomain.salesChannel');
@@ -228,32 +405,46 @@ export default {
                 return;
             }
 
-            this.productComparison.selectedTemplate = this.productComparison.templates[templateName];
+            this.productComparison.selectedTemplate = { ...this.productComparison.templates[templateName] };
             const contentChanged = Object.keys(this.productComparison.selectedTemplate).some((value) => {
                 return this.productExport[value] !== this.productComparison.selectedTemplate[value];
             });
 
             if (!contentChanged) {
+                this.productComparison.templateName = templateName;
                 return;
             }
 
+            this.productComparison.previousTemplateName = this.productComparison.templateName;
+            this.productComparison.templateName = templateName;
             this.productComparison.showTemplateModal = true;
         },
 
         onTemplateModalClose() {
             this.productComparison.selectedTemplate = null;
-            this.productComparison.templateName = null;
+            this.productComparison.templateName = this.productComparison.previousTemplateName ?? null;
+            this.productComparison.previousTemplateName = null;
             this.productComparison.showTemplateModal = false;
         },
 
         onTemplateModalConfirm() {
-            Object.keys(this.productComparison.selectedTemplate).forEach((value) => {
-                this.productExport[value] = this.productComparison.selectedTemplate[value];
+            const selectedTemplate = this.productComparison.selectedTemplate;
+
+            Object.keys(selectedTemplate).forEach((key) => {
+                if (key === 'providerName') {
+                    this.productExport.provider = selectedTemplate[key];
+                    return;
+                }
+
+                this.productExport[key] = selectedTemplate[key];
             });
-            this.onTemplateModalClose();
+
+            this.productComparison.selectedTemplate = null;
+            this.productComparison.previousTemplateName = null;
+            this.productComparison.showTemplateModal = false;
 
             this.createNotificationInfo({
-                message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
+                message: this.$t('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
             });
         },
 
@@ -285,6 +476,20 @@ export default {
             this.productComparison.templates = this.exportTemplateService.getProductExportTemplateRegistry();
         },
 
+        detectCurrentTemplate() {
+            if (!this.productComparison.templates || !this.productExport) {
+                return;
+            }
+
+            const matchedTemplate = this.productComparison.templateOptions.find((template) => {
+                return template.bodyTemplate !== undefined && template.bodyTemplate === this.productExport.bodyTemplate;
+            });
+
+            if (matchedTemplate) {
+                this.productComparison.templateName = matchedTemplate.name;
+            }
+        },
+
         saveFinish() {
             this.isSaveSuccessful = false;
         },
@@ -294,7 +499,9 @@ export default {
         },
 
         prepareSaveData() {
-            if (this.isProductComparison && !this.salesChannel.productExports.length) {
+            const needsProductExport = this.isProductExportChannel;
+
+            if (needsProductExport && !this.salesChannel.productExports.length) {
                 this.salesChannel.productExports.add(this.productExport);
             }
 
@@ -318,7 +525,7 @@ export default {
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
             } catch (_error) {
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'sw-sales-channel.detail.messageSaveError',
                         {
                             name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
@@ -338,10 +545,127 @@ export default {
         },
 
         async onSave() {
+            if (!this.validateRequiredSalesChannelFields()) {
+                return;
+            }
+
+            if (!this.validateAgenticCommerceExportConfig()) {
+                this.isLoading = false;
+                return;
+            }
+
             const saveSuccessful = await this.saveSalesChannel();
 
-            if (saveSuccessful) {
-                this.loadEntityData();
+            if (!saveSuccessful) {
+                return;
+            }
+
+            const configSaveSuccessful = await this.saveAgenticCommerceExportConfig();
+
+            if (!configSaveSuccessful) {
+                return;
+            }
+
+            this.loadEntityData();
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        validateAgenticCommerceExportConfig() {
+            const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
+            const activeProvider = this.productExport?.provider ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
+            let isValid = true;
+
+            const activeEntries = this.agenticCommerceExportConfig.filter((entry) => {
+                return entry.isLoaded && entry.provider === activeProvider;
+            });
+
+            for (const entry of activeEntries) {
+                for (const el of entry.elements.filter((el) => el.config?.required && !entry.values[el.name])) {
+                    entry.errors[el.name] = requiredError;
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        async loadAgenticCommerceExportConfig() {
+            this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
+                return {
+                    ...configEntry,
+                    elements: [],
+                    values: {},
+                    errors: {},
+                    isLoading: false,
+                    isLoaded: false,
+                };
+            });
+
+            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+                return;
+            }
+
+            await Promise.all(
+                this.agenticCommerceExportConfig.map(async (configEntry) => {
+                    configEntry.isLoading = true;
+
+                    try {
+                        const [
+                            config,
+                            values,
+                        ] = await Promise.all([
+                            this.systemConfigApiService.getConfig(configEntry.systemConfigDomain),
+                            this.systemConfigApiService.getValues(configEntry.systemConfigDomain, this.salesChannel.id),
+                        ]);
+
+                        configEntry.elements = config.flatMap((card) => card.elements);
+                        configEntry.values = values;
+                        configEntry.isLoaded = true;
+                    } catch (_error) {
+                        this.createNotificationError({
+                            message: this.$t('sw-sales-channel.detail.messageAPIError'),
+                        });
+                    } finally {
+                        configEntry.isLoading = false;
+                    }
+                }),
+            );
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        async saveAgenticCommerceExportConfig() {
+            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+                return true;
+            }
+
+            const loadedConfigs = this.agenticCommerceExportConfig.filter((configEntry) => configEntry.isLoaded);
+
+            if (loadedConfigs.length === 0) {
+                return true;
+            }
+
+            const mergedValues = loadedConfigs.reduce((accumulator, configEntry) => {
+                return {
+                    ...accumulator,
+                    ...objectHelper.deepCopyObject(configEntry.values),
+                };
+            }, {});
+
+            try {
+                await this.systemConfigApiService.batchSave({
+                    [this.salesChannel.id]: mergedValues,
+                });
+
+                return true;
+            } catch (_error) {
+                this.createNotificationError({
+                    message: this.$t('sw-sales-channel.detail.messageSaveError', {
+                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                    }),
+                });
+
+                return false;
             }
         },
 
@@ -360,11 +684,119 @@ export default {
         },
 
         async saveOnLanguageChange() {
-            await this.saveSalesChannel();
+            if (!this.validateRequiredSalesChannelFields()) {
+                return Promise.reject();
+            }
+
+            const saveSuccessful = await this.saveSalesChannel();
+
+            if (!saveSuccessful) {
+                return Promise.reject();
+            }
+
+            return true;
         },
 
         onChangeLanguage() {
             this.loadEntityData();
+        },
+
+        validateRequiredSalesChannelFields() {
+            if (!this.salesChannel) {
+                return false;
+            }
+
+            const missingFields = this.getRequiredSalesChannelFields().filter((fieldName) => {
+                return this.isRequiredFieldEmpty(this.salesChannel[fieldName]);
+            });
+
+            if (missingFields.length <= 0) {
+                return true;
+            }
+
+            this.clearRequiredSalesChannelFieldErrors();
+            missingFields.forEach((fieldName) => this.addRequiredSalesChannelFieldError(fieldName));
+
+            this.createNotificationError({
+                message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+            });
+
+            this.isLoading = false;
+
+            return false;
+        },
+
+        getRequiredSalesChannelFields() {
+            if (this.isProductExportChannel) {
+                return REQUIRED_PRODUCT_EXPORT_FIELDS;
+            }
+
+            return REQUIRED_BASE_FIELDS;
+        },
+
+        isRequiredFieldEmpty(value) {
+            if (value === undefined || value === null) {
+                return true;
+            }
+
+            if (typeof value === 'string') {
+                return value.trim() === '';
+            }
+
+            return false;
+        },
+
+        addRequiredSalesChannelFieldError(fieldName) {
+            Shopware.Store.get('error').addApiError({
+                expression: this.getRequiredSalesChannelFieldErrorExpression(fieldName),
+                error: new ShopwareError(EntityValidationService.createRequiredError(`/0/${fieldName}`)),
+            });
+        },
+
+        clearRequiredSalesChannelFieldErrors() {
+            this.getRequiredSalesChannelFields().forEach((fieldName) => {
+                this.clearRequiredSalesChannelFieldError(fieldName);
+            });
+        },
+
+        clearResolvedRequiredSalesChannelFieldErrors() {
+            if (!this.salesChannel?.id) {
+                return;
+            }
+
+            this.getRequiredSalesChannelFields().forEach((fieldName) => {
+                if (this.isRequiredFieldEmpty(this.salesChannel[fieldName])) {
+                    return;
+                }
+
+                this.clearRequiredSalesChannelFieldError(fieldName);
+            });
+        },
+
+        clearRequiredSalesChannelFieldError(fieldName) {
+            const error = this.getRequiredSalesChannelFieldError(fieldName);
+
+            if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
+                return;
+            }
+
+            Shopware.Store.get('error').removeApiError(this.getRequiredSalesChannelFieldErrorExpression(fieldName));
+        },
+
+        getRequiredSalesChannelFieldError(fieldName) {
+            return Shopware.Store.get('error').getApiErrorFromPath(this.getSalesChannelEntityName(), this.salesChannel.id, [
+                fieldName,
+            ]);
+        },
+
+        getRequiredSalesChannelFieldErrorExpression(fieldName) {
+            return `${this.getSalesChannelEntityName()}.${this.salesChannel.id}.${fieldName}`;
+        },
+
+        getSalesChannelEntityName() {
+            return typeof this.salesChannel.getEntityName === 'function'
+                ? this.salesChannel.getEntityName()
+                : 'sales_channel';
         },
     },
 };

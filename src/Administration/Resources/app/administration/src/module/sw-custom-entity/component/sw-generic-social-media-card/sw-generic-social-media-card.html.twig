@@ -2,16 +2,16 @@
 <mt-card
     class="sw-generic-social-media-card"
     position-identifier="sw-generic-social-media-card"
-    :title="$tc('sw-landing-page.base.seo.titleSocialMedia')"
+    :title="$t('sw-landing-page.base.seo.titleSocialMedia')"
 >
 
     <mt-text-field
         class="sw-generic-social-media-card__og-title-input"
         :max-length="255"
         :model-value="ogTitle"
-        :label="$tc('sw-landing-page.base.seo.labelSocialMediaTitle')"
-        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
-        :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaTitle')"
+        :label="$t('sw-landing-page.base.seo.labelSocialMediaTitle')"
+        :help-text="$t('sw-landing-page.base.seo.helpTextMetaTitle')"
+        :placeholder="$t('sw-landing-page.base.seo.placeholderSocialMediaTitle')"
         @update:model-value="emitOgTitle"
     />
 
@@ -19,9 +19,9 @@
         class="sw-generic-social-media-card__og-description-input"
         :model-value="ogDescription"
         max-length="255"
-        :label="$tc('sw-landing-page.base.seo.labelSocialMediaDescription')"
-        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
-        :placeholder="$tc('sw-landing-page.base.seo.placeholderSocialMediaDescription')"
+        :label="$t('sw-landing-page.base.seo.labelSocialMediaDescription')"
+        :help-text="$t('sw-landing-page.base.seo.helpTextMetaDescription')"
+        :placeholder="$t('sw-landing-page.base.seo.placeholderSocialMediaDescription')"
         @update:model-value="emitOgDescription"
     />
 
@@ -31,7 +31,7 @@
         :upload-tag="uploadTag"
         :source="ogImageEntity"
         :allow-multi-select="false"
-        :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+        :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
         @media-upload-sidebar-open="onOpenMediaModal"
         @media-upload-remove-image="removeOgImage"
     />
@@ -45,7 +45,7 @@
 
     <div class="sw-generic-social-media-card__media-preview">
         <div class="sw-generic-social-media-card__media-preview-title">
-            {{ $tc('sw-landing-page.base.seo.socialMediaPreview') }} &lt;= 600px
+            {{ $t('sw-landing-page.base.seo.socialMediaPreview') }} &lt;= 600px
         </div>
 
         <div
@@ -74,7 +74,7 @@
 
     <div class="sw-generic-social-media-card__media-preview">
         <div class="sw-generic-social-media-card__media-preview-title">
-            {{ $tc('sw-landing-page.base.seo.socialMediaPreview') }} &gt; 600px
+            {{ $t('sw-landing-page.base.seo.socialMediaPreview') }} &gt; 600px
         </div>
 
         <div class="sw-generic-social-media-card__media-preview-container media-preview--lg">
@@ -102,7 +102,7 @@
         v-if="mediaModalIsOpen"
         class="sw-generic-social-media-card__media-modal"
         variant="regular"
-        :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+        :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
         :allow-multi-select="false"
         @media-modal-selection-change="onSelectionChanges"
         @modal-close="onCloseMediaModal"

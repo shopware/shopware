@@ -11,6 +11,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +23,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('discovery')]
 class ProductDetailReadinessCheck extends BaseCheck
 {
-    private const DETAIL_PAGE = 'frontend.detail.page';
-
     private const MESSAGE_SUCCESS = 'Product detail pages are OK for provided sales channels.';
 
     private const MESSAGE_FAILURE = 'Some or all product detail pages are unhealthy.';
@@ -72,7 +71,7 @@ class ProductDetailReadinessCheck extends BaseCheck
                 continue;
             }
 
-            $url = $this->util->generateDomainUrl($domain->url, self::DETAIL_PAGE, [
+            $url = $this->util->generateDomainUrl($domain->url, ProductPageSeoUrlRoute::ROUTE_NAME, [
                 'productId' => $productId,
             ]);
 

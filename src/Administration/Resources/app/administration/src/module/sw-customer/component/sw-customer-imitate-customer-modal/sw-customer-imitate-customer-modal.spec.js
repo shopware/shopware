@@ -104,11 +104,10 @@ describe('module/sw-customer-imitate-customer-modal', () => {
 
         await flushPromises();
 
-        const item = await wrapper.find('.sw-context-menu-item');
+        const item = await wrapper.find('.imitate-customer-modal-item');
         expect(item.exists()).toBe(true);
 
         await item.trigger('click');
-
         await flushPromises();
 
         expect(generateTokenSpy).toHaveBeenCalledWith('customer-id', 'sales-channel-id');

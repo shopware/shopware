@@ -3,7 +3,7 @@
     {% block sw_category_detail_information %}
     <mt-card
         position-identifier="sw-category-detail-base"
-        :title="$tc('sw-category.base.general.headlineInformationCard')"
+        :title="$t('sw-category.base.general.headlineInformationCard')"
         :is-loading="isLoading"
     >
         <sw-container
@@ -18,7 +18,7 @@
                 name="categoryName"
                 validation="required"
                 :disabled="!acl.can('category.editor')"
-                :label="$tc('sw-category.base.general.categoryNameLabel')"
+                :label="$t('sw-category.base.general.categoryNameLabel')"
                 :placeholder="placeholder(category, 'name')"
                 :error="categoryNameError"
             />
@@ -31,7 +31,7 @@
                 :disabled="!acl.can('category.editor')"
                 name="categoryActive"
                 class="sw-category-detail-base__active"
-                :label="$tc('sw-category.base.general.isCategoryActiveLabel')"
+                :label="$t('sw-category.base.general.isCategoryActiveLabel')"
                 bordered
             />
             {% endblock %}
@@ -42,8 +42,8 @@
             v-if="category && !isLoading"
             v-model:entity-collection="category.tags"
             class="sw-category-detail-base__tags"
-            :label="$tc('sw-category.base.general.labelCategoryTags')"
-            :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
+            :label="$t('sw-category.base.general.labelCategoryTags')"
+            :placeholder="$t('sw-category.base.general.labelCategoryTagsPlaceholder')"
             :disabled="!acl.can('category.editor')"
         />
         {% endblock %}
@@ -56,7 +56,7 @@
                 v-model:value="category.type"
                 class="sw-category-detail-base__type-selection"
                 :help-text="categoryTypeHelpText"
-                :label="$tc('sw-category.base.general.types.title')"
+                :label="$t('sw-category.base.general.types.title')"
                 :disabled="!acl.can('category.editor')"
                 :error="categoryTypeError"
                 :options="categoryTypes"
@@ -94,12 +94,13 @@
     <mt-card
         v-if="customFieldSetsArray.length > 0"
         position-identifier="sw-category-detail-attribute-sets"
-        :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+        :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >
         <sw-custom-field-set-renderer
             :entity="category"
             :sets="customFieldSetsArray"
+            :disabled="!acl.can('category.editor')"
         />
     </mt-card>
     {% endblock %}

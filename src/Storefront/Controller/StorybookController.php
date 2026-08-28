@@ -6,7 +6,6 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Storybook\StorybookService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,7 +19,7 @@ use Twig\Error\SyntaxError;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorybookController extends AbstractController
 {
     private const BASE_TEMPLATE = <<<TWIG
@@ -33,9 +32,7 @@ class StorybookController extends AbstractController
     TWIG;
 
     public function __construct(
-        private readonly string $environment,
         private readonly Environment $twig,
-        private readonly TwigComponentHelper $twigComponentHelper,
         private readonly StorybookService $storybookService,
     ) {
     }
@@ -46,33 +43,21 @@ class StorybookController extends AbstractController
     #[Route(
         path: '/storybook/{component}',
         name: 'storybook.component',
+        env: 'dev',
         defaults: ['auth_required' => false],
         methods: [Request::METHOD_GET],
     )]
     public function storybook(string $component, Request $request): Response
     {
-        // Only allow in development environment
-        if ($this->environment !== 'dev') {
-            throw new NotFoundHttpException();
-        }
-
         $storybookDomain = (string) EnvironmentHelper::getVariable('STORYBOOK_DOMAIN', 'http://localhost:6006');
 
         if ($request->headers->get('Origin') !== $storybookDomain) {
             throw new NotFoundHttpException();
         }
 
-        // Validate component name against the registered components
-        if ($this->twigComponentHelper->getComponents()->get($component) === null) {
-            throw new NotFoundHttpException();
-        }
-
         $salesChannelContext = $this->storybookService->createSalesChannelContext();
         $salesChannelId = $salesChannelContext->getSalesChannelId();
         $themeId = $this->storybookService->getThemeId($salesChannelId);
-
-        $this->twig->addGlobal('context', $salesChannelContext);
-        $this->twig->addGlobal('themeId', $themeId);
 
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, $themeId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
@@ -85,6 +70,8 @@ class StorybookController extends AbstractController
                 [
                     'componentName' => $component,
                     'componentProps' => $componentProps,
+                    'context' => $salesChannelContext,
+                    'themeId' => $themeId,
                 ]
             );
 

@@ -130,6 +130,21 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-create', () => {
+    beforeEach(() => {
+        global.repositoryFactoryMock.responses.addResponse({
+            method: 'Post',
+            url: '/search/language',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     it('should be able to save the customer group with name', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Maintenance\System\Command;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -20,16 +19,17 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal should be used over the CLI only
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'system:update:finish',
     description: 'Finishes the update process',
 )]
-#[Package('framework')]
 class SystemUpdateFinishCommand extends Command
 {
     public function __construct(
@@ -69,7 +69,7 @@ class SystemUpdateFinishCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $dsn = trim((string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL')));
         if ($dsn === '') {
@@ -111,7 +111,7 @@ class SystemUpdateFinishCommand extends Command
         return self::SUCCESS;
     }
 
-    private function runMigrations(ShopwareStyle $io, InputInterface $input): void
+    private function runMigrations(SymfonyStyle $io, InputInterface $input): void
     {
         $application = $this->getConsoleApplication();
 
@@ -139,7 +139,7 @@ class SystemUpdateFinishCommand extends Command
         }
     }
 
-    private function installAssets(ShopwareStyle $io): int
+    private function installAssets(SymfonyStyle $io): int
     {
         $application = $this->getConsoleApplication();
         $command = $application->find('assets:install');
@@ -150,7 +150,7 @@ class SystemUpdateFinishCommand extends Command
     /**
      * @param array<string, string|bool|null> $arguments
      */
-    private function runCommand(Application $application, Command $command, array $arguments, ShopwareStyle $io): int
+    private function runCommand(Application $application, Command $command, array $arguments, SymfonyStyle $io): int
     {
         \array_unshift($arguments, $command->getName());
 

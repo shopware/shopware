@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Entity::class)]
 class EntityTest extends TestCase
 {

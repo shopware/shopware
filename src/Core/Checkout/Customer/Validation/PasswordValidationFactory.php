@@ -46,6 +46,6 @@ class PasswordValidationFactory implements DataValidationFactoryInterface
         if ($minLength < 0) {
             $minLength = null;
         }
-        $definition->add('password', new NotBlank(), new Length(min: $minLength, max: PasswordHasherInterface::MAX_PASSWORD_LENGTH, maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG'));
+        $definition->add('password', new NotBlank(), new Length(min: $minLength, max: PasswordHasherInterface::MAX_PASSWORD_LENGTH, minMessage: 'VIOLATION::PASSWORD_IS_TOO_SHORT', maxMessage: 'VIOLATION::PASSWORD_IS_TOO_LONG'));
     }
 }

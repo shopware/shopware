@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
@@ -14,12 +15,14 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     final public const REDIRECT_URL = 'http://payment.app/do/something';
@@ -54,8 +57,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . 'Payment was reported as failed.');
+        $this->expectExceptionObject(AppException::interrupted('Payment was reported as failed.'));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -73,8 +75,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->expectExceptionObject(AppException::interrupted(self::ERROR_MESSAGE));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -91,8 +92,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->expectExceptionObject(AppException::interrupted(self::ERROR_MESSAGE));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -126,10 +126,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, [], $json));
+        $mockResponse = new Response(200, [], $json);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -146,10 +150,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
+        $mockResponse = new Response(200, ['shopware-app-signature' => 'invalid'], $json);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -172,10 +180,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $this->appendNewResponse(new Response(500));
+        $mockResponse = new Response(500);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -216,10 +228,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
+        $mockResponse = new Response(200, ['shopware-app-signature' => 'invalid'], $json);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
@@ -266,10 +282,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, [], $json));
+        $mockResponse = new Response(200, [], $json);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
@@ -304,10 +324,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $data = $this->prepareTransaction();
 
-        $this->appendNewResponse(new Response(500));
+        $mockResponse = new Response(500);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
@@ -399,8 +423,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The customer canceled the external payment process. ');
+        $this->expectExceptionObject(PaymentException::customerCanceled($data['transactionId'], ''));
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
@@ -443,8 +466,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->expectExceptionObject(AppException::interrupted(self::ERROR_MESSAGE));
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
             // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
@@ -542,6 +564,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertNotEmpty($token);
         static::assertArrayHasKey('order', $content);
         static::assertIsArray($content['order']);
+        static::assertArrayHasKey('language', $content['order']);
+        static::assertIsArray($content['order']['language']);
+        static::assertArrayHasKey('translationCode', $content['order']['language']);
         static::assertArrayHasKey('orderCustomer', $content['order']);
         static::assertIsArray($content['order']['orderCustomer']);
         static::assertArrayHasKey('customer', $content['order']['orderCustomer']);

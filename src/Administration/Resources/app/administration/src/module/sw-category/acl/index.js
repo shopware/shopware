@@ -41,6 +41,7 @@ Shopware.Service('privileges')
                     'tag:create',
                     'category_tag:create',
                     'category_tag:delete',
+                    'seo_url:update',
                 ],
                 dependencies: [
                     'category.viewer',
@@ -99,6 +100,7 @@ Shopware.Service('privileges')
                     'landing_page_tag:delete',
                     'landing_page_sales_channel:create',
                     'landing_page_sales_channel:delete',
+                    'seo_url:update',
                 ],
                 dependencies: [
                     'category.viewer',

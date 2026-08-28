@@ -1,0 +1,27 @@
+.sw-condition-field-errors {
+    display: flex;
+    align-items: center;
+    gap: var(--scale-size-6);
+    margin-top: var(--scale-size-4);
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-xs);
+    min-width: 0;
+
+    &__icon {
+        flex-shrink: 0;
+        color: var(--color-icon-critical-default);
+    }
+
+    &__summary {
+        color: var(--color-text-critical-default);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+    }
+
+    &__prefix {
+        font-weight: var(--font-weight-semi-bold);
+        margin-right: var(--scale-size-2);
+    }
+}

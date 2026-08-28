@@ -3,21 +3,27 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\Autoload\ClassLoader;
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
@@ -29,6 +35,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AssetService::class)]
 class AssetServiceTest extends TestCase
 {
@@ -84,11 +91,96 @@ class AssetServiceTest extends TestCase
         static::assertTrue($filesystem->has('bundles/featurea'));
     }
 
+    public function testCopyAssetsUsesTopLevelAssetFilesystemVisibility(): void
+    {
+        $adapter = new CapturingWriteBatchAdapter();
+        $filesystem = new Filesystem($adapter);
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.visibility' => Visibility::PRIVATE,
+                'shopware.filesystem.asset.config' => [
+                    'visibility' => Visibility::PUBLIC,
+                ],
+            ])
+        );
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+
+        static::assertNotEmpty($adapter->visibilities);
+        static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCopyAssetsUsesDeprecatedAssetFilesystemConfigVisibilityBeforeNextMajor(): void
+    {
+        $adapter = new CapturingWriteBatchAdapter();
+        $filesystem = new Filesystem($adapter);
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.visibility' => Visibility::PUBLIC,
+                'shopware.filesystem.asset.config' => [
+                    'visibility' => Visibility::PRIVATE,
+                ],
+            ])
+        );
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+
+        static::assertNotEmpty($adapter->visibilities);
+        static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCopyAssetsUsesTopLevelAssetFilesystemVisibilityWhenDeprecatedConfigVisibilityIsUnset(): void
+    {
+        $adapter = new CapturingWriteBatchAdapter();
+        $filesystem = new Filesystem($adapter);
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.visibility' => Visibility::PRIVATE,
+                'shopware.filesystem.asset.config' => [],
+            ])
+        );
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+
+        static::assertNotEmpty($adapter->visibilities);
+        static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
+    }
+
+    public function testCopyAssetsFallsBackToPublicAssetFilesystemVisibility(): void
+    {
+        $adapter = new CapturingWriteBatchAdapter();
+        $filesystem = new Filesystem($adapter);
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.config' => [],
+            ])
+        );
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+
+        static::assertNotEmpty($adapter->visibilities);
+        static::assertSame([Visibility::PUBLIC], array_values(array_unique($adapter->visibilities)));
+    }
+
     public function testCopyAssetsFromBundlePluginInactivePlugin(): void
     {
         $filesystem = $this->createFilesystem();
 
-        $classLoader = $this->createMock(ClassLoader::class);
+        $classLoader = static::createStub(ClassLoader::class);
         $classLoader->method('findFile')->willReturn(__FILE__);
         $pluginLoader = new StaticKernelPluginLoader(
             $classLoader,
@@ -115,6 +207,7 @@ class AssetServiceTest extends TestCase
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->willThrowException(new \InvalidArgumentException('foo'));
 
@@ -146,6 +239,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('ExampleBundle')
             ->willThrowException(new \InvalidArgumentException());
@@ -160,7 +254,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsClosesStreamItself(): void
     {
-        $adapter = $this->createMock(FilesystemAdapter::class);
+        $adapter = static::createStub(FilesystemAdapter::class);
         $adapter->method('writeStream')
             ->willReturnCallback(static function (string $path, $stream) {
                 static::assertIsResource($stream);
@@ -171,7 +265,7 @@ class AssetServiceTest extends TestCase
             });
         $adapter->method('read')->willReturn(json_encode([], \JSON_THROW_ON_ERROR));
 
-        $assetService = $this->createAssetService($this->createFilesystem());
+        $assetService = $this->createAssetService(new Filesystem($adapter));
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
     }
@@ -209,58 +303,56 @@ class AssetServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
+     * @return iterable<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
      */
-    public static function adminFilesProvider(): array
+    public static function adminFilesProvider(): iterable
     {
-        return [
-            'destination-empty' => [
-                'manifest' => [],
-                'expectedWrites' => [
-                    'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
-                    'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
-                    'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
-                    'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
-                ],
-                'expectedDeletes' => [],
+        yield 'destination-empty' => [
+            'manifest' => [],
+            'expectedWrites' => [
+                'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
+                'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
+                'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
+                'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
             ],
-            'destination-nothing-changed' => [
-                'manifest' => [
-                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
-                    'one.js' => '9b88085012a490e232336863bf269917',
-                    'two.js' => '9b88085012a490e232336863bf269917',
-                    'three.js' => '9b88085012a490e232336863bf269917',
-                ],
-                'expectedWrites' => [],
-                'expectedDeletes' => [],
+            'expectedDeletes' => [],
+        ];
+        yield 'destination-nothing-changed' => [
+            'manifest' => [
+                'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                'one.js' => '9b88085012a490e232336863bf269917',
+                'two.js' => '9b88085012a490e232336863bf269917',
+                'three.js' => '9b88085012a490e232336863bf269917',
             ],
-            'destination-new-and-removed' => [
-                'manifest' => [
-                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
-                    'one.js' => '9b88085012a490e232336863bf269917',
-                    'two.js' => '9b88085012a490e232336863bf269917',
-                    'four.js' => '9b88085012a490e232336863bf269917',
-                ],
-                'expectedWrites' => [
-                    'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
-                ],
-                'expectedDeletes' => [
-                    'bundles/administration/four.js',
-                ],
+            'expectedWrites' => [],
+            'expectedDeletes' => [],
+        ];
+        yield 'destination-new-and-removed' => [
+            'manifest' => [
+                'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                'one.js' => '9b88085012a490e232336863bf269917',
+                'two.js' => '9b88085012a490e232336863bf269917',
+                'four.js' => '9b88085012a490e232336863bf269917',
             ],
-            'destination-content-changed' => [
-                'manifest' => [
-                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
-                    'one.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
-                    'two.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
-                    'three.js' => '9b88085012a490e232336863bf269917',
-                ],
-                'expectedWrites' => [
-                    'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
-                    'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
-                ],
-                'expectedDeletes' => [],
+            'expectedWrites' => [
+                'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
             ],
+            'expectedDeletes' => [
+                'bundles/administration/four.js',
+            ],
+        ];
+        yield 'destination-content-changed' => [
+            'manifest' => [
+                'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                'one.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
+                'two.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
+                'three.js' => '9b88085012a490e232336863bf269917',
+            ],
+            'expectedWrites' => [
+                'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
+                'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
+            ],
+            'expectedDeletes' => [],
         ];
     }
 
@@ -275,6 +367,7 @@ class AssetServiceTest extends TestCase
         ksort($manifest);
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -342,7 +435,11 @@ class AssetServiceTest extends TestCase
             staticSourceResolver: new StaticSourceResolver([
                 'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
             ]),
-            parameterBag: new ParameterBag(['shopware.filesystem.asset.type' => 'local', 'shopware.filesystem.asset.config' => []])
+            parameterBag: new ParameterBag([
+                'shopware.filesystem.asset.type' => 'local',
+                'shopware.filesystem.asset.visibility' => Visibility::PUBLIC,
+                'shopware.filesystem.asset.config' => [],
+            ])
         );
 
         $assetService->copyAssetsFromApp('ExampleBundle', __DIR__ . '/_fixtures/ExampleBundle');
@@ -356,6 +453,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -441,9 +539,8 @@ class AssetServiceTest extends TestCase
         ?ParameterBag $parameterBag = null,
     ): AssetService {
         if ($kernel === null) {
-            $kernel = $this->createMock(KernelInterface::class);
+            $kernel = static::createStub(KernelInterface::class);
             $kernel->method('getBundle')
-                ->with('ExampleBundle')
                 ->willReturn($this->getBundle());
         }
 
@@ -451,10 +548,14 @@ class AssetServiceTest extends TestCase
             $assetFilesystem,
             $privateFilesystem ?? $assetFilesystem,
             $kernel,
-            $pluginLoader ?? new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
-            $cacheInvalidator ?? $this->createMock(CacheInvalidator::class),
+            $pluginLoader ?? new StaticKernelPluginLoader(static::createStub(ClassLoader::class)),
+            $cacheInvalidator ?? static::createStub(CacheInvalidator::class),
             $staticSourceResolver ?? new StaticSourceResolver(),
-            $parameterBag ?? new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []]),
+            $parameterBag ?? new ParameterBag([
+                'shopware.filesystem.asset.type' => 's3',
+                'shopware.filesystem.asset.visibility' => Visibility::PUBLIC,
+                'shopware.filesystem.asset.config' => [],
+            ]),
             new EventDispatcher(),
         );
     }
@@ -473,5 +574,32 @@ class Administration extends ShopwareAdministration
     public function getPath(): string
     {
         return __DIR__ . '/../_fixtures/AdminBundle';
+    }
+}
+
+/**
+ * @internal
+ */
+class CapturingWriteBatchAdapter extends InMemoryFilesystemAdapter implements WriteBatchInterface
+{
+    /**
+     * @var list<string>
+     */
+    public array $visibilities = [];
+
+    public function writeBatch(CopyBatchInput ...$files): void
+    {
+        foreach ($files as $file) {
+            $this->visibilities[] = $file->visibility;
+
+            $sourceFile = $file->getSourceFile();
+            $content = \is_string($sourceFile) ? file_get_contents($sourceFile) : stream_get_contents($sourceFile);
+
+            \assert(\is_string($content));
+
+            foreach ($file->getTargetFiles() as $targetFile) {
+                $this->write($targetFile, $content, new Config());
+            }
+        }
     }
 }

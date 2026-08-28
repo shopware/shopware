@@ -4,12 +4,15 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Query;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScoreQuery::class)]
 class ScoreQueryTest extends TestCase
 {
@@ -18,7 +21,7 @@ class ScoreQueryTest extends TestCase
         $scoreQuery = new ScoreQuery(new ContainsFilter('productNumber', '123456'), 100);
 
         /**
-         * @see \Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator::getCriteriaHash
+         * @see EntityCacheKeyGenerator::getCriteriaHash
          */
         $json = json_encode($scoreQuery, \JSON_THROW_ON_ERROR);
 

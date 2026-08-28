@@ -7,6 +7,7 @@ async function createWrapper({
     landingPage = {
         cmsPageId: null,
     },
+    customFieldSets = [],
 } = {}) {
     Shopware.Store.get('swCategoryDetail').$reset();
     Shopware.Store.get('swCategoryDetail').category = {
@@ -19,6 +20,7 @@ async function createWrapper({
         isNew: () => false,
     };
     Shopware.Store.get('swCategoryDetail').landingPage = landingPage;
+    Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSets;
 
     return mount(await wrapTestComponent('sw-landing-page-detail-base', { sync: true }), {
         global: {
@@ -44,7 +46,11 @@ async function createWrapper({
                 'sw-entity-multi-select': true,
                 'mt-banner': true,
                 'mt-textarea': true,
-                'sw-custom-field-set-renderer': true,
+                'sw-custom-field-set-renderer': {
+                    name: 'sw-custom-field-set-renderer',
+                    props: ['disabled'],
+                    template: '<div class="sw-custom-field-set-renderer"></div>',
+                },
             },
             computed: {
                 landingPage() {
@@ -73,5 +79,13 @@ describe('module/sw-category/view/sw-landing-page-detail-base.spec', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.isLayoutSet).toBe(false);
+    });
+
+    it('should disable the custom field renderer without landing page edit permissions', async () => {
+        global.activeAclRoles = ['landing_page.viewer'];
+
+        const wrapper = await createWrapper({ customFieldSets: [{}] });
+
+        expect(wrapper.getComponent('.sw-custom-field-set-renderer').props('disabled')).toBe(true);
     });
 });

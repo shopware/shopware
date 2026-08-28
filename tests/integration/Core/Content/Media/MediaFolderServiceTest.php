@@ -15,12 +15,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaFolderServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -59,8 +61,7 @@ class MediaFolderServiceTest extends TestCase
     public function testDissolveForNonExistingFolder(): void
     {
         $folderId = Uuid::randomHex();
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::mediaFolderIdNotFound($folderId)->getMessage());
+        $this->expectExceptionObject(MediaException::mediaFolderIdNotFound($folderId));
 
         $this->mediaFolderService->dissolve($folderId, $this->context);
     }
@@ -75,6 +76,7 @@ class MediaFolderServiceTest extends TestCase
 
         $mediaFolder = $this->mediaFolderRepo
             ->search(new Criteria(array_filter([$mediaFolderId])), $this->context)
+            ->getEntities()
             ->get($mediaFolderId);
         static::assertInstanceOf(MediaFolderEntity::class, $mediaFolder);
 
@@ -434,6 +436,7 @@ class MediaFolderServiceTest extends TestCase
     {
         $folder = $this->mediaFolderRepo
             ->search(new Criteria([$folderId]), $this->context)
+            ->getEntities()
             ->get($folderId);
         static::assertInstanceOf(MediaFolderEntity::class, $folder);
 
@@ -446,13 +449,14 @@ class MediaFolderServiceTest extends TestCase
         static::assertIsString($mediaFolderId);
         $folder = $this->mediaFolderRepo
             ->search(new Criteria(array_filter([$mediaFolderId])), $this->context)
+            ->getEntities()
             ->get($mediaFolderId);
         static::assertNull($folder);
     }
 
     private function assertMediaHasNoFolder(MediaEntity $media): void
     {
-        $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertNull($media->getMediaFolderId());
@@ -460,7 +464,7 @@ class MediaFolderServiceTest extends TestCase
 
     private function assertMediaHasParentFolder(MediaEntity $media, string $parentId): void
     {
-        $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepo->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame($parentId, $media->getMediaFolderId());
@@ -468,13 +472,13 @@ class MediaFolderServiceTest extends TestCase
 
     private function assertConfigIsDeleted(string $configId): void
     {
-        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->getEntities()->get($configId);
         static::assertNull($config);
     }
 
     private function assertConfigStillExists(string $configId): void
     {
-        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->getEntities()->get($configId);
         static::assertNotNull($config);
     }
 

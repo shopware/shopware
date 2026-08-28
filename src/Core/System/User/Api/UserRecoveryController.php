@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class UserRecoveryController extends AbstractController
 {
     /**
@@ -73,7 +73,10 @@ class UserRecoveryController extends AbstractController
             return $this->getErrorResponse();
         }
 
-        $this->rateLimiter->reset(RateLimiter::OAUTH, strtolower($user->getUsername()) . '-' . $request->getClientIp());
+        $usernameKey = strtolower($user->getUsername());
+        $this->rateLimiter->reset(RateLimiter::OAUTH, $usernameKey . '-' . $request->getClientIp());
+        $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_USER, $usernameKey);
+        $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_CLIENT, (string) $request->getClientIp());
         $this->rateLimiter->reset(RateLimiter::USER_RECOVERY, strtolower($user->getEmail()) . '-' . $request->getClientIp());
 
         return new Response();

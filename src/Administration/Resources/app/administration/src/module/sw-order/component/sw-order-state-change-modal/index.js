@@ -40,7 +40,7 @@ export default {
 
     computed: {
         modalTitle() {
-            return this.$tc('sw-order.stateCard.cartTitleChangeState');
+            return this.$t('sw-order.stateCard.cartTitleChangeState');
         },
     },
 

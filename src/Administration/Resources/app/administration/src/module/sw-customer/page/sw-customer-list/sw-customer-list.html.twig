@@ -1,6 +1,5 @@
 {% block sw_customer_list %}
 <sw-page class="sw-customer-list">
-
     {% block sw_customer_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
@@ -16,7 +15,7 @@
         {% block sw_customer_list_smart_bar_header_title %}
         <h2>
             {% block sw_customer_list_smart_bar_header_title_text %}
-            {{ $tc('sw-customer.list.textCustomers') }}
+            <span>{{ $t('sw-customer.list.textCustomers') }}</span>
             {% endblock %}
 
             {% block sw_customer_list_smart_bar_header_amount %}
@@ -37,7 +36,7 @@
         {% block sw_customer_list_smart_bar_actions_add %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('customer.creator'),
                 showOnDisabledElements: true
             }"
@@ -47,7 +46,7 @@
             size="default"
             @click="$router.push({ name: 'sw.customer.create' })"
         >
-            {{ $tc('sw-customer.list.buttonAddCustomer') }}
+            {{ $t('sw-customer.list.buttonAddCustomer') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -60,7 +59,6 @@
     <template #content>
         {% block sw_customer_list_content %}
         <div class="sw-customer-list__content">
-
             {% block sw_customer_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
@@ -96,14 +94,12 @@
                 @column-sort="onSortColumn"
                 @bulk-edit-modal-open="onBulkEditModalOpen"
             >
-
                 {% block sw_customer_list_grid_columns %}
-
                 {% block sw_product_list_grid_columns_name_preview %}
                 <template #preview-firstName="{ item, compact }">
-                    <sw-avatar
-                        :size="compact ? '32px' : '48px'"
-                        :source-context="item"
+                    <mt-avatar
+                        class="sw-customer-list__avatar"
+                        :size="compact ? 's' : 'm'"
                         :first-name="item.firstName"
                         :last-name="item.lastName"
                     />
@@ -112,11 +108,9 @@
 
                 {% block sw_customer_list_grid_columns_name %}
                 <template #column-firstName="{ item, compact, isInlineEdit }">
-
                     {% block sw_customer_list_grid_inline_edit_name %}
                     <template v-if="isInlineEdit">
                         {% block sw_customer_list_grid_inline_edit_first_name %}
-
                         <mt-text-field
                             v-model="item.firstName"
                             name="sw-field--item-firstName"
@@ -126,7 +120,6 @@
                         {% endblock %}
 
                         {% block sw_customer_list_grid_inline_edit_last_name %}
-
                         <mt-text-field
                             v-model="item.lastName"
                             name="sw-field--item-lastName"
@@ -138,54 +131,46 @@
                     {% endblock %}
 
                     {% block sw_customer_list_grid_columns_name_link %}
-                    <router-link
+                    <mt-link
                         v-else
                         :to="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }"
                     >
                         {{ item.lastName }}, {{ item.firstName }}
-                    </router-link>
+                    </mt-link>
                     {% endblock %}
 
                     {% block sw_customer_list_grid_columns_name_guest_label %}
-                    <sw-label
+                    <mt-badge
                         v-if="!isInlineEdit && item.guest"
-                        appearance="pill"
-                        size="small"
                         class="sw-customer-list__metadata-customer-guest-label"
                     >
-                        {{ $tc('sw-customer.list.columnNameGuestLabel') }}
-                    </sw-label>
+                        {{ $t('sw-customer.list.columnNameGuestLabel') }}
+                    </mt-badge>
                     {% endblock %}
 
-                    <sw-label
+                    <mt-badge
                         v-if="item.createdById"
-                        appearance="pill"
-                        size="small"
                         class="sw-customer-list__created-by-admin-label"
                     >
-                        {{ $tc('sw-customer.list.labelCreatedByAdmin') }}
-                    </sw-label>
+                        {{ $t('sw-customer.list.labelCreatedByAdmin') }}
+                    </mt-badge>
                 </template>
                 {% endblock %}
                 {% endblock %}
 
                 {% block sw_customer_list_grid_columns_group %}
                 <template #column-group="{ item, compact, isInlineEdit }">
-                    <sw-label
+                    <mt-badge
                         v-if="item.requestedGroup"
                         class="sw-customer-list__requested-group-label"
-                        variant="warning"
-                        appearance="pill"
+                        variant="attention"
                     >
-                        {{ $tc('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}
-                    </sw-label>
-                    <sw-label
-                        v-else
-                        size="default"
-                        appearance="pill"
-                    >
+                        {{ $t('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}
+                    </mt-badge>
+
+                    <mt-badge v-else>
                         {{ item.group.translated.name }}
-                    </sw-label>
+                    </mt-badge>
                 </template>
                 {% endblock %}
 
@@ -197,7 +182,7 @@
 
                 {% block sw_customer_list_grid_columns_boundSalesChannel %}
                 <template #column-boundSalesChannelId="{ item }">
-                    {{ item.boundSalesChannelId ? item.boundSalesChannel.translated.name : $tc('sw-customer.list.emptyBoundSalesChannel') }}
+                    {{ item.boundSalesChannelId ? item.boundSalesChannel.translated.name : $t('sw-customer.list.emptyBoundSalesChannel') }}
                 </template>
                 {% endblock %}
 
@@ -217,13 +202,14 @@
                         <mt-icon
                             v-if="item.active"
                             name="regular-checkmark-xs"
-                            size="16px"
+                            size="14px"
                             class="is--active"
                         />
+
                         <mt-icon
                             v-else
                             name="regular-times-s"
-                            size="16px"
+                            size="14px"
                             class="is--inactive"
                         />
                     </template>
@@ -244,7 +230,7 @@
                         class="sw-customer-list__view-action"
                         :router-link="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }"
                     >
-                        {{ $tc('sw-customer.list.contextMenuView') }}
+                        {{ $t('global.default.view') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -254,7 +240,7 @@
                         :disabled="!acl.can('customer.editor') || undefined"
                         :router-link="{ name: 'sw.customer.detail.base', params: { id: item.id }, query: { edit: true } }"
                     >
-                        {{ $tc('sw-customer.list.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -265,7 +251,7 @@
                         :disabled="!acl.can('customer.deleter') || undefined"
                         @click="onDelete(item.id)"
                     >
-                        {{ $tc('sw-customer.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -273,31 +259,28 @@
 
                 {% block sw_customer_list_grid_action_modals %}
                 <template #action-modals="{ item }">
-
                     {% block sw_customer_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
-                        :title="$tc('global.default.warning')"
+                        :title="$t('global.default.warning')"
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
-
                         {% block sw_customer_list_delete_modal_confirm_delete_text %}
                         <p class="sw-customer-list__confirm-delete-text">
-                            {{ $tc('sw-customer.list.textDeleteConfirm', { name: `${item.firstName} ${item.lastName}` }, 0) }}
+                            {{ $t('sw-customer.list.textDeleteConfirm', { name: `${item.firstName} ${item.lastName}` }, 0) }}
                         </p>
                         {% endblock %}
 
                         {% block sw_customer_list_delete_modal_footer %}
                         <template #modal-footer>
-
                             {% block sw_customer_list_delete_modal_cancel %}
                             <mt-button
                                 size="small"
                                 variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('global.default.cancel') }}
+                                {{ $t('global.default.cancel') }}
                             </mt-button>
                             {% endblock %}
 
@@ -307,7 +290,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $tc('sw-customer.list.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -356,21 +339,20 @@
 
                         {% block sw_customer_list_bulk_edit_grid_columns_group %}
                         <template #column-group="{ item }">
-                            <sw-label
+                            <mt-badge
                                 v-if="item.requestedGroup"
                                 class="sw-customer-list__requested-group-label"
-                                variant="warning"
-                                appearance="pill"
+                                variant="info"
                             >
-                                {{ $tc('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}
-                            </sw-label>
-                            <sw-label
+                                {{ $t('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}
+                            </mt-badge>
+
+                            <mt-badge
                                 v-else
                                 size="default"
-                                appearance="pill"
                             >
                                 {{ item.group.translated.name }}
-                            </sw-label>
+                            </mt-badge>
                         </template>
                         {% endblock %}
                     </sw-bulk-edit-modal>
@@ -388,7 +370,7 @@
             {% block sw_customer_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-customer.list.titleSidebarItemRefresh')"
+                :title="$t('sw-customer.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

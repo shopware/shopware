@@ -6,8 +6,8 @@ use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\FormDataObjectType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 final class RevocationRequestEvent extends Event implements SalesChannelAware, MailAware, ScalarValuesAware, FlowEventAware
 {
@@ -37,7 +40,7 @@ final class RevocationRequestEvent extends Event implements SalesChannelAware, M
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add(FlowMailVariables::REVOCATION_REQUEST_FORM_DATA, new ObjectType());
+            ->add(FlowMailVariables::REVOCATION_REQUEST_FORM_DATA, new FormDataObjectType());
     }
 
     public function getName(): string
@@ -60,6 +63,14 @@ final class RevocationRequestEvent extends Event implements SalesChannelAware, M
         return [
             FlowMailVariables::REVOCATION_REQUEST_FORM_DATA => $this->formData,
         ];
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    public function getRevocationRequestFormData(): array
+    {
+        return $this->formData;
     }
 
     public function getContext(): Context

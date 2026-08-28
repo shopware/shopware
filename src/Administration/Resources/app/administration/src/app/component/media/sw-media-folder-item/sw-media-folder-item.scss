@@ -1,10 +1,3 @@
-@import "~scss/variables";
-
-$sw-media-folder-item-background-color-preview: $color-white;
-$sw-media-folder-item-border-radius-preview: $border-radius-default;
-$sw-media-folder-item-border-color-preview: $color-gray-300;
-$sw-media-folder-item-border-color-highlighted-preview: $color-shopware-brand-500;
-
 .sw-media-folder-item {
     position: relative;
 
@@ -13,23 +6,39 @@ $sw-media-folder-item-border-color-highlighted-preview: $color-shopware-brand-50
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        max-width: 64px;
-        width: 100%;
+
+        // Sized in container query units against the preview container
+        // (sw-media-base-item), so the folder scales with the presentation
+        // mode (small/medium/large) just like the media previews.
+        width: 40cqw;
 
         &.is--inner {
-            max-width: 20px;
             transform: translate(-50%, -30%);
         }
 
         &.icon--solid-chevron-left {
-            color: $color-shopware-brand-500;
+            color: var(--color-icon-brand-default);
         }
     }
 
     &.is--list {
+        // The list preview container is a fixed 40px square — fill it
+        // instead of scaling with container units.
+        .sw-media-folder-item__folder-thumbnails {
+            width: 100%;
+        }
+
+        // The !important is needed to win against the inline size that
+        // the mt-icon size prop sets.
         .sw-media-folder-item__folder-thumbnails.is--inner {
-            max-width: 15px;
+            width: 16px !important;
+            height: 16px !important;
             transform: translate(-50%, -40%);
+
+            svg {
+                width: 16px !important;
+                height: 16px !important;
+            }
         }
 
         .sw-media-base-item__preview-container {

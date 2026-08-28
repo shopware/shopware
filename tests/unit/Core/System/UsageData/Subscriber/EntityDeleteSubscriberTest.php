@@ -56,7 +56,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $usageDataAllowListServiceMock = $this->createMock(UsageDataAllowListService::class);
+        $usageDataAllowListServiceMock = static::createStub(UsageDataAllowListService::class);
         $usageDataAllowListServiceMock->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListServiceMock->method('getFieldsToSelectFromDefinition')
@@ -83,10 +83,8 @@ class EntityDeleteSubscriberTest extends TestCase
             ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit');
-
-        $connection->expects($this->never())
-            ->method('rollBack');
+            ->method('transactional')
+            ->willReturnCallback(static fn (\Closure $func) => $func());
 
         $statementMock = $this->createMock(Statement::class);
         $statementMock->expects($this->exactly(4))
@@ -110,8 +108,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -131,7 +129,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
-            $this->createMock(EntityExistence::class)
+            static::createStub(EntityExistence::class)
         );
 
         $event = DeletedEvent::create(
@@ -155,41 +153,15 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $productId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('createQueryBuilder')
-            ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit')
-            ->willThrowException($this->createMock(DeadlockException::class));
-
-        $connection->expects($this->once())
-            ->method('rollBack');
-
-        $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects($this->exactly(4))
-            ->method('bindValue')
-            ->withAnyParameters()
-            ->willReturnCallback(function ($key, $value) use ($productId): void {
-                if ($key === ':entity_name') {
-                    static::assertSame(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
-                    $this->requiredParameter[':entity_name'] = true;
-                }
-
-                if ($key === ':entity_ids') {
-                    static::assertSame(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
-                    $this->requiredParameter[':entity_ids'] = true;
-                }
-            });
-
-        $connection->expects($this->once())
-            ->method('prepare')
-            ->willReturn($statementMock);
+            ->method('transactional')
+            ->willThrowException(static::createStub(DeadlockException::class));
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -209,7 +181,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
-            $this->createMock(EntityExistence::class)
+            static::createStub(EntityExistence::class)
         );
 
         $event = DeletedEvent::create(
@@ -223,10 +195,8 @@ class EntityDeleteSubscriberTest extends TestCase
         $subscriber->handleEntityDeleteEvent($event);
 
         // marks the event as successful --> we write the deletion into the expected table
+        // the exception from transactional is silently caught, so no exception is expected
         $event->success();
-
-        static::assertTrue($this->requiredParameter[':entity_name']);
-        static::assertTrue($this->requiredParameter[':entity_ids']);
     }
 
     public function testHandleDeletedEventStoresDataMultipleEntities(): void
@@ -237,10 +207,8 @@ class EntityDeleteSubscriberTest extends TestCase
             ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit');
-
-        $connection->expects($this->never())
-            ->method('rollBack');
+            ->method('transactional')
+            ->willReturnCallback(static fn (\Closure $func) => $func());
 
         $statementMock = $this->createMock(Statement::class);
         // assert bindValue to be called 2 * 4 times (2 entities with 5 parameters)
@@ -254,8 +222,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -275,7 +243,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
-            $this->createMock(EntityExistence::class)
+            static::createStub(EntityExistence::class)
         );
 
         $event = DeletedEvent::create(
@@ -302,12 +270,12 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -340,8 +308,8 @@ class EntityDeleteSubscriberTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -370,14 +338,14 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
         $consentService = $this->createConsentService(ConsentStatus::REVOKED);
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -408,12 +376,12 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $definition = new EntityWithSinglePrimaryKey();
         $definition->compile($registry);
@@ -440,7 +408,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
     private function createConsentService(ConsentStatus $status): ConsentService
     {
-        $consentService = $this->createMock(ConsentService::class);
+        $consentService = static::createStub(ConsentService::class);
         $consentService->method('getConsentState')
             ->willReturn(new ConsentState(
                 BackendData::NAME,

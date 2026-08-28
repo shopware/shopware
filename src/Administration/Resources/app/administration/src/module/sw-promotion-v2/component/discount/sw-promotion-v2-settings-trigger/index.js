@@ -58,12 +58,12 @@ export default {
             return [
                 {
                     value: 'single',
-                    display: this.$tc(`${prefix}.displaySingleTrigger`),
+                    display: this.$t(`${prefix}.displaySingleTrigger`),
                     disabled: false,
                 },
                 {
                     value: 'multi',
-                    display: this.$tc(`${prefix}.displayMultiTrigger`),
+                    display: this.$t(`${prefix}.displayMultiTrigger`),
                     disabled: true,
                 },
             ];

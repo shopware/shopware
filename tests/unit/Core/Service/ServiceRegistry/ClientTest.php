@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\ServiceRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\SaveConsentRequest;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceRegistryClient::class)]
 class ClientTest extends TestCase
 {
@@ -86,7 +88,7 @@ class ClientTest extends TestCase
         $service = [
             'services' => [
                 ['name' => 'MyCoolService1', 'host' => 'https://coolservice1.com', 'label' => 'My Cool Service 1', 'app-endpoint' => '/app-endpoint'],
-                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint', 'license-sync-endpoint' => '/license-sync-endpoint'],
+                ['name' => 'MyCoolService2', 'host' => 'https://coolservice2.com', 'label' => 'My Cool Service 2', 'app-endpoint' => '/app-endpoint'],
             ],
         ];
 
@@ -104,13 +106,11 @@ class ClientTest extends TestCase
         static::assertSame('My Cool Service 1', $entries[0]->description);
         static::assertSame('https://coolservice1.com', $entries[0]->host);
         static::assertSame('/app-endpoint', $entries[0]->appEndpoint);
-        static::assertNull($entries[0]->licenseSyncEndPoint);
         static::assertSame('MyCoolService2', $entries[1]->name);
         static::assertSame('My Cool Service 2', $entries[1]->description);
         static::assertSame('https://coolservice2.com', $entries[1]->host);
         static::assertSame('/app-endpoint', $entries[1]->appEndpoint);
         static::assertSame('https://www.shopware.com/api/service/?page=1&limit=10', $response->getRequestUrl());
-        static::assertSame('/license-sync-endpoint', $entries[1]->licenseSyncEndPoint);
     }
 
     public function testServicesAreFetchedAndCached(): void
@@ -277,8 +277,7 @@ class ClientTest extends TestCase
             'v1.0'
         );
 
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('Unexpected response status code: 200');
+        $this->expectExceptionObject(ServiceException::consentSaveFailed('Unexpected response status code: 200'));
         $registryClient->saveConsent($saveConsentRequest);
     }
 
@@ -316,8 +315,7 @@ class ClientTest extends TestCase
 
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('Unexpected response status code: 200');
+        $this->expectExceptionObject(ServiceException::consentRevokeFailed('Unexpected response status code: 200'));
         $registryClient->revokeConsent('service-123');
     }
 

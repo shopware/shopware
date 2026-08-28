@@ -1,23 +1,9 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
-            "LineItemType": {
-                "type": "string",
-
-                "deprecated": true,
-                "enum": [
-                    "product",
-                    "credit",
-                    "custom",
-                    "promotion",
-                    "discount",
-                    "container",
-                    "quantity"
-                ]
-            },
             "LineItem": {
                 "type": "object",
                 "properties": {
@@ -63,7 +49,7 @@
                         "properties": {
                             "apiAlias": {
                                 "type": "string",
-                                "enum": ["calculated_price"]
+                                "const": "calculated_price"
                             },
                             "calculatedTaxes": {
                                 "type": "array",
@@ -72,7 +58,7 @@
                                     "properties": {
                                         "apiAlias": {
                                             "type": "string",
-                                            "enum": ["cart_tax_calculated"]
+                                            "const": "cart_tax_calculated"
                                         },
                                         "tax": {
                                             "type": "number"
@@ -125,9 +111,7 @@
                                             },
                                             "apiAlias": {
                                                 "type": "string",
-                                                "enum": [
-                                                    "cart_regulation_price"
-                                                ]
+                                                "const": "cart_regulation_price"
                                             }
                                         }
                                     },
@@ -213,11 +197,7 @@
                 },
                 "required": [
                     "id",
-                    "type",
-                    "deliveryInformation",
-                    "payload",
-                    "quantity",
-                    "states"
+                    "type"
                 ]
             }
         }

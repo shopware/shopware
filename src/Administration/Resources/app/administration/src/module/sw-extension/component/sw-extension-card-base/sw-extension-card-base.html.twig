@@ -2,7 +2,15 @@
     class="sw-extension-card-base"
     :class="extensionCardClasses"
 >
-    <sw-loader v-if="isLoading" />
+    <sw-loader v-if="showLoader" />
+
+    <div class="sw-extension-card-base__select">
+        <mt-checkbox
+            :checked="selected"
+            :aria-label="$t('sw-extension.my-extensions.bulk.selectExtensionAria', { name: extension.label })"
+            @update:checked="$emit('select-change', $event)"
+        />
+    </div>
 
     <div class="sw-extension-card-base__switch">
         {% block sw_extension_card_base_activation_switch_switch %}
@@ -11,7 +19,7 @@
             v-model="isActive"
             v-tooltip="{
                 showDelay: 300,
-                message: $tc('sw-extension-store.component.sw-extension-card-base.allowDisableTooltip'),
+                message: $t('sw-extension-store.component.sw-extension-card-base.allowDisableTooltip'),
                 disabled: allowDisable
             }"
             :disabled="extensionManagementDisabled || !isInstalled || (isActive && !allowDisable)"
@@ -34,7 +42,7 @@
                 v-if="isInstalled && !extension.active"
                 class="sw-extension-card-base__info-inactive"
             >
-                {{ $tc('sw-extension-store.component.sw-extension-card-base.inactiveLabel') }}
+                {{ $t('sw-extension-store.component.sw-extension-card-base.inactiveLabel') }}
             </span>
             {% endblock %}
         </section>
@@ -48,7 +56,7 @@
                 v-if="extension.version"
                 class="sw-extension-card-base__meta-info-version"
             >
-                {{ $tc('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
+                {{ $t('sw-extension.my-extensions.listing.version') }}: {{ extension.version }}
             </span>
 
             <span v-if="!extensionManagementDisabled && isUpdateable">
@@ -56,14 +64,14 @@
                     href="#"
                     @click.prevent="updateExtension(false)"
                 >
-                    {{ $tc('sw-extension.my-extensions.listing.update') }}
+                    {{ $t('sw-extension.my-extensions.listing.update') }}
                 </a>
             </span>
         </section>
         {% endblock %}
 
         <span v-if="isInstalled">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
             <sw-time-ago
                 v-if="extension.installedAt.date"
                 :date="extension.installedAt.date"
@@ -72,11 +80,11 @@
         </span>
 
         <span v-else-if="extension.storeLicense">
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
             <sw-time-ago
                 v-if="extension.storeLicense.creationDate"
                 :date="extension.storeLicense.creationDate"
-                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                :date-time-format="DATE_ONLY_FORMAT"
             />
         </span>
     </div>
@@ -90,13 +98,13 @@
             @click="openPermissionsModalForInstall"
             @keydown.enter="openPermissionsModalForInstall"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.installExtensionLabel') }}
         </span>
         <router-link
             v-else-if="extension.configurable"
-            :to="{ name: 'sw.extension.config', params: { namespace: extension.name } }"
+            :to="configLink"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
+            {{ $t('global.default.configure') }}
         </router-link>
     </div>
 
@@ -111,7 +119,7 @@
             :disabled="!openLinkExists"
             :router-link="link"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.openExtension') }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.openExtension') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
@@ -119,7 +127,7 @@
             @click="openPrivacyAndSafety"
         >
             <span class="sw-extension-card-base__context-menu-privacy-link">
-                {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.privacyAndSafetyLabel') }}
+                {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.privacyAndSafetyLabel') }}
                 <mt-icon
                     name="regular-external-link-s"
                     size="10px"
@@ -132,7 +140,7 @@
             @click="openPrivacyModal"
         >
 
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.policyExtensions') }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.policyExtensions') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
@@ -140,14 +148,14 @@
             @click="openPermissionsModal"
         >
 
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.permissions') }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.permissions') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
             v-if="!extensionManagementDisabled && isUpdateable"
             @click="updateExtension(false)"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', { version: extension.latestVersion }, 0) }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', { version: extension.latestVersion }, 0) }}
         </sw-context-menu-item>
 
         {% block sw_extension_card_base_context_menu_actions_additional %}{% endblock %}
@@ -158,7 +166,7 @@
             variant="danger"
             @click="openRemovalModal"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
@@ -167,7 +175,7 @@
             variant="danger"
             @click="openRemovalModal"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel') }}
+            {{ $t('global.default.remove') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
@@ -175,7 +183,7 @@
             variant="danger"
             @click="openUninstallModal"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.uninstallLabel') }}
+            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.uninstallLabel') }}
         </sw-context-menu-item>
         {% endblock %}
     </sw-context-button>

@@ -53,7 +53,13 @@ class NavigationPageSeoUrlRouteTest extends TestCase
         static::assertSame('OR', $notFilter->getOperator());
 
         $notFilterQueries = $notFilter->getQueries();
-        static::assertCount(2, $notFilterQueries);
+        static::assertCount(1, $notFilterQueries);
+        static::assertInstanceOf(EqualsFilter::class, $notFilterQueries[0]);
+        $this->assertEqualsFilter(
+            $notFilterQueries[0],
+            'type',
+            CategoryDefinition::TYPE_FOLDER
+        );
     }
 
     private function assertEqualsFilter(

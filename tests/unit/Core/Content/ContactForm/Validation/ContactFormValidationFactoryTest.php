@@ -26,15 +26,15 @@ class ContactFormValidationFactoryTest extends TestCase
     #[DataProvider('systemConfigDataProvider')]
     public function testCreate(bool $required, \Closure $expectsClosure): void
     {
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $systemConfigServiceMock = static::createStub(SystemConfigService::class);
         $systemConfigServiceMock->method('get')->willReturn($required);
 
         $validation = new ContactFormValidationFactory(
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $systemConfigServiceMock
         );
 
-        $contextMock = $this->createMock(SalesChannelContext::class);
+        $contextMock = static::createStub(SalesChannelContext::class);
 
         $definition = $validation->create($contextMock);
 

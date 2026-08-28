@@ -26,6 +26,11 @@ class Migration1730790665ElectronicInvoiceTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1730790665, (new Migration1730790665ElectronicInvoice())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->connection->delete('document_type', ['technical_name' => ZugferdRenderer::TYPE]);

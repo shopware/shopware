@@ -89,7 +89,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-newsletter-recipient.detail.messageSaveError',
                             {
                                 key: this.newsletterRecipient.email,

@@ -20,13 +20,15 @@ class PercentageTaxRuleBuilder
     {
         $rules = new TaxRuleCollection([]);
 
+        if ($taxes->count() === 0) {
+            return $rules;
+        }
+
+        $equalShare = $totalPrice !== 0.0 ? null : 100.0 / $taxes->count();
+
         foreach ($taxes as $tax) {
-            $rules->add(
-                new TaxRule(
-                    $tax->getTaxRate(),
-                    $totalPrice !== 0.0 ? $tax->getPrice() / $totalPrice * 100 : 0
-                )
-            );
+            $percentage = $equalShare ?? ($tax->getPrice() / $totalPrice * 100);
+            $rules->add(new TaxRule($tax->getTaxRate(), $percentage));
         }
 
         return $rules;

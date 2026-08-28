@@ -197,6 +197,10 @@ export default {
         'order.id'() {
             this.createdComponent();
         },
+
+        'order.tags'() {
+            this.syncTagCollection();
+        },
     },
 
     created() {
@@ -205,6 +209,12 @@ export default {
 
     methods: {
         createdComponent() {
+            this.syncTagCollection();
+            this.getLiveOrder();
+            this.getTransitionOptions();
+        },
+
+        syncTagCollection() {
             const tags = cloneDeep(this.order.tags);
 
             this.tagCollection = new EntityCollection(
@@ -215,9 +225,6 @@ export default {
                 tags,
                 tags.length,
             );
-
-            this.getLiveOrder();
-            this.getTransitionOptions();
         },
 
         getLiveOrder() {
@@ -354,7 +361,7 @@ export default {
 
         async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -428,7 +435,7 @@ export default {
                     break;
                 default:
                     this.createNotificationError({
-                        message: this.$tc('sw-order.stateCard.labelErrorStateChange'),
+                        message: this.$t('sw-order.stateCard.labelErrorStateChange'),
                     });
                     return;
             }
@@ -472,7 +479,7 @@ export default {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage,
+                message: this.$t('sw-order.stateCard.labelErrorStateChange') + errorMessage,
             });
         },
     },

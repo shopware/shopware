@@ -103,6 +103,12 @@
                                                             } %}
                                                         {% endblock %}
                                                     {% endif %}
+
+                                                    {% if lineItem.referencedId %}
+                                                        {% block component_line_item_type_product_garan_label %}
+                                                            {% sw_include '@Storefront/storefront/component/line-item/element/garan-label.html.twig' %}
+                                                        {% endblock %}
+                                                    {% endif %}
                                                 </div>
                                                 {% endblock %}
                                             </div>
@@ -151,6 +157,12 @@
                                         {% sw_include '@Storefront/storefront/component/line-item/element/remove.html.twig' %}
                                     {% endif %}
                                 </div>
+                            {% endblock %}
+                        {% endif %}
+
+                        {% if lineItem.children.count > 0 %}
+                            {% block component_line_item_type_product_children %}
+                                {% sw_include '@Storefront/storefront/component/line-item/element/children-wrapper.html.twig' %}
                             {% endblock %}
                         {% endif %}
                     {% endblock %}

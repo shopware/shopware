@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpKernel\Log\Logger;
 
 /**
@@ -47,7 +48,8 @@ class StaticInAppPurchaseFactory
                     public function __construct()
                     {
                     }
-                }
+                },
+                new NativeClock(),
             )
         );
 

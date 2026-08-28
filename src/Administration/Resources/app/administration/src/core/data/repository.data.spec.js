@@ -7,6 +7,7 @@ import RepositoryData from 'src/core/data/repository.data';
 import IdCollection from 'test/_helper_/id.collection';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import CacheService from 'src/app/service/cache.service';
 
 const clientMock = global.repositoryFactoryMock.clientMock;
 const responses = global.repositoryFactoryMock.responses;
@@ -42,9 +43,14 @@ function createRepositoryData() {
     return new RepositoryData(undefined, undefined, undefined, undefined, undefined, undefined, undefined, {});
 }
 
+if (!Shopware.Service('cacheService')) {
+    Shopware.Service().register('cacheService', () => new CacheService());
+}
+
 describe('repository.data.ts', () => {
     beforeEach(async () => {
         clientMock.resetHistory();
+        Shopware.Service('cacheService').clear();
     });
 
     it('should search with the criteria title', async () => {
@@ -84,7 +90,9 @@ describe('repository.data.ts', () => {
             },
         });
 
-        const repository = repositoryFactory.create('product');
+        const repository = repositoryFactory.create('product', null, {
+            useAxiosV1: false,
+        });
 
         const criteriaWithoutTitle = new Criteria();
         const criteriaWithTitle = new Criteria();
@@ -101,6 +109,24 @@ describe('repository.data.ts', () => {
 
         expect(clientMock.history.post[2].url).toBe('/search/product?title=ImmaTest');
         expect(clientMock.history.post[3].url).toBe('/search-ids/product?title=ImmaTest');
+    });
+
+    it('should use axios v1 for repository requests regardless of repository options', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        const repository = repositoryFactory.create('product');
+
+        await repository.search(new Criteria());
+
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(clientMock.history.post[0].useAxiosV1).toBe(true);
     });
 
     it('should build the correct headers', async () => {
@@ -129,6 +155,33 @@ describe('repository.data.ts', () => {
 
         expect(actualHeaders['sw-measurement-length-unit']).toBe('cm');
         expect(actualHeaders['sw-measurement-weight-unit']).toBe('kg');
+    });
+
+    it('should pass repository reads through the cache service when cache options are provided', async () => {
+        responses.addResponse({
+            method: 'POST',
+            url: '/search/product',
+            status: 200,
+            response: {
+                data: [],
+            },
+        });
+
+        const cacheService = Shopware.Service('cacheService');
+        const querySpy = jest.spyOn(cacheService, 'query');
+        const repository = repositoryFactory.create('product');
+
+        await repository.search(new Criteria(), {
+            cacheKey: ['products'],
+        });
+
+        expect(querySpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                key: ['products'],
+                fn: expect.any(Function),
+            }),
+        );
+        expect(clientMock.history.post).toHaveLength(1);
     });
 
     it('should create one delete operation for multiple deletes', async () => {
@@ -197,7 +250,8 @@ describe('repository.data.ts', () => {
         const request = clientMock.history.post[0];
 
         expect(request.url).toBe('_action/sync');
-        expect(request.headers['single-operation']).toBe(true);
+        // axios-mock-adapter stores custom header values as strings in request history.
+        expect(request.headers['single-operation']).toBe('true');
 
         expect(request.data).toEqual(
             JSON.stringify([

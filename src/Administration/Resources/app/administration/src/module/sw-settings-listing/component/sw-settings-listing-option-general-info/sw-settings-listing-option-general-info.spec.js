@@ -31,13 +31,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                         'sw-container': {
                             template: '<div><slot></slot></div>',
                         },
-                        'sw-text-field': await wrapTestComponent('sw-text-field'),
-                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-
-                        'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
-                            sync: true,
-                        }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -64,7 +57,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     });
 
     it('should display the correct name', async () => {
-        const textField = wrapper.find('.sw-settings-listing-edit__general-input input');
+        const textField = wrapper.find('.sw-settings-listing-option-general-info__field-name input');
 
         expect(textField.element.value).toBe('Price descending');
     });
@@ -72,7 +65,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     it('should display name error', async () => {
         await wrapper.setProps({ labelError: {} });
 
-        expect(wrapper.find('.sw-settings-listing-edit__general-input .mt-field__error').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-listing-option-general-info__field-name .mt-field__error').exists()).toBe(true);
     });
 
     it('should display the correct technical name', async () => {
@@ -90,14 +83,14 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     });
 
     it('should display the correct active state', async () => {
-        const switchField = wrapper.find('.mt-switch input');
+        const switchField = wrapper.find('.sw-settings-listing-option-general-info__field-active input');
         const isActive = switchField.element.value;
 
         expect(isActive).toBe('on');
     });
 
     it('should not disable active state switch on normal product sortings', async () => {
-        const switchField = wrapper.find('.mt-switch input');
+        const switchField = wrapper.find('.sw-settings-listing-option-general-info__field-active input');
         const isDisabled = switchField.attributes('disabled');
 
         expect(isDisabled).toBeUndefined();
@@ -106,9 +99,39 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     it('should disable active state switch on default sortings', async () => {
         await wrapper.setProps({ isDefaultSorting: true });
 
-        const switchField = wrapper.find('.mt-switch input');
+        const switchField = wrapper.find('.sw-settings-listing-option-general-info__field-active input');
         const isDisabled = switchField.attributes('disabled');
 
         expect(isDisabled).toBeDefined();
+    });
+
+    it('should disable untranslated fields on locked product sorting', async () => {
+        await wrapper.setProps({
+            sortingOption: {
+                label: 'Top result',
+                key: 'score',
+                fields: [
+                    {
+                        field: '_score',
+                        naturalSorting: 0,
+                        order: 'desc',
+                        priority: 1,
+                    },
+                ],
+                locked: true,
+            },
+        });
+
+        const untranslatedFields = [
+            '.sw-settings-listing-option-general-info__field-technical-name input',
+            '.sw-settings-listing-option-general-info__field-active input',
+        ];
+
+        untranslatedFields.forEach((field) => {
+            const fieldInput = wrapper.find(field);
+            const isDisabled = fieldInput.attributes('disabled');
+
+            expect(isDisabled).toBeDefined();
+        });
     });
 });

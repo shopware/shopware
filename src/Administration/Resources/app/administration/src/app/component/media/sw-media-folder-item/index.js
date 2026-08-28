@@ -44,7 +44,6 @@ export default {
             lastDefaultFolderId: null,
             iconConfig: {
                 name: '',
-                color: 'inherit',
             },
         };
     },
@@ -67,20 +66,7 @@ export default {
         },
 
         iconName() {
-            switch (this.iconConfig.name) {
-                case 'regular-box':
-                    return 'multicolor-folder-thumbnail--green';
-                case 'regular-products':
-                    return 'multicolor-folder-thumbnail--green';
-                case 'regular-database':
-                    return 'multicolor-folder-thumbnail--grey';
-                case 'regular-content':
-                    return 'multicolor-folder-thumbnail--pink';
-                case 'regular-cog':
-                    return 'multicolor-folder-thumbnail--grey';
-                default:
-                    return 'multicolor-folder-thumbnail';
-            }
+            return 'folder-thumbnail';
         },
 
         assetFilter() {
@@ -127,7 +113,6 @@ export default {
             }
 
             this.iconConfig.name = module.manifest?.icon ?? '';
-            this.iconConfig.color = module.manifest?.color ?? '#000000';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {
@@ -166,15 +151,15 @@ export default {
 
         rejectRenaming(item, cause, endInlineEdit) {
             if (cause) {
-                let title = this.$tc('global.default.error');
-                let message = this.$tc('global.sw-media-folder-item.notification.renamingError.message');
+                let title = this.$t('global.default.error');
+                let message = this.$t('global.sw-media-folder-item.notification.renamingError.message');
 
                 if (cause === 'empty-name') {
-                    title = this.$tc('global.default.error');
-                    message = this.$tc('global.sw-media-folder-item.notification.errorBlankItemName.message');
+                    title = this.$t('global.default.error');
+                    message = this.$t('global.sw-media-folder-item.notification.errorBlankItemName.message');
                 } else if (cause === 'invalid-name') {
-                    title = this.$tc('global.default.error');
-                    message = this.$tc('global.sw-media-folder-item.notification.errorInvalidItemName.message');
+                    title = this.$t('global.default.error');
+                    message = this.$t('global.sw-media-folder-item.notification.errorInvalidItemName.message');
                 }
 
                 this.createNotificationError({

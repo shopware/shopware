@@ -9,9 +9,9 @@
         v-model="currentOption.name"
         name="sw-field--currentOption-name"
         validation="required"
-        :label="$tc('sw-property.detail.labelOptionName')"
+        :label="$t('sw-property.detail.labelOptionName')"
         :disabled="!allowEdit"
-        :placeholder="placeholder(currentOption, 'name', $tc('sw-property.detail.placeholderOptionName'))"
+        :placeholder="placeholder(currentOption, 'name', $t('sw-property.detail.placeholderOptionName'))"
         :error="currentOptionNameError"
         required
     />
@@ -24,8 +24,8 @@
         pattern="[0-9]"
         :step="1"
         :disabled="!allowEdit"
-        :label="$tc('sw-property.detail.labelOptionPosition')"
-        :placeholder="$tc('sw-property.detail.placeholderOptionPosition')"
+        :label="$t('sw-property.detail.labelOptionPosition')"
+        :placeholder="$t('sw-property.detail.placeholderOptionPosition')"
     />
     {% endblock %}
 
@@ -34,7 +34,7 @@
         v-model="colorHexCode"
         name="sw-field--currentOption-colorHexCode"
         :disabled="!allowEdit"
-        :label="$tc('sw-property.detail.labelOptionColor')"
+        :label="$t('sw-property.detail.labelOptionColor')"
         :z-index="1000"
     />
     {% endblock %}
@@ -47,7 +47,7 @@
     />
     <sw-media-compact-upload-v2
         default-folder="product"
-        :label="$tc('sw-property.detail.labelMediaUpload')"
+        :label="$t('sw-property.detail.labelMediaUpload')"
         :source="currentOption.mediaId"
         :upload-tag="currentOption.id"
         :disabled="!allowEdit"
@@ -71,14 +71,14 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
         {% block sw_property_option_detail_footer_save %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.editor'),
                 showOnDisabledElements: true
             }"
@@ -87,7 +87,7 @@
             :disabled="!allowEdit"
             @click="onSave"
         >
-            {{ $tc('global.default.apply') }}
+            {{ $t('global.default.apply') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -5,15 +5,18 @@ namespace Shopware\Storefront\Theme;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore tested via an integration test
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Storefront\Theme\ThemeRuntimeConfigStorageTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfigStorage
 {
     public function __construct(
@@ -32,6 +35,7 @@ class ThemeRuntimeConfigStorage
                 `view_inheritance`,
                 `script_files`,
                 `icon_sets`,
+                `import_map`,
                 `updated_at`
                 FROM `theme_runtime_config`
                 WHERE `technical_name` = :technicalName
@@ -57,6 +61,7 @@ class ThemeRuntimeConfigStorage
                 `view_inheritance`,
                 `script_files`,
                 `icon_sets`,
+                `import_map`,
                 `updated_at`
                 FROM `theme_runtime_config`
                 WHERE `theme_id` = :themeId
@@ -73,18 +78,25 @@ class ThemeRuntimeConfigStorage
 
     public function save(ThemeRuntimeConfig $config): void
     {
-        $this->connection->executeStatement(<<<'SQL'
-            REPLACE INTO `theme_runtime_config` (theme_id, technical_name, resolved_config, view_inheritance, script_files, icon_sets, updated_at)
-            VALUES (:themeId, :technicalName, :resolvedConfig, :viewInheritance, :scriptFiles, :iconSets, :updatedAt)
-            SQL, [
+        $parameters = [
             'themeId' => Uuid::fromHexToBytes($config->themeId),
             'technicalName' => $config->technicalName,
             'resolvedConfig' => json_encode($config->resolvedConfig, \JSON_THROW_ON_ERROR),
             'viewInheritance' => json_encode($config->viewInheritance, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_encode($config->scriptFiles, \JSON_THROW_ON_ERROR),
             'iconSets' => json_encode($config->iconSets, \JSON_THROW_ON_ERROR),
+            'importMap' => $config->importMap !== null
+                ? json_encode($config->importMap, \JSON_THROW_ON_ERROR)
+                : null,
             'updatedAt' => $config->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        ];
+
+        RetryableQuery::retryable($this->connection, function () use ($parameters): void {
+            $this->connection->executeStatement(<<<'SQL'
+                REPLACE INTO `theme_runtime_config` (theme_id, technical_name, resolved_config, view_inheritance, script_files, icon_sets, import_map, updated_at)
+                VALUES (:themeId, :technicalName, :resolvedConfig, :viewInheritance, :scriptFiles, :iconSets, :importMap, :updatedAt)
+                SQL, $parameters);
+        });
     }
 
     public function deleteByTechnicalName(string $technicalName): void
@@ -196,17 +208,34 @@ class ThemeRuntimeConfigStorage
     }
 
     /**
+     * Returns the theme's own technical name (NULL for theme copies), unlike
+     * {@see getThemeTechnicalName()} which falls back to the parent theme's technical name.
+     */
+    public function getOwnThemeTechnicalName(string $themeId): ?string
+    {
+        $technicalName = $this->connection->fetchOne(
+            'SELECT technical_name FROM theme WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($themeId)]
+        );
+
+        return $technicalName === false ? null : $technicalName;
+    }
+
+    /**
      * @param array<string, mixed> $record
      */
     private function hydrateRecord(array $record): ThemeRuntimeConfig
     {
         return ThemeRuntimeConfig::fromArray([
             'themeId' => Uuid::fromBytesToHex($record['theme_id']),
-            'technicalName' => (string) $record['technical_name'],
+            'technicalName' => $record['technical_name'] !== null ? (string) $record['technical_name'] : null,
             'resolvedConfig' => json_decode($record['resolved_config'], true, 512, \JSON_THROW_ON_ERROR),
             'viewInheritance' => json_decode($record['view_inheritance'], true, 512, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_decode($record['script_files'], true, 512, \JSON_THROW_ON_ERROR),
             'iconSets' => json_decode($record['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
+            'importMap' => isset($record['import_map'])
+                ? json_decode($record['import_map'], true, 512, \JSON_THROW_ON_ERROR)
+                : null,
             'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $record['updated_at']) ?: null,
         ]);
     }

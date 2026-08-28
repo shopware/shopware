@@ -16,7 +16,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -38,8 +40,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class CartOrderRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -139,6 +141,46 @@ class CartOrderRouteTest extends TestCase
         static::assertSame('order', $response['apiAlias']);
         static::assertSame(10, $response['transactions'][0]['amount']['totalPrice']);
         static::assertCount(1, $response['lineItems']);
+    }
+
+    public function testOrderRouteDoesNotExposePurchasePricesInLineItemPayload(): void
+    {
+        $this->productRepository->update([
+            [
+                'id' => $this->ids->get('p1'),
+                'purchasePrices' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->createCustomerAndLogin();
+        $this->addProductToCart();
+
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $order = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayNotHasKey('purchasePrices', $order['lineItems'][0]['payload']);
+
+        $criteria = new Criteria([$order['id']]);
+        $criteria->addAssociation('lineItems');
+
+        $this->browser->request(
+            'POST',
+            '/store-api/order',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            \json_encode(static::getContainer()->get(RequestCriteriaBuilder::class)->toArray($criteria), \JSON_THROW_ON_ERROR) ?: ''
+        );
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayNotHasKey('purchasePrices', $response['orders']['elements'][0]['lineItems'][0]['payload']);
     }
 
     public function testOrderWithComment(): void
@@ -264,11 +306,9 @@ class CartOrderRouteTest extends TestCase
 
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
-        $this->createCustomerAndLogin($email, $password);
+        $originalToken = $this->createCustomerAndLogin($email, $password);
 
-        $response = $this->addProductToCart();
-        $originalToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotNull($originalToken);
+        $this->addProductToCart();
 
         $interval = new \DateInterval(static::getContainer()->getParameter('shopware.api.store.context_lifetime'));
         $intervalInSeconds = (new \DateTime())->setTimestamp(0)->add($interval)->getTimestamp();
@@ -285,12 +325,11 @@ class CartOrderRouteTest extends TestCase
         $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
-        $guestToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $guestToken = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($guestToken);
+        self::assertImplicitContextTokenHeader($response);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
-        // we should get a new token and it should be different from the expired token context
-        static::assertNotSame($originalToken, $guestToken);
         static::assertNotFalse($response->getContent());
 
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -298,15 +337,17 @@ class CartOrderRouteTest extends TestCase
 
         $response = $this->addProductToCart('p2');
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertSame($guestToken, $token);
+        static::assertNotEmpty($token);
+        $guestToken = $token;
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
         // the cart should be merged on login and a new token should be created
-        $this->login($email, $password);
+        $mergedToken = $this->login($email, $password);
 
         $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
-        $mergedToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        self::assertImplicitContextTokenHeader($response, $mergedToken);
 
         static::assertNotFalse($response->getContent());
 
@@ -471,10 +512,9 @@ class CartOrderRouteTest extends TestCase
 
     public function testOrderLockedWhenAlreadyInProgress(): void
     {
-        $this->createCustomerAndLogin();
+        $token = $this->createCustomerAndLogin();
         $response = $this->addProductToCart();
-        $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotNull($token);
+        static::assertSame($token, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         // Manually acquire lock to simulate concurrent request
         $cartLocker = $this->getContainer()->get(CartLocker::class);
@@ -534,7 +574,7 @@ class CartOrderRouteTest extends TestCase
         ?string $email = null,
         ?string $password = null,
         bool $invalidSalutationId = false
-    ): void {
+    ): string {
         $email ??= Uuid::randomHex() . '@example.com';
         $password ??= 'shopware';
         $this->createCustomer(
@@ -545,10 +585,10 @@ class CartOrderRouteTest extends TestCase
             $this->validCountryId
         );
 
-        $this->login($email, $password);
+        return $this->login($email, $password);
     }
 
-    private function login(?string $email = null, ?string $password = null): void
+    private function login(?string $email = null, ?string $password = null): string
     {
         $this->browser
             ->request(
@@ -567,6 +607,8 @@ class CartOrderRouteTest extends TestCase
         static::assertNotEmpty($contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+
+        return $contextToken;
     }
 
     private function createCustomer(
@@ -647,5 +689,22 @@ class CartOrderRouteTest extends TestCase
         static::assertCount(1, $content['lineItems']);
 
         return $response;
+    }
+
+    private static function assertImplicitContextTokenHeader(Response $response, ?string $contextToken = null): void
+    {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            return;
+        }
+
+        if ($contextToken === null) {
+            static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            return;
+        }
+
+        static::assertSame($contextToken, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 }

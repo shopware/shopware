@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DatabaseSalesChannelThemeLoader::class)]
 class DatabaseSalesChannelThemeLoaderTest extends TestCase
 {
@@ -89,5 +91,45 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
         static::assertSame([], $secondAttempt);
+    }
+
+    public function testLoadWithMissingThemeNameUsesParentTheme(): void
+    {
+        $expectedDB = [
+            'themeName' => null,
+            'parentThemeName' => 'SwagTheme',
+            'themeId' => Uuid::randomHex(),
+        ];
+
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturn($expectedDB);
+
+        $actualTheme = $this->themeLoader->load(Uuid::randomHex());
+        static::assertSame(['SwagTheme'], $actualTheme);
+    }
+
+    public function testGrandParentThemeWithMissingThemeNameIsReindexed(): void
+    {
+        // When the grandparent's themeName is null, array_filter leaves a gap at index 0.
+        // array_values ensures the result is contiguous so assertSame (key-strict) passes.
+        $salesChannelTheme = [
+            'themeName' => 'ChildTheme',
+            'parentThemeName' => 'ParentTheme',
+            'themeId' => Uuid::randomHex(),
+            'grandParentThemeId' => Uuid::randomHex(),
+        ];
+
+        $grandParentTheme = [
+            'themeName' => null,
+            'parentThemeName' => 'GrandParentTheme',
+            'grandParentThemeId' => null,
+        ];
+
+        $this->connection->expects($this->exactly(2))
+            ->method('fetchAssociative')
+            ->willReturnOnConsecutiveCalls($salesChannelTheme, $grandParentTheme);
+
+        $actualTheme = $this->themeLoader->load(Uuid::randomHex());
+
+        static::assertSame(['ChildTheme', 'ParentTheme', 'GrandParentTheme'], $actualTheme);
     }
 }

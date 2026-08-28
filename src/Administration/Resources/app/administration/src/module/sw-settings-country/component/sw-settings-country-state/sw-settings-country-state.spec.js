@@ -40,14 +40,14 @@ async function createWrapper(privileges = []) {
 
             global: {
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',
                         },
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },
@@ -97,7 +97,7 @@ async function createWrapper(privileges = []) {
                                 variant="danger"
                                 :disabled="!allowDelete || undefined"
                                 @click="deleteItem(item.id)">
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                         </slot>
                     </template>

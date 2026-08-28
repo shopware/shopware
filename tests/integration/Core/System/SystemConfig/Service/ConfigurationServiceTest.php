@@ -5,9 +5,12 @@ namespace Shopware\Tests\Integration\Core\System\SystemConfig\Service;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\System\System;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -72,13 +75,46 @@ class ConfigurationServiceTest extends TestCase
         static::assertSame([], $result);
     }
 
+    public function testBasicInformationContainsCompanyInformationCardWhenFeatureFlagIsActive(): void
+    {
+        Feature::skipTestIfInActive('DOCUMENT_GENERATION_REWORK', $this);
+
+        $configuration = $this->createConfigurationService([])->getConfiguration(
+            'core.basicInformation',
+            Context::createDefaultContext()
+        );
+
+        static::assertCount(1, array_filter(
+            $configuration,
+            static fn (array $card): bool => ($card['name'] ?? null) === 'companyInformation'
+        ));
+    }
+
+    public function testBasicInformationDoesNotContainCompanyInformationCardWhenFeatureFlagIsInactive(): void
+    {
+        Feature::skipTestIfActive('DOCUMENT_GENERATION_REWORK', $this);
+
+        $configuration = $this->createConfigurationService([])->getConfiguration(
+            'core.basicInformation',
+            Context::createDefaultContext()
+        );
+
+        static::assertCount(0, array_filter(
+            $configuration,
+            static fn (array $card): bool => ($card['name'] ?? null) === 'companyInformation'
+        ));
+    }
+
     /**
-     * @param list<\Shopware\Core\Framework\Plugin> $plugins
+     * @param list<Plugin> $plugins
      */
     private function createConfigurationService(array $plugins): ConfigurationService
     {
         return new ConfigurationService(
-            $plugins,
+            [
+                new System(),
+                ...$plugins,
+            ],
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),

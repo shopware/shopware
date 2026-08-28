@@ -79,7 +79,7 @@
                     {% endif %}
 
                     {% if lengthValue and lengthValue > 0 %}
-                        <meta itemprop="length"
+                        <meta itemprop="depth"
                               content="{{ lengthValue }} {{ lengthUnit }}">
                     {% endif %}
                 {% endblock %}
@@ -161,9 +161,13 @@
                                     </span>
                                 {% endblock %}
 
-                                {% if product.calculatedPrices|length == 0 %}
-                                    {% set price = product.calculatedPrice %}
+                                {% set price = product.calculatedPrice %}
 
+                                {% if product.calculatedPrices|length == 1 %}
+                                    {% set price = product.calculatedPrices.first %}
+                                {% endif %}
+
+                                {% if product.calculatedPrices|length <= 1 %}
                                     {% if price.referencePrice is not null %}
                                         {% block buy_widget_price_unit_reference_content %}
                                             <span class="price-unit-reference-content">
@@ -294,6 +298,55 @@
                         </span>
                     {% endblock %}
                 </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block buy_widget_garan_label %}
+            {% set garanGuaranteeMonths = product.guaranteeMonths %}
+            {% set garanGuarantee = garanGuaranteeMonths|sw_garan_label_duration %}
+            {% set garanManufacturer = product.manufacturer.translated.name ?? product.manufacturer.name ?? null %}
+            {% set garanModelIdentifier = product.manufacturerNumber %}
+
+            {% if product.guaranteeConfirmed and garanGuarantee and garanManufacturer and garanModelIdentifier %}
+                {% block buy_widget_garan_label_wrapper %}
+                    <div class="product-detail-garan-label-wrapper" data-garan-label-toggle="true">
+                        {% block buy_widget_garan_label_preview %}
+                            <div class="product-detail-garan-label">
+                                {% sw_include '@Framework/garan/nested-label.svg.twig' with {
+                                    guarantee: garanGuarantee
+                                } only %}
+                            </div>
+                        {% endblock %}
+
+                        {% block buy_widget_garan_label_full %}
+                            <div class="product-detail-garan-label-full d-none">
+                                {% sw_include '@Framework/garan/label.svg.twig' with {
+                                    manufacturer: garanManufacturer,
+                                    productNumber: garanModelIdentifier,
+                                    guarantee: garanGuarantee
+                                } only %}
+                            </div>
+                        {% endblock %}
+
+                        {% block buy_widget_garan_label_show_link %}
+                            <button type="button"
+                                    class="product-detail-garan-label-show-link"
+                                    data-garan-label-toggle-trigger="true"
+                                    data-garan-label-show-text="{{ 'detail.garanLabelShowLink'|trans|striptags }}"
+                                    data-garan-label-hide-text="{{ 'detail.garanLabelHideLink'|trans|striptags }}">
+                                <span class="product-detail-garan-label-show-link-text">
+                                    {{ 'detail.garanLabelShowLink'|trans|sw_sanitize }}
+                                </span>
+                                <span class="product-detail-garan-label-show-link-icon-show">
+                                    {% sw_icon 'expand' style { pack: 'solid', size: 'xs' } %}
+                                </span>
+                                <span class="product-detail-garan-label-show-link-icon-hide d-none">
+                                    {% sw_icon 'collapse' style { pack: 'solid', size: 'xs' } %}
+                                </span>
+                            </button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
             {% endif %}
         {% endblock %}
     </div>

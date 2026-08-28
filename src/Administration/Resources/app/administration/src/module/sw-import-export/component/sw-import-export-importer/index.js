@@ -123,7 +123,7 @@ export default {
 
         handleProgress(log) {
             this.createNotificationInfo({
-                message: this.$tc('sw-import-export.importer.messageImportStarted'),
+                message: this.$t('sw-import-export.importer.messageImportStarted'),
             });
 
             this.isLoading = false;

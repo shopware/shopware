@@ -10,12 +10,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @phpstan-import-type ImageSize from ThumbnailService
  */
+#[Package('discovery')]
 #[CoversClass(ThumbnailSizeCalculator::class)]
 class ThumbnailSizeCalculatorTest extends TestCase
 {
@@ -38,29 +40,51 @@ class ThumbnailSizeCalculatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: ImageSize, 1: ImageSize, 2: ImageSize}>
+     * @return iterable<string, array{0: ImageSize, 1: ImageSize, 2: ImageSize}>
      */
-    public static function thumbnailSizeProvider(): array
+    public static function thumbnailSizeProvider(): iterable
     {
-        return [
-            // image size, preferred size, expected size
-            [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 800, 'height' => 400]],
-            [['width' => 2000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 300]],
-            [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 400]],
-            [['width' => 1000, 'height' => 2000], ['width' => 800, 'height' => 600], ['width' => 300, 'height' => 600]],
-            [['width' => 1000, 'height' => 2000], ['width' => 600, 'height' => 800], ['width' => 400, 'height' => 800]],
-            [['width' => 1000, 'height' => 2000], ['width' => 800, 'height' => 800], ['width' => 400, 'height' => 800]],
-            [['width' => 1000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 600, 'height' => 600]],
-            [['width' => 1000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 600]],
-            [['width' => 1000, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 800]],
-            [['width' => 1200, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 720, 'height' => 600]],
-            [['width' => 1200, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 500]],
-            [['width' => 1200, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 667]],
-            [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 600], ['width' => 500, 'height' => 600]],
-            [['width' => 1000, 'height' => 1200], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 720]],
-            [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 800], ['width' => 667, 'height' => 800]],
-            [['width' => 1560, 'height' => 723], ['width' => 730, 'height' => 500], ['width' => 730, 'height' => 338]],
-            [['width' => 723, 'height' => 1560], ['width' => 730, 'height' => 500], ['width' => 232, 'height' => 500]],
-        ];
+        yield 'landscape image scales to preferred width' => [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 800, 'height' => 400]];
+        yield 'landscape image is constrained by preferred width' => [['width' => 2000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 300]];
+        yield 'landscape image is constrained by square preferred size' => [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 400]];
+        yield 'portrait image is constrained by preferred height' => [['width' => 1000, 'height' => 2000], ['width' => 800, 'height' => 600], ['width' => 300, 'height' => 600]];
+        yield 'portrait image scales to preferred height' => [['width' => 1000, 'height' => 2000], ['width' => 600, 'height' => 800], ['width' => 400, 'height' => 800]];
+        yield 'portrait image is constrained by square preferred size' => [['width' => 1000, 'height' => 2000], ['width' => 800, 'height' => 800], ['width' => 400, 'height' => 800]];
+        yield 'square image is constrained by preferred height' => [['width' => 1000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 600, 'height' => 600]];
+        yield 'square image is constrained by preferred width' => [['width' => 1000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 600]];
+        yield 'square image scales to square preferred size' => [['width' => 1000, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 800]];
+        yield 'wide image is constrained by preferred height' => [['width' => 1200, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 720, 'height' => 600]];
+        yield 'wide image is constrained by preferred width' => [['width' => 1200, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 500]];
+        yield 'wide image is constrained by square preferred size' => [['width' => 1200, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 667]];
+        yield 'tall image is constrained by preferred height' => [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 600], ['width' => 500, 'height' => 600]];
+        yield 'tall image is constrained by preferred width' => [['width' => 1000, 'height' => 1200], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 720]];
+        yield 'tall image is constrained by square preferred size' => [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 800], ['width' => 667, 'height' => 800]];
+        yield 'panorama image is constrained by preferred width' => [['width' => 1560, 'height' => 723], ['width' => 730, 'height' => 500], ['width' => 730, 'height' => 338]];
+        yield 'portrait panorama image is constrained by preferred height' => [['width' => 723, 'height' => 1560], ['width' => 730, 'height' => 500], ['width' => 232, 'height' => 500]];
+    }
+
+    /**
+     * @param ImageSize $imageSize
+     * @param int<1, max> $thumbnailWidth
+     * @param int<1, max> $thumbnailHeight
+     * @param ImageSize $expectedSize
+     */
+    #[DataProvider('validSizeProvider')]
+    public function testDetermineValidSize(array $imageSize, int $thumbnailWidth, int $thumbnailHeight, array $expectedSize): void
+    {
+        $thumbnailSizeCalculator = new ThumbnailSizeCalculator();
+
+        static::assertSame($expectedSize, $thumbnailSizeCalculator->determineValidSize($imageSize, $thumbnailWidth, $thumbnailHeight));
+    }
+
+    /**
+     * @return iterable<string, array{0: ImageSize, 1: int<1, max>, 2: int<1, max>, 3: ImageSize}>
+     */
+    public static function validSizeProvider(): iterable
+    {
+        yield 'thumbnail smaller than the image is used as-is' => [['width' => 800, 'height' => 600], 800, 300, ['width' => 800, 'height' => 300]];
+        yield 'image narrower than the thumbnail keeps its original size' => [['width' => 200, 'height' => 600], 800, 300, ['width' => 200, 'height' => 600]];
+        yield 'image shorter than the thumbnail keeps its original size' => [['width' => 800, 'height' => 200], 600, 300, ['width' => 800, 'height' => 200]];
+        yield 'thumbnail matching the image exactly is not treated as upscaling' => [['width' => 800, 'height' => 600], 800, 600, ['width' => 800, 'height' => 600]];
     }
 }

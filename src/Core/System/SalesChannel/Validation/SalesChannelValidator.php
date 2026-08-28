@@ -120,7 +120,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         $typeId = Uuid::fromBytesToHex($command->getPayload()['type_id']);
 
         return $typeId === Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-            || $typeId === Defaults::SALES_CHANNEL_TYPE_API;
+            || $typeId === Defaults::SALES_CHANNEL_TYPE_API
+            || $typeId === Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON
+            || $typeId === Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE;
     }
 
     private function handleSalesChannelLanguageMapping(Mapping $mapping, WriteCommand $command): void
@@ -167,8 +169,9 @@ class SalesChannelValidator implements EventSubscriberInterface
                 }
             }
 
-            if ($salesChannelData->deletions !== [] && $this->isInvalidDeleteCase($salesChannelData)) {
-                $deletions[$salesChannelId] = $salesChannelData->currentDefault;
+            $deletedDefault = $this->findDeletedDefaultLanguageId($salesChannelData);
+            if ($deletedDefault !== null) {
+                $deletions[$salesChannelId] = $deletedDefault;
             }
 
             if ($salesChannelData->updateId !== null && $this->isInvalidUpdateCase($salesChannelData)) {
@@ -208,15 +211,18 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @phpstan-assert-if-true !null $salesChannelData->currentDefault
+     * Compares the deletions against the default language in effect after this write rather than the stored
+     * one, so that assigning a new default and removing the previous one in a single write stays valid.
      */
-    private function isInvalidDeleteCase(SalesChannelData $salesChannelData): bool
+    private function findDeletedDefaultLanguageId(SalesChannelData $salesChannelData): ?string
     {
-        if ($salesChannelData->currentDefault === null) {
-            return false;
+        $default = $salesChannelData->updateId ?? $salesChannelData->newDefault ?? $salesChannelData->currentDefault;
+
+        if ($default === null || !\in_array($default, $salesChannelData->deletions, true)) {
+            return null;
         }
 
-        return \in_array($salesChannelData->currentDefault, $salesChannelData->deletions, true);
+        return $default;
     }
 
     /**

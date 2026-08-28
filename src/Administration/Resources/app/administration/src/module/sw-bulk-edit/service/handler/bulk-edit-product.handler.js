@@ -317,6 +317,8 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
     }
 
     formatPrice(price, dbPrice) {
+        const preserveFromDb = price.gross === null && price.net === null;
+
         if (price.gross === null) {
             price.linked = false;
             price.gross = dbPrice?.gross ?? 0;
@@ -327,7 +329,63 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             price.net = dbPrice?.net ?? 0;
         }
 
+        // When both gross and net were null (e.g. listPrice/regulationPrice-only bulk edit),
+        // preserve base price semantics (linked) from DB to avoid unintended changes
+        if (preserveFromDb && dbPrice?.linked !== undefined) {
+            price.linked = dbPrice.linked;
+        }
+
         return price;
+    }
+
+    /**
+     * @private
+     *
+     * Bulk-adding media must append each image after the product's own existing media, so the position is
+     * computed per product as the highest existing position + 1, instead of sharing a single value across all
+     * selected products. Using the highest existing position (not the count) keeps it collision-free even when
+     * a product's positions are non-contiguous, e.g. images at positions 1 and 3 get the new image at 4.
+     */
+    _getOneToManyRecordDecorator(change, existAssociations) {
+        if (change.referenceEntity !== 'product_media' || change.type !== 'add') {
+            return null;
+        }
+
+        const nextPositionByEntity = {};
+        this.entityIds.forEach((entityId) => {
+            nextPositionByEntity[entityId] = this._maxMediaPosition(existAssociations, change.referenceKey, entityId) + 1;
+        });
+
+        return (record, entityId) => {
+            record.position = nextPositionByEntity[entityId];
+            nextPositionByEntity[entityId] += 1;
+        };
+    }
+
+    /**
+     * @private
+     *
+     * Highest media position currently stored for a product, derived from the prefetched associations.
+     * Returns -1 when the product has no media yet, so the first appended image starts at position 0.
+     */
+    _maxMediaPosition(existAssociations, referenceKey, entityId) {
+        let maxPosition = -1;
+
+        Object.values(existAssociations).forEach((associations) => {
+            associations.forEach((association) => {
+                if (association[referenceKey] !== entityId) {
+                    return;
+                }
+
+                const position = Number.isFinite(association.position) ? association.position : 0;
+
+                if (position > maxPosition) {
+                    maxPosition = position;
+                }
+            });
+        });
+
+        return maxPosition;
     }
 }
 

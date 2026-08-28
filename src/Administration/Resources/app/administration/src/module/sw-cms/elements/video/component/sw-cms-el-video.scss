@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-el-video {
     display: flex;
     width: 100%;
@@ -23,7 +21,7 @@
             justify-content: center;
             width: 100%;
             height: 100%;
-            background-color: $color-darkgray-500;
+            background-color: var(--color-elevation-floating-default);
             background-repeat: no-repeat;
             background-position: center;
             background-size: cover;

@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 
 const mockCode = 'PREFIX_ABCD_SUFFIX';
-async function createWrapper(propsData = {}) {
+async function createWrapper(propsData = {}, apiService = {}) {
     return mount(
         await wrapTestComponent('sw-promotion-v2-generate-codes-modal', {
             sync: true,
@@ -68,7 +68,7 @@ async function createWrapper(propsData = {}) {
                     },
                     'sw-field-error': true,
                     'sw-modal': {
-                        template: '<div class="sw-modal"><slot /></div>',
+                        template: '<div class="sw-modal"><slot /><slot name="modal-footer" /></div>',
                     },
                     'sw-button-process': true,
                 },
@@ -79,6 +79,7 @@ async function createWrapper(propsData = {}) {
                                 resolve(mockCode);
                             });
                         },
+                        ...apiService,
                     },
                 },
             },
@@ -135,6 +136,79 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         await wrapper.vm.$nextTick();
 
         expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe(mockCode);
+    });
+
+    it('should not request a preview for a pattern without variables and show an inline error', async () => {
+        const generatePreview = jest.fn(() => Promise.resolve(mockCode));
+        const wrapper = await createWrapper(
+            {
+                individualCodePattern: 'GTMTEST100',
+            },
+            { generatePreview },
+        );
+
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        expect(generatePreview).not.toHaveBeenCalled();
+        expect(wrapper.vm.isGenerating).toBe(false);
+
+        const inputCustomPattern = wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__custom-pattern');
+        expect(inputCustomPattern.props('error')).toEqual({
+            detail: 'sw-promotion-v2.detail.base.codes.individual.generateModal.invalidPatternException',
+        });
+
+        expect(wrapper.get('.sw-promotion-v2-generate-codes-modal__button-generate').attributes('disabled')).toBe('true');
+    });
+
+    it('should reset the loading state when the preview request fails', async () => {
+        const generatePreview = jest.fn(() => Promise.reject(new Error('invalid pattern')));
+        const wrapper = await createWrapper(
+            {
+                individualCodePattern: 'FAIL_%d%d',
+            },
+            { generatePreview },
+        );
+
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        expect(generatePreview).toHaveBeenCalled();
+        expect(wrapper.vm.isGenerating).toBe(false);
+        expect(wrapper.getComponent('.sw-promotion-v2-generate-codes-modal__preview').props('modelValue')).toBe('');
+    });
+
+    it('should show an error notification when generating fails with an invalid pattern', async () => {
+        const replaceIndividualCodes = jest.fn().mockRejectedValue({
+            response: {
+                data: {
+                    errors: [
+                        { code: 'CHECKOUT__INVALID_CODE_PATTERN' },
+                    ],
+                },
+            },
+        });
+        const wrapper = await createWrapper(
+            {
+                individualCodePattern: '%d%d%d',
+            },
+            { replaceIndividualCodes },
+        );
+        wrapper.vm.createNotificationError = jest.fn();
+
+        jest.advanceTimersByTime(1000);
+        await flushPromises();
+
+        wrapper.vm.onGenerate();
+        await flushPromises();
+
+        expect(replaceIndividualCodes).toHaveBeenCalled();
+        expect(wrapper.vm.isGenerating).toBe(false);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith(
+            expect.objectContaining({
+                message: 'sw-promotion-v2.detail.base.codes.individual.generateModal.invalidPatternException',
+            }),
+        );
     });
 
     it('should show or hide alert depends on existing individualCodes', async () => {

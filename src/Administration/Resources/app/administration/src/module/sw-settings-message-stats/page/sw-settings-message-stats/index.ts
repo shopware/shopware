@@ -77,7 +77,7 @@ export default defineComponent({
                 return '';
             }
             const formattedNumber = this.statsData.averageTimeInQueue.toFixed(2);
-            return `${formattedNumber}${this.$tc('sw-settings-message-stats.general.seconds')}`;
+            return `${formattedNumber}${this.$t('sw-settings-message-stats.general.seconds')}`;
         },
 
         statBlocks() {
@@ -85,21 +85,21 @@ export default defineComponent({
             return [
                 {
                     key: 'totalMessages',
-                    label: this.$tc('sw-settings-message-stats.general.totalMessages'),
+                    label: this.$t('sw-settings-message-stats.general.totalMessages'),
                     value: this.hasStats ? this.statsData?.totalMessagesProcessed : emptyValue,
-                    tooltip: this.$tc('sw-settings-message-stats.general.totalMessagesHelp'),
+                    tooltip: this.$t('sw-settings-message-stats.general.totalMessagesHelp'),
                 },
                 {
                     key: 'averageTime',
-                    label: this.$tc('sw-settings-message-stats.general.averageTime'),
+                    label: this.$t('sw-settings-message-stats.general.averageTime'),
                     value: this.hasStats ? this.formattedAverageTime : emptyValue,
-                    tooltip: this.$tc('sw-settings-message-stats.general.averageTimeHelp'),
+                    tooltip: this.$t('sw-settings-message-stats.general.averageTimeHelp'),
                 },
                 {
                     key: 'processingWindow',
-                    label: this.$tc('sw-settings-message-stats.general.processingWindow'),
+                    label: this.$t('sw-settings-message-stats.general.processingWindow'),
                     value: this.hasStats ? this.formattedProcessedSince : emptyValue,
-                    tooltip: this.$tc('sw-settings-message-stats.general.processingWindowHelp'),
+                    tooltip: this.$t('sw-settings-message-stats.general.processingWindowHelp'),
                 },
             ];
         },
@@ -134,7 +134,7 @@ export default defineComponent({
                         ? error.message
                         : this.$t('global.notification.notificationLoadingDataErrorMessage');
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-message-stats.general.errorTitle'),
+                    title: this.$t('sw-settings-message-stats.general.errorTitle'),
                     message: errorMessage,
                 });
             } finally {

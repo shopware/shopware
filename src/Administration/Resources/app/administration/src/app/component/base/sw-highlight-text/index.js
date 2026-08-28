@@ -85,7 +85,13 @@ export default {
                 return [{ text: this.text, highlighted: false }];
             }
 
-            const regExp = new RegExp(this.escapeRegExp(this.searchTerm), 'ig');
+            const pattern = this.escapeRegExp(this.searchTerm).trim();
+
+            if (!pattern) {
+                return [{ text: this.text, highlighted: false }];
+            }
+
+            const regExp = new RegExp(pattern, 'ig');
             const parts = [];
             let currentIndex = 0;
             let match = regExp.exec(this.text);
@@ -119,11 +125,16 @@ export default {
 
         // Remove regex special characters from search string
         escapeRegExp(string) {
-            const escapeRegex = RegExp.escape ?? ((value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            const escapeRegex = RegExp.escape ?? ((value) => value.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'));
 
             if (Context.app.adminEsEnable) {
-                // remove simple query string syntax
-                return escapeRegex(string.replace(/[+-.*~"|()]/g, '').replace(/ AND | and | OR | or |  +/g, ' '));
+                string = string
+                    .replace(/(?<!\S)[+-]|[+-](?!\S)/g, '') // remove + and - which are not part of a word
+                    .replace(/[.*~"|()]/g, '') // remove special elasticsearch characters
+                    .replace(/\b(AND|OR)\b/gi, ' ') // remove AND and OR bool operators
+                    .replace(/\s+/g, ' '); // replace multiple spaces with single space
+
+                return escapeRegex(string);
             }
 
             return escapeRegex(string);

@@ -23,6 +23,7 @@ use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -115,7 +116,7 @@ class Kernel extends HttpKernel
             }
         }
 
-        if ((!Feature::has('v6.8.0.0') || !Feature::isActive('v6.8.0.0')) && !isset($bundles[TwigComponentBundle::class])) {
+        if (!Feature::isActive('v6.8.0.0') && !isset($bundles[TwigComponentBundle::class])) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf('The %s bundle should be added to config/bundles.php', TwigComponentBundle::class));
             yield new TwigComponentBundle();
         }
@@ -232,6 +233,18 @@ class Kernel extends HttpKernel
 
         $confDir = $this->getProjectDir() . '/config';
 
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML package configuration is no longer loaded
+        foreach ($this->getXmlFilesRecursive($confDir . '/packages') as $path) {
+            $this->triggerXmlConfigDeprecation($path, 'Migrate the package configuration to YAML or PHP format.');
+        }
+
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
+        foreach ([$confDir . '/services.xml', $confDir . '/services_' . $this->environment . '.xml'] as $path) {
+            if (is_file($path)) {
+                $this->triggerXmlConfigDeprecation($path, \sprintf('Migrate the service definitions to PHP format (%s).', basename($path, '.xml') . '.php'));
+            }
+        }
+
         $loader->load($confDir . '/{packages}/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{packages}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
@@ -241,6 +254,13 @@ class Kernel extends HttpKernel
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $confDir = $this->getProjectDir() . '/config';
+
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
+        foreach ([...$this->getXmlFilesRecursive($confDir . '/routes'), $confDir . '/routes.xml'] as $path) {
+            if (is_file($path)) {
+                $this->triggerXmlConfigDeprecation($path, \sprintf('Migrate the route definitions to PHP format (%s).', basename($path, '.xml') . '.php'));
+            }
+        }
 
         $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, 'glob');
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
@@ -253,7 +273,7 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * @return array<string, array<string, mixed>|bool|string|int|float|\UnitEnum|null>
+     * @phpstan-ignore missingType.iterableValue (Needs to be fixed in upstream parent method)
      */
     protected function getKernelParameters(): array
     {
@@ -401,5 +421,35 @@ PHP;
     {
         return \array_key_exists($bundle->getName(), $instantiatedBundleNames)
             || \array_key_exists($bundle->getName(), $this->bundles);
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+    private function triggerXmlConfigDeprecation(string $path, string $migrationHint): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf(
+                'The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. %s',
+                $path,
+                $migrationHint,
+            ),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getXmlFilesRecursive(string $dir): array
+    {
+        if (!is_dir($dir)) {
+            return [];
+        }
+
+        $files = [];
+        foreach ((new Finder())->files()->in($dir)->name('*.xml')->sortByName() as $file) {
+            $files[] = $file->getPathname();
+        }
+
+        return $files;
     }
 }

@@ -14,7 +14,7 @@
     }
 
     & &__sorting_modal_card > .sw-card__content {
-        background: $color-gray-100;
+        background: var(--color-background-tertiary-default);
         text-align: right;
     }
 }

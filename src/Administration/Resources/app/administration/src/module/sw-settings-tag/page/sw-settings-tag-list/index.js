@@ -116,7 +116,7 @@ export default {
             this.assignmentProperties.forEach((propertyName) => {
                 columns.push({
                     property: `${propertyName}`,
-                    label: this.$tc(`sw-settings-tag.list.assignments.header.${propertyName}`),
+                    label: this.$t(`sw-settings-tag.list.assignments.header.${propertyName}`),
                     width: '250px',
                     allowResize: true,
                     sortable: true,
@@ -140,7 +140,7 @@ export default {
 
                     options.push({
                         value: propertyName,
-                        label: this.$tc(`sw-settings-tag.list.assignments.filter.${propertyName}`),
+                        label: this.$t(`sw-settings-tag.list.assignments.filter.${propertyName}`),
                     });
                 },
             );
@@ -338,7 +338,7 @@ export default {
 
         onDuplicate(item) {
             this.showDuplicateModal = item.id;
-            this.duplicateName = `${item.name} ${this.$tc('global.default.copy')}`;
+            this.duplicateName = `${item.name} ${this.$t('global.default.copy')}`;
         },
 
         onCloseDuplicateModal() {
@@ -370,7 +370,7 @@ export default {
                     this.duplicateName = null;
 
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 });
         },
@@ -414,7 +414,7 @@ export default {
                 .catch(() => {
                     this.bulkMergeProgress.isRunning = false;
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 });
         },
@@ -422,12 +422,12 @@ export default {
         getBulkMergeMessageGlue(ids, id) {
             if (ids.length - 1 === ids.indexOf(id)) {
                 return this.bulkMergeProgress.isRunning
-                    ? this.$tc('sw-settings-tag.list.bulkMergeInto')
-                    : this.$tc('sw-settings-tag.list.bulkMergeMessageFinal');
+                    ? this.$t('sw-settings-tag.list.bulkMergeInto')
+                    : this.$t('sw-settings-tag.list.bulkMergeMessageFinal');
             }
 
             if (ids.length - 2 === ids.indexOf(id)) {
-                return this.$tc('sw-settings-tag.list.bulkMergeMessageAnd');
+                return this.$t('sw-settings-tag.list.bulkMergeMessageAnd');
             }
 
             return ',';

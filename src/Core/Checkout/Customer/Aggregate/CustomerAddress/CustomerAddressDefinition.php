@@ -13,8 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -58,7 +60,7 @@ class CustomerAddressDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of customer\'s address.'),
 
             (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of customer.'),
@@ -85,5 +87,16 @@ class CustomerAddressDefinition extends EntityDefinition
             (new ManyToOneAssociationField('countryState', 'country_state_id', CountryStateDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false))->addFlags(new ApiAware()),
         ]);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                new OneToOneAssociationField('defaultBillingAddressCustomer', 'id', 'default_billing_address_id', CustomerDefinition::class, false)
+            );
+            $fields->add(
+                new OneToOneAssociationField('defaultShippingAddressCustomer', 'id', 'default_shipping_address_id', CustomerDefinition::class, false)
+            );
+        }
+
+        return $fields;
     }
 }

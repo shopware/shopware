@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\Consent;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentRepository;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 /**
  * @internal
  */
+#[Package('data-services')]
 class ConsentRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -31,7 +33,7 @@ class ConsentRepositoryTest extends TestCase
         $productAnalytics = new ProductAnalytics();
 
         $userId = $this->createUser('test-user');
-        $this->repository->updateConsentState($productAnalytics, $userId, ConsentStatus::ACCEPTED, $userId);
+        $this->repository->updateConsentState($productAnalytics, $userId, ConsentStatus::ACCEPTED, $userId, '2026-02-01');
 
         $states = $this->repository->fetchAllConsentStates();
 
@@ -41,6 +43,7 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
         static::assertSame($productAnalytics->getName(), $states[0]->name);
+        static::assertSame('2026-02-01', $states[0]->revision);
     }
 
     public function testUpdateSystemConsentState(): void
@@ -65,7 +68,7 @@ class ConsentRepositoryTest extends TestCase
         $tracking = new ProductAnalytics();
 
         $userId = $this->createUser('test-user');
-        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId, '1.0.0');
 
         $states = $this->repository->fetchAllConsentStates();
 
@@ -74,6 +77,7 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame('test-user', $states[0]->actor);
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
+        static::assertSame('1.0.0', $states[0]->revision);
 
         $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId);
 
@@ -84,6 +88,21 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame('test-user', $states[0]->actor);
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::REVOKED, $states[0]->status);
+        static::assertNull($states[0]->revision);
+    }
+
+    public function testRevokeConsentStateClearsPassedRevision(): void
+    {
+        $tracking = new ProductAnalytics();
+
+        $userId = $this->createUser('test-user');
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId, '2.0.0');
+
+        $states = $this->repository->fetchAllConsentStates();
+
+        static::assertCount(1, $states);
+        static::assertSame(ConsentStatus::DECLINED, $states[0]->status);
+        static::assertNull($states[0]->revision);
     }
 
     public function testInitializesRevokedConsentsWithDeclinedState(): void
@@ -177,7 +196,7 @@ class ConsentRepositoryTest extends TestCase
                 'email' => $name . '@example.com',
                 'password' => 'shopware',
                 'locale' => [
-                    'code' => 'locale-' . $name,
+                    'code' => 'de-DE-' . $name,
                     'name' => 'Test Locale',
                     'territory' => 'Test Territory',
                 ],

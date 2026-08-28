@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -31,8 +32,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
     /**
@@ -49,6 +50,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         private readonly RequestStack $requestStack,
         private readonly RateLimiter $rateLimiter,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -88,6 +90,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             $cacheKey = strtolower((string) $customer->getEmail()) . '-' . $request->getClientIp();
 
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, strtolower((string) $customer->getEmail()));
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_CLIENT, (string) $request->getClientIp());
             $this->rateLimiter->reset(RateLimiter::RESET_PASSWORD, $cacheKey);
         }
 
@@ -97,6 +101,10 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             'legacyPassword' => null,
             'legacyEncoder' => null,
         ];
+
+        if ($customer->getDoubleOptInRegistration() && $customer->getDoubleOptInConfirmDate() === null) {
+            $customerData['doubleOptInConfirmDate'] = $this->clock->now();
+        }
 
         $this->customerRepository->update([$customerData], $context->getContext());
         $this->deleteRecoveryForCustomer($customerRecovery, $context->getContext());
@@ -185,7 +193,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $recovery = $this->customerRecoveryRepository->search($criteria, $context)->getEntities()->first();
 
-        $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
+        $validDateTime = $this->clock->now()->sub(new \DateInterval('PT2H'));
 
         return $recovery && $validDateTime < $recovery->getCreatedAt();
     }

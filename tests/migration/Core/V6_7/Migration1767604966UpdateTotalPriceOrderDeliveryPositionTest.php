@@ -33,14 +33,9 @@ class Migration1767604966UpdateTotalPriceOrderDeliveryPositionTest extends TestC
         $this->deliveryId = Uuid::randomBytes();
     }
 
-    protected function tearDown(): void
+    public function testGetCreationTimestamp(): void
     {
-        $deletedRowCount = $this->connection->executeStatement(
-            'DELETE FROM `order_delivery_position` WHERE id = :id',
-            ['id' => $this->deliveryId]
-        );
-
-        static::assertSame(1, (int) $deletedRowCount);
+        static::assertSame(1767604966, (new Migration1767604966UpdateTotalPriceOrderDeliveryPosition())->getCreationTimestamp());
     }
 
     public function testUpdate(): void
@@ -51,21 +46,29 @@ class Migration1767604966UpdateTotalPriceOrderDeliveryPositionTest extends TestC
 
         $this->createDeliveryPosition();
 
-        $migration = new Migration1767604966UpdateTotalPriceOrderDeliveryPosition();
+        try {
+            $migration = new Migration1767604966UpdateTotalPriceOrderDeliveryPosition();
 
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+            $migration->update($this->connection);
+            $migration->update($this->connection);
 
-        $value = (float) $this->connection->fetchOne(
-            'SELECT total_price FROM order_delivery_position WHERE id = :id',
-            ['id' => $this->deliveryId]
-        );
+            $value = (float) $this->connection->fetchOne(
+                'SELECT total_price FROM order_delivery_position WHERE id = :id',
+                ['id' => $this->deliveryId]
+            );
 
-        $this->connection->executeStatement('SET foreign_key_checks = 1');
+            static::assertSame(12.12, $value);
+            $type = TableHelper::getColumnOfTable($this->connection, 'order_delivery_position', 'total_price')->type;
+            static::assertSame(Types::FLOAT, $type);
+        } finally {
+            $this->connection->executeStatement('SET foreign_key_checks = 1');
+            $deletedRowCount = $this->connection->executeStatement(
+                'DELETE FROM `order_delivery_position` WHERE id = :id',
+                ['id' => $this->deliveryId]
+            );
+        }
 
-        static::assertSame(12.12, $value);
-        $type = TableHelper::getColumnOfTable($this->connection, 'order_delivery_position', 'total_price')->type;
-        static::assertSame(Types::FLOAT, $type);
+        static::assertSame(1, (int) $deletedRowCount);
     }
 
     private function rollBack(): void

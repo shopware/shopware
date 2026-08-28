@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category\SalesChannel;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -24,6 +27,7 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -34,6 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,8 +46,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('discovery')]
+#[Group('store-api')]
 #[CoversClass(CategoryRoute::class)]
 class CategoryRouteTest extends TestCase
 {
@@ -127,12 +132,14 @@ class CategoryRouteTest extends TestCase
                 $salesChannelContext,
                 [
                     'content' => [
-                        'value' => $expected,
+                        'field' => [
+                            'value' => $expected,
+                        ],
                     ],
                 ],
                 new EntityResolverContext($salesChannelContext, $request, new CategoryDefinition(), $category),
             )->willReturn(new EntitySearchResult(
-                'cms-page',
+                'cms_page',
                 1,
                 new CmsPageCollection([$cmsPage]),
                 null,
@@ -143,8 +150,11 @@ class CategoryRouteTest extends TestCase
         $categoryRoute = new CategoryRoute(
             $categoryRepositoryMock,
             $cmsPageLoader,
+            new EntityCmsSlotConfigInheritanceBuilder(
+                $this->createConnectionWithParentLanguageIds($languageCodeChain),
+            ),
             new CategoryDefinition(),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         $categoryRoute->load(
@@ -180,17 +190,69 @@ class CategoryRouteTest extends TestCase
 
         $category->setType(CategoryDefinition::TYPE_FOLDER);
 
-        $this->expectException(CategoryNotFoundException::class);
-        $this->expectExceptionMessage(\sprintf(
-            'Category "%s" not found.',
-            $this->ids->get('category'),
-        ));
+        $this->expectExceptionObject(new CategoryNotFoundException($this->ids->get('category')));
 
         $this->buildContentlessCategoryRepositoryMock(
             $category,
             $salesChannelContext,
             $request
         );
+    }
+
+    public function testHomeRouteIsTaggedWithNavigationCategoryId(): void
+    {
+        $request = new Request();
+        $category = $this->buildPageCategory(['en']);
+        $cmsPage = $this->buildCmsPage();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setNavigationCategoryId($category->getId());
+        $salesChannel->setNavigationCategoryDepth(2);
+        $salesChannel->setTaxCalculationType(Generator::TAX_CALCULATION_TYPE);
+        $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            new Context(new SalesChannelApiSource(Uuid::randomHex()), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]),
+            salesChannel: $salesChannel,
+        );
+
+        $categoryRepository = $this->createMock(SalesChannelRepository::class);
+        $categoryRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'category',
+                1,
+                new CategoryCollection([$category]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext(),
+            ));
+
+        $cmsPageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $cmsPageLoader->method('load')->willReturn(new EntitySearchResult(
+            'cms_page',
+            1,
+            new CmsPageCollection([$cmsPage]),
+            null,
+            new Criteria(),
+            $salesChannelContext->getContext(),
+        ));
+
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
+            ->expects($this->once())
+            ->method('addTag')
+            ->with(CategoryRoute::buildName($category->getId()));
+
+        $categoryRoute = new CategoryRoute(
+            $categoryRepository,
+            $cmsPageLoader,
+            new EntityCmsSlotConfigInheritanceBuilder($this->createConnectionWithParentLanguageIds(['en'])),
+            new CategoryDefinition(),
+            $cacheTagCollector,
+        );
+
+        $categoryRoute->load(CategoryRoute::HOME, $request, $salesChannelContext);
     }
 
     private function buildCmsPage(): CmsPageEntity
@@ -246,7 +308,9 @@ class CategoryRouteTest extends TestCase
         $category->setType(CategoryDefinition::TYPE_PAGE);
         $category->addTranslated('slotConfig', [
             'content' => [
-                'value' => 'en config',
+                'field' => [
+                    'value' => 'en config',
+                ],
             ],
         ]);
 
@@ -256,7 +320,9 @@ class CategoryRouteTest extends TestCase
             $translation->setLanguageId(self::LANGUAGE_IDS[$languageCode]);
             $translation->setSlotConfig([
                 'content' => [
-                    'value' => $languageCode . ' config',
+                    'field' => [
+                        'value' => $languageCode . ' config',
+                    ],
                 ],
             ]);
 
@@ -285,9 +351,12 @@ class CategoryRouteTest extends TestCase
 
         $categoryRoute = new CategoryRoute(
             $categoryRepositoryMock,
-            $this->createMock(SalesChannelCmsPageLoaderInterface::class),
+            static::createStub(SalesChannelCmsPageLoaderInterface::class),
+            new EntityCmsSlotConfigInheritanceBuilder(
+                $this->createConnectionWithParentLanguageIds(['en']),
+            ),
             new CategoryDefinition(),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
         );
 
         return $categoryRoute->load(
@@ -295,5 +364,37 @@ class CategoryRouteTest extends TestCase
             $request,
             $salesChannelContext,
         );
+    }
+
+    /**
+     * @param non-empty-list<string> $languageCodeChain
+     */
+    private function createConnectionWithParentLanguageIds(array $languageCodeChain): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
+
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('from')->willReturnSelf();
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+
+        $parentLanguageIds = [];
+        for ($i = \count($languageCodeChain) - 1; $i > 0; --$i) {
+            $parentLanguageIds[] = self::LANGUAGE_IDS[$languageCodeChain[$i - 1]];
+        }
+        $parentLanguageIds[] = null;
+
+        $results = array_map(function (?string $parentLanguageId): Result {
+            $result = $this->createStub(Result::class);
+            $result->method('fetchOne')->willReturn($parentLanguageId);
+
+            return $result;
+        }, $parentLanguageIds);
+
+        $queryBuilder->method('executeQuery')->willReturnOnConsecutiveCalls(...$results);
+        $connection->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        return $connection;
     }
 }

@@ -19,7 +19,6 @@ This filter item should only be used inside a filter panel.
 
         .filter-rating-select-item-label-text {
             color: $primary;
-            font-weight: $font-weight-bold;
         }
     }
 }
@@ -42,7 +41,6 @@ This filter item should only be used inside a filter panel.
 
         .filter-rating-select-item-label-text {
             color: $sw-color-brand-primary;
-            font-weight: $font-weight-bold;
         }
     }
 }
@@ -75,7 +73,6 @@ This filter item should only be used inside a filter panel.
     &:hover {
         .filter-rating-select-item-label-text {
             color: $sw-text-color;
-            font-weight: $font-weight-normal;
         }
     }
 }

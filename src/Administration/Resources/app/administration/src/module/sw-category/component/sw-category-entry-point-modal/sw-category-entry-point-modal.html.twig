@@ -1,7 +1,7 @@
 {% block sw_category_entry_point_modal %}
 <sw-modal
     class="sw-category-entry-point-modal"
-    :title="$tc('sw-category.base.entry-point-modal.modalTitle')"
+    :title="$t('sw-category.base.entry-point-modal.modalTitle')"
     @modal-close="closeModal"
 >
 
@@ -9,7 +9,7 @@
     <sw-single-select
         v-model:value="selectedSalesChannelId"
         class="sw-category-entry-point-modal__sales-channel-selection"
-        :label="$tc('sw-category.base.entry-point-modal.salesChannelSelection')"
+        :label="$t('sw-category.base.entry-point-modal.salesChannelSelection')"
         :options="salesChannelOptions"
         show-clearable-button
     />
@@ -23,7 +23,7 @@
         <mt-switch
             v-model="selectedSalesChannel.homeEnabled"
             class="sw-category-entry-point-modal__show-in-main-navigation"
-            :label="$tc('sw-category.base.entry-point-modal.showInMainNavigation')"
+            :label="$t('sw-category.base.entry-point-modal.showInMainNavigation')"
             :disabled="!acl.can('category.editor') || undefined"
         />
         {% endblock %}
@@ -33,16 +33,16 @@
         <mt-text-field
             v-model="selectedSalesChannel.homeName"
             class="sw-category-entry-point-modal__name-in-main-navigation"
-            :label="$tc('sw-category.base.entry-point-modal.mainNavigationName')"
-            :help-text="$tc('sw-category.base.entry-point-modal.mainNavigationNameHelpText')"
-            :placeholder="selectedSalesChannel.translated.homeName || $tc('sw-category.base.entry-point-modal.mainNavigationNamePlaceholder')"
+            :label="$t('sw-category.base.entry-point-modal.mainNavigationName')"
+            :help-text="$t('sw-category.base.entry-point-modal.mainNavigationNameHelpText')"
+            :placeholder="selectedSalesChannel.translated.homeName || $t('sw-category.base.entry-point-modal.mainNavigationNamePlaceholder')"
             :disabled="!selectedSalesChannel.homeEnabled || !acl.can('category.editor')"
         />
         {% endblock %}
 
         {% block sw_category_entry_point_modal_selected_sales_channel_layout_headline %}
         <h3 class="sw-category-entry-point-modal__layout-headline">
-            {{ $tc('sw-category.base.entry-point-modal.layoutHeadline') }}
+            {{ $t('sw-category.base.entry-point-modal.layoutHeadline') }}
         </h3>
         {% endblock %}
 
@@ -87,7 +87,7 @@
                         class="sw-category-entry-point-modal__desc-headline"
                         :class="{ 'is--empty': !selectedSalesChannel.homeCmsPage }"
                     >
-                        {{ selectedSalesChannel.homeCmsPage ? selectedSalesChannel.homeCmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
+                        {{ selectedSalesChannel.homeCmsPage ? selectedSalesChannel.homeCmsPage.name : $t('sw-category.base.cms.defaultTitle') }}
                     </div>
                     {% endblock %}
 
@@ -114,7 +114,7 @@
                         variant="secondary"
                         @click="openLayoutModal"
                     >
-                        {{ selectedSalesChannel.homeCmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
+                        {{ selectedSalesChannel.homeCmsPage ? $t('sw-category.base.cms.changeLayout') : $t('sw-category.base.cms.changeLayoutEmpty') }}
                     </mt-button>
                     {% endblock %}
 
@@ -126,7 +126,7 @@
                         variant="secondary"
                         @click="openInPagebuilder"
                     >
-                        {{ selectedSalesChannel.homeCmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
+                        {{ selectedSalesChannel.homeCmsPage ? $t('sw-category.base.cms.editInPagebuilder'): $t('sw-category.base.cms.editInPagebuilderEmpty') }}
                     </mt-button>
                     {% endblock %}
 
@@ -158,7 +158,7 @@
 
         {% block sw_category_entry_point_modal_selected_sales_channel_seo_settings_headline %}
         <h2 class="sw-category-entry-point-modal__seo-headline">
-            {{ $tc('sw-category.base.entry-point-modal.seoSettingsHeadline') }}
+            {{ $t('sw-category.base.entry-point-modal.seoSettingsHeadline') }}
         </h2>
         {% endblock %}
 
@@ -167,8 +167,8 @@
         <mt-text-field
             v-model="selectedSalesChannel.homeMetaTitle"
             class="sw-category-entry-point-modal__meta-title"
-            :label="$tc('sw-category.base.entry-point-modal.metaTitleLabel')"
-            :placeholder="selectedSalesChannel.translated.homeMetaTitle || $tc('sw-category.base.entry-point-modal.metaTitlePlaceholder')"
+            :label="$t('sw-category.base.entry-point-modal.metaTitleLabel')"
+            :placeholder="selectedSalesChannel.translated.homeMetaTitle || $t('sw-category.base.entry-point-modal.metaTitlePlaceholder')"
             :disabled="!acl.can('category.editor') || undefined"
         />
         {% endblock %}
@@ -177,8 +177,8 @@
         <mt-textarea
             v-model="selectedSalesChannel.homeMetaDescription"
             class="sw-category-entry-point-modal__meta-description"
-            :label="$tc('sw-category.base.entry-point-modal.metaDescriptionLabel')"
-            :placeholder="selectedSalesChannel.translated.homeMetaDescription || $tc('sw-category.base.entry-point-modal.metaDescriptionPlaceholder')"
+            :label="$t('sw-category.base.entry-point-modal.metaDescriptionLabel')"
+            :placeholder="selectedSalesChannel.translated.homeMetaDescription || $t('sw-category.base.entry-point-modal.metaDescriptionPlaceholder')"
             :disabled="!acl.can('category.editor') || undefined"
         />
         {% endblock %}
@@ -188,8 +188,8 @@
         <mt-text-field
             v-model="selectedSalesChannel.homeKeywords"
             class="sw-category-entry-point-modal__seo-keywords"
-            :label="$tc('sw-category.base.entry-point-modal.seoKeywordsLabel')"
-            :placeholder="selectedSalesChannel.translated.homeKeywords || $tc('sw-category.base.entry-point-modal.seoKeywordsPlaceholder')"
+            :label="$t('sw-category.base.entry-point-modal.seoKeywordsLabel')"
+            :placeholder="selectedSalesChannel.translated.homeKeywords || $t('sw-category.base.entry-point-modal.seoKeywordsPlaceholder')"
             :disabled="!acl.can('category.editor') || undefined"
         />
         {% endblock %}
@@ -206,7 +206,7 @@
             variant="secondary"
             @click="closeModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -217,7 +217,7 @@
             :disabled="!acl.can('category.editor')"
             @click="applyChanges"
         >
-            {{ $tc('global.default.apply') }}
+            {{ $t('global.default.apply') }}
         </mt-button>
         {% endblock %}
 

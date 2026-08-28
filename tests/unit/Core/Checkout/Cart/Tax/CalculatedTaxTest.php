@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CalculatedTax::class)]
 #[Package('checkout')]
+#[CoversClass(CalculatedTax::class)]
 class CalculatedTaxTest extends TestCase
 {
     public function testConstruct(): void

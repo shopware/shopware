@@ -152,6 +152,9 @@ export default {
                 const integrationLabel = this.lastStateChange.integration.label;
                 return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`;
             }
+            if (this.lastStateChange?.sourceType === 'sales-channel') {
+                return this.$t('sw-order.stateCard.labelCustomer');
+            }
 
             return this.$t('sw-order.stateCard.labelSystemUser');
         },
@@ -211,7 +214,7 @@ export default {
 
         async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -263,7 +266,7 @@ export default {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage,
+                message: this.$t('sw-order.stateCard.labelErrorStateChange') + errorMessage,
             });
         },
 

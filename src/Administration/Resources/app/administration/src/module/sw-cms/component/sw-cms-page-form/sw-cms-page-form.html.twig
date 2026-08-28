@@ -61,7 +61,7 @@
 
                 {% block sw_cms_page_form_section_empty_state_block_text %}
                 <p class="sw-cms-page-form__empty-state-text">
-                    {{ $tc('sw-cms.section.sectionEmptyState') }}
+                    {{ $t('sw-cms.section.sectionEmptyState') }}
                 </p>
                 {% endblock %}
             </mt-card>
@@ -114,7 +114,7 @@
                 <mt-card
                     position-identifier="sw-cms-page-form-block"
                     class="sw-cms-page-form__block-card"
-                    :title="$tc(getBlockTitle(block))"
+                    :title="$t(getBlockTitle(block))"
                 >
                     <template #headerRight>
                         <div class="sw-cms-page-form__block-device-actions">
@@ -134,7 +134,7 @@
                     >
                         <template v-if="displayNotification(section, block)">
                             <mt-banner variant="info">
-                                {{ $tc('sw-cms.blocks.blockDisableState') }}
+                                {{ $t('sw-cms.blocks.blockDisableState') }}
                             </mt-banner>
                         </template>
 

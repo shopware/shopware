@@ -40,8 +40,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ConsistsOfManyToManyDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdFieldNamePrimaryKeyTestDefinition;
@@ -58,6 +60,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityReaderTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
@@ -198,7 +201,7 @@ class EntityReaderTest extends TestCase
 
         $values = $this->productRepository->search($criteria, Context::createDefaultContext());
 
-        $entity = $values->first();
+        $entity = $values->getEntities()->first();
 
         static::assertInstanceOf(PartialEntity::class, $entity);
         static::assertSame('p1', $entity->get('productNumber'));
@@ -223,7 +226,7 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$ids->get('order1')]);
         $criteria->addFields(['id', 'orderNumber', 'orderCustomer.firstName']);
 
-        $partialOrder = $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
+        $partialOrder = $this->orderRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(PartialEntity::class, $partialOrder);
         static::assertSame('order1', $partialOrder->get('orderNumber'));
@@ -259,7 +262,7 @@ class EntityReaderTest extends TestCase
         $values = $this->categoryRepository
             ->search($criteria, Context::createDefaultContext());
 
-        $entity = $values->first();
+        $entity = $values->getEntities()->first();
 
         static::assertInstanceOf(PartialEntity::class, $entity);
         static::assertSame('test', $entity->get('name'));
@@ -276,7 +279,7 @@ class EntityReaderTest extends TestCase
         $values = $this->categoryRepository
             ->search($criteria, Context::createDefaultContext());
 
-        $entity = $values->first();
+        $entity = $values->getEntities()->first();
 
         static::assertInstanceOf(PartialEntity::class, $entity);
         static::assertSame('test', $entity->get('name'));
@@ -312,7 +315,7 @@ class EntityReaderTest extends TestCase
         $values = $this->productRepository
             ->search($criteria, Context::createDefaultContext());
 
-        $entity = $values->first();
+        $entity = $values->getEntities()->first();
 
         static::assertInstanceOf(PartialEntity::class, $entity);
         static::assertSame('p1', $entity->get('name'));
@@ -331,7 +334,7 @@ class EntityReaderTest extends TestCase
         $values = $this->productRepository
             ->search($criteria, Context::createDefaultContext());
 
-        $entity = $values->first();
+        $entity = $values->getEntities()->first();
 
         static::assertInstanceOf(PartialEntity::class, $entity);
         static::assertSame('p1', $entity->get('name'));
@@ -365,7 +368,7 @@ class EntityReaderTest extends TestCase
         $criteria->addFilter(new EqualsFilter('productNumber', $productNumber));
         $criteria->addAssociation('cover.media.thumbnails');
 
-        $product = $this->productRepository->search($criteria, $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(PartialEntity::class, $product);
         $cover = $product->get('cover');
         static::assertInstanceOf(PartialEntity::class, $cover);
@@ -1640,7 +1643,7 @@ class EntityReaderTest extends TestCase
             ->setIds([$productId])
             ->addAssociation('categories');
 
-        $manufacturer = $manufacturerRepo->search($manufacturerCriteria, $context)->get($manufacturerId);
+        $manufacturer = $manufacturerRepo->search($manufacturerCriteria, $context)->getEntities()->get($manufacturerId);
         static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         $products = $manufacturer->getProducts();
         static::assertNotNull($products);
@@ -1731,6 +1734,40 @@ class EntityReaderTest extends TestCase
 
         static::assertContains($id2, $category2->getProducts()->getIds());
         static::assertContains($id3, $category2->getProducts()->getIds());
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('products')->setIds([$id1]);
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertSame([$id1], array_values($category1->getProducts()?->getIds() ?? []));
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertSame([], $category2->getProducts()?->getIds() ?? []);
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('products')
+            ->setIds([$id1])
+            ->addSorting(new FieldSorting('product.name'));
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertSame([$id1], array_values($category1->getProducts()?->getIds() ?? []));
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertSame([], $category2->getProducts()?->getIds() ?? []);
     }
 
     public function testLoadManyToManySupportsFilter(): void
@@ -2016,8 +2053,8 @@ class EntityReaderTest extends TestCase
 
         $categories = $this->categoryRepository->search($criteria, $context);
 
-        $category1 = $categories->get($id1);
-        $category2 = $categories->get($id2);
+        $category1 = $categories->getEntities()->get($id1);
+        $category2 = $categories->getEntities()->get($id2);
 
         static::assertInstanceOf(CategoryEntity::class, $category1);
         static::assertInstanceOf(ProductCollection::class, $category1->getProducts());
@@ -2175,11 +2212,11 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id1, $id2]);
 
         $products = $this->productRepository->search($criteria, $context);
-        static::assertCount(2, $products);
+        static::assertCount(2, $products->getEntities());
 
         $criteria->addFilter(new EqualsFilter('product.active', true));
         $products = $this->productRepository->search($criteria, $context);
-        static::assertCount(1, $products);
+        static::assertCount(1, $products->getEntities());
     }
 
     public function testReadRelationWithNestedToManyRelations(): void
@@ -2420,11 +2457,11 @@ class EntityReaderTest extends TestCase
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 
         static::assertSame(3, $result->getTotal());
-        static::assertCount(3, $result);
+        static::assertCount(3, $result->getEntities());
 
         $foundIds = [];
-        foreach ($result as $entity) {
-            $foundIds[] = $entity->getUniqueIdentifier();
+        foreach ($result->getEntities() as $entity) {
+            $foundIds[$entity->getUniqueIdentifier()] = $entity->getUniqueIdentifier();
             if ($entity->getUniqueIdentifier() === $id3) {
                 static::assertSame($id3, $entity->get('nonPk'));
             } else {
@@ -2432,7 +2469,7 @@ class EntityReaderTest extends TestCase
             }
         }
 
-        static::assertEqualsCanonicalizing([$id1, $id2, $id3], $foundIds);
+        static::assertEqualsCanonicalizing([$id1, $id2, $id3], array_values($foundIds));
     }
 
     public function testReadWithNonIdPKOverPropertyName(): void
@@ -2459,7 +2496,7 @@ class EntityReaderTest extends TestCase
         $result = $repository->search(new Criteria([['testField' => $id1]]), Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertCount(1, $result);
+        static::assertCount(1, $result->getEntities());
     }
 
     public function testDirectlyReadFromTranslationEntity(): void
@@ -2486,9 +2523,9 @@ class EntityReaderTest extends TestCase
         $result = static::getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
 
         static::assertSame(1, $result->getTotal());
-        static::assertCount(1, $result);
+        static::assertCount(1, $result->getEntities());
 
-        $translation = $result->first();
+        $translation = $result->getEntities()->first();
         static::assertInstanceOf(CategoryTranslationEntity::class, $translation);
         static::assertSame('system', $translation->getName());
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $translation->getLanguageId());
@@ -2718,7 +2755,7 @@ class EntityReaderTest extends TestCase
 
         $context->setConsiderInheritance(true);
 
-        $product = $productRepository->search($criteria, $context)->first();
+        $product = $productRepository->search($criteria, $context)->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         $media = $product->getMedia();
         static::assertNotNull($media);
@@ -2729,6 +2766,51 @@ class EntityReaderTest extends TestCase
 
             return $mediaEntity->getFileName();
         })));
+    }
+
+    public function testOneToManyPaginationRespectsCrossEntitySort(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->name('Test Product')
+            ->price(50, 50)
+            ->media('small', 1)
+            ->media('medium', 2)
+            ->media('large', 3);
+
+        $this->productRepository->create([$product->build()], $context);
+
+        // file_size is WriteProtected, so set it via SQL directly.
+        foreach (['small' => 1_000, 'medium' => 5_000, 'large' => 10_000] as $name => $size) {
+            $this->connection->executeStatement(
+                'UPDATE `media` SET `file_size` = :size WHERE `file_name` = :name',
+                ['size' => $size, 'name' => $name]
+            );
+        }
+
+        // Skip the cover (position 0), sort by descending file size, take only the top 1.
+        $criteria = new Criteria([$ids->get('p1')]);
+        $criteria->getAssociation('media')
+            ->addAssociation('media')
+            ->addFilter(new NotEqualsFilter('position', 0))
+            ->addSorting(new FieldSorting('media.fileSize', FieldSorting::DESCENDING))
+            ->setLimit(1);
+
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        $productMedia = $product->getMedia();
+        static::assertNotNull($productMedia);
+        static::assertCount(1, $productMedia);
+
+        $firstProductMedia = $productMedia->first();
+        static::assertNotNull($firstProductMedia);
+        $firstMedia = $firstProductMedia->getMedia();
+        static::assertNotNull($firstMedia);
+        // Must be the image with the highest file_size, not an arbitrary one.
+        static::assertSame('large', $firstMedia->getFileName());
     }
 
     public function testManyToManyJoinsIntoSameTableFiltered(): void

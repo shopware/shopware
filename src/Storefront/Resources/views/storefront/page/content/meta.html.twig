@@ -4,9 +4,15 @@
     {% if feature('JSON_LD_DATA') %}
         {% set jsonLdWebPageType = page.landingPage is not empty ? 'WebPage' : 'CollectionPage' %}
         {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
-        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
-            categoryId: shopware.navigation.id
-        } only %}
+        {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+            {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                breadcrumbItems: page.breadcrumb
+            } only %}
+        {% else %}
+            {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                categoryId: shopware.navigation.id
+            } only %}
+        {% endif %}
 
         {# Add structured data for product listings if listing element is present #}
         {% set listingSlot = page.cmsPage ? page.cmsPage.getFirstElementOfType('product-listing') : null %}

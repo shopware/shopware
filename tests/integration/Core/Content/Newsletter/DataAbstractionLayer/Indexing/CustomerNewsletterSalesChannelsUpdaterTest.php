@@ -162,7 +162,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $customerId = $this->createCustomer($email);
 
         $newsletterRecipientIds = $newsletterRecipientClosure($context, $email, $this);
-        $criteria = empty($newsletterRecipientIds) ? $criteriaClosure(new Criteria(), $email) : $criteriaClosure(new Criteria(), $newsletterRecipientIds);
+        $criteria = $newsletterRecipientIds === [] ? $criteriaClosure(new Criteria(), $email) : $criteriaClosure(new Criteria(), $newsletterRecipientIds);
 
         /** @var EntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = static::getContainer()->get('customer.repository');

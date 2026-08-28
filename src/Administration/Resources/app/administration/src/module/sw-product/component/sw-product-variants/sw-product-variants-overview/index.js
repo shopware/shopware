@@ -127,42 +127,42 @@ export default {
             const columns = [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product.variations.generatedListColumnVariation'),
+                    label: this.$t('sw-product.variations.generatedListColumnVariation'),
                     allowResize: true,
                 },
                 ...this.currencyColumns,
                 {
                     property: 'sales',
                     dataIndex: 'sales',
-                    label: this.$tc('sw-product.list.columnSales'),
+                    label: this.$t('sw-product.list.columnSales'),
                     allowResize: true,
                     align: 'right',
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product.variations.generatedListColumnStock'),
+                    label: this.$t('sw-product.variations.generatedListColumnStock'),
                     allowResize: true,
                     inlineEdit: 'number',
-                    width: '125px',
+                    width: 'calc(var(--scale-size-80) + var(--scale-size-40) + var(--scale-size-6))',
                     align: 'right',
                 },
                 {
                     property: 'productNumber',
-                    label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
+                    label: this.$t('sw-product.variations.generatedListColumnProductNumber'),
                     allowResize: true,
                     inlineEdit: 'string',
-                    width: '150px',
+                    width: 'calc(var(--scale-size-128) + var(--scale-size-22))',
                 },
                 {
                     property: 'media',
-                    label: this.$tc('sw-product.detailBase.cardTitleMedia'),
+                    label: this.$t('sw-product.detailBase.cardTitleMedia'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false,
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product.variations.generatedListColumnActive'),
+                    label: this.$t('sw-product.variations.generatedListColumnActive'),
                     allowResize: true,
                     inlineEdit: 'boolean',
                     align: 'center',
@@ -173,7 +173,7 @@ export default {
             if (this.productType === 'digital') {
                 columns.splice(columns.length - 1, 0, {
                     property: 'downloads',
-                    label: this.$tc('sw-product.variations.generatedListColumnDownload'),
+                    label: this.$t('sw-product.variations.generatedListColumnDownload'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false,
@@ -200,7 +200,7 @@ export default {
                         primary: false,
                         rawData: false,
                         inlineEdit: 'number',
-                        width: '250px',
+                        width: 'calc(var(--scale-size-224) + var(--scale-size-26))',
                     };
                 });
         },
@@ -376,19 +376,24 @@ export default {
         },
 
         buildSearchQuery(criteria) {
-            if (!this.term) {
+            // Normalize the term: leading/trailing whitespace must not leak into the
+            // query. Otherwise the split below yields empty entries that build a
+            // `contains` filter with an empty value and the API rejects the whole
+            // query with FRAMEWORK__INVALID_FILTER_QUERY.
+            const term = this.term ? this.term.trim() : '';
+            if (!term) {
                 return criteria;
             }
 
-            // Split each word for search
-            const terms = this.term.split(' ');
+            // Split each word for search; empty entries from repeated spaces are dropped.
+            const terms = term.split(' ').filter((word) => word !== '');
 
             // Create query for each single word
-            terms.forEach((term) => {
-                criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
-                criteria.addQuery(Criteria.contains('product.options.name', term), 500);
+            terms.forEach((word) => {
+                criteria.addQuery(Criteria.equals('product.options.name', word), 3500);
+                criteria.addQuery(Criteria.contains('product.options.name', word), 500);
             });
-            criteria.addQuery(Criteria.contains('product.productNumber', this.term), 5000);
+            criteria.addQuery(Criteria.contains('product.productNumber', term), 5000);
 
             // return the input
             return criteria;
@@ -658,8 +663,8 @@ export default {
                 .save(variation)
                 .then(() => {
                     // create success notification
-                    const titleSaveSuccess = this.$tc('global.default.success');
-                    const messageSaveSuccess = this.$tc(
+                    const titleSaveSuccess = this.$t('global.default.success');
+                    const messageSaveSuccess = this.$t(
                         'sw-product.detail.messageSaveSuccess',
                         {
                             name: productName,
@@ -677,8 +682,8 @@ export default {
                 })
                 .catch(() => {
                     // create error notification
-                    const titleSaveError = this.$tc('global.default.error');
-                    const messageSaveError = this.$tc(
+                    const titleSaveError = this.$t('global.default.error');
+                    const messageSaveError = this.$t(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
                     );
 
@@ -709,7 +714,7 @@ export default {
                     this.toBeDeletedVariantIds = [];
 
                     this.createNotificationError({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
+                        message: this.$t('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
                     });
 
                     return;

@@ -67,12 +67,12 @@ export default Component.wrapComponentConfig({
                     this.$emit('modal-save');
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-tax.list.taxProvider.sorting-modal.saveSuccessful'),
+                        message: this.$t('sw-settings-tax.list.taxProvider.sorting-modal.saveSuccessful'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-tax.list.taxProvider.sorting-modal.errorMessage'),
+                        message: this.$t('sw-settings-tax.list.taxProvider.sorting-modal.errorMessage'),
                     });
                 });
         },

@@ -2,7 +2,7 @@
 <sw-modal
     v-if="properties"
     class="sw-product-add-properties-modal"
-    :title="$tc('sw-product.properties.addPropertiesModal.title')"
+    :title="$t('sw-product.properties.addPropertiesModal.title')"
     @modal-close="onCancel"
 >
     {% block sw_product_add_properties_modal_filled_state %}
@@ -32,7 +32,7 @@
                                     variant="form"
                                     class="sw-property-search__search-field sw-product-add-properties-modal__search-field"
                                     :value="searchTerm"
-                                    :placeholder="$tc('sw-property-search.placeholderSearch')"
+                                    :placeholder="$t('sw-property-search.placeholderSearch')"
                                     @focus="focus"
                                     @update:value="input"
                                     @option-select="onSelectOption"
@@ -61,7 +61,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -73,7 +73,7 @@
             size="small"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

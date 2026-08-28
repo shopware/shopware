@@ -1,4 +1,24 @@
 .sw-app-action-button {
+    &.sw-context-menu-item--icon {
+        display: grid;
+        grid-template-columns: var(--scale-size-16) auto;
+        align-items: center;
+        grid-gap: var(--scale-size-12);
+    }
+
+    .sw-app-action-button__icon {
+        grid-column: 1;
+        grid-row: 1;
+        width: 16px;
+        min-width: 16px;
+        height: 16px;
+    }
+
+    .sw-context-menu-item__text {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
     .mt-icon {
         vertical-align: baseline;
     }

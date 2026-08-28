@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Service\ServiceRegistry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ServiceEntry::class)]
 class ServiceEntryTest extends TestCase
 {

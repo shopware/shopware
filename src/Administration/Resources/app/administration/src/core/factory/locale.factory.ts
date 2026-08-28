@@ -14,6 +14,7 @@ export default {
     extend,
     getBrowserLanguage,
     getBrowserLanguages,
+    setSystemFallbackLocale,
     getLastKnownLocale,
     storeCurrentLocale,
 };
@@ -50,6 +51,8 @@ const defaultLocale = 'en-GB';
  * @type {String}
  */
 const localStorageKey = 'sw-admin-locale';
+
+let systemFallbackLocale: string | null = null;
 
 /**
  * Get the complete locale registry
@@ -135,17 +138,23 @@ function getLocaleByName(localeName: string): Snippets | boolean {
     return localeRegistry.get(localeName) || false;
 }
 
+function setSystemFallbackLocale(localeName: string | null): string | null {
+    systemFallbackLocale = localeName;
+
+    return systemFallbackLocale;
+}
+
 /**
- * Checks if the {@link localStorage} has an item associated to the {@link localStorageKey} key.
+ * Resolves the locale for the administration.
+ * Prefers the stored admin locale, then a supported browser locale,
+ * then English, and finally the system default locale if English is not available.
  */
 function getLastKnownLocale(): string {
-    let localeName = getBrowserLanguage();
-
     if (window.localStorage.getItem(localStorageKey) !== null) {
-        localeName = window.localStorage.getItem(localStorageKey) as string;
+        return window.localStorage.getItem(localStorageKey) as string;
     }
 
-    return localeName;
+    return getBrowserLanguage();
 }
 
 /**
@@ -171,7 +180,15 @@ function getBrowserLanguage(): string {
         }
     });
 
-    return matchedLanguage || defaultLocale;
+    if (matchedLanguage) {
+        return matchedLanguage;
+    }
+
+    if (localeRegistry.has(defaultLocale)) {
+        return defaultLocale;
+    }
+
+    return systemFallbackLocale || defaultLocale;
 }
 
 /**

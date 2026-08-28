@@ -2,9 +2,22 @@
  * @sw-package framework
  *
  */
-import { computed, onBeforeUnmount, provide, ref, type ComponentInternalInstance, type Slot } from 'vue';
+import {
+    computed,
+    getCurrentInstance,
+    onBeforeUnmount,
+    provide,
+    ref,
+    watch,
+    type ComponentInternalInstance,
+    type Slot,
+} from 'vue';
+import { hasBlockEntries, getBlockEntries } from 'src/core/factory/twig-block-index';
 import parentsInjectionKey from './parents-injection-key';
 import useBlockContext from '../../../../composables/use-block-context';
+import { createShimSlot } from '../shim/create-shim-slot';
+import reduceToSingleRoot from '../reduce-to-single-root';
+import useLegacyConditionContext from '../shim/legacy-condition-context';
 
 /**
  * @private
@@ -71,7 +84,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
     setup(props, { slots }) {
         const { addBlock, removeBlock, getBlocks } = useBlockContext();
+        const { clearLegacyConditionChainsForBlock } = useLegacyConditionContext();
+        const instance = getCurrentInstance();
+
         if (props.extends) {
+            // addBlock is a no-op for undefined, so an explicit guard is not needed.
             addBlock(props.extends, slots.default);
 
             onBeforeUnmount(() => {
@@ -83,24 +100,74 @@ export default Shopware.Component.wrapComponentConfig({
             return { template: null };
         }
 
+        onBeforeUnmount(() => {
+            if (!props.name) {
+                return;
+            }
+
+            const ownerUid = instance?.parent?.uid;
+            clearLegacyConditionChainsForBlock(props.name, ownerUid);
+        });
+
+        // Shim slots are created once in setup() to guarantee a stable VNode type
+        // reference across renders. A new object on every render call would cause
+        // Vue to unmount + remount ShimContent on every reactive update, destroying
+        // input focus. They are NOT registered in the global blockContext so that
+        // multiple simultaneous instances of <sw-block name="foo"> each maintain
+        // their own isolated shim slots and cannot double-render each other's content.
+        const shimSlots: Slot[] =
+            props.name && hasBlockEntries(props.name)
+                ? getBlockEntries(props.name).map((entry) => {
+                      // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
+                      const shimSlot = createShimSlot(entry, props.name!);
+
+                      return shimSlot;
+                  })
+                : [];
+
+        if (process.env.NODE_ENV !== 'production') {
+            // `name` is assumed to be static after mount. Dynamically changing it would
+            // require re-creating shim slots and re-binding the block context, which is
+            // not supported. This watch fires only in development to surface the mistake early.
+            watch(
+                () => props.name,
+                (newVal, oldVal) => {
+                    if (oldVal !== undefined && newVal !== oldVal) {
+                        console.warn(
+                            `[sw-block] The "name" prop changed from "${oldVal}" to "${newVal}" after mount. ` +
+                                `This is not supported and will result in stale shim slots and incorrect rendering.`,
+                        );
+                    }
+                },
+            );
+        }
+
         const providedParents = ref<ReturnType<Slot>[]>([]);
         provide(parentsInjectionKey, providedParents);
 
         const template = computed(() => {
             if (!props.name) {
-                return null;
+                throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
             }
 
-            const blocks = getBlocks(props.name);
+            // shimSlots come before nativeBlocks so that Twig plugin overrides (registered
+            // at boot time) are positioned below native <sw-block extends> overrides
+            // (registered at mount time), matching the expected stacking order:
+            //   default → shim (legacy plugin) → native (newer plugin or core extension)
+            const nativeBlocks = getBlocks(props.name);
             const blocksAndParent = [
                 slots.default ?? (() => []),
-                ...blocks,
+                ...shimSlots,
+                ...nativeBlocks,
             ];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
-            // The last block is not parent of any other block, and it is the one that renders all the blocks
             const lastNode = blocksNodes.pop();
-            providedParents.value.push(...blocksNodes);
+            // Each <sw-block-parent /> calls .pop() exactly once in its own setup()
+            // to claim its parent slot. The array must be reset to the current render's
+            // ordered list so that each parent instance pops the correct slot — not a
+            // stale or accumulated list from a previous render cycle.
+            providedParents.value = blocksNodes;
             return lastNode;
         });
 
@@ -109,6 +176,6 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
     render() {
-        return this.template;
+        return reduceToSingleRoot(this.template);
     },
 });

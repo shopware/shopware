@@ -4,12 +4,15 @@ namespace Shopware\Tests\Integration\Core\Framework\FeatureFlag;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Tests\Unit\Core\Framework\FeatureTest;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class IdleFeatureFlagTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -18,9 +21,7 @@ class IdleFeatureFlagTest extends TestCase
         'Docs',
         'Core/Framework/Test/FeatureFlag',
         'Administration/Resources/app/administration/node_modules',
-        'Administration/Resources/app/administration/test/e2e/node_modules',
         'Storefront/Resources/app/storefront/node_modules',
-        'Storefront/Resources/app/storefront/test/e2e/node_modules',
     ];
 
     final public const EXCLUDE_BY_FLAG = [
@@ -31,7 +32,7 @@ class IdleFeatureFlagTest extends TestCase
         'FEATURE_NEXT_123',
         'FEATURE_NEXT_1234',
         'FEATURE_NEXT_1235',
-        'FEATURE_NEXT_0000', /** @see \Shopware\Tests\Unit\Core\Framework\FeatureTest */
+        'FEATURE_NEXT_0000', /** @see FeatureTest */
     ];
 
     private static string $featureAllValue;

@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\DuplicateProductSearchConfigFieldException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ProductSearchConfigFieldExceptionHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,8 +36,7 @@ class ProductSearchConfigFieldExceptionHandlerTest extends TestCase
             ],
         ];
 
-        static::expectException(DuplicateProductSearchConfigFieldException::class);
-        static::expectExceptionMessage('Product search config with field test already exists.');
+        $this->expectExceptionObject(new DuplicateProductSearchConfigFieldException('test', new \Exception()));
 
         static::getContainer()->get('product_search_config.repository')
             ->create([$config], Context::createDefaultContext());

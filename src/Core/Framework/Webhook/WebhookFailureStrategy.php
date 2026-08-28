@@ -14,6 +14,7 @@ enum WebhookFailureStrategy: string
 {
     case DisableOnThreshold = 'disable_on_threshold';
     case Ignore = 'ignore';
+    public const MAX_ERROR_COUNT = 10;
 
     /**
      * @return list<string>

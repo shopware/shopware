@@ -13,13 +13,14 @@
         <mt-card
             class="sw-product-properties__card"
             position-identifier="sw-product-properties"
+            :title="$t('sw-product.properties.cardTitle')"
             :is-loading="isLoading"
         >
             <template #title>
                 {% block sw_product_properties_card_title %}
                 <div
-                    class="sw-card__title"
-                    :class="{ 'is--inherited': isInherited }"
+                    class="sw-inherit-wrapper__card-title"
+                    :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
                 >
                     {% block sw_product_properties_card_title_icon %}
                     <sw-inheritance-switch
@@ -33,7 +34,9 @@
                     {% endblock %}
 
                     {% block sw_product_properties_card_title_text %}
-                    {{ $tc('sw-product.properties.cardTitle') }}
+                    <h3 class="mt-card__title">
+                        {{ $t('sw-product.properties.cardTitle') }}
+                    </h3>
                     {% endblock %}
                 </div>
                 {% endblock %}
@@ -52,14 +55,14 @@
                     >
                         <sw-container
                             columns="1fr auto"
-                            gap="0 15px"
+                            gap="0 var(--scale-size-16)"
                         >
                             {% block sw_product_properties_filled_state_header_form_control %}
                             <sw-simple-search-field
                                 v-model:value="searchTerm"
                                 variant="form"
                                 size="small"
-                                :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"
+                                :placeholder="$t('sw-product.properties.placeholderSearchAddedProperties')"
                                 :disabled="isPropertiesLoading || undefined"
                                 @search-term-change="onChangeSearchTerm"
                             />
@@ -68,18 +71,17 @@
                             {% block sw_product_properties_filled_state_header_button %}
                             <mt-button
                                 v-tooltip="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    message: $t('sw-privileges.tooltip.warning'),
                                     disabled: acl.can('product.editor'),
                                     showOnDisabledElements: true
                                 }"
                                 class="sw-product-properties__button-add-property"
-                                ghost
                                 size="small"
                                 :disabled="!acl.can('product.editor') || undefined"
                                 variant="secondary"
                                 @click="turnOnAddPropertiesModal"
                             >
-                                {{ $tc('sw-product.properties.buttonAddProperty') }}
+                                {{ $t('sw-product.properties.buttonAddProperty') }}
                             </mt-button>
                             {% endblock %}
                         </sw-container>
@@ -107,12 +109,10 @@
                     >
                         <template #column-values="{ item }">
                             {% block sw_product_properties_filled_state_body_filled_state_column_values %}
-                            <div
-                                v-for="option in item.options"
-                                :key="option.id"
-                                class="sw-product-properties-list__column-values"
-                            >
+                            <div class="sw-product-properties-list__column-values">
                                 <sw-label
+                                    v-for="option in item.options"
+                                    :key="option.id"
                                     size="medium"
                                     :dismissable="acl.can('product.deleter')"
                                     @dismiss="onDeletePropertyValue(option)"
@@ -130,7 +130,7 @@
                                 size="small"
                                 @click="onDeleteProperty(item)"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -142,7 +142,7 @@
                                 size="small"
                                 @click="onDeleteProperties"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -174,8 +174,8 @@
                 v-if="!productHasProperties"
                 class="sw-product-properties__empty-state has--no-properties"
                 :icon="$route.meta.$module.icon"
-                :headline="$t('sw-product.properties.titleEmptyState')"
-                :description="$t('sw-product.properties.descriptionEmptyState')"
+                :headline="emptyStateTitle || $t('sw-product.properties.titleEmptyState')"
+                :description="emptyStateDescription || $t('sw-product.properties.descriptionEmptyState')"
             >
                 <!-- @deprecated tag:v6.8.0 - block will be removed -->
                 {% block sw_product_properties_empty_state_image %}
@@ -188,7 +188,6 @@
                             disabled: acl.can('product.editor'),
                             showOnDisabledElements: true
                         }"
-                        ghost
                         :disabled="!acl.can('product.editor') || undefined"
                         variant="secondary"
                         @click="turnOnAddPropertiesModal"

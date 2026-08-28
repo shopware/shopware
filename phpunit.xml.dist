@@ -23,9 +23,9 @@
             <directory suffix=".php">src</directory>
         </include>
         <exclude>
-            <directory suffix="Exception.php">src</directory>
 
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
+            <file>src/Core/Content/Resources/config/routes_test.php</file>
             <directory suffix="Definition.php">src/Administration/Notification/</directory>
             <directory suffix="Entity.php">src/Administration/Notification/</directory>
             <directory suffix="Event.php">src/Administration/Notification/</directory>
@@ -40,57 +40,62 @@
             <directory suffix="Struct.php">src/Administration/Snippet/</directory>
             <directory suffix="Collection.php">src/Administration/Snippet/</directory>
 
-            <directory suffix="Definition.php">src/Core/</directory>
-            <directory suffix="Entity.php">src/Core/</directory>
-            <directory suffix="Event.php">src/Core/</directory>
-            <directory suffix="Field.php">src/Core/</directory>
-            <directory suffix="Struct.php">src/Core/</directory>
-            <directory suffix="Collection.php">src/Core/</directory>
+            <!-- Scoped to the boilerplate-bearing directories on purpose: a blanket src/Core/ suffix
+                 match also swept migrations and framework classes whose NAME happens to end in a DAL
+                 suffix (e.g. Migration...Field, MigrationCollection), which PHPUnit 12 then reports as
+                 invalid #[CoversClass] targets. src/Core/Migration and src/Core/Framework/Migration are
+                 deliberately NOT listed. -->
+            <directory suffix="Definition.php">src/Core/Framework/</directory>
+            <directory suffix="Definition.php">src/Core/System/</directory>
+
+            <directory suffix="Entity.php">src/Core/Framework/</directory>
+            <directory suffix="Entity.php">src/Core/System/</directory>
+
+            <directory suffix="Event.php">src/Core/Framework/</directory>
+            <directory suffix="Event.php">src/Core/Maintenance/</directory>
+            <directory suffix="Event.php">src/Core/Service/</directory>
+            <directory suffix="Event.php">src/Core/System/</directory>
+
+            <directory suffix="Field.php">src/Core/Framework/</directory>
+            <directory suffix="Field.php">src/Core/System/</directory>
+
+            <directory suffix="Struct.php">src/Core/Framework/</directory>
+            <directory suffix="Struct.php">src/Core/System/</directory>
+
+            <directory suffix="Collection.php">src/Core/Installer/</directory>
+            <directory suffix="Collection.php">src/Core/System/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Adapter/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Api/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/App/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/DataAbstractionLayer/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Event/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Gateway/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/JWT/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Log/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/MessageQueue/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Notification/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Plugin/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Rule/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Script/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Store/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Struct/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Telemetry/</directory>
+            <directory suffix="Collection.php">src/Core/Framework/Webhook/</directory>
 
             <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
             <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
-            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
+            <!-- Static-analysis tooling; the Danger rules stay covered by their unit tests. -->
+            <directory suffix=".php">src/Core/DevOps/StaticAnalyze/PHPStan</directory>
+            <file>src/Core/DevOps/StaticAnalyze/StaticAnalyzeKernel.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/console-application.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php</file>
             <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Checkout</directory>
-            <directory suffix="Entity.php">src/Storefront/Checkout</directory>
-            <directory suffix="Event.php">src/Storefront/Checkout</directory>
-            <directory suffix="Field.php">src/Storefront/Checkout</directory>
-            <directory suffix="Struct.php">src/Storefront/Checkout</directory>
-            <directory suffix="Collection.php">src/Storefront/Checkout</directory>
-            <directory suffix="Event.php">src/Storefront/Event</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Framework</directory>
-            <directory suffix="Entity.php">src/Storefront/Framework</directory>
-            <directory suffix="Event.php">src/Storefront/Framework</directory>
-            <directory suffix="Field.php">src/Storefront/Framework</directory>
-            <directory suffix="Struct.php">src/Storefront/Framework</directory>
-            <directory suffix="Collection.php">src/Storefront/Framework</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Page</directory>
-            <directory suffix="Entity.php">src/Storefront/Page</directory>
-            <directory suffix="Event.php">src/Storefront/Page</directory>
-            <directory suffix="Field.php">src/Storefront/Page</directory>
-            <directory suffix="Struct.php">src/Storefront/Page</directory>
-            <directory suffix="Collection.php">src/Storefront/Page</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Entity.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Event.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Field.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Struct.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Collection.php">src/Storefront/Pagelet</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Theme</directory>
-            <directory suffix="Entity.php">src/Storefront/Theme</directory>
-            <directory suffix="Event.php">src/Storefront/Theme</directory>
-            <directory suffix="Field.php">src/Storefront/Theme</directory>
-            <directory suffix="Struct.php">src/Storefront/Theme</directory>
-            <directory suffix="Collection.php">src/Storefront/Theme</directory>
 
             <!-- All fixtures, stubs, traits used for tests -->
             <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/DevOps/Test</directory>
+            <!-- Only the test fixtures under DevOps/Test; the tooling classes stay covered by their unit tests. -->
+            <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/Migration/Traits</directory>
@@ -110,6 +115,9 @@
 
             <!-- Helper class and its output DTOs and exception, which could not be unit tested -->
             <directory suffix=".php">src/Core/Framework/Util/Database</directory>
+
+            <!-- BC-change attributes are data-only markers without behavior to test -->
+            <directory suffix=".php">src/Core/Framework/Deprecation/BCChange</directory>
         </exclude>
     </source>
     <php>
@@ -133,6 +141,13 @@
         <testsuite name="integration">
             <directory>tests/integration</directory>
         </testsuite>
+        <!-- Tests that need a real Redis (nightly redis job); new redis tests must be listed here — the RedisGroupUsage Danger rule points authors to this suite -->
+        <testsuite name="redis">
+            <file>tests/integration/Core/Checkout/Cart/RedisCartPersisterTest.php</file>
+            <file>tests/integration/Core/Framework/Adapter/Cache/InvalidatorStorage/RedisInvalidatorStorageTest.php</file>
+            <file>tests/integration/Core/Framework/Adapter/Cache/RedisConnectionFactoryTest.php</file>
+            <file>tests/integration/Core/Framework/Increment/RedisIncrementerTest.php</file>
+        </testsuite>
 
         <!-- Framework is split in sub suites to improve the pipeline efficiency -->
         <testsuite name="core-framework-batch1">
@@ -143,13 +158,14 @@
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
+            <directory>tests/integration/Core/Framework/Mcp</directory>
             <directory>tests/integration/Core/Framework/Validation</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch2">
             <directory>tests/integration/Core/Framework/DataAbstractionLayer</directory>
             <directory>tests/integration/Core/Framework/Demodata</directory>
-            <directory>tests/integration/Core/Framework/DependencyInjection</directory>
+            <directory>tests/integration/Core/Framework/Feature</directory>
             <directory>tests/integration/Core/Framework/FeatureFlag</directory>
             <directory>tests/integration/Core/Framework/Increment</directory>
             <directory>tests/integration/Core/Framework/Language</directory>

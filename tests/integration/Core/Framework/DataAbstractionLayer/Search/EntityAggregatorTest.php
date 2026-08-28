@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -40,6 +39,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -49,7 +50,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -1110,7 +1111,6 @@ class EntityAggregatorTest extends TestCase
     }
 
     #[DataProvider('dateHistogramProvider')]
-    #[Group('slow')]
     public function testDateHistogram(DateHistogramCase $case): void
     {
         $context = Context::createDefaultContext();
@@ -1149,113 +1149,114 @@ class EntityAggregatorTest extends TestCase
     }
 
     /**
-     * @return array<list<DateHistogramCase>>
+     * @return iterable<string, list<DateHistogramCase>>
      */
-    public static function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): iterable
     {
-        return array_filter([
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
-                    '2019-01-01 10:11:00' => 1,
-                    '2019-01-01 10:13:00' => 1,
-                    '2019-06-15 13:00:00' => 1,
-                    '2020-09-30 15:00:00' => 1,
-                    '2021-12-10 11:59:00' => 1,
-                    '2024-12-11 23:59:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
-                    '2019-01-01 10:00:00' => 2,
-                    '2019-06-15 13:00:00' => 1,
-                    '2020-09-30 15:00:00' => 1,
-                    '2021-12-10 11:00:00' => 1,
-                    '2024-12-11 23:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 1,
-                    '2024-12-11 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
-                    '2019 01' => 2,
-                    '2019 24' => 1,
-                    '2020 40' => 1,
-                    '2021 49' => 1,
-                    '2024 50' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-01 00:00:00' => 1,
-                    '2020-09-01 00:00:00' => 1,
-                    '2021-12-01 00:00:00' => 1,
-                    '2024-12-01 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
-                    '2019 1' => 2,
-                    '2019 2' => 1,
-                    '2020 3' => 1,
-                    '2021 4' => 1,
-                    '2024 4' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
-                    '2019-01-01 00:00:00' => 3,
-                    '2020-01-01 00:00:00' => 1,
-                    '2021-01-01 00:00:00' => 1,
-                    '2024-01-01 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                    '2019 January' => 2,
-                    '2019 June' => 1,
-                    '2020 September' => 1,
-                    '2021 December' => 1,
-                    '2024 December' => 1,
-                ], 'Y F'),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    'Tuesday 01st Jan, 2019' => 2,
-                    'Saturday 15th Jun, 2019' => 1,
-                    'Wednesday 30th Sep, 2020' => 1,
-                    'Friday 10th Dec, 2021' => 1,
-                    'Wednesday 11th Dec, 2024' => 1,
-                ], 'l dS M, Y'),
-            ],
-            // This case works only when timezone support is enabled
-            EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0) ? [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 1,
-                    '2024-12-12 00:00:00' => 1,
-                ], null, 'Europe/Berlin'),
-            ] : [],
-            // This case works only when timezone support is enabled, test time zone aliases can be used
-            EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0) ? [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 1,
-                    '2024-12-12 00:00:00' => 1,
-                ], null, 'Asia/Ho_Chi_Minh'),
-            ] : [],
-        ]);
+        yield 'per minute buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
+                '2019-01-01 10:11:00' => 1,
+                '2019-01-01 10:13:00' => 1,
+                '2019-06-15 13:00:00' => 1,
+                '2020-09-30 15:00:00' => 1,
+                '2021-12-10 11:59:00' => 1,
+                '2024-12-11 23:59:00' => 1,
+            ]),
+        ];
+        yield 'per hour buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
+                '2019-01-01 10:00:00' => 2,
+                '2019-06-15 13:00:00' => 1,
+                '2020-09-30 15:00:00' => 1,
+                '2021-12-10 11:00:00' => 1,
+                '2024-12-11 23:00:00' => 1,
+            ]),
+        ];
+        yield 'per day buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                '2019-01-01 00:00:00' => 2,
+                '2019-06-15 00:00:00' => 1,
+                '2020-09-30 00:00:00' => 1,
+                '2021-12-10 00:00:00' => 1,
+                '2024-12-11 00:00:00' => 1,
+            ]),
+        ];
+        yield 'per week buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
+                '2019 01' => 2,
+                '2019 24' => 1,
+                '2020 40' => 1,
+                '2021 49' => 1,
+                '2024 50' => 1,
+            ]),
+        ];
+        yield 'per month buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
+                '2019-01-01 00:00:00' => 2,
+                '2019-06-01 00:00:00' => 1,
+                '2020-09-01 00:00:00' => 1,
+                '2021-12-01 00:00:00' => 1,
+                '2024-12-01 00:00:00' => 1,
+            ]),
+        ];
+        yield 'per quarter buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
+                '2019 1' => 2,
+                '2019 2' => 1,
+                '2020 3' => 1,
+                '2021 4' => 1,
+                '2024 4' => 1,
+            ]),
+        ];
+        yield 'per year buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
+                '2019-01-01 00:00:00' => 3,
+                '2020-01-01 00:00:00' => 1,
+                '2021-01-01 00:00:00' => 1,
+                '2024-01-01 00:00:00' => 1,
+            ]),
+        ];
+        yield 'per month buckets with custom month format' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
+                '2019 January' => 2,
+                '2019 June' => 1,
+                '2020 September' => 1,
+                '2021 December' => 1,
+                '2024 December' => 1,
+            ], 'Y F'),
+        ];
+        yield 'per day buckets with custom day format' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                'Tuesday 01st Jan, 2019' => 2,
+                'Saturday 15th Jun, 2019' => 1,
+                'Wednesday 30th Sep, 2020' => 1,
+                'Friday 10th Dec, 2021' => 1,
+                'Wednesday 11th Dec, 2024' => 1,
+            ], 'l dS M, Y'),
+        ];
+
+        if (!EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0)) {
+            return;
+        }
+
+        yield 'per day buckets with Europe Berlin timezone' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                '2019-01-01 00:00:00' => 2,
+                '2019-06-15 00:00:00' => 1,
+                '2020-09-30 00:00:00' => 1,
+                '2021-12-10 00:00:00' => 1,
+                '2024-12-12 00:00:00' => 1,
+            ], null, 'Europe/Berlin'),
+        ];
+        yield 'per day buckets with timezone alias' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                '2019-01-01 00:00:00' => 2,
+                '2019-06-15 00:00:00' => 1,
+                '2020-09-30 00:00:00' => 1,
+                '2021-12-10 00:00:00' => 1,
+                '2024-12-12 00:00:00' => 1,
+            ], null, 'Asia/Ho_Chi_Minh'),
+        ];
     }
 
     public function testDateHistogramWithNestedAvg(): void
@@ -1322,8 +1323,7 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new TestAggregation('taxRate', 'foo'));
 
-        $this->expectException(InvalidAggregationQueryException::class);
-        $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
+        $this->expectExceptionObject(new InvalidAggregationQueryException('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported'));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
@@ -1335,32 +1335,46 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
 
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Backtick not allowed in identifier');
+        if (Feature::isActive('v6.8.0.0')) {
+            static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('`taxRate`'));
+        } else {
+            static::expectExceptionObject(new \InvalidArgumentException('Backtick not allowed in identifier'));
+        }
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedName(): void
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedAggregationNames(): \Generator
+    {
+        yield 'question mark' => ['foo?foo'];
+        yield 'control character' => ["foo\nfoo"];
+    }
+
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedName(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
-        $criteria->addAggregation(new SumAggregation('foo?foo', 'taxRate'));
+        $criteria->addAggregation(new SumAggregation($name, 'taxRate'));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedNameNested(): void
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedNameNested(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
 
-        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation('foo?foo', 'taxRate')));
+        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation($name, 'taxRate')));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }

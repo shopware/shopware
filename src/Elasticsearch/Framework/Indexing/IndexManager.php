@@ -10,7 +10,9 @@ use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 /**
  * @internal
  *
- * @codeCoverageIgnore - can not be unit tested; tested by it's usage in the ATS
+ * @codeCoverageIgnore can not be unit tested; covered by integration test
+ *
+ * @see \Shopware\Tests\Integration\Elasticsearch\Framework\Indexing\IndexManagerTest
  */
 #[Package('framework')]
 class IndexManager

@@ -64,23 +64,23 @@ export default {
             return [
                 {
                     value: 'hour',
-                    label: this.$tc('sw-settings-delivery-time.detail.selectionUnitHour'),
+                    label: this.$t('sw-settings-delivery-time.detail.selectionUnitHour'),
                 },
                 {
                     value: 'day',
-                    label: this.$tc('sw-settings-delivery-time.detail.selectionUnitDay'),
+                    label: this.$t('sw-settings-delivery-time.detail.selectionUnitDay'),
                 },
                 {
                     value: 'week',
-                    label: this.$tc('sw-settings-delivery-time.detail.selectionUnitWeek'),
+                    label: this.$t('sw-settings-delivery-time.detail.selectionUnitWeek'),
                 },
                 {
                     value: 'month',
-                    label: this.$tc('sw-settings-delivery-time.detail.selectionUnitMonth'),
+                    label: this.$t('sw-settings-delivery-time.detail.selectionUnitMonth'),
                 },
                 {
                     value: 'year',
-                    label: this.$tc('sw-settings-delivery-time.detail.selectionUnitYear'),
+                    label: this.$t('sw-settings-delivery-time.detail.selectionUnitYear'),
                 },
             ];
         },
@@ -89,7 +89,7 @@ export default {
             if (this.deliveryTime && this.deliveryTime.name) {
                 return this.deliveryTime.name;
             }
-            return this.$tc('sw-settings-delivery-time.detail.textHeadlineNew');
+            return this.$t('sw-settings-delivery-time.detail.textHeadlineNew');
         },
 
         isInvalidMinField() {
@@ -118,7 +118,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -161,7 +161,7 @@ export default {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-delivery-time.detail.errorLoad'),
+                        message: this.$t('sw-settings-delivery-time.detail.errorLoad'),
                     });
 
                     this.isLoading = false;
@@ -187,7 +187,7 @@ export default {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-delivery-time.detail.errorSave'),
+                        message: this.$t('sw-settings-delivery-time.detail.errorSave'),
                     });
 
                     this.isLoading = false;

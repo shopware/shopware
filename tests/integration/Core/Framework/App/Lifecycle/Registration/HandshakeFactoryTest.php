@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 
+use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
@@ -15,19 +16,20 @@ use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\AppSystemTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class HandshakeFactoryTest extends TestCase
 {
-    use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
     public function testThrowsAppRegistrationExceptionIfShopIdFingerprintsHaveChanged(): void
@@ -66,6 +68,7 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $app = new AppEntity();
@@ -74,6 +77,12 @@ class HandshakeFactoryTest extends TestCase
 
         static::expectException(AppRegistrationException::class);
         $factory->create($manifest, $app);
+    }
+
+    #[After]
+    public function deleteShopId(): void
+    {
+        static::getContainer()->get(ShopIdProvider::class)->deleteShopId();
     }
 
     /**
@@ -89,6 +98,7 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $app = new AppEntity();
@@ -115,6 +125,7 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $app = new AppEntity();

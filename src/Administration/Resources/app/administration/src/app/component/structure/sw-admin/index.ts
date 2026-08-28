@@ -1,5 +1,4 @@
 import type { Toast } from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
-import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-admin.html.twig';
 
 const { Component } = Shopware;
@@ -20,7 +19,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     metaInfo() {
         return {
-            title: this.$tc('global.sw-admin-menu.textShopwareAdmin'),
+            title: this.$t('global.sw-admin-menu.textShopwareAdmin'),
         };
     },
 
@@ -40,14 +39,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
-         * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+         * @private
+         *
+         * Generated override components, rendered once in a hidden container so their setup bodies run and
+         * register their override callbacks. Internal to the composition extension system.
          */
         overrideComponents() {
             return Component.getOverrideComponents();
-        },
-
-        snackbar() {
-            return useSnackbar();
         },
     },
 

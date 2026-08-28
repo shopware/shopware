@@ -8,7 +8,8 @@ use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\CheckoutGateway;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\ContextGateway;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\Payments;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -44,6 +46,10 @@ class Manifest
     private function __construct(
         private string $path,
         private readonly bool $validatesPermissions,
+        /**
+         * @var list<string> list of requirements
+         */
+        private readonly array $requirements,
         private readonly Metadata $metadata,
         private readonly ?Setup $setup,
         private readonly ?Admin $admin,
@@ -110,6 +116,14 @@ class Manifest
     public function validatesPermissions(): bool
     {
         return $this->validatesPermissions;
+    }
+
+    /**
+     * @return list<string> list of requirements.
+     */
+    public function getRequirements(): array
+    {
+        return $this->requirements;
     }
 
     public function getMetadata(): Metadata
@@ -274,6 +288,8 @@ class Manifest
             $validatesPermissions = $manifest->hasAttribute('validates-permissions')
                 && XmlUtils::phpize($manifest->getAttribute('validates-permissions')) === true;
 
+            $requirements = self::buildRequirements($doc);
+
             $meta = $doc->getElementsByTagName('meta')->item(0);
             \assert($meta !== null);
             $metadata = Metadata::fromXml($meta);
@@ -307,9 +323,29 @@ class Manifest
             throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }
 
+        // A declared tax provider, checkout gateway or context gateway implicitly requires the matching
+        // permission, so Shopware only pushes cart/customer data to the handler once it is granted.
+        // Adding it to the permissions here means it flows through the normal request/consent path.
+        $capabilityPrivileges = [];
+        if ($tax?->getTaxProviders()) {
+            $capabilityPrivileges[] = Tax::PERMISSION;
+        }
+        if ($gateways?->getCheckout()) {
+            $capabilityPrivileges[] = CheckoutGateway::PERMISSION;
+        }
+        if ($gateways?->getContext()) {
+            $capabilityPrivileges[] = ContextGateway::PERMISSION;
+        }
+
+        if ($capabilityPrivileges !== []) {
+            $permissions ??= Permissions::fromArray(['permissions' => []]);
+            $permissions->addPrivileges($capabilityPrivileges);
+        }
+
         return new self(
             \dirname($xmlFile),
             $validatesPermissions,
+            $requirements,
             $metadata,
             $setup,
             $admin,
@@ -325,5 +361,27 @@ class Manifest
             $shippingMethods,
             $gateways
         );
+    }
+
+    /**
+     * @return list<string> list of requirements
+     */
+    private static function buildRequirements(\DOMDocument $doc): array
+    {
+        $requirementsElement = $doc->getElementsByTagName('requirements')->item(0);
+        if ($requirementsElement === null) {
+            return [];
+        }
+
+        $requirements = [];
+
+        // Presence of child elements indicates the requirement is enabled
+        foreach ($requirementsElement->childNodes as $node) {
+            if ($node instanceof \DOMElement) {
+                $requirements[] = $node->tagName;
+            }
+        }
+
+        return $requirements;
     }
 }

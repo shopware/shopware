@@ -11,8 +11,6 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\App\AppExtractorTest
  */
 #[Package('framework')]
 class AppExtractor

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -9,6 +10,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +21,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[Group('store-api')]
 class ProductListRouteTest extends TestCase
 {
@@ -86,7 +89,6 @@ class ProductListRouteTest extends TestCase
         static::assertContains('Other translation', $names);
     }
 
-    #[Group('slow')]
     public function testListingProductsLimit(): void
     {
         $this->browser->request(
@@ -224,6 +226,135 @@ class ProductListRouteTest extends TestCase
         static::assertSame('test hidden own review', $reviews[1]['title']);
     }
 
+    #[DataProvider('nestedReviewOwnerProvider')]
+    public function testListingProductsAppliesReviewVisibilityToNestedAssociations(bool $pendingReviewBelongsToTheCaller, bool $pendingReviewIsVisible): void
+    {
+        $otherCustomerId = $this->login($this->browser);
+        // the second login switches the browser to another customer, so the pending review below
+        // either belongs to the caller or to the customer created first
+        $callerId = $this->login($this->browser);
+
+        $reviewOwnerId = $pendingReviewBelongsToTheCaller ? $callerId : $otherCustomerId;
+
+        $product = (new ProductBuilder($this->ids, 'nested-review-parent'))
+            ->visibility($this->ids->get('sales-channel'))
+            ->price(10)
+            ->variant(
+                (new ProductBuilder($this->ids, 'nested-review-child'))
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->price(10)
+                    ->review(
+                        title: 'test approved review',
+                        content: 'this is an approved review',
+                        points: 3,
+                        salesChannelId: $this->ids->get('sales-channel'),
+                    )
+                    ->review(
+                        title: 'test pending review',
+                        content: 'this is a pending review',
+                        points: 0,
+                        salesChannelId: $this->ids->get('sales-channel'),
+                        status: false,
+                        customerId: $reviewOwnerId,
+                    )
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('nested-review-parent')],
+                'associations' => [
+                    'children' => [
+                        'associations' => [
+                            'productReviews' => [
+                                'sort' => [['field' => 'points', 'order' => FieldSorting::DESCENDING]],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(1, $response['total']);
+        static::assertArrayHasKey('children', $response['elements'][0]);
+        static::assertCount(1, $response['elements'][0]['children']);
+        static::assertArrayHasKey('productReviews', $response['elements'][0]['children'][0]);
+
+        $titles = \array_column($response['elements'][0]['children'][0]['productReviews'], 'title');
+
+        $expected = $pendingReviewIsVisible
+            ? ['test approved review', 'test pending review']
+            : ['test approved review'];
+
+        static::assertSame($expected, $titles);
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool}>
+     */
+    public static function nestedReviewOwnerProvider(): iterable
+    {
+        yield 'pending review of the calling customer is visible' => [true, true];
+        yield 'pending review of another customer is hidden' => [false, false];
+    }
+
+    public function testListingProductsLimitsChildrenAssociation(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'parent-with-limited-children'))
+            ->price(10)
+            ->visibility($this->ids->get('sales-channel'))
+            ->variant(
+                (new ProductBuilder($this->ids, 'limited-child-1'))
+                    ->price(10)
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'limited-child-2'))
+                    ->price(10)
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'limited-child-3'))
+                    ->price(10)
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('parent-with-limited-children')],
+                'associations' => [
+                    'children' => [
+                        'limit' => 2,
+                    ],
+                ],
+            ],
+        );
+
+        $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(1, $response['total']);
+        static::assertCount(1, $response['elements']);
+        static::assertArrayHasKey('children', $response['elements'][0]);
+        static::assertCount(2, $response['elements'][0]['children']);
+    }
+
     private function createData(): void
     {
         $products = [];
@@ -236,7 +367,7 @@ class ProductListRouteTest extends TestCase
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'active' => true,
                     'translationCode' => [
-                        'code' => Uuid::randomHex(),
+                        'code' => 'de-DE-' . Uuid::randomHex(),
                         'name' => 'Test locale',
                         'territory' => 'test',
                     ],

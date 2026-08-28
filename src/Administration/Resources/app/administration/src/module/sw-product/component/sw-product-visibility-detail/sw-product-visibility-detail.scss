@@ -1,8 +1,8 @@
 @import "~scss/variables";
 
 .sw-product-category-form__visibility_modal.sw-modal .sw-modal__body {
-    font-size: $font-size-xs;
-    padding: 20px 30px;
+    font-size: var(--font-size-xs);
+    padding: var(--scale-size-20) var(--scale-size-30);
 
     .sw-grid .sw-grid__header .sw-grid__cell-label {
         white-space: normal;
@@ -11,7 +11,7 @@
     }
 
     .sw-grid .sw-grid__header .sw-grid-column .sw-grid__cell-content {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 }
 
@@ -20,6 +20,6 @@
 }
 
 .sw-product-detail__select-visibility {
-    margin-top: 15px;
-    margin-bottom: 22px;
+    margin-top: var(--scale-size-16);
+    margin-bottom: var(--scale-size-22);
 }

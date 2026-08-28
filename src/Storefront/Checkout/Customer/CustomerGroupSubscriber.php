@@ -19,10 +19,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Tests\Integration\Storefront\Checkout\Customer\CustomerGroupSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see CustomerGroupSubscriberTest
  */
 #[Package('checkout')]
 class CustomerGroupSubscriber implements EventSubscriberInterface
@@ -80,11 +85,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
     {
         $ids = [];
 
-        foreach ($event->getWriteResults() as $writeResult) {
-            if ($writeResult->hasPayload('registrationTitle')) {
-                $pk = $writeResult->getPrimaryKey();
-                $ids[] = $pk['customerGroupId'];
-            }
+        foreach ($event->getResults()->withPayloadProperties('registrationTitle') as $writeResult) {
+            $pk = $writeResult->getPrimaryKey();
+            $ids[] = $pk['customerGroupId'];
         }
 
         if ($ids === []) {
@@ -183,6 +186,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                         'routeName' => self::ROUTE_NAME,
                         'pathInfo' => '/customer-group-registration/' . $group->getId(),
                         'isCanonical' => true,
+                        'isDeleted' => false,
                         'seoPathInfo' => '/' . $this->slugify->slugify($title),
                     ];
                 }

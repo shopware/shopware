@@ -12,8 +12,8 @@
 <sw-single-select
     v-model:value="currentCustomField.config.entity"
     :disabled="!currentCustomField._isNew || undefined"
-    :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextEntitySelect')"
-    :label="$tc('sw-settings-custom-field.customField.detail.labelEntityTypeSelect')"
+    :help-text="$t('sw-settings-custom-field.customField.detail.helpTextEntitySelect')"
+    :label="$t('sw-settings-custom-field.customField.detail.labelEntityTypeSelect')"
     :options="sortedEntityTypes"
     show-clearable-button
     @update:value="onChangeEntityType"

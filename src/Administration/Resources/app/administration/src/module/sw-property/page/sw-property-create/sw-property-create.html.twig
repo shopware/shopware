@@ -6,7 +6,7 @@
 
 {% block sw_property_detail_content_language_info %}
 <sw-language-info
-    :entity-description="placeholder(propertyGroup, 'name', $tc('sw-property.detail.textHeadline'))"
+    :entity-description="placeholder(propertyGroup, 'name', $t('sw-property.detail.textHeadline'))"
     is-new-entity
 />
 {% endblock %}
@@ -15,11 +15,11 @@
 <mt-card
     class="sw-property-create__option-list-empty-state"
     position-identifier="sw-property-create-empty-state"
-    :title="$tc('sw-property.detail.cardTitle')"
+    :title="$t('sw-property.detail.cardTitle')"
 >
     <mt-empty-state
         :icon="$route.meta.$module.icon"
-        :headline="$tc('sw-property.detail.optionEmptyStateSubline')"
+        :headline="$t('sw-property.detail.optionEmptyStateSubline')"
     />
 </mt-card>
 {% endblock %}

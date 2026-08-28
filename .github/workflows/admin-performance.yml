@@ -10,8 +10,21 @@ env:
   COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
 jobs:
+  markdown-only-changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: check
+        uses: ./.github/actions/markdown-only-changes
+
   lighthouse:
     name: "Lighthouse CI"
+    needs:
+      - markdown-only-changes
+    if: ${{ github.repository == 'shopware/shopware' && needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     env:
       APP_ENV: prod
@@ -30,13 +43,15 @@ jobs:
       - name: Define environment
         shell: bash
         run: |
-          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
-          echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
-          echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
-          echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
-          echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
-          echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
-          echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
+          {
+            echo "REDIS_URL=redis://localhost:6379"
+            echo "MAILER_DSN=smtp://localhost:1025"
+            echo "MAILPIT_BASE_URL=http://localhost:8025"
+            echo "SHOPWARE_HTTP_CACHE_ENABLED=0"
+            echo "SHOPWARE_DISABLE_UPDATE_CHECK=true"
+            echo "BLUE_GREEN_DEPLOYMENT=1"
+            echo "ENABLE_SERVICES=0"
+          } >> "$GITHUB_ENV"
 
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -76,14 +91,14 @@ jobs:
           EOF
 
       - name: Start Caddy reverse proxy
-        run: docker run --name caddy-proxy --network host -v $PWD/Caddyfile:/etc/caddy/Caddyfile:ro -d caddy:2.8
+        run: docker run --name caddy-proxy --network host -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" -d caddy:2.8
 
       - name: Wait for server
         run: |
           timeout 30 bash -c 'until curl -sf http://localhost:8000/admin > /dev/null; do sleep 1; done'
 
       - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v12
+        uses: treosh/lighthouse-ci-action@3e7e23fb74242897f95c0ba9cabad3d0227b9b18 # v12
         with:
           configPath: './src/Administration/Resources/app/administration/lighthouserc.js'
           uploadArtifacts: true
@@ -92,6 +107,7 @@ jobs:
   admin-performance-check:
     if: always()
     needs:
+      - markdown-only-changes
       - lighthouse
 
     runs-on: ubuntu-latest
@@ -99,4 +115,5 @@ jobs:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
+          allowed-skips: ${{ (github.repository != 'shopware/shopware' || needs.markdown-only-changes.outputs.docs_only == 'true') && 'lighthouse' || '' }}
           jobs: ${{ toJSON(needs) }}

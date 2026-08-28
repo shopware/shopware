@@ -58,7 +58,7 @@ export default {
         },
         rootFolder() {
             const root = this.mediaFolderRepository.create(Context.api);
-            root.name = this.$tc('sw-media.index.rootFolderName');
+            root.name = this.$t('sw-media.index.rootFolderName');
             root.id = null;
             return root;
         },
@@ -70,8 +70,26 @@ export default {
 
     watch: {
         routeFolderId() {
-            this.term = '';
+            // Adopt the term from the new route query (e.g. when the user clicks a
+            // global search-bar suggestion that points at a different folder) instead
+            // of unconditionally clearing it.
+            this.term = this.$route.query?.term ?? '';
+            this.clearSelection();
             this.updateFolder();
+        },
+
+        '$route.query.term'(value) {
+            // When the route changes only in its `term` query (same folder, e.g. the
+            // user clicks a media search suggestion while already on `sw.media.index`),
+            // the `routeFolderId` watcher does not fire — sync the term explicitly so
+            // the media library reloads with the new search.
+            const next = value ?? '';
+            if (this.term === next) {
+                return;
+            }
+
+            this.term = next;
+            this.clearSelection();
         },
     },
 
@@ -113,10 +131,10 @@ export default {
             await this.mediaService.runUploads(this.uploadTag);
         },
 
-        onUploadFinished({ targetId } = {}) {
-            if (targetId) {
+        onUploadFinished({ targetId, originalTargetId } = {}) {
+            if (targetId || originalTargetId) {
                 this.uploads = this.uploads.filter((upload) => {
-                    return upload.id !== targetId;
+                    return upload.id !== targetId && upload.id !== originalTargetId;
                 });
             }
 

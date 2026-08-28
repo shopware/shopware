@@ -3,7 +3,13 @@ import { satisfies } from 'compare-versions';
 
 test(
     'Customers is able to to register an account and selects a non-shippable country for their billing address.',
-    { tag: ['@Account', '@Address', '@Storefront'] },
+    {
+        tag: [
+            '@Account',
+            '@Address',
+            '@Storefront',
+        ],
+    },
     async ({
         StorefrontAccountLogin,
         StorefrontAccount,
@@ -33,7 +39,7 @@ test(
             await ShopCustomer.presses(StorefrontAccountLogin.countryInput);
             await StorefrontAccountLogin.countryInput.selectOption({ label: registrationData.country });
             await ShopCustomer.expects(
-                await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country)
+                await StorefrontAccountLogin.getShippingCountryLocatorByName(registrationData.country),
             ).toBeDisabled();
         });
 
@@ -64,12 +70,18 @@ test(
             TestDataService.addCreatedRecord('customer', customerId);
             await ShopCustomer.expects(StorefrontAccount.headline).toBeVisible();
         });
-    }
+    },
 );
 
 test(
     'Customers is not able to set new shipping address with a non-shippable country.',
-    { tag: ['@Account', '@Address', '@Storefront'] },
+    {
+        tag: [
+            '@Account',
+            '@Address',
+            '@Storefront',
+        ],
+    },
     async ({
         IdProvider,
         ShopCustomer,
@@ -104,23 +116,28 @@ test(
             country: `${nonShippableCountry.name} (Delivery not possible)`,
         };
 
+        // StorefrontAccount.cannotDeliverToCountryAlert still expects the old "can not" wording
+        const cannotDeliverToCountryAlert = StorefrontAccount.page.getByText(
+            'We cannot deliver to the country that is stored in your delivery address.',
+        );
+
         await test.step('Customer select non-shippable country during registration', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
             await ShopCustomer.attemptsTo(Register(customer));
-            await ShopCustomer.expects(StorefrontAccount.cannotDeliverToCountryAlert).toBeVisible();
+            await ShopCustomer.expects(cannotDeliverToCountryAlert).toBeVisible();
         });
 
         await test.step('Customer see cannot deliver warning after re-login', async () => {
             await ShopCustomer.attemptsTo(Logout());
             await ShopCustomer.attemptsTo(Login(customer));
-            await ShopCustomer.expects(StorefrontAccount.cannotDeliverToCountryAlert).toBeVisible();
+            await ShopCustomer.expects(cannotDeliverToCountryAlert).toBeVisible();
         });
 
         await test.step('Customer add new address with non-shippable country and cannot set it as new shipping address', async () => {
             await ShopCustomer.goesTo(StorefrontAccountAddresses.url());
             await ShopCustomer.attemptsTo(AddNewAddress(address));
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(
-                address.firstName + ' ' + address.lastName
+                address.firstName + ' ' + address.lastName,
             );
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.street);
             await ShopCustomer.expects(StorefrontAccountAddresses.availableAddresses).toContainText(address.city);
@@ -139,5 +156,5 @@ test(
                 await ShopCustomer.expects(StorefrontAccountAddresses.availableAddressesUseAsShippingAddress).toBeDisabled();
             }
         });
-    }
+    },
 );

@@ -30,18 +30,37 @@ test.describe('Google reCAPTCHA V3 UI', () => {
 
     test(
         'As a customer, I can see the invisible Google reCaptcha V3 is loaded and shows the protection notice.',
-        { tag: ['@Form', '@Captcha', '@Storefront'] },
+        {
+            tag: [
+                '@Form',
+                '@Captcha',
+                '@Storefront',
+            ],
+        },
         async ({ ShopCustomer, StorefrontAccountLogin, acceptTechnicalRequiredCookies }) => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
 
             await setupRecaptchaFlow(StorefrontAccountLogin.page, test, () => acceptTechnicalRequiredCookies(), 'V3');
-        }
+        },
     );
 
     test(
         'As a customer, I can see the invisible Google reCaptcha V3 is loaded in the contact form.',
-        { tag: ['@Form', '@Contact', '@Captcha', '@Storefront'] },
-        async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, StorefrontFooter,acceptTechnicalRequiredCookies }) => {
+        {
+            tag: [
+                '@Form',
+                '@Contact',
+                '@Captcha',
+                '@Storefront',
+            ],
+        },
+        async ({
+            ShopCustomer,
+            StorefrontHome,
+            StorefrontContactForm,
+            StorefrontFooter,
+            acceptTechnicalRequiredCookies,
+        }) => {
             await test.step('Open the contact form modal on home page', async () => {
                 await ShopCustomer.goesTo(StorefrontHome.url());
 
@@ -55,6 +74,6 @@ test.describe('Google reCAPTCHA V3 UI', () => {
 
             await waitForRecaptchaScriptLoaded(StorefrontContactForm.page);
             await verifyRecaptchaProtectionNotice(StorefrontContactForm.page, test, 'V3');
-        }
+        },
     );
 });

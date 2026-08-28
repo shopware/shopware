@@ -4,7 +4,7 @@
     position: relative;
 
     .sw-block-field__block {
-        background-color: var(--color-elevation-surface-raised);
+        background-color: var(--color-background-primary-default);
         position: relative;
         overflow: visible;
     }
@@ -54,7 +54,7 @@
         border-radius: var(--border-radius-xs);
 
         &:focus-visible {
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
             outline-offset: var(--scale-size-2);
         }
 
@@ -111,7 +111,7 @@
 
     &.is--disabled {
         .sw-block-field__block {
-            background-color: var(--color-background-primary-disabled);
+            background-color: var(--color-background-tertiary-default);
         }
 
         .sw-label,
@@ -126,7 +126,7 @@
         }
 
         input {
-            background-color: var(--color-background-primary-disabled);
+            background-color: var(--color-background-tertiary-default);
         }
     }
 }

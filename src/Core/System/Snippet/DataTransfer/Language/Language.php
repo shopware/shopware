@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet\DataTransfer\Language;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\SnippetException;
+use Shopware\Core\System\Snippet\SnippetPatterns;
 use Symfony\Component\Intl\Locales;
 
 /**
@@ -21,6 +22,10 @@ class Language
 
     private function validateLocale(string $locale): void
     {
+        if (\array_key_exists($locale, SnippetPatterns::ALLOWED_PSEUDO_LOCALES)) {
+            return;
+        }
+
         if (str_contains($locale, '-')) {
             // Symfony expects underscores instead of hyphens in locale identifiers
             $locale = str_replace('-', '_', $locale);

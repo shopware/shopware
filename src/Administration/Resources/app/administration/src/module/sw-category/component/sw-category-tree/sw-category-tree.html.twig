@@ -13,7 +13,7 @@
         :on-change-route="changeCategory"
         :disable-context-menu="disableContextMenu"
         :allow-delete-categories="allowDelete || undefined"
-        initially-expanded-root
+        :initially-expanded-root="!categoryId"
         @batch-delete="deleteCheckedItems"
         @delete-element="onDeleteCategory"
         @drag-end="onUpdatePositions"

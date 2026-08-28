@@ -30,7 +30,7 @@
                             size="16"
                         />
                         <span class="sw-cms-mapping-field__action-label">
-                            {{ $tc('sw-cms.detail.label.buttonMappingAction') }}
+                            {{ $t('sw-cms.detail.label.buttonMappingAction') }}
                         </span>
                     </div>
                 </template>
@@ -62,7 +62,7 @@
             >
                 <mt-icon name="regular-times" />
                 <span class="sw-cms-mapping-field__action-label">
-                    {{ $tc('sw-cms.detail.label.buttonMappingRemoveAction') }}
+                    {{ $t('sw-cms.detail.label.buttonMappingRemoveAction') }}
                 </span>
             </div>
             {% endblock %}
@@ -83,7 +83,7 @@
     <template v-else>
         {% block sw_cms_mapping_field_mapping_value %}
         <div class="sw-cms-mapping-field__mapping-value">
-            {{ $tc('sw-cms.detail.label.mappingPreview') }} <b>{{ config.value }}</b>
+            {{ $t('sw-cms.detail.label.mappingPreview') }} <b>{{ config.value }}</b>
         </div>
         {% endblock %}
 
@@ -103,7 +103,7 @@
                 variant="info"
                 class="sw-cms-mapping-field__empty-demo"
             >
-                {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+                {{ $t('sw-cms.detail.label.mappingEmptyPreview') }}
             </mt-banner>
         </div>
         {% endblock %}

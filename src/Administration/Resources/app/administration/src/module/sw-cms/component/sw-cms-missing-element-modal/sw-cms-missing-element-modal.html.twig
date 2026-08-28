@@ -2,7 +2,7 @@
 <sw-modal
     class="sw-cms-missing-element-modal"
     variant="small"
-    :title="$tc('sw-cms.components.cmsMissingElementModal.headline')"
+    :title="$t('sw-cms.components.cmsMissingElementModal.headline')"
     @modal-close="onClose"
 >
 
@@ -15,18 +15,18 @@
 
     {% block sw_cms_missing_element_modal_subtitle %}
     <p class="sw-cms-missing-element-modal__subtitle">
-        {{ $tc('sw-cms.components.cmsMissingElementModal.subtitle') }}
+        {{ $t('sw-cms.components.cmsMissingElementModal.subtitle') }}
     </p>
     {% endblock %}
 
     {% block sw_cms_missing_element_modal_paragraph %}
     <p class="sw-cms-missing-element-modal__paragraph">
-        {{ $tc('sw-cms.components.cmsMissingElementModal.paragraph') }}
+        {{ $t('sw-cms.components.cmsMissingElementModal.paragraph') }}
     </p>
     {% endblock %}
     <mt-checkbox
         class="sw-cms-missing-element-modal__dont-remind"
-        :label="$tc('sw-app.component.sw-app-actions.dontAskMeAgain')"
+        :label="$t('sw-app.component.sw-app-actions.dontAskMeAgain')"
         @update:checked="onChangeDontRemindCheckbox()"
     />
 
@@ -38,7 +38,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -49,7 +49,7 @@
             variant="primary"
             @click="onSave"
         >
-            {{ $tc('sw-cms.components.cmsMissingElementModal.buttonSave') }}
+            {{ $t('sw-cms.components.cmsMissingElementModal.buttonSave') }}
         </mt-button>
         {% endblock %}
     </template>

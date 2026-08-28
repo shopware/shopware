@@ -56,7 +56,7 @@ export default {
         },
         text: {
             csv: 'icons-multicolor-file-thumbnail-csv',
-            plain: 'icons-multicolor-file-thumbnail-csv',
+            plain: 'icons-multicolor-file-thumbnail-txt',
         },
         image: {
             gif: 'icons-multicolor-file-thumbnail-gif',
@@ -248,7 +248,7 @@ export default {
 
         mediaName() {
             if (!this.trueSource) {
-                return this.$tc('global.sw-media-preview-v2.textNoMedia');
+                return this.$t('global.sw-media-preview-v2.textNoMedia');
             }
 
             return this.mediaNameFilter(this.trueSource, this.trueSource.fileName);

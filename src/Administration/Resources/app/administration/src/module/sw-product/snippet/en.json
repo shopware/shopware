@@ -35,6 +35,7 @@
     "basicForm": {
       "labelTitle": "Name",
       "labelDescription": "Description",
+      "hintCoverImageDescription": "Begin the description with one or two short sentences describing the product shown in the cover image. This improves accessibility and the presentation in product listings.",
       "labelProductNumber": "Product number",
       "labelManufacturer": "Manufacturer",
       "labelManufacturerCreation": "manufacturer",
@@ -103,7 +104,15 @@
       "placeholderCanonicalProduct": "Select a variant...",
       "helpTextMetaTitle": "The meta title is the most important SEO element and should be unique for each page. You should limit yourself in length to a maximum of 56 characters. Your keyword should ideally be placed at the very front.",
       "helpTextMetaDescription": "With the meta description, you confirm to your customers that they are in the right place in your store. You create incentives, build trust and invite to an action. You should limit yourself to a maximum of 155 characters. Shopware allows a maximum length of 255 characters.",
-      "helpTextKeywords": "Here you can define optionally three to five keywords under which your product should be found."
+      "helpTextKeywords": "Here you can define optionally three to five keywords under which your product should be found.",
+      "titleOpenGraph": "Open Graph",
+      "labelOpenGraphTitle": "OG title",
+      "labelOpenGraphDescription": "OG description",
+      "labelOpenGraphImage": "OG image",
+      "placeholderOpenGraphTitle": "Enter Open Graph title...",
+      "placeholderOpenGraphDescription": "Enter Open Graph description...",
+      "helpTextOpenGraphTitle": "The Open Graph title is used when sharing the product on social media. If left empty, the meta title will be used as a fallback.",
+      "helpTextOpenGraphDescription": "The Open Graph description is used when sharing the product on social media. If left empty, the meta description will be used as a fallback."
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",
@@ -116,6 +125,11 @@
       "labelMaxPurchase": "Max. order quantity",
       "labelEan": "GTIN/EAN",
       "labelManufacturerNumber": "Manufacturer product number",
+      "labelGuaranteeDescription": "This label represents a commercial guarantee of durability expressed in years. The guarantee is offered by the producer at no additional costs, covering the entire good and with a duration of more than two years.",
+      "labelGuaranteeMonths": "Producer guarantee duration in months",
+      "helpTextGuaranteeMonths": "Minimum value is 30, steps of 6.",
+      "labelGuaranteeConfirmed": "Show label in Storefront",
+      "helpTextGuaranteeConfirmed": "The guarantee label is only displayed if a valid guarantee duration, a manufacturer and the manufacturer product number is set.",
       "labelStock": "Stock",
       "labelActive": "Active for all selected Sales Channels",
       "labelShippingFree": "Free shipping",
@@ -139,15 +153,16 @@
       "placeholderRestockTime": "Enter restock time in days...",
       "placeholderEan": "Enter GTIN/EAN...",
       "placeholderManufacturerNumber": "Enter product number...",
+      "placeholderGuaranteeMonths": "e.g. 30, 36 or 42 months...",
       "labelAvailableStock": "Available stock",
       "labelPurchaseSteps": "Purchase steps"
     },
     "measurementForm": {
-      "description": "Enter the product measurements using the units available to you. When displayed to your customers, they will be automatically converted based on the {link}.",
+      "description": "Enter product measurements in your preferred units. Shopware converts them for customers based on the {link}.",
       "linkText": "Sales Channel settings"
     },
     "packagingForm": {
-      "description": "Define how the product is sold and packaged. This information is shown to customers in the storefront.",
+      "description": "Set the selling units and packaging details customers see in the storefront.",
       "labelProductUnit": "Product unit",
       "placeholderSellingUnit": "e.g. 6...",
       "placeholderProductUnit": "Select product unit...",
@@ -165,6 +180,7 @@
       "cardTitleAssignment": "Visibility & structure",
       "cardTitlePrices": "Prices",
       "cardTitleSettings": "Labelling",
+      "cardTitleGuarantee": "Guarantee (GARAN Label)",
       "cardTitlePackaging": "Measures & packaging",
       "linkAdvancedPrices": "Advanced pricing",
       "linkMaintainCurrencyPrices": "Currency dependent pricing",
@@ -177,12 +193,13 @@
       "cardTitleDownloads": "Files",
       "cardSubtitleDownloads": "Add files to your digital product.",
       "downloadsLabel": "File upload",
+      "downloadsContextMenuDownloadFile": "Download file",
       "manageStockLabel": "Manage stock",
       "manageStockTooltip": "If the stock is not managed, the digital product is available for an infinite amount of transactions."
     },
     "specifications": {
       "cardTitleMeasurement": "Product measurements",
-      "cardTitleSellingPackaging": "Selling & Packaging Information",
+      "cardTitleSellingPackaging": "Selling and packaging",
       "cardTitleEssentialCharacteristics": "Essential Characteristics",
       "cardTitleCustomFields": "Custom fields",
       "cardTitleProperties": "Properties",
@@ -200,12 +217,9 @@
       "labelCreatedAt": "Created at",
       "labelPoints": "Stars",
       "labelTitle": "Title",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
       "modal": {
         "confirmTitle": "Delete review",
-        "confirmText": "Do you really want to delete this review?",
-        "buttonDelete": "Delete"
+        "confirmText": "Do you really want to delete this review?"
       },
       "messageEmptyTitle": "Product not reviewed yet",
       "messageEmptySubline": "Check out other products' reviews instead.",
@@ -225,8 +239,6 @@
       "columnQuantityStart": "Quantity from...",
       "columnQuantityEnd": "to...",
       "columnPrice": "Price (gross / net)",
-      "contextMenuDuplicate": "Duplicate",
-      "contextMenuDelete": "Delete",
       "settingShowListPrices": "Show list prices",
       "toolbarLabel": "Rules"
     },
@@ -234,8 +246,6 @@
       "textProductOverview": "Products",
       "buttonAddProduct": "Add product",
       "buttonAddDownloadableProduct": "Add digital product",
-      "buttonDuplicate": "Duplicate",
-      "buttonDelete": "Delete",
       "columnName": "Name",
       "columnProductNumber": "Product number",
       "columnManufacturer": "Manufacturer",
@@ -253,9 +263,6 @@
       "columnMedia": "Media",
       "columnSales": "Sales",
       "columnDownloadsTooltip": "Digital products must have at least one file attached.",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "contextMenuDuplicate": "Duplicate",
       "contextMenuShowVariants": "Show variants",
       "variantIndicatorTooltip": "This product has variants.",
       "variantGridEmptyStateSubline": "No variants were found.",
@@ -278,7 +285,6 @@
     },
     "detail": {
       "textHeadline": "New product",
-      "buttonSave": "Save",
       "buttonSaveDuplicate": "Save and duplicate",
       "buttonSaveAndNew": "Save and create new",
       "tabGeneral": "General",
@@ -293,10 +299,10 @@
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
       "messageUploadSuccess": "{count} of {total} files saved.",
       "messageSaveWarning": "No changes detected.",
+      "messageProductNotFound": "The product could not be found. It may have been deleted.",
       "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity."
     },
     "mediaForm": {
-      "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",
       "errorMediaItemDuplicated": "Media item \"{fileName}\" is already assigned.",
       "coverSubline": "Cover",
@@ -358,7 +364,6 @@
       "generateVariationsButton": "Save variants",
       "nextModalButton": "Next",
       "deleteVariationsButton": "Delete all variants",
-      "backVariationsButton": "Back",
       "configuratorCardTitle": "Variant generator",
       "generatedVariationCardTitle": "Variants",
       "variationCard": {
@@ -383,11 +388,8 @@
       "generatedListColumnContentProductState": {
         "is-download": "digital"
       },
-      "generatedListContextMenuEdit": "Edit",
-      "generatedListContextMenuDelete": "Delete",
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
       "generatedListDeleteModalMessagePlural": "Do you really want to delete these variants?",
-      "generatedListDeleteModalButtonDelete": "Delete",
       "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
       "generatedListMessageDeleteErrorCanonicalUrl": "Variant could not be deleted because it is being used as the canonical url template.",
@@ -420,12 +422,8 @@
         "restrictedCombinations": "Excluded property values",
         "searchRestrictions": "Search excluded values...",
         "addNewRestriction": "Exclude values",
-        "editRestriction": "Edit",
-        "deleteRestriction": "Delete",
         "singleRestrictionSeperation": "And",
-        "deleteCombination": "Delete",
         "isOneFrom": "is one of",
-        "save": "Save",
         "searchPlaceholder": "Search values...",
         "singleRestrictionAddTitle": "Exclude values",
         "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there.",
@@ -448,8 +446,7 @@
         "listingExplanationModeSingle": "Choose a variant that will be displayed in listings and preselected on the product detail page.",
         "listingExplanationModeMainProduct": "Choose a variant that will be the preselected on the product detail page.",
         "listingLabelModeExpanded": "Expand property values in product listings",
-        "listingPlaceholderSelectMainVariant": "Choose a variant...",
-        "save": "Save"
+        "listingPlaceholderSelectMainVariant": "Choose a variant..."
       }
     },
     "layout": {
@@ -463,7 +460,6 @@
       "buttonAddCrossSelling": "Add new Cross Selling",
       "newCrossSellingTitle": "New Cross Selling",
       "buttonAddCrossSellingLanguageWarning": "You can only create new cross sellings in your default language",
-      "buttonDeleteCrossSelling": "Delete",
       "inputCrossSellingTitle": "Name",
       "inputCrossSellingActive": "Active",
       "inputCrossSellingType": "Type",
@@ -486,7 +482,6 @@
       "releaseDateDescendingSortingType": "Release date, descending",
       "deleteConfirmTitle": "Delete Cross Selling",
       "deleteConfirmText": "Are you sure you want to delete the Cross Selling configuration?",
-      "deleteButtonDelete": "Delete",
       "linkOpenStreamPreview": "Open preview",
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
       "inheritedEmptyStateDescription": "This product has inherited cross sellings from its parent.",
@@ -502,9 +497,8 @@
     },
     "featureSets": {
       "cardTitle": "Essential Characteristics",
-      "descriptionTitle": "Essential Characteristics",
-      "descriptionBody": "Essential Characteristics help you to define what is important about your products. These characteristics are shown prominently in your customers' shopping carts and during checkout.",
-      "configInformation": "Create {0} templates first and assign them to each of your products by using the dropdown below.",
+      "descriptionBody": "Use Essential Characteristics to show important product details in the cart and checkout.",
+      "configInformation": "Create {0} templates, then select one for this product.",
       "linkFeatureSetsConfig": "Essential Characteristics",
       "templateSelectFieldLabel": "Template",
       "templateSelectFieldPlaceholder": "Select a template..."

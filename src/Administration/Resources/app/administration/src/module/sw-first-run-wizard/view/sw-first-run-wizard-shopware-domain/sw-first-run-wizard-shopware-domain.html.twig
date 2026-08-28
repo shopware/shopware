@@ -1,16 +1,16 @@
 {% block sw_first_run_wizard_shopware_domain %}
 <div class="sw-first-run-wizard-shopware-domain">
     <h3 class="headline">
-        {{ $tc('sw-first-run-wizard.shopwareDomain.headline') }}
+        {{ $t('sw-first-run-wizard.shopwareDomain.headline') }}
     </h3>
     <p
         class="message"
-        v-html="$tc('sw-first-run-wizard.shopwareDomain.message')"
+        v-html="$t('sw-first-run-wizard.shopwareDomain.message')"
     ></p>
 
     <mt-switch
         v-model="createShopDomain"
-        :label="$tc('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
+        :label="$t('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
     />
 
     <div v-if="createShopDomain">
@@ -23,7 +23,7 @@
         />
         <mt-checkbox
             v-model:checked="testEnvironment"
-            :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')"
+            :label="$t('sw-first-run-wizard.shopwareDomain.testEnvironment')"
         />
     </div>
     <div v-else-if="licenceDomains.length > 0">

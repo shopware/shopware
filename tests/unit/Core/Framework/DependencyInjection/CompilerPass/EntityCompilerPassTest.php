@@ -11,12 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityCompilerPass::class)]
 class EntityCompilerPassTest extends TestCase
 {

@@ -15,7 +15,7 @@
                 :key="isInherited"
                 class="sw-product-detail__select-visibility"
                 :entity-collection="currentValue"
-                :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+                :placeholder="$t('sw-product.visibility.placeholderVisibility')"
                 :disabled="disabled || undefined"
                 @update:entity-collection="updateCurrentValue"
             />
@@ -37,10 +37,10 @@
             @click="openModal"
             @keydown.enter="openModal"
         >
-            {{ $tc('sw-product.visibility.linkAdvancedVisibility') }}
+            {{ $t('sw-product.visibility.linkAdvancedVisibility') }}
             <mt-icon
                 name="regular-long-arrow-right"
-                size="16px"
+                size="var(--scale-size-16)"
             />
         </a>
     </sw-container>
@@ -49,12 +49,12 @@
     {% block sw_bulk_edit_product_visibility_advanced_modal %}
     <sw-modal
         v-if="displayVisibilityDetail"
-        :title="$tc('sw-product.visibility.textHeadline')"
+        :title="$t('sw-product.visibility.textHeadline')"
         class="sw-product-category-form__visibility_modal"
         variant="large"
         @modal-close="closeModal"
     >
-        <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
+        <p>{{ $t('sw-product.visibility.visibilityModalDescription') }}</p>
 
         <sw-product-visibility-detail />
 
@@ -64,7 +64,7 @@
                 size="small"
                 @click="closeModal"
             >
-                {{ $tc('global.default.apply') }}
+                {{ $t('global.default.apply') }}
             </mt-button>
         </template>
     </sw-modal>

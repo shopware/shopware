@@ -16,7 +16,7 @@ async function createWrapper() {
                     },
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },

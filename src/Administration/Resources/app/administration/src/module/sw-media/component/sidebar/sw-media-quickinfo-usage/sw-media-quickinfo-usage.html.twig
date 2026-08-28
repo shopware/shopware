@@ -13,9 +13,9 @@
         v-else-if="isNotUsed"
         class="sw-media-quickinfo-usage__info-not-used"
         variant="info"
-        :title="$tc('sw-media.sidebar.usage.titleMediaNotUsed')"
+        :title="$t('sw-media.sidebar.usage.titleMediaNotUsed')"
     >
-        {{ $tc('sw-media.sidebar.usage.labelMediaNotUsed') }}
+        {{ $t('sw-media.sidebar.usage.labelMediaNotUsed') }}
     </mt-banner>
     {% endblock %}
 
@@ -43,7 +43,7 @@
                 <div class="sw-media-quickinfo-usage__label">
                     <mt-icon
                         :name="usage.icon.name"
-                        :color="usage.icon.color"
+                        color="var(--color-icon-primary-default)"
                         size="16px"
                     />
                 </div>

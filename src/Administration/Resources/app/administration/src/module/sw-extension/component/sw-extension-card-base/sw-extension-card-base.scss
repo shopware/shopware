@@ -1,36 +1,41 @@
-@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-extension-card-base {
+    &__select {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     &.is--deactivated {
-        background: $color-gray-100;
+        background: var(--color-background-tertiary-default);
         box-shadow: none;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
 
         .sw-extension-card-base__extension-activation-switch {
-            background: $color-gray-50;
+            background: var(--color-background-secondary-default);
         }
 
         .sw-loader {
-            background-color: rgba($color-gray-100, 0.8);
+            background-color: var(--color-background-tertiary-default);
         }
     }
 
     &.deactivate-prevented {
         .mt-switch .mt-switch__switch {
-            background: $color-shopware-brand-500;
+            background: var(--color-background-brand-default);
             opacity: 0.5;
 
             &::after {
-                background: $color-white;
+                background: var(--color-background-primary-default);
             }
         }
     }
 
     &.is--not-installed {
-        background-color: $color-gray-50;
+        background-color: var(--color-background-secondary-default);
         box-shadow: none;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
     }
 
     .sw-loader {
@@ -48,10 +53,18 @@
         }
     }
 
+    .sw-extension-icon {
+        background-color: var(--color-background-secondary-default);
+
+        &::after {
+            border-color: var(--color-border-secondary-default);
+        }
+    }
+
     .sw-meteor-card__content .sw-meteor-card__content-wrapper {
         display: grid;
         grid-column-gap: 24px;
-        grid-template-columns: 24px 56px 5fr 2fr minmax(min-content, 1fr) auto;
+        grid-template-columns: auto 24px 56px 5fr 2fr minmax(min-content, 1fr) auto;
         align-items: center;
         padding: 16px 32px;
         border: none;
@@ -60,18 +73,18 @@
     .sw-extension-card-base__info {
         margin-left: -8px;
         overflow: hidden;
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
 
         .sw-extension-card-base__info-name {
             @include truncate;
 
-            font-size: $font-size-xs;
-            color: $color-darkgray-200;
-            font-weight: $font-weight-semi-bold;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-primary-default);
+            font-weight: var(--font-weight-semibold);
         }
 
         .sw-extension-card-base__info-inactive {
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
         }
     }
 
@@ -81,28 +94,28 @@
     }
 
     .sw-extension-card-base__meta-info {
-        font-size: $font-size-xxs;
+        font-size: var(--font-size-2xs);
         text-align: right;
 
         a {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
             margin-left: 4px;
         }
 
         &-version {
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
     }
 
     .sw-extension-card-base__open-extension {
         cursor: pointer;
         text-decoration: underline;
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
         transition: color 0.1s ease;
-        font-weight: $font-weight-medium;
+        font-weight: var(--font-weight-medium);
 
         &:hover {
-            color: $color-shopware-brand-800;
+            color: var(--color-text-brand-hover);
         }
     }
 }

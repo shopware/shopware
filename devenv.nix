@@ -8,7 +8,7 @@ let
 in {
   packages = [
     pkgs.gnupatch
-    pkgs.nodePackages_latest.yalc
+    pkgs.yalc
     pkgs.gnused
     pkgs.symfony-cli
     pkgs.deno
@@ -137,15 +137,8 @@ in {
   env.OPENSEARCH_URL = lib.mkDefault "http://localhost:9200";
   env.ADMIN_OPENSEARCH_URL = lib.mkDefault "http://localhost:9200";
 
-  # General cypress
-  env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";
-
   # Installer/Updater testing
   env.INSTALL_URL = lib.mkDefault "http://localhost:8050";
-  env.CYPRESS_dbHost = lib.mkDefault "localhost";
-  env.CYPRESS_dbUser = lib.mkDefault "shopware";
-  env.CYPRESS_dbPassword = lib.mkDefault "shopware";
-  env.CYPRESS_dbName = lib.mkDefault "shopware";
 
   # Service Registry
   env.SERVICE_REGISTRY_URL = lib.mkDefault "https://registry.staging-services.shopware.io";

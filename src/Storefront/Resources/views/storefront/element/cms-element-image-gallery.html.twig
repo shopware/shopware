@@ -61,6 +61,9 @@
                 launchingArView: 'spatial.ar.launchingArView'|trans|striptags,
             }
         } %}
+
+        {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+        {% set isProduct = element.fieldConfig.elements.sliderItems.value == 'product.media' and element.fieldConfig.elements.sliderItems.source == 'mapped' %}
     {% endif %}
 
     {% if fallbackImageTitle is not defined %}
@@ -328,15 +331,15 @@
 
                                                                                 {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                                 {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                                    {% if loop.first %}
-                                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                                    {% else %}
-                                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                                    {% endif %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                                 {% endif %}
 
                                                                                 {% if loop.first and sliderConfig.useFetchPriorityOnFirstItem.value is true %}
                                                                                     {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
+                                                                                {% endif %}
+
+                                                                                {% if not loop.first %}
+                                                                                    {% set attributes = attributes|merge({ loading: 'lazy' }) %}
                                                                                 {% endif %}
 
                                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
@@ -505,24 +508,30 @@
 
                                                                 {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                 {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                    {% if loop.first %}
-                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                    {% else %}
-                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                    {% endif %}
+                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                 {% endif %}
 
                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                     media: mediaItems|first,
-                                                                    attributes: attributes
+                                                                    attributes: attributes,
+                                                                    sizes: {
+                                                                        xs: '100vw',
+                                                                        sm: '100vw',
+                                                                        md: '100vw',
+                                                                        lg: '60vw',
+                                                                        xl: '50vw',
+                                                                        xxl: '800px'
+                                                                    }
                                                                 } %}
                                                             {% endblock %}
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% else %}
-                                                    {% sw_icon 'placeholder' style {
-                                                        'size': 'fluid'
-                                                    } %}
+                                                    {% block element_image_gallery_inner_image_placeholder %}
+                                                        {% sw_icon 'placeholder' style {
+                                                            'size': 'fluid'
+                                                        } %}
+                                                    {% endblock %}
                                                 {% endif %}
                                             </div>
                                         {% endblock %}
@@ -597,13 +606,11 @@
                                                                                 alt: (image.translated.alt ?: false)
                                                                             }) %}
 
+                                                                            {# No native loading="lazy" here: in the "left" layout the thumbnail strip is a vertical tiny-slider, whose init waits for every slide image to report `complete` before firing `onInit`. Browsers that defer lazy images (Firefox, Safari) never complete them, so `onInit` never runs and the `is-loading` class is never removed. #}
+
                                                                             {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                             {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                                {% if loop.first %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                                {% else %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                                {% endif %}
+                                                                                {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                             {% endif %}
 
                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {

@@ -12,13 +12,16 @@
       "SHOPWARE_INVALID_IP_CIDR": "Bitte gib eine gültige IP-Adresse oder eine IP-Adresse mit CIDR-Maske ein.",
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
-      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
+      "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warte {seconds} Sekunden, bevor Du es erneut versuchst.",
       "FRAMEWORK__ROUTE_BLOCKED_MESSAGE": "Die URL {path} steht in Konflikt mit der bestehenden Route {blockedSegment} und kann nicht verwendet werden.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
       "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator.",
-      "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\"."
+      "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "Der ausgewählte Verkaufskanal befindet sich im Wartungsmodus und Deine IP-Adresse steht nicht auf der Allowlist. Deaktiviere den Wartungsmodus oder füge Deine IP-Adresse zur Allowlist hinzu.",
+      "THEME__INVALID_SCSS_VAR": "SCSS-Wert \"{value}\" ist nicht gültig für Typ \"{type}\".",
+      "DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE": "Das Zahlungsziel muss ein relatives Datum sein, z. B. \"+14 days\".",
+      "INVALID_GARAN_GUARANTEE_MONTHS": "Die Garantiedauer muss leer sein oder ein Halbjahreswert von mehr als 24 Monaten, z. B. 30, 36 oder 42."
     },
     "default": {
       "add": "Hinzufügen",
@@ -49,7 +52,8 @@
       "back": "Zurück",
       "discard": "Verwerfen",
       "submit": "Absenden",
-      "attention": "Warnung"
+      "attention": "Warnung",
+      "configure": "Konfigurieren"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -71,7 +75,11 @@
     },
     "notification-center": {
       "title": "Mitteilungen",
-      "emptyText": "Nicht viel los hier.",
+      "triggerAriaLabel": "Mitteilungen",
+      "optionsAriaLabel": "Mitteilungsoptionen",
+      "emptyText": "Du bist auf dem neuesten Stand",
+      "emptyDescription": "Neue Mitteilungen erscheinen hier.",
+      "ringBellLabel": "Mitteilungsglocke läuten",
       "deleteModal": {
         "title": "Mitteilungen löschen",
         "textConfirm": "Möchtest Du wirklich alle Mitteilungen löschen?"
@@ -154,14 +162,18 @@
     "sw-admin-menu": {
       "linkLogout": "Abmelden",
       "linkMinimizeMenu": "Menü einklappen",
+      "linkExpandMenu": "Menü ausklappen",
+      "linkCloseMenu": "Menü schließen",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
+      "textVersion": "Version:",
       "administrator": "Administrator",
       "navigation": {
         "label": "Hauptnavigation",
         "mainMenuItemCatalogue": "Kataloge",
         "mainMenuItemContent": "Inhalte",
-        "mainMenuItemMarketing": "Marketing"
+        "mainMenuItemMarketing": "Marketing",
+        "mainMenuItemAutomation": "Automation"
       }
     },
     "entity-components": {
@@ -181,7 +193,7 @@
     "sw-field": {
       "notification": {
         "notificationCopySuccessMessage": "Der Text wurde in die Zwischenablage kopiert.",
-        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden."
+        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden. Stelle sicher, dass du über eine sichere Verbindung (HTTPS) auf die Administration zugreifst, und versuche es erneut."
       },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen",
@@ -267,9 +279,6 @@
       "nextPage": "Zur nächsten Seite gehen",
       "page": "Gehe zu Seite {page}"
     },
-    "sw-modal": {
-      "labelClose": "Schließen"
-    },
     "sw-text-preview": {
       "showMoreButton": "Mehr zeigen"
     },
@@ -337,6 +346,9 @@
         },
         "coverSaveError": {
           "message": "Cover-Bild konnte nicht gespeichert werden."
+        },
+        "downloadError": {
+          "message": "Fehler beim Herunterladen."
         }
       },
       "labelUploading": "Wird hochgeladen ..."
@@ -573,12 +585,6 @@
       "placeholderSearch": "Suchen ...",
       "labelLoadMore": "Mehr laden"
     },
-    "sw-media-list-selection-item": {
-      "buttonRemove": "Entfernen"
-    },
-    "sw-media-list-selection-item-v2": {
-      "buttonRemove": "Entfernen"
-    },
     "sw-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
@@ -634,6 +640,8 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
     "sw-search-bar": {
+      "ariaLabelCloseSearch": "Suche schließen",
+      "ariaLabelOpenSearch": "Suche öffnen",
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
@@ -666,7 +674,7 @@
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
-        "sales-channel": " | A S",
+        "sales-channel": "&nbsp; | A S",
         "cms": "G E | A E",
         "dashboard": "G H | &nbsp;",
         "product-stream": "G D | &nbsp;",
@@ -700,7 +708,36 @@
         "isNoneOf": "Ist keine von | Sind keine von",
         "gross": "Brutto",
         "net": "Netto",
-        "empty": "Ist leer | Sind leer"
+        "empty": "Ist leer | Sind leer",
+        "between": "Ist zwischen | Sind zwischen"
+      },
+      "field": {
+        "amount": "Betrag",
+        "operator": "Operator",
+        "type": "Bedingung",
+        "count": "Anzahl",
+        "quantity": "Menge",
+        "isNet": "Netto / Brutto",
+        "isNumeric": "Vergleichsmodus",
+        "toDate": "Bis",
+        "toTime": "Bis",
+        "useTime": "Zeitmodus",
+        "timezone": "Zeitzone",
+        "categoryIds": "Kategorie",
+        "identifiers": "Auswahl",
+        "zipCodes": "Postleitzahl",
+        "selectedField": "Zusatzfeld",
+        "selectedFieldSet": "Zusatzfeld-Set",
+        "renderedField": "Zusatzfeld",
+        "renderedFieldValue": "Wert",
+        "isAlwaysValid": "Immer gültig"
+      },
+      "cartLineItemWithQuantity": {
+        "id": "Produkt"
+      },
+      "errors": {
+        "prefix": "Ungültiger Wert:",
+        "andMore": "+{count} weitere"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
@@ -752,11 +789,11 @@
         "customerCampaignCodeRule": "Kampagnen-Code (Kunde)",
         "orderAffiliateCodeRule": "Affiliate-Code (Bestellung)",
         "orderCampaignCodeRule": "Kampagnen-Code (Bestellung)",
-        "cartAmountRule": "Gesamtsumme",
-        "cartPositionPrice": "Summe",
-        "goodsCountRule": "Gesamtanzahl unterschiedlicher Produkte",
-        "goodsPriceRule": "Zwischensumme aller Positionen",
-        "cartTotalPurchasePrice": "Summe aller Einkaufspreise",
+        "cartAmountRule": "Warenkorb-Gesamtsumme (inkl. Versand)",
+        "cartPositionPrice": "Summe der Positionen (ohne Versand)",
+        "goodsCountRule": "Anzahl unterschiedlicher Produkte",
+        "goodsPriceRule": "Zwischensumme der Warenpositionen (ohne Rabatte/Zuschläge)",
+        "cartTotalPurchasePrice": "Summe der Einkaufspreise",
         "lineItemOfTypeRule": {
           "label": "Position vom Typ",
           "product": "Produkt",
@@ -766,12 +803,13 @@
         "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
         "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Positionsstückpreis",
-        "lineItemTotalPriceRule": "Positionszwischensumme",
-        "lineItemWithQuantityRule": "Positionsanzahl",
+        "lineItemTotalPriceRule": "Positionssumme (Menge × Preis)",
+        "lineItemWithQuantityRule": "Position mit Menge",
+        "lineItemPerItemQuantityRule": "Menge pro Position",
         "orderTagRule": "Bestellung mit Tag",
         "orderTrackingCodeRule": "Sendungsnummer",
-        "orderDeliveryStatusRule": "Lieferstatus (Flow)",
-        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt (Flow)",
+        "orderDeliveryStatusRule": "Lieferstatus",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
         "adminSalesChannelSourceRule": "In Administration verwendbar",
         "orderTransactionStatusRule": "Zahlungsstatus",
         "orderStatusRule": "Bestellstatus",
@@ -837,7 +875,7 @@
         "numberOfReviews": "Anzahl freigegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
-        "lineItemGoodsTotalRule": "Gesamtanzahl aller Produkte",
+        "lineItemGoodsTotalRule": "Gesamtmenge der Produkte (Stück)",
         "orderTotalAmountRule": "Gesamtwert aller abgeschlossenen Bestellungen",
         "promotionValueRule": "Zwischensumme aller Rabatte",
         "promotionCodeOfType": "Rabattaktionen mit Aktionscodetyp",
@@ -898,6 +936,14 @@
         }
       },
       "cartTotalPurchasePrice": {
+        "type": {
+          "options": {
+            "gross": "Brutto",
+            "net": "Netto"
+          }
+        }
+      },
+      "cartLineItemPurchasePrice": {
         "type": {
           "options": {
             "gross": "Brutto",
@@ -988,7 +1034,6 @@
     "sw-product-image": {
       "context": {
         "buttonAsCover": "Als Cover nutzen",
-        "buttonRemove": "Entfernen",
         "buttonPreviewImage": "Vorschau-Bild"
       }
     },
@@ -1069,7 +1114,8 @@
       "product_feature_set": "Neues Template | Neue Templates",
       "custom-field-set": "Zusatzfeld-Set",
       "store_settings": "Produkt-Sortierung",
-      "flow": "Flow Builder",
+      "flow": "Flow | Flows",
+      "flow_template": "Flow-Vorlage | Flow-Vorlagen",
       "module": "Modul",
       "frequently_used": "Häufig verwendete",
       "recently_searched": "Kürzlich gesucht",
@@ -1163,7 +1209,6 @@
       "Reduced rate 2": "Stark ermäßigter Satz"
     },
     "sw-bulk-edit-modal": {
-      "bulkEdit": "Mehrfachänderung",
       "startBulkEdit": "Mehrfachänderung starten",
       "bulkEditModalTitle": "Mehrfachänderung - {count} Element ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
     },
@@ -1320,8 +1365,7 @@
   },
   "sw-error": {
     "general": {
-      "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden.",
-      "textLink": "Zurück"
+      "messagePlaceholder": "Es ist ein Fehler aufgetreten. Die Seite konnte nicht geladen werden."
     }
   },
   "sw-property-search": {
@@ -1359,9 +1403,9 @@
     "closeModal": "Warnung schließen",
     "ignorePlugin": "Dauerhaft ignorieren",
     "successfullyDeleted": "Erweiterung wurde gelöscht",
+    "alreadyRemoved": "Erweiterung wurde bereits entfernt",
     "table": {
-      "plugin": "Erweiterung",
-      "warning": "Warnung"
+      "plugin": "Erweiterung"
     }
   },
   "sw-sales-channel-switch": {
@@ -1435,9 +1479,11 @@
     "title": "Tastenkürzel",
     "iconTooltip": "Drücke die `{key}` Taste für die Tastenkürzel-Übersicht",
     "modalTitle": "Tastenkürzel",
+    "sectionGeneralShortcuts": "Allgemeine Tastenkürzel",
     "sectionAddingItems": "Hinzufügen von Elementen",
     "sectionNavigation": "Navigation",
-    "sectionSpecialShortcuts": "Spezielle Tastenkürzel",
+    "sectionAccessibility": "Barrierefreiheit",
+    "disableShortcuts": "Tastenkürzel deaktivieren",
     "function": "Funktion",
     "keyboardShortcut": "Tastenkürzel",
     "functionAddProduct": "Produkt hinzufügen",
@@ -1456,59 +1502,65 @@
     "keyboardShortcutAddRule": "A R",
     "functionAddSaleschannel": "Verkaufskanal hinzufügen",
     "keyboardShortcutAddSaleschannel": "A S",
-    "functionGoToDashboard": "Gehe zu Dashboard",
+    "functionGoToDashboard": "Dashboard öffnen",
     "keyboardShortcutGoToDashboard": "G H",
-    "functionGoToProducts": "Gehe zu Produkten",
+    "functionGoToProducts": "Produkte öffnen",
     "keyboardShortcutGoToProducts": "G P",
-    "functionGoToCategories": "Gehe zu Kategorien",
+    "functionGoToCategories": "Kategorien öffnen",
     "keyboardShortcutGoToCategories": "G C",
-    "functionGoToDynamicProductGroups": "Gehe zu dynamische Produktgruppen",
+    "functionGoToDynamicProductGroups": "Dynamische Produktgruppen öffnen",
     "keyboardShortcutGoToDynamicProductGroups": "G D",
-    "functionGoToProperties": "Gehe zu Eigenschaften",
+    "functionGoToProperties": "Eigenschaften öffnen",
     "keyboardShortcutGoToProperties": "G P R",
-    "functionGoToManufacturers": "Gehe zu Hersteller",
+    "functionGoToManufacturers": "Hersteller öffnen",
     "keyboardShortcutGoToManufacturers": "G M",
-    "functionGoToOrders": "Gehe zu Bestellungen",
+    "functionGoToOrders": "Bestellungen öffnen",
     "keyboardShortcutGoToOrders": "G O",
-    "functionGoToCustomers": "Gehe zu Kunden",
+    "functionGoToCustomers": "Kunden öffnen",
     "keyboardShortcutGoToCustomers": "G U",
-    "functionGoToShoppingExperience": "Gehe zu Erlebniswelten",
+    "functionGoToShoppingExperience": "Erlebniswelten öffnen",
     "keyboardShortcutGoToShoppingExperience": "G E",
-    "functionGoToMedia": "Gehe zu Medien",
+    "functionGoToMedia": "Medien öffnen",
     "keyboardShortcutGoToMedia": "G M E",
-    "functionGoToPromotion": "Gehe zu Rabatte & Aktionen",
+    "functionGoToPromotion": "Rabatte & Aktionen öffnen",
     "keyboardShortcutGoToPromotion": "G P O",
-    "functionGoToNewsletterRecipients": "Gehe zu Newsletter-Empfänger",
+    "functionGoToNewsletterRecipients": "Newsletter-Empfänger öffnen",
     "keyboardShortcutGoToNewsletterRecipients": "G N",
-    "functionGoToSettingsListing": "Gehe zu Einstellung",
+    "functionGoToSettingsListing": "Einstellungen öffnen",
     "keyboardShortcutGoToSettingsListing": "G S",
-    "functionGoToSnippets": "Gehe zu Textbausteine",
+    "functionGoToSnippets": "Textbausteine öffnen",
     "keyboardShortcutGoToSnippets": "G S N",
-    "functionGoToPayment": "Gehe zu Zahlungsarten",
+    "functionGoToPayment": "Zahlungsarten öffnen",
     "keyboardShortcutGoToPayment": "G S P",
-    "functionGoToShipping": "Gehe zu Versand",
+    "functionGoToShipping": "Versandarten öffnen",
     "keyboardShortcutGoToShipping": "G S S",
-    "functionGoToRuleBuilder": "Gehe zu Rule Builder",
+    "functionGoToRuleBuilder": "Rule Builder öffnen",
     "keyboardShortcutGoToRuleBuilder": "G S R",
-    "functionGoToPlugins": "Gehe zu \"Meine Erweiterungen\"",
+    "functionGoToPlugins": "Meine Erweiterungen öffnen",
     "keyboardShortcutGoToPlugins": "G A",
-    "functionSpecialShortcutFocusSearch": "Fokussiere Suche",
+    "functionAccessibilitySkipToContent": "Navigation überspringen",
+    "keyboardShortcutAccessibilitySkipToContent": "Tab Enter",
+    "functionAccessibilityMoveFocusForward": "Zum nächsten fokussierbaren Element wechseln",
+    "keyboardShortcutAccessibilityMoveFocusForward": "Tab",
+    "functionAccessibilityMoveFocusBackward": "Zum vorherigen fokussierbaren Element wechseln",
+    "keyboardShortcutAccessibilityMoveFocusBackward": "Shift-Tab",
+    "functionAccessibilityCloseDialog": "Dialog schließen",
+    "keyboardShortcutAccessibilityCloseDialog": "Esc",
+    "functionSpecialShortcutFocusSearch": "Suche fokussieren",
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
-    "functionSpecialShortcutShortcutListing": "Tastenkürzel-Übersicht",
+    "functionSpecialShortcutOpenFilters": "Filter öffnen",
+    "keyboardShortcutSpecialShortcutOpenFilters": "O F",
+    "functionSpecialShortcutShortcutListing": "Tastenkürzel",
     "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
-    "functionSpecialShortcutSaveDetailViewWindows": "Windows: Speichern in Detailansicht",
+    "functionSpecialShortcutSaveDetailView": "Aktuelle Ansicht speichern",
     "keyboardShortcutSpecialShortcutSaveDetailViewWindows": "alt s",
-    "functionSpecialShortcutSaveDetailViewMac": "Mac: Speichern in Detailansicht",
     "keyboardShortcutSpecialShortcutSaveDetailViewMac": "control s",
-    "functionSpecialShortcutSaveDetailViewLinux": "Linux: Speichern in Detailansicht",
     "keyboardShortcutSpecialShortcutSaveDetailViewLinux": "alt s",
-    "functionSpecialShortcutCancelDetailView": "Abbrechen in Detailansicht",
+    "functionSpecialShortcutCancelDetailView": "Aktuelle Detailansicht abbrechen",
     "keyboardShortcutSpecialShortcutCancelDetailView": "Esc",
-    "functionSpecialShortcutClearCacheWindows": "Windows: Cache löschen",
+    "functionSpecialShortcutClearCache": "Cache leeren",
     "keyboardShortcutSpecialShortcutClearCacheWindows": "alt c",
-    "functionSpecialShortcutClearCacheMac": "Mac: Cache löschen",
     "keyboardShortcutSpecialShortcutClearCacheMac": "control c",
-    "functionSpecialShortcutClearCacheLinux": "Linux: Cache löschen",
     "keyboardShortcutSpecialShortcutClearCacheLinux": "alt c"
   },
   "sw-discard-changes-modal": {
@@ -1607,14 +1659,8 @@
     }
   },
   "sw-wizard": {
-    "backButton": "Zurück",
     "finishButton": "Abschließen",
     "nextButton": "Weiter"
-  },
-  "sw-meteor": {
-    "navigation": {
-      "backButton": "Zurück"
-    }
   },
   "sw-base-filter": {
     "resetButton": "Zurücksetzen"
@@ -1689,8 +1735,7 @@
   "sidebar": {
     "ariaLabelButtonClose": "Seitenleiste schließen",
     "ariaLabelButtonOpen": "Seitenleiste öffnen",
-    "ariaLabelButtonCollapse": "Seitenleiste minimieren",
-    "buttonCollapse": "minimieren"
+    "ariaLabelButtonCollapse": "Seitenleiste minimieren"
   },
   "help-center": {
     "sidebar": {
@@ -1751,5 +1796,34 @@
           }
         }
       }
+    },
+  "sw-request-consent-modal": {
+    "title": "Zustimmung erforderlich",
+    "message": "Die Erweiterung {appName} bittet um Ihre Zustimmung für das folgende Thema: {consentName}",
+    "readMore": "Weitere Informationen finden Sie hier:",
+    "acceptButton": "Zustimmen",
+    "declineButton": "Ablehnen",
+    "updateFailed": "Beim Aktualisieren Deiner Zustimmung ist ein Fehler aufgetreten. Es wird Deine vorherige Entscheidung, falls vorhanden, beibehalten."
+  },
+  "sw-ui-shell-update-2026-modal": {
+    "title": "Ein neuer Look für Deine Administration",
+    "nextButton": "Weiter",
+    "finishButton": "Fertig",
+    "seenSaveError": "Deine Auswahl konnte nicht gespeichert werden. Dieser Dialog wird Dir möglicherweise erneut angezeigt.",
+    "pages": {
+      "adminNavigation": {
+        "headline": "Eine klarere, übersichtlichere Navigation",
+        "description": "Die Shopware Administration ist gewachsen und damit auch die Anzahl der Funktionen und Navigationselemente. Deshalb haben wir die Navigation neu gestaltet, mit einer besseren Übersicht, klareren aktiven Zuständen, flüssigeren Untermenü-Animationen, verbesserter Lesbarkeit und optimierter Bedienung per Tastatur."
+      },
+      "darkMode": {
+        "headline": "Dunkles Erscheinungsbild",
+        "badge": "Experimentell",
+        "description": "Die Administration bietet jetzt ein dunkles Erscheinungsbild der Benutzeroberfläche, für bessere Barrierefreiheit und passend zu Deinen persönlichen Vorlieben.",
+        "profileSettingsLink": "Deinen Profileinstellungen",
+        "themeSelectLabel": "Erscheinungsbild",
+        "themeSelectHint": "Diese Einstellung kannst Du jederzeit in {profileSettingsLink} ändern.",
+        "themeSaveError": "Das Erscheinungsbild konnte nicht gespeichert werden."
+      }
     }
+  }
 }

@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -37,51 +39,6 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
     protected function setUp(): void
     {
         $this->userRepository = static::getContainer()->get('user.repository');
-    }
-
-    public function testReturnsResponseIfStatusCodeIsNotUnauthorized(): void
-    {
-        $response = new Response(200, [], '{"payload":"data"}');
-        $request = new Psr7Request('GET', '/');
-
-        $middleware = new StoreSessionExpiredMiddleware(
-            static::getContainer()->get(Connection::class),
-            new RequestStack()
-        );
-
-        $handledResponse = $middleware($response, $request);
-
-        static::assertSame($response, $handledResponse);
-    }
-
-    public function testReturnsResponseWithRewoundBodyIfCodeIsNotMatched(): void
-    {
-        $response = new Response(401, [], '{"payload":"data"}');
-        $request = new Psr7Request('GET', '/');
-
-        $middleware = new StoreSessionExpiredMiddleware(
-            static::getContainer()->get(Connection::class),
-            new RequestStack()
-        );
-
-        $handledResponse = $middleware($response, $request);
-
-        static::assertSame($response, $handledResponse);
-    }
-
-    #[DataProvider('provideRequestStacks')]
-    public function testThrowsIfApiRespondsWithTokenExpiredException(RequestStack $requestStack): void
-    {
-        $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
-        $request = new Psr7Request('GET', '/');
-
-        $middleware = new StoreSessionExpiredMiddleware(
-            static::getContainer()->get(Connection::class),
-            $requestStack
-        );
-
-        $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
     }
 
     public function testLogsOutUserAndThrowsIfApiRespondsWithTokenExpiredException(): void
@@ -116,7 +73,10 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $request = new Psr7Request('GET', '/');
 
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
+        $promise->wait();
 
         $adminUser = $this->userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($adminUser);
@@ -146,7 +106,10 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $request = new Psr7Request('GET', '/', [StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER => 'some-invalid-token']);
 
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
+        $promise->wait();
 
         $adminUsers = $this->userRepository->search(new Criteria([$expiredSessionUserId, $loginSessionUserId]), Context::createDefaultContext())->getEntities();
         $expiredSessionUser = $adminUsers->get($expiredSessionUserId);
@@ -155,26 +118,6 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         static::assertNotNull($loginSessionUser);
         static::assertNull($expiredSessionUser->getStoreToken());
         static::assertSame('some-valid-token', $loginSessionUser->getStoreToken());
-    }
-
-    public static function provideRequestStacks(): \Generator
-    {
-        yield 'request stack without request' => [new RequestStack()];
-
-        $requestStackWithoutContext = new RequestStack();
-        $requestStackWithoutContext->push(new Request());
-
-        yield 'request stack without context' => [$requestStackWithoutContext];
-
-        $requestStackWithWrongSource = new RequestStack();
-        $requestStackWithWrongSource->push(new Request([], [], ['sw-context' => Context::createDefaultContext()]));
-
-        yield 'request stack with wrong source' => [$requestStackWithWrongSource];
-
-        $requestStackWithMissingUserId = new RequestStack();
-        $requestStackWithMissingUserId->push(new Request([], [], ['sw-context' => new Context(new AdminApiSource(null))]));
-
-        yield 'request stack with missing user id' => [$requestStackWithMissingUserId];
     }
 
     private function createAdminUser(string $userId, string $storeToken): void

@@ -5,9 +5,12 @@ namespace Shopware\Core\Checkout\Payment\Cart\Token;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @deprecated tag:v6.8.0 - will be removed, use `PaymentToken` instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class TokenStruct extends Struct
@@ -90,7 +93,7 @@ class TokenStruct extends Struct
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentToken::class));
 
-        return $this->expires < time();
+        return $this->expires < Clock::get()->now()->getTimestamp();
     }
 
     public function getException(): ?\Throwable

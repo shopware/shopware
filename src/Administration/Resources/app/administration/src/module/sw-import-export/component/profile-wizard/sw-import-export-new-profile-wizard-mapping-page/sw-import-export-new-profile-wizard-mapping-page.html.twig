@@ -3,11 +3,11 @@
     {% block sw_import_export_new_profile_wizard_mapping_page_text %}
     <p class="sw-import-export-new-profile-wizard-mapping-page__text">
         <span v-if="automatedCount < 1">
-            {{ $tc('sw-import-export.profile.mappingDescription') }}
+            {{ $t('sw-import-export.profile.mappingDescription') }}
         </span>
 
         <span v-else>
-            {{ $tc('sw-import-export.profile.mappingAutomatedDescription', { automatedCount }, 0) }}
+            {{ $t('sw-import-export.profile.mappingAutomatedDescription', { automatedCount }, 0) }}
         </span>
     </p>
     {% endblock %}

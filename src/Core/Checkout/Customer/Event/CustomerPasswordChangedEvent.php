@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class CustomerPasswordChangedEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ScalarValuesAware, FlowEventAware
 {
@@ -39,11 +42,16 @@ class CustomerPasswordChangedEvent extends Event implements SalesChannelAware, S
         return $this->customer->getId();
     }
 
+    public function getCustomer(): CustomerEntity
+    {
+        return $this->customer;
+    }
+
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('shopName', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::SHOP_NAME, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getName(): string

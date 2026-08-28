@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWi
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
@@ -126,6 +127,16 @@ class ProductDefinition extends EntityDefinition
         ];
     }
 
+    /**
+     * @return array{type: 'physical'}
+     */
+    public function getChildDefaults(): array
+    {
+        return [
+            'type' => self::TYPE_PHYSICAL,
+        ];
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';
@@ -156,10 +167,12 @@ class ProductDefinition extends EntityDefinition
             (new ReferenceVersionField(self::class, 'canonical_product_version_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
             (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of CMS page.'),
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()),
+            (new FkField('open_graph_media_id', 'openGraphMediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Media used as Open Graph image for social media sharing.'),
 
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware())->setDescription('Price of the product.'),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required())->setDescription('Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.'),
-            (new IntField('restock_time', 'restockTime'))->addFlags(new ApiAware(), new Inherited())->setDescription('The restock time in days indicates how long it will take until a sold out item is back in stock.'),
+            // @deprecated tag:v6.8.0 - minValue: 0 will be applied unconditionally
+            (new IntField('restock_time', 'restockTime', minValue: Feature::isActive('v6.8.0.0') ? 0 : null))->addFlags(new ApiAware(), new Inherited())->setDescription('The restock time in days indicates how long it will take until a sold out item is back in stock.'),
             new AutoIncrementField(),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited())->setDescription('When boolean value is `true`, the products are available for selection in the storefront for purchase.'),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Indicates weather the product is available or not.'),
@@ -172,6 +185,8 @@ class ProductDefinition extends EntityDefinition
             (new VariantListingConfigField('variant_listing_config', 'variantListingConfig'))->addFlags(new Inherited())->setDescription('Information regarding if this variant should included in listing or not.'),
             (new JsonField('variant_restrictions', 'variantRestrictions'))->setDescription('Configuration about which variants and its combination are not available like red shirt in medium size in not available.'),
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false))->setDescription('Unique number that describes the manufacturer.'),
+            (new IntField('guarantee_months', 'guaranteeMonths'))->addFlags(new ApiAware(), new Inherited())->setDescription('Commercial durability guarantee duration in months.'),
+            (new BoolField('guarantee_confirmed', 'guaranteeConfirmed'))->addFlags(new ApiAware(), new Inherited())->setDescription('Merchant confirmation that the producer commercial durability guarantee information is accurate and has been made available.'),
             (new StringField('ean', 'ean'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false))->setDescription('Indicates EAN of the product.'),
             (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new ApiAware(), new Inherited())->setDescription('Specifies the scales in which the item is to be offered. For example, a scale of 2 means that your customers can purchase 2, 4, 6 products, etc., but not 1, 3 or 5.'),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new ApiAware(), new Inherited())->setDescription('Maximum number of items that can be purchased.'),
@@ -202,12 +217,15 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('name', true))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('keywords'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('description'))->addFlags(new ApiAware(), new Inherited()),
+            (new TranslatedField('descriptionTeaser'))->addFlags(new ApiAware(), new Inherited())->setDescription('Read-only, HTML-stripped excerpt of the description, derived on write.'),
             (new TranslatedField('metaTitle'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnitPlural'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('slotConfig'))->addFlags(new Inherited()),
             (new TranslatedField('customSearchKeywords'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('ogTitle'))->addFlags(new ApiAware(), new Inherited()),
+            (new TranslatedField('ogDescription'))->addFlags(new ApiAware(), new Inherited()),
 
             // associations
             (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware())->setDescription('Unique identity of the product.'),
@@ -222,6 +240,8 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Product unit of measure (e.g., piece, liter, kg)'),
 
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Main product image displayed in listings and detail pages'),
+
+            (new ManyToOneAssociationField('openGraphMedia', 'open_graph_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited())->setDescription('Open Graph image for social media sharing'),
 
             (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))->addFlags(new Inherited()),
 

@@ -8,11 +8,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 /**
  * @internal should be used over the CLI only
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'sales-channel:maintenance:disable',
     description: 'Disable maintenance mode for a sales channel',
 )]
-#[Package('discovery')]
 class SalesChannelMaintenanceDisableCommand extends SalesChannelMaintenanceEnableCommand
 {
     protected bool $setMaintenanceMode = false;

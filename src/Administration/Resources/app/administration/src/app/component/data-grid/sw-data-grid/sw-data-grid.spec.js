@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -5,6 +7,13 @@
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+const userConfigServiceMock = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
 
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
@@ -55,6 +64,15 @@ describe('components/data-grid/sw-data-grid', () => {
             props = { ...defaultProps, ...props };
         }
 
+        const configurationKey = `grid.setting.${(props ?? defaultProps).identifier}`;
+
+        userConfigServiceMock.search.mockResolvedValue({
+            data: {
+                [configurationKey]: (userConfig ?? defaultUserConfig).value,
+            },
+        });
+        userConfigServiceMock.upsert.mockResolvedValue();
+
         stubs = {
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
             'sw-context-button': await wrapTestComponent('sw-context-button', {
@@ -80,6 +98,9 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
+            'mt-floating-ui': {
+                template: '<div><slot /></div>',
+            },
             'mt-switch': true,
             'sw-provide': true,
         };
@@ -142,12 +163,18 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
+            'mt-floating-ui': {
+                template: '<div><slot /></div>',
+            },
             'mt-switch': true,
         };
     });
 
     beforeEach(() => {
+        jest.restoreAllMocks();
         jest.clearAllMocks();
+        userConfigServiceMock.search.mockResolvedValue({ data: {} });
+        userConfigServiceMock.upsert.mockResolvedValue();
     });
 
     it('should be in compact mode by default', async () => {
@@ -237,6 +264,24 @@ describe('components/data-grid/sw-data-grid', () => {
         await name.setChecked(valueChecked);
 
         expect(wrapper.vm.currentColumns[0].visible).toBe(valueChecked);
+    });
+
+    it('should save user configuration through the admin user config store', async () => {
+        const wrapper = await createWrapper({
+            showSettings: true,
+        });
+
+        await flushPromises();
+
+        wrapper.vm.onChangePreviews(true);
+
+        expect(userConfigServiceMock.upsert).toHaveBeenCalledWith({
+            'grid.setting.sw-customer-list': {
+                columns: wrapper.vm.currentColumns,
+                compact: wrapper.vm.compact,
+                previews: true,
+            },
+        });
     });
 
     it('remove property in client', async () => {
@@ -907,10 +952,49 @@ describe('components/data-grid/sw-data-grid', () => {
 
         await wrapper.vm.$nextTick();
 
-        const newBulkActions = wrapper.find('.sw-data-grid__bulk');
-        const maximumHint = newBulkActions.find('.sw-data-grid__bulk-max-selection');
+        expect(wrapper.vm.reachMaximumSelectionExceed).toBe(true);
 
-        expect(maximumHint.exists()).toBe(true);
+        // The maximum-selection notice is exposed as a tooltip on the disabled select-all checkbox.
+        const selectAll = wrapper.find('.sw-data-grid__header .sw-data-grid__select-all');
+
+        expect(selectAll.attributes('data-tooltip-message')).toBeDefined();
+    });
+
+    it('should disable the select-all header checkbox and keep it unchecked when the maximum selection is reached', async () => {
+        const wrapper = await createWrapper({
+            maximumSelectItems: 1,
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.reachMaximumSelectionExceed).toBe(true);
+        expect(wrapper.vm.isSelectAllDisabled).toBe(true);
+        // A single visible selection must not make the header look like "all items selected".
+        expect(wrapper.vm.allSelectedChecked).toBe(false);
+
+        const selectAll = wrapper.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
+
+        expect(selectAll.attributes().disabled).toBe('');
+        expect(selectAll.element.checked).toBe(false);
+    });
+
+    it('should not disable the select-all header checkbox when no maximum selection is set', async () => {
+        const wrapper = await createWrapper({
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isSelectAllDisabled).toBe(false);
     });
 
     it('should disable checkboxes when maximum selection exceed', async () => {
@@ -935,6 +1019,9 @@ describe('components/data-grid/sw-data-grid', () => {
         const uncheckedBox = rows.at(4).find('.mt-field--checkbox__container input');
 
         expect(uncheckedBox.attributes().disabled).toBe('');
+
+        // unselected rows blocked by the maximum expose the reason as a tooltip on hover
+        expect(rows.at(4).find('.sw-data-grid__cell--selection [data-tooltip-message]').exists()).toBe(true);
 
         // Change data source, select all checkbox and all items checkboxes will be disabled
         await wrapper.setProps({
@@ -1162,6 +1249,83 @@ describe('components/data-grid/sw-data-grid', () => {
 
             expect(wrapper.emitted('row-click')).toBeDefined();
             expect(wrapper.emitted('row-click')[0][0]).toEqual(defaultProps.dataSource[rowIndex]);
+        });
+    });
+
+    describe('getColumnLabel', () => {
+        const messages = {
+            'en-GB': { 'sw-grid.column.name': 'Name (EN)' },
+            'de-DE': { 'sw-grid.column.name': 'Name (DE)' },
+        };
+
+        async function createWrapperWithI18n({ locale, $te, $t } = {}) {
+            Shopware.Context.app.fallbackLocale = 'en-GB';
+
+            return mount(await wrapTestComponent('sw-data-grid', { sync: true }), {
+                global: {
+                    mocks: {
+                        $te: $te ?? ((key, l) => Boolean(messages[l ?? locale]?.[key])),
+                        $t: $t ?? ((key, l) => messages[l ?? locale]?.[key] ?? key),
+                    },
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.resolve([defaultUserConfig]),
+                                save: () => Promise.resolve(),
+                                get: () => Promise.resolve({}),
+                            }),
+                        },
+                        acl: { can: () => true },
+                    },
+                },
+                props: defaultProps,
+            });
+        }
+
+        it('returns the translated label when the snippet exists in the current locale', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'de-DE' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('Name (DE)');
+        });
+
+        it('falls back to the fallback locale when the snippet is missing in the current locale', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'fr-FR' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('Name (EN)');
+        });
+
+        it('returns the raw label when neither current nor fallback locale has the snippet', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'fr-FR' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'Plain Text Label' });
+
+            expect(result).toBe('Plain Text Label');
+        });
+
+        it('returns an empty string when the column has no label', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'en-GB' });
+
+            expect(wrapper.vm.getColumnLabel({})).toBe('');
+            expect(wrapper.vm.getColumnLabel({ label: '' })).toBe('');
+        });
+
+        it('does not consult the fallback locale when no fallbackLocale is configured', async () => {
+            const $te = jest.fn(() => false);
+            const $t = jest.fn((key) => key);
+            const wrapper = await createWrapperWithI18n({ $te, $t });
+
+            Shopware.Context.app.fallbackLocale = '';
+            $te.mockClear();
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('sw-grid.column.name');
+            expect($te).toHaveBeenCalledTimes(1);
+            expect($te).toHaveBeenCalledWith('sw-grid.column.name');
         });
     });
 });

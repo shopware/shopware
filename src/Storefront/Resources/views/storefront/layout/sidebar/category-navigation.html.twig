@@ -28,6 +28,7 @@
                                 {% block layout_navigation_categories_link_children %}
                                     <a class="category-navigation-link{% if categoryId is same as(activeId) %} is-active{% endif %}{% if categoryId in activePath %} in-path{% endif %}"
                                         href="{{ categoryUrl }}"
+                                        {% if categoryId is same as(activeId) %}aria-current="page"{% endif %}
                                         {% if categoryLinkNewTab %}target="_blank"{% endif %}>
                                         {% block layout_navigation_categories_link_children_name %}
                                             {{ categoryName }}
@@ -53,6 +54,7 @@
                                 {% block layout_navigation_categories_link %}
                                     <a class="category-navigation-link{% if categoryId is same as(activeId) %} is-active{% endif %}"
                                         href="{{ categoryUrl }}"
+                                        {% if categoryId is same as(activeId) %}aria-current="page"{% endif %}
                                         {% if categoryLinkNewTab %}target="_blank"{% endif %}>
                                         {% block layout_navigation_categories_link_name %}
                                             {{ categoryName }}

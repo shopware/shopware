@@ -32,7 +32,7 @@
             {% endblock %}
 
             {% block sw_product_variants_delivery_listing_config_single_main_variant_label %}
-            <p>{{ $tc('sw-product.variations.deliveryModal.listingLabelMainVariant') }}</p>
+            <p>{{ $t('sw-product.variations.deliveryModal.listingLabelMainVariant') }}</p>
             {% endblock %}
 
             {% block sw_product_variants_delivery_listing_config_single_main_variant_select %}
@@ -46,7 +46,7 @@
                 :criteria="variantCriteria"
                 :context="context"
                 :disabled="isDisabledListingMode('single')"
-                :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
+                :placeholder="$t('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
                 show-clearable-button
                 @update:value="updateMainVariant"
                 @select-collapsed="onSelectCollapsed"
@@ -92,10 +92,10 @@
             {% block sw_product_variants_delivery_listing_config_single_main_variant_explanation %}
             <div class="sw-product-variants-delivery-listing__option-explanation">
                 <p v-if="product.variantListingConfig.displayParent">
-                    {{ $tc('sw-product.variations.deliveryModal.listingExplanationModeMainProduct') }}
+                    {{ $t('sw-product.variations.deliveryModal.listingExplanationModeMainProduct') }}
                 </p>
                 <p v-else>
-                    {{ $tc('sw-product.variations.deliveryModal.listingExplanationModeSingle') }}
+                    {{ $t('sw-product.variations.deliveryModal.listingExplanationModeSingle') }}
                 </p>
             </div>
             {% endblock %}

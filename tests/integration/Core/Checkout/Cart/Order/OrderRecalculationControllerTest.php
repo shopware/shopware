@@ -9,9 +9,11 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -59,12 +61,65 @@ class OrderRecalculationControllerTest extends TestCase
 
         $this->context->assign(['versionId' => $versionId]);
 
-        $order = $this->orderRepository->search(new Criteria(), $this->context)->first();
+        $order = $this->orderRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertSame($primaryOrderDeliveryId, $order->getPrimaryOrderDeliveryId());
         static::assertSame($primaryTransactionId, $order->getPrimaryOrderTransactionId());
+    }
+
+    public function testLineItemIsNotInjectableIntoAnOrderVersion(): void
+    {
+        $orderId = Uuid::randomHex();
+        $versionId = Uuid::randomHex();
+        $marker = 'injected-' . Uuid::randomHex();
+        $this->createOrder($orderId, Uuid::randomHex(), Uuid::randomHex(), $versionId);
+
+        // the write sink runs in system scope, so the version context must not become a way around the privilege
+        $browser = $this->getBrowser(true, [], ['order:read']);
+        $browser->setServerParameter('HTTP_SW_VERSION_ID', $versionId);
+        $browser->jsonRequest('POST', \sprintf('/api/_action/order/%s/lineItem', $orderId), [
+            'identifier' => $marker,
+            'type' => 'custom',
+            'quantity' => 1,
+            'label' => $marker,
+            'priceDefinition' => [
+                'type' => 'quantity',
+                'price' => -9999,
+                'quantity' => 1,
+                'taxRules' => [['taxRate' => 0, 'percentage' => 100]],
+            ],
+        ]);
+
+        $content = (string) $browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), $content);
+        static::assertSame(
+            MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
+            json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['errors'][0]['code'],
+            $content
+        );
+
+        $lineItemRepository = static::getContainer()->get('order_line_item.repository');
+        static::assertInstanceOf(EntityRepository::class, $lineItemRepository);
+
+        $this->context->assign(['versionId' => $versionId]);
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('identifier', $marker));
+
+        static::assertCount(0, $lineItemRepository->searchIds($criteria, $this->context)->getIds());
+    }
+
+    public function testRecalculateIsAllowedForOrderEditor(): void
+    {
+        $browser = $this->getBrowser(true, [], ['order:read', 'order:update']);
+        $browser->jsonRequest('POST', \sprintf('/api/_action/order/%s/recalculate', Uuid::randomHex()));
+
+        // the order does not exist, but the request must pass the privilege check to get there
+        static::assertSame(
+            Response::HTTP_NOT_FOUND,
+            $browser->getResponse()->getStatusCode(),
+            (string) $browser->getResponse()->getContent()
+        );
     }
 
     private function createOrder(string $orderId, string $primaryOrderDeliveryId, string $primaryTransactionId, string $versionId): void
@@ -98,7 +153,7 @@ class OrderRecalculationControllerTest extends TestCase
     }
 
     /**
-     * @param array{lineItems: array<int, array{id: string}>} $orderData
+     * @param array{lineItems: array<int, array{id: string}>, ...<string, mixed>} $orderData
      *
      * @return array<string, mixed>
      */

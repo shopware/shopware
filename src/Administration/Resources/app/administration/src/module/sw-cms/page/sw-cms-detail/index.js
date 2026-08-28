@@ -39,7 +39,12 @@ export default {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            method: 'onSave',
+            active() {
+                return this.canSave;
+            },
+        },
     },
 
     data() {
@@ -174,6 +179,10 @@ export default {
             };
         },
 
+        canSave() {
+            return !this.isLoading && !this.page.locked && this.acl.can('cms.editor');
+        },
+
         blockConfigDefaults() {
             return {
                 name: null,
@@ -193,7 +202,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('cms.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('cms.editor'),
                     showOnDisabledElements: true,
                 };
@@ -209,10 +218,10 @@ export default {
 
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
-                return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
+                return this.$t('sw-cms.general.disabledAddingBlocksToolTip');
             }
 
-            return this.$tc('sw-cms.detail.sidebar.titleBlockOverview');
+            return this.$t('sw-cms.detail.sidebar.titleBlockOverview');
         },
 
         pageHasSections() {
@@ -295,6 +304,12 @@ export default {
         ]),
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -314,7 +329,6 @@ export default {
                 path: 'page',
                 scope: this,
             });
-            Shopware.Store.get('adminMenu').collapseSidebar();
             this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
@@ -355,14 +369,21 @@ export default {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.cmsPageState.pageEntityName));
 
-            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
-                const defaultFolder = searchResult.first();
-                if (defaultFolder.folder?.id) {
-                    return defaultFolder.folder.id;
-                }
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: [
+                        'media-default-folder',
+                        this.cmsPageState.pageEntityName,
+                    ],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder?.id) {
+                        return defaultFolder.folder.id;
+                    }
 
-                return null;
-            });
+                    return null;
+                });
         },
 
         async loadPage(pageId) {
@@ -476,11 +497,12 @@ export default {
             this.cmsPageState.setBlock(block);
         },
 
-        onChangeLanguage() {
+        onChangeLanguage(languageId) {
             this.isLoading = true;
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             return this.loadPage(this.pageId);
         },
 
@@ -500,8 +522,17 @@ export default {
                 return true;
             }
 
+            if (this.page.sections.length !== this.pageOrigin.sections.length) {
+                return true;
+            }
+
             for (let i = 0; i < this.page.sections.length; i += 1) {
                 const section = this.page.sections[i];
+                const originSection = this.pageOrigin.sections.get(section.id);
+
+                if (!originSection || section.blocks.length !== originSection.blocks.length) {
+                    return true;
+                }
 
                 if (section._isDirty) {
                     return true;
@@ -509,6 +540,11 @@ export default {
 
                 for (let j = 0; j < section.blocks.length; j += 1) {
                     const block = section.blocks[j];
+                    const originBlock = originSection.blocks.get(block.id);
+
+                    if (!originBlock) {
+                        return true;
+                    }
 
                     if (block._isDirty) {
                         return true;
@@ -516,7 +552,12 @@ export default {
 
                     for (let k = 0; k < block.slots.length; k += 1) {
                         const slot = block.slots[k];
-                        const originSlot = this.pageOrigin.sections.get(section.id).blocks.get(block.id).slots.get(slot.id);
+                        const originSlot = originBlock.slots.get(slot.id);
+
+                        if (!originSlot) {
+                            return true;
+                        }
+
                         const slotDiff = getObjectDiff(originSlot, slot);
 
                         if (slot._isDirty || !isEmpty(slotDiff)) {
@@ -665,9 +706,13 @@ export default {
         onSave() {
             this.isSaveSuccessful = false;
 
+            if (!this.canSave) {
+                return Promise.resolve();
+            }
+
             if (!this.pageIsValid()) {
                 this.createNotificationError({
-                    message: this.$tc('sw-cms.detail.notification.pageInvalid'),
+                    message: this.$t('sw-cms.detail.notification.pageInvalid'),
                 });
 
                 return Promise.reject();
@@ -677,6 +722,10 @@ export default {
         },
 
         onSaveEntity() {
+            if (!this.canSave) {
+                return Promise.resolve();
+            }
+
             this.isLoading = true;
             this.deleteEntityAndRequiredConfigKey(this.page.sections);
 
@@ -782,7 +831,7 @@ export default {
 
             this.addError({
                 property: 'name',
-                message: this.$tc('sw-cms.detail.notification.messageMissingFields'),
+                message: this.$t('sw-cms.detail.notification.messageMissingFields'),
             });
 
             return false;
@@ -807,7 +856,7 @@ export default {
             this.addError({
                 property: 'blocks',
                 code: 'listingBlockNotFound',
-                message: this.$tc('sw-cms.detail.notification.messageMissingProductListing'),
+                message: this.$t('sw-cms.detail.notification.messageMissingProductListing'),
             });
             this.cmsBlocks['product-listing'].hidden = false;
 
@@ -822,7 +871,7 @@ export default {
             this.addError({
                 property: 'sections',
                 code: 'noSectionsFound',
-                message: this.$tc('sw-cms.detail.notification.messageMissingSections'),
+                message: this.$t('sw-cms.detail.notification.messageMissingSections'),
             });
 
             return false;
@@ -837,22 +886,22 @@ export default {
             if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL) {
                 CMS.UNIQUE_SLOTS.forEach((index) => {
                     if (uniqueSlotCount?.[index]?.count > 1) {
-                        uniqueSlotCount[index].label = this.$tc(`sw-cms.elements.${index}.label`);
+                        uniqueSlotCount[index].label = this.$t(`sw-cms.elements.${index}.label`);
                         affectedErrorElements.push({
                             ...uniqueSlotCount[index],
                         });
 
                         valid = false;
                     } else if (!uniqueSlotCount?.[index]) {
-                        affectedWarningElements.push(this.$tc(`sw-cms.elements.${index}.label`));
+                        affectedWarningElements.push(this.$t(`sw-cms.elements.${index}.label`));
                     }
                 });
 
                 if (affectedErrorElements.length > 0) {
-                    const uniqueSlotString = CMS.UNIQUE_SLOTS.map((slot) => this.$tc(`sw-cms.elements.${slot}.label`)).join(
+                    const uniqueSlotString = CMS.UNIQUE_SLOTS.map((slot) => this.$t(`sw-cms.elements.${slot}.label`)).join(
                         ', ',
                     );
-                    const message = this.$tc(
+                    const message = this.$t(
                         'sw-cms.detail.notification.messageRedundantElements',
                         {
                             names: uniqueSlotString,
@@ -879,7 +928,7 @@ export default {
                 this.addError({
                     property: 'slotConfig',
                     code: 'requiredConfigMissing',
-                    message: this.$tc('sw-cms.detail.notification.messageMissingBlockFields'),
+                    message: this.$t('sw-cms.detail.notification.messageMissingBlockFields'),
                     payload: {
                         elements: requiredMissingSlotConfigs,
                     },

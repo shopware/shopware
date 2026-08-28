@@ -21,11 +21,15 @@ describe("CookiePermissionPlugin tests", () => {
 			writable: true,
 		});
 
+		window.focusHandler = {
+            setFocus: jest.fn(),
+        };
+
 		// Create DOM elements
 		document.body.innerHTML = `
             <div class="cookie-permission-container" style="display: none;">
                 <div class="cookie-permission-content">
-                    <p>This website uses cookies.</p>
+                    <p>This website uses cookies. <a href="https://shop.example.com/data-privacy">More information...</a></p>
                     <button class="js-cookie-permission-button">Accept</button>
                 </div>
             </div>
@@ -266,6 +270,56 @@ describe("CookiePermissionPlugin tests", () => {
 			expect.any(Function),
 		);
 	});
+
+	test('sets focus on cookie bar when autoFocus is true', () => {
+		CookieStorage.getItem.mockReturnValue(null);
+		window.focusHandler.setFocus.mockClear();
+
+		new CookiePermissionPlugin(cookieBarElement, { autoFocus: true });
+
+		expect(window.focusHandler.setFocus).toHaveBeenCalledWith(cookieBarElement, { preventScroll: true });
+	});
+
+	test('does not set focus on cookie bar when autoFocus is false', () => {
+		CookieStorage.getItem.mockReturnValue(null);
+		window.focusHandler.setFocus.mockClear();
+
+		new CookiePermissionPlugin(cookieBarElement, { autoFocus: false });
+
+		expect(window.focusHandler.setFocus).not.toHaveBeenCalled();
+	});
+
+	test('does not set focus on cookie bar when data privacy page is visited', () => {
+		CookieStorage.getItem.mockReturnValue(null);
+		window.focusHandler.setFocus.mockClear();
+
+		jest.spyOn(CookiePermissionPlugin.prototype, '_getCurrentLocation').mockReturnValue('https://shop.example.com/data-privacy');
+
+		new CookiePermissionPlugin(cookieBarElement, { autoFocus: true });
+
+		expect(window.focusHandler.setFocus).not.toHaveBeenCalled();
+	});
+
+	test('sets focus on cookie bar when privacy link cannot be found in cookie bar content', () => {
+		document.body.innerHTML = `
+            <div class="cookie-permission-container" style="display: none;">
+                <div class="cookie-permission-content">
+                    <p>This website uses cookies.</p>
+                    <button class="js-cookie-permission-button">Accept</button>
+                </div>
+            </div>
+        `;
+		const barWithoutLink = document.querySelector('.cookie-permission-container');
+
+		CookieStorage.getItem.mockReturnValue(null);
+		window.focusHandler.setFocus.mockClear();
+
+		jest.spyOn(CookiePermissionPlugin.prototype, '_getCurrentLocation').mockReturnValue('https://shop.example.com/data-privacy');
+
+		new CookiePermissionPlugin(barWithoutLink, { autoFocus: true });
+
+		expect(window.focusHandler.setFocus).toHaveBeenCalledWith(barWithoutLink, { preventScroll: true });
+	});
 });
 
 describe("Cookie reCAPTCHA Integration tests", () => {
@@ -283,6 +337,7 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 			confirmation: "Confirmation field does not match.",
 			minLength: "Input is too short.",
 			grecaptcha: "Please accept cookies to use reCAPTCHA.",
+			grecaptchaToken: "Please complete the reCAPTCHA verification.",
 		};
 
 		// Mock window.localStorage
@@ -380,11 +435,11 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		);
 	});
 
-	test("integration: cookie bar does not show when reCAPTCHA cookies are accepted", () => {
-		// Mock that reCAPTCHA cookies are accepted
+	test("integration: cookie bar does not show when cookie consent is accepted", () => {
+		// Mock that the user accepted cookie consent. 'cookie-preference' is the
+		// same signal that gates registerGoogleReCaptchaPlugins() in main.js.
 		CookieStorage.getItem.mockImplementation((cookieName) => {
-			if (cookieName === "cookie-preference") return null; // No cookie bar preference set
-			if (cookieName === "_GRECAPTCHA") return "1"; // reCAPTCHA cookies accepted
+			if (cookieName === "cookie-preference") return "1"; // Cookie consent accepted
 			return null;
 		});
 
@@ -404,6 +459,68 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		// Assertions
 		expect(validationResult).toEqual([]); // Field should pass validation
 		expect(showCookieBarSpy).not.toHaveBeenCalled(); // Cookie bar should not be shown
+	});
+
+	test("integration: fails without showing the cookie bar when consent is accepted but no token was generated yet", () => {
+		// Consent is accepted, so the reCAPTCHA plugin is registered, but it has not produced a
+		// token yet. The form must not submit with an empty token, but the cookie bar stays
+		// hidden because consent already exists.
+		CookieStorage.getItem.mockImplementation((cookieName) => {
+			if (cookieName === "cookie-preference") return "1"; // Cookie consent accepted
+			return null;
+		});
+
+		// Setup spies
+		const showCookieBarSpy = jest.spyOn(
+			cookiePermissionPlugin,
+			"_showCookieBar",
+		);
+
+		// Get the grecaptcha field and leave it empty (no token generated yet)
+		const grecaptchaField = document.getElementById("grecaptcha-v3");
+		grecaptchaField.value = "";
+
+		// Validate the field - this should fail on the empty token
+		const validationResult = formValidation.validateField(grecaptchaField);
+
+		// Assertions - field fails, but no cookie bar since consent already exists
+		expect(validationResult).toEqual(["grecaptcha", "required"]);
+		expect(showCookieBarSpy).not.toHaveBeenCalled();
+		expect(cookiePermissionPlugin.$emitter.publish).not.toHaveBeenCalledWith(
+			"showCookieBar",
+		);
+		// The token-specific message is shown, not the cookie message.
+		expect(
+			grecaptchaField.getAttribute("data-form-validation-error-message"),
+		).toBe("Please complete the reCAPTCHA verification.");
+	});
+
+	test("integration: requires a token without a cookie bar when useDefaultCookieConsent is disabled", () => {
+		// A custom consent solution manages its own cookies, so the consent gate is skipped.
+		// The reCAPTCHA field must still carry a token, and the cookie bar must stay hidden.
+		window.useDefaultCookieConsent = false;
+
+		const showCookieBarSpy = jest.spyOn(
+			cookiePermissionPlugin,
+			"_showCookieBar",
+		);
+
+		// Get the grecaptcha field and leave it empty (no token generated yet)
+		const grecaptchaField = document.getElementById("grecaptcha-v3");
+		grecaptchaField.value = "";
+
+		// Validate the field - this should fail on the empty token
+		const validationResult = formValidation.validateField(grecaptchaField);
+
+		// Assertions - field fails on the token, but no cookie bar (consent not managed here)
+		expect(validationResult).toEqual(["grecaptcha", "required"]);
+		expect(showCookieBarSpy).not.toHaveBeenCalled();
+		expect(cookiePermissionPlugin.$emitter.publish).not.toHaveBeenCalledWith(
+			"showCookieBar",
+		);
+		expect(
+			grecaptchaField.getAttribute("data-form-validation-error-message"),
+		).toBe("Please complete the reCAPTCHA verification.");
 	});
 
 	test("integration: form validation with multiple fields including grecaptcha", () => {
@@ -506,13 +623,15 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		);
 	});
 
-	test("integration: shows cookie bar when cookie-preference is set but _GRECAPTCHA cookie is missing", () => {
-		// This simulates the edge case where cookie-preference was set to 1
-		// but the cookie permission plugin wasn't properly initialized,
-		// so _GRECAPTCHA cookie is missing
+	test("integration: shows cookie bar when consent was revoked but a stale _GRECAPTCHA cookie remains (regression #18239)", () => {
+		// Reproduces the reported bug: the user accepted cookies once, then revoked
+		// consent. '_GRECAPTCHA' is a technically-required cookie that is not removed
+		// on revoke, while 'cookie-preference' is. The validator must not trust the
+		// stale '_GRECAPTCHA' cookie, otherwise the form submits without a token and
+		// is rejected server-side as a failed captcha.
 		CookieStorage.getItem.mockImplementation((cookieName) => {
-			if (cookieName === "cookie-preference") return "1"; // Cookie bar preference is set
-			if (cookieName === "_GRECAPTCHA") return null; // But reCAPTCHA cookies are missing
+			if (cookieName === "cookie-preference") return null; // Consent revoked
+			if (cookieName === "_GRECAPTCHA") return "1"; // Stale cookie remains
 			return null;
 		});
 
@@ -541,7 +660,7 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 
 		// Assertions - field should fail both grecaptcha and required validations
 		expect(validationResult).toEqual(["grecaptcha", "required"]);
-		expect(showCookieBarSpy).toHaveBeenCalled(); // Cookie bar should be shown despite cookie-preference being set
+		expect(showCookieBarSpy).toHaveBeenCalled(); // Cookie bar should be shown despite the stale _GRECAPTCHA cookie
 		expect(testCookiePlugin.$emitter.publish).toHaveBeenCalledWith("showCookieBar");
 	});
 });

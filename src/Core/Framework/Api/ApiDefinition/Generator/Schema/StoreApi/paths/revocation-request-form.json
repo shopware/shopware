@@ -1,23 +1,18 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/revocation-request-form": {
             "post": {
-                "tags": ["Content"],
+                "tags": [
+                    "Content"
+                ],
                 "summary": "Submit a revocation request form message",
                 "description": "Used for submitting revocation request forms. Be aware that there can be more required fields, depending on the system settings.",
                 "operationId": "sendRevocationRequestMail",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -25,7 +20,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["email", "contractNumber"],
+                                "required": [
+                                    "email",
+                                    "contractNumber"
+                                ],
                                 "properties": {
                                     "firstName": {
                                         "description": "First name. This field may be required depending on the system settings.",
@@ -74,6 +72,14 @@
                 "responses": {
                     "200": {
                         "description": "Message sent successfully."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted revocation request data failed validation, e.g. a missing email address or order number."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

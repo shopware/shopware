@@ -6,7 +6,7 @@
     {% block sw_pagination_page_prev %}
     <button
         :disabled="currentPage === 1"
-        :aria-label="$tc('global.sw-pagination.previousPage')"
+        :aria-label="$t('global.sw-pagination.previousPage')"
         class="sw-pagination__page-button sw-pagination__page-button-prev"
         @click="prevPage"
     >
@@ -27,7 +27,7 @@
             {% block sw_pagination_page_list_item_button %}
             <button
                 v-if="typeof(pageNum) === 'number'"
-                :aria-label="$tc('global.sw-pagination.page', { page: pageNum })"
+                :aria-label="$t('global.sw-pagination.page', { page: pageNum })"
                 class="sw-pagination__list-button"
                 :class="{ 'is-active': currentPage === pageNum }"
                 @click="changePageByPageNumber(pageNum)"
@@ -52,7 +52,7 @@
     {% block sw_pagination_page_next %}
     <button
         :disabled="currentPage === maxPage"
-        :aria-label="$tc('global.sw-pagination.nextPage')"
+        :aria-label="$t('global.sw-pagination.nextPage')"
         class="sw-pagination__page-button sw-pagination__page-button-next"
         @click="nextPage"
     >
@@ -71,7 +71,7 @@
         <mt-select
             size="small"
             name="perPage"
-            :label="$tc('global.sw-pagination.labelItemsPerPage')"
+            :label="$t('global.sw-pagination.labelItemsPerPage')"
             :model-value="String(perPage)"
             :options="possibleStepsOptions"
             hide-clearable-button

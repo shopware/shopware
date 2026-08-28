@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Checkers;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
 use Shopware\Core\Framework\Update\Services\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WriteableCheck::class)]
 class WritableCheckTest extends TestCase
 {

@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -29,6 +31,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 abstract class AbstractPluginLifecycleCommand extends Command
 {
     /**
+     * @internal
+     *
      * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(
@@ -85,7 +89,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
             $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         }
 
-        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $context);
+        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $input, $context);
 
         if ($plugins === null) {
             return null;
@@ -107,13 +111,44 @@ abstract class AbstractPluginLifecycleCommand extends Command
     protected function refreshPlugins(): void
     {
         $input = new StringInput('plugin:refresh -s');
-        /** @var Application $application */
         $application = $this->getApplication();
+        if (!$application instanceof Application) {
+            throw PluginException::consoleApplicationNotFound();
+        }
         $application->doRun($input, new NullOutput());
     }
 
+    protected function handleClearCache(InputInterface $input, SymfonyStyle $io, string $action): void
+    {
+        if ($input->getOption('clearCache')) {
+            $io->note('Clearing Cache');
+
+            try {
+                $this->cacheClearer->clear();
+            } catch (\Throwable $e) {
+                $io->error('Error clearing cache: ' . $e->getMessage());
+
+                return;
+            }
+
+            $io->success('Cache cleared');
+
+            return;
+        }
+
+        $io->note(\sprintf('You may want to clear the cache after %s plugin(s). To do so run the cache:clear command', $action));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed - Use {@see AbstractPluginLifecycleCommand::handleClearCache} instead
+     */
     protected function handleClearCacheOption(InputInterface $input, ShopwareStyle $io, string $action): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'AbstractPluginLifecycleCommand::handleClearCache')
+        );
+
         if ($input->getOption('clearCache')) {
             $io->note('Clearing Cache');
 
@@ -141,6 +176,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         array $arguments,
         string $lifecycleMethod,
         SymfonyStyle $io,
+        InputInterface $input,
         Context $context
     ): ?PluginCollection {
         $plugins = array_unique($arguments);
@@ -167,7 +203,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
 
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
 
-        if ($pluginCollection->count() <= 1) {
+        if ($pluginCollection->count() <= 1 || !$input->isInteractive()) {
             return $pluginCollection;
         }
 

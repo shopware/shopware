@@ -131,9 +131,9 @@ export default {
             }
 
             event.preventDefault();
-            event.returnValue = this.$tc('sw-bulk-edit.modal.messageBeforeTabLeave');
+            event.returnValue = this.$t('sw-bulk-edit.modal.messageBeforeTabLeave');
 
-            return this.$tc('sw-bulk-edit.modal.messageBeforeTabLeave');
+            return this.$t('sw-bulk-edit.modal.messageBeforeTabLeave');
         },
 
         onModalClose() {

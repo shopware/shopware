@@ -4,15 +4,7 @@
 
 import { config, mount } from '@vue/test-utils';
 
-function hasNormalWarningAlert(wrapper) {
-    const alerts = wrapper.findAll('[role="banner"]');
-
-    expect(alerts).toHaveLength(2);
-    expect(alerts.at(0).text()).toBe('["sw-login.recovery.info.info"]');
-    expect(alerts.at(1).text()).toBe('["sw-login.recovery.info.warning"]');
-}
-
-async function createWrapper(routeParams) {
+async function createWrapper() {
     // delete global $router and $routes mocks
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
@@ -20,8 +12,7 @@ async function createWrapper(routeParams) {
     return mount(await wrapTestComponent('sw-login-recovery-info', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
-                $route: { params: routeParams },
+                $t: (...args) => JSON.stringify([...args]),
             },
             stubs: {
                 'router-view': true,
@@ -32,33 +23,37 @@ async function createWrapper(routeParams) {
 }
 
 describe('module/sw-login/recovery-info.spec.js', () => {
-    it('should display the normal info', async () => {
+    beforeEach(() => {
+        window.history.replaceState({}, '');
+    });
+
+    it('should display the email sent confirmation with the submitted email address', async () => {
+        window.history.replaceState({ email: 'test@example.com' }, '');
+
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.get('.sw-login__form-headline').text()).toBe('["sw-login.recovery.info.headline"]');
-
-        hasNormalWarningAlert(wrapper);
-
-        const timeWrapper = await createWrapper();
-        await flushPromises();
-
-        expect(timeWrapper.get('.sw-login__form-headline').text()).toBe('["sw-login.recovery.info.headline"]');
-
-        hasNormalWarningAlert(timeWrapper);
+        expect(wrapper.get('.sw-login__status-headline').text()).toBe('["sw-login.recovery.info.headline"]');
+        expect(wrapper.get('.sw-login__status-icon').exists()).toBe(true);
+        expect(wrapper.get('.sw-login__content-description').text()).toBe(
+            '["sw-login.recovery.info.info",{"email":"test@example.com"}]',
+        );
     });
 
-    it('should display the rate limit info', async () => {
-        const wrapper = await createWrapper({
-            waitTime: 1,
-        });
+    it('should fall back to a generic text when no email address was passed', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.get('.sw-login__form-headline').text()).toBe('["sw-login.recovery.info.headline"]');
+        expect(wrapper.get('.sw-login__status-headline').text()).toBe('["sw-login.recovery.info.headline"]');
+        expect(wrapper.get('.sw-login__content-description').text()).toBe(
+            '["sw-login.recovery.info.info",{"email":"[\\"sw-login.recovery.info.emailFallback\\"]"}]',
+        );
+    });
 
-        const alerts = wrapper.findAll('[role="banner"]');
+    it('should emit is-not-loading on creation', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
 
-        expect(alerts).toHaveLength(1);
-        expect(alerts.at(0).text()).toBe('["global.error-codes.FRAMEWORK__RATE_LIMIT_EXCEEDED",{"seconds":1},0]');
+        expect(wrapper.emitted('is-not-loading')).toBeTruthy();
     });
 });

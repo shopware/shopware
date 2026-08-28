@@ -2,7 +2,7 @@
 <div class="sw-import-export-edit-profile-general">
     {% block sw_import_export_edit_profile_general_text %}
     <p class="sw-import-export-edit-profile-general__text">
-        {{ $tc('sw-import-export.profile.descriptionBlock') }}
+        {{ $t('sw-import-export.profile.descriptionBlock') }}
     </p>
     {% endblock %}
 
@@ -18,7 +18,7 @@
         {% block sw_import_export_edit_profile_general_container_technical_name %}
         <mt-text-field
             v-model="profile.technicalName"
-            :label="$tc('sw-import-export.profile.technicalNameFieldLabel')"
+            :label="$t('sw-import-export.profile.technicalNameFieldLabel')"
             required
             :disabled="profile.systemDefault"
             :placeholder="profile.technicalName"
@@ -28,7 +28,7 @@
         {% block sw_import_export_edit_profile_general_container_object_type %}
         <div
             v-tooltip="{
-                message: $tc('sw-import-export.profile.objectTypeFieldTooltipText'),
+                message: $t('sw-import-export.profile.objectTypeFieldTooltipText'),
                 disabled: mappingLength <= 0,
                 showOnDisabledElements: false
             }"
@@ -39,7 +39,7 @@
                 ref="objectTypeSelect"
                 v-model:value="profile.sourceEntity"
                 class="sw-import-export-edit-profile-general__object-type-select"
-                :label="$tc('sw-import-export.profile.objectTypeFieldLabel')"
+                :label="$t('sw-import-export.profile.objectTypeFieldLabel')"
                 required
                 :options="supportedEntities"
                 :disabled="profile.systemDefault || mappingLength > 0"
@@ -53,7 +53,7 @@
                     <sw-select-result
                         v-tooltip="{
                             showDelay: 300,
-                            message: $tc('sw-import-export.profile.objectTypeDisabledText'),
+                            message: $t('sw-import-export.profile.objectTypeDisabledText'),
                             disabled: !shouldDisableObjectType(item)
                         }"
                         :disabled="item.disabled || shouldDisableObjectType(item)"
@@ -87,7 +87,7 @@
         <sw-single-select
             v-model:value="profile.type"
             class="sw-import-export-edit-profile-general__type-select"
-            :label="$tc('sw-import-export.profile.typeFieldLabel')"
+            :label="$t('sw-import-export.profile.typeFieldLabel')"
             required
             :options="supportedProfileTypes"
             :disabled="profile.systemDefault"
@@ -101,7 +101,7 @@
                 <sw-select-result
                     v-tooltip="{
                         showDelay: 300,
-                        message: $tc('sw-import-export.profile.profileTypeDisabledText'),
+                        message: $t('sw-import-export.profile.profileTypeDisabledText'),
                         disabled: !shouldDisableProfileType(item)
                     }"
                     :disabled="item.disabled || shouldDisableProfileType(item)"

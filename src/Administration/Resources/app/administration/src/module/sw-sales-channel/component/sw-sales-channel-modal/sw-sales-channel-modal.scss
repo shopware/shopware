@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-sales-channel-modal {
     .sw-modal__body {
         min-height: 150px;
@@ -12,7 +10,7 @@
 
     .sw-modal__footer {
         a {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
         }
     }
 

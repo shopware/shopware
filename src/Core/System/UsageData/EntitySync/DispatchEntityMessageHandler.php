@@ -26,8 +26,8 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: DispatchEntityMessage::class)]
 #[Package('data-services')]
+#[AsMessageHandler(handles: DispatchEntityMessage::class)]
 final readonly class DispatchEntityMessageHandler
 {
     public function __construct(

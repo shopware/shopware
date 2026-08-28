@@ -4,8 +4,9 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
@@ -13,14 +14,15 @@ use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SalesChannelDomainProvider::class)]
 class SalesChannelDomainProviderTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
     }
 
     public function testFetchSalesChannelDomainsReturnsCollectionWithData(): void

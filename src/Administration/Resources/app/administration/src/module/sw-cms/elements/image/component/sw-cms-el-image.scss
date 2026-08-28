@@ -1,8 +1,14 @@
-@import "~scss/variables";
-
 .sw-cms-el-image {
     display: flex;
     width: 100%;
+
+    &.has-vertical-alignment {
+        height: 100%;
+
+        .sw-cms-el-image__content {
+            height: 100%;
+        }
+    }
 
     &__content {
         display: flex;

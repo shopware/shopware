@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api;
 
+use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorNotFoundException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
@@ -15,11 +16,13 @@ use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException as SymfonyHttpException;
@@ -39,6 +42,7 @@ class ApiException extends HttpException
     public const API_NOT_EXISTING_RELATION_EXCEPTION = 'FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION';
     public const API_UNSUPPORTED_OPERATION_EXCEPTION = 'FRAMEWORK__UNSUPPORTED_OPERATION_EXCEPTION';
     public const API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT = 'FRAMEWORK__UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT';
+    public const API_UNSUPPORTED_STORE_API_SCHEMA_MIGRATION_SCOPE = 'FRAMEWORK__API_UNSUPPORTED_STORE_API_SCHEMA_MIGRATION_SCOPE';
     public const API_INVALID_VERSION_ID = 'FRAMEWORK__INVALID_VERSION_ID';
     public const API_TYPE_PARAMETER_INVALID = 'FRAMEWORK__API_TYPE_PARAMETER_INVALID';
     public const API_APP_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__APP_ID_PARAMETER_IS_MISSING';
@@ -62,6 +66,8 @@ class ApiException extends HttpException
     public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
     public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
+    public const API_DEFINITION_GENERATOR_NOT_FOUND = 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_FOUND';
+    public const API_EXPECTATION_NOT_SUPPORTED = 'FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -194,6 +200,18 @@ class ApiException extends HttpException
     public static function noEntityCloned(string $entity, string $id): ShopwareHttpException
     {
         return new NoEntityClonedException($entity, $id);
+    }
+
+    public static function expectationNotSupported(): self
+    {
+        return new self(
+            Response::HTTP_EXPECTATION_FAILED,
+            self::API_EXPECTATION_NOT_SUPPORTED,
+            \sprintf(
+                'The "%s" header is not supported on endpoints that do not require authentication. Send it with an authenticated Admin API request.',
+                PlatformRequest::HEADER_EXPECT_PACKAGES
+            )
+        );
     }
 
     /**
@@ -368,6 +386,19 @@ class ApiException extends HttpException
         );
     }
 
+    /**
+     * @param list<string> $supportedScopes
+     */
+    public static function unsupportedStoreApiSchemaMigrationScope(string $scope, array $supportedScopes): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_UNSUPPORTED_STORE_API_SCHEMA_MIGRATION_SCOPE,
+            'Unsupported Store API schema migration scope "{{ scope }}". Supported scopes are: {{ supportedScopes }}.',
+            ['scope' => $scope, 'supportedScopes' => implode(', ', $supportedScopes)],
+        );
+    }
+
     public static function invalidSchemaForDefinition(EntityDefinition $definition, string $message): self
     {
         return new self(
@@ -494,6 +525,21 @@ class ApiException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::API_INVALID_IDS_PARAMETER,
             'Parameter `ids` is no array or empty',
+        );
+    }
+
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function apiDefinitionGeneratorNotFound(string $format): self|ApiDefinitionGeneratorNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ApiDefinitionGeneratorNotFoundException($format);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_DEFINITION_GENERATOR_NOT_FOUND,
+            'Definition generator for format "{{ format }}" not found.',
+            ['format' => $format]
         );
     }
 }

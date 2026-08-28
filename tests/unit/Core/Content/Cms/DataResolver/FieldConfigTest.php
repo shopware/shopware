@@ -41,29 +41,25 @@ class FieldConfigTest extends TestCase
 
     public function testThrowExceptionOnGetArrayValue(): void
     {
-        $this->expectException(CmsException::class);
-        $this->expectExceptionMessage('Expected to load value of "my-config" with type "array", but value with type "string" given.');
+        $this->expectExceptionObject(CmsException::unexpectedFieldConfigValueType('my-config', 'array', 'string'));
         (new FieldConfig('my-config', 'static', 'some-value'))->getArrayValue();
     }
 
     public function testThrowExceptionOnGetIntValue(): void
     {
-        $this->expectException(CmsException::class);
-        $this->expectExceptionMessage('Expected to load value of "my-config" with type "int", but value with type "array" given.');
+        $this->expectExceptionObject(CmsException::unexpectedFieldConfigValueType('my-config', 'int', 'array'));
         (new FieldConfig('my-config', 'static', ['some-value']))->getIntValue();
     }
 
     public function testThrowExceptionOnGetFloatValue(): void
     {
-        $this->expectException(CmsException::class);
-        $this->expectExceptionMessage('Expected to load value of "my-config" with type "float", but value with type "array" given.');
+        $this->expectExceptionObject(CmsException::unexpectedFieldConfigValueType('my-config', 'float', 'array'));
         (new FieldConfig('my-config', 'static', ['some-value']))->getFloatValue();
     }
 
     public function testThrowExceptionOnGetStringValue(): void
     {
-        $this->expectException(CmsException::class);
-        $this->expectExceptionMessage('Expected to load value of "my-config" with type "string", but value with type "array" given.');
+        $this->expectExceptionObject(CmsException::unexpectedFieldConfigValueType('my-config', 'string', 'array'));
         (new FieldConfig('my-config', 'static', ['some-value']))->getStringValue();
     }
 }

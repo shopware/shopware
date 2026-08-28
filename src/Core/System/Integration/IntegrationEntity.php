@@ -24,6 +24,11 @@ class IntegrationEntity extends Entity
 
     protected bool $admin;
 
+    /**
+     * @var array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}|null
+     */
+    protected ?array $mcpAllowlist = null;
+
     protected ?\DateTimeInterface $lastUsageAt = null;
 
     protected ?AppEntity $app = null;
@@ -102,6 +107,22 @@ class IntegrationEntity extends Entity
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;
+    }
+
+    /**
+     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}|null
+     */
+    public function getMcpAllowlist(): ?array
+    {
+        return $this->mcpAllowlist;
+    }
+
+    /**
+     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}|null $mcpAllowlist
+     */
+    public function setMcpAllowlist(?array $mcpAllowlist): void
+    {
+        $this->mcpAllowlist = $mcpAllowlist;
     }
 
     public function getDeletedAt(): ?\DateTimeInterface

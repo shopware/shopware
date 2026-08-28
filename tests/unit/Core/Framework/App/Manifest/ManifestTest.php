@@ -3,14 +3,21 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\CheckoutGateway;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\ContextGateway;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
+use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Manifest::class)]
 class ManifestTest extends TestCase
 {
@@ -19,6 +26,39 @@ class ManifestTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
 
         static::assertSame(__DIR__ . '/_fixtures/test', $manifest->getPath());
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('capabilityPrivilegesProvider')]
+    public function testCapabilityPrivilegesAreAddedToPermissions(string $fixture, array $expected): void
+    {
+        $manifest = Manifest::createFromXmlFile($fixture);
+
+        $privileges = $manifest->getPermissions()?->asParsedPrivileges() ?? [];
+
+        foreach ($expected as $privilege) {
+            static::assertContains($privilege, $privileges);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: list<string>}>
+     */
+    public static function capabilityPrivilegesProvider(): iterable
+    {
+        // declares <tax> (and <payments>, which no longer implies a permission), but no gateways
+        yield 'tax provider' => [
+            __DIR__ . '/_fixtures/test/manifest.xml',
+            [Tax::PERMISSION],
+        ];
+
+        // declares checkout and context gateways (and no <permissions> block), but no tax
+        yield 'checkout and context gateways' => [
+            __DIR__ . '/Xml/Gateways/_fixtures/testGateway/manifest.xml',
+            [CheckoutGateway::PERMISSION, ContextGateway::PERMISSION],
+        ];
     }
 
     public function testCreateFromXml(): void
@@ -38,20 +78,16 @@ class ManifestTest extends TestCase
 
     public function testCreateFromXmlFileThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('attribute \'event\': \'test event\' is not a valid value');
-        $this->expectExceptionMessage('attribute \'event\': \'\' is not a valid value');
-        $this->expectExceptionMessage('Duplicate key-sequence [\'hook2\'] in unique identity-constraint \'uniqueWebhookName\'');
+        $xmlFile = __DIR__ . '/_fixtures/invalid-webhook-event-names-manifest.xml';
 
-        Manifest::createFromXmlFile(__DIR__ . '/_fixtures/invalid-webhook-event-names-manifest.xml');
+        $this->expectExceptionObject(AppException::xmlParsingException($xmlFile, ''));
+
+        Manifest::createFromXmlFile($xmlFile);
     }
 
     public function testCreateFromXmlThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('attribute \'event\': \'test event\' is not a valid value');
-        $this->expectExceptionMessage('attribute \'event\': \'\' is not a valid value');
-        $this->expectExceptionMessage('Duplicate key-sequence [\'hook2\'] in unique identity-constraint \'uniqueWebhookName\'');
+        $this->expectExceptionObject(AppXmlParsingException::cannotParseContent(''));
 
         Manifest::createFromXml((string) file_get_contents(__DIR__ . '/_fixtures/invalid-webhook-event-names-manifest.xml'));
     }
@@ -123,8 +159,7 @@ class ManifestTest extends TestCase
         $fileContent = file_get_contents(__DIR__ . $file);
         static::assertIsString($fileContent);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Unable to parse file "/_fixtures/invalidShippingMethods-manifest.xml". Message: name must not be empty');
+        $this->expectExceptionObject(AppException::xmlParsingException('/_fixtures/invalidShippingMethods-manifest.xml', 'name must not be empty'));
 
         Manifest::validate($fileContent, $file);
     }

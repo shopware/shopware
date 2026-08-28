@@ -9,11 +9,19 @@ class RateLimiter
 {
     final public const LOGIN_ROUTE = 'login';
 
+    final public const LOGIN_USER = 'login_user';
+
+    final public const LOGIN_CLIENT = 'login_client';
+
     final public const GUEST_LOGIN = 'guest_login';
 
     final public const RESET_PASSWORD = 'reset_password';
 
     final public const OAUTH = 'oauth';
+
+    final public const OAUTH_USER = 'oauth_user';
+
+    final public const OAUTH_CLIENT = 'oauth_client';
 
     final public const USER_RECOVERY = 'user_recovery';
 
@@ -27,7 +35,13 @@ class RateLimiter
 
     final public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
 
+    final public const MCP_ADMIN_API = 'mcp_admin_api';
+
+    final public const MCP_STORE_API = 'mcp_store_api';
+
     final public const APP_SHOP_VERIFY = 'app_shop_verify';
+
+    final public const IMPORT_EXPORT_FILE_DOWNLOAD = 'import_export_file_download';
 
     /**
      * @var array<string, RateLimiterFactory>
@@ -39,9 +53,31 @@ class RateLimiter
         $this->getFactory($route)->create($key)->reset();
     }
 
+    public function resetIfConfigured(string $route, string $key): void
+    {
+        $factory = $this->factories[$route] ?? null;
+
+        $factory?->create($key)->reset();
+    }
+
     public function ensureAccepted(string $route, string $key): void
     {
         $limiter = $this->getFactory($route)->create($key)->consume();
+
+        if (!$limiter->isAccepted()) {
+            throw RateLimiterException::limitExceeded($limiter->getRetryAfter()->getTimestamp());
+        }
+    }
+
+    public function ensureAcceptedIfConfigured(string $route, string $key): void
+    {
+        $factory = $this->factories[$route] ?? null;
+
+        if ($factory === null) {
+            return;
+        }
+
+        $limiter = $factory->create($key)->consume();
 
         if (!$limiter->isAccepted()) {
             throw RateLimiterException::limitExceeded($limiter->getRetryAfter()->getTimestamp());

@@ -124,20 +124,20 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (diff >= 0) {
                 if (this.lessThanOneMinute) {
-                    return this.$tc('global.sw-time-ago.justNow');
+                    return this.$t('global.sw-time-ago.justNow');
                 }
 
                 if (this.lessThanOneHour) {
-                    return this.$tc('global.sw-time-ago.minutesAgo', { minutesAgo }, minutesAgo);
+                    return this.$t('global.sw-time-ago.minutesAgo', { minutesAgo }, minutesAgo);
                 }
             } else {
                 if (this.lessThanOneMinuteFromNow) {
-                    return this.$tc('global.sw-time-ago.aboutNow');
+                    return this.$t('global.sw-time-ago.aboutNow');
                 }
 
                 if (this.lessThanOneHourFromNow) {
                     const minutesFromNow = Math.abs(minutesAgo);
-                    return this.$tc('global.sw-time-ago.minutesFromNow', { minutesFromNow }, minutesFromNow);
+                    return this.$t('global.sw-time-ago.minutesFromNow', { minutesFromNow }, minutesFromNow);
                 }
             }
 

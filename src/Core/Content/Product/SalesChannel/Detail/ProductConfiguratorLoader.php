@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
-use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -22,11 +21,11 @@ class ProductConfiguratorLoader
     /**
      * @internal
      *
-     * @param EntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository
+     * @param EntityRepository<PropertyGroupOptionCollection> $optionRepository
      */
     public function __construct(
-        private readonly EntityRepository $configuratorRepository,
-        private readonly AbstractAvailableCombinationLoader $combinationLoader
+        private readonly AbstractAvailableCombinationLoader $combinationLoader,
+        private readonly EntityRepository $optionRepository
     ) {
     }
 
@@ -42,16 +41,17 @@ class ProductConfiguratorLoader
             return new PropertyGroupCollection();
         }
 
-        $groups = $this->loadSettings($parentId, $context);
-
-        $groups = $this->sortSettings($groups, $product);
-
         $combinations = $this->combinationLoader->loadCombinations(
             $parentId,
             $context,
         );
 
+        $groups = $this->loadSettings($parentId, $combinations, $context);
+
+        $groups = $this->sortSettings($groups, $product);
+
         $current = $this->buildCurrentOptions($product, $groups);
+        $emptyGroupIds = [];
 
         foreach ($groups as $group) {
             $options = $group->getOptions();
@@ -70,44 +70,69 @@ class ProductConfiguratorLoader
 
                 $option->setCombinable($combinable);
             }
+
+            if ($options->count() === 0) {
+                $emptyGroupIds[] = $group->getId();
+            }
+        }
+
+        foreach ($emptyGroupIds as $groupId) {
+            $groups->remove($groupId);
         }
 
         return $groups;
     }
 
     /**
+     * Loads the configurator groups from the options of the real variant
+     * combinations, enriched with the parent's `product_configurator_setting`
+     * rows. This keeps options without a setting row selectable instead of
+     * greying out their sibling options.
+     *
      * @throws InconsistentCriteriaIdsException
      *
      * @return array<string, PropertyGroupEntity>|null
      */
-    private function loadSettings(string $parentId, SalesChannelContext $context): ?array
-    {
-        $criteria = (new Criteria())->addFilter(
-            new EqualsFilter('productId', $parentId)
-        );
+    private function loadSettings(
+        string $parentId,
+        AvailableCombinationResult $combinations,
+        SalesChannelContext $context
+    ): ?array {
+        $optionIds = [];
+        foreach ($combinations->getCombinations() as $combinationOptionIds) {
+            foreach ($combinationOptionIds as $optionId) {
+                $optionIds[$optionId] = true;
+            }
+        }
 
-        $criteria->addAssociation('option.group')
-            ->addAssociation('option.media')
+        if ($optionIds === []) {
+            return null;
+        }
+
+        $criteria = new Criteria(array_keys($optionIds));
+        $criteria->addAssociation('group')
+            ->addAssociation('media');
+        $criteria->getAssociation('productConfiguratorSettings')
+            ->addFilter(new EqualsFilter('productId', $parentId))
             ->addAssociation('media');
 
-        $settings = $this->configuratorRepository
+        $options = $this->optionRepository
             ->search($criteria, $context->getContext())
             ->getEntities();
 
-        if ($settings->count() <= 0) {
-            return null;
-        }
         $groups = [];
+        $hasSettings = false;
 
-        foreach ($settings as $setting) {
-            $option = $setting->getOption();
-            if ($option === null) {
-                continue;
-            }
-
+        foreach ($options as $option) {
             $group = $option->getGroup();
             if ($group === null) {
                 continue;
+            }
+
+            $setting = $option->getProductConfiguratorSettings()?->first();
+            if ($setting !== null) {
+                $option->setConfiguratorSetting($setting);
+                $hasSettings = true;
             }
 
             $groupId = $group->getId();
@@ -118,14 +143,19 @@ class ProductConfiguratorLoader
 
             $groups[$groupId] = $group;
 
-            $options = $group->getOptions();
-            if ($options === null) {
-                $options = new PropertyGroupOptionCollection();
-                $group->setOptions($options);
+            $groupOptions = $group->getOptions();
+            if ($groupOptions === null) {
+                $groupOptions = new PropertyGroupOptionCollection();
+                $group->setOptions($groupOptions);
             }
-            $options->add($option);
+            $groupOptions->add($option);
+        }
 
-            $option->setConfiguratorSetting($setting);
+        // A product without any configurator setting intentionally renders no
+        // configurator on the product detail page, so setting-less options are
+        // only surfaced when at least one option of the product is configured.
+        if (!$hasSettings) {
+            return null;
         }
 
         return $groups;
@@ -190,8 +220,30 @@ class ProductConfiguratorLoader
 
         $sortedGroupIds = array_column($config, 'id');
 
+        $remainingGroupIds = array_values(array_diff($collection->getIds(), $sortedGroupIds));
+        usort(
+            $remainingGroupIds,
+            static function (string $leftId, string $rightId) use ($collection): int {
+                $left = $collection->get($leftId);
+                $right = $collection->get($rightId);
+
+                if ($left === null || $right === null) {
+                    return 0;
+                }
+
+                $leftPosition = $left->getTranslation('position') ?? $left->getPosition() ?? 0;
+                $rightPosition = $right->getTranslation('position') ?? $right->getPosition() ?? 0;
+
+                if ($leftPosition !== $rightPosition) {
+                    return $leftPosition <=> $rightPosition;
+                }
+
+                return strnatcmp((string) $left->getTranslation('name'), (string) $right->getTranslation('name'));
+            }
+        );
+
         // ensure all ids are in the array (but only once)
-        $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $collection->getIds()));
+        $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $remainingGroupIds));
 
         $collection->sortByIdArray($sortedGroupIds);
 

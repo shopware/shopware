@@ -104,19 +104,25 @@ class SortingListingProcessor extends AbstractListingProcessor
     {
         $criteria = new Criteria();
         $criteria->setTitle('product-listing::load-sortings');
-        /** @var string[] $availableSortings */
+
         $availableSortings = RequestParamHelper::get($request, 'availableSortings');
         $availableSortingsById = [];
 
-        if ($availableSortings) {
-            arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
-            $availableSortingsFilter = array_keys($availableSortings);
+        if (\is_array($availableSortings)) {
+            $prioritiesById = [];
+            foreach ($availableSortings as $id => $priority) {
+                if (\is_string($id) && Uuid::isValid($id)) {
+                    // non-numeric priorities sort as 0, matching SORT_NUMERIC's coercion
+                    $prioritiesById[$id] = \is_numeric($priority) ? (float) $priority : 0.0;
+                }
+            }
 
-            $availableSortingsById = array_filter($availableSortingsFilter, static fn ($filter) => Uuid::isValid($filter));
+            if ($prioritiesById !== []) {
+                arsort($prioritiesById);
+                $availableSortingsById = array_keys($prioritiesById);
 
-            $filter = new EqualsAnyFilter('id', $availableSortingsById);
-
-            $criteria->addFilter($filter);
+                $criteria->addFilter(new EqualsAnyFilter('id', $availableSortingsById));
+            }
         }
 
         $criteria
@@ -142,6 +148,6 @@ class SortingListingProcessor extends AbstractListingProcessor
 
         $criteria = new Criteria([$id]);
 
-        return $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key');
+        return $this->sortingRepository->search($criteria, $context->getContext())->getEntities()->first()?->get('key');
     }
 }

@@ -111,7 +111,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -211,7 +211,7 @@ export default {
                 this.isSaveSuccessful = true;
             } catch (error) {
                 const notificationError = {
-                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 };
 
                 this.createNotificationError(notificationError);

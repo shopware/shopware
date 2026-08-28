@@ -34,45 +34,43 @@ class KeyMappingPipeTest extends TestCase
     }
 
     /**
-     * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
+     * @return iterable<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
      */
-    public static function simpleMappingProvider(): array
+    public static function simpleMappingProvider(): iterable
     {
-        return [
-            [
-                'input' => [],
-                'expectedOutput' => [
-                    'bar' => '',
-                    'x' => '',
-                ],
+        yield 'missing simple keys are mapped to empty strings' => [
+            'input' => [],
+            'expectedOutput' => [
+                'bar' => '',
+                'x' => '',
             ],
-            [
-                'input' => [
-                    'foo' => 1234,
-                ],
-                'expectedOutput' => [
-                    'bar' => 1234,
-                    'x' => '',
-                ],
+        ];
+        yield 'foo input is mapped to bar output' => [
+            'input' => [
+                'foo' => 1234,
             ],
-            [
-                'input' => [
-                    'a' => 1234,
-                ],
-                'expectedOutput' => [
-                    'bar' => '',
-                    'x' => 1234,
-                ],
+            'expectedOutput' => [
+                'bar' => 1234,
+                'x' => '',
             ],
-            [
-                'input' => [
-                    'foo' => 'test',
-                    'a' => 0.1234,
-                ],
-                'expectedOutput' => [
-                    'bar' => 'test',
-                    'x' => 0.1234,
-                ],
+        ];
+        yield 'a input is mapped to x output' => [
+            'input' => [
+                'a' => 1234,
+            ],
+            'expectedOutput' => [
+                'bar' => '',
+                'x' => 1234,
+            ],
+        ];
+        yield 'multiple simple keys are mapped at once' => [
+            'input' => [
+                'foo' => 'test',
+                'a' => 0.1234,
+            ],
+            'expectedOutput' => [
+                'bar' => 'test',
+                'x' => 0.1234,
             ],
         ];
     }
@@ -106,62 +104,60 @@ class KeyMappingPipeTest extends TestCase
     }
 
     /**
-     * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
+     * @return iterable<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
      */
-    public static function nestedProvider(): array
+    public static function nestedProvider(): iterable
     {
-        return [
-            [
-                'input' => [],
-                'expectedOutput' => [
-                    'bar' => '',
-                    'x_n' => '',
-                    'x_y_z1' => '',
-                    'x_y_z2' => '',
+        yield 'missing nested keys are mapped to empty strings' => [
+            'input' => [],
+            'expectedOutput' => [
+                'bar' => '',
+                'x_n' => '',
+                'x_y_z1' => '',
+                'x_y_z2' => '',
+            ],
+        ];
+        yield 'top level value is mapped while nested keys stay empty' => [
+            'input' => [
+                'foo' => 0.123,
+            ],
+            'expectedOutput' => [
+                'bar' => 0.123,
+                'x_n' => '',
+                'x_y_z1' => '',
+                'x_y_z2' => '',
+            ],
+        ];
+        yield 'single nested value is flattened into mapped output' => [
+            'input' => [
+                'foo' => 0.123,
+                'a' => [
+                    'n' => 'test',
                 ],
             ],
-            [
-                'input' => [
-                    'foo' => 0.123,
-                ],
-                'expectedOutput' => [
-                    'bar' => 0.123,
-                    'x_n' => '',
-                    'x_y_z1' => '',
-                    'x_y_z2' => '',
-                ],
+            'expectedOutput' => [
+                'bar' => 0.123,
+                'x_n' => 'test',
+                'x_y_z1' => '',
+                'x_y_z2' => '',
             ],
-            [
-                'input' => [
-                    'foo' => 0.123,
-                    'a' => [
-                        'n' => 'test',
+        ];
+        yield 'multiple nested values are flattened into mapped output' => [
+            'input' => [
+                'foo' => 0.123,
+                'a' => [
+                    'n' => 'test',
+                    'b' => [
+                        'c1' => 1,
+                        'c2' => 2,
                     ],
                 ],
-                'expectedOutput' => [
-                    'bar' => 0.123,
-                    'x_n' => 'test',
-                    'x_y_z1' => '',
-                    'x_y_z2' => '',
-                ],
             ],
-            [
-                'input' => [
-                    'foo' => 0.123,
-                    'a' => [
-                        'n' => 'test',
-                        'b' => [
-                            'c1' => 1,
-                            'c2' => 2,
-                        ],
-                    ],
-                ],
-                'expectedOutput' => [
-                    'bar' => 0.123,
-                    'x_n' => 'test',
-                    'x_y_z1' => 1,
-                    'x_y_z2' => 2,
-                ],
+            'expectedOutput' => [
+                'bar' => 0.123,
+                'x_n' => 'test',
+                'x_y_z1' => 1,
+                'x_y_z2' => 2,
             ],
         ];
     }

@@ -6,43 +6,62 @@
 
     <template #smart-bar-header>
         <h2>
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings.index.tabSystem') }}
+            {{ $t('sw-settings.index.tabSystem') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-usage-data.general.textHeadline') }}
+            {{ $t('sw-settings-usage-data.general.textHeadline') }}
         </h2>
     </template>
 
     <template #content>
         <sw-card-view>
-            <sw-tabs
-                position-identifier="sw-settings-usage-data"
-                default-item="general"
-            >
-                <sw-tabs-item
-                    name="general"
-                    :route="{ name: 'sw.settings.usage.data.index.general' }"
-                >
-                    {{ $tc('sw-settings-usage-data-general.tabHeadline') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                <mt-tabs
+                    position-identifier="sw-settings-usage-data"
+                    :default-item="$route.name"
+                    :items="usageDataTabs"
+                    :small="true"
+                />
 
-                <template #content>
-                    <router-view
-                        v-slot="{ Component }"
+                <router-view
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                    />
+                </router-view>
+            </template>
+
+            <template v-else>
+                <sw-tabs
+                    position-identifier="sw-settings-usage-data"
+                    default-item="general"
+                >
+                    <sw-tabs-item
+                        name="general"
+                        :route="{ name: 'sw.settings.usage.data.index.general' }"
                     >
-                        <component
-                            :is="Component"
-                        />
-                    </router-view>
-                </template>
-            </sw-tabs>
+                        {{ $t('sw-settings-usage-data-general.tabHeadline') }}
+                    </sw-tabs-item>
+
+                    <template #content>
+                        <router-view
+                            v-slot="{ Component }"
+                        >
+                            <component
+                                :is="Component"
+                            />
+                        </router-view>
+                    </template>
+                </sw-tabs>
+            </template>
         </sw-card-view>
     </template>
 </sw-page>

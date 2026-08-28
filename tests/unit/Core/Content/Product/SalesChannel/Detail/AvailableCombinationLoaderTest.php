@@ -12,13 +12,16 @@ use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AvailableCombinationLoader::class)]
 class AvailableCombinationLoaderTest extends TestCase
 {
@@ -83,20 +86,53 @@ class AvailableCombinationLoaderTest extends TestCase
         static::assertFalse($result->isAvailable(['green']));
     }
 
-    private function getAvailableCombinationLoader(?AbstractStockStorage $stockStorage = null): AvailableCombinationLoader
+    public function testLoadCombinationsHidesCloseoutVariantsWhenConfigured(): void
     {
+        $context = Context::createDefaultContext();
+        $salesChanelContext = Generator::generateSalesChannelContext($context);
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('getBool')
+            ->willReturn(true);
+
+        $loader = $this->getAvailableCombinationLoader(
+            systemConfigService: $systemConfigService
+        );
+        $result = $loader->loadCombinations(
+            Uuid::randomHex(),
+            $salesChanelContext
+        );
+
+        static::assertSame([
+            '4b97f87ff3bd2cd72cc6f6f7d2ae49ae' => [
+                'green',
+                'red',
+            ],
+        ], $result->getCombinations());
+    }
+
+    private function getAvailableCombinationLoader(
+        ?AbstractStockStorage $stockStorage = null,
+        ?SystemConfigService $systemConfigService = null
+    ): AvailableCombinationLoader {
         $connection = $this->getMockedConnection();
 
-        return new AvailableCombinationLoader($connection, $stockStorage ?? $this->createMock(AbstractStockStorage::class));
+        return new AvailableCombinationLoader(
+            $connection,
+            $stockStorage ?? static::createStub(AbstractStockStorage::class),
+            $systemConfigService ?? static::createStub(SystemConfigService::class),
+        );
     }
 
     private function getMockedConnection(): Connection
     {
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn([
             [
                 'id' => 'product-1',
                 'available' => true,
+                'isCloseout' => false,
                 'options' => json_encode([
                     'green',
                     'red',
@@ -105,6 +141,7 @@ class AvailableCombinationLoaderTest extends TestCase
             [
                 'id' => 'product-2',
                 'available' => false,
+                'isCloseout' => true,
                 'options' => json_encode([
                     'green',
                 ]),
@@ -112,14 +149,15 @@ class AvailableCombinationLoaderTest extends TestCase
             [
                 'id' => 'invalid',
                 'available' => false,
+                'isCloseout' => false,
                 'options' => '{ bar: "baz" }',
             ],
         ]);
 
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('executeQuery')->willReturn($result);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
         return $connection;

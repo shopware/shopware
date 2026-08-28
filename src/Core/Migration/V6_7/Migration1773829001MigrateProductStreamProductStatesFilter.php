@@ -25,6 +25,20 @@ class Migration1773829001MigrateProductStreamProductStatesFilter extends Migrati
 
     public function update(Connection $connection): void
     {
+        // Intentionally empty.
+        //
+        // This migration originally converted product_stream_filter fields from
+        // `states`/`product.states` to `type`/`product.type` during the 6.7 upgrade.
+        // However, 6.6 code cannot evaluate the new field names (support was introduced
+        // in 6.7), so running this conversion in update() breaks blue-green deployments
+        // where 6.6 pods are still running while the 6.7 DB migration has already been applied.
+        //
+        // The conversion is performed in updateDestructive(), which runs after the 6.6/6.7
+        // blue-green window has definitively closed.
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
         $filters = $connection->fetchAllAssociative(
             'SELECT `id`, `field`, `value` FROM `product_stream_filter` WHERE `field` IN (:fields)',
             ['fields' => ['states', 'product.states']],
@@ -62,10 +76,6 @@ class Migration1773829001MigrateProductStreamProductStatesFilter extends Migrati
         if ($migrated) {
             $this->registerIndexer($connection, 'product_stream.indexer');
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function mapLegacyStateValues(string $value): ?string

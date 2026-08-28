@@ -6,13 +6,14 @@ import getErrorCode from 'src/core/data/error-codes/login.error-codes';
 import template from './sw-login-login.html.twig';
 import type { LoginConfig } from '../../../../core/service/login.service';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 interface LoginData {
     username: string;
     password: string;
     rememberMe: boolean;
     loginAlertMessage: string;
+    loginErrorMessage: string;
     loginConfig: null | LoginConfig;
     loginConfigLoaded: boolean;
     ssoLoading: boolean;
@@ -35,10 +36,7 @@ export default Component.wrapComponentConfig({
         'is-not-loading',
         'login-success',
         'login-error',
-    ],
-
-    mixins: [
-        Mixin.getByName('notification'),
+        'config-loaded',
     ],
 
     data(): LoginData {
@@ -47,6 +45,7 @@ export default Component.wrapComponentConfig({
             password: '',
             rememberMe: false,
             loginAlertMessage: '',
+            loginErrorMessage: '',
             loginConfig: null,
             loginConfigLoaded: false,
             ssoLoading: false,
@@ -75,10 +74,19 @@ export default Component.wrapComponentConfig({
 
         async createdComponent() {
             if (!localStorage.getItem('sw-admin-locale')) {
-                await Shopware.Store.get('session').setAdminLocale(navigator.language);
+                const localeFactory = Shopware.Application.getContainer('factory').locale;
+
+                await Shopware.Store.get('session').setAdminLocale(localeFactory.getLastKnownLocale());
             }
 
-            this.loginConfig = await this.loginService.getLoginTemplateConfig();
+            try {
+                this.loginConfig = await this.loginService.getLoginTemplateConfig();
+            } catch {
+                // Fall back to the password login when the SSO config cannot be loaded.
+                this.loginConfig = { useDefault: true, url: '' };
+            }
+
+            this.$emit('config-loaded', this.loginConfig);
 
             if (!this.loginConfig.useDefault && this.loginConfig.url) {
                 this.doSsoForwarding();
@@ -101,6 +109,7 @@ export default Component.wrapComponentConfig({
         loginUserWithPassword() {
             this.$emit('is-loading');
 
+            this.loginErrorMessage = '';
             this.loginService.setRememberMe(this.rememberMe);
 
             return this.loginService
@@ -182,29 +191,27 @@ export default Component.wrapComponentConfig({
                 this.$emit('login-error');
             }, 500);
 
-            this.createNotificationFromResponse(response);
+            this.showLoginErrorFromResponse(response);
         },
 
-        createNotificationFromResponse(response: unknown) {
+        showLoginErrorFromResponse(response: unknown) {
             // @ts-expect-error
             if (!response.response) {
-                this.createNotificationError({
-                    message: this.$tc('sw-login.index.messageGeneralRequestError'),
-                });
+                this.loginErrorMessage = this.$t('sw-login.index.messageGeneralError');
                 return;
             }
 
             /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
             // @ts-expect-error
-            const url = response.config.url;
+            const url = response.config?.url as string | undefined;
             // @ts-expect-error
-            let error = response.response.data.errors;
+            let error = response.response.data?.errors;
             error = Array.isArray(error) ? error[0] : error;
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            if (parseInt(error.status, 10) === 429) {
-                const seconds = error?.meta?.parameters?.seconds;
-                this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', { seconds }, 0);
+            if (parseInt(error?.status, 10) === 429) {
+                const seconds = Number(error?.meta?.parameters?.seconds) || 10;
+                this.loginAlertMessage = this.$t('sw-login.index.messageAuthThrottled', { seconds }, 0);
 
                 setTimeout(() => {
                     this.loginAlertMessage = '';
@@ -212,19 +219,19 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            if (error.code?.length) {
-                const { message, title } = getErrorCode(parseInt(error.code as string, 10)) as {
-                    message: string;
-                    title: string;
-                };
-
-                this.createNotificationError({
-                    title: this.$tc(title),
-                    // @ts-expect-error
-                    message: this.$tc(message, 0, { url }),
-                });
-            }
+            const { message } = getErrorCode(parseInt(error?.code as string, 10)) as {
+                message: string;
+            };
             /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
+            if (message) {
+                this.loginErrorMessage = this.$t(message);
+                return;
+            }
+
+            this.loginErrorMessage = url
+                ? this.$t('sw-login.index.messageGeneralRequestError', { url })
+                : this.$t('sw-login.index.messageGeneralError');
         },
     },
 });

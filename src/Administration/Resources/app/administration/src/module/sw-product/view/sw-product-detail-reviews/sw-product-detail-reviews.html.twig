@@ -60,7 +60,7 @@
                         :disabled="!acl.can('product.editor') || undefined"
                         :router-link="{ name: 'sw.review.detail', params: { id: item.id } }"
                     >
-                        {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -71,7 +71,7 @@
                         :disabled="!acl.can('product.editor') || undefined"
                         @click="onStartReviewDelete(item)"
                     >
-                        {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -98,18 +98,17 @@
         <mt-empty-state
             v-if="!total"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-product.reviewForm.messageEmptyTitle')"
-            :description="$tc('sw-product.reviewForm.messageEmptySubline')"
+            :headline="$t('sw-product.reviewForm.messageEmptyTitle')"
+            :description="$t('sw-product.reviewForm.messageEmptySubline')"
             empty-module
         >
             <template #button>
                 {% block sw_product_detail_reviews_empty_state_button %}
                 <mt-button
-                    ghost
                     variant="secondary"
                     @click="$router.push({ name: 'sw.review.index' })"
                 >
-                    {{ $tc('sw-product.reviewForm.emptyStateButton') }}
+                    {{ $t('sw-product.reviewForm.emptyStateButton') }}
                 </mt-button>
                 {% endblock %}
             </template>
@@ -120,11 +119,11 @@
         <sw-modal
             v-if="showReviewDeleteModal"
             variant="small"
-            :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
+            :title="$t('sw-product.reviewForm.modal.confirmTitle')"
             @modal-close="onCancelReviewDelete"
         >
             {% block sw_product_detail_reviews_modal_delete_body %}
-            <p>{{ $tc('sw-product.reviewForm.modal.confirmText') }}</p>
+            <p>{{ $t('sw-product.reviewForm.modal.confirmText') }}</p>
             {% endblock %}
 
             {% block sw_product_detail_reviews_modal_delete_footer %}
@@ -135,7 +134,7 @@
                     variant="secondary"
                     @click="onCancelReviewDelete"
                 >
-                    {{ $tc('global.default.cancel') }}
+                    {{ $t('global.default.cancel') }}
                 </mt-button>
                 {% endblock %}
 
@@ -145,7 +144,7 @@
                     variant="critical"
                     @click="onConfirmReviewDelete"
                 >
-                    {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
                 {% endblock %}
             </template>

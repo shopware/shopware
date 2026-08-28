@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  *
- * @codeCoverageIgnore Tested via an integration test
+ * @codeCoverageIgnore
  *
  * @see \Shopware\Tests\Integration\Core\Framework\Api\EventListener\SalesChannelAuthenticationListenerTest
  */
@@ -103,7 +103,8 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
         $salesChannelData = $builder->select(
             'sales_channel.id AS id',
             'sales_channel.maintenance AS maintenance',
-            'sales_channel.maintenance_ip_whitelist as maintenanceIpWhitelist'
+            // @deprecated tag:v6.8.0 - remove the COALESCE fallback to the deprecated `maintenance_ip_whitelist` column
+            'COALESCE(sales_channel.maintenance_ip_allowlist, sales_channel.maintenance_ip_whitelist) AS maintenanceIpAllowlist'
         )
             ->from('sales_channel')
             ->where('sales_channel.access_key = :accessKey')
@@ -145,7 +146,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
 
         try {
             /** @var list<string> $allowedIps */
-            $allowedIps = Json::decodeToList((string) ($salesChannelData['maintenanceIpWhitelist'] ?? ''));
+            $allowedIps = Json::decodeToList((string) ($salesChannelData['maintenanceIpAllowlist'] ?? ''));
         } catch (UtilException) {
             return;
         }

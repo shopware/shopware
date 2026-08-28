@@ -4,26 +4,20 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Flow\FlowAction;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
-use Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class AppFlowActionLoadedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    public function testGetSubscribedEvents(): void
-    {
-        static::assertSame([
-            'app_flow_action.loaded' => 'unserialize',
-        ], AppFlowActionLoadedSubscriber::getSubscribedEvents());
-    }
 
     public function testUnserialize(): void
     {

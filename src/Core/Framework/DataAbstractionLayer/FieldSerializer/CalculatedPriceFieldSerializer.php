@@ -30,13 +30,17 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
     ): \Generator {
         $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        unset($value['extensions']);
-        if (isset($value['listPrice'])) {
-            unset($value['listPrice']['extensions']);
-        }
+        // a non-array value must survive untouched, `parent::encode()` turns it into a write constraint violation
+        if (\is_array($value)) {
+            unset($value['extensions']);
 
-        if (isset($value['regulationPrice'])) {
-            unset($value['regulationPrice']['extensions']);
+            if (\is_array($value['listPrice'] ?? null)) {
+                unset($value['listPrice']['extensions']);
+            }
+
+            if (\is_array($value['regulationPrice'] ?? null)) {
+                unset($value['regulationPrice']['extensions']);
+            }
         }
 
         $data->setValue($value);

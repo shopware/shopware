@@ -1,4 +1,5 @@
 {% block component_delivery_information %}
+    {# ludtwig-ignore twig-variable-definition-naming #}
     {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
 
     {% set isDigitalProduct = product.type === digitalType %}

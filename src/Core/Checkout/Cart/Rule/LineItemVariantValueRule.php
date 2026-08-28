@@ -60,6 +60,10 @@ class LineItemVariantValueRule extends Rule
 
     public function matchLineItem(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         /**
          * @var list<string> $value
          */

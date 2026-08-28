@@ -41,7 +41,7 @@
     class="sw-extension-card-bought__detail-link"
     :router-link="detailLink"
 >
-    {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel') }}
+    {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel') }}
 </sw-context-menu-item>
 
 <sw-context-menu-item
@@ -49,7 +49,7 @@
     class="sw-extension-card-bought__rate-link"
     @click="openRatingModal"
 >
-    {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel') }}
+    {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel') }}
 </sw-context-menu-item>
 
     {% parent %}

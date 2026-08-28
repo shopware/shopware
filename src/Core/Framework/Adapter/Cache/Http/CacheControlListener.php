@@ -6,14 +6,12 @@ use Shopware\Core\Framework\Adapter\Cache\Http\Event\BeforeCacheControlEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\PlatformRequest;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - Will be removed without replacement
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed without replacement
  */
 #[Package('framework')]
 readonly class CacheControlListener
@@ -34,21 +32,24 @@ readonly class CacheControlListener
             return;
         }
 
-        $request = $event->getRequest();
-        $response = $event->getResponse();
-
-        // Dispatch event to allow listeners to skip cache control modification
-        $cacheControlEvent = new BeforeCacheControlEvent($request, $response);
-        $this->eventDispatcher->dispatch($cacheControlEvent);
-
-        if ($cacheControlEvent->shouldSkipCacheControl()) {
+        // With the cache rework the cache-control headers should be delivered to the user,
+        // so this listener must not touch them anymore. It is removed with 6.8.0.
+        if (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0')) {
             return;
         }
 
-        if (
-            ($this->isStoreApiRequest($event) || $this->isStorefrontRequest($event))
-            && (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0'))
-        ) {
+        $request = $event->getRequest();
+        $response = $event->getResponse();
+
+        // @deprecated tag:v6.8.0 - Dispatch event to allow listeners to skip cache control modification.
+        $skipCacheControl = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
+            $cacheControlEvent = new BeforeCacheControlEvent($request, $response);
+            $this->eventDispatcher->dispatch($cacheControlEvent);
+
+            return $cacheControlEvent->shouldSkipCacheControl();
+        });
+
+        if ($skipCacheControl) {
             return;
         }
 
@@ -66,21 +67,5 @@ readonly class CacheControlListener
         } else {
             $response->headers->addCacheControlDirective('no-cache');
         }
-    }
-
-    private function isStoreApiRequest(BeforeSendResponseEvent $event): bool
-    {
-        $request = $event->getRequest();
-        $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        return \in_array(StoreApiRouteScope::ID, $routeScope, true);
-    }
-
-    private function isStorefrontRequest(BeforeSendResponseEvent $event): bool
-    {
-        $request = $event->getRequest();
-        $routeScope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        return \in_array('storefront', $routeScope, true);
     }
 }

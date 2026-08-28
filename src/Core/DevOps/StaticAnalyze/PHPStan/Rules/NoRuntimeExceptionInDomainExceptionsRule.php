@@ -8,6 +8,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ExtendedMethodReflection;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
@@ -31,7 +32,7 @@ class NoRuntimeExceptionInDomainExceptionsRule implements Rule
     /**
      * @param ClassMethod $node
      *
-     * @return array<int, \PHPStan\Rules\RuleError|string>
+     * @return array<int, RuleError|string>
      */
     public function processNode(Node $node, Scope $scope): array
     {

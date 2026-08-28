@@ -37,8 +37,8 @@
         box-shadow: 0 0 5px 1px var(--color-border-brand-default);
 
         .sw-tree-item__child-count {
-            background: var(--color-background-brand-default);
-            color: var(--color-text-primary-inverse);
+            background: var(--color-interaction-primary-default);
+            color: var(--color-static-white);
         }
 
         .sw-tree-item__actions {
@@ -60,20 +60,30 @@
 
     &.is--no-checkbox {
         .sw-tree-item__element {
-            grid-template-columns: var(--scale-size-30) 0 var(--scale-size-20) auto var(--scale-size-64);
+            grid-template-columns:
+                var(--scale-size-30)
+                0
+                var(--scale-size-20)
+                minmax(0, 1fr)
+                var(--scale-size-64);
         }
     }
 
     .sw-tree-item__element {
         height: var(--scale-size-42);
         display: grid;
-        grid-template-columns: var(--scale-size-30) var(--scale-size-24) var(--scale-size-20) auto var(--scale-size-64);
+        grid-template-columns:
+            var(--scale-size-30)
+            var(--scale-size-24)
+            var(--scale-size-20)
+            minmax(0, 1fr)
+            var(--scale-size-64);
         grid-column-gap: var(--scale-size-2);
         align-items: center;
         align-content: center;
         padding: 0;
         font-size: var(--font-size-xs);
-        line-height: var(--line-height-xs);
+        line-height: var(--font-line-height-xs);
         color: var(--color-text-primary-default);
         border-radius: var(--border-radius-xs);
 
@@ -93,7 +103,7 @@
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: var(--color-interaction-primary-pressed);
+                color: var(--color-text-brand-default);
             }
         }
     }
@@ -243,13 +253,18 @@
 .sw-tree-item__element {
     height: var(--scale-size-42);
     display: grid;
-    grid-template-columns: var(--scale-size-30) var(--scale-size-24) var(--scale-size-20) auto var(--scale-size-64);
+    grid-template-columns:
+        var(--scale-size-30)
+        var(--scale-size-24)
+        var(--scale-size-20)
+        minmax(0, 1fr)
+        var(--scale-size-64);
     grid-column-gap: var(--scale-size-2);
     align-items: center;
     align-content: center;
     padding: 0;
     font-size: var(--font-size-xs);
-    line-height: var(--line-height-xs);
+    line-height: var(--font-line-height-xs);
     color: var(--color-text-primary-default);
     border-radius: var(--border-radius-xs);
 
@@ -259,7 +274,7 @@
             text-overflow: ellipsis;
             color: inherit;
             text-decoration: inherit;
-            padding: var(--scale-size-12) 0;
+            padding: var(--scale-size-10) 0;
             display: block;
 
             &:focus {
@@ -276,8 +291,8 @@
         box-shadow: 0 0 5px 1px var(--color-border-brand-default);
 
         .sw-tree-item__child-count {
-            background: var(--color-background-brand-default);
-            color: var(--color-text-primary-inverse);
+            background: var(--color-interaction-primary-default);
+            color: var(--color-static-white);
         }
 
         .sw-tree-item__actions {

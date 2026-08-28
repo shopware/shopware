@@ -28,6 +28,7 @@ export default {
     inject: [
         'repositoryFactory',
         'mediaService',
+        'mediaPresignedUploadService',
         'feature',
         'fileValidationService',
     ],
@@ -140,6 +141,12 @@ export default {
             default: null,
         },
 
+        extensionMimeTypesByExtension: {
+            type: Object,
+            required: false,
+            default: () => ({}),
+        },
+
         maxFileSize: {
             type: Number,
             required: false,
@@ -186,6 +193,8 @@ export default {
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? false,
             isLoading: false,
+            // Ids of media entities created via `sync` whose upload has not finished yet.
+            pendingUploadMediaIds: new Set(),
         };
     },
 
@@ -240,7 +249,7 @@ export default {
 
         buttonFileUploadLabel() {
             if (this.buttonLabel === '') {
-                return this.$tc('global.sw-media-upload-v2.buttonFileUpload');
+                return this.$t('global.sw-media-upload-v2.buttonFileUpload');
             }
 
             return this.buttonLabel;
@@ -248,6 +257,10 @@ export default {
 
         mediaNameFilter() {
             return Shopware.Filter.getByName('mediaName');
+        },
+
+        presignedUploadSupported() {
+            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
         },
     },
 
@@ -278,6 +291,7 @@ export default {
     methods: {
         async createdComponent() {
             this.mediaService.addListener(this.uploadTag, this.handleMediaServiceUploadEvent);
+
             if (this.mediaFolderId) {
                 return;
             }
@@ -305,6 +319,8 @@ export default {
         },
 
         beforeDestroyComponent() {
+            this.cleanupOrphanedMedia();
+
             this.mediaService.removeByTag(this.uploadTag);
             this.mediaService.removeListener(this.uploadTag, this.handleMediaServiceUploadEvent);
 
@@ -419,8 +435,8 @@ export default {
                 fileInfo = fileReader.getNameAndExtensionFromUrl(url);
             } catch (_error) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.sw-media-upload-v2.notification.invalidUrl.message'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.sw-media-upload-v2.notification.invalidUrl.message'),
                 });
 
                 return;
@@ -478,6 +494,10 @@ export default {
                 }
             }
 
+            if (this.presignedUploadSupported) {
+                await this.handlePresignedUpload(newMediaFiles);
+                return;
+            }
             const syncEntities = [];
 
             const uploadData = newMediaFiles.map((fileHandle) => {
@@ -494,8 +514,27 @@ export default {
                 };
             });
 
-            await this.mediaRepository.saveAll(syncEntities, Context.api);
+            await this.mediaRepository.sync(syncEntities, Context.api);
+
+            syncEntities.forEach((entity) => {
+                if (entity.id) {
+                    this.pendingUploadMediaIds.add(entity.id);
+                }
+            });
+
             await this.mediaService.addUploads(this.uploadTag, uploadData);
+        },
+
+        async handlePresignedUpload(files) {
+            await this.mediaPresignedUploadService.runUploads(
+                this.uploadTag,
+                files,
+                { mediaFolderId: this.mediaFolderId, isPrivate: this.privateFilesystem },
+                {
+                    getListeners: (tag) => this.mediaService.getListenerForTag(tag),
+                    createEvent: (action, tag, payload) => this.mediaService._createUploadEvent(action, tag, payload),
+                },
+            );
         },
 
         getMediaEntityForUpload() {
@@ -506,14 +545,59 @@ export default {
             return mediaItem;
         },
 
+        /**
+         * @internal
+         */
+        cleanupOrphanedMedia() {
+            if (this.pendingUploadMediaIds.size === 0) {
+                return;
+            }
+
+            const pendingIds = Array.from(this.pendingUploadMediaIds);
+            this.pendingUploadMediaIds.clear();
+
+            pendingIds.forEach((mediaId) => {
+                Promise.resolve()
+                    .then(() => this.mediaRepository.get(mediaId, Context.api))
+                    .then((media) => {
+                        if (media && !media.hasFile) {
+                            return this.mediaRepository.delete(mediaId, Context.api);
+                        }
+
+                        return null;
+                    })
+                    .catch((error) => {
+                        Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
+                    });
+            });
+        },
+
         async getDefaultFolderId() {
             return this.mediaService.getDefaultFolderId(this.defaultFolder);
         },
 
-        handleMediaServiceUploadEvent({ action }) {
+        handleMediaServiceUploadEvent({ action, payload }) {
+            // Keep the id on failure so the orphaned entity is still cleaned up on teardown.
+            if (action === 'media-upload-finish') {
+                this.pendingUploadMediaIds.delete(payload.targetId);
+            }
+
             if (action === 'media-upload-fail') {
                 this.onRemoveMediaItem();
             }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. Upload failure notifications are now handled by `sw-upload-status`.
+         */
+        getUploadFailureMessage(task) {
+            const detail = task?.error?.response?.data?.errors?.[0]?.detail;
+
+            if (typeof detail === 'string' && detail.length > 0) {
+                return detail;
+            }
+
+            return this.$t('global.sw-media-upload-v2.notification.failure.message');
         },
 
         checkFileSize(file) {
@@ -522,7 +606,7 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc(
+                message: this.$t(
                     'global.sw-media-upload-v2.notification.invalidFileSize.message',
                     {
                         name: file.name || file.fileName,
@@ -546,7 +630,12 @@ export default {
 
             const isValidFile = () => {
                 if (this.extensionAccept) {
-                    return this.fileValidationService.checkByExtension(file, this.extensionAccept);
+                    return this.fileValidationService.checkByExtension(
+                        file,
+                        this.extensionAccept,
+                        null,
+                        this.extensionMimeTypesByExtension,
+                    );
                 }
 
                 if (this.fileAccept) {
@@ -561,7 +650,7 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc(
+                message: this.$t(
                     'global.sw-media-upload-v2.notification.invalidFileType.message',
                     {
                         name: file.name,

@@ -12,19 +12,30 @@ use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -34,6 +45,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,7 +56,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class DocumentControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DocumentV2Trait;
     use StorefrontControllerTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
@@ -52,17 +64,28 @@ class DocumentControllerTest extends TestCase
 
     private const INVALID_FILE_TYPE = 'invalid';
 
-    private SalesChannelContext $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
-    private Context $context;
+    protected Context $context;
 
     private DocumentGenerator $documentGenerator;
+
+    /**
+     * @var EntityRepository<DocumentCollection>
+     */
+    private EntityRepository $documentRepository;
+
+    private DocumentConfigLoader $documentConfigLoader;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        $this->documentRepository = static::getContainer()->get('document.repository');
+        $this->documentConfigLoader = static::getContainer()->get(DocumentConfigLoader::class);
+        // Clear cached config from previous tests to ensure a fresh state
+        $this->documentConfigLoader->reset();
 
         $this->context = Context::createDefaultContext();
 
@@ -135,7 +158,7 @@ class DocumentControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame($expectedFileContent, $response->getContent());
         static::assertSame($expectedContentType, $response->headers->get('content-type'));
 
@@ -196,10 +219,17 @@ class DocumentControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotEmpty($response->getContent());
+
+        $documentEntity = $this->documentRepository->search(new Criteria([$document->getId()]), $context)->getEntities()->first();
+        static::assertNotNull($documentEntity);
+
+        $documentConfig = $this->documentConfigLoader->load(InvoiceRenderer::TYPE, TestDefaults::SALES_CHANNEL, $context);
+        $expectedFilename = $documentConfig->getFilenamePrefix() . $documentEntity->getDocumentNumber() . $documentConfig->getFilenameSuffix();
+
         static::assertSame(
-            'inline; filename=invoice_1000.' . $expectedFileType,
+            'inline; filename=' . $expectedFilename . '.' . $expectedFileType,
             $response->headers->get('content-disposition')
         );
         static::assertStringContainsString(
@@ -301,8 +331,49 @@ class DocumentControllerTest extends TestCase
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         } else {
             static::assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
-            static::assertStringContainsString(\sprintf('The requested file type is not supported: %s. (406 Not Acceptable)', self::INVALID_FILE_TYPE), (string) $response->getContent());
+            static::assertStringContainsString('The requested file type is not supported', (string) $response->getContent());
+            static::assertStringContainsString(self::INVALID_FILE_TYPE, (string) $response->getContent());
         }
+    }
+
+    public function testDownloadV2DocumentWithFormatName(): void
+    {
+        $cart = $this->generateDemoCart(1);
+        $orderId = $this->persistCart($cart);
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+
+        $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
+            new DocumentGenerationRequest(
+                $orderId,
+                DocumentType::INVOICE,
+                [DocumentFormat::ZUGFERD_EMBEDDED_PDF],
+                documentNumber: '1000',
+            ),
+            $this->context,
+        );
+
+        /** @var EntityRepository<DocumentFileCollection> $documentFileRepository */
+        $documentFileRepository = static::getContainer()->get('document_file.repository');
+        $documentFile = $documentFileRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('documentId', $document->getId())),
+            $this->context,
+        )->getEntities()->first();
+
+        static::assertInstanceOf(DocumentFileEntity::class, $documentFile);
+        static::assertSame(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $documentFile->getDocumentFormat());
+
+        $expectedContent = static::getContainer()->get(MediaService::class)->loadFile($documentFile->getMediaId(), $this->context);
+
+        $browser = $this->login(self::CUSTOMER_EMAIL_ADDRESS);
+        $browser->request(
+            'GET',
+            '/account/order/document/' . $document->getId() . '/' . $document->getDeepLinkCode() . '/' . DocumentFormat::ZUGFERD_EMBEDDED_PDF->value,
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame($expectedContent, $response->getContent());
     }
 
     private function login(string $email): KernelBrowser
@@ -317,7 +388,7 @@ class DocumentControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         return $browser;
     }

@@ -63,8 +63,7 @@ class CartRedisCompilerPassTest extends TestCase
 
         $compilerPass = new CartStorageCompilerPass();
 
-        $this->expectExceptionMessage('Parameter "shopware.cart.storage.config.connection" is required for redis storage');
-        $this->expectException(DependencyInjectionException::class);
+        $this->expectExceptionObject(DependencyInjectionException::redisNotConfiguredForCartStorage());
 
         $compilerPass->process($this->container);
     }

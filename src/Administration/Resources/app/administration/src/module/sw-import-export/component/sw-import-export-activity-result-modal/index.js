@@ -48,7 +48,7 @@ export default {
         },
 
         logTypeText() {
-            return this.$tc(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
+            return this.$t(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
         },
 
         /**
@@ -71,7 +71,7 @@ export default {
         getStateLabel(state) {
             const translationKey = `sw-import-export.activity.status.${state}`;
 
-            return this.$te(translationKey) ? this.$tc(translationKey) : state;
+            return this.$te(translationKey) ? this.$t(translationKey) : state;
         },
     },
 };

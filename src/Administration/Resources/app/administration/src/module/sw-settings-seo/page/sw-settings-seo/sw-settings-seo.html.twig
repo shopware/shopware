@@ -6,12 +6,12 @@
         {% block sw_settings_seo_smart_bar_header_title %}
         <h2>
             {% block sw_settings_seo_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="12px"
+                size="var(--scale-size-12)"
             />
-            {{ $tc('sw-settings-seo.general.textHeadline') }}
+            {{ $t('sw-settings-seo.general.textHeadline') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -26,7 +26,7 @@
             size="default"
             @click="onClickSave()"
         >
-            {{ $tc('sw-settings-seo.general.buttonSave') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -44,11 +44,15 @@
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <div v-show="!isLoading">
                 {% block sw_settings_seo_content_inner_seo_url_template %}
-                <sw-seo-url-template-card ref="seoUrlTemplateCard" />
+                <sw-seo-url-template-card
+                    ref="seoUrlTemplateCard"
+                    @sales-channel-changed="onSalesChannelChanged"
+                />
                 {% endblock %}
 
                 {% block sw_settings_seo_content_inner_redirect %}
                 <sw-system-config
+                    v-if="!salesChannelIsHeadless"
                     ref="systemConfig"
                     domain="core.seo"
                     @loading-changed="onLoadingChanged"

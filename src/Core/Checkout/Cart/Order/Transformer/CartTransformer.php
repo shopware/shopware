@@ -6,19 +6,20 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\Clock;
 
 #[Package('checkout')]
 class CartTransformer
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:parameter-name-change - parameter `$setOrderDate` will be renamed to `$setPersistentData`
-     *
      * @return array<string, mixed>
      */
+    #[ParameterNameChange(version: 'v6.8.0', parameterName: 'setOrderDate', newName: 'setPersistentData')]
     public static function transform(Cart $cart, SalesChannelContext $context, string $stateId, bool $setOrderDate = true): array
     {
         $currency = $context->getCurrency();
@@ -39,7 +40,7 @@ class CartTransformer
         ];
 
         if ($setOrderDate) {
-            $data['orderDateTime'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $data['orderDateTime'] = Clock::get()->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $data['deepLinkCode'] = Random::getBase64UrlString(32);
         }
 

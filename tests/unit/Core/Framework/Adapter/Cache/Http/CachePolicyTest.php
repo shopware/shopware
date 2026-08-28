@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheControlDirectives;
 use Shopware\Core\Framework\Adapter\Cache\Http\CachePolicy;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CachePolicy::class)]
 class CachePolicyTest extends TestCase
 {

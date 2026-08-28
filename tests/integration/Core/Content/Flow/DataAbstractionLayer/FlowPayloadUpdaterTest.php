@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -195,10 +196,7 @@ class FlowPayloadUpdaterTest extends TestCase
         $payload = $flowEntity->getPayload();
         static::assertIsString($payload);
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $flow = \unserialize($payload);
-
-        static::assertInstanceOf(Flow::class, $flow);
+        $flow = Serialization::assertUnserializedInstanceOf(Flow::class, $payload);
         static::assertInstanceOf(IfSequence::class, $flow->getSequences()[0]);
 
         $flat = $flow->getFlat();

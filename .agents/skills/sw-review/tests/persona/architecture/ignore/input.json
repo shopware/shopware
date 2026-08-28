@@ -1,0 +1,22 @@
+{
+  "persona": "architecture",
+  "tier": "cheap",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-arch-ignore",
+    "title": "chore(admin): tweak product list empty-state copy",
+    "body": "Updates the admin product list empty-state snippet.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/arch-ignore",
+    "additions": 1,
+    "deletions": 1,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Administration/Resources/app/administration/src/module/sw-product/snippet/en-GB.json"
+  ]
+}

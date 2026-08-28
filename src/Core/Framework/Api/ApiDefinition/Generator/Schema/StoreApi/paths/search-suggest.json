@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/search-suggest": {
@@ -8,7 +8,7 @@
                     "Product"
                 ],
                 "summary": "Search for products (suggest)",
-                "description": "Can be used to implement search previews or suggestion listings, that don\u2019t require any interaction.",
+                "description": "Can be used to implement search previews or suggestion listings, that don’t require any interaction.",
                 "operationId": "searchSuggest",
                 "parameters": [
                     {
@@ -18,16 +18,6 @@
                         "required": false,
                         "schema": {
                             "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -43,6 +33,9 @@
                             ],
                             "default": "1"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -84,6 +77,14 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -97,19 +98,9 @@
                     "Product"
                 ],
                 "summary": "Search for products (suggest)",
-                "description": "Can be used to implement search previews or suggestion listings, that don\u2019t require any interaction.",
+                "description": "Can be used to implement search previews or suggestion listings, that don’t require any interaction.",
                 "operationId": "searchSuggestGet",
                 "parameters": [
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
                     {
                         "name": "search",
                         "in": "query",
@@ -136,6 +127,14 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

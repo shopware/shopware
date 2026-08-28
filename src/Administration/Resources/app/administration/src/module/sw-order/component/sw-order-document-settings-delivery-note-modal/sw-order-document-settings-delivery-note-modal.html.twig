@@ -7,7 +7,7 @@
     <mt-text-field
         v-model="documentConfig.documentNumber"
         class="sw-order-document-settings-delivery-note-modal__document-number"
-        :label="$tc('sw-order.documentModal.labelDeliveryNoteNumber')"
+        :label="$t('sw-order.documentModal.labelDeliveryNoteNumber')"
         :error="documentNumberErrorMessage"
         required
     />
@@ -19,8 +19,8 @@
         class="sw-order-document-settings-delivery-note-modal__document-date"
         date-type="date"
         hide-hint
-        :label="$tc('sw-order.documentModal.labelDocumentDate')"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :label="$t('sw-order.documentModal.labelDocumentDate')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
         required
     />
     {% endblock %}
@@ -32,8 +32,8 @@
         date-type="date"
         required
         hide-hint
-        :label="$tc('sw-order.documentModal.labelDeliveryDate')"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :label="$t('sw-order.documentModal.labelDeliveryDate')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 </sw-container>

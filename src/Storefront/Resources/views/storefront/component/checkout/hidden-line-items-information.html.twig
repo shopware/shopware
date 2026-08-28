@@ -18,8 +18,10 @@
                 {% for name in categories %}
                     {% set categoryAttributes = categoryAttributes ~ ' data-category-' ~ loop.index ~ '="' ~ name ~ '"' %}
                 {% endfor %}
+                {% set productId = lineItem.productId ?? lineItem.referencedId ?? lineItem.id %}
                 <span class="hidden-line-item"
-                      data-id="{{ lineItem.productId ?? lineItem.referencedId ?? lineItem.id }}"
+                      data-id="{{ productId }}"
+                      data-sku="{{ lineItem.payload.productNumber ?? productId }}"
                       data-name="{{ lineItem.label }}"
                       data-quantity="{{ lineItem.quantity }}"
                       data-price="{{ gaPrice }}"

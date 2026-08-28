@@ -4,12 +4,11 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 
 /**
  * @extends Collection<File>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class FileCollection extends Collection
 {
     /**
@@ -41,17 +40,6 @@ class FileCollection extends Collection
     public function getPublicPaths(string $prefix): array
     {
         return array_values(array_filter($this->map(static function (File $element) use ($prefix) {
-            // Handle Twig UX components
-            if (str_contains($element->getFilepath(), TwigComponentHelper::COMPONENT_DIRECTORY)) {
-                // Build path - handle empty assetName (for root namespace components)
-                $componentPath = $element->assetName !== null && $element->assetName !== ''
-                    ? $element->assetName . '/' . basename($element->getFilepath())
-                    : basename($element->getFilepath());
-
-                return $prefix . '/components/' . $componentPath;
-            }
-
-            // For non-component files, assetName must be set
             if ($element->assetName === null) {
                 return null;
             }

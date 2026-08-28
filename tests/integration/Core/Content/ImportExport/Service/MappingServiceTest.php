@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -51,7 +52,8 @@ class MappingServiceTest extends TestCase
         $this->mappingService = new MappingService(
             static::getContainer()->get(FileService::class),
             $this->profileRepository,
-            static::getContainer()->get(DefinitionInstanceRegistry::class)
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            new NativeClock()
         );
     }
 
@@ -71,13 +73,14 @@ class MappingServiceTest extends TestCase
 
         $this->profileRepository->create([$profile], Context::createDefaultContext());
 
-        if (empty($profile['mapping'])) {
+        $hasNoMapping = $profile['mapping'] === null || $profile['mapping'] === [];
+        if ($hasNoMapping) {
             $this->expectExceptionObject(ImportExportException::profileWithoutMappings($profile['id']));
         }
 
         $fileId = $this->mappingService->createTemplate(Context::createDefaultContext(), $profile['id']);
 
-        if (empty($profile['mapping'])) {
+        if ($hasNoMapping) {
             return;
         }
 

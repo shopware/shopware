@@ -52,7 +52,7 @@ export default {
             const key = `${type}FieldLabel`;
 
             if (!this.filter.hasOwnProperty(key)) {
-                return this.$tc(`global.default.${type}`);
+                return this.$t(`global.default.${type}`);
             }
 
             const label = this.filter[key];

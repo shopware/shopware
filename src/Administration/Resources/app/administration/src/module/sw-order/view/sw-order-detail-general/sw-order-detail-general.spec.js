@@ -70,6 +70,8 @@ const orderMock = {
     lineItems: [],
 };
 
+orderMock.primaryOrderDelivery = orderMock.deliveries[0];
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {
@@ -106,7 +108,7 @@ async function createWrapper() {
                 'sw-number-field-deprecated': true,
             },
             mocks: {
-                $tc: (key, value) => {
+                $t: (key, value) => {
                     if (!value) {
                         return key;
                     }

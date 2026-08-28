@@ -2,10 +2,13 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,11 +16,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:compile',
     description: 'Compile the theme',
 )]
-#[Package('framework')]
 class ThemeCompileCommand extends Command
 {
     private SymfonyStyle $io;
@@ -27,7 +30,9 @@ class ThemeCompileCommand extends Command
      */
     public function __construct(
         private readonly ThemeService $themeService,
-        private readonly AbstractAvailableThemeProvider $themeProvider
+        private readonly AbstractAvailableThemeProvider $themeProvider,
+        private readonly ClockInterface $clock,
+        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter
     ) {
         parent::__construct();
     }
@@ -42,6 +47,7 @@ class ThemeCompileCommand extends Command
             ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile only themes for given theme ids')
             ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given theme ids')
             ->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously')
+            ->addOption('no-cleanup', null, InputOption::VALUE_NONE, 'Do not delete unused theme directories after compilation')
         ;
     }
 
@@ -89,9 +95,14 @@ class ThemeCompileCommand extends Command
 
             $this->io->block(\sprintf('Compiling theme for sales channel for : %s', $salesChannelId));
 
-            $start = microtime(true);
+            $start = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             $this->themeService->compileTheme($salesChannelId, $themeId, $context, null, !$input->getOption('keep-assets'));
-            $this->io->note(\sprintf('Took %f seconds', microtime(true) - $start));
+            $this->io->note(\sprintf('Took %f seconds', (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start));
+        }
+
+        if (!$input->getOption('no-cleanup')) {
+            $deletedDirectories = $this->unusedThemeDirectoryDeleter->deleteUnusedDirectories();
+            $this->io->note(\sprintf('Deleted %d unused theme %s', $deletedDirectories, $deletedDirectories === 1 ? 'directory' : 'directories'));
         }
 
         return self::SUCCESS;

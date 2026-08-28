@@ -117,7 +117,7 @@ export default {
                 await Shopware.Store.get('error').resetApiErrors();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.create.messageFetchCustomerAddressesError'),
+                    message: this.$t('sw-order.create.messageFetchCustomerAddressesError'),
                 });
             } finally {
                 this.isLoading = false;
@@ -219,7 +219,7 @@ export default {
                 this.closeModal();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.detail.messageSaveError'),
+                    message: this.$t('sw-order.detail.messageSaveError'),
                 });
             } finally {
                 this.isLoading = false;
@@ -267,7 +267,7 @@ export default {
                 this.showAddressFormModal = false;
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.detail.messageSaveError'),
+                    message: this.$t('sw-order.detail.messageSaveError'),
                 });
             } finally {
                 this.isLoading = false;

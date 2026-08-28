@@ -196,6 +196,66 @@ class CartLineItemControllerTest extends TestCase
         static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
     }
 
+    public function testAddPromotionWithEmptyInputAddsValidationFlash(): void
+    {
+        $contextToken = Uuid::randomHex();
+
+        $cartService = static::getContainer()->get(CartService::class);
+        $request = $this->createRequest(['code' => '   ']);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+
+        $response = static::getContainer()->get(CartLineItemController::class)->addPromotion(
+            $cartService->getCart($contextToken, $salesChannelContext),
+            $request,
+            $salesChannelContext
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $flashBagEntries = $this->getFlashBag()->all();
+
+        static::assertArrayHasKey('danger', $flashBagEntries);
+        static::assertSame(static::getContainer()->get('translator')->trans('error.VIOLATION::IS_BLANK_ERROR'), $flashBagEntries['danger'][0]);
+        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+    }
+
+    public function testAddProductByNumberTrimsInputBeforeLookup(): void
+    {
+        $contextToken = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+
+        $this->createProduct($productId, ' test.123 ');
+
+        $cartService = static::getContainer()->get(CartService::class);
+        $request = $this->createRequest(['number' => ' test.123 ']);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+
+        $response = static::getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertArrayHasKey('success', $this->getFlashBag()->all());
+        static::assertNotNull($cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId));
+    }
+
+    public function testAddProductByNumberWithEmptyInputAddsDangerFlash(): void
+    {
+        $contextToken = Uuid::randomHex();
+
+        $cartService = static::getContainer()->get(CartService::class);
+        $request = $this->createRequest(['number' => '   ']);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+
+        $response = static::getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $flashBagEntries = $this->getFlashBag()->all();
+
+        static::assertArrayHasKey('danger', $flashBagEntries);
+        static::assertSame(static::getContainer()->get('translator')->trans('error.VIOLATION::IS_BLANK_ERROR'), $flashBagEntries['danger'][0]);
+        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+    }
+
     private function getFlashBag(): FlashBagInterface
     {
         $sessionBag = $this->getSession()->getBag('flashes');

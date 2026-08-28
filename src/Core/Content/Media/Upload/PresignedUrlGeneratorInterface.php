@@ -11,13 +11,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 interface PresignedUrlGeneratorInterface
 {
-    public function generate(MediaLocationStruct $location, string $mimeType): PresignedUrlResult;
+    public function generate(MediaLocationStruct $location, string $mimeType, bool $private): PresignedUrlResult;
 
     public function isEnabled(): bool;
 
     public function isSupported(): bool;
 
-    public function verifyUpload(string $path): bool;
+    public function getFileMetadata(string $path, bool $private): ?FileMetadataResult;
 
-    public function getFileMetadata(string $path): ?FileMetadataResult;
+    public function deleteFromStorage(string $path, bool $private): void;
 }

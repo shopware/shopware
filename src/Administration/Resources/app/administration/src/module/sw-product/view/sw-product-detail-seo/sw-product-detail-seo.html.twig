@@ -8,7 +8,7 @@
     {% block sw_product_detail_seo_general %}
     <mt-card
         position-identifier="sw-product-detail-seo"
-        :title="$tc('sw-product.seo.cardTitleSeo')"
+        :title="$t('sw-product.seo.cardTitleSeo')"
     >
         {% block sw_product_detail_seo_general_content %}
         <sw-product-seo-form
@@ -34,7 +34,7 @@
                 v-if="product.mainCategories"
                 v-model:value="productMainCategory"
                 :has-parent="!!parentProduct.id && !!props.currentSalesChannelId && product.categories.length === 0"
-                :label="$tc('sw-seo-url.labelMainCategory')"
+                :label="$t('sw-seo-url.labelMainCategory')"
                 :inherited-value="parentMainCategory"
             >
 

@@ -3,36 +3,43 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\FindVariant;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(FindProductVariantRoute::class)]
 class FindProductVariantRouteTest extends TestCase
 {
     /**
-     * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
+     * @var Stub&SalesChannelRepository<ProductCollection>
      */
-    private MockObject&SalesChannelRepository $productRepositoryMock;
+    private Stub&SalesChannelRepository $productRepositoryMock;
 
-    private MockObject&CacheTagCollector $cacheTagCollector;
+    private CacheTagCollector&Stub $cacheTagCollector;
+
+    private Stub&SystemConfigService $systemConfigService;
 
     private FindProductVariantRoute $route;
 
@@ -40,22 +47,16 @@ class FindProductVariantRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productRepositoryMock = $this->createMock(SalesChannelRepository::class);
-        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
-        $this->route = new FindProductVariantRoute(
-            $this->productRepositoryMock,
-            $this->cacheTagCollector,
-        );
+        $this->productRepositoryMock = static::createStub(SalesChannelRepository::class);
+        $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
+        $this->systemConfigService = static::createStub(SystemConfigService::class);
+        $this->route = $this->createRoute();
         $this->ids = new IdsCollection();
     }
 
     public function testNoDecoration(): void
     {
-        static::expectException(DecorationPatternException::class);
-        static::expectExceptionMessage(
-            'The getDecorated() function of core class ' . FindProductVariantRoute::class
-            . ' cannot be used. This class is the base class.'
-        );
+        $this->expectExceptionObject(new DecorationPatternException(FindProductVariantRoute::class));
 
         $this->route->getDecorated();
     }
@@ -79,15 +80,13 @@ class FindProductVariantRouteTest extends TestCase
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('product.optionIds', $this->ids->get('option1')));
         $criteria->addFilter(new EqualsFilter('product.optionIds', $this->ids->get('option2')));
+        $criteria->addFilter(new ProductCloseoutFilter());
 
         $context = Context::createDefaultContext();
 
         $found1Id = $this->ids->get('found1');
         $found2Id = $this->ids->get('found2');
-        $this->productRepositoryMock->method('searchIds')->with(
-            $criteria,
-            $this->createMock(SalesChannelContext::class),
-        )
+        $this->productRepositoryMock->method('searchIds')
             ->willReturn(
                 new IdSearchResult(
                     2,
@@ -106,11 +105,14 @@ class FindProductVariantRouteTest extends TestCase
                 )
             );
 
-        $this->cacheTagCollector->expects($this->once())
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->once())
             ->method('addTag')
             ->with(EntityCacheKeyGenerator::buildProductTag($this->ids->get('productId')));
 
-        $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
+        $this->systemConfigService->method('getBool')->willReturn(true);
+
+        $response = $this->createRoute($cacheTagCollector)->load($this->ids->get('productId'), $request, static::createStub(SalesChannelContext::class));
 
         static::assertSame($found1Id, $response->getFoundCombination()->getVariantId());
         static::assertSame($options, $response->getFoundCombination()->getOptions());
@@ -166,11 +168,12 @@ class FindProductVariantRouteTest extends TestCase
                 ),
             );
 
-        $this->cacheTagCollector->expects($this->once())
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->once())
             ->method('addTag')
             ->with(EntityCacheKeyGenerator::buildProductTag($this->ids->get('productId')));
 
-        $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
+        $response = $this->createRoute($cacheTagCollector)->load($this->ids->get('productId'), $request, static::createStub(SalesChannelContext::class));
 
         static::assertSame($found1Id, $response->getFoundCombination()->getVariantId());
     }
@@ -220,14 +223,13 @@ class FindProductVariantRouteTest extends TestCase
                 ),
             );
 
-        static::expectException(VariantNotFoundException::class);
-        static::expectExceptionMessage(
-            'Variant for productId ' . $this->ids->get('productId') . ' with options {"' . $this->ids->get('group2')
-            . '":"' . $this->ids->get('option2') . '"} not found.'
-        );
+        $this->expectExceptionObject(ProductException::variantNotFound(
+            $this->ids->get('productId'),
+            [$this->ids->get('group2') => $this->ids->get('option2')]
+        ));
 
         try {
-            $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
+            $this->route->load($this->ids->get('productId'), $request, static::createStub(SalesChannelContext::class));
         } catch (VariantNotFoundException $e) {
             static::assertSame('CONTENT__PRODUCT_VARIANT_NOT_FOUND', $e->getErrorCode());
 
@@ -245,9 +247,18 @@ class FindProductVariantRouteTest extends TestCase
                 'options' => $options,
             ]
         );
-        static::expectException(ProductException::class);
-        static::expectExceptionMessage('The parameter options is invalid.');
+        $this->expectExceptionObject(ProductException::invalidOptionsParameter());
 
-        $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
+        $this->route->load($this->ids->get('productId'), $request, static::createStub(SalesChannelContext::class));
+    }
+
+    private function createRoute(?CacheTagCollector $cacheTagCollector = null): FindProductVariantRoute
+    {
+        return new FindProductVariantRoute(
+            $this->productRepositoryMock,
+            $cacheTagCollector ?? $this->cacheTagCollector,
+            $this->systemConfigService,
+            new ProductCloseoutFilterFactory(),
+        );
     }
 }

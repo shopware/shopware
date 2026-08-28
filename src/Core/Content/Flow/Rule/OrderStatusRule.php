@@ -56,7 +56,7 @@ class OrderStatusRule extends FlowRule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
             ->entitySelectField(
                 'stateIds',
                 StateMachineStateDefinition::ENTITY_NAME,

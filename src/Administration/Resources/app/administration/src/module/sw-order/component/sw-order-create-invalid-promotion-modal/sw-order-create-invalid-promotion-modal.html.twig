@@ -1,6 +1,6 @@
 {% block sw_order_create_invalid_promotion_modal %}
 <sw-modal
-    :title="$tc('sw-order.invalidPromotionModal.modalTitle')"
+    :title="$t('sw-order.invalidPromotionModal.modalTitle')"
     variant="small"
     class="sw-order-create-invalid-promotion-modal"
     @modal-close="onClose"
@@ -8,7 +8,7 @@
 
     {% block sw_order_create_invalid_promotion_modal_description %}
     <p class="sw-order-create-invalid-promotion-modal__description">
-        {{ $tc('sw-order.invalidPromotionModal.modalDescription') }}
+        {{ $t('sw-order.invalidPromotionModal.modalDescription') }}
     </p>
     {% endblock %}
 
@@ -33,7 +33,7 @@
             data-analytics-id="sw-order-create-invalid-promotion-modal.confirm"
             @click="onConfirm"
         >
-            {{ $tc('sw-order.invalidPromotionModal.buttonConfirm') }}
+            {{ $t('sw-order.invalidPromotionModal.buttonConfirm') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -46,8 +46,9 @@ import RecentlySearchService from 'src/app/service/recently-search.service';
 import UserActivityService from 'src/app/service/user-activity.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
-import addUsageDataConsentListener from 'src/core/service/usage-data-consent-listener.service';
 import FileValidationService from 'src/app/service/file-validation.service';
+import SnackbarService from 'src/app/service/snackbar.service';
+import CacheService from 'src/app/service/cache.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -57,6 +58,8 @@ import 'src/app/decorator';
 
 /** Import Meteor Component Library styles */
 import '@shopware-ag/meteor-component-library/styles.css';
+import '@shopware-ag/meteor-component-library/font.css';
+import './assets/scss/all.scss';
 
 import ChangesetGenerator from '../core/data/changeset-generator.data';
 import ErrorResolver from '../core/data/error-resolver.data';
@@ -127,9 +130,11 @@ Application.addServiceProvider('feature', () => {
         addPluginUpdatesListener(loginService, serviceContainer);
         addShopwareUpdatesListener(loginService, serviceContainer);
         addCustomerGroupRegistrationListener(loginService);
-        addUsageDataConsentListener(loginService, serviceContainer);
 
         return loginService;
+    })
+    .addServiceProvider('cacheService', () => {
+        return new CacheService();
     })
     .addServiceProvider('jsonApiParserService', () => {
         return JsonApiParser;
@@ -169,6 +174,9 @@ Application.addServiceProvider('feature', () => {
     .addServiceProvider('languageAutoFetchingService', () => {
         return LanguageAutoFetchingService();
     })
+    .addServiceProvider('snackbarService', () => {
+        return new SnackbarService();
+    })
     .addServiceProvider('stateStyleDataProviderService', () => {
         return new StateStyleService();
     })
@@ -197,9 +205,7 @@ Application.addServiceProvider('feature', () => {
         });
     })
     .addServiceProvider('filterService', () => {
-        return new FilterService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
-        });
+        return new FilterService();
     })
     .addServiceProvider('mediaDefaultFolderService', () => {
         return MediaDefaultFolderService();
@@ -225,9 +231,7 @@ Application.addServiceProvider('feature', () => {
         return new RecentlySearchService();
     })
     .addServiceProvider('searchPreferencesService', () => {
-        return new SearchPreferencesService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
-        });
+        return new SearchPreferencesService();
     })
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();

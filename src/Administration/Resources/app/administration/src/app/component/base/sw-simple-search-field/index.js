@@ -90,7 +90,7 @@ export default {
         },
 
         placeholder() {
-            return this.$attrs.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
+            return this.$attrs.placeholder || this.$t('global.sw-simple-search-field.defaultPlaceholder');
         },
     },
 

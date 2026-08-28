@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,6 +23,7 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\Calcu
 /**
  * @internal
  */
+#[Package('framework')]
 class CalculatedPriceFieldTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;

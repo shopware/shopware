@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +16,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('discovery')]
 class NavigationLoadedEventTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,7 +31,7 @@ class NavigationLoadedEventTest extends TestCase
 
     public function testEventDispatched(): void
     {
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = static::getContainer()->get('event_dispatcher');

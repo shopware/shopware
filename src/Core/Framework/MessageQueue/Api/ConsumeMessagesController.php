@@ -25,8 +25,8 @@ use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ConsumeMessagesController extends AbstractController
 {
     /**
@@ -47,7 +47,7 @@ class ConsumeMessagesController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', methods: ['POST'])]
+    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:queue:process']], methods: ['POST'])]
     public function consumeMessages(Request $request): JsonResponse
     {
         $receiverName = RequestParamHelper::get($request, 'receiver');
@@ -80,7 +80,7 @@ class ConsumeMessagesController extends AbstractController
 
         $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 
-        $worker->run(['sleep' => 50]);
+        $worker->run();
 
         $consumerLock->release();
 

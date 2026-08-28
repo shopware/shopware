@@ -15,7 +15,7 @@
         <template v-if="isBusinessAccountType && !customerEditMode">
             <sw-description-list>
                 <dt class="sw-customer-base-info__label">
-                    {{ $tc('sw-customer.baseInfo.labelCompany') }}
+                    {{ $t('sw-customer.baseInfo.labelCompany') }}
                 </dt>
 
                 <dd>
@@ -25,7 +25,7 @@
 
             <sw-description-list>
                 <dt class="sw-customer-base-info__label">
-                    {{ $tc('sw-customer.baseInfo.labelVatId') }}
+                    {{ $t('sw-customer.baseInfo.labelVatId') }}
                 </dt>
 
                 <dd>
@@ -38,7 +38,7 @@
         <sw-description-list>
             {% block sw_customer_base_metadata_customer_group_label %}
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelCustomerGroup') }}
+                {{ $t('sw-customer.baseInfo.labelCustomerGroup') }}
             </dt>
             {% endblock %}
 
@@ -67,7 +67,7 @@
         <sw-description-list>
             {% block sw_customer_base_metadata_active_label %}
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelActive') }}
+                {{ $t('sw-customer.baseInfo.labelActive') }}
             </dt>
             {% endblock %}
 
@@ -76,7 +76,7 @@
                 v-if="!customerEditMode"
                 class="sw-customer-base__label-is-active"
             >
-                {{ $tc('sw-customer.baseInfo.contentActive', {}, customer.active ? 1 : 2) }}
+                {{ $t('sw-customer.baseInfo.contentActive', {}, customer.active ? 1 : 2) }}
             </dd>
             {% endblock %}
 
@@ -86,7 +86,7 @@
                     v-model:checked="customer.active"
                     name="sw-field--customer-active"
                     class="sw-customer-base-info__checkbox-field"
-                    :label="$tc('sw-customer.baseInfo.contentActive')"
+                    :label="$t('sw-customer.baseInfo.contentActive')"
                     size="small"
                 />
             </dd>
@@ -98,7 +98,7 @@
         <sw-description-list v-if="customer.doubleOptInRegistration">
             {% block sw_customer_base_metadata_confirmed_label %}
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelConfirmed') }}
+                {{ $t('sw-customer.baseInfo.labelConfirmed') }}
             </dt>
             {% endblock %}
 
@@ -107,7 +107,7 @@
                 v-if="!customerEditMode"
                 class="sw-customer-base__label-is-confirmed"
             >
-                {{ $tc('sw-customer.baseInfo.contentConfirmed', {}, customer.doubleOptInConfirmDate ? 1 : 2) }}
+                {{ $t('sw-customer.baseInfo.contentConfirmed', {}, customer.doubleOptInConfirmDate ? 1 : 2) }}
             </dd>
             {% endblock %}
 
@@ -117,7 +117,7 @@
                     name="sw-field--customer-confirmed"
                     class="sw-customer-base-info__checkbox-field"
                     :checked="!!customer.doubleOptInConfirmDate"
-                    :label="$tc('sw-customer.baseInfo.contentConfirmed')"
+                    :label="$t('sw-customer.baseInfo.contentConfirmed')"
                     size="small"
                     @update:checked="customer.doubleOptInConfirmDate = $event ? new Date() : null"
                 />
@@ -130,7 +130,7 @@
         <sw-description-list>
             {% block sw_customer_base_metadata_language_label %}
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelLanguage') }}
+                {{ $t('sw-customer.baseInfo.labelLanguage') }}
             </dt>
             {% endblock %}
 
@@ -161,7 +161,7 @@
 
         {% block ssw_customer_base_metadata_affiliate %}
         <sw-description-list>
-            <dt>{{ $tc('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
+            <dt>{{ $t('sw-customer.baseInfo.labelAffiliateCode') }}</dt>
             <dd v-if="!customerEditMode">
                 {{ customer.affiliateCode || '-' }}
             </dd>
@@ -170,7 +170,7 @@
                 <mt-text-field
                     v-model="customer.affiliateCode"
                     name="sw-field--customer-customerAffiliateCode"
-                    :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerAffiliateCode')"
+                    :placeholder="$t('sw-customer.baseInfo.placeholderCustomerAffiliateCode')"
                     size="small"
                 />
             </dd>
@@ -179,7 +179,7 @@
 
         {% block sw_customer_base_metadata_campaign %}
         <sw-description-list>
-            <dt>{{ $tc('sw-customer.baseInfo.labelCampaignCode') }}</dt>
+            <dt>{{ $t('sw-customer.baseInfo.labelCampaignCode') }}</dt>
             <dd v-if="!customerEditMode">
                 {{ customer.campaignCode || '-' }}
             </dd>
@@ -188,7 +188,7 @@
                 <mt-text-field
                     v-model="customer.campaignCode"
                     name="sw-field--customer-customerCampaignCode"
-                    :placeholder="$tc('sw-customer.baseInfo.placeholderCustomerCampaignCode')"
+                    :placeholder="$t('sw-customer.baseInfo.placeholderCustomerCampaignCode')"
                     size="small"
                 />
             </dd>
@@ -202,7 +202,7 @@
         {% block sw_customer_base_metadata_customer_number %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelCustomerNumber') }}
+                {{ $t('sw-customer.baseInfo.labelCustomerNumber') }}
             </dt>
             <dd class="sw-customer-base__label-customer-number">
                 {{ customer.customerNumber }}
@@ -214,8 +214,8 @@
         <sw-description-list>
             {% block sw_customer_base_metadata_bound_sales_channel_label %}
             <dt class="sw-customer-base-info__label sw-bound-sales-channel__label">
-                {{ $tc('sw-customer.baseInfo.labelBoundSalesChannel') }}
-                <sw-help-text :text="$tc('sw-customer.baseInfo.helpTextBoundSalesChannel')" />
+                {{ $t('sw-customer.baseInfo.labelBoundSalesChannel') }}
+                <sw-help-text :text="$t('sw-customer.baseInfo.helpTextBoundSalesChannel')" />
             </dt>
             {% endblock %}
 
@@ -225,7 +225,7 @@
                     {{ customer.boundSalesChannel.translated.name }}
                 </template>
                 <template v-else>
-                    {{ $tc('sw-customer.baseInfo.emptyBoundSalesChannel') }}
+                    {{ $t('sw-customer.baseInfo.emptyBoundSalesChannel') }}
                 </template>
             </dd>
             {% endblock %}
@@ -235,7 +235,7 @@
         {% block sw_customer_base_metadata_last_login %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelLastLogin') }}
+                {{ $t('sw-customer.baseInfo.labelLastLogin') }}
             </dt>
             <dd class="sw-customer-base__label-last-login">
                 <template v-if="customer.lastLogin">
@@ -245,7 +245,7 @@
                     />
                 </template>
                 <template v-else>
-                    {{ $tc('sw-customer.baseInfo.emptyTextLogin') }}
+                    {{ $t('sw-customer.baseInfo.emptyTextLogin') }}
                 </template>
             </dd>
         </sw-description-list>
@@ -254,7 +254,7 @@
         {% block sw_customer_base_metadata_turnover %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelTurnover') }}
+                {{ $t('sw-customer.baseInfo.labelTurnover') }}
             </dt>
             <dd class="sw-customer-base__label-turnover">
                 {{ currencyFilter(customer.orderTotalAmount, currencyCode) }}
@@ -265,7 +265,7 @@
         {% block sw_customer_base_metadata_orders %}
         <sw-description-list>
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelOrders') }}
+                {{ $t('sw-customer.baseInfo.labelOrders') }}
             </dt>
             <dd>{{ orderCount }}</dd>
         </sw-description-list>
@@ -275,7 +275,7 @@
         <sw-description-list>
             {% block sw_customer_base_metadata_birthday_label %}
             <dt class="sw-customer-base-info__label">
-                {{ $tc('sw-customer.baseInfo.labelBirthday') }}
+                {{ $t('sw-customer.baseInfo.labelBirthday') }}
             </dt>
             {% endblock %}
 
@@ -288,7 +288,7 @@
                     {{ dateFilter(customer.birthday, { month: '2-digit', day: '2-digit', hour: undefined, minute: undefined }) }}
                 </template>
                 <template v-else>
-                    {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}
+                    {{ $t('sw-customer.baseInfo.emptyTextBirthday') }}
                 </template>
             </dd>
             {% endblock %}
@@ -301,7 +301,7 @@
                     size="small"
                     date-type="date"
                     hide-hint
-                    :placeholder="$tc('sw-datepicker.date.placeholder')"
+                    :placeholder="$t('sw-datepicker.date.placeholder')"
                 />
             </dd>
             {% endblock %}

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1701677136RemovePluginChangelogField;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_6\Migration1701677136RemovePluginChangelogField;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1701677136RemovePluginChangelogField::class)]
 class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
 {
@@ -20,6 +22,11 @@ class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1701677136, (new Migration1701677136RemovePluginChangelogField())->getCreationTimestamp());
     }
 
     public function testUpdateDestructiveRemovesColumn(): void

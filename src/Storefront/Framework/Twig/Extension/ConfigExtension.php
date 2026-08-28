@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -10,7 +12,7 @@ use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ConfigExtension extends AbstractExtension
 {
     /**
@@ -23,25 +25,35 @@ class ConfigExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('config', $this->config(...), ['needs_context' => true]),
             new TwigFunction('theme_config', $this->theme(...), ['needs_context' => true]),
             new TwigFunction('theme_scripts', $this->scripts(...), ['needs_context' => true]),
-            new TwigFunction('component_import_map', $this->componentImportMap(...), ['needs_context' => true]),
+            new TwigFunction('import_map', $this->importMap(...), ['needs_context' => true]),
+            new TwigFunction('theme_css_vars', $this->themeCssVars(...), ['needs_context' => true]),
         ];
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use the Twig config() function in templates or SystemConfigService in PHP code instead.
+     *
      * @param array<string, mixed> $context
      *
      * @return string|bool|array<mixed>|float|int|null
      */
     public function config(array $context, string $key)
     {
-        return $this->config->config($key, $this->getSalesChannelId($context));
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'SystemConfigService')
+        );
+
+        return Feature::silent(
+            'v6.8.0.0',
+            fn (): mixed => $this->config->config($key, $this->getSalesChannelId($context))
+        );
     }
 
     /**
-     * @param array<string, SalesChannelContext|string> $context
+     * @param array<string, mixed> $context
      *
      * @return string|bool|array<string, mixed>|float|int|null
      */
@@ -61,13 +73,36 @@ class ConfigExtension extends AbstractExtension
     }
 
     /**
-     * Returns the component import map.
+     * Returns the theme import map.
      *
      * @return array<string, mixed>
      */
-    public function componentImportMap(): array
+    public function importMap(): array
     {
-        return $this->config->componentImportMap();
+        return $this->config->importMap();
+    }
+
+    /**
+     * Returns all theme config fields that have `"scss": true` (the default) as a
+     * key/value map so templates can render CSS custom properties with escaping.
+     *
+     * @param array<string, mixed> $context
+     *
+     * @return array<string, string|int>
+     */
+    public function themeCssVars(array $context): array
+    {
+        return $this->config->themeCssVars($this->getContext($context), $this->getThemeId($context));
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function getThemeId(array $context): ?string
+    {
+        $themeId = $context['themeId'] ?? null;
+
+        return \is_string($themeId) ? $themeId : null;
     }
 
     /**
@@ -75,17 +110,14 @@ class ConfigExtension extends AbstractExtension
      */
     private function getSalesChannelId(array $context): ?string
     {
-        if (isset($context['context'])) {
-            $salesChannelContext = $context['context'];
-            if ($salesChannelContext instanceof SalesChannelContext) {
-                return $salesChannelContext->getSalesChannelId();
-            }
+        $salesChannelContext = TwigContextHelper::getSalesChannelContext($context);
+        if ($salesChannelContext instanceof SalesChannelContext) {
+            return $salesChannelContext->getSalesChannelId();
         }
-        if (isset($context['salesChannel'])) {
-            $salesChannel = $context['salesChannel'];
-            if ($salesChannel instanceof SalesChannelEntity) {
-                return $salesChannel->getId();
-            }
+
+        $salesChannel = $context['salesChannel'] ?? null;
+        if ($salesChannel instanceof SalesChannelEntity) {
+            return $salesChannel->getId();
         }
 
         return null;
@@ -94,26 +126,13 @@ class ConfigExtension extends AbstractExtension
     /**
      * @param array<string, mixed> $context
      */
-    private function getThemeId(array $context): ?string
-    {
-        return $context['themeId'] ?? null;
-    }
-
-    /**
-     * @param array<string, mixed> $context
-     */
     private function getContext(array $context): SalesChannelContext
     {
-        if (!isset($context['context'])) {
+        $salesChannelContext = TwigContextHelper::getSalesChannelContext($context);
+        if (!$salesChannelContext instanceof SalesChannelContext) {
             throw StorefrontFrameworkException::salesChannelContextObjectNotFound();
         }
 
-        $context = $context['context'];
-
-        if (!$context instanceof SalesChannelContext) {
-            throw StorefrontFrameworkException::salesChannelContextObjectNotFound();
-        }
-
-        return $context;
+        return $salesChannelContext;
     }
 }

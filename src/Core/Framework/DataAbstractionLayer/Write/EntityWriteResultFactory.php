@@ -384,6 +384,11 @@ class EntityWriteResultFactory
 
                 $payload = $this->getCommandPayload($command);
 
+                // A row created and updated in the same queue is still an insert from the outside.
+                if (($writeResults[$uniqueId] ?? null)?->getOperation() === EntityWriteResult::OPERATION_INSERT && $operation === EntityWriteResult::OPERATION_UPDATE) {
+                    $operation = EntityWriteResult::OPERATION_INSERT;
+                }
+
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $primaryKey,
                     \array_merge($payload, ($writeResults[$uniqueId] ?? null)?->getPayload() ?? []),
@@ -429,11 +434,17 @@ class EntityWriteResultFactory
                     }
                 }
 
+                // JSON updates can be the update half of an insert, so keep the insert operation when merging.
+                $operation = EntityWriteResult::OPERATION_UPDATE;
+                if (($writeResults[$uniqueId] ?? null)?->getOperation() === EntityWriteResult::OPERATION_INSERT) {
+                    $operation = EntityWriteResult::OPERATION_INSERT;
+                }
+
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),
                     $mergedPayload,
                     $command->getEntityName(),
-                    EntityWriteResult::OPERATION_UPDATE,
+                    $operation,
                     $command->getEntityExistence(),
                     $command->getChangeSet()
                 );

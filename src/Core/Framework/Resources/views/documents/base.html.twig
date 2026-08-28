@@ -65,7 +65,10 @@ merge 16.11.2020
                 {% sw_include '@Framework/documents/style_base_portrait.css.twig' %}
             {% endif %}
 
-            {% if config.fileType == constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
+            {#- @deprecated tag:v6.8.0 - Remove with the v1 renderers, keeping only the `screen` include -#}
+            {% if documentV2 ?? false %}
+                {% sw_include '@Framework/documents/style_base_html.css.twig' with { styleMedia: 'screen' } %}
+            {% elseif config.fileType == constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
                 {% sw_include '@Framework/documents/style_base_html.css.twig' %}
             {% endif %}
         {% endblock %}

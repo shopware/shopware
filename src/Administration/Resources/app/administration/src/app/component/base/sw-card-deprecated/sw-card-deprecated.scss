@@ -16,7 +16,7 @@
     max-width: $content-width;
     margin: 0 auto 40px;
     position: relative;
-    color: $color-darkgray-200;
+    color: var(--color-text-primary-default);
 
     .sw-ai-copilot-badge {
         height: 18px;
@@ -95,11 +95,11 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 12px;
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-raised);
         padding: 24px;
         padding-bottom: 20px;
         border-radius: $border-radius-lg $border-radius-lg 0 0;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     .sw-card__avatar {
@@ -117,20 +117,20 @@
 
     .sw-card__title,
     .sw-card__subtitle {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 
     .sw-card__title {
         color: var(--color-text-primary-default);
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
-        line-height: $line-height-xs;
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-xs);
     }
 
     .sw-card__subtitle {
-        color: $color-darkgray-50;
-        font-size: $font-size-xs;
-        line-height: $line-height-xs;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     .sw-card__titles-right-slot {
@@ -140,8 +140,8 @@
     .sw-card__toolbar {
         flex-basis: 100%;
         padding: 30px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     &.has--header {
@@ -154,7 +154,7 @@
     .sw-card__content {
         display: flow-root;
         padding: 30px;
-        background: $color-white;
+        background: var(--color-elevation-surface-raised);
         background-clip: padding-box;
         border-radius: $border-radius-lg;
         position: relative;
@@ -177,7 +177,7 @@
         }
 
         h1 {
-            font-size: $font-size-xl;
+            font-size: var(--font-size-xl);
         }
 
         h2 {
@@ -185,13 +185,13 @@
         }
 
         h3 {
-            font-size: $font-size-l;
+            font-size: var(--font-size-l);
         }
 
         h4,
         h5,
         h6 {
-            font-size: $font-size-m;
+            font-size: var(--font-size-m);
         }
 
         a.sw-card__quick-link {
@@ -200,11 +200,11 @@
             grid-column-gap: 6px;
             align-items: center;
             text-decoration: none;
-            color: $color-shopware-brand-500;
-            font-size: $font-size-xs;
+            color: var(--color-text-brand-default);
+            font-size: var(--font-size-xs);
 
             &:hover {
-                color: $color-shopware-brand-600;
+                color: var(--color-text-brand-hover);
             }
         }
 
@@ -228,22 +228,22 @@
             border-bottom-right-radius: 0;
 
             &:hover {
-                border-bottom-color: $color-gray-300;
+                border-bottom-color: var(--color-border-secondary-default);
             }
 
             &:focus {
-                background-color: $color-gray-100;
-                border-bottom-color: $color-gray-300;
+                background-color: var(--color-background-secondary-default);
+                border-bottom-color: var(--color-border-secondary-default);
             }
 
             &:active {
-                border-bottom-color: $color-white;
-                background-color: $color-white;
+                border-bottom-color: var(--color-elevation-surface-raised);
+                background-color: var(--color-elevation-surface-raised);
             }
 
             &.router-link-active {
-                background-color: $color-white;
-                border-bottom-color: $color-white;
+                background-color: var(--color-elevation-surface-raised);
+                border-bottom-color: var(--color-elevation-surface-raised);
             }
         }
     }
@@ -256,13 +256,13 @@
     }
 
     & > .sw-tabs {
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: $border-radius-lg $border-radius-lg 0 0;
         border-bottom: none;
         margin-bottom: 0;
 
         .sw-tabs__content {
-            background-color: $color-gray-50;
+            background-color: var(--color-elevation-surface-raised);
         }
 
         .sw-tabs__custom-Content {
@@ -284,7 +284,7 @@
             font-weight: normal;
 
             &.sw-tabs-item--active {
-                font-weight: $font-weight-semi-bold;
+                font-weight: var(--font-weight-semibold);
             }
         }
     }
@@ -301,7 +301,7 @@
         border: 1px solid $color-module-purple-900;
 
         .sw-card__content {
-            background-color: $color-module-purple-50;
+            background-color: var(--color-background-brand-default);
         }
     }
 }

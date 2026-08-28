@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import shuffle from 'lodash-es/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
@@ -11,6 +7,7 @@ const { Criteria } = Shopware.Data;
 const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -38,6 +35,13 @@ export default {
             validator(value) {
                 return value === null || value.split(':').length === 2;
             },
+        },
+        /**
+         * Whether matching variants are grouped, mirroring the product stream's "display as group" setting.
+         */
+        displayAsGroup: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {
@@ -102,27 +106,27 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    label: this.$t('sw-product-stream.filter.values.product'),
                     type: 'text',
                     routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturerId'),
+                    label: this.$t('sw-product-stream.filter.values.manufacturerId'),
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    label: this.$t('sw-product-stream.filter.values.active'),
                     align: 'center',
                     type: 'bool',
                 },
                 {
                     property: 'price',
-                    label: this.$tc('sw-product-stream.filter.values.price'),
+                    label: this.$t('sw-product-stream.filter.values.price'),
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    label: this.$t('sw-product-stream.filter.values.stock'),
                     align: 'right',
                 },
             ];
@@ -181,10 +185,16 @@ export default {
             }
 
             return this.productStreamPreviewService
-                .preview(this.selectedSalesChannel, this.previewCriteria, this.mapFiltersForSearch(this.filters), {
-                    'sw-currency-id': this.selectedCurrencyId,
-                    'sw-inheritance': true,
-                })
+                .preview(
+                    this.selectedSalesChannel,
+                    this.previewCriteria,
+                    this.mapFiltersForSearch(this.filters),
+                    {
+                        'sw-currency-id': this.selectedCurrencyId,
+                        'sw-inheritance': true,
+                    },
+                    this.displayAsGroup,
+                )
                 .then((result) => {
                     this.products = Object.values(result.elements);
                     this.total = result.total;

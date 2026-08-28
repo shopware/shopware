@@ -1,7 +1,3 @@
-@import "~scss/variables";
-
-$sw-shipping-list-color-error: $color-crimson-500;
-
 .sw-settings-shipping-price-matrix {
     &.sw-card .sw-card__content {
         padding: 0;
@@ -10,8 +6,8 @@ $sw-shipping-list-color-error: $color-crimson-500;
 
     .sw-settings-shipping-price-matrix__top-container {
         padding: 32px 24px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid #d1d9e0;
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         .sw-select__single-selection {
             min-height: 30px;
@@ -24,7 +20,7 @@ $sw-shipping-list-color-error: $color-crimson-500;
 
     .sw-settings-shipping-price-matrix__price-group-context {
         width: 35px;
-        border: 1px solid #d6dde5;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 3px;
         padding: 0;
         cursor: pointer;
@@ -49,18 +45,26 @@ $sw-shipping-list-color-error: $color-crimson-500;
 
     .sw-settings-shipping-price-matrix__empty-text {
         max-width: 500px;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         text-align: center;
         margin-bottom: 17px;
     }
 
     .sw-settings-shipping-price-matrix__price {
         display: flex;
+        flex-direction: row;
         align-items: center;
+        gap: var(--scale-size-8);
+        width: 100%;
     }
 
     .sw-settings-shipping-price-matrix__price-inherit-icon {
-        margin-right: 5px;
+        flex: 0 0 auto;
+    }
+
+    .sw-settings-shipping-price-matrix__price .sw-price-field {
+        flex: 1 1 0;
+        min-width: 0;
     }
 
     .sw-settings-shipping-price-matrix__top-container-rule-select .sw-field {
@@ -80,7 +84,7 @@ $sw-shipping-list-color-error: $color-crimson-500;
     }
 
     .sw-settings-shipping-price-matrix__price-load-all {
-        border-top: 1px solid $color-gray-300;
+        border-top: 1px solid var(--color-border-secondary-default);
         padding: 20px;
 
         &-button {

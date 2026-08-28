@@ -35,7 +35,7 @@ async function createWrapper(notificationData = {}, mocks = {}) {
                     // Check if key looks like a translation key (contains dots)
                     return key && typeof key === 'string' && key.includes('.');
                 },
-                $tc: (key) => {
+                $t: (key) => {
                     return `Translated: ${key}`;
                 },
                 $sanitize: (value) => value,
@@ -178,7 +178,7 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
                 },
                 {
                     $te: () => false,
-                    $tc: (key) => `Translated: ${key}`,
+                    $t: (key) => `Translated: ${key}`,
                 },
             );
 
@@ -194,7 +194,7 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
                 },
                 {
                     $te: () => false,
-                    $tc: (key) => `Translated: ${key}`,
+                    $t: (key) => `Translated: ${key}`,
                     $sanitize: sanitizeMock,
                 },
             );
@@ -228,7 +228,7 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
                 },
                 {
                     $te: () => true,
-                    $tc: (key) => `Translated: ${key}`,
+                    $t: (key) => `Translated: ${key}`,
                 },
             );
 
@@ -244,7 +244,7 @@ describe('src/app/component/utils/sw-notification-center-item', () => {
                 },
                 {
                     $te: () => true,
-                    $tc: (key) => `Translated: ${key}`,
+                    $t: (key) => `Translated: ${key}`,
                     $sanitize: sanitizeMock,
                 },
             );

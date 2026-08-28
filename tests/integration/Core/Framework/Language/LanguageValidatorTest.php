@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -16,6 +17,7 @@ use Shopware\Core\System\Language\LanguageValidator;
 /**
  * @internal
  */
+#[Package('fundamentals@discovery')]
 class LanguageValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -1024,7 +1026,7 @@ class LanguageValidatorTest extends TestCase
         if (!isset($lang['translationCode']) && !isset($lang['translationCodeId'])) {
             $id = Uuid::randomHex();
             $lang['translationCode'] = [
-                'code' => 'x-tst_' . $id,
+                'code' => 'de-DE-' . $id,
                 'name' => 'test translation code ' . $id,
                 'territory' => 'test translation territory ' . $id,
             ];
@@ -1032,7 +1034,7 @@ class LanguageValidatorTest extends TestCase
         if (isset($lang['parent']) && !isset($lang['parent']['translationCode']) && !isset($lang['parent']['translationCodeId'])) {
             $id = Uuid::randomHex();
             $lang['parent']['translationCode'] = [
-                'code' => 'x-tst_' . $id,
+                'code' => 'de-DE-' . $id,
                 'name' => 'test translation code parent ' . $id,
                 'territory' => 'test translation territory ' . $id,
             ];

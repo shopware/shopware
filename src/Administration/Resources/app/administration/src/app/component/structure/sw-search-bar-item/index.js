@@ -1,3 +1,4 @@
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
 
@@ -124,14 +125,14 @@ export default {
             const { action, label, entity, title } = this.item;
 
             if (title && !action) {
-                return this.$tc(`${title}`, 2);
+                return this.$t(`${title}`, 2);
             }
 
             return action
-                ? this.$tc(
+                ? this.$t(
                       'global.sw-search-bar-item.addNewEntity',
                       {
-                          entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase(),
+                          entity: label?.toLowerCase() ?? this.$t(`global.entities.${entity}`).toLowerCase(),
                       },
                       0,
                   )
@@ -152,6 +153,10 @@ export default {
         },
 
         iconColor() {
+            if (!useModuleIconColors().enabled.value) {
+                return 'var(--color-icon-primary-default)';
+            }
+
             return [
                 'module',
                 'frequently_used',
@@ -167,7 +172,7 @@ export default {
                 return false;
             }
 
-            return this.$tc(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
+            return this.$t(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
         },
 
         productDisplayName() {

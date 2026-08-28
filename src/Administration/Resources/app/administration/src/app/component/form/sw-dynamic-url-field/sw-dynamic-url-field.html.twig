@@ -5,7 +5,7 @@
         {% block sw_dynamic_url_field_content_type %}
         <mt-select
             :model-value="linkCategory"
-            :label="$tc('sw-text-editor-toolbar.link.labelType')"
+            :label="$t('sw-text-editor-toolbar.link.labelType')"
             required
             :options="linkCategoryOptions"
             :disabled="disabled"
@@ -19,8 +19,8 @@
         <mt-text-field
             v-if="linkCategory === 'link'"
             v-model="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholder')"
             :disabled="disabled"
         />
         {% endblock %}
@@ -30,8 +30,8 @@
         <mt-text-field
             v-else-if="linkCategory === 'phone'"
             v-model="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
             :disabled="disabled"
         />
         {% endblock %}
@@ -40,8 +40,8 @@
         <mt-email-field
             v-else-if="linkCategory === 'email'"
             v-model="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderEmail')"
             :disabled="disabled"
         />
         {% endblock %}
@@ -55,8 +55,8 @@
             display-variants
             entity="product"
             :criteria="entityFilter"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderProduct')"
             :disabled="disabled"
             show-clearable-button
         />
@@ -65,9 +65,9 @@
         {% block sw_dynamic_url_field_content_type_inputs_category %}
         <sw-category-tree-field
             v-else-if="linkCategory === 'navigation'"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
             :criteria="entityFilter"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderCategory')"
             :categories-collection="categoryCollection"
             :disabled="disabled"
             single-select
@@ -80,7 +80,7 @@
         <sw-media-field
             v-else-if="linkCategory === 'media'"
             v-model:value="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
             :criteria="entityFilter"
             :disabled="disabled"
             single-select
@@ -99,7 +99,7 @@
         :disabled="disabled || !linkTarget"
         @click="removeLink"
     >
-        {{ $tc('global.default.remove') }}
+        {{ $t('global.default.remove') }}
     </mt-button>
     {% endblock %}
 </div>

@@ -47,6 +47,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -98,6 +99,16 @@ class CustomerDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        $defaultBillingAddressAssociation = Feature::isActive('v6.8.0.0')
+            ? new OneToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', 'id', CustomerAddressDefinition::class, false)
+            : new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, 'id', false);
+        $defaultBillingAddressAssociation->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))->setDescription('Default billing address for the customer');
+
+        $defaultShippingAddressAssociation = Feature::isActive('v6.8.0.0')
+            ? new OneToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', 'id', CustomerAddressDefinition::class, false)
+            : new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, 'id', false);
+        $defaultShippingAddressAssociation->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))->setDescription('Default shipping address for the customer');
+
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the customer.'),
             (new FkField('customer_group_id', 'groupId', CustomerGroupDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of customer group.'),
@@ -139,9 +150,9 @@ class CustomerDefinition extends EntityDefinition
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             (new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Preferred language for customer communication'),
             (new ManyToOneAssociationField('lastPaymentMethod', 'last_payment_method_id', PaymentMethodDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Last used payment method by the customer'),
-            (new ManyToOneAssociationField('defaultBillingAddress', 'default_billing_address_id', CustomerAddressDefinition::class, 'id', false))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))->setDescription('Default billing address for the customer'),
+            $defaultBillingAddressAssociation,
             (new ManyToOneAssociationField('activeBillingAddress', 'active_billing_address_id', CustomerAddressDefinition::class, 'id', false))->addFlags(new ApiAware(), new Runtime())->setDescription('Currently active billing address in the session'),
-            (new ManyToOneAssociationField('defaultShippingAddress', 'default_shipping_address_id', CustomerAddressDefinition::class, 'id', false))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))->setDescription('Default shipping address for the customer'),
+            $defaultShippingAddressAssociation,
             (new ManyToOneAssociationField('activeShippingAddress', 'active_shipping_address_id', CustomerAddressDefinition::class, 'id', false))->addFlags(new ApiAware(), new Runtime())->setDescription('Currently active shipping address in the session'),
             (new ManyToOneAssociationField('salutation', 'salutation_id', SalutationDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Customer salutation (e.g., Mr., Mrs., Ms.)'),
             (new OneToManyAssociationField('addresses', CustomerAddressDefinition::class, 'customer_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('All addresses saved for the customer'),
@@ -152,7 +163,7 @@ class CustomerDefinition extends EntityDefinition
             new OneToOneAssociationField('recoveryCustomer', 'id', 'customer_id', CustomerRecoveryDefinition::class, false),
             (new RemoteAddressField('remote_address', 'remoteAddress'))->setDescription('Anonymous IP address of the customer for last session.'),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new ApiAware())->setDescription('Unique identity of tag.'),
-            (new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class))->setDescription('Unique identity of requested group.'),
+            (new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of requested group.'),
             new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false),
             (new FkField('bound_sales_channel_id', 'boundSalesChannelId', SalesChannelDefinition::class))->setDescription('Unique identity of bonus sales channel.'),
             (new StringField('account_type', 'accountType'))->addFlags(new ApiAware(), new Required(), new IgnoreInOpenapiSchema())->setDescription('Account type can be personal or business.'),

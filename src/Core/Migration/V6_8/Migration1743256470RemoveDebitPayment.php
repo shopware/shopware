@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
+ * @no-indexer-required: false positive. 'payment_method.indexer' is per row, not cross-row.
  */
 #[Package('checkout')]
 class Migration1743256470RemoveDebitPayment extends MigrationStep

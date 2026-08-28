@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mcp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <mcp-tools>
+        <mcp-tool name="sync-orders" url="https://app.example.com/mcp/sync-orders">
+            <label>Sync Orders</label>
+        </mcp-tool>
+    </mcp-tools>
+</mcp>

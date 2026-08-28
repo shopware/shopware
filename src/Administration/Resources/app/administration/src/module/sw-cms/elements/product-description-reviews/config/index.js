@@ -11,7 +11,10 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
 
     emits: ['element-update'],
 
@@ -19,7 +22,26 @@ export default {
         Mixin.getByName('cms-element'),
     ],
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.options'),
+                    name: 'options',
+                },
+            ];
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -54,17 +76,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
                 },
             ];
         },

@@ -1,13 +1,10 @@
-/**
- * @sw-package inventory
- */
-
 import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
 
 const { EntityDefinition } = Shopware;
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
@@ -23,6 +20,13 @@ export default {
     ],
 
     computed: {
+        conditionClasses() {
+            return {
+                ...this.$super('conditionClasses'),
+                'sw-product-stream-filter': true,
+            };
+        },
+
         actualCondition() {
             if (this.condition.type === 'not') {
                 return this.condition.queries[0];
@@ -229,7 +233,7 @@ export default {
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),

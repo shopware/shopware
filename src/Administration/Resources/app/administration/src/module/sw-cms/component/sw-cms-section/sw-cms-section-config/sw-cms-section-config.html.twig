@@ -18,7 +18,7 @@
                 name="regular-duplicate"
                 size="16"
             />
-            {{ $tc('global.default.duplicate') }}
+            {{ $t('global.default.duplicate') }}
         </li>
         {% endblock %}
 
@@ -47,8 +47,8 @@
 
         <mt-text-field
             v-model="section.name"
-            :label="$tc('sw-cms.detail.label.sectionNameField')"
-            :help-text="$tc('sw-cms.detail.tooltip.sectionNameField')"
+            :label="$t('sw-cms.detail.label.sectionNameField')"
+            :help-text="$t('sw-cms.detail.tooltip.sectionNameField')"
         />
         {% endblock %}
 
@@ -56,15 +56,15 @@
 
         <mt-text-field
             v-model="section.cssClass"
-            :label="$tc('sw-cms.detail.label.cssClassField')"
-            :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
+            :label="$t('sw-cms.detail.label.cssClassField')"
+            :help-text="$t('sw-cms.detail.helpText.cssClassField')"
         />
         {% endblock %}
 
         {% block sw_cms_sidebar_section_config_sizing_field %}
         <mt-select
             v-model="section.sizingMode"
-            :label="$tc('sw-cms.detail.label.sizingField')"
+            :label="$t('sw-cms.detail.label.sizingField')"
             :options="sizingModeOptions"
         />
         {% endblock %}
@@ -73,7 +73,7 @@
         <mt-select
             v-if="section.type === 'sidebar'"
             v-model="section.mobileBehavior"
-            :label="$tc('sw-cms.detail.sidebar.mobile')"
+            :label="$t('sw-cms.detail.sidebar.mobile')"
             :options="mobileBehaviorOptions"
         />
         {% endblock %}
@@ -81,8 +81,8 @@
         {% block sw_cms_section_config_background_color_field %}
         <mt-colorpicker
             v-model="section.backgroundColor"
-            :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
-            :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
+            :label="$t('sw-cms.detail.label.backgroundColorLabel')"
+            :placeholder="$t('sw-cms.detail.label.backgroundColorField')"
         />
         {% endblock %}
 
@@ -90,7 +90,7 @@
         <sw-media-compact-upload-v2
             :source="section && section.backgroundMedia && section.backgroundMedia.id ? section.backgroundMedia : null"
             :upload-tag="uploadTag"
-            :label="$tc('sw-cms.detail.label.backgroundMediaLabel')"
+            :label="$t('sw-cms.detail.label.backgroundMediaLabel')"
             :default-folder="cmsPageState.pageEntityName"
             :allow-multi-select="false"
             @media-upload-remove-image="removeMedia"
@@ -105,7 +105,7 @@
         {% block sw_cms_section_config_background_image_position_field %}
         <mt-select
             v-model="section.backgroundMediaMode"
-            :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
+            :label="$t('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!section.backgroundMediaId"
             :options="backgroundMediaModeOptions"
         />

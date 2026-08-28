@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -99,6 +100,10 @@ class OrderAddressDefinition extends EntityDefinition
         if (!Feature::isActive('v6.8.0.0')) {
             $fields->add(
                 (new StringField('vat_id', 'vatId'))->addFlags(new ApiAware(), new Deprecated('v6.7.6.0', 'v6.8.0.0'))->setDescription('Unique identity of VAT.'),
+            );
+        } else {
+            $fields->add(
+                new OneToOneAssociationField('billingAddressOrder', 'id', 'billing_address_id', OrderDefinition::class, false)
             );
         }
 

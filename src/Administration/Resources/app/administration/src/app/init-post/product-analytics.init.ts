@@ -4,7 +4,6 @@
 import { computed, watch, type WatchHandle } from 'vue';
 import useConsentStore from 'src/core/consent/consent.store';
 import { GatewayClient } from 'src/core/telemetry/product-analytics/gateway-client';
-import { AmplitudeAdapter } from 'src/core/telemetry/product-analytics/amplitude-adapter';
 import createConsentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import createTelemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
 
@@ -22,9 +21,7 @@ export default async function (): Promise<WatchHandle | undefined> {
      * register consent event handler
      */
 
-    const amplitudeAdapter = new AmplitudeAdapter(analyticsGatewayUrl, await getDefaultLanguageName());
-
-    const gatewayClient = new GatewayClient(analyticsGatewayUrl, amplitudeAdapter);
+    const gatewayClient = new GatewayClient(analyticsGatewayUrl, await getDefaultLanguageName());
 
     const consentEventHandler = createConsentEventHandler(gatewayClient);
 
@@ -43,7 +40,7 @@ export default async function (): Promise<WatchHandle | undefined> {
         }
     });
 
-    amplitudeAdapter.setOptOut(true);
+    gatewayClient.setOptOut(true);
 
     const eventHandlers = createTelemetryEventHandler(gatewayClient);
 
@@ -55,7 +52,7 @@ export default async function (): Promise<WatchHandle | undefined> {
                     gatewayClient.init();
                 }
 
-                amplitudeAdapter.setOptOut(false);
+                gatewayClient.setOptOut(false);
                 Shopware.Utils.EventBus.on('telemetry', eventHandlers);
 
                 Shopware.Telemetry.identify();
@@ -64,13 +61,12 @@ export default async function (): Promise<WatchHandle | undefined> {
                     return;
                 }
 
-                amplitudeAdapter.setOptOut(true);
+                gatewayClient.setOptOut(true);
                 Shopware.Utils.EventBus.off('telemetry', eventHandlers);
-
-                deleteUser(gatewayClient);
-
-                gatewayClient.flush();
-                setTimeout(() => gatewayClient.clearStorage(), 0);
+                void gatewayClient.flushWithoutRetry().finally(() => {
+                    deleteUser(gatewayClient);
+                    gatewayClient.clearStorage();
+                });
             }
         },
         { immediate: true },

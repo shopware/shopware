@@ -154,8 +154,8 @@ export default {
          */
         updateSuccessNotification(uploadTag, payload) {
             const notification = {
-                title: this.$root.$tc('global.default.success'),
-                message: this.$root.$tc(
+                title: this.$root.$t('global.default.success'),
+                message: this.$root.$t(
                     payload.customMessage ?? 'global.sw-media-upload.notification.success.message',
                     payload.successAmount,
                     {
@@ -167,7 +167,7 @@ export default {
             };
 
             if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
-                notification.title = this.$root.$tc('global.default.success');
+                notification.title = this.$root.$t('global.default.success');
             }
 
             if (this.notificationId !== null) {
@@ -196,8 +196,8 @@ export default {
         showErrorNotification(payload) {
             if (isIllegalFileNameException(payload.error)) {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc(
+                    title: this.$root.$t('global.default.error'),
+                    message: this.$root.$t(
                         'global.sw-media-upload.notification.illegalFilename.message',
                         {
                             fileName: payload.fileName,
@@ -207,13 +207,13 @@ export default {
                 });
             } else if (isIllegalUrlException(payload.error)) {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.sw-media-upload.notification.illegalFileUrl.title'),
-                    message: this.$root.$tc('global.sw-media-upload.notification.illegalFileUrl.message', 0),
+                    title: this.$root.$t('global.sw-media-upload.notification.illegalFileUrl.title'),
+                    message: this.$root.$t('global.sw-media-upload.notification.illegalFileUrl.message', 0),
                 });
             } else {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-upload.notification.failure.message'),
+                    title: this.$root.$t('global.default.error'),
+                    message: this.$root.$t('global.sw-media-upload.notification.failure.message'),
                 });
             }
         },

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ArrayComparator::class)]
 class ArrayComparatorTest extends TestCase
 {
@@ -53,16 +55,14 @@ class ArrayComparatorTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testCompareThrowExceptionDeprecated(): void
     {
-        static::expectException(ComparatorException::class);
-        $this->expectExceptionMessage(ComparatorException::operatorNotSupported('>')->getMessage());
+        $this->expectExceptionObject(ComparatorException::operatorNotSupported('>'));
 
         ArrayComparator::compare([1], [2], '>');
     }
 
     public function testCompareThrowException(): void
     {
-        static::expectException(UtilException::class);
-        $this->expectExceptionMessage(UtilException::operatorNotSupported('>')->getMessage());
+        $this->expectExceptionObject(UtilException::operatorNotSupported('>'));
 
         ArrayComparator::compare([1], [2], '>');
     }

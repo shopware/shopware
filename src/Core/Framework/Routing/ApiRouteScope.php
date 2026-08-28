@@ -19,9 +19,11 @@ class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDe
 
     public function isAllowed(Request $request): bool
     {
-        /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         $authRequired = $request->attributes->get('auth_required', true);
+        if (!$context instanceof Context) {
+            throw RoutingException::missingRouteAttribute(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, (string) $request->attributes->get('_route', ''));
+        }
         $source = $context->getSource();
 
         if (!$authRequired) {
@@ -31,6 +33,9 @@ class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDe
         return $context->getSource() instanceof AdminApiSource;
     }
 
+    /**
+     * @codeCoverageIgnore no logic
+     */
     public function getId(): string
     {
         return self::ID;

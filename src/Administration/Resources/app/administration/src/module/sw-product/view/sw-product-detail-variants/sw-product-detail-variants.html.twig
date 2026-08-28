@@ -6,40 +6,52 @@
         class="sw-product-detail-variants__generated-variants"
         position-identifier="sw-product-detail-variants-generated-variants"
         :class="{'is--loading': isLoading}"
-        :title="$tc('sw-product.variations.generatedVariationCardTitle')"
+        :title="$t('sw-product.variations.generatedVariationCardTitle')"
         large
     >
         <template
             v-if="!isLoading && propertiesAvailable"
             #tabs
         >
-            <sw-tabs
-                position-identifier="sw-variant-card-tabs"
-                :small="false"
-                :default-item="defaultTab"
-                @new-item-active="setActiveTab($event.name)"
-            >
-                <sw-tabs-item
-                    name="all"
-                    :active-tab="activeTab"
-                >
-                    {{ $tc('sw-product.variations.variationCard.tabs.allProducts') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                <mt-tabs
+                    position-identifier="sw-variant-card-tabs"
+                    :default-item="activeTab"
+                    :items="variantCardTabs"
+                    :small="true"
+                    @new-item-active="setActiveTab($event)"
+                />
+            </template>
 
-                <sw-tabs-item
-                    name="physical"
-                    :active-tab="activeTab"
+            <template v-else>
+                <sw-tabs
+                    position-identifier="sw-variant-card-tabs"
+                    :small="false"
+                    :default-item="defaultTab"
+                    @new-item-active="setActiveTab($event.name)"
                 >
-                    {{ $tc('sw-product.variations.variationCard.tabs.physicalProducts') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        name="all"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.allProducts') }}
+                    </sw-tabs-item>
 
-                <sw-tabs-item
-                    name="digital"
-                    :active-tab="activeTab"
-                >
-                    {{ $tc('sw-product.variations.variationCard.tabs.digitalProducts') }}
-                </sw-tabs-item>
-            </sw-tabs>
+                    <sw-tabs-item
+                        name="physical"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.physicalProducts') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item
+                        name="digital"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.digitalProducts') }}
+                    </sw-tabs-item>
+                </sw-tabs>
+            </template>
         </template>
 
         <sw-skeleton v-if="isLoading" />
@@ -48,23 +60,22 @@
         <mt-empty-state
             v-if="!isLoading && !propertiesAvailable"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-product.variations.emptyStatePropertyTitle')"
-            :description="$tc('sw-product.variations.emptyStatePropertyDescription')"
+            :headline="$t('sw-product.variations.emptyStatePropertyTitle')"
+            :description="$t('sw-product.variations.emptyStatePropertyDescription')"
         >
             <template #button>
                 {% block sw_product_properties_empty_state_button_property %}
                 <mt-button
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.editor'),
                         showOnDisabledElements: true
                     }"
-                    ghost
                     :disabled="!acl.can('product.editor')"
                     variant="secondary"
                     @click="openAddPropertiesModal"
                 >
-                    {{ $tc('sw-product.properties.buttonAddProperties') }}
+                    {{ $t('sw-product.properties.buttonAddProperties') }}
                 </mt-button>
                 {% endblock %}
             </template>
@@ -91,24 +102,23 @@
         <mt-empty-state
             v-if="!isLoading && propertiesAvailable && variants.length === 0"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-product.variations.emptyStateTitle')"
-            :description="$tc('sw-product.variations.emptyStateDescription')"
+            :headline="$t('sw-product.variations.emptyStateTitle')"
+            :description="$t('sw-product.variations.emptyStateDescription')"
         >
             <template #button>
                 {% block sw_product_properties_empty_state_button %}
                 <mt-button
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
                     class="sw-product-detail-variants__generated-variants-empty-state-button"
-                    ghost
                     :disabled="!acl.can('product.creator')"
                     variant="secondary"
                     @click="openModal('variantGeneration')"
                 >
-                    {{ $tc('sw-product.variations.emptyStateButton') }}
+                    {{ $t('sw-product.variations.emptyStateButton') }}
                 </mt-button>
                 {% endblock %}
             </template>

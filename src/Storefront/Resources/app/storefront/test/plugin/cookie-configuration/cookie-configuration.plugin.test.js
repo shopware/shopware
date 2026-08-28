@@ -75,6 +75,9 @@ describe('CookieConfiguration plugin tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         // Create a proper mock for CookiePermission plugin
@@ -433,6 +436,59 @@ describe('CookieConfiguration plugin tests', () => {
         global.fetch.mockRestore();
     });
 
+    test('COOKIE_CONFIGURATION_UPDATE fires with all active cookies when offcanvas was never opened', done => {
+        // Simulate the bug scenario: user clicks "Accept all" in the cookie bar
+        // without ever opening the offcanvas, so lastState remains empty
+        const freshPlugin = new CookieConfiguration(document.createElement('div'));
+        expect(freshPlugin.lastState.active).toHaveLength(0);
+        expect(freshPlugin.lastState.inactive).toHaveLength(0);
+
+        const mockResponse = {
+            hash: 'test-hash',
+            languageId: 'test-lang-id',
+            elements: [
+                {
+                    isRequired: true,
+                    entries: [
+                        { cookie: 'cookie-preference', value: '1', expiration: 30 },
+                    ],
+                },
+                {
+                    isRequired: false,
+                    entries: [
+                        { cookie: 'analytics', value: '1', expiration: 30 },
+                        { cookie: 'marketing', value: '1', expiration: 30 },
+                    ],
+                },
+            ],
+        };
+
+        global.fetch = jest.fn().mockResolvedValue({
+            json: jest.fn().mockResolvedValue(mockResponse),
+        });
+
+        function cb(event) {
+            try {
+                // All active cookies (PHP-managed + from API) must appear as true
+                expect(event.detail['cookie-preference']).toBe(true);
+                expect(event.detail['analytics']).toBe(true);
+                expect(event.detail['marketing']).toBe(true);
+                // PHP-managed cookies are also reported
+                expect(event.detail['session-']).toBe(true);
+                expect(event.detail['timezone']).toBe(true);
+                done();
+            } catch (err) {
+                done(err);
+            } finally {
+                document.$emitter.unsubscribe(COOKIE_CONFIGURATION_UPDATE, cb);
+                global.fetch.mockRestore();
+            }
+        }
+
+        document.$emitter.subscribe(COOKIE_CONFIGURATION_UPDATE, cb);
+        freshPlugin._acceptAllCookiesFromCookieBar().catch(done);
+    });
+
     test('openRequestConsentOffCanvas sets lastTriggerElement and calls AjaxOffCanvas.open', () => {
         document.body.innerHTML += '<button id="wishlist-btn">Add to wishlist</button>';
         const triggerBtn = document.getElementById('wishlist-btn');
@@ -525,7 +581,7 @@ describe('CookieConfiguration plugin tests', () => {
             expect(mockFetch).not.toHaveBeenCalled();
         });
 
-        test('shows cookie bar when user has preference but no hash for current language', async () => {
+        test('shows the cookie bar without clearing consent when no hash exists for the current language', async () => {
             const languageId = 'test-language-id';
             const mockApiResponse = {
                 hash: 'abc123hash',
@@ -549,7 +605,6 @@ describe('CookieConfiguration plugin tests', () => {
             CookieStorage.setItem(plugin.options.cookiePreference, '1', '30');
 
             const removeItemSpy = jest.spyOn(CookieStorage, 'removeItem');
-            const checkAndShowCookieBarSpy = jest.spyOn(plugin, '_checkAndShowCookieBarIfNeeded');
 
             // Mock dispatchEvent to simulate showCookieBar event
             const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation((event) => {
@@ -569,15 +624,14 @@ describe('CookieConfiguration plugin tests', () => {
                 },
             });
 
-            // Cookie preference should be removed to trigger re-consent
-            expect(removeItemSpy).toHaveBeenCalledWith('cookie-preference');
+            // The shared cookie-preference must NOT be removed - that would reset consent given
+            // for another language and re-trigger the banner there.
+            expect(removeItemSpy).not.toHaveBeenCalledWith('cookie-preference');
 
-            // Cookie bar should be shown for this language
-            expect(checkAndShowCookieBarSpy).toHaveBeenCalled();
+            // Cookie bar is shown so the user can consent for this language.
             expect(mockCookiePermissionPlugin._showCookieBar).toHaveBeenCalled();
 
             removeItemSpy.mockRestore();
-            checkAndShowCookieBarSpy.mockRestore();
             dispatchEventSpy.mockRestore();
         });
 

@@ -7,8 +7,12 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class MailTemplateTypeEntity extends Entity
 {
@@ -29,6 +33,8 @@ class MailTemplateTypeEntity extends Entity
     protected ?MailTemplateCollection $mailTemplates = null;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement.
+     *
      * @var array<string, mixed>|null
      */
     protected ?array $templateData = null;
@@ -91,17 +97,31 @@ class MailTemplateTypeEntity extends Entity
 
     /**
      * @return array<string, mixed>|null
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement.
      */
     public function getTemplateData(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->templateData;
     }
 
     /**
      * @param array<string, mixed>|null $templateData
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement.
      */
     public function setTemplateData(?array $templateData): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->templateData = $templateData;
     }
 }

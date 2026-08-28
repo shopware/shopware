@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\Consent\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('data-services')]
 class ConsentControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -37,6 +39,17 @@ class ConsentControllerTest extends TestCase
         $browser->request('POST', '/api/consents/accept', content: '{}');
 
         static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testAcceptConsentRejectsExplicitRevisionForNonRevisionedConsent(): void
+    {
+        $browser = $this->getBrowser(true);
+        $browser->jsonRequest('POST', '/api/consents/accept', [
+            'consent' => 'backend_data',
+            'revision' => '1.0.0',
+        ]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode());
     }
 
     public function testRevokeConsentRequiresAuthentication(): void

@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-cms-missing-element-modal {
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
 
     &__title {
         span {
             text-transform: lowercase;
-            font-weight: $font-weight-semi-bold;
+            font-weight: var(--font-weight-semibold);
         }
     }
 
@@ -15,7 +13,7 @@
     }
 
     &__paragraph {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     &__dont-remind {

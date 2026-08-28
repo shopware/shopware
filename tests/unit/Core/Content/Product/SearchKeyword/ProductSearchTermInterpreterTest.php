@@ -12,10 +12,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductSearchTermInterpreter::class)]
 class ProductSearchTermInterpreterTest extends TestCase
 {
@@ -24,12 +26,12 @@ class ProductSearchTermInterpreterTest extends TestCase
         $term = '';
 
         $interpreter = new ProductSearchTermInterpreter(
-            static::createMock(Connection::class),
+            static::createStub(Connection::class),
             new Tokenizer(3),
-            static::createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(SearchConfigLoader::class)),
-            static::createMock(KeywordLoader::class),
-            static::createMock(SearchConfigLoader::class),
+            static::createStub(LoggerInterface::class),
+            new TokenFilter(static::createStub(SearchConfigLoader::class)),
+            static::createStub(KeywordLoader::class),
+            static::createStub(SearchConfigLoader::class),
         );
 
         $pattern = $interpreter->interpret($term, Context::createDefaultContext());
@@ -42,12 +44,12 @@ class ProductSearchTermInterpreterTest extends TestCase
         $term = 'a b c d';
 
         $interpreter = new ProductSearchTermInterpreter(
-            static::createMock(Connection::class),
-            static::createMock(Tokenizer::class),
-            static::createMock(LoggerInterface::class),
-            new TokenFilter(static::createMock(SearchConfigLoader::class)),
-            static::createMock(KeywordLoader::class),
-            static::createMock(SearchConfigLoader::class),
+            static::createStub(Connection::class),
+            static::createStub(Tokenizer::class),
+            static::createStub(LoggerInterface::class),
+            new TokenFilter(static::createStub(SearchConfigLoader::class)),
+            static::createStub(KeywordLoader::class),
+            static::createStub(SearchConfigLoader::class),
         );
 
         $pattern = $interpreter->interpret($term, Context::createDefaultContext());
@@ -77,13 +79,13 @@ class ProductSearchTermInterpreterTest extends TestCase
                 return true;
             }));
 
-        $configLoader = static::createMock(SearchConfigLoader::class);
+        $configLoader = static::createStub(SearchConfigLoader::class);
         $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
 
         $interpreter = new ProductSearchTermInterpreter(
-            static::createMock(Connection::class),
+            static::createStub(Connection::class),
             new Tokenizer(3),
-            static::createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             new TokenFilter($configLoader),
             $keywordLoader,
             $configLoader,
@@ -107,12 +109,12 @@ class ProductSearchTermInterpreterTest extends TestCase
                 ];
             });
 
-        $configLoader = static::createMock(SearchConfigLoader::class);
+        $configLoader = static::createStub(SearchConfigLoader::class);
         $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
         $interpreter = new ProductSearchTermInterpreter(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new Tokenizer(3),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             new TokenFilter($configLoader),
             $keywordLoader,
             $configLoader,
@@ -137,5 +139,33 @@ class ProductSearchTermInterpreterTest extends TestCase
         }
 
         static::assertSame($expectedScoring, $actualScoringFlat);
+    }
+
+    public function testUsesConfiguredRelevantKeywordCount(): void
+    {
+        $term = 'search';
+        $keywordLoader = static::createMock(KeywordLoader::class);
+        $keywordLoader->expects($this->once())->method('fetch')
+            ->willReturn(array_map(static fn (int $index) => [\sprintf('keyword-%02d', $index), '1'], range(1, 12)));
+
+        $configLoader = static::createStub(SearchConfigLoader::class);
+        $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        $interpreter = new ProductSearchTermInterpreter(
+            $connection,
+            new Tokenizer(3),
+            static::createStub(LoggerInterface::class),
+            new TokenFilter($configLoader),
+            $keywordLoader,
+            $configLoader,
+            10,
+        );
+
+        $pattern = $interpreter->interpret($term, Context::createDefaultContext());
+
+        static::assertCount(10, $pattern->getTerms());
     }
 }

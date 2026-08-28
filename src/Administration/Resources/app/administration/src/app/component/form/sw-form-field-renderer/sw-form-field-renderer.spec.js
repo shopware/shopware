@@ -52,6 +52,10 @@ describe('components/form/sw-form-field-renderer', () => {
         global.repositoryFactoryMock.showError = false;
     });
 
+    beforeEach(() => {
+        jest.restoreAllMocks();
+    });
+
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
             slots: {
@@ -112,5 +116,19 @@ describe('components/form/sw-form-field-renderer', () => {
         );
 
         expect(wrapper.emitted('update:value')).toBeUndefined();
+    });
+
+    it('should enable multi selection for meteor multi-select fields', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                type: 'multi-select',
+                config: {
+                    options: [],
+                },
+                value: [],
+            },
+        });
+
+        expect(wrapper.vm.bind.enableMultiSelection).toBe(true);
     });
 });

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
@@ -26,6 +27,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityNotExistsValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -90,8 +92,8 @@ class EntityNotExistsValidatorTest extends TestCase
 
         $repository->create(
             [
-                ['id' => $id1, 'name' => 'Test 1', 'territory' => 'test', 'code' => 'test' . $id1],
-                ['id' => $id2, 'name' => 'Test 2', 'territory' => 'test', 'code' => 'test' . $id2],
+                ['id' => $id1, 'name' => 'Test 1', 'territory' => 'test', 'code' => 'de-DE-' . $id1],
+                ['id' => $id2, 'name' => 'Test 2', 'territory' => 'test', 'code' => 'de-DE-' . $id2],
             ],
             $context
         );
@@ -126,8 +128,8 @@ class EntityNotExistsValidatorTest extends TestCase
 
         $repository->create(
             [
-                ['id' => $id1, 'name' => 'Test 1', 'territory' => 'test', 'code' => 'test' . $id1],
-                ['id' => $id2, 'name' => 'Test 2', 'territory' => 'test', 'code' => 'test' . $id2],
+                ['id' => $id1, 'name' => 'Test 1', 'territory' => 'test', 'code' => 'de-DE-' . $id1],
+                ['id' => $id2, 'name' => 'Test 2', 'territory' => 'test', 'code' => 'de-DE-' . $id2],
             ],
             $context
         );

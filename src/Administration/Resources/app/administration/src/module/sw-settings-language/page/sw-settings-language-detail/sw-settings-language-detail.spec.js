@@ -4,6 +4,15 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], languageId = null, stubTranslationIsoField = true) {
+    const languageRepositoryGet = jest.fn((id) => {
+        return Promise.resolve({
+            id,
+            isNew: () => false,
+            parentId: '1234',
+            translationCodeId: '5678',
+        });
+    });
+
     const options = {
         props: {
             languageId,
@@ -11,7 +20,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
         global: {
             renderStubDefaultSlot: true,
             mocks: {
-                $tc(translationKey) {
+                $t(translationKey) {
                     return translationKey;
                 },
             },
@@ -66,14 +75,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                             });
                         },
 
-                        get: (id) => {
-                            return Promise.resolve({
-                                id,
-                                isNew: () => false,
-                                parentId: '1234',
-                                translationCodeId: '5678',
-                            });
-                        },
+                        get: languageRepositoryGet,
 
                         save: () => {
                             return Promise.resolve();
@@ -91,6 +93,19 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 },
                 customFieldDataProviderService: {
                     getCustomFieldSets: () => Promise.resolve([]),
+                },
+                translationService: {
+                    getList: jest.fn().mockResolvedValue({
+                        total: 0,
+                        items: [],
+                    }),
+                    getMeta: jest.fn().mockResolvedValue({
+                        builtInLocales: [
+                            'de-DE',
+                            'en-GB',
+                        ],
+                    }),
+                    install: jest.fn().mockResolvedValue(undefined),
                 },
             },
             stubs: {
@@ -112,7 +127,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-card-view': true,
                 'sw-container': true,
                 'sw-language-switch': true,
-                'sw-language-info': true,
                 'sw-button-process': true,
                 'sw-text-field': true,
                 'sw-entity-single-select': true,
@@ -271,5 +285,133 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         });
 
         expect(actionLoadEntitySpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('renders the created success banner only while justCreated is set', async () => {
+        const wrapper = await createWrapper(['language.creator'], null);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-language-detail__created-banner').exists()).toBe(false);
+
+        wrapper.vm.justCreated = true;
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-settings-language-detail__created-banner').exists()).toBe(true);
+    });
+
+    it('derives the snippet update state from the locale and metadata', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.builtInLocales = [
+            'de-DE',
+            'en-GB',
+        ];
+        wrapper.vm.language = { locale: { code: 'de-DE' } };
+        expect(wrapper.vm.snippetUpdateState).toBe('builtIn');
+
+        wrapper.vm.language = { locale: { code: 'fr-FR' } };
+        wrapper.vm.snippetMetadata = null;
+        expect(wrapper.vm.snippetUpdateState).toBe('notAvailable');
+
+        wrapper.vm.snippetMetadata = { locale: 'fr-FR', lastUpdate: null, updateAvailable: false };
+        expect(wrapper.vm.snippetUpdateState).toBe('notLinked');
+
+        wrapper.vm.snippetMetadata = { locale: 'fr-FR', lastUpdate: '2026-07-06T22:29:10+00:00', updateAvailable: true };
+        expect(wrapper.vm.snippetUpdateState).toBe('updateAvailable');
+
+        wrapper.vm.snippetMetadata = { locale: 'fr-FR', lastUpdate: '2026-07-06T22:29:10+00:00', updateAvailable: false };
+        expect(wrapper.vm.snippetUpdateState).toBe('upToDate');
+
+        wrapper.vm.isUpdatingSnippets = true;
+        expect(wrapper.vm.snippetUpdateState).toBe('updating');
+
+        wrapper.vm.snippetMetadata = { locale: 'fr-FR', lastUpdate: null, updateAvailable: false };
+        expect(wrapper.vm.snippetUpdateState).toBe('linking');
+    });
+
+    it('offers the link action for a supported but not linked language', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.language = { locale: { code: 'fr-FR' } };
+        wrapper.vm.snippetMetadata = { locale: 'fr-FR', lastUpdate: null, updateAvailable: false };
+
+        expect(wrapper.vm.showSnippetUpdateButton).toBe(true);
+        expect(wrapper.vm.showSnippetAutoUpdate).toBe(false);
+        expect(wrapper.vm.snippetUpdateButtonLabel).toBe('sw-settings-language.detail.snippetUpdates.linkButton');
+
+        wrapper.vm.isUpdatingSnippets = true;
+        expect(wrapper.vm.snippetUpdateButtonLabel).toBe('sw-settings-language.detail.snippetUpdates.linkingButton');
+    });
+
+    it('installs the snippets for the current language and reloads the metadata', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.language = { locale: { code: 'fr-FR' } };
+
+        await wrapper.vm.onUpdateSnippets();
+        await flushPromises();
+
+        expect(wrapper.vm.translationService.install).toHaveBeenCalledWith({ locales: ['fr-FR'], activate: true });
+        expect(wrapper.vm.translationService.getList).toHaveBeenCalled();
+        expect(wrapper.vm.isUpdatingSnippets).toBe(false);
+    });
+
+    it('should collapse the assigned sales channels to three and expose the count in the card title', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const salesChannel = (id, name) => ({ id, name, translated: { name }, type: { iconName: 'regular-shop' } });
+        wrapper.vm.language = {
+            name: 'Finnish',
+            active: true,
+            salesChannels: [
+                salesChannel('1', 'A'),
+                salesChannel('2', 'B'),
+                salesChannel('3', 'C'),
+                salesChannel('4', 'D'),
+            ],
+        };
+
+        expect(wrapper.vm.assignedSalesChannels).toHaveLength(4);
+        expect(wrapper.vm.visibleSalesChannels).toHaveLength(3);
+        expect(wrapper.vm.salesChannelsCardTitle).toContain('(4)');
+
+        wrapper.vm.showAllSalesChannels = true;
+
+        expect(wrapper.vm.visibleSalesChannels).toHaveLength(4);
+    });
+
+    it('requests the assigned sales channels sorted alphabetically by name via the criteria', async () => {
+        const wrapper = await createWrapper([], 'language-id-1');
+        await flushPromises();
+
+        const getMock = wrapper.vm.repositoryFactory.create('language').get;
+        const criteria = getMock.mock.calls.find((args) => args[2])?.[2];
+
+        expect(criteria.getAssociation('salesChannels').sortings).toEqual([
+            expect.objectContaining({ field: 'name', order: 'ASC' }),
+        ]);
+    });
+
+    it('hides the sales channel and snippet update cards while creating a new language', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.language = { isNew: () => true, locale: { code: 'de-DE' } };
+        await flushPromises();
+
+        expect(wrapper.vm.isNewLanguage).toBe(true);
+        expect(wrapper.find('.sw-settings-language-detail__cards-row').exists()).toBe(false);
+    });
+
+    it('shows the sales channel and snippet update cards on an existing language', async () => {
+        const wrapper = await createWrapper([], 'language-id-1');
+        await flushPromises();
+
+        expect(wrapper.vm.isNewLanguage).toBe(false);
+        expect(wrapper.find('.sw-settings-language-detail__cards-row').exists()).toBe(true);
     });
 });

@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi\XmlEle
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Card::class)]
 class CardTest extends TestCase
 {

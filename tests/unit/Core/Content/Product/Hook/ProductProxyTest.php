@@ -15,11 +15,13 @@ use Shopware\Core\Content\Product\Hook\Pricing\PriceCollectionFacade;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductProxy;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductProxy::class)]
 class ProductProxyTest extends TestCase
 {
@@ -42,9 +44,9 @@ class ProductProxyTest extends TestCase
             new CalculatedPrice(9, 9, new CalculatedTaxCollection(), new TaxRuleCollection()),
         ]));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
 
         $proxy = new ProductProxy($product, $context, $stubs);
 
@@ -60,14 +62,13 @@ class ProductProxyTest extends TestCase
     {
         $proxy = new ProductProxy(
             (new SalesChannelProductEntity())->assign(['name' => 'foo']),
-            $this->createMock(SalesChannelContext::class),
-            $this->createMock(ScriptPriceStubs::class)
+            static::createStub(SalesChannelContext::class),
+            static::createStub(ScriptPriceStubs::class)
         );
 
         static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        $this->expectException(ProductException::class);
-        $this->expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+        $this->expectExceptionObject(ProductException::proxyManipulationNotAllowed('name'));
 
         $proxy->offsetUnset('name');
     }
@@ -76,14 +77,13 @@ class ProductProxyTest extends TestCase
     {
         $proxy = new ProductProxy(
             (new SalesChannelProductEntity())->assign(['name' => 'foo']),
-            $this->createMock(SalesChannelContext::class),
-            $this->createMock(ScriptPriceStubs::class)
+            static::createStub(SalesChannelContext::class),
+            static::createStub(ScriptPriceStubs::class)
         );
 
         static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        $this->expectException(ProductException::class);
-        $this->expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+        $this->expectExceptionObject(ProductException::proxyManipulationNotAllowed('name'));
 
         $proxy->name = 'bar';
     }

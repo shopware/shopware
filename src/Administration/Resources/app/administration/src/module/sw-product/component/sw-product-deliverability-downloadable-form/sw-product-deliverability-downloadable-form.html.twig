@@ -16,8 +16,8 @@
                 :is-inheritance-field="props.isInheritField"
                 :is-inherited="props.isInherited"
                 :inherited-value="parentProduct.isCloseout"
-                :label="$tc('sw-product.detailBase.manageStockLabel')"
-                :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
+                :label="$t('sw-product.detailBase.manageStockLabel')"
+                :help-text="$t('sw-product.detailBase.manageStockTooltip')"
                 :disabled="props.isInherited || disabled"
                 :model-value="props.currentValue"
                 @update:model-value="props.updateCurrentValue"
@@ -31,7 +31,7 @@
     <sw-container
         v-show="showStockSetting"
         columns="1fr 1fr"
-        gap="0px 30px"
+        gap="0 var(--scale-size-30)"
     >
 
         <mt-number-field
@@ -39,8 +39,8 @@
             name="sw-field--product-stock"
             number-type="int"
             :disabled="disabled"
-            :label="$tc('sw-product.settingsForm.labelStock')"
-            :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+            :label="$t('sw-product.settingsForm.labelStock')"
+            :placeholder="$t('sw-product.settingsForm.placeholderStock')"
             :error="productStockError"
         />
 
@@ -49,7 +49,7 @@
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
-            :label="$tc('sw-product.settingsForm.labelAvailableStock')"
+            :label="$t('sw-product.settingsForm.labelAvailableStock')"
         />
 
     </sw-container>
@@ -59,7 +59,7 @@
         v-model:value="product.deliveryTimeId"
         :inherited-value="parentProduct.deliveryTimeId"
         :has-parent="!!parentProduct.id"
-        :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
+        :label="$t('sw-product.settingsForm.labelDeliveryTime')"
     >
         <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
@@ -71,7 +71,7 @@
                 :disabled="isInherited || disabled"
                 class="product-deliverability-downloadable-form__delivery-time"
                 :error="productDeliveryTimeIdError"
-                :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
+                :placeholder="$t('sw-product.settingsForm.placeholderDeliveryTime')"
                 show-clearable-button
                 @update:value="updateCurrentValue"
             />

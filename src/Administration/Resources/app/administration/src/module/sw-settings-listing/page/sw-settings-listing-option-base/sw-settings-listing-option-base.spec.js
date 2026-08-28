@@ -65,6 +65,13 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         return productSortingEntity;
     }
 
+    function getLockedProductSorting() {
+        const productSortingEntity = getProductSortings()[0];
+        productSortingEntity.locked = true;
+
+        return productSortingEntity;
+    }
+
     function getCustomFields() {
         return [
             {
@@ -144,7 +151,16 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                         },
                     },
                     stubs: {
-                        'sw-page': true,
+                        'sw-page': {
+                            template: `
+                                <div class="sw-page">
+                                    <slot name="smart-bar-header"></slot>
+                                    <slot name="language-switch"></slot>
+                                    <slot name="smart-bar-actions"></slot>
+                                    <slot name="content"></slot>
+                                </div>
+                            `,
+                        },
                         'sw-language-switch': true,
                         'sw-settings-listing-option-general-info': true,
                         'sw-settings-listing-option-criteria-grid': true,
@@ -273,5 +289,15 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
     it('should recognize the default sorting', async () => {
         expect(wrapper.vm.isDefaultSorting).toBeTruthy();
+    });
+
+    it('should show alert on locked product sorting', async () => {
+        await wrapper.setData({
+            productSortingEntity: getLockedProductSorting(),
+        });
+
+        const alert = wrapper.find('.sw-settings-listing-base__locked-info');
+
+        expect(alert.exists()).toBe(true);
     });
 });

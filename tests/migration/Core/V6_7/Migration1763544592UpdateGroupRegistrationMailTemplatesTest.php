@@ -26,6 +26,11 @@ class Migration1763544592UpdateGroupRegistrationMailTemplatesTest extends TestCa
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763544592, (new Migration1763544592UpdateGroupRegistrationMailTemplates())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $migration = new Migration1763544592UpdateGroupRegistrationMailTemplates();

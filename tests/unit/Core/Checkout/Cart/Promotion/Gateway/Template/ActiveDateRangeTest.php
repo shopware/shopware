@@ -15,8 +15,8 @@ use Symfony\Component\Clock\MockClock;
 /**
  * @internal
  */
-#[CoversClass(ActiveDateRange::class)]
 #[Package('checkout')]
+#[CoversClass(ActiveDateRange::class)]
 class ActiveDateRangeTest extends TestCase
 {
     /**

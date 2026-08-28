@@ -5,20 +5,23 @@ namespace Shopware\Tests\Integration\Core\Installer\Configuration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\ShopConfigurationService;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ShopConfigurationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     public function testUpdateShop(): void
     {
-        $service = new ShopConfigurationService($this->getContainer()->get('event_dispatcher'));
+        $service = new ShopConfigurationService($this->getContainer()->get('event_dispatcher'), new NativeClock());
 
         $connection = static::getContainer()->get(Connection::class);
 
@@ -55,7 +58,7 @@ class ShopConfigurationServiceTest extends TestCase
 
         static::assertSame('DE', $connection->fetchOne('SELECT `iso` FROM `country` WHERE `id` = ?', [$salesChannel['country_id']]));
 
-        static::assertEqualsCanonicalizing(array_keys($currencies), $connection->fetchFirstColumn('SELECT `currency_id` FROM `sales_channel_currency` WHERE `sales_channel_id` = ?', [$id]));
+        static::assertEqualsCanonicalizing(array_keys($currencies), array_values($connection->fetchFirstColumn('SELECT `currency_id` FROM `sales_channel_currency` WHERE `sales_channel_id` = ?', [$id])));
 
         $domains = $connection->fetchAllAssociative('SELECT * FROM `sales_channel_domain` WHERE `sales_channel_id` = ?', [$id]);
         static::assertCount(2, $domains);

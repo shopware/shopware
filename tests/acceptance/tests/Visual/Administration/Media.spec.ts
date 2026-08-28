@@ -1,18 +1,7 @@
 import { test, assertScreenshot, setViewport, replaceElementsIndividually } from '@fixtures/AcceptanceTest';
 
-test('Visual: Administration media page', { 
-    tag: '@Visual',
-    annotation: {
-        type: 'issue',
-        description: 'https://github.com/shopware/shopware/issues/15882',
-  }, 
-}, async ({
-    ShopAdmin,
-    AdminMediaListing,
-}) => {
-
-    await test.step('Creates a screenshot of the media page.', async step => {
-        step.skip();
+test('Visual: Administration media page', { tag: '@Visual' }, async ({ ShopAdmin, AdminMediaListing }) => {
+    await test.step('Creates a screenshot of the media page.', async () => {
         await ShopAdmin.goesTo(AdminMediaListing.url());
         await setViewport(AdminMediaListing.page, {
             scrollableElementVertical: AdminMediaListing.scrollableElementVertical,
@@ -27,9 +16,9 @@ test('Visual: Administration media page', {
         await ShopAdmin.expects(AdminMediaListing.emptyState).toBeVisible();
         await setViewport(AdminMediaListing.page, {
             scrollableElementVertical: AdminMediaListing.scrollableElementVertical,
-        })
+        });
         await replaceElementsIndividually(AdminMediaListing.page, [
-            { selector: AdminMediaListing.updatedAtDate, replaceWith: '1 January 1970 at 00:01'},
+            { selector: AdminMediaListing.updatedAtDate, replaceWith: '1 January 1970 at 00:01' },
         ]);
         await assertScreenshot(AdminMediaListing.page, 'Media-Folder-Open.png');
     });

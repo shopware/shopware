@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -34,8 +34,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * @internal
  */
-#[CoversClass(DeliveryTransformer::class)]
 #[Package('checkout')]
+#[CoversClass(DeliveryTransformer::class)]
 class DeliveryTransformerTest extends TestCase
 {
     public function testTransformCollection(): void
@@ -191,11 +191,11 @@ class DeliveryTransformerTest extends TestCase
         return $cart;
     }
 
-    public function createSalesChannelMock(string $adminUserId): SalesChannelContext&MockObject
+    public function createSalesChannelMock(string $adminUserId): SalesChannelContext&Stub
     {
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
-        $contextSourceMock = $this->createMock(AdminSalesChannelApiSource::class);
-        $sourceTest = $this->createMock(AdminApiSource::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
+        $contextSourceMock = static::createStub(AdminSalesChannelApiSource::class);
+        $sourceTest = static::createStub(AdminApiSource::class);
 
         $contextMockAdminSales = new Context($contextSourceMock);
         $contextMockAdminApi = new Context($sourceTest);

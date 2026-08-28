@@ -7,7 +7,7 @@
     <mt-modal
         class="sw-media-url-form"
         variant="small"
-        :title="$tc('global.sw-media-url-form.title')"
+        :title="$t('global.sw-media-url-form.title')"
     >
 
         {% block sw_media_url_form_input %}
@@ -17,7 +17,7 @@
             class="sw-media-url-form__url-input"
             label="URL"
             :error="invalidUrlError"
-            :placeholder="$tc('global.sw-media-url-form.example')"
+            :placeholder="$t('global.sw-media-url-form.example')"
             name="sw-field--url"
         />
 
@@ -25,10 +25,10 @@
             v-if="missingFileExtension"
             v-model="extensionFromInput"
             class="sw-media-url-form__extension-input"
-            :label="$tc('global.sw-media-url-form.labelFileExtension')"
+            :label="$t('global.sw-media-url-form.labelFileExtension')"
             validation="required"
             placeholder="jpg"
-            :help-text="$tc('global.sw-media-url-form.missingFileExtension')"
+            :help-text="$t('global.sw-media-url-form.missingFileExtension')"
         />
         {% endblock %}
 
@@ -40,7 +40,7 @@
                 variant="secondary"
                 @click="onModalChange(false)"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -53,7 +53,7 @@
                 @click.prevent="emitUrl"
             >
 
-                {{ $tc('global.sw-media-url-form.upload') }}
+                {{ $t('global.sw-media-url-form.upload') }}
             </mt-button>
             {% endblock %}
         </template>
@@ -70,7 +70,7 @@
         class="sw-media-url-form__url-input"
         label="URL"
         :error="invalidUrlError"
-        :placeholder="$tc('global.sw-media-url-form.example')"
+        :placeholder="$t('global.sw-media-url-form.example')"
         name="sw-field--url"
     />
 
@@ -78,10 +78,10 @@
         v-if="missingFileExtension"
         v-model="extensionFromInput"
         class="sw-media-url-form__extension-input"
-        :label="$tc('global.sw-media-url-form.labelFileExtension')"
+        :label="$t('global.sw-media-url-form.labelFileExtension')"
         validation="required"
         placeholder="jpg"
-        :help-text="$tc('global.sw-media-url-form.missingFileExtension')"
+        :help-text="$t('global.sw-media-url-form.missingFileExtension')"
     />
     {% endblock %}
 
@@ -92,7 +92,7 @@
         variant="primary"
         @click="emitUrl"
     >
-        {{ $tc('global.sw-media-url-form.upload') }}
+        {{ $t('global.sw-media-url-form.upload') }}
     </mt-button>
 </div>
 {% endblock %}

@@ -23,6 +23,10 @@ final class UpdatedStates extends Struct
         private readonly array $oldStates,
         private array $newStates
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0')
+        );
     }
 
     public function getId(): string

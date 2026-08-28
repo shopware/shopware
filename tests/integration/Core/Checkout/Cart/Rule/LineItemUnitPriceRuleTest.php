@@ -99,7 +99,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testValidateWithIntAmount(): void
@@ -123,7 +123,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testAvailableOperators(): void
@@ -185,7 +185,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             $this->conditionRepository->search(
                 new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]),
                 $this->context
-            )
+            )->getEntities()
         );
     }
 
@@ -232,7 +232,7 @@ class LineItemUnitPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     #[DataProvider('getMatchingRuleTestData')]
@@ -301,7 +301,8 @@ class LineItemUnitPriceRuleTest extends TestCase
         int $lineItemPrice2,
         bool $expected,
         bool $lineItem1WithoutPrice = false,
-        bool $lineItem2WithoutPrice = false
+        bool $lineItem2WithoutPrice = false,
+        ?float $containerLineItemPrice = null
     ): void {
         $this->rule->assign([
             'amount' => $price,

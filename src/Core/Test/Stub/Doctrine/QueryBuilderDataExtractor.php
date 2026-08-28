@@ -3,6 +3,7 @@
 namespace Shopware\Core\Test\Stub\Doctrine;
 
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
+use Doctrine\DBAL\Query\From;
 use Doctrine\DBAL\Query\Join;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -40,7 +41,7 @@ class QueryBuilderDataExtractor
         \assert(\is_array($from));
         $result = [];
         foreach ($from as $fromObject) {
-            \assert($fromObject instanceof \Doctrine\DBAL\Query\From);
+            \assert($fromObject instanceof From);
             $result[] = $fromObject->table;
         }
 

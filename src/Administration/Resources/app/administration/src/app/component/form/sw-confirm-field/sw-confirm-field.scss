@@ -7,7 +7,7 @@
         }
     }
 
-    .sw-field input {
+    .mt-field input {
         padding: 8px 16px;
     }
 
@@ -19,11 +19,11 @@
     }
 
     &.sw-confirm-field--compact {
-        .sw-field {
+        .mt-field {
             margin-bottom: 0;
         }
 
-        .sw-field input {
+        .mt-field input {
             padding: 2px 16px;
         }
 
@@ -33,7 +33,7 @@
     }
 
     &.sw-confirm-field--editing {
-        .sw-field input {
+        .mt-field input {
             padding-right: 64px;
         }
     }

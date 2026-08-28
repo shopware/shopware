@@ -33,7 +33,7 @@ class MediaUploadedEvent extends Event implements ScalarValuesAware, FlowEventAw
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('mediaId', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(FlowMailVariables::MEDIA_ID, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getValues(): array

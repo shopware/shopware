@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,7 +46,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     }
 
     /**
-     * This subscriber has to trigger before the {@see \Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener},
+     * This subscriber has to trigger before the {@see StoreApiResponseListener},
      * because it requires access to the `StoreApiResponse`'s struct object, which is not available after encoding it.
      */
     public static function getSubscribedEvents(): array
@@ -101,7 +102,8 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             }
         }
 
-        if ($struct instanceof Collection) {
+        /** @deprecated tag:v6.8.0 - Remove the EntitySearchResult exclusion once it no longer extends Collection. */
+        if ($struct instanceof Collection && !$struct instanceof EntitySearchResult) {
             foreach ($struct as $item) {
                 $this->findStruct($data, $item);
             }
@@ -121,7 +123,10 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         }
 
         foreach ($struct->getVars() as $item) {
-            if ($item instanceof Collection || \is_array($item)) {
+            /** @deprecated tag:v6.8.0 - Fold the EntitySearchResult branch into the Struct one once it no longer extends Collection. */
+            if ($item instanceof EntitySearchResult) {
+                $this->findStruct($data, $item);
+            } elseif ($item instanceof Collection || \is_array($item)) {
                 foreach ($item as $collectionItem) {
                     if ($collectionItem instanceof Struct) {
                         $this->findStruct($data, $collectionItem);
@@ -153,7 +158,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
             $criteria->addFilter(new EqualsFilter('languageId', $context->getLanguageId()));
             $criteria->addSorting(new FieldSorting('salesChannelId'));
 
-            foreach ($this->salesChannelRepository->search($criteria, $context) as $url) {
+            foreach ($this->salesChannelRepository->search($criteria, $context)->getEntities() as $url) {
                 $entities = $data->getAll($definition, $url->getForeignKey());
 
                 foreach ($entities as $entity) {

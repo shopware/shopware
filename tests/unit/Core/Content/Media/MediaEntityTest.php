@@ -32,14 +32,56 @@ class MediaEntityTest extends TestCase
     }
 
     /**
-     * @return array<string, array{file: ?string, ext: ?string, expected: ?string}>
+     * @return iterable<string, array{file: ?string, ext: ?string, expected: ?string}>
      */
-    public static function filenameExtensionProvider(): array
+    public static function filenameExtensionProvider(): iterable
     {
-        return [
-            'only-ext' => ['file' => null, 'ext' => 'jpg', 'expected' => null],
-            'only-file' => ['file' => 'Tuscany-Landscape', 'ext' => null, 'expected' => null],
-            'file-and-ext' => ['file' => 'Tuscany-Landscape', 'ext' => 'jpg', 'expected' => 'Tuscany-Landscape.jpg'],
-        ];
+        yield 'only-ext' => ['file' => null, 'ext' => 'jpg', 'expected' => null];
+        yield 'only-file' => ['file' => 'Tuscany-Landscape', 'ext' => null, 'expected' => null];
+        yield 'file-and-ext' => ['file' => 'Tuscany-Landscape', 'ext' => 'jpg', 'expected' => 'Tuscany-Landscape.jpg'];
+    }
+
+    public function testHasFileRequiresTheFileMetadataOrAPath(): void
+    {
+        $media = new MediaEntity();
+        static::assertFalse($media->hasFile());
+        static::assertFalse($media->hasPath());
+        static::assertSame('', $media->getPath());
+
+        $media->setPath('media/tuscany.jpg');
+        static::assertTrue($media->hasFile());
+        static::assertTrue($media->hasPath());
+        static::assertSame('media/tuscany.jpg', $media->getPath());
+
+        $withMetadata = new MediaEntity();
+        $withMetadata->setMimeType('image/jpeg');
+        $withMetadata->setFileExtension('jpg');
+        $withMetadata->setFileName('tuscany');
+        static::assertTrue($withMetadata->hasFile());
+    }
+
+    public function testGetResolvesHasFileAsAProperty(): void
+    {
+        $media = new MediaEntity();
+        $media->setPath('media/tuscany.jpg');
+        $media->setTitle('Tuscany');
+
+        static::assertTrue($media->get('hasFile'));
+        static::assertSame('Tuscany', $media->get('title'));
+    }
+
+    public function testJsonSerializeHidesTheRawDataAndAddsHasFile(): void
+    {
+        $media = new MediaEntity();
+        $media->setMediaTypeRaw('media-type-raw');
+        $media->setMetaDataRaw('meta-data-raw');
+
+        static::assertSame('media-type-raw', $media->getMediaTypeRaw());
+
+        $data = $media->jsonSerialize();
+
+        static::assertArrayNotHasKey('mediaTypeRaw', $data);
+        static::assertArrayNotHasKey('metaDataRaw', $data);
+        static::assertFalse($data['hasFile']);
     }
 }

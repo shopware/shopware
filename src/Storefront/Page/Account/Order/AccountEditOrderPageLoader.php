@@ -74,7 +74,7 @@ class AccountEditOrderPageLoader
         $orderRouteResponse = $this->getOrder($request, $salesChannelContext);
 
         /** @var OrderEntity $order */
-        $order = $orderRouteResponse->getOrders()->first();
+        $order = $orderRouteResponse->getOrders()->getEntities()->first();
 
         if ($this->isOrderCancelled($order)) {
             throw OrderException::orderCancelled($order->getId());

@@ -48,7 +48,7 @@ class ProductExportControllerTest extends TestCase
     public function testInvalidData(): void
     {
         $client = $this->createSalesChannelBrowser(null, true);
-        $client->request('GET', getenv('APP_URL') . '/store-api/product-export/foo/bar');
+        $client->request('GET', '/store-api/product-export/foo/bar');
 
         static::assertSame(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
     }
@@ -76,7 +76,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelId,
             $salesChannelDomainId
         );
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -130,7 +130,7 @@ class ProductExportControllerTest extends TestCase
 
         $themeService->assignTheme($themeId, $salesChannelId, $context, true);
 
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -170,7 +170,7 @@ class ProductExportControllerTest extends TestCase
             $deSalesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
         static::assertNotNull($client->getResponse()->headers->get('Last-Modified'));
@@ -202,7 +202,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
@@ -233,7 +233,7 @@ class ProductExportControllerTest extends TestCase
             $salesChannelDomainId
         );
 
-        $client->request('GET', getenv('APP_URL') . \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
+        $client->request('GET', \sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
         static::assertSame(200, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
 
@@ -285,7 +285,7 @@ class ProductExportControllerTest extends TestCase
         $repository = static::getContainer()->get('sales_channel_domain.repository');
 
         /** @var SalesChannelDomainEntity $salesChannelDomain */
-        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();
+        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($salesChannelDomain);
 
         return $salesChannelDomain;
@@ -317,7 +317,7 @@ class ProductExportControllerTest extends TestCase
         ], $this->context);
 
         /** @var ProductExportEntity $productExport */
-        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->get($productExportId);
+        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->getEntities()->get($productExportId);
         static::assertNotNull($productExport);
 
         return $productExport;
@@ -350,7 +350,7 @@ class ProductExportControllerTest extends TestCase
         ], $this->context);
 
         /** @var ProductExportEntity $productExport */
-        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->get($productExportId);
+        $productExport = $this->repository->search(new Criteria([$productExportId]), $this->context)->getEntities()->get($productExportId);
         static::assertNotNull($productExport);
 
         return $productExport;

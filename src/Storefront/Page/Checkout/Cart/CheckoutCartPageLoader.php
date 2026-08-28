@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Checkout\Cart;
 
-use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -21,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('framework')]
+#[Package('checkout')]
 class CheckoutCartPageLoader
 {
     /**
@@ -31,7 +30,6 @@ class CheckoutCartPageLoader
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly StorefrontCartFacade $cartService,
-        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly AbstractCountryRoute $countryRoute,
         private readonly AbstractTranslator $translator
     ) {
@@ -51,9 +49,9 @@ class CheckoutCartPageLoader
 
         $page->setCountries($this->getCountries($salesChannelContext));
 
-        $cart = $this->cartService->get($salesChannelContext->getToken(), $salesChannelContext);
-
-        $gatewayResponse = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
+        $cartGatewayResult = $this->cartService->getWithCheckoutGateway($request, $salesChannelContext->getToken(), $salesChannelContext);
+        $cart = $cartGatewayResult->cart;
+        $gatewayResponse = $cartGatewayResult->gatewayResponse;
 
         $page->setPaymentMethods($gatewayResponse->getPaymentMethods());
         $page->setCart($cart);

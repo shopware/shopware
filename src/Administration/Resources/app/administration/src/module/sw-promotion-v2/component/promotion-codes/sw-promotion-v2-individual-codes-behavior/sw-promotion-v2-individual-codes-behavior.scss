@@ -1,8 +1,3 @@
-@import "~scss/variables";
-
-$color-state-positive: $color-emerald-500;
-$color-state-negative: $color-crimson-500;
-
 .sw-promotion-v2-individual-codes-behavior {
     margin: 0 -24px -24px;
 
@@ -17,18 +12,18 @@ $color-state-negative: $color-crimson-500;
     }
 
     &__description {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         line-height: 22px;
         margin-bottom: 24px;
     }
 
     &__redeemed-state {
         &.is--active {
-            color: $color-state-positive;
+            color: var(--color-text-positive-default);
         }
 
         &.is--inactive {
-            color: $color-state-negative;
+            color: var(--color-text-critical-default);
         }
     }
 

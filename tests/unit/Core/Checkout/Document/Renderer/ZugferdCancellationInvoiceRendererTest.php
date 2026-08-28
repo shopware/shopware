@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -158,15 +159,15 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
             'documentNumber' => '1000',
         ];
 
-        $orderRepository = $this->createMock(EntityRepository::class);
-
         if ($orderSearchResult !== null) {
+            $orderRepository = static::createStub(EntityRepository::class);
             $orderRepository->method('search')->willReturn($orderSearchResult);
         } else {
+            $orderRepository = $this->createMock(EntityRepository::class);
             $orderRepository->expects($this->never())->method('search');
         }
 
-        $referenceInvoiceLoaderConnection = $this->createMock(Connection::class);
+        $referenceInvoiceLoaderConnection = static::createStub(Connection::class);
         $referenceInvoiceLoaderConnection
             ->method('createQueryBuilder')
             ->willReturn(
@@ -176,25 +177,26 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
                 )
             );
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => self::ORDER_ID],
         ]);
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnArgument(0);
 
         return new ZugferdCancellationInvoiceRenderer(
             $orderRepository,
             new DocumentConfigLoader(
-                $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class),
+                static::createStub(EntityRepository::class),
+                static::createStub(EntityRepository::class),
             ),
             $eventDispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             new ReferenceInvoiceLoader($referenceInvoiceLoaderConnection),
             $connection,
-            $builder ?? $this->createMock(ZugferdBuilder::class),
+            $builder ?? static::createStub(ZugferdBuilder::class),
+            new NativeClock()
         );
     }
 }

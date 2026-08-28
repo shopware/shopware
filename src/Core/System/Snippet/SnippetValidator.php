@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
@@ -14,8 +15,6 @@ use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
- * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
- *
  * @phpstan-type MissingSnippetsArray array<string, array<string, array{
  *      path: string,
  *      availableISO: string,
@@ -24,6 +23,7 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
  * }>>
  */
 #[Package('discovery')]
+#[BecomesInternal(version: 'v6.8.0')]
 readonly class SnippetValidator implements SnippetValidatorInterface
 {
     /**

@@ -9,12 +9,14 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class PrivilegesTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -215,8 +217,7 @@ class PrivilegesTest extends TestCase
 
         $this->privileges->requestPrivileges($appId, ['customer:read', 'customer:update'], $context);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('A privilege cannot be present in both the accept and revoke lists simultaneously.');
+        $this->expectExceptionObject(AppException::conflictingPrivilegeUpdate());
 
         $this->privileges->updatePrivileges($appId, ['customer:read'], ['customer:read'], $context);
     }

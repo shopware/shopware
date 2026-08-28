@@ -2,11 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook\Service;
 
-use Doctrine\DBAL\Connection;
-use GuzzleHttp\Client;
-use GuzzleHttp\Pool;
-use GuzzleHttp\Psr7\Request;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
@@ -14,21 +9,22 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
-use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
-use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -52,16 +48,16 @@ class WebhookManager implements ResetInterface
 
     public function __construct(
         private readonly WebhookLoader $webhookLoader,
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly Connection $connection,
         private readonly HookableEventFactory $eventFactory,
         private readonly AppLocaleProvider $appLocaleProvider,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
-        private readonly Client $guzzle,
+        private readonly WebhookClient $webhookClient,
         private readonly MessageBusInterface $bus,
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
         private readonly bool $isAdminWorkerEnabled,
+        private readonly WebhookDeliveryService $webhookDeliveryService,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
     ) {
     }
 
@@ -100,17 +96,25 @@ class WebhookManager implements ResetInterface
             return;
         }
 
-        $this->eventDispatcher->dispatch($e = new PreWebhooksDispatchEvent($webhooksForEvent));
-        $webhooksForEvent = $e->webhooks;
-
         $languageId = $context->getLanguageId();
         $userLocale = $this->appLocaleProvider->getLocaleFromContext($context);
 
         $affectedRoleIds = array_values(array_filter(array_map(static fn (Webhook $webhook) => $webhook->appAclRoleId, $webhooksForEvent)));
         $this->loadPrivileges($event->getName(), $affectedRoleIds);
 
-        // If the admin worker is enabled we send all events synchronously, as we can't guarantee timely delivery otherwise.
-        // Additionally, all app lifecycle events are sent synchronously as those can lead to nasty race conditions otherwise.
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            $messages = $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale);
+
+            if ($messages !== []) {
+                $isAppLifecycleEvent = $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated;
+
+                Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($messages, forceSynchronous: $isAppLifecycleEvent));
+            }
+
+            return;
+        }
+
+        // Legacy paths — no feature flag
         if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated) {
             Profiler::trace(
                 'webhook::dispatch-sync',
@@ -128,6 +132,29 @@ class WebhookManager implements ResetInterface
 
     /**
      * @param array<Webhook> $webhooksForEvent
+     *
+     * @return list<WebhookEventMessage>
+     */
+    private function collectMessages(array $webhooksForEvent, Hookable $event, string $languageId, string $userLocale): array
+    {
+        $messages = [];
+
+        foreach ($webhooksForEvent as $webhook) {
+            $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
+            if ($message === null) {
+                continue;
+            }
+
+            $messages[] = $message;
+        }
+
+        return $messages;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 — pre-WEBHOOKS_REWORK path; will be removed.
+     *
+     * @param array<Webhook> $webhooksForEvent
      */
     private function dispatchWebhooksToQueue(
         array $webhooksForEvent,
@@ -136,60 +163,18 @@ class WebhookManager implements ResetInterface
         string $userLocale
     ): void {
         foreach ($webhooksForEvent as $webhook) {
-            if (!$this->isEventDispatchingAllowed($webhook, $event)) {
+            $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
+            if ($message === null) {
                 continue;
             }
 
-            try {
-                $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (ShopIdChangeSuggestedException) {
-                // don't dispatch webhooks for apps if url changed
-                continue;
-            }
-
-            $webhookHeaders = $event instanceof AppFlowActionEvent
-                ? $event->getWebhookHeaders()
-                : [];
-
-            $webhookEventMessage = new WebhookEventMessage(
-                $webhookData['source']['eventId'],
-                $webhookData,
-                $webhook->appId,
-                $webhook->id,
-                $this->shopwareVersion,
-                $webhook->url,
-                $webhook->appSecret,
-                $languageId,
-                $userLocale,
-                $webhookHeaders
-            );
-
-            $this->logWebhookWithEvent($webhook, $webhookEventMessage);
-
-            $this->bus->dispatch($webhookEventMessage);
+            $this->bus->dispatch($message);
         }
     }
 
-    private function logWebhookWithEvent(Webhook $webhook, WebhookEventMessage $webhookEventMessage): void
-    {
-        $this->connection->insert(
-            'webhook_event_log',
-            [
-                'id' => Uuid::fromHexToBytes($webhookEventMessage->getWebhookEventId()),
-                'app_name' => $webhook->appName,
-                'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
-                'webhook_name' => $webhook->webhookName,
-                'event_name' => $webhook->eventName,
-                'app_version' => $webhook->appVersion,
-                'url' => $webhook->url,
-                'only_live_version' => (int) $webhook->onlyLiveVersion,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'serialized_webhook_message' => serialize($webhookEventMessage),
-            ]
-        );
-    }
-
     /**
+     * @deprecated tag:v6.8.0 — pre-WEBHOOKS_REWORK path; will be removed.
+     *
      * @param array<Webhook> $webhooksForEvent
      */
     private function callWebhooksSynchronous(
@@ -199,55 +184,83 @@ class WebhookManager implements ResetInterface
         string $userLocale
     ): void {
         $requests = [];
+        /** @var array<string, OutboxEntry> $entries */
+        $entries = [];
+
         foreach ($webhooksForEvent as $webhook) {
-            if (!$this->isEventDispatchingAllowed($webhook, $event)) {
+            $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
+            if ($message === null) {
                 continue;
             }
 
+            $this->webhookOutboxStore->recordOutboxEntry(OutboxInsert::fromMessage($message));
+            $entry = $this->webhookOutboxStore->markRunning($message->getWebhookEventId());
+            if ($entry === null) {
+                continue;
+            }
+
+            $requests[$message->getWebhookEventId()] = $this->webhookDeliveryService->buildRequest($message, $entry);
+            $entries[$message->getWebhookEventId()] = $entry;
+        }
+
+        $results = $this->webhookClient->sendBatch($requests);
+
+        foreach ($results as $eventId => $result) {
             try {
-                $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (ShopIdChangeSuggestedException) {
-                // don't dispatch webhooks for apps if url changed
-                continue;
+                $request = $requests[$eventId];
+                $entry = $entries[$eventId];
+
+                $response = DeliveryResponse::from($request, $result);
+
+                if ($result->successful()) {
+                    $this->webhookOutboxStore->markSuccess($entry, $response);
+                } else {
+                    $this->webhookOutboxStore->markFailed($entry, $response);
+                }
+            } catch (\Throwable) {
+                // Don't let one entry block the rest — failed entries stay in 'running'
             }
+        }
+    }
 
-            $timestamp = time();
-            $webhookData['timestamp'] = $timestamp;
-
-            $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);
-
-            $headers = [
-                'Content-Type' => 'application/json',
-                'sw-version' => $this->shopwareVersion,
-                AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $languageId,
-                AuthMiddleware::SHOPWARE_USER_LANGUAGE => $userLocale,
-            ];
-
-            if ($event instanceof AppFlowActionEvent) {
-                $headers = array_merge($headers, $event->getWebhookHeaders());
-            }
-
-            $request = new Request(
-                'POST',
-                $webhook->url,
-                $headers,
-                $jsonPayload
-            );
-
-            if ($webhook->appId !== null && $webhook->appSecret !== null) {
-                $request = $request->withHeader(
-                    RequestSigner::SHOPWARE_SHOP_SIGNATURE,
-                    (new RequestSigner())->signPayload($jsonPayload, $webhook->appSecret)
-                );
-            }
-
-            $requests[] = $request;
+    private function createWebhookMessage(
+        Webhook $webhook,
+        Hookable $event,
+        string $languageId,
+        string $userLocale
+    ): ?WebhookEventMessage {
+        if (!$this->isEventDispatchingAllowed($webhook, $event)) {
+            return null;
         }
 
-        if ($requests !== []) {
-            $pool = new Pool($this->guzzle, $requests);
-            $pool->promise()->wait();
+        try {
+            $webhookData = $this->getPayloadForWebhook($webhook, $event);
+        } catch (ShopIdChangeSuggestedException) {
+            // don't dispatch webhooks for apps if url changed
+            return null;
         }
+
+        $webhookHeaders = $event instanceof AppFlowActionEvent
+            ? $event->getWebhookHeaders()
+            : [];
+
+        // partition by app for now. Later, PartitionAwareHookable allows event-level partitioning.
+        $partitionKey = $webhook->appId ?? WebhookEventMessage::DEFAULT_PARTITION_KEY;
+
+        return new WebhookEventMessage(
+            $webhookData['source']['eventId'],
+            $webhookData,
+            $webhook->appId,
+            $webhook->id,
+            $this->shopwareVersion,
+            $webhook->url,
+            $webhook->appSecret,
+            $languageId,
+            $userLocale,
+            $webhookHeaders,
+            $partitionKey,
+            $webhook->appName,
+        );
     }
 
     /**

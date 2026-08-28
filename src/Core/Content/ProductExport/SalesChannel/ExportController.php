@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
 use League\Flysystem\FilesystemOperator;
 use Monolog\Level;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
@@ -27,8 +28,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ExportController
 {
     /**
@@ -42,14 +43,15 @@ class ExportController
         private readonly FilesystemOperator $fileSystem,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $productExportRepository,
-        private readonly AbstractSalesChannelContextFactory $contextFactory
+        private readonly AbstractSalesChannelContextFactory $contextFactory,
+        private readonly ClockInterface $clock
     ) {
     }
 
     #[Route(path: '/store-api/product-export/{accessKey}/{fileName}', name: 'store-api.product.export', methods: ['GET'], defaults: ['auth_required' => false])]
     public function index(Request $request): Response
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $criteria = new Criteria();
         $criteria
@@ -94,7 +96,7 @@ class ExportController
         $encoding = $productExport->getEncoding();
 
         $response = new Response($content ?: null, Response::HTTP_OK, ['Content-Type' => $contentType . ';charset=' . $encoding]);
-        $response->setLastModified((new \DateTimeImmutable())->setTimestamp($this->fileSystem->lastModified($filePath)));
+        $response->setLastModified($this->clock->now()->setTimestamp($this->fileSystem->lastModified($filePath)));
         $response->setCharset($encoding);
 
         return $response;
@@ -107,6 +109,10 @@ class ExportController
         switch ($fileFormat) {
             case ProductExportEntity::FILE_FORMAT_CSV:
                 $contentType = 'text/csv';
+
+                break;
+            case ProductExportEntity::FILE_FORMAT_JSONL:
+                $contentType = 'application/x-ndjson';
 
                 break;
             case ProductExportEntity::FILE_FORMAT_XML:

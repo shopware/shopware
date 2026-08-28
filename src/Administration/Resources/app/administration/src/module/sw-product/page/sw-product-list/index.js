@@ -95,10 +95,6 @@ export default {
             return this.getProductColumns();
         },
 
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         currenciesColumns() {
             return this.currencies
                 .toSorted((a, b) => {
@@ -121,9 +117,15 @@ export default {
 
         productCriteria() {
             const productCriteria = new Criteria(this.page, this.limit);
+            const sorting = Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting);
 
             productCriteria.setTerm(this.term);
-            productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            productCriteria.addSorting(sorting);
+
+            if (!productCriteria.sortings.some((existing) => existing.field === 'id')) {
+                productCriteria.addSorting(Criteria.sort('id'));
+            }
+
             productCriteria.addAssociation('cover.media');
             productCriteria.addAssociation('manufacturer');
             productCriteria.addAssociation('tax');
@@ -133,10 +135,6 @@ export default {
             });
 
             return productCriteria;
-        },
-
-        currencyCriteria() {
-            return new Criteria(1, 500);
         },
 
         salesChannelCriteria() {
@@ -155,82 +153,90 @@ export default {
                 'product-number-filter': {
                     property: 'productNumber',
                     type: 'string-filter',
-                    label: this.$tc('sw-product.filters.productNumberFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.productNumberFilter.placeholder'),
+                    label: this.$t('sw-product.filters.productNumberFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                     criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
                 },
+                'release-date-filter': {
+                    property: 'releaseDate',
+                    label: this.$t('sw-product.filters.releaseDateFilter.label'),
+                    dateType: 'datetime-local',
+                    fromFieldLabel: null,
+                    toFieldLabel: null,
+                    showTimeframe: true,
+                },
                 'active-filter': {
                     property: 'active',
-                    label: this.$tc('sw-product.filters.activeFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.activeFilter.placeholder'),
+                    label: this.$t('sw-product.filters.activeFilter.label'),
+                    placeholder: this.$t('sw-product.filters.activeFilter.placeholder'),
                 },
                 'stock-filter': {
                     property: 'stock',
-                    label: this.$tc('sw-product.filters.stockFilter.label'),
+                    label: this.$t('sw-product.filters.stockFilter.label'),
                     numberType: 'int',
                     step: 1,
-                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
-                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                    fromPlaceholder: this.$t('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$t('sw-product.filters.toPlaceholder'),
                 },
                 'product-without-images-filter': {
                     property: 'media',
-                    label: this.$tc('sw-product.filters.imagesFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder'),
-                    optionHasCriteria: this.$tc('sw-product.filters.imagesFilter.textHasCriteria'),
-                    optionNoCriteria: this.$tc('sw-product.filters.imagesFilter.textNoCriteria'),
+                    label: this.$t('sw-product.filters.imagesFilter.label'),
+                    placeholder: this.$t('sw-product.filters.imagesFilter.placeholder'),
+                    optionHasCriteria: this.$t('sw-product.filters.imagesFilter.textHasCriteria'),
+                    optionNoCriteria: this.$t('sw-product.filters.imagesFilter.textNoCriteria'),
                 },
                 'manufacturer-filter': {
                     property: 'manufacturer',
-                    label: this.$tc('sw-product.filters.manufacturerFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.manufacturerFilter.placeholder'),
+                    label: this.$t('sw-product.filters.manufacturerFilter.label'),
+                    placeholder: this.$t('sw-product.filters.manufacturerFilter.placeholder'),
                 },
                 'visibilities-filter': {
                     property: 'visibilities.salesChannel',
-                    label: this.$tc('sw-product.filters.salesChannelsFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.salesChannelsFilter.placeholder'),
+                    label: this.$t('sw-product.filters.salesChannelsFilter.label'),
+                    placeholder: this.$t('sw-product.filters.salesChannelsFilter.placeholder'),
                     criteria: this.salesChannelCriteria,
                 },
                 'categories-filter': {
                     property: 'categories',
-                    label: this.$tc('sw-product.filters.categoriesFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder'),
+                    label: this.$t('sw-product.filters.categoriesFilter.label'),
+                    placeholder: this.$t('sw-product.filters.categoriesFilter.placeholder'),
                     displayPath: true,
                 },
                 'sales-filter': {
                     property: 'sales',
-                    label: this.$tc('sw-product.filters.salesFilter.label'),
+                    label: this.$t('sw-product.filters.salesFilter.label'),
                     digits: 20,
                     min: 0,
-                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
-                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                    fromPlaceholder: this.$t('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$t('sw-product.filters.toPlaceholder'),
                 },
                 'price-filter': {
                     property: 'price',
-                    label: this.$tc('sw-product.filters.priceFilter.label'),
+                    label: this.$t('sw-product.filters.priceFilter.label'),
                     digits: 20,
                     min: 0,
-                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
-                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                    fromPlaceholder: this.$t('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$t('sw-product.filters.toPlaceholder'),
                 },
                 'tags-filter': {
                     property: 'tags',
-                    label: this.$tc('sw-product.filters.tagsFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.tagsFilter.placeholder'),
+                    label: this.$t('sw-product.filters.tagsFilter.label'),
+                    placeholder: this.$t('sw-product.filters.tagsFilter.placeholder'),
                 },
                 'product-states-filter': {
                     property: 'states',
-                    label: this.$tc('sw-product.filters.productStatesFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.productStatesFilter.placeholder'),
+                    label: this.$t('sw-product.filters.productStatesFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productStatesFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: [
                         {
-                            label: this.$tc('sw-product.filters.productStatesFilter.options.physical'),
+                            label: this.$t('sw-product.filters.productStatesFilter.options.physical'),
                             value: 'is-physical',
                         },
                         {
-                            label: this.$tc('sw-product.filters.productStatesFilter.options.digital'),
+                            label: this.$t('sw-product.filters.productStatesFilter.options.digital'),
                             value: 'is-download',
                         },
                     ],
@@ -244,14 +250,6 @@ export default {
                         label: this.$t(`sw-product.type.${type}`),
                         value: type,
                     })),
-                },
-                'release-date-filter': {
-                    property: 'releaseDate',
-                    label: this.$tc('sw-product.filters.releaseDateFilter.label'),
-                    dateType: 'datetime-local',
-                    fromFieldLabel: null,
-                    toFieldLabel: null,
-                    showTimeframe: true,
                 },
             };
 
@@ -328,6 +326,7 @@ export default {
                 this.storeKey,
                 this.productCriteria,
             );
+            criteria.filters = this.normalizeCategoryFilters(criteria.filters);
 
             if (!criteria.filters.some((filter) => filter.field === 'type')) {
                 criteria.addPostFilter(Criteria.equalsAny('type', this.productTypes));
@@ -363,7 +362,10 @@ export default {
 
             try {
                 if (this.term) {
-                    const variants = await this.productRepository.search(variantCriteria);
+                    const variants = await this.productRepository.search(variantCriteria, {
+                        ...Context.api,
+                        inheritance: true,
+                    });
                     if (variants.length > 0) {
                         const parentIds = [];
 
@@ -375,9 +377,19 @@ export default {
                     }
                 }
 
+                const currencyCriteria = new Criteria(1, 500);
+                currencyCriteria.addSorting(Criteria.sort('name', 'ASC', false));
+
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
-                    this.currencyRepository.search(this.currencyCriteria),
+                    this.repositoryFactory.create('currency').search(currencyCriteria, Shopware.Context.api, {
+                        cacheKey: [
+                            'shared-data',
+                            'currencies',
+                            Shopware.Context.api.languageId ?? 'default',
+                        ],
+                        ttl: 5 * 60 * 1000,
+                    }),
                 ]);
 
                 const products = result[0];
@@ -401,13 +413,13 @@ export default {
             return promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-product.list.messageSaveSuccess', { name: productName }, 0),
+                        message: this.$t('sw-product.list.messageSaveSuccess', { name: productName }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                        message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                     });
                 });
         },
@@ -425,12 +437,26 @@ export default {
             this.getList();
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
-         */
         updateCriteria(criteria) {
-            // Delegate to listing mixin implementation
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, this.normalizeCategoryFilters(criteria));
+        },
+
+        normalizeCategoryFilters(filters) {
+            return filters.map((filter) => {
+                if (filter.field !== 'categories.id') {
+                    return filter;
+                }
+
+                const categoryIds = Array.isArray(filter.value) ? filter.value : filter.value.split('|');
+                if (categoryIds.length === 0) {
+                    return filter;
+                }
+
+                return Criteria.multi('OR', [
+                    filter,
+                    Criteria.equalsAny('product.streams.categories.id', categoryIds),
+                ]);
+            });
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {
@@ -452,7 +478,7 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product.list.columnName'),
+                    label: this.$t('sw-product.list.columnName'),
                     routerLink: 'sw.product.detail',
                     inlineEdit: 'string',
                     allowResize: true,
@@ -461,50 +487,50 @@ export default {
                 {
                     property: 'productNumber',
                     naturalSorting: this.naturalSorting,
-                    label: this.$tc('sw-product.list.columnProductNumber'),
+                    label: this.$t('sw-product.list.columnProductNumber'),
                     align: 'right',
                     allowResize: true,
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product.list.columnManufacturer'),
+                    label: this.$t('sw-product.list.columnManufacturer'),
                     allowResize: true,
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product.list.columnActive'),
+                    label: this.$t('sw-product.list.columnActive'),
                     inlineEdit: 'boolean',
                     allowResize: true,
                     align: 'center',
                 },
                 {
                     property: 'sales',
-                    label: this.$tc('sw-product.list.columnSales'),
+                    label: this.$t('sw-product.list.columnSales'),
                     allowResize: true,
                     align: 'right',
                 },
                 ...this.currenciesColumns,
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product.list.columnInStock'),
+                    label: this.$t('sw-product.list.columnInStock'),
                     inlineEdit: 'number',
                     allowResize: true,
                     align: 'right',
                 },
                 {
                     property: 'availableStock',
-                    label: this.$tc('sw-product.list.columnAvailableStock'),
+                    label: this.$t('sw-product.list.columnAvailableStock'),
                     allowResize: true,
                     align: 'right',
                 },
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-product.list.columnCreatedAt'),
+                    label: this.$t('sw-product.list.columnCreatedAt'),
                     allowResize: true,
                 },
                 {
                     property: 'updatedAt',
-                    label: this.$tc('sw-product.list.columnUpdatedAt'),
+                    label: this.$t('sw-product.list.columnUpdatedAt'),
                     allowResize: true,
                     visible: false,
                 },

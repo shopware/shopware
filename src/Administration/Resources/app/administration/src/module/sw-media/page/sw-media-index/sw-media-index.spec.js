@@ -2,9 +2,13 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
-async function createWrapper() {
+async function createWrapper({ route, props = {} } = {}) {
+    const $route = reactive(route ?? { query: {} });
+
     return mount(await wrapTestComponent('sw-media-index', { sync: true }), {
+        props,
         global: {
             renderStubDefaultSlot: true,
             stubs: {
@@ -23,9 +27,7 @@ async function createWrapper() {
                 'sw-loader': true,
             },
             mocks: {
-                $route: {
-                    query: '',
-                },
+                $route,
             },
             provide: {
                 repositoryFactory: {
@@ -128,5 +130,43 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         expect(wrapper.vm.reloadList).not.toHaveBeenCalled();
         expect(wrapper.vm.uploads).toHaveLength(0);
         expect(wrapper.vm.pendingUploadsCount).toBe(1);
+    });
+
+    it('seeds the search term from the initial route query', async () => {
+        const wrapper = await createWrapper({ route: { query: { term: 'logo.png' } } });
+
+        expect(wrapper.vm.term).toBe('logo.png');
+    });
+
+    it('syncs the search term when the route query.term changes in the same folder', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.$route.query = { term: 'logo.png' };
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.term).toBe('logo.png');
+        expect(wrapper.vm.selectedItems).toHaveLength(0);
+    });
+
+    it('adopts the route query.term when the folder changes', async () => {
+        const wrapper = await createWrapper({ route: { query: { term: 'first.png' } } });
+        expect(wrapper.vm.term).toBe('first.png');
+
+        // Simulate clicking a search suggestion that targets a different folder
+        // with a different term — both the routeFolderId prop and $route.query.term change.
+        wrapper.vm.$route.query = { term: 'second.png' };
+        await wrapper.setProps({ routeFolderId: 'folder-id' });
+
+        expect(wrapper.vm.term).toBe('second.png');
+    });
+
+    it('clears the search term when the folder changes without a route query.term', async () => {
+        const wrapper = await createWrapper({ route: { query: { term: 'first.png' } } });
+        expect(wrapper.vm.term).toBe('first.png');
+
+        wrapper.vm.$route.query = {};
+        await wrapper.setProps({ routeFolderId: 'folder-id' });
+
+        expect(wrapper.vm.term).toBe('');
     });
 });

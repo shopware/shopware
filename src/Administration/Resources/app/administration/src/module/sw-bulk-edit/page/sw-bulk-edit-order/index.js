@@ -17,6 +17,7 @@ export default {
         'bulkEditApiFactory',
         'repositoryFactory',
         'orderDocumentApiService',
+        'feature',
     ],
 
     mixins: [
@@ -77,6 +78,22 @@ export default {
             const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
 
             return hasFieldsChanged || hasCustomFieldsChanged;
+        },
+
+        hasInvalidDocumentGenerationConfig() {
+            if (!this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return false;
+            }
+
+            const orderDocuments = Shopware.Store.get('swBulkEdit').orderDocuments;
+
+            return Object.values(orderDocuments).some((document) => {
+                if (!document?.isChanged || Array.isArray(document.value)) {
+                    return false;
+                }
+
+                return !(document.value?.fileFormats?.length > 0);
+            });
         },
 
         restrictedFields() {
@@ -293,7 +310,7 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = '#A092F0';
+            this.$route.meta.$module.color = 'var(--color-purple-500)';
             this.$route.meta.$module.icon = 'regular-shopping-bag';
         },
 

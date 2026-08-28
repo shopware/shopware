@@ -27,6 +27,7 @@ CREATE TABLE `attribute_entity` (
     `currency_id` BINARY(16) NULL,
     `state_id` BINARY(16) NULL,
     `email` VARCHAR(255) NULL,
+    `long_string` VARCHAR(4096) NULL,
     `password` VARCHAR(1024) NULL,
     `tags` JSON NULL,
     `follow_id` BINARY(16) NULL,

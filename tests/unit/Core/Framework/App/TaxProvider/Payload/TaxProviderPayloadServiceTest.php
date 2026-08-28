@@ -13,8 +13,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
@@ -22,12 +23,15 @@ use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\App\TaxProvider\Response\TaxProviderResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 
@@ -48,12 +52,12 @@ class TaxProviderPayloadServiceTest extends TestCase
     public function testRequest(): void
     {
         $shopId = ShopId::v2($this->ids->get('shop-id'));
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityClass')
             ->willReturn(new TaxProviderDefinition());
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -68,6 +72,7 @@ class TaxProviderPayloadServiceTest extends TestCase
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
             'https://test-shop.com',
+            new MockClock(),
         );
 
         $url = 'https://example.com/provide-tax';
@@ -105,10 +110,11 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $appPayloadServiceHelper,
             new Client(['handler' => new MockHandler([new Response(200, [], $responseContent)])]),
+            static::createStub(ExceptionLogger::class),
         );
 
         $cart = new Cart($this->ids->get('cart'));
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $payload = new TaxProviderPayload($cart, $salesChannelContext);
 
         $app = new AppEntity();
@@ -166,7 +172,7 @@ class TaxProviderPayloadServiceTest extends TestCase
             },
         ]);
 
-        $payload = $this->createMock(TaxProviderPayload::class);
+        $payload = static::createStub(TaxProviderPayload::class);
 
         $app = new AppEntity();
         $app->setId($this->ids->get('app'));
@@ -174,8 +180,9 @@ class TaxProviderPayloadServiceTest extends TestCase
         $app->setAppSecret('very-secret');
 
         $taxProviderPayloadService = new TaxProviderPayloadService(
-            $this->createMock(AppPayloadServiceHelper::class),
+            static::createStub(AppPayloadServiceHelper::class),
             $client,
+            static::createStub(ExceptionLogger::class),
         );
 
         $response = $taxProviderPayloadService->request(
@@ -188,15 +195,115 @@ class TaxProviderPayloadServiceTest extends TestCase
         static::assertNull($response);
     }
 
+    public function testMalformedJsonReturnsNull(): void
+    {
+        $client = new Client(['handler' => new MockHandler([new Response(200, [], '{')])]);
+        $context = new Context(new SystemSource());
+
+        $payload = static::createStub(TaxProviderPayload::class);
+
+        $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
+        $app->setVersion('6.5-dev');
+        $app->setAppSecret('very-secret');
+
+        $helper = $this->createMock(AppPayloadServiceHelper::class);
+        $helper
+            ->expects($this->once())
+            ->method('createRequestOptions')
+            ->willReturn(new AppPayloadStruct([
+                'app_request_context' => $context,
+                'request_type' => [
+                    'app_secret' => 'very-secret',
+                    'validated_response' => true,
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => '[]',
+            ]));
+
+        $logger = $this->createMock(ExceptionLogger::class);
+        $logger
+            ->expects($this->once())
+            ->method('logOrThrowException')
+            ->with(static::isInstanceOf(JsonDecodingException::class));
+
+        $taxProviderPayloadService = new TaxProviderPayloadService(
+            $helper,
+            $client,
+            $logger,
+        );
+
+        $response = $taxProviderPayloadService->request(
+            'https://example.com/provide-tax',
+            $payload,
+            $app,
+            $context
+        );
+
+        static::assertNull($response);
+    }
+
+    public function testMalformedTaxProviderResponseReturnsNull(): void
+    {
+        $client = new Client(['handler' => new MockHandler([new Response(200, [], '{"cartPriceTaxes":[{"tax":"invalid","taxRate":13,"price":200}]}')])]);
+        $context = new Context(new SystemSource());
+
+        $payload = static::createStub(TaxProviderPayload::class);
+
+        $app = new AppEntity();
+        $app->setId($this->ids->get('app'));
+        $app->setVersion('6.5-dev');
+        $app->setAppSecret('very-secret');
+
+        $helper = $this->createMock(AppPayloadServiceHelper::class);
+        $helper
+            ->expects($this->once())
+            ->method('createRequestOptions')
+            ->willReturn(new AppPayloadStruct([
+                'app_request_context' => $context,
+                'request_type' => [
+                    'app_secret' => 'very-secret',
+                    'validated_response' => true,
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => '[]',
+            ]));
+
+        $logger = $this->createMock(ExceptionLogger::class);
+        $logger
+            ->expects($this->once())
+            ->method('logOrThrowException')
+            ->with(static::isInstanceOf(AppException::class));
+
+        $taxProviderPayloadService = new TaxProviderPayloadService(
+            $helper,
+            $client,
+            $logger,
+        );
+
+        $response = $taxProviderPayloadService->request(
+            'https://example.com/provide-tax',
+            $payload,
+            $app,
+            $context
+        );
+
+        static::assertNull($response);
+    }
+
     public function testAppSecretMissing(): void
     {
         $shopId = ShopId::v2('123');
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityClass')
             ->willReturn(new TaxProviderDefinition());
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -210,7 +317,8 @@ class TaxProviderPayloadServiceTest extends TestCase
             $entityEncoder,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://test-shop.com'
+            'https://test-shop.com',
+            new MockClock(),
         );
 
         $url = 'https://example.com/provide-tax';
@@ -224,12 +332,12 @@ class TaxProviderPayloadServiceTest extends TestCase
         $taxProviderPayloadService = new TaxProviderPayloadService(
             $appPayloadServiceHelper,
             new Client(),
+            static::createStub(ExceptionLogger::class),
         );
 
-        $payload = $this->createMock(TaxProviderPayload::class);
+        $payload = static::createStub(TaxProviderPayload::class);
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App secret is missing');
+        $this->expectExceptionObject(AppException::registrationFailed('Test app', 'App secret is missing'));
 
         $taxProviderPayloadService->request(
             $url,

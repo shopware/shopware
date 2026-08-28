@@ -16,9 +16,11 @@ describe('sw-theme-manager module', () => {
         const module = Shopware.Module.getModuleRegistry().get('sw-theme-manager');
 
         expect(module).toBeDefined();
-        expect(module.manifest.navigation).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: 'sw-theme-manager', path: 'sw.theme.manager.index' }),
-        ]));
+        expect(module.manifest.navigation).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ id: 'sw-theme-manager', path: 'sw.theme.manager.index' }),
+            ]),
+        );
 
         const routes = module.routes;
         expect(routes.get('sw.theme.manager.index').components.default).toBe('sw-theme-manager-list');
@@ -37,10 +39,12 @@ describe('sw-theme-manager module', () => {
         routeMiddleware(next, currentRoute);
 
         expect(currentRoute.children).toHaveLength(1);
-        expect(currentRoute.children[0]).toEqual(expect.objectContaining({
-            name: 'sw.sales.channel.detail.theme',
-            component: 'sw-sales-channel-detail-theme',
-        }));
+        expect(currentRoute.children[0]).toEqual(
+            expect.objectContaining({
+                name: 'sw.sales.channel.detail.theme',
+                component: 'sw-sales-channel-detail-theme',
+            }),
+        );
         expect(next).toHaveBeenCalledWith(currentRoute);
     });
 

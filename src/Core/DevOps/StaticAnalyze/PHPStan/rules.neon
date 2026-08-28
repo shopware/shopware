@@ -1,10 +1,8 @@
 rules:
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolResponseRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnserializeUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
@@ -22,8 +20,26 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDelayStampRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoAddCacheTagEventRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUpdatesInExecuteQueryRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnsafeRequestHasSessionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoConstraintViolationGetMessageRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoLegacySqlHashFunctionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecoratorsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\AssertEqualsCanonicalizingListArgumentRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAttributeRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\DataProviderRowArityRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAnyInvocationMatcherRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertEqualsOnClosureRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoDependsWithDataProviderRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoExpectExceptionMessageRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNativeTimeFunctionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNativeTimeClassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnoreEvaluationRule
 
     # rules from https://github.com/symplify/phpstan-rules
     # domain
@@ -40,6 +56,13 @@ rules:
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
 
 services:
+    - # needs the analysis parser to read inherited fixture methods from abstract test-case ancestors
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutExpectationsRule
+        arguments:
+            parser: @defaultAnalysisParser
+        tags:
+            - phpstan.rules.rule
+
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
 

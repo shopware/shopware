@@ -1,4 +1,8 @@
 .sw-bulk-edit-order-documents-generate-invoice {
+    &__item {
+        margin-bottom: var(--scale-size-24);
+    }
+
     &__item.sw-field {
         &:not(:last-child) {
             margin: 0 0 20px;

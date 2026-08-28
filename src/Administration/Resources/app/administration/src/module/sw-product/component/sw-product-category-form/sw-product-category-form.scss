@@ -2,16 +2,16 @@
 
 .sw-product-category-form {
     .sw-product-category-form__tag-field-wrapper {
-        margin-top: 8px;
+        margin-top: var(--scale-size-8);
     }
 
     &__visibility-title {
-        font-weight: $font-weight-semi-bold;
-        margin-bottom: 8px;
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: var(--scale-size-8);
     }
 
     &__visibility_field {
-        margin-top: 20px;
+        margin-top: var(--scale-size-20);
 
         .sw-product-detail__select-visibility.sw-field {
             margin-bottom: 0;

@@ -29,8 +29,8 @@
         box-sizing: border-box;
         overflow: hidden;
         padding: 16px 24px;
-        background: $color-white;
-        border: 1px solid var(--color-border-primary-default, #cdced4);
+        background: var(--color-background-primary-default);
+        border: 1px solid var(--color-border-secondary-default, #cdced4);
         border-radius: $border-radius-sm;
         cursor: pointer;
         transition: background 0.1s;
@@ -47,7 +47,7 @@
         width: 4px;
         height: 44px;
         border-radius: 0 $border-radius-pill $border-radius-pill 0;
-        background: var(--color-border-brand-selected, #0870ff);
+        background: var(--color-border-brand-default, #0870ff);
     }
 
     &__stat-content {
@@ -90,14 +90,14 @@
     }
 
     &__message-types .sw-data-grid {
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: $border-radius-lg;
     }
 
     &__divider {
         margin: 24px 0;
         border: none;
-        border-top: 1px solid var(--color-border-primary-default, #cdced4);
+        border-top: 1px solid var(--color-border-secondary-default, #cdced4);
     }
 
     &__description {

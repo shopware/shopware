@@ -7,7 +7,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('checkout')]
 class AddressDetailPageLoadedEvent extends PageLoadedEvent
 {
     public function __construct(

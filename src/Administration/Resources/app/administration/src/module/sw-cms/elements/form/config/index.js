@@ -10,13 +10,40 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['systemConfigApiService'],
+    inject: [
+        'feature',
+        'systemConfigApiService',
+    ],
 
     mixins: [
         Mixin.getByName('cms-element'),
     ],
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     computed: {
+        tabs() {
+            const tabs = [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+            ];
+
+            if (this.requireConfigTab) {
+                tabs.push({
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'options',
+                });
+            }
+
+            return tabs;
+        },
+
         getLastMailClass() {
             if (this.element.config.mailReceiver.value.length === 1) {
                 return 'is--last';
@@ -29,22 +56,23 @@ export default {
                 {
                     id: 1,
                     value: '',
-                    label: this.$tc('sw-cms.elements.form.config.label.type'),
+                    label: this.$t('sw-cms.elements.form.config.label.type'),
+                    disabled: true,
                 },
                 {
                     id: 2,
                     value: 'contact',
-                    label: this.$tc('sw-cms.elements.form.config.label.typeContact'),
+                    label: this.$t('sw-cms.elements.form.config.label.typeContact'),
                 },
                 {
                     id: 3,
                     value: 'newsletter',
-                    label: this.$tc('sw-cms.elements.form.config.label.typeNewsletter'),
+                    label: this.$t('sw-cms.elements.form.config.label.typeNewsletter'),
                 },
                 {
                     id: 4,
                     value: 'revocationRequest',
-                    label: this.$tc('sw-cms.elements.form.config.label.typeRevocationRequest'),
+                    label: this.$t('sw-cms.elements.form.config.label.typeRevocationRequest'),
                 },
             ];
         },

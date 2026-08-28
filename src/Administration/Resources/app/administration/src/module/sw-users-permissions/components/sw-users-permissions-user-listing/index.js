@@ -13,6 +13,7 @@ export default {
 
     inject: [
         'userService',
+        /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
         'loginService',
         'repositoryFactory',
         'acl',
@@ -28,8 +29,8 @@ export default {
     ],
 
     created() {
-        this.ssoSettingsService.isSso().then((isSso) => {
-            this.isSso = isSso.isSso;
+        this.ssoSettingsService.isSso().then((response) => {
+            this.isSso = response.isSso;
         });
     },
 
@@ -39,9 +40,13 @@ export default {
             isLoading: false,
             itemToDelete: null,
             disableRouteParams: true,
+            /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
             confirmPassword: '',
             sortBy: 'username',
+            /** @deprecated tag:v6.8.0 - Will be removed. Extend sw-verify-user-modal instead. */
             isConfirmingPassword: false,
+            isConfirmDeleteModalOpen: false,
+            isConfirmingPasswordModalOpen: false,
             showInvitationModal: false,
             isSso: false,
         };
@@ -90,16 +95,16 @@ export default {
                 return [
                     {
                         property: 'email',
-                        label: this.$tc('sw-users-permissions.users.user-grid.labelEmail'),
+                        label: this.$t('sw-users-permissions.users.user-grid.labelEmail'),
                     },
                     {
                         property: 'aclRoles',
                         sortable: false,
-                        label: this.$tc('sw-users-permissions.users.user-grid.labelRoles'),
+                        label: this.$t('sw-users-permissions.users.user-grid.labelRoles'),
                     },
                     {
                         property: 'status',
-                        label: this.$tc('sw-users-permissions.users.user-grid.status'),
+                        label: this.$t('sw-users-permissions.users.user-grid.status'),
                     },
                 ];
             }
@@ -107,24 +112,28 @@ export default {
             return [
                 {
                     property: 'username',
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelUsername'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelUsername'),
                 },
                 {
                     property: 'firstName',
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelFirstName'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelFirstName'),
                 },
                 {
                     property: 'lastName',
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelLastName'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelLastName'),
                 },
                 {
                     property: 'aclRoles',
                     sortable: false,
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelRoles'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelRoles'),
                 },
                 {
                     property: 'email',
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelEmail'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelEmail'),
+                },
+                {
+                    property: 'status',
+                    label: this.$t('sw-users-permissions.users.user-grid.status'),
                 },
             ];
         },
@@ -163,6 +172,7 @@ export default {
 
         onDelete(user) {
             this.itemToDelete = user;
+            this.isConfirmDeleteModalOpen = true;
         },
 
         onUserInvited() {
@@ -180,32 +190,16 @@ export default {
 
         invitationFailed() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc('sw-users-permissions.sso.error.cannotInviteUser'),
+                title: this.$t('global.default.error'),
+                message: this.$t('sw-users-permissions.sso.error.cannotInviteUser'),
             });
         },
 
-        async onConfirmDelete(user) {
-            const username = `${user.firstName} ${user.lastName} `;
-            const titleDeleteSuccess = this.$tc('global.default.success');
-            const messageDeleteSuccess = this.$tc(
-                'sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
-                { name: username },
-                0,
-            );
-            const titleDeleteError = this.$tc('global.default.error');
-            const messageDeleteError = this.$tc(
-                'sw-users-permissions.users.user-grid.notification.deleteError.message',
-                {
-                    name: username,
-                },
-                0,
-            );
-
+        onConfirmDelete(user) {
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message'),
                 });
 
                 this.onCloseDeleteModal();
@@ -213,33 +207,36 @@ export default {
                 return;
             }
 
-            const context = { ...Shopware.Context.api };
-            if (!this.isSso) {
-                let verifiedToken;
-                try {
-                    this.isConfirmingPassword = true;
-                    verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
-                } catch (_e) {
-                    this.createNotificationError({
-                        title: this.$tc(
-                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
-                        ),
-                        message: this.$tc(
-                            'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
-                        ),
-                    });
-                } finally {
-                    this.confirmPassword = '';
-                    this.isConfirmingPassword = false;
-                }
+            this.isConfirmDeleteModalOpen = false;
 
-                if (!verifiedToken) {
-                    return;
-                }
+            if (this.isSso) {
+                this.deleteUser({ ...Shopware.Context.api });
 
-                this.confirmPasswordModal = false;
-                context.authToken.access = verifiedToken;
+                return;
             }
+
+            this.isConfirmingPasswordModalOpen = true;
+        },
+
+        deleteUser(context) {
+            const user = this.itemToDelete;
+            const username = `${user.firstName} ${user.lastName} `;
+            const titleDeleteSuccess = this.$t('global.default.success');
+            const messageDeleteSuccess = this.$t(
+                'sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
+                { name: username },
+                0,
+            );
+            const titleDeleteError = this.$t('global.default.error');
+            const messageDeleteError = this.$t(
+                'sw-users-permissions.users.user-grid.notification.deleteError.message',
+                {
+                    name: username,
+                },
+                0,
+            );
+
+            this.isConfirmingPasswordModalOpen = false;
 
             this.userRepository
                 .delete(user.id, context)
@@ -257,10 +254,15 @@ export default {
                     });
                 });
 
-            this.onCloseDeleteModal();
+            this.itemToDelete = null;
+        },
+
+        onCloseConfirmPasswordModal() {
+            this.isConfirmingPasswordModalOpen = false;
         },
 
         onCloseDeleteModal() {
+            this.isConfirmDeleteModalOpen = false;
             this.itemToDelete = null;
         },
     },

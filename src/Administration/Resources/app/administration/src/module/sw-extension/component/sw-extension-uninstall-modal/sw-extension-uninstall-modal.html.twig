@@ -9,19 +9,19 @@
     <template #default>
         {% block sw_installed_extension_card_removal_content_modal_body %}
         <p>
-            {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.description') }}
+            {{ $t('sw-extension-store.component.sw-extension-uninstall-modal.description') }}
         </p>
 
         <p class="sw-extension-uninstall-modal__bold-paragraph">
-            {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.alert') }}
+            {{ $t('sw-extension-store.component.sw-extension-uninstall-modal.alert') }}
         </p>
 
         <p>
 
             <mt-switch
                 v-model="removePluginData"
-                :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
-                :help-text="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
+                :label="$t('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
+                :help-text="$t('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
             />
         </p>
 
@@ -37,7 +37,7 @@
             variant="secondary"
             @click="emitClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -48,7 +48,7 @@
             :is-loading="isLoading"
             @click="emitUninstall"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-uninstall-modal.buttonLabel') }}
+            {{ $t('sw-extension-store.component.sw-extension-uninstall-modal.buttonLabel') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

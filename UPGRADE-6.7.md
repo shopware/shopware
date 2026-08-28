@@ -1,4 +1,179 @@
-# 6.7.8.1
+# 6.7.14.0
+
+## Product export templates: media URLs are encoded automatically
+
+`ProductExportRenderer::renderBody()` now automatically RFC 3986-encodes `MediaEntity::url` and `MediaThumbnailEntity::url` values in the body-template data context. This covers media URLs such as `product.cover.media.url` and `product.media.*.media.url`; other string values, including product descriptions, SEO URLs, and custom fields, are unchanged.
+
+**Action required if your custom body template already encodes media URLs manually.**
+Templates that apply `|url_encode`, `|sw_encode_url`, `|sw_encode_media_url`, `|replace({' ': '%20'})`, or any other manual percent-encoding to a media URL will now produce double-encoded output, for example `%20` becomes `%2520`.
+
+Remove the manual encoding from your template body:
+
+```twig
+{# Before — no longer needed, will double-encode #}
+<g:image_link>{{ product.cover.media.url|url_encode }}</g:image_link>
+
+{# After — encoding is applied automatically #}
+<g:image_link>{{ product.cover.media.url }}</g:image_link>
+```
+
+For a URL-valued custom field or another non-media string, apply `sw_encode_url` explicitly:
+
+```twig
+<link>{{ product.customFields.external_url|sw_encode_url }}</link>
+```
+
+This affects the body template only. Header and footer templates, and URLs assembled entirely inside a Twig expression are not changed.
+
+## MCP server no longer uses the `MCP_SERVER` feature flag
+
+The experimental MCP server is now always enabled and the `MCP_SERVER` feature flag has been removed.
+
+- If you set `MCP_SERVER=1` (or `MCP_SERVER=0`) in your `.env`, remove it. The flag no longer has any effect.
+- The MCP endpoints (`/api/_mcp` and `/store-api/_mcp`) are now reachable whenever `symfony/mcp-bundle` is installed, with no flag to enable or disable them.
+- The MCP classes stay marked `@experimental` until 6.8.0, so the API may still change.
+
+## OpenAPI generator dependency upgraded to swagger-php 6.4
+
+Shopware now requires `zircote/swagger-php` 6.4 to generate OpenAPI 3.2 schemas.
+Extensions that only provide OpenAPI metadata through `OpenApi\Annotations` or `OpenApi\Attributes` are expected to keep working, but extension build tools or tests that use swagger-php's programmatic API may need small changes.
+
+The common migration path is:
+
+* Replace `OpenApi\Generator::scan($sources, ['logger' => $logger])` with `(new OpenApi\Generator($logger))->generate($sources)`.
+* Replace `OpenApi\Util::finder($directory)` with the directory path itself when passing sources to `Generator::generate()`, or use swagger-php 6's `SourceFinder` if you only target v6.
+* If custom processors need to support both old and new swagger-php versions, use `method_exists($generator, 'getProcessorPipeline')`: use `getProcessorPipeline()` / `setProcessorPipeline()` for v5/v6 and fall back to `getProcessors()` / `setProcessors()` for v4.
+* Prefer `OpenApi\Generator::isDefault($value)` over direct comparisons with `Generator::UNDEFINED` when code should keep working across versions.
+
+If your extension relies on swagger-php directly, declare an explicit Composer dependency instead of relying on Shopware's transitive dependency.
+For cross-version development tooling, use a constraint that covers the versions you test, for example `^4.9.2 || ^5.0 || ^6.4`.
+
+# 6.7.13.0
+
+## Storefront form validation messages use Shopware snippets
+
+Storefront form validation messages in `FormController` are now translated using the violation code through Shopware's translator instead of using the already translated Symfony validator message. This affects contact, newsletter, and revocation forms.
+
+If a plugin provides custom constraints used by these forms, add matching translations to `Resources/snippet/storefront.<locale>.json` below the `error` key. For example, the violation code `VIOLATION::MY_CUSTOM_ERROR` requires the snippet key `error.VIOLATION::MY_CUSTOM_ERROR`.
+
+## `LineItemPurchasePriceRule` uses a `type` field instead of `isNet`
+
+The rule condition `cartLineItemPurchasePrice` (`Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule`) now stores the price type in a `type` field (`CartPrice::TAX_STATE_GROSS` = `gross` / `CartPrice::TAX_STATE_NET` = `net`) instead of the previous `isNet` boolean. The constructor argument changed from `bool $isNet` to `?string $type`.
+A migration (`Migration1781508123UpdateLineItemPurchasePriceRuleConditions`) rewrites existing `rule_condition` payloads automatically (`isNet: true` → `type: 'net'`, `isNet: false` → `type: 'gross'`).
+
+## Deprecation of rule builder line item condition components
+
+The following Administration rule builder condition components are deprecated and will be removed in v6.8.0. The affected conditions (`cartLineItemInCategory`, `cartLineItemPurchasePrice`) are now rendered generically via `sw-condition-generic`:
+
+* `sw-condition-line-item-in-category`
+* `sw-condition-line-item-purchase-price`
+* `sw-condition-is-net-select`
+
+## `sw-product-stream-filter` now reuses `sw-condition-base` styling
+
+The product-stream filter row now reuses the `sw-condition-base` layout instead of its own markup and styles.
+
+The twig blocks `sw_product_stream_filter` and `sw_product_stream_filter_container` are deprecated and will be removed in v6.8.0. Use `sw_condition_base` / `sw_condition_base_content` instead.
+
+## Deprecation of search settings twig blocks
+
+The following blocks in `src/Administration/Resources/app/administration/src/module/sw-settings-search/component/` have been deprecated and will be removed in v6.8.0:
+
+- `sw_settings_search_excluded_search_terms_empty_state_image` (`sw-settings-search-excluded-search-terms/sw-settings-search-excluded-search-terms.html.twig`)
+- `sw_settings_search_view_live_search_search_icon_wrapper` (`sw-settings-search-live-search/sw-settings-search-live-search.html.twig`)
+- `sw_settings_search_view_live_search_search_icon` (`sw-settings-search-live-search/sw-settings-search-live-search.html.twig`)
+- `sw_settings_search_search_index_warning_top` (`sw-settings-search-search-index/sw-settings-search-search-index.html.twig`)
+- `sw_settings_search_search_index_rebuild_progress_text` (`sw-settings-search-search-index/sw-settings-search-search-index.html.twig`)
+- `sw_settings_search_searchable_content_customfields_state_image` (`sw-settings-search-searchable-content-customfields/sw-settings-search-searchable-content-customfields.html.twig`)
+- `sw_settings_search_searchable_content_general_state_image` (`sw-settings-search-searchable-content-general/sw-settings-search-searchable-content-general.html.twig`)
+- `sw_settings_search_searchable_show_example` (`sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`)
+- `sw_settings_search_searchable_show_example_link_element` (`sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`)
+
+# 6.7.12.0
+
+## Deprecation of `sw_integration_list_introduction` twig block
+
+The block `sw_integration_list_introduction` in `src/Administration/Resources/app/administration/src/module/sw-integration/page/sw-integration-list/sw-integration-list.html.twig` has been deprecated and will be removed in v6.8.0.
+
+## Deprecation of `processSuccess` and `resetButtons` in `sw-settings-cache-index`
+
+The data property `processSuccess` and the method `resetButtons()` on the `sw-settings-cache-index` page component (`src/Administration/Resources/app/administration/src/module/sw-settings-cache/page/sw-settings-cache-index/index.js`) have been deprecated and will be removed in v6.8.0.
+
+## Rule builder condition error display rework
+
+`sw-condition-base` now reads errors directly from the `rule_condition` entity error store. A new `sw-condition-field-errors` component renders the labelled summary below the row.
+
+### Removals on `sw-condition-*` components
+
+* `mapPropertyErrors('condition', [...])` spreads have been removed from every individual `sw-condition-*` component, along with the `conditionValue*Error` computed properties they generated (e.g. `conditionValueOperatorError`). Read errors from the `rule_condition` entity error store instead.
+* The local `currentError` computed override has been removed from the individual `sw-condition-*` components; they now inherit `currentError` from `sw-condition-base`.
+* `hasError` prop on `sw-condition-type-select` has been removed.
+* `operatorClasses` and `hasError` computed properties on `sw-condition-operator-select` have been removed.
+* `typeSelectClasses` and `arrowColor` computed properties on `sw-condition-type-select` have been removed.
+* `currentError` has been removed from the `generic-condition.mixin.ts` mixin.
+
+## Deprecation of `sw_settings_mailer_headline_agent` twig block
+
+The block `sw_settings_mailer_headline_agent` in `src/Administration/Resources/app/administration/src/module/sw-settings-mailer/page/sw-settings-mailer/sw-settings-mailer.html.twig` has been deprecated and will be removed in v6.8.0.
+
+## `Feature::triggerDeprecationOrThrow` accepts an optional `introducedIn` parameter
+
+`Shopware\Core\Framework\Feature::triggerDeprecationOrThrow()` now accepts a third optional `?string $introducedIn = null` argument.
+When provided, the emitted deprecation message is prefixed with `Since shopware/core <introducedIn>:` per Symfony convention, enabling log aggregation by introduction version.
+When omitted, the deprecation is emitted without a `Since` prefix (previously the prefix was rendered with an empty version, producing the malformed `Since shopware/core : ...`).
+
+## (Opt-in) Dedicated `webhook` Messenger transport for webhook delivery
+
+**Opt-in via the `WEBHOOKS_REWORK` feature flag. Becomes the default in 6.8.** Background and behavioural impact are in `RELEASE_INFO-6.7.md`.
+
+> [!IMPORTANT]
+> Enabling the flag without updating the consume command (or the admin-worker transport list) leaves `webhook_delivery` rows piling up with no consumer.
+
+### Consume command
+
+Workers must list `webhook` explicitly — there is no runtime bridge. Put it first so retries do not wait behind async backlog:
+
+```bash
+bin/console messenger:consume webhook async low_priority --{other-options}....
+```
+
+The webhook transport has built-in fairness, so it never starves async. You can run multiple `messenger:consume webhook` processes in parallel — delivery is IO-bound and scales up to `num_apps + 1` partitions (one per app, plus the `default`). Beyond that, extra workers sit idle. Most installs need only one or two.
+
+### Admin worker transports
+
+The default `shopware.admin_worker.transports` already includes `webhook`. If you override it in `config/packages/shopware.yaml`, prepend `webhook`:
+
+```yaml
+shopware:
+    admin_worker:
+        transports: ["webhook", "async", "low_priority"]
+```
+
+### Rolling back
+
+To switch back to the previous behaviour:
+
+1. Disable the `WEBHOOKS_REWORK` feature flag. The `webhook` transport falls back to forwarding into `async`.
+2. Drop `webhook` from your `messenger:consume` invocations.
+3. If you overrode `shopware.admin_worker.transports` to include `webhook`, remove it.
+4. Send a graceful stop signal to any running `messenger:consume webhook` processes (`SIGTERM`, or `bin/console messenger:stop-workers`) and wait for them to exit so no in-flight rework delivery is left mid-batch.
+5. Run `bin/console webhook:drain-to-async` once to re-publish leftover `webhook_delivery` rows onto the `async` transport.
+
+The drain re-publishes every queued / pending-retry row in `webhook_delivery`, including rows the new async path may already have an envelope for — those webhooks will be sent twice. This is within the at-least-once delivery contract; receivers must deduplicate via `X-Shopware-Event-Id` (or the `eventId` in the body). Rows left in `running` from a crashed rework worker are not handled and need manual recovery (`UPDATE webhook_delivery SET delivery_status = 'queued' WHERE delivery_status = 'running';`, then re-run the drain).
+
+## Exception behavior changes in `CustomerBirthdayRule` and `LineItemCustomFieldRule`
+
+While adding the `between` operator for date rule conditions, two rule classes changed which exception they throw from `match()`:
+
+* `CustomerBirthdayRule::match()` no longer throws `CustomerException::unsupportedValue` when `$birthday` is `null` and the operator is not `OPERATOR_EMPTY`. The case now falls through to the existing null-guard and returns `RuleComparison::isNegativeOperator($operator)`.
+* `LineItemCustomFieldRule::match()` now delegates to `CustomFieldRule::match()`. An unknown operator therefore throws `RuleException::unsupportedOperator()` instead of `CartException::unsupportedOperator()`.
+
+## `RuleComparison` deprecations
+
+`RuleComparison` is deprecated for inheritance and will be `final` in v6.8.0.0.
+The `$ruleValue` parameter of `RuleComparison::date()` and `RuleComparison::datetime()` will be widened from `\DateTime` to `\DateTime|string|array` in v6.8.0.0.
+
+# 6.7.8.2
 
 ## Digital product legacy states repair after update
 

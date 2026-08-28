@@ -14,7 +14,8 @@ class DeleteFileMessage implements AsyncMessageInterface
      */
     public function __construct(
         private array $files = [],
-        private string $visibility = Visibility::PUBLIC
+        private string $visibility = Visibility::PUBLIC,
+        private bool $deleteEmptyDirectories = false,
     ) {
     }
 
@@ -42,5 +43,15 @@ class DeleteFileMessage implements AsyncMessageInterface
     public function setVisibility(string $visibility): void
     {
         $this->visibility = $visibility;
+    }
+
+    public function isDeleteEmptyDirectories(): bool
+    {
+        return $this->deleteEmptyDirectories;
+    }
+
+    public function setDeleteEmptyDirectories(bool $deleteEmptyDirectories): void
+    {
+        $this->deleteEmptyDirectories = $deleteEmptyDirectories;
     }
 }

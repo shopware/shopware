@@ -170,7 +170,9 @@ export default {
         },
 
         tabExtensions() {
-            return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
+            return (Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? []).filter(
+                (tabExtension) => tabExtension.visible !== false,
+            );
         },
     },
 
@@ -230,6 +232,7 @@ export default {
                 subtree: true,
                 characterData: true,
                 attributes: true,
+                childList: true,
             });
 
             tabContent.addEventListener('scroll', this.scrollEventHandler);

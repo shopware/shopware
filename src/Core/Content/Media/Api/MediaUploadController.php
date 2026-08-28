@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -20,8 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class MediaUploadController extends AbstractController
 {
     /**
@@ -36,7 +37,7 @@ class MediaUploadController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
@@ -46,11 +47,7 @@ class MediaUploadController extends AbstractController
         }
 
         $fileName = $request->query->getString('fileName', $mediaId);
-        $destination = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
-
-        if (!\is_string($destination)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
-        }
+        $destination = PathHelper::stripControlAndFormatChars($fileName);
 
         try {
             $uploadedFile = $this->mediaService->fetchFile($request, $tempFile);
@@ -69,18 +66,14 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $fileName = $request->request->getString('fileName');
-        $destination = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
+        $destination = PathHelper::stripControlAndFormatChars($fileName);
 
         if ($destination === '') {
             throw MediaException::emptyMediaFilename();
-        }
-
-        if (!\is_string($destination)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
         }
 
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
@@ -88,15 +81,11 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
-    #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', methods: ['GET'])]
+    #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:read']], methods: ['GET'])]
     public function provideName(Request $request, Context $context): JsonResponse
     {
         $fileName = $request->query->getString('fileName');
-        $preferredFileName = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
-
-        if (!\is_string($preferredFileName)) {
-            throw MediaException::illegalFileName($fileName, 'Filename must be a string');
-        }
+        $preferredFileName = PathHelper::stripControlAndFormatChars($fileName);
 
         $fileExtension = $request->query->getString('extension');
         $mediaId = $request->query->has('mediaId') ? $request->query->getString('mediaId') : null;

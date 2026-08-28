@@ -13,6 +13,7 @@
             {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
             <a
                 class="navigation-offcanvas-link nav-item nav-link{% if isActive %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
+                {% if isActive %}aria-current="page"{% endif %}
                 href="{{ url }}"
                 title="{{ name }}"
                 {% if not feature('JSON_LD_DATA') %}

@@ -6,12 +6,14 @@ use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\UseCLIContextRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<UseCLIContextRule>
  */
+#[Package('framework')]
 class UseCLIContextRuleTest extends RuleTestCase
 {
     #[RunInSeparateProcess]

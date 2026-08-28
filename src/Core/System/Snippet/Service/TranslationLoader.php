@@ -4,7 +4,8 @@ namespace Shopware\Core\System\Snippet\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -13,21 +14,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
+use Shopware\Core\System\Snippet\Event\TranslationLoadedEvent;
 use Shopware\Core\System\Snippet\SnippetException;
+use Shopware\Core\System\Snippet\SnippetPatterns;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Constraints\Locale;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('discovery')]
-class TranslationLoader extends AbstractTranslationLoader
+class TranslationLoader extends AbstractTranslationLoader implements ResetInterface
 {
     private const PLATFORM_BUNDLES = [
         'Administration' => 'administration.json',
@@ -41,18 +46,23 @@ class TranslationLoader extends AbstractTranslationLoader
     ];
 
     /**
+     * @var ArrayStruct<list<string>>|null
+     */
+    private ?ArrayStruct $existingPluginLocaleTranslations = null;
+
+    /**
      * @param EntityRepository<LanguageCollection> $languageRepository
      * @param EntityRepository<LocaleCollection> $localeRepository
      * @param EntityRepository<SnippetSetCollection> $snippetSetRepository
      */
     public function __construct(
-        private readonly Filesystem $translationWriter,
+        private readonly FilesystemOperator $translationWriter,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $localeRepository,
         private readonly EntityRepository $snippetSetRepository,
         private readonly ClientInterface $client,
         private readonly TranslationConfig $config,
-        private readonly ValidatorInterface $validator,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -69,29 +79,53 @@ class TranslationLoader extends AbstractTranslationLoader
             throw SnippetException::languageDoesNotExist($locale);
         }
 
-        $this->fetchPlatformSnippets($locale);
-        $this->fetchPluginSnippets($locale);
+        $this->download($locale);
 
         $this->createLanguage($language, $context, $activate);
         $this->createSnippetSet($language, $context);
+
+        $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
+    }
+
+    public function download(string $locale): void
+    {
+        if (!$this->config->languages->has($locale)) {
+            throw SnippetException::languageDoesNotExist($locale);
+        }
+
+        $this->fetchPlatformSnippets($locale);
+        $this->fetchPluginSnippets($locale);
+
+        // New plugin translation directories may have been written, invalidate the memoized lookup.
+        $this->reset();
     }
 
     public function pluginTranslationExists(Plugin $plugin): bool
     {
-        $name = $this->config->getMappedPluginName($plugin);
-        $localesBasePath = $this->getLocalesBasePath();
+        $this->memoizePluginLocaleTranslations();
 
-        if (!$this->translationWriter->directoryExists($localesBasePath)) {
+        $name = $this->config->getMappedPluginName($plugin);
+
+        return $this->existingPluginLocaleTranslations?->has($name) === true;
+    }
+
+    public function pluginTranslationExistsForLocale(Plugin $plugin, string $locale): bool
+    {
+        $this->memoizePluginLocaleTranslations();
+
+        $name = $this->config->getMappedPluginName($plugin);
+        $localesByPlugin = $this->existingPluginLocaleTranslations?->get($name);
+
+        if (!\is_array($localesByPlugin)) {
             return false;
         }
 
-        foreach ($this->translationWriter->listContents($localesBasePath, Filesystem::LIST_DEEP) as $fsNode) {
-            if ($fsNode->isDir() && str_ends_with($fsNode->path(), 'Plugins/' . $name)) {
-                return true;
-            }
-        }
+        return \in_array(\strtolower($locale), $localesByPlugin, true);
+    }
 
-        return false;
+    public function reset(): void
+    {
+        $this->existingPluginLocaleTranslations = null;
     }
 
     public function getLocalesBasePath(): string
@@ -101,14 +135,39 @@ class TranslationLoader extends AbstractTranslationLoader
 
     public function getLocalePath(string $locale): string
     {
-        $localeViolationCount = $this->validator
-            ->validate($locale, new Locale())
-            ->count();
-        if ($locale !== '*' && $localeViolationCount !== 0) {
+        if (
+            $locale !== '*'
+            && !\array_key_exists($locale, SnippetPatterns::ALLOWED_PSEUDO_LOCALES)
+            && !preg_match(SnippetPatterns::COMPLETE_LOCALE_PATTERN, $locale)
+        ) {
             return '';
         }
 
         return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR, $locale);
+    }
+
+    private function memoizePluginLocaleTranslations(): void
+    {
+        if ($this->existingPluginLocaleTranslations !== null) {
+            return;
+        }
+
+        $localesBasePath = $this->getLocalesBasePath();
+        /** @var ArrayStruct<list<string>> $pluginLocales */
+        $pluginLocales = new ArrayStruct();
+
+        foreach ($this->translationWriter->listContents($localesBasePath, FilesystemOperator::LIST_DEEP) as $fsNode) {
+            if (\preg_match('#(?P<locale>[^/]+)/Plugins/(?P<plugin>[^/]+)#', $fsNode->path(), $matches) !== 1) {
+                continue;
+            }
+
+            $locales = $pluginLocales->get($matches['plugin']) ?? [];
+            $locales[] = \strtolower($matches['locale']);
+
+            $pluginLocales->set($matches['plugin'], \array_unique($locales));
+        }
+
+        $this->existingPluginLocaleTranslations = $pluginLocales;
     }
 
     private function fetchPluginSnippets(string $locale): void
@@ -186,7 +245,11 @@ class TranslationLoader extends AbstractTranslationLoader
         $localeId = $this->localeRepository->searchIds($criteria, $context)->firstId();
 
         if (!$localeId) {
-            throw SnippetException::localeDoesNotExist($language->locale);
+            if (!\array_key_exists($language->locale, SnippetPatterns::ALLOWED_PSEUDO_LOCALES)) {
+                throw SnippetException::localeDoesNotExist($language->locale);
+            }
+
+            $localeId = $this->createPseudoLocale($language, $context);
         }
 
         $criteria = new Criteria();
@@ -204,6 +267,24 @@ class TranslationLoader extends AbstractTranslationLoader
             'translationCodeId' => $localeId,
             'active' => $activate,
         ]], $context);
+    }
+
+    private function createPseudoLocale(Language $language, Context $context): string
+    {
+        $localeId = Uuid::randomHex();
+
+        $this->localeRepository->create([[
+            'id' => $localeId,
+            'code' => $language->locale,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => SnippetPatterns::ALLOWED_PSEUDO_LOCALES[$language->locale],
+                    'territory' => SnippetPatterns::PSEUDO_LOCALE_TERRITORY,
+                ],
+            ],
+        ]], $context);
+
+        return $localeId;
     }
 
     private function createSnippetSet(Language $language, Context $context): void

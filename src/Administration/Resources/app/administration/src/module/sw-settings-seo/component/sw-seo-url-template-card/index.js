@@ -5,7 +5,7 @@
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Defaults } = Shopware;
 const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();
 const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
@@ -19,6 +19,8 @@ export default {
         'seoUrlTemplateService',
         'repositoryFactory',
     ],
+
+    emits: ['sales-channel-changed'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -48,17 +50,42 @@ export default {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        salesChannelIsHeadless() {
-            const currentSalesChannel = this.salesChannels.find((entity) => {
+        currentSalesChannel() {
+            return this.salesChannels.find((entity) => {
                 return entity.id === this.salesChannelId;
             });
+        },
 
-            if (!currentSalesChannel) {
+        salesChannelIsHeadless() {
+            if (!this.currentSalesChannel) {
                 return false;
             }
 
-            // from Defaults.php
-            return currentSalesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6';
+            return this.currentSalesChannel.typeId === Defaults.apiSalesChannelTypeId;
+        },
+
+        headlessSalesChannelHasExternalDomain() {
+            if (!this.salesChannelIsHeadless) {
+                return false;
+            }
+
+            return !!this.currentSalesChannel?.domains?.find((domain) => domain.isExternalStorefront);
+        },
+
+        salesChannelSupportsSeoUrlTemplates() {
+            if (!this.currentSalesChannel) {
+                return true;
+            }
+
+            const supported = [
+                Defaults.storefrontSalesChannelTypeId,
+                Defaults.apiSalesChannelTypeId,
+            ];
+            if (!supported.includes(this.currentSalesChannel.typeId)) {
+                return false;
+            }
+
+            return !this.salesChannelIsHeadless || this.headlessSalesChannelHasExternalDomain;
         },
     },
 
@@ -102,7 +129,7 @@ export default {
 
             this.seoUrlTemplateRepository.search(criteria).then((response) => {
                 response.forEach((entity) => {
-                    if (!this.seoUrlTemplates.has(entity.id)) {
+                    if (!this.seoUrlTemplates.has(entity.id) && (salesChannelId || !entity.isHeadless)) {
                         this.seoUrlTemplates.add(entity);
                     }
                 });
@@ -133,9 +160,15 @@ export default {
             });
         },
         createSeoUrlTemplatesFromDefaultRoutes(salesChannelId) {
+            // Only the default template family matching the sales channel type is relevant: headless channels
+            // use the store-api routes, storefront channels the frontend routes.
+            const relevantDefaults = this.defaultSeoUrlTemplates.filter(
+                (defaultEntity) => Boolean(defaultEntity.isHeadless) === this.salesChannelIsHeadless,
+            );
+
             // Iterate over the default seo url templates and create new entities for the actual sales channel
             // if they do not exist
-            this.defaultSeoUrlTemplates.forEach((defaultEntity) => {
+            relevantDefaults.forEach((defaultEntity) => {
                 const entityAlreadyExists = this.seoUrlTemplates.some((entity) => {
                     return entity.routeName === defaultEntity.routeName && entity.salesChannelId === salesChannelId;
                 });
@@ -145,6 +178,7 @@ export default {
                     entity.routeName = defaultEntity.routeName;
                     entity.salesChannelId = salesChannelId;
                     entity.entityName = defaultEntity.entityName;
+                    entity.isHeadless = defaultEntity.isHeadless;
                     entity.template = null;
                     this.seoUrlTemplates.add(entity);
                 }
@@ -180,22 +214,23 @@ export default {
         },
         getLabel(seoUrlTemplate) {
             const routeName = seoUrlTemplate.routeName.replace(/\./g, '-');
-            if (this.$tc(`sw-seo-url-template-card.routeNames.${routeName}`)) {
-                return this.$tc(`sw-seo-url-template-card.routeNames.${routeName}`);
+            if (this.$t(`sw-seo-url-template-card.routeNames.${routeName}`)) {
+                return this.$t(`sw-seo-url-template-card.routeNames.${routeName}`);
             }
 
             return seoUrlTemplate.routeName;
         },
         getPlaceholder(seoUrlTemplate) {
+            // Default rows ("All Sales Channels") have no value to inherit from.
             if (!seoUrlTemplate.salesChannelId) {
                 return null;
             }
 
-            const defaultEntity = Object.values(this.defaultSeoUrlTemplates).find((entity) => {
+            const defaultEntity = this.defaultSeoUrlTemplates.find((entity) => {
                 return entity.routeName === seoUrlTemplate.routeName;
             });
 
-            return defaultEntity.template;
+            return defaultEntity ? defaultEntity.template : null;
         },
         onClickSave() {
             const hasError = Object.keys(this.errorMessages).some((key) => {
@@ -207,14 +242,31 @@ export default {
                 return;
             }
 
-            this.seoUrlTemplates.forEach((entry) => {
-                if (entry.template === null) {
-                    this.seoUrlTemplates.remove(entry.id);
-                }
-            });
+            const templatesToSync = this.seoUrlTemplates;
+
+            // On "All Sales Channels" the storefront and headless default templates are kept in sync: applying
+            // the edited storefront value to the headless counterpart (matched by entity) so both route
+            // families share the same relative template.
+            if (!this.salesChannelId) {
+                templatesToSync.forEach((entry) => {
+                    const headlessDefault = this.defaultSeoUrlTemplates.find((defaultEntity) => {
+                        return defaultEntity.isHeadless && defaultEntity.entityName === entry.entityName;
+                    });
+
+                    if (!headlessDefault) {
+                        return;
+                    }
+
+                    headlessDefault.template = entry.template;
+                    headlessDefault.getOrigin().template = entry.getOrigin().template;
+                    if (!templatesToSync.some((entity) => entity.id === headlessDefault.id)) {
+                        templatesToSync.push(headlessDefault);
+                    }
+                });
+            }
 
             this.seoUrlTemplateRepository
-                .sync(this.seoUrlTemplates)
+                .sync(templatesToSync)
                 .then(() => {
                     this.seoUrlTemplates = new EntityCollection(
                         this.seoUrlTemplateRepository.route,
@@ -230,8 +282,8 @@ export default {
                 });
         },
         createSaveErrorNotification() {
-            const titleSaveSuccess = this.$tc('global.default.error');
-            const messageSaveSuccess = this.$tc('sw-seo-url-template-card.general.messageSaveError');
+            const titleSaveSuccess = this.$t('global.default.error');
+            const messageSaveSuccess = this.$t('sw-seo-url-template-card.general.messageSaveError');
 
             this.createNotificationError({
                 title: titleSaveSuccess,
@@ -239,8 +291,8 @@ export default {
             });
         },
         createSaveSuccessNotification() {
-            const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-seo-url-template-card.general.messageSaveSuccess');
+            const titleSaveSuccess = this.$t('global.default.success');
+            const messageSaveSuccess = this.$t('sw-seo-url-template-card.general.messageSaveSuccess');
 
             this.createNotificationSuccess({
                 title: titleSaveSuccess,
@@ -267,7 +319,7 @@ export default {
                     } else {
                         this.setErrorMessagesForEntity(entity);
                     }
-                }, 400);
+                }, 800);
             } else {
                 this.setErrorMessagesForEntity(entity);
             }
@@ -309,12 +361,16 @@ export default {
                 });
         },
         fetchSalesChannels() {
-            this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
+            const criteria = new Criteria(1, 25);
+            criteria.addAssociation('domains').addSorting(Criteria.sort('domains.isExternalStorefront', 'DESC'));
+
+            this.salesChannelRepository.search(criteria).then((response) => {
                 this.salesChannels = response;
             });
         },
         onSalesChannelChanged(salesChannelId) {
             this.salesChannelId = salesChannelId;
+            this.$emit('sales-channel-changed', this.salesChannelIsHeadless);
             this.fetchSeoUrlTemplates(salesChannelId);
         },
         getTemplatesForSalesChannel(salesChannelId) {

@@ -1,28 +1,24 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-base-item-color: $color-darkgray-200;
+$sw-media-base-item-color: var(--color-text-primary-default);
 $sw-media-base-item-border-radius: $border-radius-default;
-$sw-media-base-item-small-font-size: $font-size-xs;
-$sw-media-base-item-color-border: $color-gray-300;
-$sw-media-base-item-color-text-inline-input: $color-darkgray-200;
-$sw-media-base-item-color-context-button: $color-white;
-$sw-media-base-item-color-loading-indicator: $color-darkgray-200;
-$sw-media-base-item-color-hover: $color-shopware-brand-50;
-$sw-media-base-item-color-metadata: lighten($color-darkgray-200, 30);
+$sw-media-base-item-color-border: var(--color-border-secondary-default);
+$sw-media-base-item-color-context-button: var(--color-elevation-surface-raised);
+$sw-media-base-item-color-loading-indicator: var(--color-text-primary-default);
+$sw-media-base-item-color-hover: var(--color-interaction-secondary-hover);
+$sw-media-base-item-color-metadata: var(--color-text-secondary-default);
 $sw-media-base-item-pseudo-padding: 33px;
-$sw-media-base-item-color-input-background: $color-white;
-$sw-media-base-item-color-input-border: $color-gray-300;
-$sw-media-base-item-border-radius-input: $border-radius-default;
-$sw-media-base-item-color-selected: $color-shopware-brand-500;
-$sw-media-base-item-color-checkmark: $color-white;
-$sw-media-base-item-color-input: $color-black;
-$sw-media-base-item-preview-background: $color-white;
+$sw-media-base-item-color-input-border: var(--color-border-primary-default);
+$sw-media-base-item-color-selected: var(--color-border-brand-default);
+$sw-media-base-item-color-input: var(--color-text-primary-default);
+$sw-media-base-item-preview-background: var(--color-elevation-surface-raised);
 
 .sw-media-base-item {
     position: relative;
     padding: 16px;
     color: $sw-media-base-item-color;
+    border-radius: var(--border-radius-m);
 
     &:hover {
         background-color: $sw-media-base-item-color-hover;
@@ -98,7 +94,7 @@ $sw-media-base-item-preview-background: $color-white;
         max-width: 100%;
         margin: 15px 0 5px;
         text-align: center;
-        font-size: $sw-media-base-item-small-font-size;
+        font-size: var(--font-size-xs);
 
         .sw-media-base-item__name {
             @include truncate;
@@ -167,7 +163,7 @@ $sw-media-base-item-preview-background: $color-white;
         grid-column-gap: 10px;
         grid-auto-flow: column;
         align-items: center;
-        padding: 8px;
+        padding: var(--scale-size-8) var(--scale-size-12) var(--scale-size-8) var(--scale-size-8);
         margin: 0 0 8px;
         border: 1px solid $sw-media-base-item-color-border;
         border-radius: $sw-media-base-item-border-radius;
@@ -175,8 +171,9 @@ $sw-media-base-item-preview-background: $color-white;
         .sw-media-base-item__preview-container {
             width: 40px;
             height: 40px;
+            grid-row: 1 / span 2;
             overflow: hidden;
-            border: none !important;
+            border-radius: var(--border-radius-xs);
 
             &::after {
                 content: none;
@@ -190,9 +187,11 @@ $sw-media-base-item-preview-background: $color-white;
         }
 
         .sw-media-base-item__name-container {
+            min-width: 0;
+            overflow: hidden;
             margin: 0;
             text-align: left;
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
 
             .sw-media-base-item__name-field input {
                 text-align: unset;
@@ -200,7 +199,7 @@ $sw-media-base-item-preview-background: $color-white;
         }
 
         .sw-media-base-item__name {
-            line-height: $line-height-xs;
+            line-height: var(--font-line-height-2xs);
         }
 
         .sw-media-base-item__metadata-container {
@@ -208,7 +207,7 @@ $sw-media-base-item-preview-background: $color-white;
             margin: -5px 0 0;
             text-align: left;
             color: $sw-media-base-item-color-metadata;
-            font-size: $font-size-xs;
+            font-size: var(--font-size-2xs);
         }
 
         &:hover {
@@ -231,7 +230,7 @@ $sw-media-base-item-preview-background: $color-white;
             border-color: transparent;
 
             &:hover {
-                border-color: $color-gray-300;
+                border-color: var(--color-border-secondary-default);
             }
         }
 
@@ -241,7 +240,9 @@ $sw-media-base-item-preview-background: $color-white;
         }
     }
 
-    &.is--selected {
+    // In list mode the selection border on the whole item is enough — keep
+    // the preview container borderless there.
+    &.is--selected:not(.is--list) {
         .sw-media-base-item__preview-container {
             border: 1px solid $sw-media-base-item-color-selected;
         }

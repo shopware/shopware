@@ -2,13 +2,13 @@
 <sw-modal
     v-if="showModal"
     class="sw-duplicated-media-v2"
-    :title="$tc('global.sw-duplicated-media-v2.titleModal')"
+    :title="$t('global.sw-duplicated-media-v2.titleModal')"
     @modal-close="skipAll"
 >
     {% block sw_duplicated_media_v2_body %}
     {% block sw_duplicated_media_v2_body_description %}
     <p class="sw-duplicated-media-v2__description">
-        {{ $tc('global.sw-duplicated-media-v2.description', { fileName: `${currentTask.fileName}.${currentTask.extension}` }, 1) }}
+        {{ $t('global.sw-duplicated-media-v2.description', { fileName: `${currentTask.fileName}.${currentTask.extension}` }, 1) }}
     </p>
     {% endblock %}
 
@@ -23,7 +23,7 @@
         {% block sw_duplicated_media_v2_body_preview_label_old_file %}
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label class="sw-duplicated-media-v2__preview_label">
-            {{ $tc('global.sw-duplicated-media-v2.labelNewFile') }}
+            {{ $t('global.sw-duplicated-media-v2.labelNewFile') }}
         </label>
         {%  endblock %}
 
@@ -32,7 +32,7 @@
         {% block sw_duplicated_media_v2_body_preview_label_new_file %}
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label class="sw-duplicated-media-v2__preview_label">
-            {{ $tc('global.sw-duplicated-media-v2.labelOldFile') }}
+            {{ $t('global.sw-duplicated-media-v2.labelOldFile') }}
         </label>
         {%  endblock %}
 
@@ -104,7 +104,7 @@
             v-if="!isLoading && hasAdditionalErrors"
             v-model:checked="shouldSaveSelection"
             class="sw-duplicated-media-v2__additional-error-count"
-            :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', { count: additionalErrorCount })"
+            :label="$t('global.sw-duplicated-media-v2.labelSaveSelection', { count: additionalErrorCount })"
         />
         {% endblock %}
 
@@ -115,7 +115,7 @@
             variant="secondary"
             @click="skipCurrentFile"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 

@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
@@ -28,7 +29,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 
@@ -36,6 +39,7 @@ use Symfony\Component\Serializer\Serializer;
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(AppException::class)]
 #[CoversClass(PaymentPayloadService::class)]
 class PaymentPayloadServiceTest extends TestCase
 {
@@ -57,16 +61,19 @@ class PaymentPayloadServiceTest extends TestCase
 
     public function testRequest(): void
     {
-        $definition = new OrderTransactionDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $this->helper->expects($this->never())->method('createRequestOptions');
+        $this->client->expects($this->never())->method('request');
 
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definition = new OrderTransactionDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityName')
             ->willReturn($definition);
 
         $shopId = ShopId::v2($this->ids->get('shop-id'));
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -80,7 +87,8 @@ class PaymentPayloadServiceTest extends TestCase
             $entityEncoder,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://test-shop.com'
+            'https://test-shop.com',
+            new MockClock(),
         );
 
         $response = \json_encode(['status' => 'paid'], \JSON_THROW_ON_ERROR);
@@ -113,7 +121,7 @@ class PaymentPayloadServiceTest extends TestCase
 
     public function testRequestReturnsExpectedResponse(): void
     {
-        $payload = $this->createMock(PaymentPayloadInterface::class);
+        $payload = static::createStub(PaymentPayloadInterface::class);
         $app = new AppEntity();
         $app->setName('InsecureApp');
         $app->setVersion('1.0.0');
@@ -154,6 +162,43 @@ class PaymentPayloadServiceTest extends TestCase
 
         static::assertInstanceOf(PaymentResponse::class, $response);
         static::assertSame('foo', $response->getErrorMessage());
+    }
+
+    public function testRequestWithMalformedJsonThrows(): void
+    {
+        $payload = static::createStub(PaymentPayloadInterface::class);
+        $app = new AppEntity();
+        $app->setName('InsecureApp');
+        $app->setVersion('1.0.0');
+        $app->setAppSecret('secret');
+
+        $context = Context::createDefaultContext();
+
+        $this->helper
+            ->expects($this->once())
+            ->method('createRequestOptions')
+            ->willReturn($this->buildTestPayload($context));
+
+        $this->client
+            ->expects($this->once())
+            ->method('request')
+            ->willReturn(new Response(200, [], '{'));
+
+        try {
+            $this->service->request(
+                'http://example.com',
+                $payload,
+                $app,
+                PaymentResponse::class,
+                $context,
+            );
+            static::fail('Expected malformed payment gateway JSON to be wrapped.');
+        } catch (AppException $e) {
+            static::assertSame(AppException::APP_PAYMENT_GATEWAY_REQUEST_FAILED, $e->getErrorCode());
+            $previous = $e->getPrevious();
+            static::assertInstanceOf(JsonDecodingException::class, $previous);
+            static::assertInstanceOf(\JsonException::class, $previous->getPrevious());
+        }
     }
 
     private function buildTestPayload(Context $context): AppPayloadStruct

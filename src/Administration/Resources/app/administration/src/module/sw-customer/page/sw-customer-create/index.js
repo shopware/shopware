@@ -189,7 +189,7 @@ export default {
 
             if (hasError) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                    message: this.$t('sw-customer.detail.messageSaveError'),
                 });
                 this.isLoading = false;
                 return false;
@@ -209,7 +209,7 @@ export default {
                     })
                     .catch((exception) => {
                         this.createNotificationError({
-                            message: this.$tc('sw-customer.detail.messageSaveError'),
+                            message: this.$t('sw-customer.detail.messageSaveError'),
                         });
                         this.isLoading = false;
                         throw exception;
@@ -235,7 +235,7 @@ export default {
             });
 
             this.createNotificationError({
-                message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
+                message: this.$t('sw-customer.error.COMPANY_IS_REQUIRED'),
             });
         },
 

@@ -6,8 +6,32 @@
 /* @private */
 import { defineComponent } from 'vue';
 
+interface UserSettingsEntity {
+    id?: string;
+    key?: string;
+    userId?: string | null;
+    value?: unknown;
+    [key: string]: unknown;
+}
+
+interface UserConfigRepository {
+    search(criteria: unknown, context: unknown): Promise<UserSettingsEntity[]>;
+    create(context: unknown): UserSettingsEntity;
+    save(entity: UserSettingsEntity, context: unknown): Promise<unknown>;
+}
+
+interface UserSettingsRepositoryFactory {
+    create(entityName: 'user_config'): UserConfigRepository;
+}
+
+interface CurrentUser {
+    id?: string | null;
+}
+
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-user-settings`; change both together.
  */
 export default Shopware.Mixin.register(
     'user-settings',
@@ -17,12 +41,15 @@ export default Shopware.Mixin.register(
         ],
 
         computed: {
-            userConfigRepository() {
-                return this.repositoryFactory.create('user_config');
+            userConfigRepository(): UserConfigRepository {
+                const repositoryFactory = (this as unknown as { repositoryFactory: UserSettingsRepositoryFactory })
+                    .repositoryFactory;
+
+                return repositoryFactory.create('user_config');
             },
 
-            currentUser() {
-                return Shopware.Store.get('session').currentUser;
+            currentUser(): CurrentUser | null {
+                return Shopware.Store.get('session').currentUser as CurrentUser | null;
             },
         },
 
@@ -34,7 +61,7 @@ export default Shopware.Mixin.register(
              * @param {string|null} userId Id of the target user; `null` will use the current user
              * @return {Promise<*>}
              */
-            getUserSettingsEntity(identifier: string, userId: string | null = null) {
+            getUserSettingsEntity(identifier: string, userId: string | null = null): Promise<UserSettingsEntity | null> {
                 if (!this.acl.can('user_config:read')) {
                     return Promise.reject();
                 }
@@ -57,7 +84,17 @@ export default Shopware.Mixin.register(
              * @param {string|null} userId Id of the target user; `null` will use the current user
              * @return {Promise<*>}
              */
-            async getUserSettings(identifier: string, userId = null) {
+            async getUserSettings(identifier: string, userId = null): Promise<unknown> {
+                if (!this.acl.can('user_config:read')) {
+                    return Promise.reject();
+                }
+
+                if (!userId || userId === this.currentUser?.id) {
+                    const response = await Shopware.Service('userConfigService').search([identifier]);
+
+                    return response?.data?.[identifier] ?? null;
+                }
+
                 const entity = await this.getUserSettingsEntity(identifier, userId);
 
                 if (!entity) {
@@ -82,7 +119,7 @@ export default Shopware.Mixin.register(
                     [key: string]: any;
                 },
                 userId: string | null = null,
-            ) {
+            ): Promise<unknown> {
                 if (!this.acl.can('user_config:create') || !this.acl.can('user_config:update')) {
                     return Promise.reject();
                 }
@@ -99,7 +136,13 @@ export default Shopware.Mixin.register(
                     userId = this.currentUser?.id ?? null;
                 }
 
-                let userSettings = await this.getUserSettingsEntity(identifier);
+                if (!userId || userId === this.currentUser?.id) {
+                    return Shopware.Service('userConfigService').upsert({
+                        [identifier]: entityValue,
+                    });
+                }
+
+                let userSettings: UserSettingsEntity | null = await this.getUserSettingsEntity(identifier, userId);
                 if (!userSettings) {
                     userSettings = this.userConfigRepository.create(Shopware.Context.api);
                 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         bootstrap="src/Core/TestBootstrap.php">
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory suffix="Definition.php">src/Core/</directory>
+            <directory suffix="Entity.php">src/Core/</directory>
+            <directory suffix="Event.php">src/Core/</directory>
+            <directory suffix="Field.php">src/Core/</directory>
+            <directory suffix="Struct.php">src/Core/</directory>
+            <directory suffix="Collection.php">src/Core/</directory>
+            <directory suffix=".php">src/Core/Test</directory>
+        </exclude>
+    </source>
+</phpunit>

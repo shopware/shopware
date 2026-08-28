@@ -25,6 +25,7 @@ interface StateMachineHistoryData {
     entity: string;
     referencedId?: string;
     internalComment?: string;
+    sourceType?: string;
 }
 
 interface CombinedStates {
@@ -122,31 +123,31 @@ export default Component.wrapComponentConfig({
             return [
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-order.stateHistoryModal.column.createdAt'),
+                    label: this.$t('sw-order.stateHistoryModal.column.createdAt'),
                 },
                 {
                     property: 'entity',
-                    label: this.$tc('sw-order.stateHistoryModal.column.entity'),
+                    label: this.$t('sw-order.stateHistoryModal.column.entity'),
                 },
                 {
                     property: 'user',
-                    label: this.$tc('sw-order.stateHistoryModal.column.user'),
+                    label: this.$t('sw-order.stateHistoryModal.column.user'),
                 },
                 {
                     property: 'transaction',
-                    label: this.$tc('sw-order.stateHistoryModal.column.transaction'),
+                    label: this.$t('sw-order.stateHistoryModal.column.transaction'),
                 },
                 {
                     property: 'delivery',
-                    label: this.$tc('sw-order.stateHistoryModal.column.delivery'),
+                    label: this.$t('sw-order.stateHistoryModal.column.delivery'),
                 },
                 {
                     property: 'order',
-                    label: this.$tc('sw-order.stateHistoryModal.column.order'),
+                    label: this.$t('sw-order.stateHistoryModal.column.order'),
                 },
                 {
                     property: 'internalComment',
-                    label: this.$tc('sw-order.stateHistoryModal.column.internalComment'),
+                    label: this.$t('sw-order.stateHistoryModal.column.internalComment'),
                 },
             ];
         },
@@ -290,6 +291,7 @@ export default Component.wrapComponentConfig({
                 entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
                 referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
                 internalComment: 'internalComment' in entry ? entry.internalComment : undefined,
+                sourceType: !hideUser && 'sourceType' in entry ? entry.sourceType : undefined,
             };
         },
 
@@ -325,6 +327,9 @@ export default Component.wrapComponentConfig({
             if (item.integration) {
                 const integrationLabel = item.integration.label;
                 return `${integrationLabel} (${this.$t('sw-order.stateHistoryModal.labelIntegration')})`;
+            }
+            if (item.sourceType === 'sales-channel') {
+                return this.$t('sw-order.stateHistoryModal.labelCustomer');
             }
 
             return this.$t('sw-order.stateHistoryModal.labelSystemUser');

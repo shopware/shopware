@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -70,7 +71,8 @@ class ProductIndexer extends EntityIndexer
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
         private readonly AbstractProductStreamUpdater $streamUpdater,
         private readonly MessageBusInterface $messageBus,
-        private readonly ?StatesUpdater $statesUpdater
+        private readonly ?StatesUpdater $statesUpdater,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -100,6 +102,16 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
+        $parentAndChildIdsToBeChunked = \array_diff(\array_unique(\array_filter(\array_merge(
+            $this->getParentIds($ids),
+            $this->getChildrenIds($ids)
+        ))), $ids);
+
+        if (\count($parentAndChildIdsToBeChunked) + \count($ids) < self::UPDATE_IDS_CHUNK_SIZE) {
+            $ids = array_unique(array_merge($ids, $parentAndChildIdsToBeChunked));
+            $parentAndChildIdsToBeChunked = [];
+        }
+
         Profiler::trace('product:indexer:inheritance', function () use ($ids, $event): void {
             $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $event->getContext());
         });
@@ -108,11 +120,6 @@ class ProductIndexer extends EntityIndexer
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
             $this->stockStorage->index(array_values($stocks), $event->getContext());
         });
-
-        $parentAndChildIdsToBeChunked = \array_unique(\array_filter(\array_merge(
-            $this->getParentIds($ids),
-            $this->getChildrenIds($ids)
-        )));
 
         foreach (\array_chunk($parentAndChildIdsToBeChunked, self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
             $child = new ProductIndexingMessage($chunk, null, $event->getContext());
@@ -129,12 +136,18 @@ class ProductIndexer extends EntityIndexer
             $message = new ProductIndexingMessage($chunk, null, $event->getContext());
             $message->setIndexer($this->getName());
             $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
+            EntityIndexerRegistry::addSkips($message, $event->getContext());
+
+            if ($event->isCloned()) {
+                $message->addSkip(self::CHILD_COUNT_UPDATER);
+            }
 
             $this->messageBus->dispatch($message);
         }
 
         $message = new ProductIndexingMessage($idsForReturnedMessage, null, $event->getContext());
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
+        EntityIndexerRegistry::addSkips($message, $event->getContext());
 
         if ($event->isCloned()) {
             $message->addSkip(self::CHILD_COUNT_UPDATER);
@@ -240,7 +253,7 @@ class ProductIndexer extends EntityIndexer
         RetryableQuery::retryable($this->connection, function () use ($ids): void {
             $this->connection->executeStatement(
                 'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($ids), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                ['ids' => Uuid::fromHexToBytesList($ids), 'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
                 ['ids' => ArrayParameterType::BINARY]
             );
         });

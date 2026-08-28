@@ -2,18 +2,13 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
-use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -27,7 +22,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -60,11 +54,22 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private CustomFieldService $customFieldService;
 
+    /**
+     * Built once for the whole class by the first run of setUp(). The first-test-indexes pattern was
+     * replaced by guarded setUp because a data-provided test (testSearch) can no longer also receive
+     * the ids via #[Depends] - see NoDependsWithDataProviderRule.
+     */
+    private static IdsCollection $indexedIds;
+
     protected function setUp(): void
     {
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->connection = static::getContainer()->get(Connection::class);
         $this->customFieldService = static::getContainer()->get(CustomFieldService::class);
+
+        if (!isset(self::$indexedIds)) {
+            self::$indexedIds = $this->buildIndex();
+        }
     }
 
     protected function tearDown(): void
@@ -92,29 +97,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         $connection->rollBack();
     }
 
-    #[DoesNotPerformAssertions]
-    #[TestDox('Warmup Elasticsearch index and test data for dependent tests')]
-    public function testIndexing(): IdsCollection
+    public function testAndSearch(): void
     {
-        $this->connection->executeStatement('DELETE FROM product');
+        $ids = self::$indexedIds;
 
-        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
-
-        $this->clearElasticsearch();
-        $this->registerCustomFieldsMapping();
-        $this->indexElasticSearch();
-
-        $ids = new IdsCollection();
-        $this->createData($ids);
-
-        $this->refreshIndex();
-
-        return $ids;
-    }
-
-    #[Depends('testIndexing')]
-    public function testAndSearch(IdsCollection $ids): void
-    {
         $this->setSearchConfiguration(true, ['name']);
         $this->setSearchScores([]);
 
@@ -138,9 +124,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         );
     }
 
-    #[Depends('testIndexing')]
-    public function testOrSearch(IdsCollection $ids): void
+    public function testOrSearch(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name']);
         $this->setSearchScores([]);
 
@@ -170,10 +157,11 @@ class ProductSearchQueryBuilderTest extends TestCase
      * @param list<string> $config
      * @param list<string> $expectedProducts
      */
-    #[Depends('testIndexing')]
     #[DataProvider('providerSearchCases')]
-    public function testSearch(array $config, string $term, array $expectedProducts, IdsCollection $ids): void
+    public function testSearch(array $config, string $term, array $expectedProducts): void
     {
+        $ids = self::$indexedIds;
+
         $this->registerCustomFieldsMapping();
         $this->setSearchConfiguration(false, $config);
         $this->setSearchScores([]);
@@ -199,9 +187,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSearchWithStopWord(IdsCollection $ids): void
+    public function testSearchWithStopWord(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name', 'description']);
         $this->setSearchScores([]);
 
@@ -217,9 +206,10 @@ class ProductSearchQueryBuilderTest extends TestCase
         static::assertCount(0, $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
     }
 
-    #[Depends('testIndexing')]
-    public function testScoring(IdsCollection $ids): void
+    public function testScoring(): void
     {
+        $ids = self::$indexedIds;
+
         $this->setSearchConfiguration(false, ['name', 'description', 'customSearchKeywords']);
         $this->setSearchScores(['name' => 0, 'description' => 0, 'customSearchKeywords' => 50]);
 
@@ -294,6 +284,24 @@ class ProductSearchQueryBuilderTest extends TestCase
             ['SW5686779889'],
         ];
 
+        yield 'search joined technical terms in name' => [
+            ['name'],
+            'Channel Line',
+            ['product-13'],
+        ];
+
+        yield 'search technical terms in customSearchKeywords' => [
+            ['customSearchKeywords'],
+            'Channel Line',
+            ['product-14'],
+        ];
+
+        yield 'search productNumber without punctuation' => [
+            ['productNumber'],
+            'Gr49',
+            ['product-12'],
+        ];
+
         yield 'search for custom field json' => [
             ['customFields.evolvesTo'],
             'Flareon',
@@ -312,68 +320,20 @@ class ProductSearchQueryBuilderTest extends TestCase
         return static::getContainer();
     }
 
-    /**
-     * @param array<string> $enabledFields
-     */
-    private function setSearchConfiguration(bool $andLogic = true, array $enabledFields = ['name']): void
+    private function buildIndex(): IdsCollection
     {
-        $con = $this->connection;
+        $this->connection->executeStatement('DELETE FROM product');
 
-        // Toggle and logic
-        $con->executeStatement('UPDATE product_search_config SET and_logic = ? WHERE language_id = ?', [(int) $andLogic, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
 
-        $configId = $con->fetchOne('SELECT id FROM product_search_config WHERE language_id = ?', [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+        $this->clearElasticsearch();
+        $this->registerCustomFieldsMapping();
+        $this->indexElasticSearch();
 
-        $con->executeStatement('DELETE FROM product_search_config_field WHERE product_search_config_id = ? AND field LIKE "customFields%"', [$configId]);
+        $ids = new IdsCollection();
+        $this->createData($ids);
 
-        $con->executeStatement('UPDATE product_search_config_field SET searchable = 0 WHERE product_search_config_id = ?', [$configId]);
-
-        $con->executeStatement(
-            'UPDATE product_search_config_field SET searchable = 1 WHERE product_search_config_id = :configId and field in (:fields)',
-            [
-                'configId' => $configId,
-                'fields' => $enabledFields,
-            ],
-            [
-                'fields' => ArrayParameterType::STRING,
-            ]
-        );
-
-        foreach ($enabledFields as $enabledField) {
-            if (str_contains($enabledField, 'customFields')) {
-                $con->insert(
-                    'product_search_config_field',
-                    [
-                        'id' => Uuid::randomBytes(),
-                        'product_search_config_id' => $configId,
-                        'field' => $enabledField,
-                        'searchable' => 1,
-                        'tokenize' => 0,
-                        'ranking' => 0,
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
-            }
-        }
-    }
-
-    /**
-     * @param array<string, int> $fields
-     */
-    private function setSearchScores(array $fields): void
-    {
-        // Reset all scores
-        $this->connection->executeStatement(
-            'UPDATE product_search_config_field SET ranking = 0 WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?)',
-            [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
-        );
-
-        foreach ($fields as $field => $value) {
-            $this->connection->executeStatement(
-                'UPDATE product_search_config_field SET ranking = ? WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?) and field = ?',
-                [$value, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $field]
-            );
-        }
+        return $ids;
     }
 
     private function createData(IdsCollection $ids): void
@@ -441,6 +401,23 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ->name('Super Pokemon')
                 ->add('description', 'A cool raichu is traveling around the world')
                 ->add('customSearchKeywords', ['Raichu'])
+                ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-12'))
+                ->name('Technical product')
+                ->number('Gr.49')
+                ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-13'))
+                ->name('ChannelLine Connector')
+                ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-14'))
+                ->name('Technical keyword accessory')
+                ->add('customSearchKeywords', ['ChannelLine'])
                 ->price(50, 50)
                 ->visibility()
                 ->build(),

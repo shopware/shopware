@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Service\Requirement;
 
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\ServiceSourceResolver;
 
 /**
- * @internal
+ * Evaluates a service's requirements for a given {@see Gate}: are all of that gate's requirements
+ * currently met? The Installation gate decides whether a service may exist (install/uninstall); the
+ * Privileges gate decides whether an installed service may run (privileges granted/revoked).
  *
- * @phpstan-import-type ServiceSourceConfig from ServiceSourceResolver
+ * @internal
  */
 #[Package('framework')]
 class RequirementsValidator
@@ -28,35 +28,22 @@ class RequirementsValidator
     }
 
     /**
-     * @param list<string> $requirements
-     */
-    public function isValidSet(array $requirements): bool
-    {
-        foreach ($requirements as $requirement) {
-            if (!isset($this->requirements[$requirement])) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns true only if all requirements for the given service are satisfied.
+     * True only if every requirement of the given gate among the names is satisfied. An unknown
+     * requirement name is treated as unsatisfied (a service declaring something we don't model never
+     * passes any gate).
      *
-     * Unknown requirements are treated as unsatisfied; however, we already check that in ServiceLifecycle::install/update
-     * so this code path should never execute.
+     * @param list<string> $requirementNames
      */
-    public function isSatisfied(AppEntity $app): bool
+    public function isSatisfied(array $requirementNames, Gate $gate): bool
     {
-        $requirementNames = $this->getRequirements($app);
-
         foreach ($requirementNames as $name) {
-            if (!isset($this->requirements[$name])) {
+            $requirement = $this->requirements[$name] ?? null;
+
+            if ($requirement === null) {
                 return false;
             }
 
-            if (!$this->requirements[$name]->isSatisfied()) {
+            if ($requirement->getGate() === $gate && !$requirement->isSatisfied()) {
                 return false;
             }
         }
@@ -65,13 +52,22 @@ class RequirementsValidator
     }
 
     /**
-     * @return non-empty-list<string>
+     * True only if every requirement among the names permits manual activation/deactivation. An
+     * unknown requirement name never permits a state change (a service declaring something we
+     * don't model fails closed), consistent with {@see isSatisfied()}.
+     *
+     * @param list<string> $requirementNames
      */
-    private function getRequirements(AppEntity $app): array
+    public function permitsStateChange(array $requirementNames): bool
     {
-        /** @var ServiceSourceConfig $sourceConfig */
-        $sourceConfig = $app->getSourceConfig();
+        foreach ($requirementNames as $name) {
+            $requirement = $this->requirements[$name] ?? null;
 
-        return $sourceConfig['requirements'];
+            if ($requirement === null || !$requirement->permitsStateChange()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

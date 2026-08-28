@@ -24,17 +24,18 @@
                     size="12px"
                 />
 
-                {{ $tc(popoverComponent.props?.label) }}
+                {{ $t(popoverComponent.props?.label) }}
             </mt-button>
 
             <mt-switch
                 v-else-if="popoverComponent.component === 'switch-field'"
-                :label="$tc(popoverComponent.props?.label)"
+                :label="$t(popoverComponent.props?.label)"
                 disabled
             />
 
             <sw-iframe-renderer
                 v-else-if="popoverComponent.component === 'custom'"
+                :key="popoverComponent.props?.locationTriggerId"
                 :src="popoverComponent.src"
                 :location-id="popoverComponent.props?.locationTriggerId"
             />
@@ -49,6 +50,7 @@
             @mouseleave="onMouseLeaveContent"
         >
             <sw-iframe-renderer
+                :key="popoverComponent.props?.locationId"
                 :src="popoverComponent.src"
                 :location-id="popoverComponent.props?.locationId"
             />

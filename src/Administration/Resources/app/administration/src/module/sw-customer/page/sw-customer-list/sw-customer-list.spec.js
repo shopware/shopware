@@ -17,7 +17,7 @@ async function createWrapper(privileges = []) {
                     },
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },
@@ -316,5 +316,14 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         await flushPromises();
 
         expect(wrapper.vm.filterCriteria).toContainEqual(filter);
+    });
+
+    it('should sort the customer group column by its name field', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const customerGroupColumn = wrapper.vm.customerColumns.find((column) => column.property === 'group');
+
+        expect(customerGroupColumn.dataIndex).toBe('group.name');
     });
 });

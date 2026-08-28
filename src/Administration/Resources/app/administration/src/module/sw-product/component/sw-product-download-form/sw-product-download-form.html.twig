@@ -18,6 +18,7 @@
         :upload-tag="`downloads-${product.id}`"
         :private-filesystem="true"
         :extension-accept="fileAccept"
+        :extension-mime-types-by-extension="fileAcceptedMimeTypesByExtension"
         default-folder="product_download"
         v-bind="$attrs"
     />
@@ -60,12 +61,20 @@
 
             <sw-context-button class="sw-product-download-form-row__context">
                 <sw-context-menu-item
+                    class="sw-product-download-form-row__context-download"
+                    :disabled="isLoading || !acl.can('media.viewer')"
+                    @click="downloadMedia(download)"
+                >
+                    {{ $t('sw-product.detailBase.downloadsContextMenuDownloadFile') }}
+                </sw-context-menu-item>
+
+                <sw-context-menu-item
                     class="sw-product-download-form-row__context-remove"
                     variant="danger"
                     :disabled="isLoading || !acl.can('product.editor')"
                     @click="onRemoveDownload(download)"
                 >
-                    {{ $tc('global.default.remove') }}
+                    {{ $t('global.default.remove') }}
                 </sw-context-menu-item>
             </sw-context-button>
 

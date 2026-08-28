@@ -4,10 +4,13 @@
     {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
 
-{% block base_navigation %}{% endblock %}
-
 {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
 {% set showSubtotal = config('core.cart.showSubtotal') %}
+
+{% set showLegalGuaranteeNotice = config('core.cart.showLegalGuaranteeNotice') %}
+{% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
+{% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
+{% set legalGuaranteeNoticeModalTagClose = '</button>' %}
 
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
@@ -28,7 +31,7 @@
 
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'danger',
-                        content: snippetName|trans({'%field%': fieldName})|sw_sanitize
+                        content: snippetName|trans(violation.parameters|merge({'%field%': fieldName}))|sw_sanitize
                     } %}
                 {% endfor %}
             {% endblock %}
@@ -76,9 +79,11 @@
                                 {% block page_checkout_confirm_tos_control_label %}
                                     <label for="tos"
                                         class="checkout-confirm-tos-label custom-control-label">
-                                        {{ 'checkout.confirmTermsTextModal'|trans({
+                                        {{ (showLegalGuaranteeNotice ? 'checkout.confirmTermsTextModalWithGuarantee' : 'checkout.confirmTermsTextModal')|trans({
                                             '%tosModalTagOpen%': tosModalTagOpen,
                                             '%tosModalTagClose%': tosModalTagClose,
+                                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                                         })|raw }}
                                     </label>
                                 {% endblock %}
@@ -264,9 +269,11 @@
                             {% block page_checkout_confirm_tos_auto_confirmed_label_bottom %}
                                 <label for="tos"
                                        class="checkout-confirm-tos-label custom-control-label">
-                                    {{ 'checkout.confirmTermsTextModal'|trans({
+                                    {{ (showLegalGuaranteeNotice ? 'checkout.confirmTermsTextModalWithGuarantee' : 'checkout.confirmTermsTextModal')|trans({
                                         '%tosModalTagOpen%': tosModalTagOpen,
                                         '%tosModalTagClose%': tosModalTagClose,
+                                        '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                        '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                                     })|raw }}
                                 </label>
                             {% endblock %}
@@ -282,11 +289,13 @@
 
                 {% block page_checkout_confirm_tos_auto_confirmed_text %}
                     <div class="checkout-confirm-tos-information my-3 fs-6">
-                        {{ 'checkout.autoConfirmTermsText'|trans({
+                        {{ (showLegalGuaranteeNotice ? 'checkout.autoConfirmTermsTextWithGuarantee' : 'checkout.autoConfirmTermsText')|trans({
                             '%tosModalTagOpen%': tosModalTagOpen,
                             '%tosModalTagClose%': tosModalTagClose,
                             '%revocationModalTagOpen%': revocationModalTagOpen,
                             '%revocationModalTagClose%': revocationModalTagClose,
+                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                         })|raw }}
                     </div>
                 {% endblock %}
@@ -317,10 +326,54 @@
         {% endif %}
     {% endblock %}
 
+    {% block page_checkout_confirm_legal_guarantee_notice %}
+        {% if showLegalGuaranteeNotice %}
+            {% block page_checkout_confirm_legal_guarantee_notice_modal %}
+                <div class="modal modal-lg fade"
+                     id="{{ legalGuaranteeNoticeModalId }}"
+                     tabindex="-1"
+                     role="dialog"
+                     aria-modal="true"
+                     aria-hidden="true"
+                     aria-labelledby="{{ legalGuaranteeNoticeModalId }}-header">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            {% block page_checkout_confirm_legal_guarantee_notice_modal_header %}
+                                <div class="modal-header">
+                                    <div id="{{ legalGuaranteeNoticeModalId }}-header" class="modal-title js-pseudo-modal-template-title-element h5">
+                                        {{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|sw_sanitize }}
+                                    </div>
+                                    <button class="btn-close close"
+                                            type="button"
+                                            data-bs-dismiss="modal"
+                                            aria-label="{{ 'global.default.close'|trans|striptags }}">
+                                    </button>
+                                </div>
+                            {% endblock %}
+
+                            {% block page_checkout_confirm_legal_guarantee_notice_modal_body %}
+                                <div class="modal-body confirm-legal-guarantee-notice">
+                                    <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
+                                       target="_blank"
+                                       rel="noopener">
+                                        {{ context.languageId|sw_legal_guarantee_notice }}
+                                    </a>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+        {% endif %}
+    {% endblock %}
+
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ confirmOrderFormAction }}"
+              data-checkout-customer-storage="true"
+              data-checkout-customer-storage-options="{{ { customerId: context.customer.id }|json_encode }}"
               data-form-preserver="true"
+              data-form-preserver-options="{{ { ignoredElementNames: [constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY'), 'tos'] }|json_encode }}"
               data-form-handler="true"
               data-form-handler-options="{{ { formFieldSelector: null }|json_encode }}"
               data-form-add-history="true"

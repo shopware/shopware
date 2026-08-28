@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 
-async function createWrapper(activeTab = 'singleProducts') {
+async function createWrapper(activeTab = 'singleProducts', featureActive = false) {
     return mount(
         await wrapTestComponent('sw-sales-channel-products-assignment-modal', {
             sync: true,
@@ -27,14 +27,41 @@ async function createWrapper(activeTab = 'singleProducts') {
                             '<div class="sw-modal"><slot></slot><slot name="content"></slot><slot name="modal-footer"></slot></div>',
                     },
                     'sw-tabs': {
+                        name: 'sw-tabs',
                         data() {
                             return { active: activeTab };
                         },
-                        template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                        template:
+                            '<div class="sw-tabs"><slot v-bind="{ active }"></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                    },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
                     },
                     'sw-tabs-item': true,
                     'sw-loader': true,
                     'router-link': true,
+                },
+                provide: {
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                 },
             },
             props: {
@@ -49,6 +76,45 @@ async function createWrapper(activeTab = 'singleProducts') {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal', () => {
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper('singleProducts', true);
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-sales-channel-products-assignment-modal');
+        expect(tabs.props('defaultItem')).toBe('singleProducts');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-sales-channel.detail.productAssignmentModal.singleProducts',
+                name: 'singleProducts',
+            },
+            {
+                label: 'sw-sales-channel.detail.productAssignmentModal.categories.title',
+                name: 'categories',
+            },
+            {
+                label: 'sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title',
+                name: 'dynamicProductGroups',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+    });
+
+    it('should update the active tab when meteor tabs emit a new active item', async () => {
+        const wrapper = await createWrapper('singleProducts', true);
+
+        await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'categories');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('categories');
+    });
+
     it('should emit modal close event', async () => {
         const wrapper = await createWrapper();
 

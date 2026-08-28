@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\RuleCondition;
 
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldTypeFactory;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\CustomFieldType;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\CustomFieldTypeFactory;
 
 /**
  * @internal only for use by the app-system

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package checkout
  */
@@ -104,6 +106,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                 provide: {
                     validationService: {},
                     orderDocumentApiService: {},
+                    documentV2Service: {},
                     repositoryFactory: {
                         create: () => {
                             return {
@@ -472,7 +475,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('#F88962');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--color-pumpkin-500)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-users');
 
         wrapper.vm.setRouteMetaModule.mockRestore();

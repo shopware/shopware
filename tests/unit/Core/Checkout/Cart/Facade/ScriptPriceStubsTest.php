@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(ScriptPriceStubs::class)]
 #[Package('checkout')]
+#[CoversClass(ScriptPriceStubs::class)]
 class ScriptPriceStubsTest extends TestCase
 {
     // fake some static id for the iso
@@ -30,12 +30,12 @@ class ScriptPriceStubsTest extends TestCase
     #[DataProvider('priceCases')]
     public function testPriceFactory(array $prices, PriceCollection $expected): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')->willReturn([
             'USD' => self::USD_ID,
         ]);
 
-        $stubs = new ScriptPriceStubs($connection, $this->createMock(QuantityPriceCalculator::class), $this->createMock(PercentagePriceCalculator::class));
+        $stubs = new ScriptPriceStubs($connection, static::createStub(QuantityPriceCalculator::class), static::createStub(PercentagePriceCalculator::class));
 
         $actual = $stubs->build($prices);
 

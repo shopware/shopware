@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -32,28 +33,35 @@ class StoreSessionExpiredMiddleware implements MiddlewareInterface
     ) {
     }
 
-    public function __invoke(ResponseInterface $response, RequestInterface $request): ResponseInterface
+    public function __invoke(callable $handler): callable
     {
-        if ($response->getStatusCode() !== 401) {
-            return $response;
-        }
+        return function (RequestInterface $request, array $options) use ($handler) {
+            /** @var PromiseInterface $promise */
+            $promise = $handler($request, $options);
 
-        $body = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $code = $body['code'] ?? null;
+            return $promise->then(function (ResponseInterface $response) use ($request) {
+                if ($response->getStatusCode() !== 401) {
+                    return $response;
+                }
 
-        if ($code !== self::STORE_TOKEN_EXPIRED) {
-            $response->getBody()->rewind();
+                $body = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                $code = $body['code'] ?? null;
 
-            return $response;
-        }
+                if ($code !== self::STORE_TOKEN_EXPIRED) {
+                    $response->getBody()->rewind();
 
-        if ($token = $request->getHeaderLine(StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER)) {
-            $this->logoutUserByToken($token);
-        } else {
-            $this->logoutUserByContext();
-        }
+                    return $response;
+                }
 
-        throw new StoreSessionExpiredException();
+                if ($token = $request->getHeaderLine(StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER)) {
+                    $this->logoutUserByToken($token);
+                } else {
+                    $this->logoutUserByContext();
+                }
+
+                throw new StoreSessionExpiredException();
+            });
+        };
     }
 
     private function logoutUserByToken(string $token): void

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\CaptchaCookieCollectListener;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CaptchaCookieCollectListener::class)]
 class CaptchaCookieCollectListenerTest extends TestCase
 {
@@ -38,12 +40,19 @@ class CaptchaCookieCollectListenerTest extends TestCase
     {
         $this->systemConfigService->set(self::CONFIG_KEY, false);
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
-        $cookieCollection = $this->createMock(CookieGroupCollection::class);
-        $cookieCollection->expects($this->never())->method('get');
-        $event = new CookieGroupCollectEvent($cookieCollection, new Request(), Generator::generateSalesChannelContext());
+        $cookieGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $cookieGroup->isRequired = true;
+
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection([$cookieGroup]),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
 
         $this->listener->__invoke($event);
+
+        $captchaCookie = $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED)?->getEntries()?->get('_GRECAPTCHA');
+        static::assertNull($captchaCookie);
     }
 
     public function testRequiredCookieGroupNotPresent(): void

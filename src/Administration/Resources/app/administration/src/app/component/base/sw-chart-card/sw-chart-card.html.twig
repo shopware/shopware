@@ -3,6 +3,7 @@
     class="sw-chart-card"
     :subtitle="cardSubtitle"
     :position-identifier="positionIdentifier"
+    :is-loading="isLoading"
 >
     {% block sw_chart_card_title %}
     <template #title>
@@ -38,25 +39,23 @@
             {% endblock %}
 
             {% block sw_chart_card_header_range_select %}
-            <sw-select-field-deprecated
-                v-model:value="selectedRange"
+            <mt-select
+                v-model="selectedRange"
                 name="sw-field--selectedRange"
-                size="small"
-                @update:value="dispatchRangeUpdate"
+                small
+                :options="rangeOptions"
+                hide-clearable-button
+                @update:model-value="dispatchRangeUpdate"
             >
                 {% block sw_chart_card_header_range_select_options %}
-                <option
-                    v-for="(range, index) in availableRanges"
-                    :key="range"
-                    :value="range"
-                >
+                <template #result-label-property="{ index, item }">
                     <slot
                         name="range-option"
-                        v-bind="{ index, range }"
+                        v-bind="{ index, range: item.value }"
                     ></slot>
-                </option>
+                </template>
                 {% endblock %}
-            </sw-select-field-deprecated>
+            </mt-select>
             {% endblock %}
         </div>
     </template>

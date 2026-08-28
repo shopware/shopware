@@ -77,8 +77,7 @@ class ExtensionDataProviderTest extends TestCase
 
     public function testGetAppEntityFromTechnicalNameThrows(): void
     {
-        $this->expectException(StoreException::class);
-        $this->expectExceptionMessage('Could not find extension with technical name "testName"');
+        $this->expectExceptionObject(StoreException::extensionNotFoundFromTechnicalName('testName'));
         $this->extensionDataProvider->getAppEntityFromTechnicalName('testName', $this->context);
     }
 
@@ -86,8 +85,7 @@ class ExtensionDataProviderTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->expectException(StoreException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find extension with id "%s"', $id));
+        $this->expectExceptionObject(StoreException::extensionNotFoundFromId($id));
         $this->extensionDataProvider->getAppEntityFromId($id, $this->context);
     }
 

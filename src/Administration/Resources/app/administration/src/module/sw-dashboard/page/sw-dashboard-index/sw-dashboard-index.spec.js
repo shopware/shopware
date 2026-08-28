@@ -11,7 +11,6 @@ async function createWrapper(privileges = []) {
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
                 'sw-external-link': true,
                 'sw-dashboard-statistics': true,
-                'sw-usage-data-consent-banner': true,
                 'sw-help-text': true,
                 'sw-extension-component-section': true,
                 'sw-search-bar': true,
@@ -24,10 +23,9 @@ async function createWrapper(privileges = []) {
                 'sw-error-summary': true,
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
-                'sw-settings-services-dashboard-banner': true,
             },
             mocks: {
-                $tc: jest.fn().mockImplementation((snippetPath, placeholders) => {
+                $t: jest.fn().mockImplementation((snippetPath, placeholders) => {
                     return `${snippetPathGreeting}, ${placeholders?.greetingName || ''}`;
                 }),
                 $i18n: {

@@ -7,10 +7,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -22,6 +30,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityWriteResultFactory::class)]
 class EntityWriteResultFactoryTest extends TestCase
 {
@@ -34,13 +43,13 @@ class EntityWriteResultFactoryTest extends TestCase
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [CountryDefinition::class, TaxDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $factory = new EntityWriteResultFactory(
             $registry,
-            $this->createMock(Connection::class)
+            static::createStub(Connection::class)
         );
 
         $queue = new WriteCommandQueue();
@@ -177,6 +186,113 @@ class EntityWriteResultFactoryTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    public function testBuildResultKeepsInsertOperationWhenInsertedEntityIsUpdatedInSameQueue(): void
+    {
+        $ids = new IdsCollection();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CountryDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $queue = new WriteCommandQueue();
+        $definition = $registry->get(CountryDefinition::class);
+
+        $insert = new InsertCommand(
+            definition: $definition,
+            payload: ['id' => $ids->getBytes('country-1'), 'active' => false],
+            primaryKey: ['id' => $ids->getBytes('country-1')],
+            existence: new EmptyEntityExistence(),
+            path: '/' . Uuid::randomHex()
+        );
+        $queue->add($insert->getEntityName(), WriteCommandQueue::hashedPrimary($registry, $insert), $insert);
+
+        $update = new UpdateCommandStub(
+            ['id' => $ids->getBytes('country-1'), 'position' => 10],
+            ['id' => $ids->getBytes('country-1')],
+            $definition
+        );
+        $queue->add($update->getEntityName(), WriteCommandQueue::hashedPrimary($registry, $update), $update);
+
+        $result = (new EntityWriteResultFactory(
+            $registry,
+            static::createStub(Connection::class)
+        ))->build($queue);
+
+        static::assertCount(1, $result['country']);
+        static::assertSame(EntityWriteResult::OPERATION_INSERT, $result['country'][0]->getOperation());
+        static::assertEquals([
+            'id' => $ids->get('country-1'),
+            'active' => false,
+            'position' => 10,
+        ], $result['country'][0]->getPayload());
+    }
+
+    public function testBuildResultKeepsInsertOperationWhenInsertedEntityGetsJsonUpdateInSameQueue(): void
+    {
+        $ids = new IdsCollection();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [TestJsonDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $queue = new WriteCommandQueue();
+        $definition = $registry->get(TestJsonDefinition::class);
+
+        $insert = new InsertCommand(
+            definition: $definition,
+            payload: ['id' => $ids->getBytes('json-entity-1')],
+            primaryKey: ['id' => $ids->getBytes('json-entity-1')],
+            existence: new EmptyEntityExistence(),
+            path: '/' . Uuid::randomHex()
+        );
+        $queue->add($insert->getEntityName(), WriteCommandQueue::hashedPrimary($registry, $insert), $insert);
+
+        $jsonUpdate = new JsonUpdateCommand(
+            definition: $definition,
+            storageName: 'payload_json',
+            payload: ['foo' => 'bar'],
+            primaryKey: ['id' => $ids->getBytes('json-entity-1')],
+            existence: new EmptyEntityExistence(),
+            path: '/' . Uuid::randomHex()
+        );
+        $queue->add($jsonUpdate->getEntityName(), WriteCommandQueue::hashedPrimary($registry, $jsonUpdate), $jsonUpdate);
+
+        $result = (new EntityWriteResultFactory(
+            $registry,
+            static::createStub(Connection::class)
+        ))->build($queue);
+
+        static::assertCount(1, $result[TestJsonDefinition::ENTITY_NAME]);
+        static::assertSame(EntityWriteResult::OPERATION_INSERT, $result[TestJsonDefinition::ENTITY_NAME][0]->getOperation());
+        static::assertEquals([
+            'id' => $ids->get('json-entity-1'),
+            'payloadJson' => ['foo' => 'bar'],
+        ], $result[TestJsonDefinition::ENTITY_NAME][0]->getPayload());
+    }
+}
+
+/**
+ * @internal
+ */
+class TestJsonDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'test_json';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
+            new JsonField('payload_json', 'payloadJson'),
+        ]);
     }
 }
 

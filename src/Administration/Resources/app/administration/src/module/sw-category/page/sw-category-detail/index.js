@@ -169,7 +169,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('category.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('category.editor'),
                     showOnDisabledElements: true,
                 };
@@ -186,7 +186,7 @@ export default {
         landingPageTooltipSave() {
             if (!this.acl.can('landing_page.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('landing_page.editor'),
                     showOnDisabledElements: true,
                 };
@@ -227,6 +227,7 @@ export default {
 
             criteria.addAssociation('tags');
             criteria.addAssociation('salesChannels');
+            criteria.addAssociation('translations');
 
             return criteria;
         },
@@ -486,8 +487,8 @@ export default {
                 await this.loadLandingPageCustomFieldSet();
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;
@@ -741,7 +742,7 @@ export default {
                     }
 
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                        message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                     });
                 });
         },
@@ -759,7 +760,7 @@ export default {
             });
 
             this.createNotificationError({
-                message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
             });
         },
 

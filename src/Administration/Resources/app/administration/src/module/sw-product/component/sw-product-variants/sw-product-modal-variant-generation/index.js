@@ -14,6 +14,7 @@ export default {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'mediaService',
         'swProductDetailLoadAll',
@@ -76,6 +77,30 @@ export default {
     },
 
     computed: {
+        variantGenerationTabs() {
+            const tabs = [
+                {
+                    label: this.$t('sw-product.variations.configuratorModal.selectOptions'),
+                    name: 'options',
+                },
+            ];
+
+            if (this.variantsNumber) {
+                tabs.push(
+                    {
+                        label: this.$t('sw-product.variations.configuratorModal.priceSurcharges'),
+                        name: 'prices',
+                    },
+                    {
+                        label: this.$t('sw-product.variations.configuratorModal.defineRestrictions'),
+                        name: 'restrictions',
+                    },
+                );
+            }
+
+            return tabs;
+        },
+
         currencies() {
             return Shopware.Store.get('swProductDetail').currencies;
         },
@@ -99,13 +124,13 @@ export default {
 
         progressMessage() {
             if (this.progressType === 'delete') {
-                return this.$tc('sw-product.variations.progressTypeDeleted');
+                return this.$t('sw-product.variations.progressTypeDeleted');
             }
             if (this.progressType === 'upsert') {
-                return this.$tc('sw-product.variations.progressTypeGenerated');
+                return this.$t('sw-product.variations.progressTypeGenerated');
             }
             if (this.progressType === 'calc') {
-                return this.$tc('sw-product.variations.progressTypeCalculated');
+                return this.$t('sw-product.variations.progressTypeCalculated');
             }
             return '';
         },
@@ -119,10 +144,10 @@ export default {
 
         buttonLabel() {
             if (this.variantsNumber <= 0) {
-                return this.$tc('sw-product.variations.deleteVariationsButton');
+                return this.$t('sw-product.variations.deleteVariationsButton');
             }
 
-            return this.$tc('sw-product.variations.generateVariationsButton');
+            return this.$t('sw-product.variations.generateVariationsButton');
         },
 
         isGenerateButtonDisabled() {
@@ -336,6 +361,12 @@ export default {
 
             this.variantsGenerator
                 .saveVariants(this.variantGenerationQueue)
+                .then(() => {
+                    return this.variantsGenerator.saveVariantRestrictions();
+                })
+                .then(() => {
+                    return this.variantsGenerator.saveVariantListingConfig();
+                })
                 .then(() => {
                     this.addOriginalConfiguratorSettings();
                     return this.variantsGenerator.saveConfiguratorSettings(

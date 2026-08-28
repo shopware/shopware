@@ -11,13 +11,13 @@
             variant="attention"
             class="sw-flow-detail-flow__warning-unknow-trigger"
         >
-            <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
-            <p>{{ $tc('sw-flow.flowNotification.textIntroduce') }}</p>
+            <p>{{ $t('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
+            <p>{{ $t('sw-flow.flowNotification.textIntroduce') }}</p>
 
             <ul class="sw-flow-detail-flow__warning-unknow-trigger-list">
-                <li>{{ $tc('sw-flow.flowNotification.textGuide1') }}</li>
-                <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
-                <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
+                <li>{{ $t('sw-flow.flowNotification.textGuide1') }}</li>
+                <li>{{ $t('sw-flow.flowNotification.textGuide2') }}</li>
+                <li>{{ $t('sw-flow.flowNotification.textGuide3') }}</li>
             </ul>
         </mt-banner>
 
@@ -26,7 +26,7 @@
             variant="attention"
             class="sw-flow-detail-flow__warning-box"
         >
-            {{ $tc('sw-flow.detail.warningText') }}
+            {{ $t('sw-flow.detail.warningText') }}
         </mt-banner>
 
         {% block sw_flow_detail_trigger_card %}
@@ -50,11 +50,11 @@
                 class="sw-flow-detail-flow__trigger-explain"
             >
                 {% block sw_flow_detail_flow_trigger_explains_title %}
-                <h4>{{ $tc('sw-flow.detail.trigger.title') }}</h4>
+                <h4>{{ $t('sw-flow.detail.trigger.title') }}</h4>
                 {% endblock %}
 
                 {% block sw_flow_detail_flow_trigger_explains_help_text %}
-                <p v-html="$tc('sw-flow.detail.trigger.helpText')"></p>
+                <p v-html="$t('sw-flow.detail.trigger.helpText')"></p>
                 {% endblock %}
             </div>
             {% endblock %}

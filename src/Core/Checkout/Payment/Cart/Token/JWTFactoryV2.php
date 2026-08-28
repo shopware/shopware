@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
@@ -25,6 +26,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
     public function __construct(
         private readonly Configuration $configuration,
         private readonly Connection $connection,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -32,7 +34,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
     {
         Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentTokenGenerator::class));
 
-        $expires = new \DateTimeImmutable('@' . time());
+        $expires = new \DateTimeImmutable('@' . $this->clock->now()->getTimestamp());
 
         // @see https://github.com/php/php-src/issues/9950
         if ($tokenStruct->getExpires() > 0) {
@@ -47,8 +49,8 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
 
         $jwtTokenBuilder = $this->configuration->builder()
             ->identifiedBy(Uuid::randomHex())
-            ->issuedAt(new \DateTimeImmutable('@' . time()))
-            ->canOnlyBeUsedAfter(new \DateTimeImmutable('@' . time()))
+            ->issuedAt(new \DateTimeImmutable('@' . $this->clock->now()->getTimestamp()))
+            ->canOnlyBeUsedAfter(new \DateTimeImmutable('@' . $this->clock->now()->getTimestamp()))
             ->expiresAt($expires)
             ->withClaim('pmi', $tokenStruct->getPaymentMethodId())
             ->withClaim('ful', $tokenStruct->getFinishUrl())

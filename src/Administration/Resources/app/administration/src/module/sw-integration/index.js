@@ -9,6 +9,9 @@ const { Module } = Shopware;
 Shopware.Component.register('sw-integration-list', () => import('./page/sw-integration-list'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-integration-mcp-allowlist', () => import('./component/sw-integration-mcp-allowlist'));
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-integration', {
     type: 'core',
     name: 'integration',
@@ -17,8 +20,8 @@ Module.register('sw-integration', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'solid-cog',
-    favicon: 'icon-module-settings.png',
+    icon: 'regular-cog',
+    favicon: 'icon-module-settings.svg',
     entity: 'integration',
 
     routes: {

@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\VersionParser;
 use Shopware\Core\Kernel;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VersionParser::class)]
 class VersionParserTest extends TestCase
 {
@@ -24,7 +26,7 @@ class VersionParserTest extends TestCase
     }
 
     /**
-     * @return string[][]
+     * @return list<array{string, string, string}>
      */
     public static function provideVersions(): array
     {

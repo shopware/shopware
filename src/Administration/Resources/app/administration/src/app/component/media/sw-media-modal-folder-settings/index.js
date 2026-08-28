@@ -12,7 +12,10 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
 
     emits: [
         'media-settings-modal-save',
@@ -45,6 +48,7 @@ export default {
             mediaFolderConfigurationThumbnailSizeRepository: null,
             originalConfiguration: null,
             mediaFolder: null,
+            activeTab: 'settings',
         };
     },
 
@@ -84,6 +88,20 @@ export default {
             return Shopware.Filter.getByName('thumbnailSize');
         },
 
+        tabs() {
+            return [
+                {
+                    label: this.$t('global.sw-media-modal-folder-settings.labelSettings'),
+                    name: 'settings',
+                    hasError: !!this.mediaFolderNameError,
+                },
+                {
+                    label: this.$t('global.sw-media-modal-folder-settings.labelThumbnails'),
+                    name: 'thumbnails',
+                },
+            ];
+        },
+
         ...mapPropertyErrors('mediaFolder', ['name']),
     },
 
@@ -93,6 +111,17 @@ export default {
 
     methods: {
         async createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-media-modal-folder-settings__mediaFolder',
+                path: 'mediaFolder',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-media-modal-folder-settings__configuration',
+                path: 'configuration',
+                scope: this,
+            });
+
             this.mediaFolder = await this.loadMediaFolder();
 
             await this.getUnusedThumbnailSizes();
@@ -124,7 +153,7 @@ export default {
         getItemName(item) {
             const entityNameIdentifier = `global.entities.${item.entity}`;
 
-            return `${item.entity} (${this.$tc(entityNameIdentifier)})`;
+            return `${item.entity} (${this.$t(entityNameIdentifier)})`;
         },
 
         async getUnusedThumbnailSizes() {
@@ -147,9 +176,7 @@ export default {
         async addThumbnail({ width, height }) {
             if (this.checkIfThumbnailExists({ width, height })) {
                 this.createNotificationError({
-                    message: this.$tc(
-                        'global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted',
-                    ),
+                    message: this.$t('global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted'),
                 });
 
                 return;
@@ -200,7 +227,9 @@ export default {
         },
 
         onActiveTabChanged(activeTab) {
-            if (activeTab === 'settings') {
+            this.activeTab = activeTab;
+
+            if (this.activeTab === 'settings') {
                 this.modalClass = 'sw-media-modal-folder-settings--shows-overflow';
                 return;
             }
@@ -269,9 +298,11 @@ export default {
                     await this.mediaFolderRepository.save(this.mediaFolder, Context.api);
                 }
 
+                await this.invalidateMediaDefaultFolderCache();
+
                 this.createNotificationSuccess({
-                    title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc('global.sw-media-modal-folder-settings.notification.success.message'),
+                    title: this.$root.$t('global.default.success'),
+                    message: this.$root.$t('global.sw-media-modal-folder-settings.notification.success.message'),
                 });
 
                 this.$nextTick(() => {
@@ -279,10 +310,18 @@ export default {
                 });
             } catch (_e) {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-modal-folder-settings.notification.error.message'),
+                    title: this.$root.$t('global.default.error'),
+                    message: this.$root.$t('global.sw-media-modal-folder-settings.notification.error.message'),
                 });
             }
+        },
+
+        async invalidateMediaDefaultFolderCache() {
+            // Clear all default-folder lookups instead of reading the changed default-folder entity first.
+            // The cache is tiny and repopulates per entity on demand.
+            Shopware.Service('cacheService').invalidateCaches({
+                cacheKey: ['media-default-folder'],
+            });
         },
 
         async ensureUniqueDefaultFolder(folderId, defaultFolderId) {

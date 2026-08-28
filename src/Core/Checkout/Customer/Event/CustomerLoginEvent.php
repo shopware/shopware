@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ScalarValuesAware, FlowEventAware, LogAware
 {
@@ -77,8 +80,8 @@ class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSal
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::CONTEXT_TOKEN, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getLogData(): array

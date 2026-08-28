@@ -40,7 +40,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.Store.get('adminMenu').collapseSidebar();
             this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
@@ -62,7 +61,7 @@ export default {
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-cms.detail.notification.messageMissingFields'),
+                    message: this.$t('sw-cms.detail.notification.messageMissingFields'),
                 });
 
                 return Promise.reject();
@@ -122,7 +121,7 @@ export default {
                 }
             } catch (_e) {
                 this.createNotificationError({
-                    message: this.$tc('sw-cms.create.notification.assignToEntityError'),
+                    message: this.$t('sw-cms.create.notification.assignToEntityError'),
                 });
             }
 

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *         basePath: string,
  *         views: string[],
  *         technicalName: string,
+ *         isTheme?: bool,
  *         administration?: array{
  *             path: string,
  *             entryFilePath: string|null,
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
  *            entryFilePath: string|null,
  *            webpack: string|null,
  *            styleFiles: string[],
+ *            hasComponentAssets: bool|null,
  *         }
  *     }
  */

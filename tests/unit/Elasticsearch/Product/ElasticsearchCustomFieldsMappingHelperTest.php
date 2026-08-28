@@ -3,11 +3,12 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\BadRequest400Exception;
+use OpenSearch\Exception\BadRequestHttpException;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
@@ -18,6 +19,7 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ElasticsearchCustomFieldsMappingHelper::class)]
 class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
 {
@@ -134,8 +136,8 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
         $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
         $indexDetector->expects($this->never())->method('getAllUsedIndices');
 
-        $client = $this->createMock(Client::class);
-        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $client = static::createStub(Client::class);
+        $gateway = static::createStub(CustomFieldSetGateway::class);
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
 
@@ -147,7 +149,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
         $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
         $indexDetector->expects($this->once())->method('getAllUsedIndices')->willReturn([]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $gateway = $this->createMock(CustomFieldSetGateway::class);
         $gateway->expects($this->never())->method('fetchLanguageIds');
 
@@ -167,7 +169,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
         $indices = $this->createMock(IndicesNamespace::class);
         $indices->expects($this->never())->method('putMapping');
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
@@ -201,7 +203,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
                     && $params['body']['properties']['customFields']['properties']['lang1']['properties']['test_field']['type'] === 'long';
             }));
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
@@ -237,7 +239,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
                     && $params['body']['_source']['includes'] === ['id', 'name'];
             }));
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
@@ -257,15 +259,14 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
         $indices->expects($this->once())->method('get')->willReturn(['sw_product_index' => ['mappings' => []]]);
         $indices->expects($this->once())
             ->method('putMapping')
-            ->willThrowException(new BadRequest400Exception('mapper [customFields.lang1.field] cannot be changed from type [long] to [text]'));
+            ->willThrowException(new BadRequestHttpException('mapper [customFields.lang1.field] cannot be changed from type [long] to [text]'));
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
 
-        $this->expectException(ElasticsearchProductException::class);
-        $this->expectExceptionMessage('custom fields already exist in the index with different types');
+        $this->expectExceptionObject(ElasticsearchProductException::cannotChangeCustomFieldType(new BadRequestHttpException('')));
 
         $helper->createFieldsInIndices(['field' => ['type' => 'text']]);
     }
@@ -284,7 +285,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
             ->willReturn(['index' => ['mappings' => []]]);
         $indices->expects($this->exactly(2))->method('putMapping');
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
@@ -294,7 +295,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
 
     public function testCreateFieldsInIndicesWithLanguagesDirectly(): void
     {
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
+        $indexDetector = static::createStub(ElasticsearchOutdatedIndexDetector::class);
 
         $indices = $this->createMock(IndicesNamespace::class);
         $indices->expects($this->once())
@@ -306,10 +307,10 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
                 return isset($params['body']['properties']['customFields']['properties']['custom_lang']);
             }));
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
-        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $gateway = static::createStub(CustomFieldSetGateway::class);
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
 
@@ -322,15 +323,15 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
 
     public function testCreateFieldsInIndicesWithLanguagesEmptyFields(): void
     {
-        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
+        $indexDetector = static::createStub(ElasticsearchOutdatedIndexDetector::class);
 
         $indices = $this->createMock(IndicesNamespace::class);
         $indices->expects($this->never())->method('putMapping');
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $client->method('indices')->willReturn($indices);
 
-        $gateway = $this->createMock(CustomFieldSetGateway::class);
+        $gateway = static::createStub(CustomFieldSetGateway::class);
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
 

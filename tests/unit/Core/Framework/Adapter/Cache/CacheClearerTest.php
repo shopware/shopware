@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -24,6 +26,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheClearer::class)]
 class CacheClearerTest extends TestCase
 {
@@ -34,6 +37,10 @@ class CacheClearerTest extends TestCase
      */
     private array $adapters;
 
+    private CacheItemPoolInterface&MockObject $appAdapter;
+
+    private CacheItemPoolInterface&MockObject $httpAdapter;
+
     private CacheClearerInterface&MockObject $symfonyCache;
 
     private AbstractReverseProxyGateway&MockObject $reverseProxyCache;
@@ -42,30 +49,32 @@ class CacheClearerTest extends TestCase
 
     private Filesystem $filesystem;
 
-    private MessageBusInterface&MockObject $messageBus;
+    private MessageBusInterface&Stub $messageBus;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     private string $cacheDir;
 
-    private LockFactory&MockObject $lock;
+    private LockFactory&Stub $lock;
 
     protected function setUp(): void
     {
+        $this->appAdapter = $this->createMock(CacheItemPoolInterface::class);
+        $this->httpAdapter = $this->createMock(CacheItemPoolInterface::class);
         $this->adapters = [
-            'app' => $this->createMock(CacheItemPoolInterface::class),
-            'http' => $this->createMock(CacheItemPoolInterface::class),
+            'app' => $this->appAdapter,
+            'http' => $this->httpAdapter,
         ];
         $this->symfonyCache = $this->createMock(CacheClearerInterface::class);
         $this->reverseProxyCache = $this->createMock(AbstractReverseProxyGateway::class);
         $this->invalidator = $this->createMock(CacheInvalidator::class);
         $this->filesystem = new Filesystem(); // Use real filesystem
-        $this->messageBus = $this->createMock(MessageBusInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->messageBus = static::createStub(MessageBusInterface::class);
+        $this->logger = static::createStub(LoggerInterface::class);
 
-        $lock = $this->createMock(SharedLockInterface::class);
+        $lock = static::createStub(SharedLockInterface::class);
         $lock->method('acquire')->willReturn(true);
-        $this->lock = $this->createMock(LockFactory::class);
+        $this->lock = static::createStub(LockFactory::class);
         $this->lock->method('createLock')
             ->willReturn($lock);
 
@@ -116,9 +125,8 @@ class CacheClearerTest extends TestCase
         file_put_contents($this->cacheDir . '/UrlGenerator.php', '<?php // test');
         file_put_contents($this->cacheDir . '/UrlGenerator.php.meta', 'meta content');
 
-        foreach ($this->adapters as $adapter) {
-            $adapter->expects($this->once())->method('clear');
-        }
+        $this->appAdapter->expects($this->once())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
 
         $this->reverseProxyCache->expects($this->once())->method('banAll');
         $this->invalidator->expects($this->once())->method('invalidateExpired');
@@ -139,9 +147,8 @@ class CacheClearerTest extends TestCase
         $twigDir = $this->cacheDir . '/twig';
         mkdir($twigDir, 0777, true);
 
-        foreach ($this->adapters as $adapter) {
-            $adapter->expects($this->once())->method('clear');
-        }
+        $this->appAdapter->expects($this->once())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
 
         $this->reverseProxyCache->expects($this->never())->method('banAll');
         $this->invalidator->expects($this->once())->method('invalidateExpired');
@@ -159,22 +166,38 @@ class CacheClearerTest extends TestCase
         $twigDir = $this->cacheDir . '/twig';
         mkdir($twigDir, 0777, true);
 
-        foreach ($this->adapters as $adapter) {
-            $adapter->expects($this->once())->method('clear');
-        }
+        $this->appAdapter->expects($this->once())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
 
         $exception = new \Exception('Redis not available');
         $this->invalidator->expects($this->once())
             ->method('invalidateExpired')
             ->willThrowException($exception);
 
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('critical')
             ->with('Could not clear cache: ' . $exception->getMessage());
 
+        $this->reverseProxyCache->expects($this->once())->method('banAll');
         $this->symfonyCache->expects($this->once())->method('clear')->with($this->cacheDir);
 
-        $this->cacheClearer->clear();
+        $cacheClearer = new CacheClearer(
+            $this->adapters,
+            $this->symfonyCache,
+            $this->reverseProxyCache,
+            $this->invalidator,
+            $this->filesystem,
+            $this->cacheDir,
+            'test',
+            false,
+            true,
+            $this->messageBus,
+            $logger,
+            $this->lock
+        );
+
+        $cacheClearer->clear();
 
         // Verify twig directory was removed despite the exception
         static::assertDirectoryDoesNotExist($twigDir);
@@ -198,12 +221,12 @@ class CacheClearerTest extends TestCase
             $this->lock
         );
 
-        foreach ($this->adapters as $adapter) {
-            $adapter->expects($this->once())->method('clear');
-        }
+        $this->appAdapter->expects($this->once())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
 
         $this->reverseProxyCache->expects($this->once())->method('banAll');
         $this->invalidator->expects($this->once())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
 
         $this->expectException(AdapterException::class);
         $cacheClearer->clear();
@@ -231,9 +254,8 @@ class CacheClearerTest extends TestCase
             $this->lock
         );
 
-        foreach ($this->adapters as $adapter) {
-            $adapter->expects($this->once())->method('clear');
-        }
+        $this->appAdapter->expects($this->once())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
 
         $this->reverseProxyCache->expects($this->once())->method('banAll');
         $this->invalidator->expects($this->once())->method('invalidateExpired');
@@ -267,10 +289,10 @@ class CacheClearerTest extends TestCase
             $this->lock
         );
 
-        foreach ($this->adapters as $adapter) {
-            $adapter->expects($this->once())->method('clear');
-        }
+        $this->appAdapter->expects($this->once())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
 
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
         $this->invalidator->expects($this->once())->method('invalidateExpired');
         $this->symfonyCache->expects($this->once())->method('clear')->with($this->cacheDir);
 
@@ -292,6 +314,12 @@ class CacheClearerTest extends TestCase
         touch($containerFile2);
         mkdir($containerDir, 0777, true);
         touch($nonContainerFile);
+
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
 
         $this->cacheClearer->clearContainerCache();
 
@@ -324,6 +352,12 @@ class CacheClearerTest extends TestCase
             $this->lock
         );
 
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
+
         $cacheClearer->clearContainerCache();
 
         // In cluster mode, files should not be deleted
@@ -332,23 +366,50 @@ class CacheClearerTest extends TestCase
 
     public function testScheduleCacheFolderCleanup(): void
     {
-        $this->messageBus->expects($this->once())
+        $messageBus = $this->createMock(MessageBusInterface::class);
+        $messageBus->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(CleanupOldCacheFolders::class))
             ->willReturn(new Envelope(new \stdClass()));
 
-        $this->cacheClearer->scheduleCacheFolderCleanup();
+        $cacheClearer = new CacheClearer(
+            $this->adapters,
+            $this->symfonyCache,
+            $this->reverseProxyCache,
+            $this->invalidator,
+            $this->filesystem,
+            $this->cacheDir,
+            'test',
+            false,
+            true,
+            $messageBus,
+            $this->logger,
+            $this->lock
+        );
+
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
+
+        $cacheClearer->scheduleCacheFolderCleanup();
     }
 
     public function testDeleteItems(): void
     {
         $keys = ['key1', 'key2', 'key3'];
 
-        foreach ($this->adapters as $adapter) {
-            $adapter->expects($this->once())
-                ->method('deleteItems')
-                ->with($keys);
-        }
+        $this->appAdapter->expects($this->once())
+            ->method('deleteItems')
+            ->with($keys);
+        $this->httpAdapter->expects($this->once())
+            ->method('deleteItems')
+            ->with($keys);
+
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
 
         $this->cacheClearer->deleteItems($keys);
     }
@@ -359,8 +420,8 @@ class CacheClearerTest extends TestCase
         $pruneableAdapter = $this->createMock(PruneableInterface::class);
         $pruneableAdapter->expects($this->once())->method('prune');
 
-        /** @var CacheItemPoolInterface&MockObject $nonPruneableAdapter */
-        $nonPruneableAdapter = $this->createMock(CacheItemPoolInterface::class);
+        /** @var CacheItemPoolInterface&Stub $nonPruneableAdapter */
+        $nonPruneableAdapter = static::createStub(CacheItemPoolInterface::class);
 
         $cacheClearer = new CacheClearer(
             [
@@ -380,6 +441,12 @@ class CacheClearerTest extends TestCase
             $this->lock
         );
 
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
+
         $cacheClearer->prune();
     }
 
@@ -394,6 +461,12 @@ class CacheClearerTest extends TestCase
         mkdir($oldCacheDir1, 0777, true);
         mkdir($oldCacheDir2, 0777, true);
         mkdir($currentEnvDir, 0777, true);
+
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
 
         $this->cacheClearer->cleanupOldContainerCacheDirectories();
 
@@ -427,6 +500,12 @@ class CacheClearerTest extends TestCase
             $this->lock
         );
 
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
+
         $cacheClearer->cleanupOldContainerCacheDirectories();
 
         // In cluster mode, directories should not be deleted
@@ -436,7 +515,11 @@ class CacheClearerTest extends TestCase
     public function testClearHttpCacheWithReverseProxy(): void
     {
         $this->reverseProxyCache->expects($this->once())->method('banAll');
-        $this->adapters['http']->expects($this->never())->method('clear');
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->never())->method('clear');
+
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
 
         $this->cacheClearer->clearHttpCache();
     }
@@ -458,7 +541,12 @@ class CacheClearerTest extends TestCase
             $this->lock
         );
 
-        $this->adapters['http']->expects($this->once())->method('clear');
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
+
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
 
         $cacheClearer->clearHttpCache();
     }
@@ -484,9 +572,8 @@ class CacheClearerTest extends TestCase
             $this->lock
         );
 
-        foreach ($this->adapters as $adapter) {
-            $adapter->expects($this->once())->method('clear');
-        }
+        $this->appAdapter->expects($this->once())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
 
         $this->reverseProxyCache->expects($this->never())->method('banAll');
         $this->invalidator->expects($this->once())->method('invalidateExpired');

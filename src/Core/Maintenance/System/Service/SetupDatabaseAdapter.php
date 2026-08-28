@@ -11,8 +11,9 @@ use Shopware\Core\Maintenance\MaintenanceException;
 /**
  * @internal
  *
- * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
- * as the sole purpose of this class is to abstract DB interactions during setup
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Maintenance\System\Service\SetupDatabaseAdapterTest
  */
 #[Package('framework')]
 class SetupDatabaseAdapter

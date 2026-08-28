@@ -62,7 +62,7 @@ class NewsletterControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
         /** @var NewsletterRecipientEntity $recipientEntry */
-        $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
+        $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertSame('direct', (string) $recipientEntry->getStatus());
         $this->validateRecipientData($recipientEntry);
@@ -99,7 +99,7 @@ class NewsletterControllerTest extends TestCase
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
         $context = Context::createDefaultContext();
         /** @var NewsletterRecipientEntity $recipientEntry */
-        $recipientEntry = $repo->search($criteria, $context)->first();
+        $recipientEntry = $repo->search($criteria, $context)->getEntities()->first();
 
         $params = [
             'em' => Hasher::hash('nltest@example.com', 'sha1'),
@@ -120,7 +120,7 @@ class NewsletterControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', 'nltest@example.com'));
         /** @var NewsletterRecipientEntity $recipientEntry */
-        $recipientEntry = $repo->search($criteria, $context)->first();
+        $recipientEntry = $repo->search($criteria, $context)->getEntities()->first();
 
         static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, (string) $recipientEntry->getStatus());
         $this->validateRecipientData($recipientEntry);

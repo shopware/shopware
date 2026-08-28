@@ -63,6 +63,9 @@
                 "sitemap": {
                     "$ref": "#/definitions/sitemap"
                 },
+                "translation": {
+                    "$ref": "#/definitions/translation"
+                },
                 "deployment": {
                     "$ref": "#/definitions/deployment"
                 },
@@ -74,6 +77,9 @@
                 },
                 "cart": {
                     "$ref": "#/definitions/cart"
+                },
+                "order": {
+                    "$ref": "#/definitions/order"
                 },
                 "number_range": {
                     "$ref": "#/definitions/number_range"
@@ -126,8 +132,14 @@
                 "product_stream": {
                     "$ref": "#/definitions/product_stream"
                 },
+                "mcp": {
+                    "$ref": "#/definitions/mcp"
+                },
                 "webhook": {
                     "$ref": "#/definitions/webhook"
+                },
+                "app_system": {
+                    "$ref": "#/definitions/app_system"
                 }
             },
             "title": "Shopware"
@@ -307,6 +319,25 @@
             },
             "title": "Webhook"
         },
+        "app_system": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allow_unencrypted_traffic": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "allowed_private_ip_addresses": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": []
+                }
+            },
+            "title": "App system"
+        },
         "twig": {
             "type": "object",
             "additionalProperties": false,
@@ -339,6 +370,25 @@
                     "title": "Disable Shopware's default stock management system. This setting should be used if your ERP system manages the stock."
                 }
             }
+        },
+        "mcp": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_tools": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "Restrict which MCP tools are exposed. Empty array means all tools are allowed."
+                },
+                "app_tool_timeout": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "title": "Timeout in seconds for app webhook MCP tool calls."
+                }
+            },
+            "title": "MCP (Model Context Protocol)"
         },
         "messenger": {
             "type": "object",
@@ -517,6 +567,12 @@
                 },
                 "cart_add_line_item_from": {
                     "$ref": "#/definitions/rate_limiter_config"
+                },
+                "import_export_file_download": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "mcp": {
+                    "$ref": "#/definitions/rate_limiter_config"
                 }
             },
             "title": "RateLimiter"
@@ -597,10 +653,26 @@
                 },
                 "cache_compression": {
                     "type": "boolean",
+                    "default": null,
+                    "description": "Controls the cache compression before the storage",
+                    "deprecationMessage": "The `cache_compression` option is deprecated and will be removed in v6.8.0 Please use the `compress` option instead."
+                },
+                "compress": {
+                    "type": "boolean",
                     "default": true,
                     "description": "Controls the cache compression before the storage"
                 },
                 "cache_compression_method": {
+                    "type": "string",
+                    "enum": [
+                        "gzip",
+                        "zstd"
+                    ],
+                    "default": null,
+                    "description": "Controls the cache compression method",
+                    "deprecationMessage": "The `cache_compression_method` option is deprecated and will be removed in v6.8.0 Please use the `compression_method` option instead."
+                },
+                "compression_method": {
                     "type": "string",
                     "enum": [
                         "gzip",
@@ -811,6 +883,25 @@
                 }
             },
             "title": "Cart"
+        },
+        "order": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "deep_link": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "expire_days": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 30,
+                            "description": "Specifies the number of days an order can be accessed via the deep link."
+                        }
+                    }
+                }
+            },
+            "title": "Order"
         },
         "number_range": {
             "type": "object",
@@ -1401,6 +1492,52 @@
                             "type": "string"
                         }
                     }
+                },
+                "presigned_upload": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "description": "Configure presigned S3 uploads for direct browser-to-storage media uploads, bypassing the server.",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "Enable presigned upload support. Requires an S3-compatible filesystem adapter."
+                        },
+                        "expiration_minutes": {
+                            "type": "integer",
+                            "default": 5,
+                            "minimum": 1,
+                            "maximum": 10080,
+                            "description": "Time in minutes before the presigned upload URL expires. Bounded by the AWS S3 presigned URL maximum of 7 days (10080 minutes)."
+                        }
+                    }
+                },
+                "svg": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "allowed_elements": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "allowed_attributes": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "allowed_reference_attributes": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             },
             "title": "Media"
@@ -1430,6 +1567,27 @@
                 }
             },
             "title": "sitemap"
+        },
+        "translation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "use_local_filesystem": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "scheduled_task": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                }
+            },
+            "title": "translation"
         },
         "shopware_store": {
             "type": "object",

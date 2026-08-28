@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Checkout\Cart\Calculator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
@@ -17,7 +18,7 @@ interface PriceDefinitionInterface
      * @see QuantityPriceDefinition
      * @see AbsolutePriceDefinition
      * @see PercentagePriceDefinition
-     * @see \Shopware\Core\Checkout\Cart\Calculator
+     * @see Calculator
      */
     public function getType(): string;
 

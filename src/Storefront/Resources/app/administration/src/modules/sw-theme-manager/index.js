@@ -1,16 +1,33 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import './mixin/sw-theme.mixin';
-import './page/sw-theme-manager-detail';
-import './page/sw-theme-manager-list';
-import './component/sw-theme-list-item/';
-import './component/sw-theme-modal/';
 import './acl';
 
 const { Module } = Shopware;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-theme-manager-detail', () => import('./page/sw-theme-manager-detail'));
+
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-theme-manager-list', () => import('./page/sw-theme-manager-list'));
+
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-theme-list-item', () => import('./component/sw-theme-list-item'));
+
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-theme-modal', () => import('./component/sw-theme-modal'));
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-theme-manager', {
     type: 'core',
     title: 'sw-theme-manager.general.mainMenuItemGeneral',
@@ -19,7 +36,7 @@ Module.register('sw-theme-manager', {
     targetVersion: '1.0.0',
     color: '#ff68b4',
     icon: 'regular-content',
-    favicon: 'icon-module-content.png',
+    favicon: 'icon-module-content.svg',
     entity: 'theme',
 
     routes: {
@@ -27,37 +44,36 @@ Module.register('sw-theme-manager', {
             component: 'sw-theme-manager-list',
             path: 'index',
             meta: {
-                privilege: 'theme.viewer'
-            }
+                privilege: 'theme.viewer',
+            },
         },
         detail: {
             component: 'sw-theme-manager-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.theme.manager.index',
-                privilege: 'theme.viewer'
-            }
-        }
+                privilege: 'theme.viewer',
+            },
+        },
     },
 
-    navigation: [{
-        id: 'sw-theme-manager',
-        label: 'sw-theme-manager.general.mainMenuItemGeneral',
-        color: '#ff68b4',
-        icon: 'default-object-image',
-        path: 'sw.theme.manager.index',
-        privilege: 'theme.viewer',
-        position: 80,
-        parent: 'sw-content'
-    }],
+    navigation: [
+        {
+            id: 'sw-theme-manager',
+            label: 'sw-theme-manager.general.mainMenuItemGeneral',
+            color: '#ff68b4',
+            icon: 'default-object-image',
+            path: 'sw.theme.manager.index',
+            privilege: 'theme.viewer',
+            position: 80,
+            parent: 'sw-content',
+        },
+    ],
 
     // Add theme route to sales channel
     routeMiddleware(next, currentRoute) {
         const name = 'sw.sales.channel.detail.theme';
-        if (
-            currentRoute.name === 'sw.sales.channel.detail'
-            && currentRoute.children.every(child => child.name !== name)
-        ) {
+        if (currentRoute.name === 'sw.sales.channel.detail' && currentRoute.children.every((child) => child.name !== name)) {
             currentRoute.children.push({
                 component: 'sw-sales-channel-detail-theme',
                 name,
@@ -65,11 +81,11 @@ Module.register('sw-theme-manager', {
                 path: '/sw/sales/channel/detail/:id/theme',
                 meta: {
                     parentPath: 'sw.sales.channel.list',
-                    privilege: 'sales_channel.viewer'
-                }
+                    privilege: 'sales_channel.viewer',
+                },
             });
         }
 
         next(currentRoute);
-    }
+    },
 });

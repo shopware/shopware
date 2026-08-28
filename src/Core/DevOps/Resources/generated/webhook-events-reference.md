@@ -3,7 +3,7 @@
 | Event | Description | Permissions needed | Payload
 | :--- | :--- | :--- | :--- |
 |`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
-|`checkout.customer.deleted` | Triggers if a customer gets deleted | `customer:read` | {"entity":"customer"}
+|`checkout.customer.deleted` | Triggers if a customer gets deleted | - | {"customer":"object"}
 |`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer","confirmUrl":"string"}
 |`checkout.customer.double_opt_in_registration` | Triggers when a customer commits to his registration via double opt in | `customer:read` | {"entity":"customer","confirmUrl":"string"}
 |`checkout.customer.guest_register` | __EMPTY__ | `customer:read` | {"entity":"customer"}
@@ -17,6 +17,8 @@
 |`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.password.changed` | __EMPTY__ | `customer:read` | {"entity":"customer","shopName":"string"}
 |`customer.recovery.request` | Triggers when a customer recovers his password | `customer_recovery:read` `customer:read` | {"entity":"customer","resetUrl":"string","shopName":"string"}
+|`document.generation.completed` | Triggers when a document is generated or uploaded for an order | - | {"documentId":"string","documentType":"string","documentNumber":"string","orderId":"string","orderVersionId":"string"}
+|`document.generation.deleted` | Triggers when a document is deleted | - | {"documentId":"string","documentNumber":"string","deletedAt":"string","orderId":"string","orderVersionId":"string"}
 |`mail.after.create.message` | __EMPTY__ | - | {"data":"array","message":"object"}
 |`mail.before.send` | Triggers before a mail is send | - | {"data":"array","templateData":"array"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","contents":"string","recipients":"array"}
@@ -119,3 +121,7 @@
 |`shopware.updated` | Fires after an shopware update has been finished | - | 
 |`app.config.changed` | Fires when a system config value is changed | `system_config:read` | 
 |`app.system_heartbeat` | Fires as a recurrent task. Indicates to the app that the system is up and running. | - | 
+|`consent.backend_data.accepted` | Fires when the backend_data consent is accepted. | `consent:backend_data:read` | 
+|`consent.backend_data.revoked` | Fires when the backend_data consent is revoked. | `consent:backend_data:read` | 
+|`consent.product_analytics.accepted` | Fires when the product_analytics consent is accepted. | `consent:product_analytics:read` | 
+|`consent.product_analytics.revoked` | Fires when the product_analytics consent is revoked. | `consent:product_analytics:read` | 

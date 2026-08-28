@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\NoLock;
@@ -33,6 +34,7 @@ class TimeBackoffLimiter implements LimiterInterface
         private readonly array $limits,
         \DateInterval $reset,
         StorageInterface $storage,
+        private readonly ClockInterface $clock,
         ?LockInterface $lock = new NoLock()
     ) {
         $this->id = $id;
@@ -56,7 +58,7 @@ class TimeBackoffLimiter implements LimiterInterface
                 $backoff = new TimeBackoff($this->id, $this->limits, $this->reset);
             }
 
-            $now = time();
+            $now = $this->clock->now()->getTimestamp();
             $limit = $backoff->getCurrentLimit($now);
 
             if ($tokens > $limit) {

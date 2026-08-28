@@ -55,6 +55,11 @@ import 'src/plugin-system/plugin.config.manager';
  *
  * @sw-package framework
  */
+/**
+ * Upper bound for re-resolving an async plugin that was re-registered while its chunk was loading.
+ */
+const MAX_ASYNC_RESOLUTION_RETRIES = 3;
+
 class PluginManagerSingleton {
 
     constructor() {
@@ -128,8 +133,19 @@ class PluginManagerSingleton {
         // Register the plugin under a new name
         // If the name is the same, replace it
         if (fromName === newName) {
+            const hasInstances = this._registry.get(fromName).get('instances').length > 0;
+
             this.deregister(fromName, selector);
-            return this.register(newName, pluginClass, selector, options);
+            const registry = this.register(newName, pluginClass, selector, options);
+
+            // The plugin was already initialized before the override was registered. Re-initialize
+            // it so the outdated instances are replaced instead of surviving until the next
+            // initializePlugins() call, which may never happen.
+            if (hasInstances) {
+                this.initializePlugin(newName, selector, options).catch((error) => console.error(error));
+            }
+
+            return registry;
         }
 
         return this._extendPlugin(fromName, newName, pluginClass, selector, options);
@@ -184,10 +200,10 @@ class PluginManagerSingleton {
 
     /**
      * Calls a method on all plugin instances.
-     * 
-     * @param {string} pluginName 
-     * @param {*} methodName 
-     * @param  {...any} args 
+     *
+     * @param {string} pluginName
+     * @param {*} methodName
+     * @param  {...any} args
      */
     callPluginMethod(pluginName, methodName, ...args) {
         const instances = this.getPluginInstances(pluginName);
@@ -242,6 +258,9 @@ class PluginManagerSingleton {
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
                 const plugin = this._registry.get(pluginName);
+                if (this._isUnresolvedAsyncPlugin(plugin)) {
+                    continue;
+                }
 
                 if (plugin.has('registrations')) {
                     for (const [, entry] of plugin.get('registrations')) {
@@ -265,7 +284,7 @@ class PluginManagerSingleton {
     /**
      * Initializes all registered plugins, but only for elements within the parent element.
      *
-     * @param {HTMLElement} parentElement 
+     * @param {HTMLElement} parentElement
      * @returns {Promise<void>}
      */
     async initializePluginsInParentElement(parentElement) {
@@ -276,6 +295,9 @@ class PluginManagerSingleton {
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
                 const plugin = this._registry.get(pluginName);
+                if (this._isUnresolvedAsyncPlugin(plugin)) {
+                    continue;
+                }
 
                 if (plugin.has('registrations')) {
                     for (const [, entry] of plugin.get('registrations')) {
@@ -302,7 +324,7 @@ class PluginManagerSingleton {
      * @return {Promise<void>}
      * @private
      */
-    async _fetchAsyncPlugins() {
+    async _fetchAsyncPlugins(depth = 0) {
         // Collect all async plugins that need to be fetched via async import and Promise.all()
         // [
         //   { pluginName: 'Example', pluginClassPromise: () => import('./example.plugin') },
@@ -359,24 +381,40 @@ class PluginManagerSingleton {
             return;
         }
 
-        // Fetch all needed plugins
-        try {
-            fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
-                return queueItem.pluginClassPromise();
-            }));
-        } catch (error) {
-            console.error('An error occurred while fetching async JS-plugins', error);
-        }
+        // Fetch all needed plugins while keeping a single failing plugin from stopping the others.
+        fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
+            return this._loadAsyncPluginClass(queueItem.pluginName, queueItem.pluginClassPromise);
+        }));
+
+        const staleResolutions = new Set();
 
         // Set the fetched plugin classes to the registry, so they can be initialized later.
         queue.forEach((plugin, index) => {
-            const pluginClass = fetchedPluginClasses[index].default;
+            const pluginClass = fetchedPluginClasses[index];
+            if (!pluginClass) {
+                return;
+            }
+
             const pluginName = plugin.pluginName;
             const pluginFromRegistry = this._registry.get(pluginName);
 
-            pluginFromRegistry.set('async', false);
-            pluginFromRegistry.set('class', pluginClass);
+            if (!this._setResolvedPluginClass(pluginFromRegistry, pluginClass, plugin.pluginClassPromise)) {
+                staleResolutions.add(pluginName);
+            }
         });
+
+        if (!staleResolutions.size) {
+            return;
+        }
+
+        // A plugin that was re-registered while we were loading is still unresolved, fetch it again.
+        if (depth < MAX_ASYNC_RESOLUTION_RETRIES) {
+            await this._fetchAsyncPlugins(depth + 1);
+
+            return;
+        }
+
+        console.warn(`The plugin(s) "${Array.from(staleResolutions).join('", "')}" were re-registered while loading more often than the plugin manager retries. They will not be initialized.`);
     }
 
     /**
@@ -385,10 +423,13 @@ class PluginManagerSingleton {
      * @return {Promise<void>}
      * @private
      */
-    async _fetchAsyncPlugin(pluginFromRegistry, selector) {
+    async _fetchAsyncPlugin(pluginFromRegistry, selector, depth = 0) {
         if (!pluginFromRegistry.get('async')) {
             return;
         }
+
+        const pluginName = pluginFromRegistry.get('name');
+        const originalSelector = selector;
 
         let needsFetch = false;
         if (selector instanceof Node) {
@@ -404,12 +445,84 @@ class PluginManagerSingleton {
             return;
         }
 
-        const pluginClassPromise = pluginFromRegistry.get('class')();
-        const fetchedPlugin = await pluginClassPromise;
-        const pluginClass = fetchedPlugin.default;
+        const importFn = pluginFromRegistry.get('class');
+        const pluginClass = await this._loadAsyncPluginClass(pluginName, importFn);
+        if (!pluginClass) {
+            return;
+        }
+
+        if (this._setResolvedPluginClass(pluginFromRegistry, pluginClass, importFn)) {
+            return;
+        }
+
+        if (depth < MAX_ASYNC_RESOLUTION_RETRIES) {
+            await this._fetchAsyncPlugin(pluginFromRegistry, originalSelector, depth + 1);
+
+            return;
+        }
+
+        console.warn(`The plugin "${pluginName}" was re-registered while loading more often than the plugin manager retries. It will not be initialized.`);
+    }
+
+    /**
+     * @param {string} pluginName
+     * @param {Function} importFn - lazy import registered via PluginManager.register()
+     * @returns {Promise<typeof Plugin|null>}
+     * @private
+     */
+    async _loadAsyncPluginClass(pluginName, importFn) {
+        try {
+            const module = await importFn();
+
+            if (!module?.default) {
+                console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`);
+                return null;
+            }
+
+            return module.default;
+        } catch (error) {
+            console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`, error);
+            return null;
+        }
+    }
+
+    /**
+     * @param {Object} pluginFromRegistry
+     * @param {typeof Plugin} pluginClass
+     * @param {Function} importFn - the lazy import that produced the class
+     * @returns {boolean} false when the registration changed while the class was loading
+     * @private
+     */
+    _setResolvedPluginClass(pluginFromRegistry, pluginClass, importFn) {
+        const currentClass = pluginFromRegistry.get('class');
+
+        // Already resolved to the very same class by a concurrent pass or by a second registration
+        // of the same plugin. Idempotent, not stale.
+        if (currentClass === pluginClass) {
+            pluginFromRegistry.set('async', false);
+
+            return true;
+        }
+
+        // The plugin can be re-registered, for example overridden by an app or theme, while its
+        // chunk is still loading. The outdated resolution must never win over that registration.
+        if (currentClass !== importFn) {
+            return false;
+        }
 
         pluginFromRegistry.set('async', false);
         pluginFromRegistry.set('class', pluginClass);
+
+        return true;
+    }
+
+    /**
+     * @param {Object} plugin
+     * @returns {boolean}
+     * @private
+     */
+    _isUnresolvedAsyncPlugin(plugin) {
+        return plugin.get('async');
     }
 
     /**
@@ -427,12 +540,22 @@ class PluginManagerSingleton {
         if (this._registry.has(pluginName, selector)) {
             plugin = this._registry.get(pluginName, selector);
             await this._fetchAsyncPlugin(plugin, selector);
+
+            if (this._isUnresolvedAsyncPlugin(plugin)) {
+                return Promise.resolve();
+            }
+
             const registrationOptions = plugin.get('registrations').get(selector);
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(registrationOptions.options || {}, options || {}));
         } else {
             plugin = this._registry.get(pluginName);
             await this._fetchAsyncPlugin(plugin, selector);
+
+            if (this._isUnresolvedAsyncPlugin(plugin)) {
+                return Promise.resolve();
+            }
+
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, options || {});
         }
@@ -544,7 +667,64 @@ class PluginManagerSingleton {
             return new pluginClass(el, options, pluginName);
         }
 
+        // The registered class changed after this instance was created, for example because an app
+        // or theme overrode the plugin. Rebuild the element with the current class, otherwise the
+        // override would never run on elements that were already initialized.
+        // This is only sound because every initialization pass carries the class that is currently
+        // in the registry, see _setResolvedPluginClass().
+        if (!(instance instanceof pluginClass)) {
+            PluginManagerSingleton._destroyPluginInstance(el, instance, pluginName);
+
+            return new pluginClass(el, options, pluginName);
+        }
+
         return instance._update();
+    }
+
+    /**
+     * Tears an outdated plugin instance down and removes it from all instance registries.
+     *
+     * @param {Node|HTMLElement} el
+     * @param {Plugin} instance
+     * @param {string} pluginName
+     * @private
+     */
+    static _destroyPluginInstance(el, instance, pluginName) {
+        if (instance.destroy === PluginBaseClass.prototype.destroy) {
+            console.warn(`The plugin "${pluginName}" does not implement destroy(). Everything the replaced instance registered outside of itself, for example event listeners added with addEventListener, stays active.`);
+        }
+
+        // Kept in separate try blocks on purpose: a throwing destroy() must not skip the emitter
+        // reset, otherwise the listeners this method exists to remove would stay attached.
+        try {
+            if (typeof instance.destroy === 'function') {
+                instance.destroy();
+            }
+        } catch (error) {
+            console.warn(`The outdated instance of plugin "${pluginName}" could not be destroyed.`, error);
+        }
+
+        try {
+            if (instance.$emitter) {
+                instance.$emitter.reset();
+            }
+        } catch (error) {
+            console.warn(`The event emitter of the outdated instance of plugin "${pluginName}" could not be reset.`, error);
+        }
+
+        PluginManager.getPluginInstancesFromElement(el).delete(pluginName);
+
+        const instances = PluginManagerInstance._registry.has(pluginName)
+            ? PluginManagerInstance._registry.get(pluginName).get('instances')
+            : null;
+
+        if (Array.isArray(instances)) {
+            const index = instances.indexOf(instance);
+
+            if (index > -1) {
+                instances.splice(index, 1);
+            }
+        }
     }
 
     /**
@@ -568,17 +748,68 @@ class PluginManagerSingleton {
         // get current plugin
         const extendFrom = this._registry.get(fromName);
         const parentPlugin = extendFrom.get('class');
+
+        // The parent is an async plugin that is not loaded yet, so it cannot be extended right now.
+        // Register a lazy import that builds the extended class once the parent is available.
+        // Static parent options are merged by the plugin base class at construction time.
+        if (extendFrom.get('async')) {
+            // The promise is memoized, not just its result: concurrent initialization passes can
+            // call this before the first call resolved, and a new class per call would break the
+            // identity check in _setResolvedPluginClass().
+            let extendedPluginPromise = null;
+
+            return this.register(newName, () => {
+                if (extendedPluginPromise) {
+                    return extendedPluginPromise;
+                }
+
+                extendedPluginPromise = (async () => {
+                    const currentParent = extendFrom.get('class');
+
+                    // The parent may have been resolved in the meantime by an unrelated init pass.
+                    const resolvedParent = Object.getOwnPropertyDescriptor(currentParent, 'prototype')
+                        ? currentParent
+                        : await this._loadAsyncPluginClass(fromName, currentParent);
+
+                    if (!resolvedParent) {
+                        // Drop the memo so a later pass can retry once the parent is available.
+                        extendedPluginPromise = null;
+
+                        return { default: null };
+                    }
+
+                    return { default: PluginManagerSingleton._buildExtendedPlugin(resolvedParent, pluginClass) };
+                })();
+
+                return extendedPluginPromise;
+            }, selector, options);
+        }
+
         const mergedOptions = deepmerge(parentPlugin.options || {}, options || {});
 
-        // Create plugin
+        return this.register(newName, PluginManagerSingleton._buildExtendedPlugin(parentPlugin, pluginClass), selector, mergedOptions);
+    }
+
+    /**
+     * Creates a new plugin class that extends the passed parent plugin.
+     *
+     * @param {typeof Plugin} parentPlugin
+     * @param {Object} pluginClass
+     *
+     * @returns {typeof Plugin}
+     * @private
+     */
+    static _buildExtendedPlugin(parentPlugin, pluginClass) {
         class InternallyExtendedPlugin extends parentPlugin {
         }
 
-        // Extend the plugin with the new definitions
-        InternallyExtendedPlugin.prototype = Object.assign(InternallyExtendedPlugin.prototype, pluginClass);
+        // Extend the plugin with the new definitions. The prototype object is mutated in place:
+        // the `prototype` property of a class is non-writable, so assigning to it throws in strict
+        // mode, which every ES module is.
+        Object.assign(InternallyExtendedPlugin.prototype, pluginClass);
         InternallyExtendedPlugin.prototype.constructor = InternallyExtendedPlugin;
 
-        return this.register(newName, InternallyExtendedPlugin, selector, mergedOptions);
+        return InternallyExtendedPlugin;
     }
 
 }
@@ -726,11 +957,11 @@ export default class PluginManager {
 
     /**
      * Calls a method on all plugin instances.
-     * 
-     * @param {string} pluginName 
-     * @param {string} methodName 
-     * @param  {...any} args 
-     * @returns 
+     *
+     * @param {string} pluginName
+     * @param {string} methodName
+     * @param  {...any} args
+     * @returns
      */
     static callPluginMethod(pluginName, methodName, ...args) {
         return PluginManagerInstance.callPluginMethod(pluginName, methodName, ...args);

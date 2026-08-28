@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestReflectionClassInterface;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestRuleHelper;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class TestRuleHelperTest extends TestCase
 {
     #[DataProvider('classProvider')]
@@ -33,6 +35,14 @@ class TestRuleHelperTest extends TestCase
 
         static::assertSame($isTestClass, TestRuleHelper::isTestClass($classReflection));
         static::assertSame($isUnitTestClass, TestRuleHelper::isUnitTestClass($classReflection));
+    }
+
+    public function testIsUnitTestClassUsesConfiguredNamespaces(): void
+    {
+        $classReflection = $this->createTestClassReflection('Shopware\Commercial\Tests\Unit\SomeTestClass');
+
+        static::assertFalse(TestRuleHelper::isUnitTestClass($classReflection));
+        static::assertTrue(TestRuleHelper::isUnitTestClass($classReflection, ['Shopware\\Commercial\\Tests\\Unit\\']));
     }
 
     public static function classProvider(): \Generator
@@ -78,5 +88,24 @@ class TestRuleHelperTest extends TestCase
             'isTestClass' => false,
             'isUnitTestClass' => false,
         ];
+    }
+
+    private function createTestClassReflection(string $className): TestReflectionClassInterface
+    {
+        $classReflection = $this->createMock(TestReflectionClassInterface::class);
+        $classReflection
+            ->method('getName')
+            ->willReturn($className);
+
+        $parentClass = $this->createMock(TestReflectionClassInterface::class);
+        $parentClass
+            ->method('getName')
+            ->willReturn(TestCase::class);
+
+        $classReflection
+            ->method('getParents')
+            ->willReturn([$parentClass]);
+
+        return $classReflection;
     }
 }

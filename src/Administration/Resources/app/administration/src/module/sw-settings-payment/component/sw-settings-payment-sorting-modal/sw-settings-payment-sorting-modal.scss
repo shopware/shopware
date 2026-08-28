@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-modal {
     .sw-modal__body {
         &.sw-settings-payment-sorting-modal__subtitle {
@@ -7,7 +5,7 @@
             display: flex;
             flex: none;
             overflow-y: hidden;
-            border-bottom: 1px solid $color-gray-300;
+            border-bottom: 1px solid var(--color-border-secondary-default);
         }
     }
 }
@@ -22,17 +20,17 @@
         align-items: center;
         gap: 8px;
         padding: 12px 24px 12px 12px;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: 4px;
 
         &.is--disabled {
-            color: $color-gray-500;
-            background-color: $color-gray-100;
+            color: var(--color-text-secondary-disabled);
+            background-color: var(--color-background-tertiary-default);
         }
 
         &__name {
-            font-weight: $font-weight-semi-bold;
-            font-size: $font-size-xs;
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-xs);
         }
 
         &__icon {
@@ -65,12 +63,12 @@
     }
 
     &.is--drag-element {
-        background-color: $color-white;
+        background-color: var(--color-elevation-surface-raised);
         border-radius: 4px;
 
         &,
         &.is--valid-drag {
-            box-shadow: 0 1px 3px 0 $color-gray-300;
+            box-shadow: 0 1px 3px 0 var(--color-elevation-shadow-default);
         }
     }
 }

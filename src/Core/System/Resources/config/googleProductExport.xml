@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Google Product Export</title>
+        <title lang="de-DE">Google Produkt-Export</title>
+
+        <component name="sw-entity-multi-id-select">
+            <name>variantCondition</name>
+            <entity>property_group</entity>
+            <label>Variant condition mapping</label>
+            <label lang="de-DE">Zuweisung für Variantenzustand</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>Optional per-product condition mapping. The first matching property is always used. Google Merchant Center accepts only "new", "refurbished", or "used" for this attribute. Other values will be rejected. When no mapping is set, "new" is emitted for every item.</helpText>
+            <helpText lang="de-DE">Optionale produktspezifische Zustandszuweisung. Es wird immer die erste passende Eigenschaft verwendet. Google Merchant Center akzeptiert für dieses Attribut nur "new", "refurbished" oder "used". Andere Werte werden abgelehnt. Ohne Zuweisung wird für jedes Item "new" ausgegeben.</helpText>
+        </component>
+
+        <component name="sw-entity-multi-id-select">
+            <name>variantColor</name>
+            <entity>property_group</entity>
+            <label>Variant color mapping</label>
+            <label lang="de-DE">Zuweisung für Variantenfarbe</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden.</helpText>
+        </component>
+
+        <component name="sw-entity-multi-id-select">
+            <name>variantSize</name>
+            <entity>property_group</entity>
+            <label>Variant size mapping</label>
+            <label lang="de-DE">Zuweisung für Variantengrößen</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden.</helpText>
+        </component>
+
+        <component name="sw-entity-multi-id-select">
+            <name>variantSizeSystem</name>
+            <entity>property_group</entity>
+            <label>Variant size system mapping</label>
+            <label lang="de-DE">Zuweisung für Variantengrößensystem</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center expects ISO country codes (for example US, UK, EU, DE, FR, IT, JP, AU, BR, CN, MEX). Other values will be ignored.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center erwartet ISO-Ländercodes (z. B. US, UK, EU, DE, FR, IT, JP, AU, BR, CN, MEX). Andere Werte werden ignoriert.</helpText>
+        </component>
+
+        <component name="sw-entity-multi-id-select">
+            <name>variantGender</name>
+            <entity>property_group</entity>
+            <label>Variant gender mapping</label>
+            <label lang="de-DE">Zuweisung für Variantengeschlecht</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center accepts only "male", "female", or "unisex" for this attribute. Other values will be ignored.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center akzeptiert für dieses Attribut nur "male", "female" oder "unisex". Andere Werte werden ignoriert.</helpText>
+        </component>
+
+        <component name="sw-entity-multi-id-select">
+            <name>variantAgeGroup</name>
+            <entity>property_group</entity>
+            <label>Variant age group mapping</label>
+            <label lang="de-DE">Zuweisung für Variantenaltersgruppe</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center accepts only "newborn", "infant", "toddler", "kids", or "adult" for this attribute. Other values will be ignored. Required for apparel &amp; accessories.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center akzeptiert für dieses Attribut nur "newborn", "infant", "toddler", "kids" oder "adult". Andere Werte werden ignoriert. Erforderlich für Bekleidung und Accessoires.</helpText>
+        </component>
+
+        <component name="sw-entity-multi-id-select">
+            <name>variantMaterial</name>
+            <entity>property_group</entity>
+            <label>Variant material mapping</label>
+            <label lang="de-DE">Zuweisung für Variantenmaterial</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden.</helpText>
+        </component>
+
+        <component name="sw-entity-multi-id-select">
+            <name>variantCustom</name>
+            <entity>property_group</entity>
+            <label>Custom variant mappings</label>
+            <label lang="de-DE">Custom-Varianten-Zuweisung</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>The first three matching properties are emitted as g:custom_label_0..2. Property groups already assigned to specific variant mappings (for example color or size) are automatically excluded.</helpText>
+            <helpText lang="de-DE">Die ersten drei passenden Eigenschaften werden als g:custom_label_0..2 ausgegeben. Eigenschaftsgruppen, die bereits einem spezifischen Varianten-Mapping (z. B. Farbe oder Größe) zugeordnet sind, werden automatisch ausgeschlossen.</helpText>
+        </component>
+    </card>
+</config>

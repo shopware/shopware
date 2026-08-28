@@ -23,7 +23,7 @@ class LineItemOfTypeRuleTest extends TestCase
     {
         $rule = (new LineItemOfTypeRule())->assign(['lineItemType' => LineItem::PRODUCT_LINE_ITEM_TYPE]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))
@@ -41,7 +41,7 @@ class LineItemOfTypeRuleTest extends TestCase
     {
         $rule = (new LineItemOfTypeRule())->assign(['lineItemType' => 'voucher']);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new LineItemScope(new LineItem('A', 'product'), $context))

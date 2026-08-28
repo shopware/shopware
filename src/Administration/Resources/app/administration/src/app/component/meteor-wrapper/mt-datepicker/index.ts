@@ -2,6 +2,17 @@ import MtDatepickerOriginal from '@shopware-ag/meteor-component-library/dist/esm
 import type { DateTimeOptions } from 'vue-i18n';
 import template from './mt-datepicker.html.twig';
 
+type SessionStore = {
+    currentLocale?: string | null;
+    currentUser?: {
+        timeZone?: string | null;
+    } | null;
+};
+
+function getSessionStore(): SessionStore {
+    return Shopware.Store.get('session') as SessionStore;
+}
+
 /**
  * @sw-package framework
  *
@@ -67,11 +78,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         userLocale(): string {
-            return Shopware.Store.get('session').currentLocale || 'en-US';
+            return getSessionStore().currentLocale || 'en-US';
         },
 
-        userTimeZone() {
-            return Shopware?.Store?.get('session')?.currentUser?.timeZone ?? 'UTC';
+        userTimeZone(): string {
+            return getSessionStore().currentUser?.timeZone ?? 'UTC';
         },
 
         is24HourFormat(): boolean {
@@ -79,8 +90,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return this.is24 as boolean;
             }
 
-            const locale = Shopware.Store.get('session').currentLocale!;
-            const formatter = new Intl.DateTimeFormat(locale, { hour: 'numeric' });
+            const formatter = new Intl.DateTimeFormat(this.userLocale, { hour: 'numeric' });
             const intlOptions = formatter.resolvedOptions();
             return !intlOptions.hour12;
         },
@@ -89,6 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
             const defaultFormat = {
                 hour12: !this.is24HourFormat,
                 locale: this.userLocale,
+                timeZone: this.timeZone || this.userTimeZone,
             };
 
             let format: {
@@ -125,9 +136,53 @@ export default Shopware.Component.wrapComponentConfig({
                 ...format,
             };
         },
+
+        datePickerFormat(): string {
+            const formatter = new Intl.DateTimeFormat(this.userLocale, this.formatterOptions);
+            const sampleDate = new Date(2024, 0, 15, 14, 30, 0);
+
+            return formatter
+                .formatToParts(sampleDate)
+                .map((part) => {
+                    if (part.type === 'year') {
+                        return 'yyyy';
+                    }
+
+                    if (part.type === 'month') {
+                        return 'MM';
+                    }
+
+                    if (part.type === 'day') {
+                        return 'dd';
+                    }
+
+                    if (part.type === 'hour') {
+                        return this.is24HourFormat ? 'HH' : 'hh';
+                    }
+
+                    if (part.type === 'minute') {
+                        return 'mm';
+                    }
+
+                    if (part.type === 'dayPeriod') {
+                        return 'aa';
+                    }
+
+                    return this.escapeDateFnsFormatLiteral(part.value);
+                })
+                .join('');
+        },
     },
 
     methods: {
+        escapeDateFnsFormatLiteral(value: string): string {
+            if (!/[A-Za-z']/.test(value)) {
+                return value;
+            }
+
+            return `'${value.replace(/'/g, "''")}'`;
+        },
+
         customFormat(date: Date | string): string | Date | null {
             if (typeof date === 'string') {
                 return this.handleStringFormat(date);
@@ -137,16 +192,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         formatDate(date: Date): string {
-            const currentLocale = Shopware.Store.get('session').currentLocale || 'en-US';
-            const formatter = new Intl.DateTimeFormat(currentLocale, this.formatterOptions);
+            const formatter = new Intl.DateTimeFormat(this.userLocale, this.formatterOptions);
 
             return formatter.format(new Date(date));
         },
 
         // Extract the format pattern from Intl.DateTimeFormat
         getLocaleDatePattern(): { parts: Array<{ type: string; value: string }>; separators: RegExp } {
-            const currentLocale = Shopware.Store.get('session').currentLocale || 'en-US';
-            const formatter = new Intl.DateTimeFormat(currentLocale, this.formatterOptions);
+            const formatter = new Intl.DateTimeFormat(this.userLocale, this.formatterOptions);
 
             // Use a known date to extract the pattern
             const sampleDate = new Date(2024, 0, 15, 14, 30, 0); // Jan 15, 2024, 14:30
@@ -165,12 +218,11 @@ export default Shopware.Component.wrapComponentConfig({
 
         // Get locale-specific AM/PM strings
         getLocaleTimePeriods(): { am: string; pm: string } {
-            const currentLocale = Shopware.Store.get('session').currentLocale || 'en-US';
-            const amFormatter = new Intl.DateTimeFormat(currentLocale, {
+            const amFormatter = new Intl.DateTimeFormat(this.userLocale, {
                 hour: 'numeric',
                 hour12: true,
             });
-            const pmFormatter = new Intl.DateTimeFormat(currentLocale, {
+            const pmFormatter = new Intl.DateTimeFormat(this.userLocale, {
                 hour: 'numeric',
                 hour12: true,
             });

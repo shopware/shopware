@@ -118,7 +118,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsSlotSettingsClasses() {
-            if (this.elementConfig?.defaultConfig && !this.element?.locked) {
+            if (this.elementConfig?.defaultConfig && !this.isElementLocked) {
                 return null;
             }
 
@@ -128,19 +128,30 @@ export default Shopware.Component.wrapComponentConfig({
         tooltipDisabled() {
             if (this.elementConfig?.disabledConfigInfoTextKey) {
                 return {
-                    message: this.$tc(this.elementConfig.disabledConfigInfoTextKey),
-                    disabled: !!this.elementConfig.defaultConfig && !this.element.locked,
+                    message: this.$t(this.elementConfig.disabledConfigInfoTextKey),
+                    disabled: !!this.elementConfig.defaultConfig && !this.isElementLocked,
                 };
             }
 
             return {
-                message: this.$tc('sw-cms.elements.general.config.tab.settings'),
+                message: this.$t('sw-cms.elements.general.config.tab.settings'),
                 disabled: true,
             };
         },
 
         modalVariant() {
             return this.element.type === 'html' ? 'full' : 'large';
+        },
+
+        isElementLocked() {
+            return (
+                this.element.locked ||
+                (Shopware.Store.get('cmsPage').currentPage?.type === 'product_detail' &&
+                    [
+                        'buy-box',
+                        'product-description-reviews',
+                    ].includes(this.element.type))
+            );
         },
     },
 
@@ -159,7 +170,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSettingsButtonClick() {
-            if (!this.elementConfig?.defaultConfig || this.element?.locked) {
+            if (!this.elementConfig?.defaultConfig || this.isElementLocked) {
                 return;
             }
 

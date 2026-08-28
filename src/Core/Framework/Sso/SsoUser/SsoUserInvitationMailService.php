@@ -7,6 +7,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,8 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoException;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
@@ -56,42 +57,46 @@ class SsoUserInvitationMailService
         }
 
         $user = $this->getUserById($apiSource->getUserId(), $context);
-        $shopName = $this->systemConfigService->get('core.basicInformation.shopName');
-        $senderMail = $this->systemConfigService->get('core.basicInformation.email');
+        $shopName = $this->systemConfigService->getString('core.basicInformation.shopName');
         $mailTemplate = $this->getMailTemplate($localeId, $context);
 
-        $mailData = new DataBag();
-        $mailData->set('templateId', $mailTemplate?->getId());
-        $mailData->set('recipients', [$recipientEmail => $recipientEmail]);
-        $mailData->set('senderName', $shopName);
-        $mailData->set('senderEmail', $user?->getEmail() ?? $senderMail);
-        $mailData->set('subject', $mailTemplate?->getTranslation('subject'));
-        $mailData->set('contentPlain', $mailTemplate?->getTranslation('contentPlain'));
-        $mailData->set('contentHtml', $mailTemplate?->getTranslation('contentHtml'));
+        $mailDataArray = [
+            'templateId' => $mailTemplate?->getId(),
+            'recipients' => [$recipientEmail => $recipientEmail],
+            'senderName' => $shopName,
+            'subject' => $mailTemplate?->getTranslation('subject'),
+            'contentPlain' => $mailTemplate?->getTranslation('contentPlain'),
+            'contentHtml' => $mailTemplate?->getTranslation('contentHtml'),
+        ];
 
-        $templateVariables = new DataBag();
-        $templateVariables->set('nameOfInviter', $this->createInviterName($user));
-        $templateVariables->set('storeName', $shopName);
-        $templateVariables->set('invitedEmailAddress', $recipientEmail);
-        $templateVariables->set('signupUrl', $this->createSingUpUrl());
+        $templateVariablesArray = [
+            'nameOfInviter' => $this->createInviterName($user),
+            'storeName' => $shopName,
+            'invitedEmailAddress' => $recipientEmail,
+            'signupUrl' => $this->createSignUpUrl(),
+        ];
 
-        $this->mailService->send($mailData->all(), $context, $templateVariables->all());
+        $this->mailService->send($mailDataArray, $context, $templateVariablesArray);
     }
 
-    private function createSingUpUrl(): string
+    private function createSignUpUrl(): string
     {
         return $this->appUrl . $this->urlGenerator->generate(self::ADMIN_ROUTE_NAME);
     }
 
     private function getMailTemplate(string $localeId, Context $context): ?MailTemplateEntity
     {
-        $languageId = $this->getLanguageIdForLocale($localeId, $context);
-        if ($languageId) {
+        $language = $this->getLanguageForLocale($localeId, $context);
+        if ($language) {
             $newContext = new Context(
                 $context->getSource(),
                 $context->getRuleIds(),
                 $context->getCurrencyId(),
-                [$languageId],
+                array_values(array_filter([
+                    $language->getId(),
+                    $language->getParentId(),
+                    Defaults::LANGUAGE_SYSTEM,
+                ])),
                 $context->getVersionId(),
                 $context->getCurrencyFactor(),
                 $context->considerInheritance(),
@@ -105,7 +110,7 @@ class SsoUserInvitationMailService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'admin_sso_user_invite'));
 
-        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->first();
+        $result = $this->mailTemplateTypeRepository->search($criteria, $newContext)->getEntities()->first();
         if (!$result instanceof MailTemplateTypeEntity) {
             throw SsoException::mailTemplateNotFound();
         }
@@ -121,7 +126,7 @@ class SsoUserInvitationMailService
             )
         );
 
-        return $this->mailTemplateRepository->search($criteria, $newContext)->first();
+        return $this->mailTemplateRepository->search($criteria, $newContext)->getEntities()->first();
     }
 
     private function createInviterName(?UserEntity $user): string
@@ -147,14 +152,14 @@ class SsoUserInvitationMailService
             return null;
         }
 
-        return $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        return $this->userRepository->search(new Criteria([$userId]), $context)->getEntities()->first();
     }
 
-    private function getLanguageIdForLocale(string $localeId, Context $context): ?string
+    private function getLanguageForLocale(string $localeId, Context $context): ?LanguageEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('localeId', $localeId));
 
-        return $this->languageRepository->search($criteria, $context)->first()?->getId();
+        return $this->languageRepository->search($criteria, $context)->getEntities()->first();
     }
 }

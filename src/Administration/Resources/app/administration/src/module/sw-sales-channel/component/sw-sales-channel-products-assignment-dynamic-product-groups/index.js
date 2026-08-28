@@ -86,7 +86,7 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.columnName'),
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.columnName'),
                     sortable: false,
                 },
             ];

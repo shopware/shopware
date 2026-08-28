@@ -9,12 +9,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -28,14 +29,14 @@ class InstallTranslationCommandTest extends TestCase
 {
     private TranslationLoader&MockObject $translationLoader;
 
-    private TranslationMetadataLoader&MockObject $metadataLoader;
+    private TranslationMetadataStore&MockObject $metadataStore;
 
     private TranslationConfig $config;
 
     protected function setUp(): void
     {
         $this->translationLoader = $this->createMock(TranslationLoader::class);
-        $this->metadataLoader = $this->createMock(TranslationMetadataLoader::class);
+        $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
         $this->config = new TranslationConfig(
             new Uri('http://localhost:8000'),
             ['en-GB', 'es-ES', 'de-DE'],
@@ -49,16 +50,69 @@ class InstallTranslationCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionWithoutArguments(): void
     {
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
-        static::expectException(SnippetException::class);
-        static::expectExceptionMessage('You must specify either --all or --locales to run the InstallTranslationCommand.');
-        $tester->execute([]);
+        $this->expectExceptionObject(SnippetException::noArgumentsProvided());
+        $tester->execute([], ['interactive' => false]);
+    }
+
+    public function testExecutePromptsInteractivelyWhenNoLocalesProvided(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['en-GB', 'es-ES', 'de-DE'],
+            [],
+            new LanguageCollection([
+                new Language('en-GB', 'English'),
+                new Language('es-ES', 'Español'),
+                new Language('de-DE', 'Deutsch'),
+            ]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+        );
+
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'de-DE',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+        $collection->get('de-DE')?->markForUpdate();
+        $collection->get('es-ES')?->markForUpdate();
+
+        $this->initMetadataLoader($collection);
+
+        $this->translationLoader->expects($this->exactly(2))
+            ->method('load')
+            ->willReturnCallback(static function (string $locale): void {
+                static::assertContains($locale, ['de-DE', 'es-ES']);
+            });
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->setInputs(['de-DE,es-ES']);
+
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertStringContainsString('Select one or more locales to install', $tester->getDisplay());
     }
 
     public function testExecuteThrowsExceptionWithInvalidLocales(): void
     {
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+
         $command = $this->getCommand();
         $tester = new CommandTester($command);
 
@@ -160,7 +214,9 @@ class InstallTranslationCommandTest extends TestCase
         $collection->get('es-ES')?->markForUpdate();
         $this->initMetadataLoader($collection);
 
-        $this->metadataLoader->expects($this->once())
+        $this->translationLoader->expects($this->once())->method('load');
+
+        $this->metadataStore->expects($this->once())
             ->method('save')
             ->willThrowException(new \Exception('Something went wrong'));
 
@@ -185,6 +241,8 @@ class InstallTranslationCommandTest extends TestCase
         ]);
 
         $this->initMetadataLoader($collection);
+
+        $this->translationLoader->expects($this->never())->method('load');
 
         $command = $this->getCommand();
         $tester = new CommandTester($command);
@@ -225,7 +283,9 @@ class InstallTranslationCommandTest extends TestCase
 
     public function testCommandFailsIfMetadataCannotBeLoaded(): void
     {
-        $this->metadataLoader->expects($this->once())
+        $this->translationLoader->expects($this->never())->method('load');
+
+        $this->metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->willThrowException(new \Exception('Unable to fetch metadata'));
 
@@ -241,12 +301,12 @@ class InstallTranslationCommandTest extends TestCase
 
     private function getCommand(): InstallTranslationCommand
     {
-        return new InstallTranslationCommand($this->translationLoader, $this->config, $this->metadataLoader);
+        return new InstallTranslationCommand($this->translationLoader, $this->config, $this->metadataStore);
     }
 
     private function initMetadataLoader(MetadataCollection $collection): void
     {
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->willReturn($collection);
     }

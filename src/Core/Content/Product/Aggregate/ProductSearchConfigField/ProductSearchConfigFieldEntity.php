@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductSearchConfigFieldEntity extends Entity
 {
@@ -22,6 +25,8 @@ class ProductSearchConfigFieldEntity extends Entity
     protected bool $tokenize;
 
     protected bool $searchable;
+
+    protected bool $useExactSubfield;
 
     protected int $ranking;
 
@@ -77,6 +82,16 @@ class ProductSearchConfigFieldEntity extends Entity
     public function setSearchable(bool $searchable): void
     {
         $this->searchable = $searchable;
+    }
+
+    public function getUseExactSubfield(): bool
+    {
+        return $this->useExactSubfield;
+    }
+
+    public function setUseExactSubfield(bool $useExactSubfield): void
+    {
+        $this->useExactSubfield = $useExactSubfield;
     }
 
     public function getRanking(): int

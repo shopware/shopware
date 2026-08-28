@@ -74,12 +74,12 @@ export default {
                     this.$emit('modal-save');
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-payment.sorting-modal.saveSuccessful'),
+                        message: this.$t('sw-settings-payment.sorting-modal.saveSuccessful'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-payment.sorting-modal.errorMessage'),
+                        message: this.$t('sw-settings-payment.sorting-modal.errorMessage'),
                     });
                 });
         },

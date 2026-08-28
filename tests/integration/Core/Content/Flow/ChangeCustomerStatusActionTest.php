@@ -113,7 +113,7 @@ class ChangeCustomerStatusActionTest extends TestCase
         $customer = $this->customerRepository->search(
             new Criteria([$this->ids->get('customer')]),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         static::assertFalse($customer->getActive());
     }

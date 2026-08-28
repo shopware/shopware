@@ -35,6 +35,9 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class PaymentMethodDefinition extends EntityDefinition
 {
@@ -67,7 +70,7 @@ class PaymentMethodDefinition extends EntityDefinition
             (new FkField('plugin_id', 'pluginId', PluginDefinition::class))->setDescription('Unique identity of plugin.'),
             (new StringField('handler_identifier', 'handlerIdentifier'))->setDescription('Internal field that contains system identifier details for payment methods like Paypal.'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('distinguishableName'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new TranslatedField('distinguishableName'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new IntField('position', 'position'))->addFlags(new ApiAware())->setDescription('The order of the tabs of your defined payment methods in the storefront by entering numerical values like 1,2,3, etc.'),
             (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('When boolean value is `true`, the payment methods are available for selection in the storefront.'),

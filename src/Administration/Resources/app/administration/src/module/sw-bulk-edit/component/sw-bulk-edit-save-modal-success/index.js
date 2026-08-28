@@ -4,17 +4,28 @@
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
 import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
+import { DOCUMENT_TYPES } from '../../../sw-order/order.types';
 
 const { Criteria } = Shopware.Data;
+const documentTypeOrder = [
+    DOCUMENT_TYPES.INVOICE,
+    DOCUMENT_TYPES.CANCELLATION_INVOICE,
+    DOCUMENT_TYPES.CREDIT_NOTE,
+    DOCUMENT_TYPES.DELIVERY_NOTE,
+];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderDocumentApiService',
-    ],
+    inject: {
+        repositoryFactory: {},
+        orderDocumentApiService: {},
+        documentV2ApiService: {
+            default: null,
+        },
+        feature: {},
+    },
 
     emits: [
         'title-set',
@@ -28,6 +39,7 @@ export default {
     data() {
         return {
             latestDocuments: {},
+            orderNumbers: {},
             document: {
                 invoice: {
                     isDownloading: false,
@@ -50,6 +62,10 @@ export default {
             return this.repositoryFactory.create('document');
         },
 
+        orderRepository() {
+            return this.repositoryFactory.create('order');
+        },
+
         selectedIds() {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
@@ -60,10 +76,11 @@ export default {
 
         latestDocumentsCriteria() {
             const criteria = new Criteria(1, null);
+            criteria.addAssociation('documentType');
             criteria.addFilter(
                 Criteria.equalsAny(
-                    'documentTypeId',
-                    this.selectedDocumentTypes.map((item) => item.id),
+                    'documentType.technicalName',
+                    this.selectedDocumentTypes.map((item) => item.technicalName),
                 ),
             );
             criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
@@ -90,8 +107,82 @@ export default {
 
         description() {
             return this.selectedDocumentTypes.length > 0
-                ? this.$tc('sw-bulk-edit.modal.success.instruction')
-                : this.$tc('sw-bulk-edit.modal.success.description');
+                ? this.$t('sw-bulk-edit.modal.success.instruction')
+                : this.$t('sw-bulk-edit.modal.success.description');
+        },
+
+        documentGenerationResult() {
+            return Shopware.Store.get('swBulkEdit').documentGenerationResult;
+        },
+
+        documentGenerationFailedItems() {
+            return this.documentGenerationResult.failedItems ?? [];
+        },
+
+        hasSkippedDocuments() {
+            return this.documentGenerationResult.skipped > 0;
+        },
+
+        hasDocumentGenerationErrors() {
+            return this.documentGenerationResult.failed > 0;
+        },
+
+        hasFailedDocumentRows() {
+            return this.failedDocumentRows.length > 0;
+        },
+
+        documentTypeLabels() {
+            const documentTypes = Array.isArray(this.downloadOrderDocuments?.value) ? this.downloadOrderDocuments.value : [];
+            const labels = {
+                [DOCUMENT_TYPES.INVOICE]: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice'),
+                [DOCUMENT_TYPES.CANCELLATION_INVOICE]: this.$t(
+                    'sw-bulk-edit.modal.success.failedDocuments.documentTypes.cancellationInvoice',
+                ),
+                [DOCUMENT_TYPES.CREDIT_NOTE]: this.$t('sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote'),
+                [DOCUMENT_TYPES.DELIVERY_NOTE]: this.$t(
+                    'sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote',
+                ),
+            };
+
+            documentTypes.forEach((documentType) => {
+                labels[documentType.technicalName] = documentType.translated?.name ?? documentType.name;
+            });
+
+            return labels;
+        },
+
+        failedDocumentRows() {
+            const rows = [];
+            const rowsByOrderId = {};
+
+            this.documentGenerationFailedItems.forEach((failedItem) => {
+                if (!rowsByOrderId[failedItem.orderId]) {
+                    rowsByOrderId[failedItem.orderId] = {
+                        id: failedItem.orderId,
+                        orderId: failedItem.orderId,
+                        orderNumber: this.orderNumbers[failedItem.orderId] ?? failedItem.orderId,
+                        documentTypes: [],
+                    };
+
+                    rows.push(rowsByOrderId[failedItem.orderId]);
+                }
+
+                if (!rowsByOrderId[failedItem.orderId].documentTypes.includes(failedItem.documentType)) {
+                    rowsByOrderId[failedItem.orderId].documentTypes.push(failedItem.documentType);
+                }
+            });
+
+            return rows.map((row) => {
+                const documentTypes = this.sortDocumentTypes(row.documentTypes);
+
+                return {
+                    ...row,
+                    documentTypes,
+                    documentTypesLabel: documentTypes
+                        .map((documentType) => this.getDocumentTypeLabel(documentType))
+                        .join(', '),
+                };
+            });
         },
     },
 
@@ -103,26 +194,64 @@ export default {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
-            await this.getLatestDocuments();
+            await Promise.all([
+                this.getLatestDocuments(),
+                this.loadFailedOrderNumbers(),
+            ]);
+            this.updateButtons();
         },
 
         setTitle() {
-            this.$emit('title-set', this.$tc('sw-bulk-edit.modal.success.title'));
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.success.title'));
         },
 
         updateButtons() {
-            const buttonConfig = [
-                {
-                    key: 'close',
-                    label: this.$tc('global.sw-modal.labelClose'),
+            const buttonConfig = [];
+
+            if (this.hasFailedDocumentRows) {
+                buttonConfig.push({
+                    key: 'download-result',
+                    label: this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadResult'),
                     position: 'right',
-                    variant: 'primary',
-                    action: '',
+                    variant: 'secondary',
+                    action: () => this.downloadDocumentGenerationResult(),
                     disabled: false,
-                },
-            ];
+                });
+            }
+
+            buttonConfig.push({
+                key: 'close',
+                label: this.$t('global.default.close'),
+                position: 'right',
+                variant: 'primary',
+                action: '',
+                disabled: false,
+            });
 
             this.$emit('buttons-update', buttonConfig);
+        },
+
+        async loadFailedOrderNumbers() {
+            if (this.documentGenerationFailedItems.length <= 0) {
+                return;
+            }
+
+            const orderIds = [...new Set(this.documentGenerationFailedItems.map((failedItem) => failedItem.orderId))];
+            const criteria = new Criteria(1, orderIds.length);
+            criteria.addFilter(Criteria.equalsAny('id', orderIds));
+
+            try {
+                const orders = await this.orderRepository.search(criteria);
+                const orderNumbers = {};
+
+                orders.forEach((order) => {
+                    orderNumbers[order.id] = order.orderNumber;
+                });
+
+                this.orderNumbers = orderNumbers;
+            } catch {
+                this.orderNumbers = {};
+            }
         },
 
         async getLatestDocuments() {
@@ -140,7 +269,7 @@ export default {
                 const latestDoc = latestDocuments[documentType.technicalName];
 
                 const documentsGrouped = documents.filter((document) => {
-                    return document.documentTypeId === documentType.id;
+                    return document.documentType?.technicalName === documentType.technicalName;
                 });
 
                 const latestDocKeyedByOrderId = {};
@@ -165,7 +294,7 @@ export default {
 
             if (!documentIds || documentIds.length === 0) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-bulk-edit.modal.success.messageNoDocumentsFound'),
+                    message: this.$t('sw-bulk-edit.modal.success.messageNoDocumentsFound'),
                 });
 
                 return Promise.resolve();
@@ -176,17 +305,29 @@ export default {
             }
 
             this.document[documentType].isDownloading = true;
-            return this.orderDocumentApiService
-                .download(documentIds)
-                .then((response) => {
-                    if (!response.data) {
+
+            const request = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
+                ? this.documentV2ApiService.getDocumentArchive(documentIds)
+                : this.orderDocumentApiService.download(documentIds).then((response) => {
+                      if (!response.data) {
+                          return null;
+                      }
+
+                      return {
+                          file: response.data,
+                          fileName: fileReaderUtils.getFilenameFromResponse(response),
+                      };
+                  });
+
+            return request
+                .then((documentFileResponse) => {
+                    if (!documentFileResponse) {
                         return;
                     }
 
-                    const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
+                    link.href = URL.createObjectURL(documentFileResponse.file);
+                    link.download = documentFileResponse.fileName;
                     link.dispatchEvent(new MouseEvent('click'));
                     link.remove();
                 })
@@ -198,6 +339,92 @@ export default {
                 .finally(() => {
                     this.document[documentType].isDownloading = false;
                 });
+        },
+
+        sortDocumentTypes(documentTypes) {
+            return [...documentTypes].sort((firstDocumentType, secondDocumentType) => {
+                const firstIndex = documentTypeOrder.indexOf(firstDocumentType);
+                const secondIndex = documentTypeOrder.indexOf(secondDocumentType);
+
+                return (
+                    (firstIndex === -1 ? documentTypeOrder.length : firstIndex) -
+                    (secondIndex === -1 ? documentTypeOrder.length : secondIndex)
+                );
+            });
+        },
+
+        getDocumentTypeLabel(documentType) {
+            return this.documentTypeLabels[documentType] ?? documentType;
+        },
+
+        downloadDocumentGenerationResult() {
+            const objectUrl = URL.createObjectURL(
+                new Blob(
+                    [
+                        this.getDocumentGenerationResultFileContent(),
+                    ],
+                    {
+                        type: 'text/plain',
+                    },
+                ),
+            );
+            const link = document.createElement('a');
+
+            link.href = objectUrl;
+            link.download = this.getDocumentGenerationResultFileName();
+            link.dispatchEvent(new MouseEvent('click'));
+            link.remove();
+
+            URL.revokeObjectURL(objectUrl);
+        },
+
+        getDocumentGenerationResultFileContent() {
+            const seenRows = new Set();
+            const lines = [];
+
+            this.documentGenerationFailedItems.forEach((failedItem) => {
+                const rowKey = `${failedItem.orderId}::${failedItem.documentType}`;
+
+                if (seenRows.has(rowKey)) {
+                    return;
+                }
+                seenRows.add(rowKey);
+
+                const orderNumber = this.orderNumbers[failedItem.orderId] ?? failedItem.orderId;
+                const documentTypeLabel = this.getDocumentTypeLabel(failedItem.documentType);
+                const reason = failedItem.detail ?? failedItem.errorCode;
+
+                lines.push(
+                    reason ? `${orderNumber} - ${documentTypeLabel}: ${reason}` : `${orderNumber} - ${documentTypeLabel}`,
+                );
+            });
+
+            return [
+                this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadHeadline'),
+                '',
+                ...lines,
+            ].join('\n');
+        },
+
+        getDocumentGenerationResultFileName() {
+            return (
+                [
+                    'bulk-edit-document-generation-result',
+                    this.getDateTimeForFileName(new Date()),
+                ].join('-') + '.txt'
+            );
+        },
+
+        getDateTimeForFileName(date) {
+            const pad = (value) => value.toString().padStart(2, '0');
+
+            return [
+                date.getFullYear(),
+                pad(date.getMonth() + 1),
+                pad(date.getDate()),
+                pad(date.getHours()),
+                pad(date.getMinutes()),
+            ].join('-');
         },
     },
 };

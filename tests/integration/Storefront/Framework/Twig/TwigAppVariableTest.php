@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Storefront\Framework\Twig\TwigAppVariable;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class TwigAppVariableTest extends TestCase
 {
     use IntegrationTestBehaviour;

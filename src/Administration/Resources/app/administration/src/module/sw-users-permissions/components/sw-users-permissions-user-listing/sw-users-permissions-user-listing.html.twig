@@ -2,60 +2,59 @@
 <mt-card
     class="sw-users-permissions-user-listing sw-settings-user-list"
     position-identifier="sw-users-permissions-user-listing"
-    :title="$tc('sw-users-permissions.users.general.cardLabel')"
+    :title="$t('sw-users-permissions.users.general.cardLabel')"
 >
-
     <div class="sw-users-permissions-user-listing__toolbar">
-        <sw-container
-            columns="1fr minmax(100px, 200px)"
-            gap="0 10px"
-        >
         {% block sw_settings_user_list_smart_bar_actions %}
-            {% block sw_settings_user_list_search_bar %}
-            <sw-simple-search-field
-                v-model:value="term"
-                size="small"
-                variant="form"
-                @search-term-change="onSearch"
-            />
-            {% endblock %}
-
-            {% block sw_settings_user_list_actions_create_user %}
-            <mt-button
-                v-if="isSso"
-                size="small"
-                :disabled="!acl.can('users_and_permissions.creator') || undefined"
-                class="sw-users-permissions-user-listing__add-user-button"
-                variant="primary"
-                @click="openInvitationModal"
-            >
-                {{ $tc('sw-users-permissions.sso.inviteButtonLabel') }}
-            </mt-button>
-
-            <mt-button
-                v-else
-                ghost
-                size="small"
-                :disabled="!acl.can('users_and_permissions.creator') || undefined"
-                class="sw-users-permissions-user-listing__add-user-button"
-                variant="secondary"
-                @click="$router.push({ name: 'sw.users.permissions.user.create' })"
-            >
-                {{ $tc('sw-users-permissions.users.general.labelCreateNewUser') }}
-            </mt-button>
-
-            <sw-user-sso-invitation-modal
-                v-if="showInvitationModal"
-                @modal-close="closeInvitationModal"
-                @user-invited="onUserInvited"
-                @invitation-failed="invitationFailed"
-            />
-            {% endblock %}
+        {% block sw_settings_user_list_search_bar %}
+        <sw-simple-search-field
+            v-model:value="term"
+            size="small"
+            variant="form"
+            @search-term-change="onSearch"
+        />
         {% endblock %}
-        </sw-container>
+
+        {% block sw_settings_user_list_actions_create_user %}
+        <mt-button
+            v-if="isSso"
+            size="small"
+            :disabled="!acl.can('users_and_permissions.creator') || undefined"
+            class="sw-users-permissions-user-listing__add-user-button"
+            variant="secondary"
+            @click="openInvitationModal"
+        >
+            {{ $t('sw-users-permissions.sso.inviteButtonLabel') }}
+        </mt-button>
+
+        <mt-button
+            v-else
+            size="small"
+            :disabled="!acl.can('users_and_permissions.creator') || undefined"
+            class="sw-users-permissions-user-listing__add-user-button"
+            variant="secondary"
+            @click="$router.push({ name: 'sw.users.permissions.user.create' })"
+        >
+            {{ $t('sw-users-permissions.users.general.labelCreateNewUser') }}
+        </mt-button>
+
+        <sw-user-sso-invitation-modal
+            v-if="showInvitationModal"
+            @modal-close="closeInvitationModal"
+            @user-invited="onUserInvited"
+            @invitation-failed="invitationFailed"
+        />
+        {% endblock %}
+        {% endblock %}
     </div>
 
-{% block sw_settings_user_list_content %}
+    <sw-verify-user-modal
+        v-if="isConfirmingPasswordModalOpen"
+        @verified="deleteUser"
+        @close="onCloseConfirmPasswordModal"
+    />
+
+    {% block sw_settings_user_list_content %}
     {% block sw_settings_user_list_content_grid %}
     <sw-data-grid
         :data-source="user"
@@ -66,7 +65,6 @@
         :is-loading="isLoading"
         @column-sort="onSortColumn"
     >
-
         {% block sw_settings_user_list_content_grid_actions %}
         <template #actions="{ item }">
             {% block sw_settings_user_list_actions_edit %}
@@ -75,7 +73,7 @@
                 :disabled="!acl.can('users_and_permissions.editor') || undefined"
                 :router-link="{ name: userDetailRouterLink, params: { id: item.id } }"
             >
-                {{ $tc('sw-users-permissions.users.user-grid.contextMenuEdit') }}
+                {{ $t('global.default.edit') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -86,17 +84,17 @@
                 :disabled="!acl.can('users_and_permissions.deleter') || undefined"
                 @click="onDelete(item)"
             >
-                {{ $tc('sw-users-permissions.users.user-grid.contextMenuDelete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
         {% endblock %}
 
         {% block sw_settings_user_list_column_username_preview %}
-        <template #preview-username="{ item, compact }">
+        <template #preview-username="{ item }">
             <sw-avatar
                 v-if="!isSso"
-                :size="compact ? '32px' : '48px'"
+                size="26px"
                 :first-name="item.firstName"
                 :last-name="item.lastName"
                 variant="square"
@@ -108,12 +106,12 @@
         {% block sw_settings_user_list_column_username %}
         <template #column-username="{ item }">
             {% block sw_settings_user_list_column_username_content %}
-            <router-link
+            <mt-link
                 class="sw-settings-user-list__columns"
                 :to="{ name: userDetailRouterLink, params: { id: item.id } }"
             >
                 {{ item.username }}
-            </router-link>
+            </mt-link>
             {% endblock %}
         </template>
         {% endblock %}
@@ -121,13 +119,14 @@
         {% block sw_settings_user_list_column_email %}
         <template #column-email="{ item }">
             {% block sw_settings_user_list_column_email_content %}
-            <router-link
+            <mt-link
                 v-if="isSso"
                 class="sw-settings-user-list__columns"
                 :to="{ name: userDetailRouterLink, params: { id: item.id } }"
             >
                 {{ item.email }}
-            </router-link>
+            </mt-link>
+
             <span
                 v-else
                 class="sw-data-grid__cell-value"
@@ -139,10 +138,7 @@
         {% endblock %}
 
         {% block sw_settings_user_list_column_status %}
-        <template
-            v-if="isSso"
-            #column-status="{item}"
-        >
+        <template #column-status="{ item }">
             <sw-user-sso-status-label :user="item" />
         </template>
         {% endblock %}
@@ -159,9 +155,11 @@
                     </span>
                 </span>
             </template>
+
             <span v-else-if="item.admin">
-                {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
+                {{ $t('sw-users-permissions.users.user-detail.labelAdministrator') }}
             </span>
+
             <span v-else></span>
         </template>
         {% endblock %}
@@ -181,30 +179,20 @@
         <template #action-modals="{ item }">
         {% block sw_settings_user_list_delete_modal %}
             <sw-modal
-                v-if="getItemToDelete(item)"
-                :title="$tc('global.default.warning')"
+                v-if="isConfirmDeleteModalOpen && getItemToDelete(item)"
+                :title="$t('global.default.warning')"
                 variant="small"
+                class="sw-settings-user-list__delete-modal"
                 @modal-close="onCloseDeleteModal"
             >
                 {% block sw_settings_user_list_delete_modal_confirm_delete_text %}
                 <p class="sw-settings-user-list__confirm-delete-text">
-                    {{ $tc('sw-users-permissions.users.user-grid.textModalDelete', { name: salutation(item) }, 0) }}
+                    {{ $t('sw-users-permissions.users.user-grid.textModalDelete', { name: salutation(item) }, 0) }}
                 </p>
                 {% endblock %}
 
+                {# @deprecated tag:v6.8.0 - will be removed #}
                 {% block sw_settings_user_list_delete_modal_input__confirm_password %}
-                <mt-password-field
-                    v-if="!isSso"
-                    v-model="confirmPassword"
-                    class="sw-settings-user-detail__confirm-password"
-                    required
-                    name="sw-field--confirm-password"
-                    :password-toggle-able="true"
-                    :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
-                    :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')"
-                    autocomplete="off"
-                    @keypress.enter="onConfirmDelete(item)"
-                />
                 {% endblock %}
 
                 {% block sw_settings_user_list_delete_modal_footer %}
@@ -215,19 +203,17 @@
                         variant="secondary"
                         @click="onCloseDeleteModal"
                     >
-                        {{ $tc('global.default.cancel') }}
+                        {{ $t('global.default.cancel') }}
                     </mt-button>
                     {% endblock %}
 
                     {% block sw_settings_user_list_delete_modal_confirm %}
                     <mt-button
-                        :disabled="!confirmPassword && !isSso || undefined"
-                        :is-loading="isConfirmingPassword"
                         variant="critical"
                         size="small"
                         @click="onConfirmDelete(item)"
                     >
-                        {{ $tc('sw-users-permissions.users.user-grid.labelButtonDelete') }}
+                        {{ $t('global.default.delete') }}
                     </mt-button>
                     {% endblock %}
                 </template>

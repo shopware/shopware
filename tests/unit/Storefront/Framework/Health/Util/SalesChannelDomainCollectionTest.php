@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainCollection;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SalesChannelDomainCollection::class)]
 class SalesChannelDomainCollectionTest extends TestCase
 {

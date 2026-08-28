@@ -1,22 +1,17 @@
 {% block sw_settings_search_searchable_content_general %}
 <div class="sw-settings-search__searchable-content-general">
     {% block sw_settings_search_searchable_content_general_empty_state %}
-    <sw-empty-state
+
+    {# @deprecated tag:v6.8.0 - Will be removed. #}
+    {% block sw_settings_search_searchable_content_general_state_image %}
+    {% endblock %}
+
+    <mt-empty-state
         v-if="isEmpty"
-        :title="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
-        :show-description="false"
-        :has-action-slot="true"
-        :absolute="false"
-    >
-        <template #icon>
-            {% block sw_settings_search_searchable_content_general_state_image %}
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                :alt="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
-            >
-            {% endblock %}
-        </template>
-    </sw-empty-state>
+        :icon="$route.meta.$module.icon"
+        :headline="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+        :description="$t('sw-settings-search.generalTab.textEmptyStateSearchableContentDescription')"
+    />
     {% endblock %}
 
     {% block sw_settings_search_searchable_content_general_grid %}
@@ -51,6 +46,7 @@
                 />
                 {% endblock %}
             </template>
+
             <template v-else>
                 {% block sw_settings_search_searchable_content_general_field_label %}
                 {{ getMatchingFields(item.field) }}
@@ -116,16 +112,17 @@
                 :disabled="!acl.can('product_search_config.editor')"
                 @click="onInlineEditItem(item)"
             >
-                {{ $tc('global.default.edit') }}
+                {{ $t('global.default.edit') }}
             </sw-context-menu-item>
 
             {% block sw_settings_search_searchable_content_general_columns_actions_edit %}
             <sw-context-menu-item
                 class="sw-settings-search__searchable-content-list-action sw-settings-search__searchable-content-list-reset"
                 :disabled="!acl.can('product_search_config.editor')"
+                variant="danger"
                 @click="onResetRanking(item)"
             >
-                {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
+                {{ $t('sw-settings-search.generalTab.list.textResetRanking') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>

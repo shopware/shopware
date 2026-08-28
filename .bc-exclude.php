@@ -30,33 +30,91 @@ return [
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
-        // Had a typo in the internal annotation
-        preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder was marked "@internal"', '/'),
+        // Expected to be appended when a new default admin user privilege is added; existing entries are never removed
+        preg_quote('Value of constant Shopware\Core\Framework\Api\Context\AdminApiSource::DEFAULT_USER_PRIVILEGES', '/'),
 
-        // SystemDumpDatabaseCommand was not marked @internal
-        preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand was marked "@internal"', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand#getIgnoreTableStmt() was removed', '/'),
+        // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
+        // BC changes are in the third-party OpenApi\Analysis API. Extensions
+        // that only define OpenAPI annotations/attributes continue to work; code
+        // using swagger-php programmatically has a documented migration path in
+        // RELEASE_INFO-6.7.md / UPGRADE-6.7.md.
+        preg_quote('REMOVED: Method OpenApi\Analysis#getSchemaForSource() was removed', '/'),
+        preg_quote('REMOVED: Method OpenApi\Analysis#getContext() was removed', '/'),
+        preg_quote('REMOVED: Method OpenApi\Analysis#process() was removed', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$annotations changed from having no type to SplObjectStorage', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$classes changed from having no type to array', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$interfaces changed from having no type to array', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$traits changed from having no type to array', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$enums changed from having no type to array', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$openapi changed from having no type to OpenApi\Annotations\OpenApi|null', '/'),
+        preg_quote('CHANGED: Type of property OpenApi\Analysis#$context changed from having no type to OpenApi\Context|null', '/'),
+        preg_quote('CHANGED: The parameter $annotation of OpenApi\Analysis#addAnnotation() changed from object', '/'),
+        preg_quote('CHANGED: The parameter $class of OpenApi\Analysis#getSuperClasses() changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $class of OpenApi\Analysis#getInterfacesOfClass() changed from string to string|null', '/'),
+        preg_quote('CHANGED: The parameter $source of OpenApi\Analysis#getTraitsOfClass() changed from string to string|null', '/'),
+        preg_quote('ADDED: Parameter sourceClass was added to Method getAnnotationForSource() of class OpenApi\Analysis', '/'),
+        preg_quote('CHANGED: Parameter 1 of OpenApi\Analysis#getAnnotationForSource() changed name from class to sourceClass', '/'),
+        preg_quote('CHANGED: The return type of OpenApi\Analysis#split() changed from no type to stdClass', '/'),
 
-        // No break as all existing NoContentResponse usages are still valid with the widened StoreApiResponse return type
-        'CHANGED: The return type of Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\.* changed from Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse to (?:the non-covariant )?Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse',
+        // MailDataSimulatorFieldEvent no longer exposes Faker in the runtime simulate feature
+        preg_quote('REMOVED: Property Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent#$faker was removed', '/'),
+        preg_quote('REMOVED: Parameter faker was removed from Method Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent::__construct()', '/'),
 
-        // class is @final, so making a parameter nullable is not a breaking change
-        preg_quote('CHANGED: The parameter $fileType of Shopware\Core\Checkout\Document\Service\DocumentGenerator#readDocument() changed from string to string|null', '/'),
+        // Optional parameter added with default null; existing callers are unaffected
+        preg_quote('ADDED: Parameter introducedIn was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
 
-        // SystemRestoreDatabaseCommand was marked @internal
-        preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
+        // Promoted properties expose their default on the constructor parameter rather than
+        // ReflectionProperty. CustomerZipCode still initializes this property to true.
+        preg_quote('CHANGED: Property Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode#$caseSensitiveCheck changed default value from true to NULL', '/'),
 
-        // Unused protected method from final class can be removed safely
-        preg_quote('REMOVED: Method Shopware\Core\Framework\Store\InAppPurchase\Services\DecodedPurchaseStruct#throwException() was removed', '/'),
+        // Rule classes are tagged @final
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Rule\CustomerBirthdayRule#$birthday changed from string|null to string|array|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule#$lineItemReleaseDate changed from string|null to string|array|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule#$lineItemCreationDate changed from string|null to string|array|null', '/'),
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule#$isNet was removed', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Rule\Rule#getConfig() changed from Shopware\Core\Framework\Rule\RuleConfig|null to Shopware\Core\Framework\Rule\RuleConfig', '/'),
 
-        // TaxProviderPersister was mistakenly not marked @internal
-        preg_quote('CHANGED: Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister was marked "@internal"', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister#updateTaxProviders() was removed', '/'),
+        // DefinitionValidator is @final; optional parameter added with default [], existing callers are unaffected
+        preg_quote('ADDED: Parameter toleratedNonStandardForeignKeys was added to Method validate() of class Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator', '/'),
 
-        // Constants should be `float` to reflect the expected type
-        preg_quote('CHANGED: Value of constant Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking::', '/'),
+        // DocumentType translations were incorrectly typed as product translations
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#$translations changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#getTranslations() changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection|null', '/'),
+        preg_quote('CHANGED: The parameter $translations of Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity#setTranslations() changed from Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection', '/'),
 
-        // Return type is still of type "self" but more specific. Could never be something different from the InvalidSortQueryException, so this should be fine
-        'CHANGED: The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DataAbstractionLayerException.* changed from self to (?:the non-covariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidSortQueryException',
+        // Contravariant widening so the filter also accepts PartialEntity media from partial listing loading
+        preg_quote('The parameter $media of Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter#encodeMediaUrl() changed from', '/'),
+
+        // Experimental MCP feature (gated behind the MCP_SERVER flag, all MCP classes are
+        // @experimental stableVersion:v6.8.0). The MCP rate-limit route was split per API
+        // scope, replacing the single RateLimiter::MCP constant with MCP_ADMIN_API /
+        // MCP_STORE_API. The constant lived on the non-experimental RateLimiter class so it
+        // was not auto-skipped, but it is part of the still-experimental MCP surface.
+        preg_quote('REMOVED: Constant Shopware\Core\Framework\RateLimiter\RateLimiter::MCP was removed', '/'),
+
+        // EntitySearchResult::merge() takes EntityCollection (not self) so it accepts any collection, not just other search results.
+        'CHANGED: The parameter \$collection of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection#merge\(\) changed from self to (?:a non-contravariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection',
+
+        // Translated CustomerGroupEntity properties are now nullable like the translation entity (fixes #16461).
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationTitle changed from string to string|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationIntroduction changed from string to string|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationOnlyCompanyRegistration changed from bool to bool|null', '/'),
+        preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#$registrationSeoMetaDescription changed from string to string|null', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationTitle() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationIntroduction() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationOnlyCompanyRegistration() changed from bool', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationSeoMetaDescription() changed from string', '/'),
+
+        // parent method has no type. not really a break
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
+
+        // intended to be internal on release
+        preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
+        preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
+
+        // Only thrown during the legacy commercial license sync; all services
+        // that used it have published versions using the new webhooks instead
+        preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::missingAppSecretInfo() was removed', '/'),
     ],
 ];

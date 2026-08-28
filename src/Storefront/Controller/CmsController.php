@@ -28,8 +28,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class CmsController extends StorefrontController
 {
     /**
@@ -95,7 +95,10 @@ class CmsController extends StorefrontController
         $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
         $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => ['cmsPage' => $page]]);
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => ['cmsPage' => $page]]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     /**

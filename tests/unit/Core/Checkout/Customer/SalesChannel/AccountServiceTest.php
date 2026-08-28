@@ -12,10 +12,12 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSwitchDefaultAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -27,6 +29,7 @@ use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
@@ -51,7 +54,6 @@ class AccountServiceTest extends TestCase
         $customer->setEmail('foo@bar.de');
         $customer->setDoubleOptInRegistration(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 CustomerDefinition::ENTITY_NAME,
@@ -95,9 +97,11 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $customerRepository,
             $eventDispatcher,
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
             $cartRestorer,
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $token = $accountService->loginByCredentials('foo@bar.de', 'shopware', $salesChannelContext);
@@ -142,9 +146,11 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $customerRepository,
             new EventDispatcher(),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
             $cartRestorer,
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $this->expectException(BadCredentialsException::class);
@@ -170,9 +176,11 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $customerRepository,
             new EventDispatcher(),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $this->expectException(BadCredentialsException::class);
@@ -223,14 +231,15 @@ class AccountServiceTest extends TestCase
 
         $accountService = new AccountService(
             $customerRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $legacyPasswordVerifier,
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
-        $this->expectException(PasswordPoliciesUpdatedException::class);
-        $this->expectExceptionMessage('Password policies updated.');
+        $this->expectExceptionObject(new PasswordPoliciesUpdatedException());
         $accountService->getCustomerByLogin('user', 'password', $salesChannelContext);
     }
 
@@ -278,10 +287,12 @@ class AccountServiceTest extends TestCase
 
         $accountService = new AccountService(
             $customerRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $legacyPasswordVerifier,
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $this->expectException(WriteException::class);
@@ -302,11 +313,13 @@ class AccountServiceTest extends TestCase
             ->with('billing-address-id', AbstractSwitchDefaultAddressRoute::TYPE_BILLING, $context, $customer);
 
         $accountService = new AccountService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
             $switcher,
-            $this->createMock(CartRestorer::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $accountService->setDefaultBillingAddress('billing-address-id', $context, $customer);
@@ -326,11 +339,13 @@ class AccountServiceTest extends TestCase
             ->with('shipping-address-id', AbstractSwitchDefaultAddressRoute::TYPE_SHIPPING, $context, $customer);
 
         $accountService = new AccountService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
             $switcher,
-            $this->createMock(CartRestorer::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $accountService->setDefaultShippingAddress('shipping-address-id', $context, $customer);
@@ -383,9 +398,11 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $repo,
             $dispatcher,
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $accountService->loginById($customer->getId(), $context);
@@ -396,11 +413,13 @@ class AccountServiceTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $accountService = new AccountService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $this->expectException(BadCredentialsException::class);
@@ -427,10 +446,12 @@ class AccountServiceTest extends TestCase
 
         $accountService = new AccountService(
             $repo,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $this->expectException(CustomerNotFoundByIdException::class);
@@ -442,15 +463,58 @@ class AccountServiceTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
         $accountService = new AccountService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         static::expectException(BadCredentialsException::class);
 
         $accountService->loginByCredentials('foo@bar.de', \str_repeat('a', PasswordHasherInterface::MAX_PASSWORD_LENGTH + 1), $salesChannelContext);
+    }
+
+    public function testGetCustomerByLoginWithUnconfirmedDoubleOptIn(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $customer = $salesChannelContext->getCustomer();
+        static::assertNotNull($customer);
+        $customer->setActive(true);
+        $customer->setGuest(false);
+        $customer->setPassword(TestDefaults::HASHED_PASSWORD);
+        $customer->setEmail('foo@bar.de');
+        $customer->setDoubleOptInRegistration(true);
+
+        $customerRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
+                1,
+                new CustomerCollection([$customer]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext()
+            ),
+        ]);
+
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->expects($this->once())
+            ->method('resendDoubleOptInMail')
+            ->with($customer, $salesChannelContext);
+
+        $accountService = new AccountService(
+            $customerRepository,
+            new EventDispatcher(),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            $doubleOptInService,
+            new NativeClock(),
+        );
+
+        $this->expectException(CustomerOptinNotCompletedException::class);
+        $accountService->getCustomerByLogin('foo@bar.de', 'shopware', $salesChannelContext);
     }
 }

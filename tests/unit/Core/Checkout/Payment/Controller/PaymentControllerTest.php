@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -32,33 +33,29 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(PaymentController::class)]
 class PaymentControllerTest extends TestCase
 {
-    private TokenFactoryInterfaceV2&MockObject $tokenFactory;
+    private TokenFactoryInterfaceV2&Stub $tokenFactory;
 
     /**
      * @var StaticEntityRepository<OrderCollection>
      */
     private StaticEntityRepository $orderRepository;
 
-    private OrderConverter&MockObject $orderConverter;
+    private OrderConverter&Stub $orderConverter;
 
     private PaymentProcessor&MockObject $paymentProcessor;
 
-    private PaymentController $controller;
+    private PaymentTokenGenerator&Stub $tokenGenerator;
 
-    private PaymentTokenGenerator&MockObject $tokenGenerator;
-
-    private PaymentTokenLifecycle&MockObject $tokenLifecycle;
+    private PaymentTokenLifecycle&Stub $tokenLifecycle;
 
     protected function setUp(): void
     {
-        $this->controller = new PaymentController(
-            $this->paymentProcessor = $this->createMock(PaymentProcessor::class),
-            $this->orderConverter = $this->createMock(OrderConverter::class),
-            $this->tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class),
-            $this->tokenGenerator = $this->createMock(PaymentTokenGenerator::class),
-            $this->tokenLifecycle = $this->createMock(PaymentTokenLifecycle::class),
-            $this->orderRepository = new StaticEntityRepository([]),
-        );
+        $this->orderRepository = new StaticEntityRepository([]);
+        $this->paymentProcessor = $this->createMock(PaymentProcessor::class);
+        $this->orderConverter = static::createStub(OrderConverter::class);
+        $this->tokenFactory = static::createStub(TokenFactoryInterfaceV2::class);
+        $this->tokenGenerator = static::createStub(PaymentTokenGenerator::class);
+        $this->tokenLifecycle = static::createStub(PaymentTokenLifecycle::class);
     }
 
     /**
@@ -75,7 +72,8 @@ class PaymentControllerTest extends TestCase
             finishUrl: 'finish-url',
             expires: \PHP_INT_MAX,
         );
-        $this->tokenFactory
+        $tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class);
+        $tokenFactory
             ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
@@ -85,7 +83,8 @@ class PaymentControllerTest extends TestCase
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
@@ -97,7 +96,8 @@ class PaymentControllerTest extends TestCase
             ->with($tokenStruct, $request, $salesChannelContext)
             ->willReturn($tokenStruct);
 
-        $response = $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenFactory: $tokenFactory);
+        $response = $controller->finalizeTransaction($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('finish-url', $response->getTargetUrl());
     }
@@ -112,13 +112,15 @@ class PaymentControllerTest extends TestCase
         $paymentToken->finishUrl = 'finish-url';
         $paymentToken->jti = 'token-id';
 
-        $this->tokenGenerator
+        $tokenGenerator = $this->createMock(PaymentTokenGenerator::class);
+        $tokenGenerator
             ->expects($this->once())
             ->method('decode')
             ->with('test-token')
             ->willReturn($paymentToken);
 
-        $this->tokenLifecycle
+        $tokenLifecycle = $this->createMock(PaymentTokenLifecycle::class);
+        $tokenLifecycle
             ->expects($this->once())
             ->method('isConsumable')
             ->with('token-id')
@@ -128,7 +130,8 @@ class PaymentControllerTest extends TestCase
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
@@ -144,7 +147,8 @@ class PaymentControllerTest extends TestCase
             ->with($fakeTokenStruct, $request, $salesChannelContext, $paymentToken)
             ->willReturn($fakeTokenStruct);
 
-        $response = $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenGenerator: $tokenGenerator, tokenLifecycle: $tokenLifecycle);
+        $response = $controller->finalizeTransaction($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('finish-url', $response->getTargetUrl());
     }
@@ -163,7 +167,8 @@ class PaymentControllerTest extends TestCase
             errorUrl: 'error-url',
             expires: \PHP_INT_MAX,
         );
-        $this->tokenFactory
+        $tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class);
+        $tokenFactory
             ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
@@ -173,7 +178,8 @@ class PaymentControllerTest extends TestCase
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
@@ -186,7 +192,8 @@ class PaymentControllerTest extends TestCase
             ->willReturn($tokenStruct);
         $tokenStruct->setException(PaymentException::customerCanceled('order-transaction-id', 'nothing'));
 
-        $response = $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenFactory: $tokenFactory);
+        $response = $controller->finalizeTransaction($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('error-url?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT', $response->getTargetUrl());
     }
@@ -201,13 +208,15 @@ class PaymentControllerTest extends TestCase
         $paymentToken->errorUrl = 'error-url';
         $paymentToken->jti = 'token-id';
 
-        $this->tokenGenerator
+        $tokenGenerator = $this->createMock(PaymentTokenGenerator::class);
+        $tokenGenerator
             ->expects($this->once())
             ->method('decode')
             ->with('test-token')
             ->willReturn($paymentToken);
 
-        $this->tokenLifecycle
+        $tokenLifecycle = $this->createMock(PaymentTokenLifecycle::class);
+        $tokenLifecycle
             ->expects($this->once())
             ->method('isConsumable')
             ->with('token-id')
@@ -217,7 +226,8 @@ class PaymentControllerTest extends TestCase
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
@@ -233,7 +243,8 @@ class PaymentControllerTest extends TestCase
             ->with($fakeTokenStruct, $request, $salesChannelContext, $paymentToken)
             ->willThrowException(PaymentException::customerCanceled('order-transaction-id', 'nothing'));
 
-        $response = $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenGenerator: $tokenGenerator, tokenLifecycle: $tokenLifecycle);
+        $response = $controller->finalizeTransaction($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('error-url?error-code=CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT', $response->getTargetUrl());
     }
@@ -252,7 +263,8 @@ class PaymentControllerTest extends TestCase
             errorUrl: 'error-url',
             expires: \PHP_INT_MAX,
         );
-        $this->tokenFactory
+        $tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class);
+        $tokenFactory
             ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
@@ -262,7 +274,8 @@ class PaymentControllerTest extends TestCase
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
@@ -275,7 +288,8 @@ class PaymentControllerTest extends TestCase
             ->willReturn($tokenStruct);
         $tokenStruct->setException(new \RuntimeException('nothing'));
 
-        $response = $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenFactory: $tokenFactory);
+        $response = $controller->finalizeTransaction($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('error-url', $response->getTargetUrl());
     }
@@ -290,13 +304,15 @@ class PaymentControllerTest extends TestCase
         $paymentToken->errorUrl = 'error-url';
         $paymentToken->jti = 'token-id';
 
-        $this->tokenGenerator
+        $tokenGenerator = $this->createMock(PaymentTokenGenerator::class);
+        $tokenGenerator
             ->expects($this->once())
             ->method('decode')
             ->with('test-token')
             ->willReturn($paymentToken);
 
-        $this->tokenLifecycle
+        $tokenLifecycle = $this->createMock(PaymentTokenLifecycle::class);
+        $tokenLifecycle
             ->expects($this->once())
             ->method('isConsumable')
             ->with('token-id')
@@ -306,7 +322,8 @@ class PaymentControllerTest extends TestCase
         $order = new OrderEntity();
         $order->setId('order-id');
         $this->orderRepository->addSearch(new OrderCollection([$order]));
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->with($order, Context::createDefaultContext())
@@ -322,7 +339,8 @@ class PaymentControllerTest extends TestCase
             ->with($fakeTokenStruct, $request, $salesChannelContext, $paymentToken)
             ->willThrowException(new \RuntimeException('nothing'));
 
-        $response = $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenGenerator: $tokenGenerator, tokenLifecycle: $tokenLifecycle);
+        $response = $controller->finalizeTransaction($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('error-url', $response->getTargetUrl());
     }
@@ -341,13 +359,15 @@ class PaymentControllerTest extends TestCase
             token: 'test-token',
             expires: \PHP_INT_MAX,
         );
-        $this->tokenFactory
+        $tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class);
+        $tokenFactory
             ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
             ->willReturn($tokenStruct);
 
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->never())
             ->method('assembleSalesChannelContext');
 
@@ -355,7 +375,8 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $response = $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenFactory: $tokenFactory);
+        $response = $controller->finalizeTransaction($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('error-url?error-code=CHECKOUT__INVALID_PAYMENT_TOKEN', $response->getTargetUrl());
     }
@@ -375,7 +396,8 @@ class PaymentControllerTest extends TestCase
             token: 'test-token',
             expires: \PHP_INT_MAX,
         );
-        $this->tokenFactory
+        $tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class);
+        $tokenFactory
             ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
@@ -383,7 +405,8 @@ class PaymentControllerTest extends TestCase
 
         $this->orderRepository->addSearch(new OrderCollection([]));
 
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->never())
             ->method('assembleSalesChannelContext');
 
@@ -391,9 +414,9 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token test-token is invalid and the payment could not be processed.');
-        $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenFactory: $tokenFactory);
+        $this->expectExceptionObject(PaymentException::invalidToken('test-token'));
+        $controller->finalizeTransaction($request);
     }
 
     public function testFinalizeTransactionTokenWithInvalidTransactionId(): void
@@ -406,13 +429,15 @@ class PaymentControllerTest extends TestCase
         $paymentToken->errorUrl = 'error-url';
         $paymentToken->jti = 'token-id';
 
-        $this->tokenGenerator
+        $tokenGenerator = $this->createMock(PaymentTokenGenerator::class);
+        $tokenGenerator
             ->expects($this->once())
             ->method('decode')
             ->with('test-token')
             ->willReturn($paymentToken);
 
-        $this->tokenLifecycle
+        $tokenLifecycle = $this->createMock(PaymentTokenLifecycle::class);
+        $tokenLifecycle
             ->expects($this->once())
             ->method('isConsumable')
             ->with('token-id')
@@ -420,7 +445,8 @@ class PaymentControllerTest extends TestCase
 
         $this->orderRepository->addSearch(new OrderCollection([]));
 
-        $this->orderConverter
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
             ->expects($this->never())
             ->method('assembleSalesChannelContext');
 
@@ -428,9 +454,9 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token token-id is invalid and the payment could not be processed.');
-        $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(orderConverter: $orderConverter, tokenGenerator: $tokenGenerator, tokenLifecycle: $tokenLifecycle);
+        $this->expectExceptionObject(PaymentException::invalidToken('token-id'));
+        $controller->finalizeTransaction($request);
     }
 
     /**
@@ -448,13 +474,14 @@ class PaymentControllerTest extends TestCase
             token: 'test-token',
             expires: 0,
         );
-        $this->tokenFactory
+        $tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class);
+        $tokenFactory
             ->expects($this->once())
             ->method('parseToken')
             ->with('test-token')
             ->willReturn($tokenStruct);
 
-        $this->tokenFactory
+        $tokenFactory
             ->expects($this->once())
             ->method('invalidateToken')
             ->with('test-token');
@@ -463,18 +490,21 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $response = $this->controller->finalizeTransaction($request);
+        $controller = $this->createController(tokenFactory: $tokenFactory);
+        $response = $controller->finalizeTransaction($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('error-url?error-code=CHECKOUT__PAYMENT_TOKEN_EXPIRED', $response->getTargetUrl());
     }
 
     public function testFinalizeTransactionNoToken(): void
     {
-        $this->tokenFactory
+        $tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class);
+        $tokenFactory
             ->expects($this->never())
             ->method('parseToken');
 
-        $this->tokenGenerator
+        $tokenGenerator = $this->createMock(PaymentTokenGenerator::class);
+        $tokenGenerator
             ->expects($this->never())
             ->method('decode');
 
@@ -482,8 +512,24 @@ class PaymentControllerTest extends TestCase
             ->expects($this->never())
             ->method('finalize');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Parameter "_sw_payment_token" is missing.');
-        $this->controller->finalizeTransaction(new Request());
+        $controller = $this->createController(tokenFactory: $tokenFactory, tokenGenerator: $tokenGenerator);
+        $this->expectExceptionObject(PaymentException::missingRequestParameter('_sw_payment_token'));
+        $controller->finalizeTransaction(new Request());
+    }
+
+    private function createController(
+        ?OrderConverter $orderConverter = null,
+        ?TokenFactoryInterfaceV2 $tokenFactory = null,
+        ?PaymentTokenGenerator $tokenGenerator = null,
+        ?PaymentTokenLifecycle $tokenLifecycle = null,
+    ): PaymentController {
+        return new PaymentController(
+            $this->paymentProcessor,
+            $orderConverter ?? $this->orderConverter,
+            $tokenFactory ?? $this->tokenFactory,
+            $tokenGenerator ?? $this->tokenGenerator,
+            $tokenLifecycle ?? $this->tokenLifecycle,
+            $this->orderRepository,
+        );
     }
 }

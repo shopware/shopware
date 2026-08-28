@@ -26,15 +26,15 @@ export default {
             return [
                 {
                     value: '^',
-                    label: this.$tc('sw-import-export.profile.caretsLabel'),
+                    label: this.$t('sw-import-export.profile.caretsLabel'),
                 },
                 {
                     value: ',',
-                    label: this.$tc('sw-import-export.profile.commasLabel'),
+                    label: this.$t('sw-import-export.profile.commasLabel'),
                 },
                 {
                     value: ';',
-                    label: this.$tc('sw-import-export.profile.semicolonLabel'),
+                    label: this.$t('sw-import-export.profile.semicolonLabel'),
                 },
             ];
         },
@@ -43,7 +43,7 @@ export default {
             return [
                 {
                     value: '"',
-                    label: this.$tc('sw-import-export.profile.doubleQuoteLabel'),
+                    label: this.$t('sw-import-export.profile.doubleQuoteLabel'),
                 },
             ];
         },

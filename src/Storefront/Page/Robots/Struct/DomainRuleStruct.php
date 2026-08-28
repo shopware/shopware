@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
 
-#[Package('framework')]
+#[Package('discovery')]
 class DomainRuleStruct extends Struct
 {
     /**
@@ -69,12 +69,7 @@ class DomainRuleStruct extends Struct
 
     private function initializeFromParsed(ParsedRobots $parsed): void
     {
-        $allDirectives = array_merge(
-            $parsed->orphanedPathDirectives,
-            ...array_map(static fn (RobotsUserAgentBlock $block) => $block->getPathDirectives(), $parsed->userAgentBlocks)
-        );
-
-        foreach ($allDirectives as $directive) {
+        foreach ($parsed->orphanedPathDirectives as $directive) {
             $directiveWithPath = $directive->withBasePath($this->basePath);
             $this->directives[] = $directiveWithPath;
 

@@ -2,37 +2,33 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\AppStorage;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:activate',
     description: 'Activates an app',
 )]
-#[Package('framework')]
 class ActivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'activate';
 
-    /**
-     * @param EntityRepository<AppCollection> $appRepo
-     */
     public function __construct(
-        EntityRepository $appRepo,
-        private readonly AppStateService $appStateService
+        AppStorage $appStorage,
+        private readonly AbstractAppLifecycle $appLifecycle
     ) {
-        parent::__construct($appRepo, self::ACTION);
+        parent::__construct($appStorage, self::ACTION);
     }
 
     public function runAction(string $appId, Context $context): void
     {
-        $this->appStateService->activateApp($appId, $context);
+        $this->appLifecycle->activate($appId, $context);
     }
 }

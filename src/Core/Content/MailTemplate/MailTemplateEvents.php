@@ -31,16 +31,34 @@ class MailTemplateEvents
 
     final public const MAIL_TEMPLATE_TRANSLATION_ID_SEARCH_RESULT_LOADED_EVENT = 'mail_template_translation.id.search.result.loaded';
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, as the entity `mail_template_sales_channel` has been removed
+     */
     final public const MAIL_TEMPLATE_SALES_CHANNEL_WRITTEN_EVENT = 'mail_template_sales_channel.written';
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, as the entity `mail_template_sales_channel` has been removed
+     */
     final public const MAIL_TEMPLATE_SALES_CHANNEL_DELETED_EVENT = 'mail_template_sales_channel.deleted';
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, as the entity `mail_template_sales_channel` has been removed
+     */
     final public const MAIL_TEMPLATE_SALES_CHANNEL_LOADED_EVENT = 'mail_template_sales_channel.loaded';
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, as the entity `mail_template_sales_channel` has been removed
+     */
     final public const MAIL_TEMPLATE_SALES_CHANNEL_SEARCH_RESULT_LOADED_EVENT = 'mail_template_sales_channel.search.result.loaded';
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, as the entity `mail_template_sales_channel` has been removed
+     */
     final public const MAIL_TEMPLATE_SALES_CHANNEL_AGGREGATION_LOADED_EVENT = 'mail_template_sales_channel.aggregation.result.loaded';
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, as the entity `mail_template_sales_channel` has been removed
+     */
     final public const MAIL_TEMPLATE_SALES_CHANNEL_ID_SEARCH_RESULT_LOADED_EVENT = 'mail_template_sales_channel.id.search.result.loaded';
 
     final public const MAIL_TEMPLATE_MEDIA_WRITTEN_EVENT = 'mail_template_media.written';

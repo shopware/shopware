@@ -149,7 +149,7 @@ describe('src/core/telemetry/index.js', () => {
             );
         });
 
-        it('does not emit page change event when navigating to the same route', async () => {
+        it('emits page change event on same-route navigations to capture query param changes', async () => {
             const telemetry = new Telemetry({ queries: [] });
             const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
@@ -178,7 +178,7 @@ describe('src/core/telemetry/index.js', () => {
             await router.push({ name: 'test' });
             await router.push({ name: 'test' });
 
-            expect(eventBusSpy).toHaveBeenCalledTimes(1);
+            expect(eventBusSpy).toHaveBeenCalledTimes(2);
         });
     });
 

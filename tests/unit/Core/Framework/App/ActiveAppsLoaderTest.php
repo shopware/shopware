@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ActiveAppsLoader::class)]
 class ActiveAppsLoaderTest extends TestCase
 {
@@ -32,7 +34,7 @@ class ActiveAppsLoaderTest extends TestCase
 
         $activeAppsLoader = new ActiveAppsLoader(
             $connection,
-            $this->createMock(AppLoader::class),
+            static::createStub(AppLoader::class),
             '/'
         );
 
@@ -64,7 +66,7 @@ class ActiveAppsLoaderTest extends TestCase
             ->method('fetchAllAssociative')
             ->willThrowException(new \Exception('test'));
 
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
 
         $xmlFile = __DIR__ . '/_fixtures/manifest.xml';
 

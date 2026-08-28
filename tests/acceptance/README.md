@@ -5,7 +5,7 @@
 The test suite is build with **Playwright**. For detailed information have a look into the [official documentation](https://playwright.dev/docs/intro).
 
 ## Prerequisites
-- Node.js 18-22
+- Node.js LTS, matching the version configured by the project `.nvmrc`
 
 ## Setup
 
@@ -80,10 +80,10 @@ Debugging tests
 npx playwright test --debug
 ```
 
-Reduce worker count
+Override the worker count (the default is 50% of your CPU cores locally, 4 on CI)
 
 ```
-npx playwright test --workers 4
+npx playwright test --workers 1
 ```
 
 Running tests in UI Mode
@@ -206,6 +206,23 @@ test('As a customer, I must be able to change my email via account.', { tag: '@A
         await ShopCustomer.expects(StorefrontAccountProfile.emailAddressInput).toBeVisible();
     });
 });
+```
+
+#### Avoid time bombs
+
+A test run involves three clocks: the Node test process (`new Date()` in expectations), the browser (date pickers resolving "today"), and the backend, which stores and renders UTC. A date computed with one clock and asserted against another fails exactly during the hours where the local calendar date differs from the UTC date, and only then: the test passes all day and fails at night.
+
+- Pin the browser to the backend timezone with `timezoneId: 'UTC'` in the Playwright config; never override it per test.
+- Format every date expectation with `{ timeZone: 'UTC' }` (`toLocaleDateString`, `Intl.DateTimeFormat`) and derive date parts with the `getUTC*` accessors, never `getDate()` or `getMonth()`.
+- Instants are safe, calendar dates are not: `new Date().toISOString()` in an API payload is fine, a formatted "today" compared against rendered output is where the bomb lives.
+- Data created "valid from today" is evaluated by the server in UTC: a date picked in another timezone can land on the previous UTC day and not be valid yet.
+
+```JavaScript
+// Fails between 00:00 local and 00:00 UTC when the runner is not in UTC:
+const today = new Date().toLocaleDateString('en-GB');
+
+// Stable at any hour on any runner:
+const today = new Date().toLocaleDateString('en-GB', { timeZone: 'UTC' });
 ```
 
 ### The Actor Pattern

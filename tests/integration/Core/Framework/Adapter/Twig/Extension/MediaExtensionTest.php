@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Twig\Loader\ArrayLoader;
@@ -11,6 +12,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 class MediaExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

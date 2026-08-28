@@ -219,73 +219,90 @@ responses.addResponse({
 });
 
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
-    linkDataProvider.forEach((link) => {
-        it(`parses ${link.type} URLs correctly`, async () => {
-            const wrapper = await createWrapper(link.buttonConfig);
+    const DEPRECATED_LINK_TYPES = [
+        'detail',
+        'media',
+    ];
+
+    const expectLinkParsedCorrectly = async (link) => {
+        const wrapper = await createWrapper(link.buttonConfig);
+        await flushPromises();
+
+        // Label should be set
+        expect(wrapper.text()).toContain(link.label);
+
+        // Element should have correct parsed value and placeholder
+        const inputField = wrapper.find(link.selector);
+
+        // sw-entity-single-select only uses the input field for the search
+        if (
+            ![
+                'detail',
+                'media',
+            ].includes(link.type)
+        ) {
+            expect(inputField.element.value).toBe(link.value);
+        }
+
+        let placeholderId = 'some-id';
+        if (!['media'].includes(link.type)) {
+            // Placeholder should be set for all types
+            expect(inputField.attributes('placeholder')).toBe(link.placeholder);
+
+            await inputField.setValue(placeholderId);
+        }
+
+        // sw-entity-single-select specific changes
+        if (link.type === 'detail') {
+            await inputField.trigger('click');
             await flushPromises();
 
-            // Label should be set
-            expect(wrapper.text()).toContain(link.label);
+            await wrapper.find('.sw-select-option--1').trigger('click');
 
-            // Element should have correct parsed value and placeholder
-            const inputField = wrapper.find(link.selector);
-
-            // sw-entity-single-select only uses the input field for the search
-            if (
-                ![
-                    'detail',
-                    'media',
-                ].includes(link.type)
-            ) {
-                // eslint-disable-next-line jest/no-conditional-expect
-                expect(inputField.element.value).toBe(link.value);
-            }
-
-            let placeholderId = 'some-id';
-            if (!['media'].includes(link.type)) {
-                // Placeholder should be set for all types
-                // eslint-disable-next-line jest/no-conditional-expect
-                expect(inputField.attributes('placeholder')).toBe(link.placeholder);
-
-                await inputField.setValue(placeholderId);
-            }
-
-            // sw-entity-single-select specific changes
-            if (link.type === 'detail') {
-                await inputField.trigger('click');
-                await flushPromises();
-
-                await wrapper.find('.sw-select-option--1').trigger('click');
-
-                placeholderId += '#';
-            } else if (link.type === 'media') {
-                await wrapper.find('.sw-media-field__toggle-button').trigger('click');
-                await flushPromises();
-
-                await wrapper.find('.sw-media-field__media-list-item').trigger('click');
-                await flushPromises();
-
-                placeholderId = `${link.value}#`;
-            }
-
-            await wrapper.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
+            placeholderId += '#';
+        } else if (link.type === 'media') {
+            await wrapper.find('.sw-media-field__toggle-button').trigger('click');
             await flushPromises();
 
-            const dispatchedInputEvents = wrapper.emitted('button-click');
+            await wrapper.find('.sw-media-field__media-list-item').trigger('click');
+            await flushPromises();
 
-            expect(dispatchedInputEvents[0]).toStrictEqual([
-                {
-                    buttonVariant: undefined,
-                    displayAsButton: true,
-                    newTab: true,
-                    type: 'link',
-                    value: link.prefix + placeholderId,
-                },
-            ]);
-        });
-    });
+            placeholderId = `${link.value}#`;
+        }
 
-    it('parses product detail links and reacts to changes correctly', async () => {
+        await wrapper.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
+        await flushPromises();
+
+        const dispatchedInputEvents = wrapper.emitted('button-click');
+
+        expect(dispatchedInputEvents[0]).toStrictEqual([
+            {
+                buttonVariant: undefined,
+                displayAsButton: true,
+                newTab: true,
+                type: 'link',
+                value: link.prefix + placeholderId,
+            },
+        ]);
+    };
+
+    // @deprecated tag:v6.8.0 - The tests will be removed with sw-text-editor-link-menu.
+    it.deprecated('v6.8.0.0').each(linkDataProvider.filter((link) => DEPRECATED_LINK_TYPES.includes(link.type)))(
+        'parses $type URLs correctly',
+        async (link) => {
+            await expectLinkParsedCorrectly(link);
+        },
+    );
+
+    it.each(linkDataProvider.filter((link) => !DEPRECATED_LINK_TYPES.includes(link.type)))(
+        'parses $type URLs correctly',
+        async (link) => {
+            await expectLinkParsedCorrectly(link);
+        },
+    );
+
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-text-editor-link-menu.
+    it.deprecated('v6.8.0.0')('parses product detail links and reacts to changes correctly', async () => {
         const wrapper = await createWrapper({
             value: `${seoDomainPrefix}/detail/aaaaaaa524604ccbad6042edce3ac799#`,
             type: 'detail',

@@ -2,6 +2,8 @@ const { deepCopyObject } = Shopware.Utils.object;
 
 type variantKeys = 'neutral' | 'progress' | 'done' | 'warning' | 'danger';
 
+type meteorVariantKeys = 'neutral' | 'info' | 'attention' | 'critical' | 'positive';
+
 type style = {
     icon: variantKeys;
     color: variantKeys;
@@ -13,6 +15,7 @@ type storedStyle = {
     iconBackgroundStyle: string;
     icon: string;
     variant: string;
+    meteorVariant: string;
     colorCode: string;
     iconStyle: string;
 };
@@ -28,7 +31,7 @@ type store = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type stateStyleService = {
     getPlaceholder: () => storedStyle;
-    getStyle: (stateMachine: string, state: string) => style;
+    getStyle: (stateMachine: string, state: string) => storedStyle;
     addStyle: (stateMachine: string, state: string, style: style) => void;
 };
 
@@ -49,7 +52,8 @@ export default class StateStyleService {
             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
             variant: 'neutral',
-            colorCode: '#94a6b8',
+            meteorVariant: 'neutral',
+            colorCode: 'var(--color-icon-secondary-default)',
         },
     };
 
@@ -70,11 +74,11 @@ export default class StateStyleService {
     };
 
     $colorCodes = {
-        neutral: '#94a6b8',
-        progress: '#189eff',
-        done: '#37d046',
-        warning: '#ffab22',
-        danger: '#de294c',
+        neutral: 'var(--color-icon-secondary-default)',
+        progress: 'var(--color-icon-brand-default)',
+        done: 'var(--color-icon-positive-default)',
+        warning: 'var(--color-icon-attention-default)',
+        danger: 'var(--color-icon-critical-default)',
     };
 
     $variants = {
@@ -83,6 +87,14 @@ export default class StateStyleService {
         done: 'success',
         warning: 'warning',
         danger: 'danger',
+    };
+
+    $meteorVariantsMapping: Record<variantKeys, meteorVariantKeys> = {
+        neutral: 'neutral',
+        progress: 'info',
+        done: 'positive',
+        warning: 'attention',
+        danger: 'critical',
     };
 
     getPlaceholder(): storedStyle {
@@ -112,6 +124,10 @@ export default class StateStyleService {
 
         if (style.variant in this.$variants) {
             entry.variant = this.$variants[style.variant];
+        }
+
+        if (style.variant in this.$meteorVariantsMapping) {
+            entry.meteorVariant = this.$meteorVariantsMapping[style.variant];
         }
 
         // @ts-expect-error

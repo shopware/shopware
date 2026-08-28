@@ -111,30 +111,30 @@ export default {
             return (
                 this.crossSelling.name ||
                 this.crossSelling.translated?.name ||
-                this.$tc('sw-product.crossselling.newCrossSellingTitle')
+                this.$t('sw-product.crossselling.newCrossSellingTitle')
             );
         },
 
         sortingTypes() {
             return [
                 {
-                    label: this.$tc('sw-product.crossselling.priceDescendingSortingType'),
+                    label: this.$t('sw-product.crossselling.priceDescendingSortingType'),
                     value: 'cheapestPrice:DESC',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.priceAscendingSortingType'),
+                    label: this.$t('sw-product.crossselling.priceAscendingSortingType'),
                     value: 'cheapestPrice:ASC',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.nameSortingType'),
+                    label: this.$t('sw-product.crossselling.nameSortingType'),
                     value: 'name:ASC',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.releaseDateDescendingSortingType'),
+                    label: this.$t('sw-product.crossselling.releaseDateDescendingSortingType'),
                     value: 'releaseDate:DESC',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.releaseDateAscendingSortingType'),
+                    label: this.$t('sw-product.crossselling.releaseDateAscendingSortingType'),
                     value: 'releaseDate:ASC',
                 },
             ];
@@ -143,11 +143,11 @@ export default {
         crossSellingTypes() {
             return [
                 {
-                    label: this.$tc('sw-product.crossselling.productStreamType'),
+                    label: this.$t('sw-product.crossselling.productStreamType'),
                     value: 'productStream',
                 },
                 {
-                    label: this.$tc('sw-product.crossselling.productListType'),
+                    label: this.$t('sw-product.crossselling.productListType'),
                     value: 'productList',
                 },
             ];

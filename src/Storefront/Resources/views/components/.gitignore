@@ -1,0 +1,5 @@
+# Created by the storefront's `postinstall` hook
+# (build/link-component-node-modules.js) so IDEs and tsc can resolve bare
+# specifiers from component files. A trailing-slash `node_modules/` rule
+# does not match symbolic links, so we ignore the bare name here.
+node_modules

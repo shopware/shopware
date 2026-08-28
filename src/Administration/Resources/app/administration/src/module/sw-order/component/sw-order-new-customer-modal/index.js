@@ -19,6 +19,7 @@ export default {
         'numberRangeService',
         'systemConfigApiService',
         'customerValidationService',
+        'feature',
     ],
 
     emits: [
@@ -36,6 +37,7 @@ export default {
             isLoading: false,
             customerNumberPreview: '',
             defaultSalutationId: null,
+            activeTab: 'details',
         };
     },
 
@@ -69,6 +71,26 @@ export default {
 
         addressRepository() {
             return this.repositoryFactory.create('customer_address');
+        },
+
+        newCustomerModalTabs() {
+            return [
+                {
+                    label: this.$t('sw-order.newCustomerModal.labelDetails'),
+                    name: 'details',
+                    hasError: this.swOrderNewCustomerDetailError,
+                },
+                {
+                    label: this.$t('sw-order.createBase.detailsBody.labelBillingAddress'),
+                    name: 'billingAddress',
+                    hasError: this.swOrderNewCustomerAddressError,
+                },
+                {
+                    label: this.$t('sw-order.createBase.detailsBody.labelShippingAddress'),
+                    name: 'shippingAddress',
+                    hasError: !this.isSameBilling && this.swOrderNewCustomerAddressError,
+                },
+            ];
         },
 
         shippingAddress() {
@@ -216,7 +238,7 @@ export default {
 
             if (hasError) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                    message: this.$t('sw-customer.detail.messageSaveError'),
                 });
 
                 this.isLoading = false;
@@ -255,7 +277,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                        message: this.$t('sw-customer.detail.messageSaveError'),
                     });
                     this.isLoading = false;
                 });

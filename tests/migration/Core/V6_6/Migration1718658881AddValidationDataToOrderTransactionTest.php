@@ -13,8 +13,8 @@ use Shopware\Core\Migration\V6_6\Migration1718658881AddValidationDataToOrderTran
 /**
  * @internal
  */
-#[CoversClass(Migration1718658881AddValidationDataToOrderTransaction::class)]
 #[Package('checkout')]
+#[CoversClass(Migration1718658881AddValidationDataToOrderTransaction::class)]
 class Migration1718658881AddValidationDataToOrderTransactionTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -24,6 +24,11 @@ class Migration1718658881AddValidationDataToOrderTransactionTest extends TestCas
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1718658881, (new Migration1718658881AddValidationDataToOrderTransaction())->getCreationTimestamp());
     }
 
     public function testMigrate(): void

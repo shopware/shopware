@@ -98,6 +98,7 @@ export default class FormValidation {
         this.addValidator('email', this.validateEmail, validationMessages['email']);
         this.addValidator('confirmation', this.validateConfirmation, validationMessages['confirmation']);
         this.addValidator('minLength', this.validateMinLength, validationMessages['minLength']);
+        this.addValidator('pattern', this.validatePattern, validationMessages['pattern']);
         this.addValidator('grecaptcha', this.validateGrecaptcha, validationMessages['grecaptcha']);
     }
 
@@ -179,7 +180,7 @@ export default class FormValidation {
         let fields = formFields;
 
         if (!formFields) {
-            fields = form.querySelectorAll('[data-validation], [required]');
+            fields = form.querySelectorAll('[data-validation], [required], [pattern]');
         }
 
         fields.forEach((field) => {
@@ -231,10 +232,16 @@ export default class FormValidation {
         const validationConfig = field.getAttribute('data-validation');
         const validationRules = validationConfig ? validationConfig.split(',') : [];
         const hasRequiredAttribute = field.hasAttribute('required');
+        const hasPatternAttribute = field.hasAttribute('pattern');
 
         // Support for the native `required` attribute.
         if (hasRequiredAttribute && !validationRules.includes('required')) {
             validationRules.push('required');
+        }
+
+        // Support for the native `pattern` attribute.
+        if (hasPatternAttribute && !validationRules.includes('pattern')) {
+            validationRules.push('pattern');
         }
 
         // Field has no validation rules.
@@ -283,6 +290,11 @@ export default class FormValidation {
             return field.checked;
         }
 
+        if (fieldType && fieldType === 'radio') {
+            const radios = field.form.querySelectorAll(`[type="radio"][name="${field.name}"]`);
+            return [...radios].some(radioField => radioField.checked);
+        }
+
         return !!value && value.length && value.length > 0;
     }
 
@@ -294,8 +306,17 @@ export default class FormValidation {
      * @returns {boolean}
      */
     validateEmail(value) {
+        if (!value || value.length === 0) {
+            return true;
+        }
+
         // https://regex101.com/r/bfI8Ea/1
         const emailRegEx = /^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+        if (!value || value.length === 0) {
+            return true;
+        }
+
         let emailAddress = value;
 
         if (emailAddress.includes('@')) {
@@ -365,16 +386,69 @@ export default class FormValidation {
     }
 
     /**
-     * Validates Google reCAPTCHA v3/v2 cookies.
-     * Checks if the required cookies are set to allow reCAPTCHA functionality.
-     * This validates that users have accepted cookies before trying to use reCAPTCHA.
-     * Dispatches a custom event to show the cookie bar if validation fails.
+     * Validates the value against a regex pattern specified in the pattern attribute.
+     * The pattern attribute should contain a valid regex pattern.
+     * Empty values are considered valid (use the required validator for emptiness checks).
      *
-     * @param {string} _value - The field value (unused for cookie validation)
+     * @param {string} value
+     * @param {HTMLElement} field
+     * @return {boolean}
+     */
+    validatePattern(value, field) {
+        if (!(field instanceof HTMLElement)) {
+            console.error('[FormValidation]: Missing or invalid required parameter "field".');
+            return true;
+        }
+
+        const patternAttr = field.getAttribute('pattern');
+        if (!patternAttr) {
+            return true;
+        }
+
+        // Empty values are valid for pattern validation.
+        if (!value || value.length === 0) {
+            return true;
+        }
+
+        try {
+            const pattern = new RegExp(`^(?:${patternAttr})$`);
+
+            return pattern.test(value);
+        } catch (e) {
+            console.error(`[FormValidation]: Invalid regex pattern "${patternAttr}" for field.`, field, e);
+
+            return true;
+        }
+    }
+
+    /**
+     * Guards the reCAPTCHA field so a form can never be submitted without a token.
+     * Only the hidden reCAPTCHA fields ('_grecaptcha_v3' / '_grecaptcha_v2') are checked;
+     * every other field passes straight through.
+     *
+     * The gate has two independent parts:
+     *  1. Cookie consent, only when the shop uses Shopware's default cookie consent.
+     *     The reCAPTCHA plugin is registered once 'cookie-preference' is accepted
+     *     (see `registerGoogleReCaptchaPlugins()` in main.js), so without consent no token
+     *     can ever be generated. Show the cookie bar to guide the user, with the default
+     *     cookie message. A custom consent solution manages its own cookies, so this part is
+     *     skipped, but the token check below still runs.
+     *  2. Token presence, always. The reCAPTCHA submit handler initializes asynchronously,
+     *     so the field can still be empty while the plugin is loading. An empty value is the
+     *     empty-token case the server rejects as a failed captcha. Block the
+     *     submit with a token-specific message and do not show the cookie bar, since consent
+     *     is not the problem here.
+     *
+     * The token check uses the field's own value, i.e. the actual token that would be
+     * submitted, rather than the '_GRECAPTCHA' cookie. That cookie is Google-owned, is not
+     * removed when consent is revoked (root cause of #18239) and can be blocked by browser
+     * privacy settings, so it is not a reliable signal.
+     *
+     * @param {string} value - The field value, i.e. the reCAPTCHA token
      * @param {HTMLElement} field
      * @returns {boolean}
      */
-    validateGrecaptcha(_value, field) {
+    validateGrecaptcha(value, field) {
         if (!(field instanceof HTMLElement)) {
             console.error('[FormValidation]: Missing or invalid required parameter "field".');
             return true;
@@ -382,19 +456,43 @@ export default class FormValidation {
 
         const fieldName = field.getAttribute('name');
 
-        if (!window.useDefaultCookieConsent || (fieldName !== '_grecaptcha_v3' && fieldName !== '_grecaptcha_v2')) {
+        // Only the reCAPTCHA token fields are guarded here.
+        if (fieldName !== '_grecaptcha_v3' && fieldName !== '_grecaptcha_v2') {
             return true;
         }
 
-        const grecaptchaCookie = CookieStorageHelper.getItem('_GRECAPTCHA');
-        const grecaptchaCookieAccepted = grecaptchaCookie === '1';
+        // The cookie-consent gate only applies with Shopware's default cookie consent.
+        // A custom consent solution manages its own cookies, so we cannot read
+        // 'cookie-preference' and skip this gate, but the token check below still runs.
+        if (window.useDefaultCookieConsent) {
+            const consentGiven = CookieStorageHelper.getItem('cookie-preference') === '1';
 
-        if (!grecaptchaCookieAccepted) {
-            const showCookieBarEvent = new CustomEvent('showCookieBar');
-            document.dispatchEvent(showCookieBarEvent);
+            if (!consentGiven) {
+                // No token can exist yet, so restore the default cookie message and
+                // guide the user to the cookie bar.
+                field.removeAttribute('data-form-validation-error-message');
+                document.dispatchEvent(new CustomEvent('showCookieBar'));
+
+                return false;
+            }
         }
 
-        return grecaptchaCookieAccepted;
+        // Consent is not the blocker (given, or managed by a custom solution). A reCAPTCHA
+        // field must still carry a token. Block an empty token with a token-specific message,
+        // without showing the cookie bar.
+        if (value.length === 0) {
+            const tokenMessage = window.validationMessages?.grecaptchaToken;
+
+            if (tokenMessage) {
+                field.setAttribute('data-form-validation-error-message', tokenMessage);
+            }
+
+            return false;
+        }
+
+        field.removeAttribute('data-form-validation-error-message');
+
+        return true;
     }
 
     /**

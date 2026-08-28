@@ -121,7 +121,23 @@ final class NewsletterRecipientAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>,
+     *     email?: mixed,
+     *     firstName?: mixed,
+     *     lastName?: mixed,
+     *     status?: mixed,
+     *     city?: mixed,
+     *     zipCode?: mixed,
+     *     street?: mixed,
+     *     salesChannelId?: mixed,
+     *     languageId?: mixed,
+     *     tags?: list<array{id: string, _count: int}>,
+     *     createdAt?: string|null,
+     *     updatedAt?: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {
@@ -171,10 +187,17 @@ SQL,
                 $id,
             ]));
 
+            $completion = $this->buildCompletion([
+                \is_string($row['email'] ?? null) ? $row['email'] : null,
+                \is_string($row['first_name'] ?? null) ? $row['first_name'] : null,
+                \is_string($row['last_name'] ?? null) ? $row['last_name'] : null,
+            ]);
+
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
+                    'completion' => $completion,
                 ];
 
                 continue;
@@ -183,6 +206,7 @@ SQL,
             $mapped[$id] = [
                 'id' => $id,
                 'text' => \strtolower($text),
+                'completion' => $completion,
                 'email' => $row['email'] ?? null,
                 'firstName' => $row['first_name'] ?? null,
                 'lastName' => $row['last_name'] ?? null,

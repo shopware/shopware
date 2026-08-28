@@ -11,7 +11,7 @@
             v-show="showProductCard('general_information')"
             class="sw-product-detail-base__info"
             position-identifier="sw-product-detail-base-info"
-            :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
+            :title="$t('sw-product.detailBase.cardTitleProductInfo')"
         >
 
             {% block sw_product_detail_base_basic_info_form %}
@@ -27,20 +27,15 @@
         <mt-card
             v-if="isDownloadCardVisible"
             class="sw-product-detail-base__downloads"
-            :subtitle="$tc('sw-product.detailBase.cardSubtitleDownloads')"
+            :title="$t('sw-product.detailBase.cardTitleDownloads')"
+            :subtitle="$t('sw-product.detailBase.cardSubtitleDownloads')"
             :is-loading="loading.product || loading.customFieldSets || loading.downloads"
             position-identifier="sw-product-detail-base-downloads"
         >
-            <template #title>
-                <div class="sw-card__title">
-                    {{ $tc('sw-product.detailBase.cardTitleDownloads') }}
-                </div>
-            </template>
-
             <sw-product-download-form
                 v-if="mediaFormVisible"
                 :product-id="product.id"
-                :label="$tc('sw-product.detailBase.downloadsLabel')"
+                :label="$t('sw-product.detailBase.downloadsLabel')"
                 :disabled="!acl.can('product.editor')"
                 required
                 @media-open="onOpenDownloadMediaModal"
@@ -52,7 +47,7 @@
             v-show="showProductCard('prices')"
             class="sw-product-detail-base__prices"
             position-identifier="sw-product-detail-base-prices"
-            :title="$tc('sw-product.detailBase.cardTitlePrices')"
+            :title="$t('sw-product.detailBase.cardTitlePrices')"
             :is-loading="loading.product"
         >
 
@@ -71,10 +66,10 @@
                     :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
                     class="sw-card__quick-link"
                 >
-                    {{ $tc('sw-product.detailBase.linkAdvancedPrices') }}
+                    {{ $t('sw-product.detailBase.linkAdvancedPrices') }}
                     <mt-icon
                         name="regular-long-arrow-right"
-                        size="16px"
+                        size="var(--scale-size-16)"
                     />
                 </router-link>
             </sw-container>
@@ -89,7 +84,7 @@
                 v-show="showProductCard('deliverability')"
                 class="sw-product-detail-base__deliverability-downloadable"
                 position-identifier="sw-product-detail-base-deliverability-downloadable"
-                :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
+                :title="$t('sw-product.detailBase.cardTitleDeliverabilityInfo')"
             >
                 {% block sw_product_detail_deliverability_downloadable_info_form %}
                 <sw-product-deliverability-downloadable-form :disabled="!acl.can('product.editor')" />
@@ -104,7 +99,7 @@
                 v-show="showProductCard('deliverability')"
                 class="sw-product-detail-base__deliverability"
                 position-identifier="sw-product-detail-base-deliverability"
-                :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
+                :title="$t('sw-product.detailBase.cardTitleDeliverabilityInfo')"
             >
                 {% block sw_product_detail_deliverability_info_form %}
                 <sw-product-deliverability-form :allow-edit="acl.can('product.editor')" />
@@ -118,7 +113,7 @@
             v-show="showProductCard('visibility_structure')"
             class="sw-product-detail-base__visibility-structure"
             position-identifier="sw-product-detail-base-visibility-structure"
-            :title="$tc('sw-product.detailBase.cardTitleAssignment')"
+            :title="$t('sw-product.detailBase.cardTitleAssignment')"
             :is-loading="loading.product"
         >
 
@@ -144,7 +139,8 @@
 
                 {% block sw_product_detail_base_media_card %}
                 <mt-card
-                    :subtitle="$tc('sw-product.detailBase.cardSubtitleMedia')"
+                    :title="$t('sw-product.detailBase.cardTitleMedia')"
+                    :subtitle="$t('sw-product.detailBase.cardSubtitleMedia')"
                     :is-loading="loading.product || loading.customFieldSets || loading.media"
                     :class="{ 'sw-card__inherited': isInherited }"
                     position-identifier="sw-product-detail-base-media"
@@ -153,8 +149,8 @@
 
                         {% block sw_product_detail_base_media_card_title %}
                         <div
-                            class="sw-card__title"
-                            :class="{ 'sw-card__title__inherited': isInherited }"
+                            class="sw-inherit-wrapper__card-title"
+                            :class="{ 'sw-inherit-wrapper__card-title--inherited': isInherited }"
                         >
                             <sw-inheritance-switch
                                 v-if="isInheritField"
@@ -164,7 +160,9 @@
                                 @inheritance-remove="removeInheritance"
                             />
                             {# TODO: headline is not clickable yet #}
-                            {{ $tc('sw-product.detailBase.cardTitleMedia') }}
+                            <h3 class="mt-card__title">
+                                {{ $t('sw-product.detailBase.cardTitleMedia') }}
+                            </h3>
                         </div>
                         {% endblock %}
 
@@ -203,12 +201,28 @@
             v-show="showProductCard('labelling')"
             class="sw-product-detail-base__labelling-card"
             position-identifier="sw-product-detail-base-labelling"
-            :title="$tc('sw-product.detailBase.cardTitleSettings')"
+            :title="$t('sw-product.detailBase.cardTitleSettings')"
             :is-loading="loading.product"
         >
 
             {% block sw_product_detail_base_settings_form %}
             <sw-product-settings-form :allow-edit="acl.can('product.editor')" />
+            {% endblock %}
+
+        </mt-card>
+        {% endblock %}
+
+        {% block sw_product_detail_base_guarantee_card %}
+        <mt-card
+            v-show="showProductCard('labelling')"
+            class="sw-product-detail-base__guarantee-card"
+            position-identifier="sw-product-detail-base-guarantee"
+            :title="$t('sw-product.detailBase.cardTitleGuarantee')"
+            :is-loading="loading.product"
+        >
+
+            {% block sw_product_detail_base_guarantee_form %}
+            <sw-product-guarantee-form :allow-edit="acl.can('product.editor')" />
             {% endblock %}
 
         </mt-card>

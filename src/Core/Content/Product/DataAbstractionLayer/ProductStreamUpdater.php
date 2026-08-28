@@ -7,33 +7,40 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
-use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('framework')]
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
+    public const INDEXER_NAME = 'product_stream_mapping.indexer';
+
     /**
      * @internal
      *
      * @param EntityRepository<ProductCollection> $repository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -41,13 +48,14 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         private readonly EntityRepository $repository,
         private readonly MessageBusInterface $messageBus,
         private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly EntityRepository $languageRepository,
         private readonly bool $indexingEnabled,
     ) {
     }
 
     public function getName(): string
     {
-        return 'product_stream_mapping.indexer';
+        return self::INDEXER_NAME;
     }
 
     public function iterate(?array $offset): ?EntityIndexingMessage
@@ -96,8 +104,9 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            $newMatches = $message->getContext()->enableInheritance(fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds());
-        } catch (UnmappedFieldException) {
+            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
+        } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+            // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
             // invalid filter, remove all mappings
             $newMatches = [];
         }
@@ -148,17 +157,13 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return null;
         }
 
-        $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
-        $filterIds = $event->getPrimaryKeysWithPropertyChange(ProductStreamFilterDefinition::ENTITY_NAME, [
-            'type',
-            'field',
-            'value',
-            'operator',
-            'parameters',
-            'position',
-        ]);
+        if ($event->getEventByEntityName(ProductStreamFilterDefinition::ENTITY_NAME) === null) {
+            return null;
+        }
 
-        if ($ids === [] || $filterIds === []) {
+        $ids = ProductStreamWriteResultHelper::getAffectedStreamIds($event);
+
+        if ($ids === []) {
             return null;
         }
 
@@ -186,11 +191,11 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $considerInheritance = $context->considerInheritance();
-        $context->setConsiderInheritance(true);
+        $languageContexts = $this->getLanguageContexts($context);
+
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
-            if (empty($filter)) {
+            if (!\is_array($filter) || $filter === []) {
                 continue;
             }
 
@@ -201,13 +206,14 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             try {
-                $matches = $this->repository->searchIds($criteria, $context);
-            } catch (UnmappedFieldException) {
+                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
+            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // skip if filter field is not found
                 continue;
             }
 
-            foreach ($matches->getIds() as $id) {
+            foreach ($matchedIds as $id) {
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
@@ -215,7 +221,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 ]);
             }
         }
-        $context->setConsiderInheritance($considerInheritance);
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(
@@ -236,6 +241,53 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(static::class);
+    }
+
+    /**
+     * @return list<Context>
+     */
+    private function getLanguageContexts(Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotEqualsFilter('salesChannels.id', null));
+        $languages = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        return array_values($languages->map(
+            fn (LanguageEntity $language): Context => $this->createLanguageContext($context, $language)
+        ));
+    }
+
+    private function createLanguageContext(Context $context, LanguageEntity $language): Context
+    {
+        $languageContext = clone $context;
+        $languageContext->assign([
+            'languageIdChain' => array_values(array_unique(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]))),
+        ]);
+
+        return $languageContext;
+    }
+
+    /**
+     * @param list<Context> $languageContexts
+     *
+     * @return list<string>
+     */
+    private function collectMatchingIdsInLanguageContexts(array $languageContexts, Criteria $criteria): array
+    {
+        /** @var array<string, true> $matches */
+        $matches = [];
+
+        foreach ($languageContexts as $languageContext) {
+            $languageMatches = $languageContext->enableInheritance(
+                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
+            );
+
+            foreach ($languageMatches as $id) {
+                $matches[$id] = true;
+            }
+        }
+
+        return array_keys($matches);
     }
 
     /**
@@ -274,8 +326,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     private function replaceCheapestPriceFilters(array $filters): array
     {
         foreach ($filters as $key => $filter) {
-            if (!empty($filter['queries'])) {
-                $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($filter['queries']);
+            $queries = $filter['queries'] ?? null;
+            if (\is_array($queries) && $queries !== []) {
+                /** @var non-empty-array<int, array<string, mixed>> $queries */
+                $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($queries);
             }
 
             if (!$priceQueries = $this->getPriceQueries($filter)) {

@@ -58,6 +58,10 @@ Shopware.Component.register(
     'sw-user-sso-access-key-create-modal',
     () => import('./components/sw-user-sso-access-key-create-modal'),
 );
+Shopware.Component.register(
+    'sw-users-permissions-role-mcp-reference-modal',
+    () => import('./component/sw-users-permissions-role-mcp-reference-modal'),
+);
 
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
@@ -70,8 +74,8 @@ Shopware.Module.register('sw-users-permissions', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'solid-cog',
-    favicon: 'icon-module-settings.png',
+    icon: 'regular-user',
+    favicon: 'icon-module-settings.svg',
     entity: 'user',
 
     routes: {

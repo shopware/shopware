@@ -11,12 +11,9 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraint;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
- *
- * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class LineItemProductStatesRule extends Rule
@@ -50,8 +47,6 @@ class LineItemProductStatesRule extends Rule
     }
 
     /**
-     * @return array<string, array<int, Constraint>>
-     *
      * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
      */
     public function getConstraints(): array
@@ -71,7 +66,7 @@ class LineItemProductStatesRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productState', [
                 State::IS_PHYSICAL,
                 State::IS_DOWNLOAD,

@@ -17,6 +17,7 @@ export default {
         'integrationService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -31,6 +32,8 @@ export default {
             showDeleteModal: null,
             currentIntegration: null,
             showSecretAccessKey: false,
+            mcpIntegration: null,
+            pendingMcpAllowlist: null,
         };
     },
 
@@ -49,11 +52,25 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('deletedAt', null));
-            criteria.addFilter(Criteria.equals('app.id', null));
+            criteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.equals('app.id', null),
+                    Criteria.equals('app.active', true),
+                ]),
+            );
             criteria.addSorting(Criteria.sort('label', 'ASC'));
             criteria.addAssociation('aclRoles');
+            criteria.addAssociation('app');
 
             return criteria;
+        },
+
+        mcpGrantedPrivileges() {
+            if (!this.mcpIntegration?.aclRoles) {
+                return [];
+            }
+
+            return [...new Set(this.mcpIntegration.aclRoles.flatMap((role) => role.privileges ?? []))];
         },
 
         secretAccessKeyFieldTypeIsText() {
@@ -68,12 +85,12 @@ export default {
             return [
                 {
                     property: 'label',
-                    label: this.$tc('sw-integration.list.integrationName'),
+                    label: this.$t('sw-integration.list.integrationName'),
                     primary: true,
                 },
                 {
                     property: 'writeAccess',
-                    label: this.$tc('sw-integration.list.permissions'),
+                    label: this.$t('sw-integration.list.permissions'),
                 },
             ];
         },
@@ -91,7 +108,7 @@ export default {
         getList() {
             this.isLoading = true;
 
-            this.integrationRepository
+            return this.integrationRepository
                 .search(this.integrationCriteria)
                 .then((integrations) => {
                     this.integrations = integrations;
@@ -156,13 +173,13 @@ export default {
 
         createSavedSuccessNotification() {
             this.createNotificationSuccess({
-                message: this.$tc('sw-integration.detail.messageSaveSuccess'),
+                message: this.$t('sw-integration.detail.messageSaveSuccess'),
             });
         },
 
         createSavedErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-integration.detail.messageSaveError'),
+                message: this.$t('sw-integration.detail.messageSaveError'),
             });
         },
 
@@ -184,7 +201,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-integration.detail.messageCreateNewError'),
+                        message: this.$t('sw-integration.detail.messageCreateNewError'),
                     });
                 });
         },
@@ -203,6 +220,37 @@ export default {
             this.currentIntegration = null;
             this.showSecretAccessKey = false;
             this.isModalLoading = false;
+        },
+
+        onShowMcpModal(integration) {
+            this.mcpIntegration = integration;
+            this.pendingMcpAllowlist = integration.mcpAllowlist ? { ...integration.mcpAllowlist } : null;
+        },
+
+        onCloseMcpModal() {
+            this.mcpIntegration = null;
+            this.pendingMcpAllowlist = null;
+        },
+
+        onSaveMcpAllowlist() {
+            if (!this.mcpIntegration) {
+                return;
+            }
+
+            this.integrationService
+                .saveMcpAllowlist(this.mcpIntegration.id, this.pendingMcpAllowlist)
+                .then(() => {
+                    this.mcpIntegration.mcpAllowlist = this.pendingMcpAllowlist;
+                    this.createSavedSuccessNotification();
+                    this.onCloseMcpModal();
+                })
+                .catch(() => {
+                    this.createSavedErrorNotification();
+                });
+        },
+
+        isAppIntegration(integration) {
+            return !!integration.app;
         },
 
         onCloseDeleteModal() {

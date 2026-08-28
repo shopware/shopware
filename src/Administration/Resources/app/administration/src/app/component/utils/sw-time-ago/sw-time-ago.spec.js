@@ -13,7 +13,7 @@ async function createWrapper(props = {}) {
         props,
         global: {
             mocks: {
-                $tc: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values),
+                $t: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values),
             },
             directives: {
                 tooltip: {

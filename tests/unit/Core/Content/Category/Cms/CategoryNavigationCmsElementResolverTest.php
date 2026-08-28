@@ -14,6 +14,7 @@ use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CategoryNavigationCmsElementResolver::class)]
 class CategoryNavigationCmsElementResolverTest extends TestCase
 {
@@ -29,7 +31,7 @@ class CategoryNavigationCmsElementResolverTest extends TestCase
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannel = $salesChannelContext->getSalesChannel();
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $categoryId1 = $salesChannel->getNavigationCategoryId();
         $categoryId2 = Uuid::randomHex();
         $category1 = (new CategoryEntity())->assign(['id' => $categoryId1]);

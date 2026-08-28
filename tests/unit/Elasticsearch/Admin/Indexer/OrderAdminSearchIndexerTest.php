@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer;
@@ -24,6 +25,7 @@ use Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(OrderAdminSearchIndexer::class)]
 class OrderAdminSearchIndexerTest extends TestCase
 {
@@ -32,9 +34,9 @@ class OrderAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new OrderAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
     }
@@ -58,7 +60,7 @@ class OrderAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $order = new OrderEntity();
         $order->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -73,8 +75,8 @@ class OrderAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new OrderAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
             100
         );
@@ -97,8 +99,8 @@ class OrderAdminSearchIndexerTest extends TestCase
 
         $indexer = new OrderAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -155,9 +157,9 @@ class OrderAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new OrderAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
             100
         );
 
@@ -178,7 +180,7 @@ class OrderAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection->method('fetchAllAssociative')->willReturn(
             [

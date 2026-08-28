@@ -5,15 +5,18 @@
 >
     <div v-if="loginConfigLoaded">
         {% block sw_login_login_form_headline %}
-        <h2 class="sw-login__content-headline">
-            {{ $tc('sw-login.index.headlineForm') }}
-        </h2>
+        <div class="sw-login__heading">
+            <h1 class="sw-login__content-headline">
+                {{ $t('sw-login.index.headlineForm') }}
+            </h1>
+        </div>
         {% endblock %}
 
         {% block sw_login_login_alert %}
         <mt-banner
             v-if="showLoginAlert"
-            variant="info"
+            class="sw-login__alert-banner"
+            variant="attention"
             :show-icon="true"
             :closable="false"
         >
@@ -21,77 +24,14 @@
         </mt-banner>
         {% endblock %}
 
-        <div v-if="loginConfig.useDefault">
-            {% block sw_login_login_user_field %}
-            <mt-text-field
-                v-model="username"
-                v-autofocus
-                name="sw-field--username"
-                :label="$tc('sw-login.index.labelUsername')"
-                :placeholder="$tc('sw-login.index.placeholderUsername')"
-                :disabled="showLoginAlert"
-                required
-            />
-            {% endblock %}
-
-            {% block sw_login_login_password_field %}
-            <mt-password-field
-                v-model="password"
-                name="sw-field--password"
-                :label="$tc('sw-login.index.labelPassword')"
-                :placeholder="$tc('sw-login.index.placeholderPassword')"
-                :disabled="showLoginAlert"
-                required
-            />
-            {% endblock %}
-
-            {% block sw_login_login_submit %}
-            <div class="sw-login__submit">
-                {% block sw_login_login_submit_button %}
-                <mt-button
-                    :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
-                    class="sw-login__login-action"
-                    variant="primary"
-                    size="default"
-                    :block="true"
-                    type="submit"
-                >
-                    {{ $tc('sw-login.index.buttonLogin') }}
-                </mt-button>
-                {% endblock %}
-
-                <div class="sw-login__submit-container">
-                    <mt-checkbox
-                        v-model:checked="rememberMe"
-                        :label="$tc('sw-login.index.labelKeepLoggedIn')"
-                    />
-
-                    {% block sw_login_login_forgot_password %}
-                    <mt-link
-                        :to="{ name: 'sw.login.index.recovery' }"
-                        class="sw-login__forgot-password-action"
-                    >
-                        {{ $tc('sw-login.index.forgottenPasswordLink') }}
-                    </mt-link>
-                    {% endblock %}
-                </div>
-            </div>
-            {% endblock %}
-        </div>
-
+        {% block sw_login_login_sso %}
         <div
             v-if="loginConfig.url"
             class="sw-login__sso"
         >
-            <div class="sw-login__sso-divider">
-                <span class="sw-login__sso-divider-text">
-                    {{ $tc('sw-login.index.orContinueWith') }}
-                </span>
-            </div>
-
+            {% block sw_login_login_sso_button %}
             <mt-button
                 class="sw-login__sso-button"
-                :disabled="!loginConfigLoaded"
                 :is-loading="ssoLoading"
                 :block="true"
                 size="default"
@@ -102,16 +42,92 @@
                     <mt-icon
                         name="regular-shopware"
                         class="sw-login__sso-button-icon"
-                        size="14px"
+                        size="16px"
+                        decorative
                     />
                 </template>
 
-                {{ $tc('sw-login.index.buttonSsoLogin') }}
+                {{ $t('sw-login.index.buttonSsoLogin') }}
             </mt-button>
+            {% endblock %}
+
+            {% block sw_login_login_sso_divider %}
+            <div
+                v-if="loginConfig.useDefault"
+                class="sw-login__sso-divider"
+            >
+                <span class="sw-login__sso-divider-text">
+                    {{ $t('sw-login.index.orContinueWith') }}
+                </span>
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        <div v-if="loginConfig.useDefault">
+            {% block sw_login_login_user_field %}
+            <mt-text-field
+                v-model="username"
+                v-autofocus
+                name="sw-field--username"
+                :label="$t('sw-login.index.labelUsername')"
+                :disabled="showLoginAlert"
+                required
+            />
+            {% endblock %}
+
+            {% block sw_login_login_password_field %}
+            <mt-password-field
+                v-model="password"
+                name="sw-field--password"
+                :label="$t('sw-login.index.labelPassword')"
+                :disabled="showLoginAlert"
+                required
+            />
+            {% endblock %}
+
+            {% block sw_login_login_error %}
+            <mt-banner
+                v-if="loginErrorMessage"
+                class="sw-login__error-banner"
+                variant="critical"
+                :show-icon="true"
+                :closable="false"
+            >
+                {{ loginErrorMessage }}
+            </mt-banner>
+            {% endblock %}
+
+            {% block sw_login_login_submit %}
+            <div class="sw-login__submit">
+                <mt-checkbox
+                    v-model:checked="rememberMe"
+                    :label="$t('sw-login.index.labelKeepLoggedIn')"
+                />
+
+                {% block sw_login_login_submit_button %}
+                <mt-button
+                    :disabled="password.length <= 0 || username.length <= 0 || showLoginAlert"
+                    class="sw-login__login-action"
+                    variant="primary"
+                    size="default"
+                    :block="true"
+                    type="submit"
+                >
+                    {{ $t('sw-login.index.buttonLogin') }}
+                </mt-button>
+                {% endblock %}
+            </div>
+            {% endblock %}
         </div>
     </div>
 
-    <div v-else>
+    <div
+        v-else
+        class="sw-login__view-loader"
+        role="status"
+        :aria-label="$t('sw-login.general.loadingLabel')"
+    >
         <mt-loader />
     </div>
 </form>

@@ -85,7 +85,7 @@ class OrderRepositoryTest extends TestCase
         $criteria = new Criteria([$orderId]);
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
         static::assertNotNull($order->getOrderCustomer());
@@ -117,7 +117,7 @@ class OrderRepositoryTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
 
-        $order = $this->orderRepository->search($criteria, $defaultContext);
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities();
         static::assertCount(0, $order);
     }
 

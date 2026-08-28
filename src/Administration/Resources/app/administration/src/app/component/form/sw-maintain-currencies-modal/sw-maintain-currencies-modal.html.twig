@@ -1,7 +1,7 @@
 {% block sw_maintain_currencies_modal %}
 <sw-modal
     class="sw-maintain-currencies-modal"
-    :title="$tc('sw-maintain-currencies-modal.title')"
+    :title="$t('sw-maintain-currencies-modal.title')"
     @modal-close="onCancel"
 >
 
@@ -40,19 +40,19 @@
             {% block sw_maintain_currencies_modal_grid_column_price_field_label %}
             <div class="sw-maintain-currencies-modal__price-label-wrapper">
                 <div class="sw-maintain-currencies-modal__price-label">
-                    {{ $tc('sw-maintain-currencies-modal.columnPrice') }}
+                    {{ $t('sw-maintain-currencies-modal.columnPrice') }}
                 </div>
                 <div
                     v-if="!hideListPrices"
                     class="sw-maintain-currencies-modal__list-price-label"
                 >
-                    {{ $tc('sw-maintain-currencies-modal.columnListPriceHeader') }}
+                    {{ $t('sw-maintain-currencies-modal.columnListPriceHeader') }}
                 </div>
                 <div
                     v-if="!hideRegulationPrices"
                     class="sw-maintain-currencies-modal__reference-price-label"
                 >
-                    {{ $tc('sw-maintain-currencies-modal.columnReferencePriceHeader') }}
+                    {{ $t('sw-maintain-currencies-modal.columnReferencePriceHeader') }}
                 </div>
             </div>
             {% endblock %}
@@ -90,7 +90,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -100,7 +100,7 @@
             size="small"
             @click="onApply"
         >
-            {{ $tc('global.default.apply') }}
+            {{ $t('global.default.apply') }}
         </mt-button>
         {% endblock %}
     </template>

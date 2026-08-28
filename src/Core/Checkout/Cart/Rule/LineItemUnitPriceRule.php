@@ -65,7 +65,7 @@ class LineItemUnitPriceRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, false, true)
             ->numberField('amount');
     }
 

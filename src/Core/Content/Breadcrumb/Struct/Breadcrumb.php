@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Breadcrumb\Struct;
 
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -20,6 +21,11 @@ class Breadcrumb extends Struct
         public string $path = '',
         public array $seoUrls = []
     ) {
+    }
+
+    public function shouldOpenInNewTab(): bool
+    {
+        return $this->type === CategoryDefinition::TYPE_LINK && ($this->translated['linkNewTab'] ?? false);
     }
 
     public function getApiAlias(): string

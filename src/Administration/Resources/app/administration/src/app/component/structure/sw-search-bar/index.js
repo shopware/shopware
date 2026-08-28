@@ -1,10 +1,14 @@
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
-const { Application, Context } = Shopware;
+const { Application, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
+
+// Matches the viewport at which the search becomes collapsible in sw-search-bar.scss.
+const COLLAPSE_BREAKPOINT = 500;
 
 /**
  * @sw-package framework
@@ -131,13 +135,13 @@ export default {
         },
 
         placeholderSearchInput() {
-            let placeholder = this.$tc('global.sw-search-bar.placeholderSearchField');
+            let placeholder = this.$t('global.sw-search-bar.placeholderSearchField');
 
             if (this.currentSearchType) {
                 if (this.placeholder !== '') {
                     placeholder = this.placeholder;
                 } else if (Object.keys(this.searchTypes).includes(this.currentSearchType)) {
-                    placeholder = this.$tc(this.searchTypes[this.currentSearchType].placeholderSnippet);
+                    placeholder = this.$t(this.searchTypes[this.currentSearchType].placeholderSnippet);
                 }
             }
 
@@ -146,10 +150,6 @@ export default {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        },
-
-        salesChannelTypeRepository() {
-            return this.repositoryFactory.create('sales_channel_type');
         },
 
         salesChannelCriteria() {
@@ -207,6 +207,10 @@ export default {
         adminEsEnable() {
             return Context.app.adminEsEnable ?? false;
         },
+
+        searchTypeColor() {
+            return useModuleIconColors().enabled.value ? this.getEntityIconColor(this.currentSearchType) : null;
+        },
     },
 
     watch: {
@@ -219,6 +223,10 @@ export default {
 
             // Do not modify the search term when the user is currently typing
             if (this.isActive) {
+                return;
+            }
+
+            if (newValue.query.term === undefined) {
                 return;
             }
 
@@ -247,16 +255,10 @@ export default {
 
     methods: {
         async createdComponent() {
-            const that = this;
-
-            this.showSearchFieldOnLargerViewports();
-
-            this.$device.onResize({
-                listener() {
-                    that.showSearchFieldOnLargerViewports();
-                },
-                component: this,
-            });
+            // Bound to the breakpoint itself, the debounced resize listener would lag behind it.
+            this.collapseQuery = this.$device.getMediaQuery(`(max-width: ${COLLAPSE_BREAKPOINT}px)`);
+            this.collapseQuery.addEventListener('change', this.syncSearchBarCollapse);
+            this.syncSearchBarCollapse();
 
             if (this.$route.query.term) {
                 this.searchTerm = this.$route.query.term;
@@ -276,11 +278,14 @@ export default {
         },
 
         destroyedComponent() {
+            this.collapseQuery?.removeEventListener('change', this.syncSearchBarCollapse);
             document.removeEventListener('click', this.closeOnClickOutside);
+            Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
+            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         onMouseOver(index, column) {
@@ -314,27 +319,33 @@ export default {
 
             if (type.startsWith('custom_entity_') || type.startsWith('ce_')) {
                 const snippetKey = `${type}.moduleTitle`;
-                return this.$te(snippetKey) ? this.$tc(snippetKey) : type;
+                return this.$te(snippetKey) ? this.$t(snippetKey) : type;
             }
 
             if (!this.$te(`global.entities.${type}`)) {
                 return this.currentSearchType;
             }
 
-            return this.$tc(`global.entities.${type}`, 2);
+            return this.$t(`global.entities.${type}`, 2);
         },
 
         setFocus() {
-            this.$refs.searchInput.focus();
+            // The default input can be replaced through the search-input slot.
+            this.$refs.searchInput?.focus();
+        },
+
+        onClickFieldWrapper(event) {
+            // Interactive children keep their click behavior without focusing the search input
+            if (event.target.closest('.sw-search-bar__type--v2, .sw-search-bar__field-close')) {
+                return;
+            }
+
+            this.setFocus();
         },
 
         closeOnClickOutside(event) {
-            const target = event.target;
-
-            if (!target.closest('.sw-search-bar')) {
-                this.clearSearchTerm();
-                this.showTypeSelectContainer = false;
-                this.showModuleFiltersContainer = false;
+            if (!event.target.closest('.sw-search-bar')) {
+                this.closeSearchPanels();
             }
         },
 
@@ -342,6 +353,17 @@ export default {
             this.showResultsContainer = false;
             this.showResultsSearchTrends = false;
             this.activeResultPosition = 0;
+        },
+
+        closeSearchPanels() {
+            this.clearSearchTerm();
+            this.showTypeSelectContainer = false;
+            this.showModuleFiltersContainer = false;
+        },
+
+        onKeyUpEsc() {
+            this.closeSearchPanels();
+            this.$refs.searchInput?.blur();
         },
 
         onFocusInput() {
@@ -382,10 +404,8 @@ export default {
             this.showResultsContainer = false;
         },
 
-        showSearchFieldOnLargerViewports() {
-            if (this.$device.getViewportWidth() > 500) {
-                this.isSearchBarShown = true;
-            }
+        syncSearchBarCollapse() {
+            this.isSearchBarShown = !this.collapseQuery.matches;
         },
 
         onSearchTermChange() {
@@ -439,7 +459,7 @@ export default {
             this.typeSelectResults = [];
 
             Object.keys(this.searchTypes).forEach((key) => {
-                const snippet = this.$tc(`global.entities.${this.searchTypes[key].entityName}`, 2);
+                const snippet = this.$t(`global.entities.${this.searchTypes[key].entityName}`, 2);
                 if (snippet.toLowerCase().includes(term.toLowerCase()) || term === '') {
                     this.typeSelectResults.push(this.searchTypes[key]);
                 }
@@ -448,21 +468,27 @@ export default {
 
         onClickType(type) {
             this.setSearchType(type);
-            this.$refs.searchInput.focus();
+            this.setFocus();
         },
 
         setSearchType(type) {
+            const searchTerm = this.searchTerm.startsWith('#') ? '' : this.searchTerm;
+
             this.currentSearchType = type;
             this.showTypeSelectContainer = false;
             this.showModuleFiltersContainer = false;
             this.showResultsSearchTrends = false;
-            this.searchTerm = '';
+            this.searchTerm = searchTerm;
         },
 
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
             Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+        },
+
+        onOffCanvasToggle(state) {
+            this.isOffCanvasShown = state;
         },
 
         resetSearchType() {
@@ -830,6 +856,14 @@ export default {
             return module.manifest.color || '#5C738A';
         },
 
+        getTypeIconColor(entityName) {
+            if (!useModuleIconColors().enabled.value) {
+                return 'var(--color-icon-primary-default)';
+            }
+
+            return this.getEntityIconColor(entityName);
+        },
+
         getEntityIcon(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
@@ -852,12 +886,21 @@ export default {
         },
 
         loadSalesChannelType() {
-            return new Promise((resolve) => {
-                this.salesChannelTypeRepository.search(new Criteria(1, 25)).then((response) => {
-                    this.salesChannelTypes = response;
-                    resolve(response);
+            return this.repositoryFactory
+                .create('sales_channel_type')
+                .search(new Criteria(1, 100), Shopware.Context.api, {
+                    cacheKey: [
+                        'shared-data',
+                        'sales-channel-types',
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((salesChannelTypes) => {
+                    this.salesChannelTypes = [...salesChannelTypes];
+
+                    return salesChannelTypes;
                 });
-            });
         },
 
         getModuleEntities(searchTerm, limit = 5) {
@@ -876,7 +919,7 @@ export default {
                         ? module.manifest.searchMatcher
                         : this.getDefaultMatchSearchableModules;
 
-                const moduleType = this.$te(`${module.manifest.title}`) && this.$tc(`${module.manifest.title}`, 2);
+                const moduleType = this.$te(`${module.manifest.title}`) && this.$t(`${module.manifest.title}`, 2);
 
                 if (!moduleType) {
                     return;
@@ -900,7 +943,7 @@ export default {
 
         getDefaultMatchSearchableModules(regex, label, manifest) {
             const match = label.toLowerCase().match(regex);
-            const matchAddNew = `${this.$tc('global.sw-search-bar.addNew')} ${label}`.toLowerCase().match(regex);
+            const matchAddNew = `${this.$t('global.sw-search-bar.addNew')} ${label}`.toLowerCase().match(regex);
 
             if ((!match && !matchAddNew) || (!manifest?.routes?.index && !manifest?.routes?.list)) {
                 return false;
@@ -941,6 +984,19 @@ export default {
         getSalesChannelTypesBySearchTerm(regex) {
             return this.salesChannelTypes.reduce((salesChannelTypes, saleChannelType) => {
                 if (!saleChannelType?.translated.name.toLowerCase().match(regex)) {
+                    return salesChannelTypes;
+                }
+
+                /**
+                 * @deprecated tag:v6.8.0 - condition can be removed.
+                 *
+                 * Only reveal the agentic commerce sales channel as a search result
+                 * if the SwagAgenticCommerce plugin is installed.
+                 */
+                if (
+                    saleChannelType.id === Defaults.agenticCommerceTypeId &&
+                    !Shopware.Context.app.config.bundles?.SwagAgenticCommerce
+                ) {
                     return salesChannelTypes;
                 }
 
@@ -1104,8 +1160,8 @@ export default {
             if (typeof manifest.searchMatcher === 'function') {
                 // get metadata in searchMatcher
                 const metadata = manifest.searchMatcher(
-                    new RegExp(`^${this.$tc(manifest.title).toLowerCase()}(.*)`),
-                    this.$tc(manifest.title, 2),
+                    new RegExp(`^${this.$t(manifest.title).toLowerCase()}(.*)`),
+                    this.$t(manifest.title, 2),
                     module.manifest,
                 );
 

@@ -1,7 +1,7 @@
 {% block sw_import_export_activity_result_modal %}
 <sw-modal
     class="sw-import-export-activity-result-modal"
-    :title="$tc('sw-import-export.activity.result.modalTitle')"
+    :title="$t('sw-import-export.activity.result.modalTitle')"
     variant="large"
     @modal-close="$emit('result-close')"
 >
@@ -11,13 +11,13 @@
         <mt-card
             class="sw-import-export-activity-result-modal__main-activity"
             position-identifier="sw-import-export-activity-result-modal-main-activity"
-            :title="$tc('sw-import-export.activity.result.mainEntity.title', { entity: mainEntity }, 0)"
+            :title="$t('sw-import-export.activity.result.mainEntity.title', { entity: mainEntity }, 0)"
         >
             {% block sw_import_export_activity_result_modal_info_mainEntity_list %}
             <dl class="sw-import-export-activity-result-modal__main-activity-content">
                 {% block sw_import_export_activity_result_modal_info_mainEntity_list_insert %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__main-activity-insert">
-                    <dt>{{ $tc('sw-import-export.activity.result.mainEntity.insert') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.mainEntity.insert') }}</dt>
 
                     <dd>{{ mainEntityResult.insert }}</dd>
                 </div>
@@ -25,7 +25,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_mainEntity_list_update %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__main-activity-update">
-                    <dt>{{ $tc('sw-import-export.activity.result.mainEntity.update') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.mainEntity.update') }}</dt>
 
                     <dd>{{ mainEntityResult.update }}</dd>
                 </div>
@@ -33,7 +33,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_mainEntity_list_insert_error %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__main-activity-insert-error">
-                    <dt>{{ $tc('sw-import-export.activity.result.mainEntity.insertError') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.mainEntity.insertError') }}</dt>
 
                     <dd>{{ mainEntityResult.insertError }}</dd>
                 </div>
@@ -41,7 +41,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_mainEntity_list_update_error %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__main-activity-update-error">
-                    <dt>{{ $tc('sw-import-export.activity.result.mainEntity.updateError') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.mainEntity.updateError') }}</dt>
 
                     <dd>{{ mainEntityResult.updateError }}</dd>
                 </div>
@@ -49,7 +49,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_mainEntity_list_insert_skip %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__main-activity-insert-skip">
-                    <dt>{{ $tc('sw-import-export.activity.result.mainEntity.insertSkip') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.mainEntity.insertSkip') }}</dt>
 
                     <dd>{{ mainEntityResult.insertSkip }}</dd>
                 </div>
@@ -57,7 +57,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_mainEntity_list_update_skip %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__main-activity-update-skip">
-                    <dt>{{ $tc('sw-import-export.activity.result.mainEntity.updateSkip') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.mainEntity.updateSkip') }}</dt>
 
                     <dd>{{ mainEntityResult.updateSkip }}</dd>
                 </div>
@@ -65,7 +65,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_mainEntity_list_other_error %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__main-activity-other-error">
-                    <dt>{{ $tc('sw-import-export.activity.result.mainEntity.otherError') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.mainEntity.otherError') }}</dt>
 
                     <dd>{{ mainEntityResult.otherError }}</dd>
                 </div>
@@ -79,13 +79,13 @@
         <mt-card
             class="sw-import-export-activity-result-modal__log-info"
             position-identifier="sw-import-export-activity-result-modal-log-info"
-            :title="$tc('sw-import-export.activity.result.logInfo.title')"
+            :title="$t('sw-import-export.activity.result.logInfo.title')"
         >
             {% block sw_import_export_activity_result_modal_info_log_list %}
             <dl class="sw-import-export-activity-result-modal__log-info-content">
                 {% block sw_import_export_activity_result_modal_info_log_list_file_name %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-file-name">
-                    <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelFilename') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.logInfo.labelFilename') }}</dt>
 
                     <dd>{{ logEntity.file.originalName }}</dd>
                 </div>
@@ -93,7 +93,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_log_list_profile %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-profile">
-                    <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelProfile') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.logInfo.labelProfile') }}</dt>
 
                     <dd>{{ logEntity.profile.technicalName }}</dd>
                 </div>
@@ -101,7 +101,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_log_list_imported %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-imported">
-                    <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelImported') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.logInfo.labelImported') }}</dt>
 
                     <dd>{{ logEntity.records }}</dd>
                 </div>
@@ -109,7 +109,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_log_list_file_size %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-file-size">
-                    <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelSize') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.logInfo.labelSize') }}</dt>
 
                     <dd>{{ calculateFileSize(logEntity.file.size) }}</dd>
                 </div>
@@ -117,7 +117,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_log_list_date %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-date">
-                    <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelDate') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.logInfo.labelDate') }}</dt>
 
                     <dd>
                         <sw-time-ago
@@ -130,7 +130,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_log_user %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-user">
-                    <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelUser') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.logInfo.labelUser') }}</dt>
 
                     <dd>{{ logEntity.username }}</dd>
                 </div>
@@ -138,7 +138,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_log_list_state %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-state">
-                    <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelState') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.logInfo.labelState') }}</dt>
 
                     <dd>
                         <sw-color-badge
@@ -168,7 +168,7 @@
 
                 {% block sw_import_export_activity_result_modal_info_log_list_type %}
                 <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__log-info-type">
-                    <dt>{{ $tc('sw-import-export.activity.result.logInfo.labelType') }}</dt>
+                    <dt>{{ $t('sw-import-export.activity.result.logInfo.labelType') }}</dt>
 
                     <dd>{{ logTypeText }}</dd>
                 </div>
@@ -185,13 +185,13 @@
         <div class="sw-import-export-activity-result-modal__activity-header">
             {% block sw_import_export_activity_result_modal_activity_headline %}
             <h3 class="sw-import-export-activity-result-modal__activity-headline">
-                {{ $tc('sw-import-export.activity.result.activityHeadline') }}
+                {{ $t('sw-import-export.activity.result.activityHeadline') }}
             </h3>
             {% endblock %}
 
             {% block sw_import_export_activity_result_modal_activity_description %}
             <p class="sw-import-export-activity-result-modal__activity-description">
-                {{ $tc('sw-import-export.activity.result.activityDescription', { entity: mainEntity }, 0) }}
+                {{ $t('sw-import-export.activity.result.activityDescription', { entity: mainEntity }, 0) }}
             </p>
             {% endblock %}
         </div>
@@ -207,7 +207,7 @@
                 {% block sw_import_export_activity_result_modal_activity_table_columns_label %}
                 <sw-grid-column
                     flex="minmax(100px, 2fr)"
-                    :label="$tc('sw-import-export.activity.result.entityName')"
+                    :label="$t('sw-import-export.activity.result.entityName')"
                     :class="`sw-import-export-activity-result-modal__column-${item.entityName}-label`"
                 >
                     {{ item.entityName }}
@@ -217,7 +217,7 @@
                 {% block sw_import_export_activity_result_modal_activity_table_columns_changes %}
                 <sw-grid-column
                     flex="minmax(50px, 1fr)"
-                    :label="$tc('sw-import-export.activity.result.changes')"
+                    :label="$t('sw-import-export.activity.result.changes')"
                     :class="`sw-import-export-activity-result-modal__column-${item.entityName}-changes`"
                 >
                     {{ item.insert + item.update }}
@@ -227,7 +227,7 @@
                 {% block sw_import_export_activity_result_modal_activity_table_columns_errors %}
                 <sw-grid-column
                     flex="minmax(50px, 1fr)"
-                    :label="$tc('sw-import-export.activity.result.errors')"
+                    :label="$t('sw-import-export.activity.result.errors')"
                     :class="`sw-import-export-activity-result-modal__column-${item.entityName}-errors`"
                 >
                     {{ item.insertError + item.updateError }}
@@ -237,7 +237,7 @@
                 {% block sw_import_export_activity_result_modal_activity_table_columns_skipped %}
                 <sw-grid-column
                     flex="minmax(50px, 1fr)"
-                    :label="$tc('sw-import-export.activity.result.skipped')"
+                    :label="$t('sw-import-export.activity.result.skipped')"
                     :class="`sw-import-export-activity-result-modal__column-${item.entityName}-skipped`"
                 >
                     {{ item.insertSkip + item.updateSkip }}
@@ -259,7 +259,7 @@
             variant="secondary"
             @click="openDownload(logEntity.file.id)"
         >
-            {{ $tc('sw-import-export.activity.result.labelDownloadFile') }}
+            {{ $t('sw-import-export.activity.result.labelDownloadFile') }}
         </mt-button>
         {% endblock %}
 
@@ -271,7 +271,7 @@
             variant="secondary"
             @click="openDownload(logEntity.invalidRecordsLog.file.id)"
         >
-            {{ $tc('sw-import-export.activity.result.labelDownloadInvalidFile') }}
+            {{ $t('sw-import-export.activity.result.labelDownloadInvalidFile') }}
         </mt-button>
         {% endblock %}
     </div>

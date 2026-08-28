@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -23,8 +24,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @final
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 class ElasticsearchIndexer
 {
     /**
@@ -39,7 +40,9 @@ class ElasticsearchIndexer
         private readonly Client $client,
         private readonly LoggerInterface $logger,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly int $indexingBatchSize
+        private readonly int $indexingBatchSize,
+        private readonly ClockInterface $clock,
+        private readonly bool $refreshAfterBulk = false,
     ) {
     }
 
@@ -148,7 +151,7 @@ class ElasticsearchIndexer
     {
         $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
-        $timestamp = new \DateTime();
+        $timestamp = \DateTime::createFromImmutable($this->clock->now());
 
         $this->createIndex($timestamp);
 
@@ -274,6 +277,10 @@ class ElasticsearchIndexer
             'index' => $index,
             'body' => $documents,
         ];
+
+        if ($this->refreshAfterBulk) {
+            $arguments['refresh'] = true;
+        }
 
         $result = $this->client->bulk($arguments);
 

@@ -1,0 +1,23 @@
+<ram:SpecifiedTradeAllowanceCharge>
+    <ram:ChargeIndicator>
+        <udt:Indicator>{{ ac.isCharge ? 'true' : 'false' }}</udt:Indicator>
+    </ram:ChargeIndicator>
+
+    {% if ac.calculationPercent is not null %}
+        <ram:CalculationPercent>{{ ac.calculationPercent|zugferd_decimal }}</ram:CalculationPercent>
+    {% endif %}
+
+    {% if ac.basisAmount is not null %}
+        <ram:BasisAmount>{{ ac.basisAmount|zugferd_decimal }}</ram:BasisAmount>
+    {% endif %}
+
+    <ram:ActualAmount>{{ ac.actualAmount|zugferd_decimal }}</ram:ActualAmount>
+    <ram:ReasonCode>{{ ac.reasonCode.value }}</ram:ReasonCode>
+    <ram:Reason>{{ ac.reason }}</ram:Reason>
+
+    <ram:CategoryTradeTax>
+        <ram:TypeCode>VAT</ram:TypeCode>
+        <ram:CategoryCode>{{ ac.taxCategory.value }}</ram:CategoryCode>
+        <ram:RateApplicablePercent>{{ ac.taxRate|zugferd_decimal }}</ram:RateApplicablePercent>
+    </ram:CategoryTradeTax>
+</ram:SpecifiedTradeAllowanceCharge>

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopId;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
@@ -15,27 +14,23 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 
 /**
  * @internal
- *
- * @phpstan-import-type ShopIdV1Config from ShopId
  */
+#[Package('framework')]
 #[CoversClass(ShopIdProvider::class)]
 class ShopIdProviderTest extends TestCase
 {
-    /**
-     * @param ShopIdV1Config|null $shopIdV1Config
-     */
-    #[DataProvider('oldShopIdsProvider')]
-    public function testGeneratesNewShopIdV2(?array $shopIdV1Config): void
+    public function testGeneratesNewShopIdV2WhenNoOldShopIdPresent(): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($matcher = $this->exactly(6))
             ->method('get')
-            ->willReturnCallback(static function (...$parameters) use ($matcher, $shopIdV1Config) {
+            ->willReturnCallback(static function (...$parameters) use ($matcher) {
                 if ($matcher->numberOfInvocations() === 1 || $matcher->numberOfInvocations() === 3 || $matcher->numberOfInvocations() === 5) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, $parameters[0]);
 
@@ -45,7 +40,7 @@ class ShopIdProviderTest extends TestCase
                 if ($matcher->numberOfInvocations() === 2 || $matcher->numberOfInvocations() === 4 || $matcher->numberOfInvocations() === 6) {
                     static::assertSame(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, $parameters[0]);
 
-                    return \is_array($shopIdV1Config) ? (array) ShopId::v1($shopIdV1Config['value'], $shopIdV1Config['app_url']) : null;
+                    return null;
                 }
 
                 static::fail(\sprintf('SystemConfigService was not expected to be called more than %s times', $matcher->numberOfInvocations()));
@@ -62,8 +57,8 @@ class ShopIdProviderTest extends TestCase
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
-            $this->createMock(Connection::class),
-            $this->createMock(FingerprintGenerator::class),
+            static::createStub(Connection::class),
+            static::createStub(FingerprintGenerator::class),
         );
 
         $shopId = $provider->getShopId();
@@ -72,8 +67,7 @@ class ShopIdProviderTest extends TestCase
 
         $shopIdChangedEvent = $eventDispatcher->getEvents()[0] ?? null;
         static::assertInstanceOf(ShopIdChangedEvent::class, $shopIdChangedEvent);
-        static::assertSame($shopIdV1Config['value'] ?? null, $shopIdChangedEvent->oldShopId?->id);
-        static::assertSame($shopIdV1Config['app_url'] ?? null, $shopIdChangedEvent->oldShopId?->getFingerprint(AppUrl::IDENTIFIER) ?? null);
+        static::assertNull($shopIdChangedEvent->oldShopId);
         static::assertSame($shopId->id, $shopIdChangedEvent->newShopId->id);
     }
 
@@ -115,18 +109,14 @@ class ShopIdProviderTest extends TestCase
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
-            $this->createMock(Connection::class),
-            $this->createMock(FingerprintGenerator::class),
+            static::createStub(Connection::class),
+            static::createStub(FingerprintGenerator::class),
         );
 
         $upgradedShopId = $provider->getShopId();
 
-        static::assertCount(2, $eventDispatcher->getEvents());
-
-        $shopIdChangedEvent = $eventDispatcher->getEvents()[0] ?? null;
-        static::assertInstanceOf(ShopIdChangedEvent::class, $shopIdChangedEvent);
-        static::assertSame($shopIdV1Config['value'], $shopIdChangedEvent->oldShopId?->id);
-        static::assertSame($shopIdV1Config['value'], $shopIdChangedEvent->newShopId->id);
+        // The id is preserved across the V1->V2 upgrade, so no ShopIdChangedEvent is dispatched.
+        static::assertCount(0, $eventDispatcher->getEvents());
         static::assertSame($shopIdV1Config['value'], $upgradedShopId->id);
     }
 
@@ -145,7 +135,7 @@ class ShopIdProviderTest extends TestCase
             ->method('fetchOne')
             ->willReturn(1);
 
-        $fingerprintGenerator = $this->createMock(FingerprintGenerator::class);
+        $fingerprintGenerator = static::createStub(FingerprintGenerator::class);
         $fingerprintGenerator->method('matchFingerprints')
             ->willReturn(new FingerprintComparisonResult(
                 [],
@@ -211,12 +201,14 @@ class ShopIdProviderTest extends TestCase
 
         $provider = new ShopIdProvider(
             $systemConfigService,
-            new CollectingEventDispatcher(),
+            $eventDispatcher = new CollectingEventDispatcher(),
             $connection,
             $fingerprintGenerator,
         );
 
         static::assertSame($shopId->id, $provider->getShopId()->id);
+        // Fingerprints changed but the id is reused, so this is not a shop identity change.
+        static::assertCount(0, $eventDispatcher->getEvents());
     }
 
     public function testDeletesShopId(): void
@@ -237,19 +229,13 @@ class ShopIdProviderTest extends TestCase
         $provider = new ShopIdProvider(
             $systemConfigService,
             $eventDispatcher = new CollectingEventDispatcher(),
-            $this->createMock(Connection::class),
-            $this->createMock(FingerprintGenerator::class),
+            static::createStub(Connection::class),
+            static::createStub(FingerprintGenerator::class),
         );
 
         $provider->deleteShopId();
 
         static::assertCount(1, $eventDispatcher->getEvents());
         static::assertInstanceOf(ShopIdDeletedEvent::class, $eventDispatcher->getEvents()[0]);
-    }
-
-    public static function oldShopIdsProvider(): \Generator
-    {
-        yield 'old shop id NOT present' => [null];
-        yield 'old shop id IS present' => [['value' => '1234567890', 'app_url' => 'https://foo.bar']];
     }
 }

@@ -26,9 +26,6 @@ export default {
 
     shortcuts: {
         'SYSTEMKEY+S': {
-            active() {
-                return this.acl.can('payment.editor');
-            },
             method: 'onSave',
         },
         ESCAPE: 'onCancel',
@@ -75,13 +72,6 @@ export default {
         },
 
         tooltipSave() {
-            if (!this.acl.can('payment.editor')) {
-                return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('payment.editor'),
-                    showOnDisabledElements: true,
-                };
-            }
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -248,8 +238,8 @@ export default {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: `${this.$tc('sw-settings-payment.detail.messageSaveError', { name: this.paymentMethod.name }, 0)} ${errorDetails}`,
+                title: this.$t('global.default.error'),
+                message: `${this.$t('sw-settings-payment.detail.messageSaveError', { name: this.paymentMethod.name }, 0)} ${errorDetails}`,
             });
         },
 

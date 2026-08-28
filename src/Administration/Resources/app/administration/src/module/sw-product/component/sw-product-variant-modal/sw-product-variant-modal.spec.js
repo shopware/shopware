@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -362,7 +364,7 @@ async function createWrapper() {
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'solid-content',
+                            icon: 'regular-content',
                         },
                     },
                 },
@@ -534,5 +536,20 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         await flushPromises();
 
         expect(wrapper.vm.$props.productEntity.media).toEqual(getMedias());
+    });
+
+    it('productVariantCriteria ignores empty terms from leading whitespace', async () => {
+        global.activeAclRoles = [];
+        await wrapper.setData({ searchTerm: ' red' });
+
+        const criteria = wrapper.vm.productVariantCriteria;
+
+        // Regression test for issue #16838: a leading space produced an empty
+        // term, which built a `contains` filter with an empty value and made the
+        // API reject the whole query with FRAMEWORK__INVALID_FILTER_QUERY.
+        expect(criteria.queries).toHaveLength(2);
+        criteria.queries.forEach((query) => {
+            expect(query.query.value).not.toBe('');
+        });
     });
 });

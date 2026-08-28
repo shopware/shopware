@@ -8,8 +8,7 @@ use AsyncAws\Core\Request;
 use AsyncAws\Core\RequestContext;
 use AsyncAws\Core\Signer\SignerV4;
 use AsyncAws\Core\Stream\StringStream;
-use GuzzleHttp\Ring\Future\CompletedFutureArray;
-use OpenSearch\ClientBuilder;
+use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -25,14 +24,11 @@ class AsyncAwsSigner
         private readonly LoggerInterface $logger,
         private readonly string $service,
         private readonly string $region,
-        private readonly CredentialProvider $credentialProvider
+        private readonly CredentialProvider $credentialProvider,
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $request
-     */
-    public function __invoke(array $request): CompletedFutureArray
+    public function __invoke(RequestInterface $request): RequestInterface
     {
         try {
             $transformed = $this->transformRequest($request);
@@ -43,15 +39,13 @@ class AsyncAwsSigner
             }
 
             $signer = new SignerV4($this->service, $this->region);
-
             $signer->sign($transformed, $credentials, new RequestContext());
 
-            $request['headers'] = [];
             foreach ($transformed->getHeaders() as $key => $value) {
-                $request['headers'][$key] = [$value];
+                $request = $request->withHeader($key, $value);
             }
 
-            return \call_user_func(ClientBuilder::defaultHandler(), $request);
+            return $request;
         } catch (\Throwable $e) {
             $this->logger->error('Error signing request: ' . $e->getMessage());
 
@@ -59,43 +53,40 @@ class AsyncAwsSigner
         }
     }
 
-    /**
-     * @param array<string, mixed> $request
-     */
-    private function transformRequest(array $request): Request
+    private function transformRequest(RequestInterface $request): Request
     {
-        // fix for uppercase 'Host' array key in elasticsearch-php 5.3.1 and backward compatible
-        // https://github.com/aws/aws-sdk-php/issues/1225
-        $hostKey = isset($request['headers']['Host']) ? 'Host' : 'host';
+        $headers = [];
+        foreach ($request->getHeaders() as $key => $value) {
+            $headers[$key] = implode(', ', $value);
+        }
 
-        // Amazon ES/OS listens on standard ports (443 for HTTPS, 80 for HTTP).
-        // Consequently, the port should be stripped from the host header.
-        $parsedUrl = parse_url($request['headers'][$hostKey][0]);
+        if (!isset($headers['Host']) && !isset($headers['host'])) {
+            $headers['Host'] = $request->getUri()->getHost();
+        }
+
+        $hostKey = isset($headers['Host']) ? 'Host' : 'host';
+        $parsedUrl = parse_url($headers[$hostKey]);
 
         if (isset($parsedUrl['host'])) {
-            $request['headers'][$hostKey][0] = $parsedUrl['host'];
+            $headers[$hostKey] = $parsedUrl['host'];
         }
 
-        parse_str($request['query_string'] ?? '', $query);
+        parse_str($request->getUri()->getQuery(), $query);
         $query = array_filter($query, 'is_string');
-        $query = array_combine(array_map('strval', array_keys($query)), $query);
+        $query = $query === [] ? [] : array_combine(array_map('strval', array_keys($query)), $query);
 
-        $headers = [];
-        foreach ($request['headers'] as $key => $value) {
-            $headers[$key] = $value[0];
-        }
+        $body = (string) $request->getBody();
+        $url = (string) $request->getUri();
 
-        $url = $request['scheme'] . '://' . $request['headers'][$hostKey][0] . $request['uri'];
-
-        $request = new Request(
-            $request['http_method'],
+        $transformed = new Request(
+            $request->getMethod(),
             $url,
             $query,
             $headers,
-            StringStream::create($request['body'] ?? '')
+            StringStream::create($body)
         );
-        $request->setEndpoint($url);
+        $transformed->setEndpoint($url);
 
-        return $request;
+        return $transformed;
     }
 }

@@ -6,7 +6,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @extends EntityCollection<ProductEntity>
+ * @template TElement of ProductEntity = ProductEntity
+ *
+ * @extends EntityCollection<TElement>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductCollection extends EntityCollection
@@ -16,6 +20,9 @@ class ProductCollection extends EntityCollection
         return 'product_collection';
     }
 
+    /**
+     * @return class-string<ProductEntity>
+     */
     protected function getExpectedClass(): string
     {
         return ProductEntity::class;

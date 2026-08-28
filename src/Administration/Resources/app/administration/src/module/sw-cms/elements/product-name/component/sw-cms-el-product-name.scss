@@ -2,7 +2,7 @@
 
 .sw-cms-el-product-name {
     &__skeleton {
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
         height: 20px;
         border-radius: $border-radius-pill;
         margin-bottom: 16px;

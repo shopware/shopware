@@ -30,7 +30,7 @@ class RetryableTransactionTest extends TestCase
             );
         };
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('getTransactionNestingLevel')->willReturn(0);
         $connection->method('transactional')->willReturnCallback($f);
 

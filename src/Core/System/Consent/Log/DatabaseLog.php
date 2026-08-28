@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Consent\Log;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentStatus;
@@ -13,8 +14,10 @@ use Shopware\Core\System\Consent\ConsentStatus;
 #[Package('data-services')]
 class DatabaseLog implements ConsentLogInterface
 {
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     public function log(ConsentStatus $action, string $consentName, ?string $identifier, string $actor): void
@@ -28,7 +31,7 @@ class DatabaseLog implements ConsentLogInterface
 
         $this->connection->insert('consent_log', [
             'consent_name' => $consentName,
-            'timestamp' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'timestamp' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'message' => \json_encode($logEntry),
         ]);
     }

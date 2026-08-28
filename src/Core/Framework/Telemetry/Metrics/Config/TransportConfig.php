@@ -15,7 +15,9 @@ readonly class TransportConfig
     /**
      * @param array<MetricConfig> $metricsConfig
      */
-    public function __construct(public array $metricsConfig)
-    {
+    public function __construct(
+        public array $metricsConfig,
+        public ?string $namespace = null,
+    ) {
     }
 }

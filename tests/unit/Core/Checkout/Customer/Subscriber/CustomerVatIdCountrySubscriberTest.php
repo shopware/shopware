@@ -49,7 +49,7 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
 
     public function testStoresNullWhenNoMemberStateMatches(): void
     {
-        $provider = $this->createStub(VatIdPatternProvider::class);
+        $provider = static::createStub(VatIdPatternProvider::class);
         $provider->method('getCountryIdForVatIds')->willReturn(null);
 
         $command = $this->createMock(WriteCommand::class);

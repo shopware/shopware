@@ -567,7 +567,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SystemInstallListener::class)
         ->args([
             service(ElasticsearchIndexer::class),
-            service('messenger.default_bus'),
         ])
         ->tag('kernel.event_listener');
 

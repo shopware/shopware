@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\SystemInstallCompletedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -24,7 +23,6 @@ class SystemInstallListenerTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;
     use KernelTestBehaviour;
-    use QueueTestBehaviour;
 
     protected function setUp(): void
     {
@@ -49,7 +47,6 @@ class SystemInstallListenerTest extends TestCase
         $container->get(EventDispatcherInterface::class)
             ->dispatch(new SystemInstallCompletedEvent(Context::createCLIContext()));
 
-        $this->runWorker();
         $this->refreshIndex();
 
         static::assertTrue($client->indices()->existsAlias(['name' => $alias]));
@@ -65,5 +62,9 @@ class SystemInstallListenerTest extends TestCase
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
+    }
+
+    protected function runWorker(): void
+    {
     }
 }

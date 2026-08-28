@@ -6,7 +6,7 @@
 
 `Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
 
-When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event, creates storefront indices and aliases, and queues indexing. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing.
+When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
 
 ### New document lifecycle business events
 

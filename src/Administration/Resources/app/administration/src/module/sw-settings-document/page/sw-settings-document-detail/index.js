@@ -720,6 +720,10 @@ export default {
 
             this.onChangeSalesChannel();
 
+            if (!Object.keys(this.documentConfig.filenameInfixes).length > 0) {
+                this.documentConfig.filenameInfixes = null;
+            }
+
             await this.documentBaseConfigRepository
                 .save(this.documentConfig)
                 .then(async () => {

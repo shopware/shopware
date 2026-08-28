@@ -196,9 +196,38 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
                 cornerRadius: '8px',
                 icon: undefined,
                 description: undefined,
-                disabled: undefined,
+                disabled: false,
             },
         ]);
+    });
+
+    it('creates a repository for the requested entity through the repository factory', () => {
+        const create = jest.fn(() => ({ entityName: 'category' }));
+
+        const repository = methods.getEntityRepository.call(
+            {
+                repositoryFactory: {
+                    create,
+                },
+            },
+            'category',
+        );
+
+        expect(create).toHaveBeenCalledWith('category');
+        expect(repository).toEqual({ entityName: 'category' });
+    });
+
+    it('maps entity multi id select fields to the entity-multi control', () => {
+        expect(
+            methods.getControlType.call(
+                {},
+                {
+                    adminUI: {
+                        component: 'sw-entity-multi-id-select',
+                    },
+                },
+            ),
+        ).toBe('entity-multi');
     });
 
     it('uses a shared structured default for breakpoint-aware box spacing', () => {

@@ -2,13 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -49,7 +47,6 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             $storeApiCustomFieldMapper,
             static::createStub(EntityRepository::class),
-            new VatIdPatternProvider(static::createStub(Connection::class)),
         );
 
         $customer = new CustomerEntity();
@@ -83,7 +80,6 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             static::createStub(EntityRepository::class),
-            new VatIdPatternProvider(static::createStub(Connection::class)),
         );
 
         $customer = new CustomerEntity();
@@ -129,7 +125,6 @@ class ChangeCustomerProfileRouteTest extends TestCase
             static::createStub(CustomerValidationFactory::class),
             static::createStub(StoreApiCustomFieldMapper::class),
             $salutationRepository,
-            new VatIdPatternProvider(static::createStub(Connection::class)),
         );
 
         $customer = new CustomerEntity();

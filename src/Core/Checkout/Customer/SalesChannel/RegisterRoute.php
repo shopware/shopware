@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
-use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
@@ -94,7 +93,6 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly DoubleOptInService $doubleOptInService,
         private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
         private readonly ClockInterface $clock,
-        private readonly VatIdPatternProvider $vatIdPatternProvider,
     ) {
     }
 
@@ -182,7 +180,6 @@ class RegisterRoute extends AbstractRegisterRoute
 
             if ($vatIds) {
                 $customer['vatIds'] = $vatIds;
-                $customer['vatIdCountryId'] = $this->vatIdPatternProvider->getCountryIdForVatIds(\is_array($vatIds) ? $vatIds : null);
             }
         }
 

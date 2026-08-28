@@ -317,9 +317,9 @@ The fallback follows the country's *Member state of the European Union* setting:
 
 ### Customers store the EU member state their VAT ID belongs to
 
-`customer` gained a nullable `vat_id_country_id` column, exposed on the DAL entity as `vatIdCountryId` with a `vatIdCountry` association to `country`. Registering or changing a commercial profile resolves it from the customer's VAT IDs and writes it alongside them; a VAT ID that matches no member state stores `null`. Existing customers keep `null` until their next profile write.
+`customer` gained a nullable `vat_id_country_id` column, exposed on the DAL entity as `vatIdCountryId` with a `vatIdCountry` association to `country`. It is resolved from the customer's VAT IDs on every write that touches `vatIds`, so the Store API, the Admin API, the Sync API, the Administration, imports and plugin writes all store the same member state; a VAT ID that matches no member state stores `null`, and clearing the VAT IDs clears the country. Existing customers keep `null` until their next write that touches `vatIds`.
 
-The value is derived, not entered: the field is not part of the Store API customer payload and is not rendered in the Administration or the storefront. Read it through the Admin API or the DAL when you need the issuing member state without re-deriving it, for example for reporting or documents:
+The value is derived, not entered: the field is not part of the Store API customer payload, is not rendered in the Administration or the storefront, and a value you write yourself is overwritten by `CustomerVatIdCountrySubscriber` whenever the same write also carries `vatIds`. Read it through the Admin API or the DAL when you need the issuing member state without re-deriving it, for example for reporting or documents:
 
 ```php
 $criteria->addAssociation('vatIdCountry');

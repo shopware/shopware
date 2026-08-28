@@ -3,7 +3,7 @@
  */
 
 import type { AxiosInstance } from 'axios';
-import type { ContentElementNode } from './content-element.types';
+import type { ContentElementNode } from '../content-element.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 

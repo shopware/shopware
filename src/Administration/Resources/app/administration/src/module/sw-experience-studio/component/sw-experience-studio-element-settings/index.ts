@@ -1,4 +1,4 @@
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';

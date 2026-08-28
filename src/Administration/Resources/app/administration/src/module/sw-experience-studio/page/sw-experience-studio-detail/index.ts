@@ -10,7 +10,7 @@ import type {
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
 import type {
     ContentLayoutEntity,

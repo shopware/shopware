@@ -1,4 +1,4 @@
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { EXPERIENCE_STUDIO_MAX_HISTORY_SIZE } from '../constant/experience-studio-history.constant';
 import { createEditorHistoryEntry, trimHistoryStack } from './editor-history.util';
 

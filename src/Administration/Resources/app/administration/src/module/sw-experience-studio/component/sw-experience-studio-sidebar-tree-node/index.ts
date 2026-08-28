@@ -1,4 +1,4 @@
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
 

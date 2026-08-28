@@ -1,4 +1,4 @@
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 
 /**
  * @private

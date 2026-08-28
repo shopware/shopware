@@ -1,5 +1,5 @@
 import type Repository from 'src/core/data/repository.data';
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { createContentLayoutRepository } from './content-layout-repository.util';
 
 const { Criteria } = Shopware.Data;

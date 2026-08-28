@@ -1,4 +1,4 @@
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type { ContentLayoutEntity } from '../../util/content-layout-repository.util';
 
 import template from './sw-experience-studio-sidebar-tree.html.twig';

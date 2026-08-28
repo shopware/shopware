@@ -1,6 +1,6 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 
 /**
  * A `content_layout` entity whose `layout` field carries the canonical element type.

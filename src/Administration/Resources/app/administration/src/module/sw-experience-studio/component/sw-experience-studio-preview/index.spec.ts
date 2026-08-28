@@ -1,4 +1,4 @@
-import type { ContentElementNode } from 'src/core/service/api/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import previewComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-preview', () => {

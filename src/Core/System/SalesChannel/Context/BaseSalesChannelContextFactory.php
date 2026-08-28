@@ -91,16 +91,13 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria->setTitle('base-context-factory::sales-channel');
         if (!Feature::isActive('v6.8.0.0')) {
             $criteria->addAssociation('currency');
-        }
-        $criteria->addAssociation('currencies');
-        $criteria->addAssociation('domains');
-
-        if (!Feature::isActive('v6.8.0.0')) {
             $criteria->getAssociation('languages')
                 ->addFilter(new EqualsFilter('id', $context->getLanguageId()))
                 ->addAssociation('translationCode')
                 ->addAssociation('locale');
         }
+        $criteria->addAssociation('currencies');
+        $criteria->addAssociation('domains');
 
         $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
         if (!$salesChannel instanceof SalesChannelEntity) {
@@ -121,14 +118,23 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         }
 
         $currency = $availableCurrencies->get($currencyId);
-        if ($currency === null && !Feature::isActive('v6.8.0.0') && $currencyId === $salesChannel->getCurrencyId()) {
-            $currency = $salesChannel->getCurrency();
-
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The default sales channel currency must be assigned to the sales channel.');
-        }
-
         if ($currency === null) {
-            throw SalesChannelException::currencyNotFound($currencyId);
+            if (!Feature::isActive('v6.8.0.0') && $currencyId === $salesChannel->getCurrencyId()) {
+                $currency = $salesChannel->getCurrency();
+
+                Feature::triggerDeprecationOrThrow(
+                    'v6.8.0.0',
+                    \sprintf(
+                        'The default sales channel currency must also be in the list of available currencies in the sales channel, with 6.8.0.0 this will be enforced. Sales channel id: %s. Currency id: %s.',
+                        $salesChannel->getId(),
+                        $currencyId
+                    )
+                );
+            }
+
+            if ($currency === null) {
+                throw SalesChannelException::currencyNotFound($currencyId);
+            }
         }
 
         // load not logged in customer with default shop configuration or with provided checkout scopes

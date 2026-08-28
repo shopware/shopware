@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Struct\Collection;
  * @internal
  *
  * @extends Collection<PluginMapping>
- *
- * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class PluginMappingCollection extends Collection

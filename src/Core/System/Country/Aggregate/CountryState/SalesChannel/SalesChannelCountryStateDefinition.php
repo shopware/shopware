@@ -9,9 +9,6 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('fundamentals@discovery')]
 class SalesChannelCountryStateDefinition extends CountryStateDefinition implements SalesChannelDefinitionInterface
 {

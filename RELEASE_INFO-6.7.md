@@ -196,6 +196,12 @@ With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic el
 
 Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
 
+### Edit order page selects the payment method of the order
+
+The payment selection on `/account/order/edit/{orderId}` belongs to the order instead of the session. `Shopware\Storefront\Page\Account\Order\AccountEditOrderPage::getSelectedPaymentMethodId()` returns the payment method of the order, or the one the customer picked on the page, and the templates of that page use `page.selectedPaymentMethodId` instead of `context.paymentMethod.id`. Themes that override `page_checkout_aside_actions_payment_method_id` or `page_checkout_change_payment_form` should do the same.
+
+`frontend.account.edit-order.change-payment-method` passes the selected method to the edit order page as the `paymentMethodId` query parameter. It still switches the payment method of the sales channel context, so templates that render `context.paymentMethod` on that page keep working, but that context switch is deprecated and will be removed with v6.8.0.0.
+
 # 6.7.14.0
 
 ## Features

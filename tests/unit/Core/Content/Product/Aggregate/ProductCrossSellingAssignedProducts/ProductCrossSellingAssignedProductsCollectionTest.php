@@ -28,6 +28,19 @@ class ProductCrossSellingAssignedProductsCollectionTest extends TestCase
         static::assertSame(['a', 'b', 'c'], array_keys($collection->getElements()));
     }
 
+    public function testGetProductIdsAndApiAlias(): void
+    {
+        $a = $this->assignment('a', 1);
+        $a->setProductId('product-a');
+        $b = $this->assignment('b', 2);
+        $b->setProductId('product-b');
+
+        $collection = new ProductCrossSellingAssignedProductsCollection([$a, $b]);
+
+        static::assertSame(['product-a', 'product-b'], array_values($collection->getProductIds()));
+        static::assertSame('product_cross_selling_assigned_products_collection', $collection->getApiAlias());
+    }
+
     private function assignment(string $id, int $position): ProductCrossSellingAssignedProductsEntity
     {
         $assignment = new ProductCrossSellingAssignedProductsEntity();

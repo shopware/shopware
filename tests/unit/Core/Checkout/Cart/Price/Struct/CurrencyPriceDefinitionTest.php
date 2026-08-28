@@ -38,4 +38,17 @@ class CurrencyPriceDefinitionTest extends TestCase
         static::assertSame($prices, $data['price']);
         static::assertNull($data['filter']);
     }
+
+    public function testConstraintsRequireTheValue(): void
+    {
+        $constraints = CurrencyPriceDefinition::getConstraints();
+
+        static::assertSame(['price'], array_keys($constraints));
+        static::assertCount(2, $constraints['price']);
+    }
+
+    public function testApiAlias(): void
+    {
+        static::assertSame('cart_currency_price_definition', (new CurrencyPriceDefinition(new RawPriceCollection()))->getApiAlias());
+    }
 }

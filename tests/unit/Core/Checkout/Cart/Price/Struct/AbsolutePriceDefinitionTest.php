@@ -34,4 +34,17 @@ class AbsolutePriceDefinitionTest extends TestCase
         static::assertSame(10.0, $data['price']);
         static::assertNull($data['filter']);
     }
+
+    public function testConstraintsRequireTheValue(): void
+    {
+        $constraints = AbsolutePriceDefinition::getConstraints();
+
+        static::assertSame(['price'], array_keys($constraints));
+        static::assertCount(2, $constraints['price']);
+    }
+
+    public function testApiAlias(): void
+    {
+        static::assertSame('cart_price_absolute', (new AbsolutePriceDefinition(10.0))->getApiAlias());
+    }
 }

@@ -34,4 +34,17 @@ class PercentagePriceDefinitionTest extends TestCase
         static::assertSame(-10.0, $data['percentage']);
         static::assertNull($data['filter']);
     }
+
+    public function testConstraintsRequireTheValue(): void
+    {
+        $constraints = PercentagePriceDefinition::getConstraints();
+
+        static::assertSame(['percentage'], array_keys($constraints));
+        static::assertCount(2, $constraints['percentage']);
+    }
+
+    public function testApiAlias(): void
+    {
+        static::assertSame('cart_price_percentage', (new PercentagePriceDefinition(-10.0))->getApiAlias());
+    }
 }

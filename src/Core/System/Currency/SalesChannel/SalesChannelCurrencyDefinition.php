@@ -9,9 +9,6 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('fundamentals@framework')]
 class SalesChannelCurrencyDefinition extends CurrencyDefinition implements SalesChannelDefinitionInterface
 {

@@ -130,9 +130,8 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
                         $currencyId
                     )
                 );
-            }
-
-            if ($currency === null) {
+                $currency = $salesChannel->getCurrency() ?? throw SalesChannelException::currencyNotFound($currencyId);
+            } else {
                 throw SalesChannelException::currencyNotFound($currencyId);
             }
         }

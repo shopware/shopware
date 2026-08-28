@@ -351,6 +351,15 @@
                             @update:value="onUpdateField(field.key, $event)"
                         />
 
+                        <sw-experience-studio-media-collection-field
+                            v-else-if="getControlType(field.property) === 'media-collection'"
+                            v-bind="getControlProps(field.property)"
+                            :label="field.property.title"
+                            :value="getRawPropertyValue(field.key)"
+                            :disabled="!allowEdit || undefined"
+                            @update:value="onUpdateField(field.key, $event)"
+                        />
+
                         <div
                             v-else-if="isInlineTextProperty(field.key, field.property)"
                             class="sw-experience-studio-settings-fields__inline-text-hint"

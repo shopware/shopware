@@ -167,6 +167,7 @@ class LoaderInputsTest extends TestCase
     public static function nullableAccessorProvider(): iterable
     {
         yield 'stringOrNull()' => [static fn (LoaderInputs $inputs): ?string => $inputs->stringOrNull('unresolved')];
+        yield 'intOrNull()' => [static fn (LoaderInputs $inputs): ?int => $inputs->intOrNull('unresolved')];
         yield 'stringListOrNull()' => [static fn (LoaderInputs $inputs): ?array => $inputs->stringListOrNull('unresolved')];
     }
 
@@ -176,6 +177,7 @@ class LoaderInputsTest extends TestCase
     public static function nullableAccessorResolvedProvider(): iterable
     {
         yield 'stringOrNull()' => [static fn (LoaderInputs $inputs): ?string => $inputs->stringOrNull('entityId'), 'product-alice'];
+        yield 'intOrNull()' => [static fn (LoaderInputs $inputs): ?int => $inputs->intOrNull('limit'), 5];
         yield 'stringListOrNull()' => [static fn (LoaderInputs $inputs): ?array => $inputs->stringListOrNull('associations'), ['media', 'cover']];
         yield 'stringOrNull() on an empty string' => [static fn (LoaderInputs $inputs): ?string => $inputs->stringOrNull('emptyString'), ''];
     }
@@ -218,6 +220,11 @@ class LoaderInputsTest extends TestCase
         yield 'stringOrNull() on an int' => [
             static fn (LoaderInputs $inputs): ?string => $inputs->stringOrNull('limit'),
             ContentSystemException::loaderInputTypeMismatch('limit', 'string', 'int'),
+        ];
+
+        yield 'intOrNull() on a string' => [
+            static fn (LoaderInputs $inputs): ?int => $inputs->intOrNull('entityId'),
+            ContentSystemException::loaderInputTypeMismatch('entityId', 'int', 'string'),
         ];
 
         yield 'stringListOrNull() on a string' => [

@@ -16,19 +16,17 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 final readonly class NavigationLoaderConfig extends AbstractContentDataLoaderConfig
 {
-    public const DEFAULT_DEPTH = 2;
-
     /**
      * @param non-empty-string|null $rootId Navigation root ID or alias (main-navigation, service-navigation, footer-navigation)
-     * @param positive-int $depth Navigation tree depth
+     * @param positive-int|null $depth Navigation tree depth, null to follow the sales channel's navigationCategoryDepth
      * @param non-empty-string $activeProperty Element property name to read active category ID from
      */
     public function __construct(
         public ?string $rootId = null,
-        public int $depth = self::DEFAULT_DEPTH,
+        public ?int $depth = null,
         public string $activeProperty = 'activeId',
     ) {
     }
@@ -44,7 +42,7 @@ final readonly class NavigationLoaderConfig extends AbstractContentDataLoaderCon
             $data['rootId'] = $this->rootId;
         }
 
-        if ($this->depth !== self::DEFAULT_DEPTH) {
+        if ($this->depth !== null) {
             $data['depth'] = $this->depth;
         }
 

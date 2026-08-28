@@ -44,14 +44,14 @@
 
             {% for treeItem in navigationTree %}
                 {% set hasChildren = treeItem.children|length > 0 %}
-                {% set itemSkipped = category.type == 'folder' and not hasChildren %}
+                {% set itemSkipped = treeItem.category.type == 'folder' and not hasChildren %}
 
                 {% if not itemSkipped %}
                     <li class="sw-navbar__nav-item nav-item" tabindex="0">
                         <a
                             class="sw-navbar__nav-link nav-link{% if hasChildren %} has--children{% endif %}"
                             href="{{ treeItem.category.seoUrl ?: '#' }}"
-                            data-category-id="{{ category.id }}"
+                            data-category-id="{{ treeItem.category.id }}"
                             {% if hasChildren %}tabindex="-1"{% endif %}
                         >
                             {{ treeItem.category.translated.name }}

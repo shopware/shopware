@@ -104,6 +104,21 @@ final readonly class LoaderInputs
         return $value;
     }
 
+    public function intOrNull(string $key): ?int
+    {
+        $value = $this->get($key);
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (!\is_int($value)) {
+            throw ContentSystemException::loaderInputTypeMismatch($key, 'int', \get_debug_type($value));
+        }
+
+        return $value;
+    }
+
     /**
      * @return list<string>|null
      */

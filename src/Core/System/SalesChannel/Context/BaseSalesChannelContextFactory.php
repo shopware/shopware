@@ -119,7 +119,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
         $currency = $availableCurrencies->get($currencyId);
         if ($currency === null) {
-            if (!Feature::isActive('v6.8.0.0') && $currencyId === $salesChannel->getCurrencyId()) {
+            if (!Feature::isActive('v6.8.0.0') && $currencyId === $salesChannel->getCurrencyId() && $salesChannel->getCurrency() !== null) {
                 $currency = $salesChannel->getCurrency();
 
                 Feature::triggerDeprecationOrThrow(
@@ -130,7 +130,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
                         $currencyId
                     )
                 );
-                $currency = $salesChannel->getCurrency() ?? throw SalesChannelException::currencyNotFound($currencyId);
             } else {
                 throw SalesChannelException::currencyNotFound($currencyId);
             }

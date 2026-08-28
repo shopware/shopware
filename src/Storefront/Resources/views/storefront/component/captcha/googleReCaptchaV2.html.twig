@@ -10,8 +10,7 @@
          data-google-re-captcha-v2="true"
          data-google-re-captcha-v2-options="{{ googleReCaptchaV2Options|json_encode }}">
         <input
-            type="hidden"
-            class="grecaptcha-v2-input"
+            {% if feature('ACCESSIBILITY_TWEAKS') %}type="hidden" class="grecaptcha-v2-input"{% else %}type="text" class="d-none grecaptcha-v2-input"{% endif %}
             name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER') }}"
             {% if feature('ACCESSIBILITY_TWEAKS') %}data-validation="required" data-validate-hidden="true" aria-describedby="{{ feedbackId }}"{% endif %}
             {% if not feature('ACCESSIBILITY_TWEAKS') %}data-skip-report-validity="true"{% endif %}

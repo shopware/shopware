@@ -47,7 +47,7 @@ test('As a customer, I can perform a registration by validating to be not a robo
             // Registration is prevented and the captcha is shown as invalid.
             // eslint-disable-next-line playwright/no-conditional-in-test
             if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
-                await ShopCustomer.expects(reCaptchaInput).toHaveClass('grecaptcha-v2-input');
+                await ShopCustomer.expects(reCaptchaInput).toHaveClass('d-none grecaptcha-v2-input');
             } else {
                 await ShopCustomer.expects(reCaptchaInput).toHaveClass(/(^|\s)is-invalid(\s|$)/);
             }

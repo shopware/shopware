@@ -14,13 +14,13 @@ import { ref, computed, defineComponent, nextTick, reactive, provide } from 'vue
 
 /**
  * Helper: wraps convertOptionsApiOverrideToCompositionApi and silences the
- * deprecation console.warn that fires on every call.
+ * deprecation guard that fires on every call.
  */
 function convertWithSilencedWarning(
     componentName: string,
     config: Parameters<typeof convertOptionsApiOverrideToCompositionApi>[1],
 ) {
-    const spy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const spy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
     const result = convertOptionsApiOverrideToCompositionApi(componentName, config);
     spy.mockRestore();
     return result;
@@ -1233,33 +1233,33 @@ describe('src/app/adapter/options-composition-shim', () => {
 
     describe('Deprecation warning:', () => {
         it('should log deprecation warning when shim is activated', () => {
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const deprecationGuard = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
 
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: { foo() {} },
             });
 
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('[Deprecation Warning]'));
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('originalComponent'));
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('overrideComponentSetup()'));
+            expect(deprecationGuard).toHaveBeenCalledWith('V6_8_0_0', expect.stringContaining('originalComponent'));
+            expect(deprecationGuard).toHaveBeenCalledWith('V6_8_0_0', expect.stringContaining('overrideComponentSetup()'));
 
-            consoleWarn.mockRestore();
+            deprecationGuard.mockRestore();
         });
 
         it('should include migration docs link in deprecation warning', () => {
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const deprecationGuard = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
 
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: { foo() {} },
             });
 
-            expect(consoleWarn).toHaveBeenCalledWith(
+            expect(deprecationGuard).toHaveBeenCalledWith(
+                'V6_8_0_0',
                 expect.stringContaining(
                     'https://developer.shopware.com/docs/resources/references/core-reference/administration-reference/composition-api',
                 ),
             );
 
-            consoleWarn.mockRestore();
+            deprecationGuard.mockRestore();
         });
     });
 

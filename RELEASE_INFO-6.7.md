@@ -361,6 +361,9 @@ Reloading or leaving an order detail page now reliably removes the temporary ord
 ### Optional order confirmation mail for Administration-created orders
 
 When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.
+### Runtime guards for deprecated Administration APIs
+
+Deprecated Administration APIs can now call `Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)`. Usage emits a development warning before the matching major feature flag is active and throws when the flag is active. Extension authors should migrate away from deprecated APIs before testing against the next-major feature flags.
 
 ### Shipping prices can be linked to the tax rate
 

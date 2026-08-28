@@ -36,4 +36,15 @@ export default class Feature {
 
         return this.flags[flagName];
     }
+
+    static triggerDeprecationOrThrow(majorFlag: string, message: string): void {
+        if (this.isActive(majorFlag)) {
+            throw new Error(`Tried to access deprecated functionality: ${message}`);
+        }
+
+        if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- This is the canonical feature-aware deprecation emitter.
+            console.warn(`[Shopware Deprecation] ${message}`);
+        }
+    }
 }

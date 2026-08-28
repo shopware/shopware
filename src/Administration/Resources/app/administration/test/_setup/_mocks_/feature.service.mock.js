@@ -2,7 +2,8 @@
  * @sw-package framework
  */
 
-import Feature from 'src/app/service/feature.service';
+import FeatureService from 'src/app/service/feature.service';
+import Feature from 'src/core/feature';
 import normalizeFeatureFlag from '../../_helper_/normalizeFeatureFlag';
 
 /**
@@ -20,8 +21,9 @@ const featureMock = {
             return normalizeFeatureFlag(featureFlag) === normalizedFlagName;
         });
     },
+    triggerDeprecationOrThrow: Feature.triggerDeprecationOrThrow,
 };
 
-const feature = new Feature(featureMock);
+const feature = new FeatureService(featureMock);
 
 export default feature;

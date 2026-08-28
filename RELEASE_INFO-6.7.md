@@ -75,20 +75,14 @@ Store API responses no longer echo the request `sw-context-token` header on cach
 `translation:install` accepts a new `--offline` option. It creates the languages and snippet sets for translation files that are already on the filesystem, without contacting the translation repository at all — not even for the metadata lookup that normally runs first.
 
 ```
-translation:install --offline --locales=de-DE,fr-FR
+translation:install --offline --locales=es-ES,fr-FR
 ```
 
 This completes the pairing with `translation:download`, which fetches the files without touching the database. Together they cover setups where the two halves happen at different times or in different places: an installation with restricted egress where the files are copied in by hand, or a deployment that fetches them once while building its artifact and then only needs each installation to point at them.
 
-The presence of the files is verified per locale, so an incomplete provisioning step fails the command instead of leaving a language with no translations behind it. The metadata store is neither read nor written in this mode, so a later regular `translation:install` or `translation:update` behaves exactly as before.
+The presence of the files is verified per locale before anything is installed, so an incomplete provisioning step fails the command with all of its missing locales instead of leaving a language with no translations behind it. The metadata store is neither read nor written in this mode, so a later regular `translation:install` or `translation:update` behaves exactly as before.
 
 `Shopware\Core\System\Snippet\Service\AbstractTranslationLoader` gained `link()` and `hasTranslationFiles()` for this. Decorators of the loader inherit both from the abstract class and do not need to be adjusted.
-
-### `translation:install` no longer skips installing when the files are current
-
-`translation:install` decided from the state of the translation *files* whether it had anything to do at all, and returned early when they were up to date — before creating any language or snippet set. A locale whose files were current but whose `language` record had been removed therefore could not be reinstalled: the command reported success without doing anything.
-
-Whether a translation is current and whether it is actually installed are separate questions, and the command now answers both. Files are re-fetched only when the repository has something newer, or when they are missing locally; the language and snippet set are ensured for every requested locale either way.
 
 ## Administration
 

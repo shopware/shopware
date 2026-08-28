@@ -69,15 +69,23 @@ class TranslationCommandHelper
     }
 
     /**
-     * Unlike printSkippedLocales() these locales are not skipped, only their download is: the
-     * language and snippet set are still ensured.
-     *
      * @param non-empty-array<int, string> $locales
      */
-    public static function printLocalesNotDownloadedAgain(OutputInterface $output, array $locales): void
+    public static function printLocalesInstalledFromExistingFiles(OutputInterface $output, array $locales): void
     {
         $output->writeln(\sprintf(
             'The following locales are already up to date, their files will not be downloaded again: %s',
+            implode(', ', $locales)
+        ));
+    }
+
+    /**
+     * @param non-empty-array<int, string> $locales
+     */
+    public static function printUnavailableLocales(OutputInterface $output, array $locales): void
+    {
+        $output->writeln(\sprintf(
+            '<comment>No translations are available for the following locales, they will not be installed: %s</comment>',
             implode(', ', $locales)
         ));
     }

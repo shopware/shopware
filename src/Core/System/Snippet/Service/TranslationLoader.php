@@ -101,9 +101,26 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         $this->eventDispatcher->dispatch(new TranslationLoadedEvent($locale, $context));
     }
 
+    /**
+     * A directory on its own proves nothing: fetchFile() creates it before downloading and files the
+     * repository does not offer are skipped, so an empty or aborted download leaves the tree behind.
+     * Any file counts, because a legitimate load() can produce a partial set.
+     */
     public function hasTranslationFiles(string $locale): bool
     {
-        return $this->translationWriter->directoryExists($this->getLocalePath($locale));
+        $localePath = $this->getLocalePath($locale);
+
+        if ($localePath === '') {
+            return false;
+        }
+
+        foreach ($this->translationWriter->listContents($localePath, FilesystemOperator::LIST_DEEP) as $fsNode) {
+            if ($fsNode->isFile()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function download(string $locale): void

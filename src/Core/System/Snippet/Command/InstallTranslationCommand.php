@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
+use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetException;
@@ -60,35 +61,34 @@ class InstallTranslationCommand extends Command
             return self::FAILURE;
         }
 
+        $unavailable = $this->unavailableLocales($locales, $metadata);
+
+        if ($this->everyRequestedLocaleIsUnavailable($locales, $unavailable)) {
+            throw SnippetException::translationsUnavailable($unavailable);
+        }
+
+        if ($unavailable !== []) {
+            TranslationCommandHelper::printUnavailableLocales($output, $unavailable);
+        }
+
+        $installable = array_values(array_diff($locales, $unavailable));
         $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
 
         if ($localesRequiringUpdate === []) {
             TranslationCommandHelper::printNoTranslationsToUpdate($output);
         }
 
-        $localesDiff = array_diff($locales, $localesRequiringUpdate);
-        if ($localesDiff !== []) {
-            TranslationCommandHelper::printLocalesNotDownloadedAgain($output, $localesDiff);
+        $localesToLink = $this->localesToLink($installable, $localesRequiringUpdate);
+        if ($localesToLink !== []) {
+            TranslationCommandHelper::printLocalesInstalledFromExistingFiles($output, $localesToLink);
         }
 
         $context = Context::createCLIContext();
 
         TranslationCommandHelper::executeLoadWithProgressBar(
-            $locales,
+            $installable,
             $output,
-            function (string $locale) use ($context, $activate, $localesRequiringUpdate): void {
-                // Whether a translation is up to date and whether it is actually installed are
-                // two different questions. Files are only re-fetched when the repository has
-                // something newer, or when they are missing locally, but the language and the
-                // snippet set are ensured for every requested locale either way.
-                if (\in_array($locale, $localesRequiringUpdate, true) || !$this->translationLoader->hasTranslationFiles($locale)) {
-                    $this->translationLoader->load($locale, $context, $activate);
-
-                    return;
-                }
-
-                $this->translationLoader->link($locale, $context, $activate);
-            },
+            fn (string $locale) => $this->installLocale($locale, $localesToLink, $context, $activate),
         );
 
         $output->write(\PHP_EOL);
@@ -106,10 +106,22 @@ class InstallTranslationCommand extends Command
      * it would make a later run believe every locale is current and skip creating the
      * languages it is being asked for.
      *
+     * Every locale is verified before the first one is linked, so an incomplete provisioning step
+     * reports all of its missing locales at once and leaves no half-installed state behind.
+     *
      * @param list<string> $locales
      */
     private function installOffline(array $locales, bool $activate, OutputInterface $output): int
     {
+        $missing = array_values(array_filter(
+            $locales,
+            fn (string $locale) => !$this->translationLoader->hasTranslationFiles($locale),
+        ));
+
+        if ($missing !== []) {
+            throw SnippetException::translationsUnavailable($missing);
+        }
+
         $context = Context::createCLIContext();
 
         TranslationCommandHelper::executeLoadWithProgressBar(
@@ -121,6 +133,65 @@ class InstallTranslationCommand extends Command
         $output->write(\PHP_EOL);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param list<string> $localesToLink
+     */
+    private function installLocale(string $locale, array $localesToLink, Context $context, bool $activate): void
+    {
+        if (\in_array($locale, $localesToLink, true)) {
+            $this->translationLoader->link($locale, $context, $activate);
+
+            return;
+        }
+
+        $this->translationLoader->load($locale, $context, $activate);
+    }
+
+    /**
+     * Whether a translation is up to date and whether it is actually installed are two different
+     * questions. These locales keep the files they have, because the repository has nothing newer,
+     * but their language and snippet set are ensured just the same.
+     *
+     * @param list<string> $locales
+     * @param list<string> $localesRequiringUpdate
+     *
+     * @return list<string>
+     */
+    private function localesToLink(array $locales, array $localesRequiringUpdate): array
+    {
+        return array_values(array_filter(
+            $locales,
+            fn (string $locale) => !\in_array($locale, $localesRequiringUpdate, true)
+                && $this->translationLoader->hasTranslationFiles($locale),
+        ));
+    }
+
+    /**
+     * Requested locales the translation repository does not offer and that have no files on the
+     * filesystem either. Installing them would create a language with no translations behind it,
+     * so they are reported and left out instead.
+     *
+     * @param list<string> $locales
+     *
+     * @return list<string>
+     */
+    private function unavailableLocales(array $locales, MetadataCollection $metadata): array
+    {
+        return array_values(array_filter(
+            array_diff($locales, $metadata->getKeys()),
+            fn (string $locale) => !$this->translationLoader->hasTranslationFiles($locale),
+        ));
+    }
+
+    /**
+     * @param list<string> $locales
+     * @param list<string> $unavailable
+     */
+    private function everyRequestedLocaleIsUnavailable(array $locales, array $unavailable): bool
+    {
+        return $unavailable !== [] && \count($unavailable) === \count($locales);
     }
 
     /**

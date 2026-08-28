@@ -233,6 +233,8 @@ class InstallTranslationCommandTest extends TestCase
         $tester = new CommandTester($this->getCommand());
         $tester->execute(['--locales' => 'es-ES']);
         $tester->assertCommandIsSuccessful();
+
+        static::assertStringNotContainsString('their files will not be downloaded again', $tester->getDisplay());
     }
 
     public function testOfflineInstallCreatesLanguagesWithoutTouchingTheMetadata(): void
@@ -240,6 +242,7 @@ class InstallTranslationCommandTest extends TestCase
         $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
         $this->metadataStore->expects($this->never())->method('save');
 
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
         $this->translationLoader->expects($this->never())->method('load');
 
         $linked = [];
@@ -358,6 +361,97 @@ class InstallTranslationCommandTest extends TestCase
 
         static::assertStringContainsString('An error occurred while fetching metadata: "Unable to fetch metadata"', $output);
         static::assertSame(InstallTranslationCommand::FAILURE, $tester->getStatusCode());
+    }
+
+    public function testCommandLeavesOutLocalesTheRepositoryDoesNotOffer(): void
+    {
+        $collection = new MetadataCollection([
+            MetadataEntry::create([
+                'locale' => 'es-ES',
+                'updatedAt' => '2024-01-01T00:00:00+00:00',
+                'progress' => 100,
+            ]),
+        ]);
+
+        $this->initMetadataLoader($collection);
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(false);
+
+        // en-GB has neither a metadata entry nor files, so installing it would create a language
+        // without any translations behind it.
+        $this->translationLoader->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function (string $locale): void {
+                static::assertSame('es-ES', $locale);
+            });
+        $this->translationLoader->expects($this->never())->method('link');
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--locales' => 'en-GB,es-ES']);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertStringContainsString('No translations are available for the following locales, they will not be installed: en-GB', $tester->getDisplay());
+    }
+
+    public function testCommandInstallsLocaleWithoutMetadataEntryButWithFiles(): void
+    {
+        $this->initMetadataLoader(new MetadataCollection());
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
+
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->translationLoader->expects($this->once())
+            ->method('link')
+            ->willReturnCallback(static function (string $locale): void {
+                static::assertSame('en-GB', $locale);
+            });
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--locales' => 'en-GB']);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function testCommandFailsIfNoRequestedLocaleCanBeInstalled(): void
+    {
+        $this->initMetadataLoader(new MetadataCollection());
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(false);
+
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->translationLoader->expects($this->never())->method('link');
+        $this->metadataStore->expects($this->never())->method('save');
+
+        $tester = new CommandTester($this->getCommand());
+
+        $this->expectExceptionObject(SnippetException::translationsUnavailable(['en-GB', 'de-DE']));
+        $tester->execute(['--locales' => 'en-GB,de-DE']);
+    }
+
+    public function testOfflineInstallFailsWithEveryMissingLocaleBeforeLinkingAnything(): void
+    {
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+        $this->metadataStore->expects($this->never())->method('save');
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(false);
+
+        $this->translationLoader->expects($this->never())->method('link');
+        $this->translationLoader->expects($this->never())->method('load');
+
+        $tester = new CommandTester($this->getCommand());
+
+        $this->expectExceptionObject(SnippetException::translationsUnavailable(['en-GB', 'de-DE']));
+        $tester->execute(['--locales' => 'en-GB,de-DE', '--offline' => true]);
+    }
+
+    public function testOfflineInstallLinksNothingWhenOneLocaleIsMissing(): void
+    {
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+        $this->metadataStore->expects($this->never())->method('save');
+        $this->translationLoader->method('hasTranslationFiles')
+            ->willReturnCallback(static fn (string $locale) => $locale === 'en-GB');
+
+        $this->translationLoader->expects($this->never())->method('link');
+
+        $tester = new CommandTester($this->getCommand());
+
+        $this->expectExceptionObject(SnippetException::translationsUnavailable(['de-DE']));
+        $tester->execute(['--locales' => 'en-GB,de-DE', '--offline' => true]);
     }
 
     private function getCommand(): InstallTranslationCommand

@@ -97,6 +97,10 @@ final class LogicDetector
             return true;
         }
 
+        if (self::mutatesAParameter($method)) {
+            return true;
+        }
+
         if (!$inThrowableContext && self::configuresTheParent($method->stmts)) {
             return true;
         }
@@ -157,12 +161,13 @@ final class LogicDetector
     }
 
     /**
-     * A local variable written a second time — as a whole, through an offset or through
-     * a property — is a value being transformed step by step (`$values = parse(); $values =
-     * array_merge($values, …)`, `$data = []; $data['x'] = …`). Parameters count as already
-     * written, so reassigning one (`$name = trim($name)`) is a transformation as well.
-     * Writes on `$this` are state, not a local, and stay boilerplate. Closures and arrow
-     * functions have their own scope and are skipped.
+     * A local variable written a second time — as a whole or through an offset — is a value
+     * being transformed step by step (`$values = parse(); $values = array_merge($values, …)`,
+     * `$data = []; $data['x'] = …`). Parameters count as already written, so reassigning one
+     * (`$name = trim($name)`) is a transformation as well. Property writes are state
+     * initialisation, whether on `$this` or on a freshly created local (`$self = new self();
+     * $self->root = $root;` in a named constructor), and stay boilerplate. Closures and
+     * arrow functions have their own scope and are skipped.
      *
      * Compound assignment and unset are already caught as node types above, so only plain
      * (reference) assignments need counting here.
@@ -213,6 +218,44 @@ final class LogicDetector
     }
 
     /**
+     * A bare `$criteria->addFilter(...)` or `$event->setResult(...)` statement on a parameter,
+     * result discarded, is the method acting on its input for the side effect: the caller
+     * handed in an object precisely so this class would shape it. That shaping is the
+     * behaviour worth pinning. Calls on collaborators held in properties (`$this->dep->call()`)
+     * and calls whose result is used stay delegation.
+     */
+    private static function mutatesAParameter(ClassMethod $method): bool
+    {
+        \assert($method->stmts !== null);
+
+        $parameters = [];
+        foreach ($method->params as $param) {
+            if ($param->var instanceof Expr\Variable && \is_string($param->var->name)) {
+                $parameters[$param->var->name] = true;
+            }
+        }
+
+        if ($parameters === []) {
+            return false;
+        }
+
+        $hit = (new NodeFinder())->findFirst($method->stmts, static function (Node $node) use ($parameters): bool {
+            if (!$node instanceof Stmt\Expression) {
+                return false;
+            }
+
+            $call = $node->expr;
+            if (!$call instanceof Expr\MethodCall && !$call instanceof Expr\NullsafeMethodCall) {
+                return false;
+            }
+
+            return $call->var instanceof Expr\Variable && \is_string($call->var->name) && isset($parameters[$call->var->name]);
+        });
+
+        return $hit !== null;
+    }
+
+    /**
      * A `parent::` call that receives a literal (`parent::__construct($name, 64)`,
      * `parent::__construct('cart_price_absolute')`, `new WriteProtected()`) hard-codes a
      * decision the subclass owns: it exists to configure the parent, and that
@@ -255,8 +298,9 @@ final class LogicDetector
     }
 
     /**
-     * Names of the local variables an assignment target ultimately writes to. `$this`
-     * and static properties yield nothing; destructuring yields every item.
+     * Names of the local variables an assignment target ultimately writes to as a value.
+     * `$this`, property writes and static properties yield nothing; destructuring yields
+     * every item.
      *
      * @return list<string>
      */
@@ -266,7 +310,7 @@ final class LogicDetector
             return \is_string($target->name) && $target->name !== 'this' ? [$target->name] : [];
         }
 
-        if ($target instanceof Expr\ArrayDimFetch || $target instanceof Expr\PropertyFetch || $target instanceof Expr\NullsafePropertyFetch) {
+        if ($target instanceof Expr\ArrayDimFetch) {
             return self::localRoots($target->var);
         }
 

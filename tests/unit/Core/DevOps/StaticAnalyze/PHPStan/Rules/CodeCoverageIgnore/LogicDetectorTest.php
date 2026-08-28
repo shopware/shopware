@@ -76,7 +76,7 @@ class LogicDetectorTest extends TestCase
         yield 'increment' => ['$this->position++;', true];
         yield 'local reassigned as a whole' => ['$values = $this->load(); $values = array_merge($values, $this->more()); return $values;', true];
         yield 'local written then extended through an offset' => ['$data = []; $data["x"] = $this->x; return $data;', true];
-        yield 'local written then extended through a property' => ['$dto = new \stdClass(); $dto->x = 1; return $dto;', true];
+        yield 'named constructor initialising a fresh local' => ['$self = new self(); $self->root = $root; $self->fields = $fields; return $self;', false];
         yield 'parameter reassigned' => ['$name = trim($name); return $name;', true];
         yield 'destructuring over an existing local' => ['$a = 1; [$a, $b] = $this->pair(); return $a . $b;', true];
 
@@ -89,6 +89,12 @@ class LogicDetectorTest extends TestCase
         yield 'discarded call on another class' => ['\\Shopware\\Core\\Framework\\Feature::triggerDeprecationOrThrow("v6.8.0.0", "msg");', false];
         yield 'own call whose result is returned is a delegating getter' => ['return $this->compute();', false];
         yield 'own call whose result is assigned once' => ['$value = $this->compute(); return $value;', false];
+
+        yield 'discarded call on a parameter shapes the input' => ['$name->addFilter(new \\stdClass());', true];
+        yield 'discarded nullsafe call on a parameter shapes the input' => ['$name?->refresh();', true];
+        yield 'call on a parameter whose result is returned is delegation' => ['return $name->getId();', false];
+        yield 'call on a parameter whose result is assigned once is delegation' => ['$id = $name->getId(); return $id;', false];
+        yield 'discarded call on a local created in the method is not a parameter' => ['$criteria = new \\stdClass(); $criteria->reset(); return $criteria;', false];
 
         yield 'parent constructor receiving own parameters is chaining' => ['parent::__construct($name, $key);', false];
         yield 'parent constructor receiving a call result is chaining' => ['parent::__construct($this->resolve($name));', false];

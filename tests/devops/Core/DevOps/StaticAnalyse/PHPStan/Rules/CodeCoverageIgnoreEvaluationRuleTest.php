@@ -180,6 +180,19 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             [],
         ];
 
+        yield 'discarded call on a parameter fails' => [
+            ['ParameterMutationClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'ParameterMutationClass is annotated @codeCoverageIgnore but method processCriteria() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
+        yield 'named constructor initialising a fresh local passes' => [
+            ['NamedConstructorClass.php'],
+            [],
+        ];
+
         yield 'literal handed to the parent constructor fails' => [
             ['ParentChainConstructorParent.php', 'ParentLiteralConfigClass.php'],
             [[

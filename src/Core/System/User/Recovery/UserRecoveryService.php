@@ -23,6 +23,7 @@ use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\System\User\UserException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -80,11 +81,18 @@ class UserRecoveryService
 
         $hash = $recovery->getHash();
 
-        try {
-            $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        } catch (RouteNotFoundException) {
-            // fallback if admin bundle is not installed, the url should work once the bundle is installed
-            $url = EnvironmentHelper::getVariable('APP_URL') . '/admin';
+        if (Request::getTrustedHosts() === []) {
+            // The router takes the host from the incoming request, which Symfony only validates against
+            // configured trusted hosts. Without them the host can't be trusted, because it's client provided,
+            // therefore we fall back to use the APP_URL.
+            $url = $this->buildAdministrationUrlFromAppUrl();
+        } else {
+            try {
+                $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            } catch (RouteNotFoundException) {
+                // fallback if admin bundle is not installed, the url should work once the bundle is installed
+                $url = $this->buildAdministrationUrlFromAppUrl();
+            }
         }
 
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
@@ -181,6 +189,19 @@ class UserRecoveryService
         ];
 
         $this->userRecoveryRepo->delete([$recoveryData], $context);
+    }
+
+    private function buildAdministrationUrlFromAppUrl(): string
+    {
+        $appUrl = rtrim((string) EnvironmentHelper::getVariable('APP_URL', ''), '/');
+
+        if (!filter_var($appUrl, \FILTER_VALIDATE_URL) || !\in_array(parse_url($appUrl, \PHP_URL_SCHEME), ['http', 'https'], true)) {
+            throw UserException::invalidAppUrl($appUrl);
+        }
+
+        $pathName = trim((string) EnvironmentHelper::getVariable('SHOPWARE_ADMINISTRATION_PATH_NAME', 'admin'), '/');
+
+        return $appUrl . '/' . $pathName;
     }
 
     /**

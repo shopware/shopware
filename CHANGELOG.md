@@ -1,6 +1,17 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.23
+* [GHSA-6qhw-38wm-7g7h](https://github.com/shopware/shopware/security/advisories/GHSA-6qhw-38wm-7g7h) - App Script sandbox escape
+* [GHSA-xj2c-8fw5-mr6m](https://github.com/shopware/shopware/security/advisories/GHSA-xj2c-8fw5-mr6m) - Host-header password-reset poisoning
+* [GHSA-xrcf-c96g-q5hr](https://github.com/shopware/shopware/security/advisories/GHSA-xrcf-c96g-q5hr) - Custom-entity SQL/DDL injection
+* [GHSA-p37c-pm9p-7vm5](https://github.com/shopware/shopware/security/advisories/GHSA-p37c-pm9p-7vm5) - Store API aggregation-name SQL injection
+* [GHSA-4wpv-5fvv-c3xp](https://github.com/shopware/shopware/security/advisories/GHSA-4wpv-5fvv-c3xp) - ACL-role mass assignment
+* [GHSA-674c-5376-96rv](https://github.com/shopware/shopware/security/advisories/GHSA-674c-5376-96rv) - Disclosure of unapproved product reviews
+* [GHSA-fgjq-45xv-rj8r](https://github.com/shopware/shopware/security/advisories/GHSA-fgjq-45xv-rj8r) - Media-import DNS rebinding
+* [GHSA-rrc3-p9vx-5373](https://github.com/shopware/shopware/security/advisories/GHSA-rrc3-p9vx-5373) - App System/webhook DNS rebinding
+* [GHSA-f497-xgx3-22hq](https://github.com/shopware/shopware/security/advisories/GHSA-f497-xgx3-22hq) - Missing guest-document rate limiting
+
 ## 6.6.10.22
 *  [#17048 - Administration users receive default runtime privileges](./changelog/release-6-6-10-22/2026-08-03-default-admin-user-privileges.md)
 *  [#17579 - fix: consider footer navigation tree children as page urls (backport: 6.6.x)](https://github.com/shopware/shopware/issues/17579) ([@app/shopware-octo-sts-app-2](https://github.com/app/shopware-octo-sts-app-2))

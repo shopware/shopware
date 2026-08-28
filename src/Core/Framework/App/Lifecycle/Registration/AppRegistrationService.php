@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
@@ -30,7 +30,7 @@ class AppRegistrationService
      */
     public function __construct(
         private readonly HandshakeFactory $handshakeFactory,
-        private readonly Client $httpClient,
+        private readonly ClientInterface $httpClient,
         private readonly EntityRepository $appRepository,
         private readonly string $shopUrl,
         private readonly ShopIdProvider $shopIdProvider,
@@ -133,7 +133,7 @@ class AppRegistrationService
             $headers['shopware-shop-signature-previous'] = $previousSignature;
         }
 
-        $this->httpClient->post($confirmationUrl, [
+        $this->httpClient->request('POST', $confirmationUrl, [
             'headers' => $headers,
             AuthMiddleware::APP_REQUEST_CONTEXT => $context,
             'json' => $payload,

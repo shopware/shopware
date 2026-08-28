@@ -7,6 +7,7 @@
     <li class="navigation-offcanvas-list-item">
         {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link %}
             <a class="navigation-offcanvas-link nav-item nav-link{% if isActive %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
+               {% if isActive %}aria-current="page"{% endif %}
                href="{{ url }}"
                 {% if hasChildren %}
                     data-href="{{ path('frontend.menu.offcanvas', {navigationId: item.category.id}) }}"

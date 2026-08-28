@@ -4,7 +4,9 @@ namespace Shopware\Core\System\CustomEntity\Xml;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
+use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\OneToManyField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 
@@ -14,6 +16,10 @@ use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 #[Package('framework')]
 class CustomEntityXmlSchemaValidator
 {
+    public function __construct(private readonly CustomEntityNameValidator $nameValidator)
+    {
+    }
+
     public function validate(CustomEntityXmlSchema $schema): void
     {
         if ($schema->getEntities() === null) {
@@ -21,6 +27,8 @@ class CustomEntityXmlSchemaValidator
         }
 
         foreach ($schema->getEntities()->getEntities() as $entity) {
+            $this->validateNames($entity);
+
             if ($entity->isCustomFieldsAware()) {
                 $label = $entity->getLabelProperty();
 
@@ -43,6 +51,18 @@ class CustomEntityXmlSchemaValidator
                 }
             }
         }
+    }
+
+    /**
+     * Reject names that cannot be safely used as SQL identifiers before they are persisted,
+     * so a bad manifest fails at install time instead of during the schema update.
+     */
+    private function validateNames(Entity $entity): void
+    {
+        $this->nameValidator->validate(
+            $entity->getName(),
+            array_map(static fn (Field $field): string => $field->getName(), $entity->getFields())
+        );
     }
 
     private function validateAssociation(OneToManyField $field): void

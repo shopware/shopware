@@ -145,7 +145,7 @@ class SearchController extends StorefrontController
             ->getListingResult();
         $mapped = [];
 
-        foreach ($result->getAggregations() as $aggregation) {
+        foreach ($result->getSource()->getAggregations() as $aggregation) {
             $mapped[$aggregation->getName()] = $aggregation;
         }
 
@@ -157,11 +157,11 @@ class SearchController extends StorefrontController
 
     private function handleFirstHit(Request $request, SearchPage $page): ?Response
     {
-        if ($page->getListing()->getTotal() > 1) {
+        if ($page->getListing()->getSource()->getTotal() > 1) {
             return null;
         }
 
-        $product = $page->getListing()->getEntities()->first();
+        $product = $page->getListing()->getSource()->getEntities()->first();
         if (!$product instanceof ProductEntity) {
             return null;
         }

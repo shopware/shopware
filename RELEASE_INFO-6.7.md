@@ -2,6 +2,11 @@
 
 ## Core
 
+### `ProductListingResult::getSource()` exposes the wrapped search result
+
+`ProductListingResult` now exposes the `EntitySearchResult` it was created from via `getSource()`. Since the class stops extending `EntitySearchResult` in v6.8.0, the accessors inherited from it (`getEntities()`, `getTotal()`, `getAggregations()`, `getCriteria()`, `getContext()`, `getEntity()`) are deprecated and will not be re-added to the listing — read the data via `getSource()` instead, in PHP and in Twig (`searchResult.source.entities`). This supersedes the `getEntities()` guidance given for `ProductListingResult` in the 6.7.13.0 notes; the listing state (`sorting`, `currentFilters`, `availableSortings`, `streamId`, `page`, `limit`) is not affected.
+
+For the same reason, `SuggestPage::setSearchResult()` and `ProductListingStruct::setListing()` (and their getters) will narrow their types to `ProductListingResult` in v6.8.0 — passing a plain `EntitySearchResult` to them is deprecated.
 ### New document lifecycle business events
 
 Two new events give extensions a hook into the document lifecycle without polling or fetching the document to discover its type, number, order and file:

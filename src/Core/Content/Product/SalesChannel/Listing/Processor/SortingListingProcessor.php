@@ -69,7 +69,7 @@ class SortingListingProcessor extends AbstractListingProcessor
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
     {
         /** @var ProductSortingCollection $sortings */
-        $sortings = $result->getCriteria()->getExtension('sortings');
+        $sortings = $result->getSource()->getCriteria()->getExtension('sortings');
         $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
         if ($currentSorting !== null) {

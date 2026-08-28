@@ -31,9 +31,10 @@ return RectorConfig::configure()
         '**/node_modules/*',
         '**/Resources/*',
 
-        // BC test deliberately covering the deprecated delegations until their removal
+        // BC tests deliberately covering the deprecated delegations until their removal
         EntitySearchResultGetEntitiesRector::class => [
             __DIR__ . '/tests/unit/Core/Framework/DataAbstractionLayer/Search/EntitySearchResultTest.php',
+            __DIR__ . '/tests/unit/Core/Content/Product/SalesChannel/Listing/ProductListingResultTest.php',
         ],
     ])
     ->withCache(

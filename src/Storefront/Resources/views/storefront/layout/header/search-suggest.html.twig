@@ -1,5 +1,8 @@
 {# @var product \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity #}
 
+{# page.searchResult is either a ProductListingResult or a plain EntitySearchResult; the wrapper carries entities and total on its source #}
+{% set suggestResult = page.searchResult.source ?? page.searchResult %}
+
 {% block layout_search_suggest %}
     <div class="search-suggest js-search-result">
         {% block layout_search_suggest_container %}
@@ -8,7 +11,7 @@
                 id="search-suggest-listbox"
                 aria-label="{{ 'header.searchDropdownTitle'|trans|striptags }}">
                 {% block layout_search_suggest_results %}
-                    {% for product in page.searchResult.entities %}
+                    {% for product in suggestResult.entities %}
                         {% block layout_search_suggest_result_product %}
                             <li class="search-suggest-product js-result">
                                 {% block layout_search_suggest_result_link %}
@@ -110,7 +113,7 @@
                 {% endblock %}
 
                 {% block layout_search_suggest_result_total %}
-                    {% if page.searchResult.total == 0 %}
+                    {% if suggestResult.total == 0 %}
                         {% block layout_search_suggest_no_result %}
                             <li class="search-suggest-no-result" id="search-suggest-result-info">
                                 {{ 'header.searchNoResult'|trans|sw_sanitize }}
@@ -138,7 +141,7 @@
                                         {# ludtwig-ignore html-duplicate-id #}
                                         <div class="col-auto search-suggest-total-count" id="search-suggest-result-info">
                                             {{ 'header.searchResults'|trans({
-                                                '%count%': page.searchResult.total,
+                                                '%count%': suggestResult.total,
                                             })|sw_sanitize }}
                                         </div>
                                     {% endblock %}

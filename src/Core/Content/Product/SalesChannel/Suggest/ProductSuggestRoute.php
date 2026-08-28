@@ -43,7 +43,7 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
     {
         $result = $this->productListingLoader->load($criteria, $context);
 
-        $result = ProductListingResult::createFrom($result);
+        $result = ProductListingResult::fromSearchResult($result);
 
         return new ProductSuggestRouteResponse($result);
     }

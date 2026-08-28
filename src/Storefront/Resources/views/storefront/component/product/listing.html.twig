@@ -1,3 +1,6 @@
+{# `searchResult` is either a ProductListingResult (product listing) or a plain EntitySearchResult (e.g. the wishlist listing); the wrapper carries entities and total on its source #}
+{% set listingSearchResult = searchResult.source ?? searchResult %}
+
 {% set paginationConfig = { page: searchResult.page } %}
 
 {% if disableEmptyFilter is not defined %}
@@ -26,7 +29,7 @@
          data-listing-options="{{ listingPagination|json_encode }}">
         {% block element_product_listing_wrapper_content %}
             <div class="cms-element-product-listing">
-                {% if searchResult.total > 0 %}
+                {% if listingSearchResult.total > 0 %}
                     {% block element_product_listing_pagination_nav_actions %}
                         <div class="cms-element-product-listing-actions row justify-content-between">
                             <div class="col-md-auto">
@@ -52,19 +55,19 @@
                 {% endif %}
 
                 {% block element_product_listing_row %}
-                    {% if searchResult.total > searchResult.limit %}
+                    {% if listingSearchResult.total > searchResult.limit %}
                         {% set ariaLiveText = 'listing.filterPanelAriaLivePaginated'|trans({
-                            '%count%': searchResult.entities|length,
-                            '%total%': searchResult.total}
+                            '%count%': listingSearchResult.entities|length,
+                            '%total%': listingSearchResult.total}
                         )|sw_sanitize %}
                     {% else %}
-                        {% set ariaLiveText = 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize %}
+                        {% set ariaLiveText = 'listing.filterPanelAriaLive'|trans({'%count%': listingSearchResult.total})|sw_sanitize %}
                     {% endif %}
 
-                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}"{% if searchResult.total > 0 %} role="list"{% endif %}>
-                        {% if searchResult.total > 0 %}
+                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}"{% if listingSearchResult.total > 0 %} role="list"{% endif %}>
+                        {% if listingSearchResult.total > 0 %}
                             {% block element_product_listing_col %}
-                                {% for product in searchResult.entities %}
+                                {% for product in listingSearchResult.entities %}
                                     <div class="cms-listing-col {{ listingColumns }}" role="listitem">
                                         {% block element_product_listing_box %}
                                             {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
@@ -99,7 +102,7 @@
                     </div>
                 {% endblock %}
 
-                {% if searchResult.total > searchResult.limit %}
+                {% if listingSearchResult.total > searchResult.limit %}
                     {% block element_product_listing_pagination_nav_bottom %}
                         {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                             entities: searchResult,

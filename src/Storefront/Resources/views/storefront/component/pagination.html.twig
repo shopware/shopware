@@ -3,7 +3,8 @@
 {% block component_pagination_nav %}
     {% set currentPage = currentPage ?? entities.page %}
 
-    {% set totalPages = totalPages ?? (entities.total / (entities.limit ?: 1))|round(0, 'ceil') %}
+    {# `entities` is either a plain EntitySearchResult or a result wrapper like ProductListingResult, which carries the total on its source #}
+    {% set totalPages = totalPages ?? ((entities.source.total ?? entities.total) / (entities.limit ?: 1))|round(0, 'ceil') %}
 
     {% set paginationSuffix = '' %}
     {% if paginationLocation %}

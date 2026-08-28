@@ -130,6 +130,6 @@ class CriteriaQueryBuilderTest extends TestCase
             new Criteria()
         );
 
-        return $result->getResult()->getEntities()->getIds();
+        return $result->getResult()->getSource()->getEntities()->getIds();
     }
 }

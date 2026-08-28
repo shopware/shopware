@@ -160,7 +160,7 @@ class CmsController extends StorefrontController
             ->getResult();
 
         $mapped = [];
-        foreach ($listing->getAggregations() as $aggregation) {
+        foreach ($listing->getSource()->getAggregations() as $aggregation) {
             $mapped[$aggregation->getName()] = $aggregation;
         }
 

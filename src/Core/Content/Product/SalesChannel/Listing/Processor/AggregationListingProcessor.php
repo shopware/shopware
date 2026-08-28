@@ -65,7 +65,7 @@ class AggregationListingProcessor extends AbstractListingProcessor
 
     private function addCurrentFilters(ProductListingResult $result): void
     {
-        $filters = $result->getCriteria()->getExtension('filters');
+        $filters = $result->getSource()->getCriteria()->getExtension('filters');
         if (!$filters instanceof FilterCollection) {
             return;
         }

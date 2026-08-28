@@ -93,7 +93,7 @@ class LogicDetectorTest extends TestCase
         yield 'parent constructor receiving own parameters is chaining' => ['parent::__construct($name, $key);', false];
         yield 'parent constructor receiving a call result is chaining' => ['parent::__construct($this->resolve($name));', false];
         yield 'parent constructor receiving an integer literal configures the parent' => ['parent::__construct($name, 64);', true];
-        yield 'parent constructor receiving a string literal configures the parent' => ["parent::__construct('cart_price_absolute');", true];
+        yield 'parent constructor receiving a string literal configures the parent' => ['parent::__construct(\'cart_price_absolute\');', true];
         yield 'parent constructor receiving a class constant configures the parent' => ['parent::__construct(self::TYPE);', true];
         yield 'parent constructor receiving an array literal configures the parent' => ['parent::__construct(["a" => $name]);', true];
         yield 'parent constructor receiving a new object configures the parent' => ['parent::__construct(new \\ArrayObject());', true];
@@ -128,7 +128,7 @@ class LogicDetectorTest extends TestCase
         yield 'compound assignment is still logic' => ['$m = "a"; $m .= "b"; return new \RuntimeException($m);', true];
         yield 'unset is still logic' => ['unset($params["secret"]); return new \RuntimeException("");', true];
         yield 'discarded own call is still logic' => ['$this->log(); return new \RuntimeException("");', true];
-        yield 'literal code and message handed to the parent are the error shape, not logic' => ["parent::__construct('Not found', 404);", false];
+        yield 'literal code and message handed to the parent are the error shape, not logic' => ['parent::__construct(\'Not found\', 404);', false];
     }
 
     private function parseMethod(string $body): ClassMethod

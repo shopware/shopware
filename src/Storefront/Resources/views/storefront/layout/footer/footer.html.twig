@@ -13,7 +13,7 @@
                 role="list"
             >
                 {% block layout_footer_navigation_hotline %}
-                    <div class="col-md-4 footer-column js-footer-column pb-4 pb-md-0" role="listitem">
+                    <div class="col-md-4 footer-column js-footer-column pb-4 pb-md-0"{% if feature('ACCESSIBILITY_TWEAKS') %} role="listitem"{% endif %}>
                         {% block layout_footer_navigation_hotline_headline %}
                             {% if feature('ACCESSIBILITY_TWEAKS') %}
 
@@ -45,7 +45,8 @@
                                      data-bs-target="#collapseFooterHotline"
                                      data-bs-toggle="collapse"
                                      aria-expanded="true"
-                                     aria-controls="collapseFooterHotline">
+                                     aria-controls="collapseFooterHotline"
+                                     role="listitem">
                                     {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
                                     {% block layout_footer_navigation_hotline_icons %}
@@ -71,7 +72,8 @@
 
                             <div id="collapseFooterHotline"
                                  class="footer-column-content collapse js-footer-column-content footer-contact{% if feature('ACCESSIBILITY_TWEAKS') %} mb-4 mb-md-0{% endif %}"
-                                 aria-labelledby="collapseFooterHotlineTitle">
+                                 aria-labelledby="collapseFooterHotlineTitle"{% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                 role="listitem"{% endif %}>
 
                                 <div class="footer-column-content-inner">
                                     <p class="footer-contact-hotline">
@@ -135,7 +137,7 @@
                 {% block layout_footer_navigation_columns %}
                     {% for root in footer.navigation.tree %}
                         {% block layout_footer_navigation_column %}
-                            <div class="col-md-4 footer-column js-footer-column" role="listitem">
+                            <div class="col-md-4 footer-column js-footer-column"{% if feature('ACCESSIBILITY_TWEAKS') %} role="listitem"{% endif %}>
                                 {% block layout_footer_navigation_information_headline %}
 
                                     {% if feature('ACCESSIBILITY_TWEAKS') %}
@@ -211,7 +213,8 @@
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
                                          class="footer-column-content collapse js-footer-column-content"
-                                         aria-labelledby="collapseFooterTitle{{ loop.index }}">
+                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"{% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                         role="listitem"{% endif %}>
 
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}

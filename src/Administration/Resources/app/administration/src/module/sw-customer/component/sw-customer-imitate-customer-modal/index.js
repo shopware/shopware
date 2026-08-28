@@ -34,6 +34,8 @@ export default {
     data() {
         return {
             salesChannelDomains: [],
+            imitateCustomerTokens: {},
+            isLoading: true,
         };
     },
 
@@ -86,27 +88,33 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.fetchSalesChannelDomains();
+            this.isLoading = true;
+
+            try {
+                await this.fetchSalesChannelDomains();
+                await this.fetchImitateCustomerTokens();
+            } finally {
+                this.isLoading = false;
+            }
         },
 
-        async onSalesChannelDomainMenuItemClick(salesChannelId, salesChannelDomainUrl) {
-            this.contextStoreService
-                .generateImitateCustomerToken(this.customer.id, salesChannelId)
-                .then((response) => {
-                    const handledResponse = ApiService.handleResponse(response);
+        onSalesChannelDomainMenuItemClick(salesChannelId, salesChannelDomainUrl) {
+            const token = this.imitateCustomerTokens[salesChannelId];
 
-                    this.contextStoreService.redirectToSalesChannelUrl(
-                        salesChannelDomainUrl,
-                        handledResponse.token,
-                        this.customer.id,
-                        this.currentUser?.id,
-                    );
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$t('sw-customer.detail.notificationImitateCustomerErrorMessage'),
-                    });
+            if (!token) {
+                this.createNotificationError({
+                    message: this.$t('sw-customer.detail.notificationImitateCustomerErrorMessage'),
                 });
+
+                return;
+            }
+
+            this.contextStoreService.redirectToSalesChannelUrl(
+                salesChannelDomainUrl,
+                token,
+                this.customer.id,
+                this.currentUser?.id,
+            );
         },
 
         onCancel() {
@@ -114,11 +122,26 @@ export default {
         },
 
         fetchSalesChannelDomains() {
-            this.salesChannelDomainRepository
+            return this.salesChannelDomainRepository
                 .search(this.salesChannelDomainCriteria, Shopware.Context.api)
                 .then((loadedDomains) => {
                     this.salesChannelDomains = loadedDomains;
                 });
+        },
+
+        fetchImitateCustomerTokens() {
+            const salesChannelIds = [...new Set(this.salesChannelDomains.map((domain) => domain.salesChannelId))];
+
+            return Promise.all(
+                salesChannelIds.map((salesChannelId) =>
+                    this.contextStoreService
+                        .generateImitateCustomerToken(this.customer.id, salesChannelId)
+                        .then((response) => {
+                            this.imitateCustomerTokens[salesChannelId] = ApiService.handleResponse(response).token;
+                        })
+                        .catch(() => {}),
+                ),
+            );
         },
     },
 };

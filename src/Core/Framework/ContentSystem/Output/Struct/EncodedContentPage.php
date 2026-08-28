@@ -11,8 +11,9 @@ use Shopware\Core\Framework\Struct\Struct;
  * no object variable behind any of its keys, passes the nested arrays through and adds the top-level `apiAlias`.
  *
  * The alias travels with the body rather than being fixed here, because one carrier serves every format that
- * writes its own body and each of them reports its own alias. Which alias a body carries is the format's
- * identity on the wire, so the parameter is required and has no default.
+ * writes its own body and each of them reports its own alias; every producer passes its own alias explicitly.
+ * `getApiAlias()` resolves through `??`, so an instance built without the constructor, which is how the
+ * framework reads a struct's alias, yields the fallback constant instead of an uninitialized-property error.
  *
  * Two properties every one of those aliases has make the carrier safe, and both are constraints rather than
  * luck. None of them resolves to a registered entity definition, so the protection gate short-circuits instead
@@ -32,12 +33,14 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class EncodedContentPage extends Struct
 {
+    private const FALLBACK_API_ALIAS = 'content_encoded_page';
+
     /**
      * @param array<string, mixed> $body
      */
     public function __construct(
         private readonly array $body,
-        private readonly string $apiAlias,
+        private readonly ?string $apiAlias = null,
     ) {
     }
 
@@ -51,6 +54,6 @@ class EncodedContentPage extends Struct
 
     public function getApiAlias(): string
     {
-        return $this->apiAlias;
+        return $this->apiAlias ?? self::FALLBACK_API_ALIAS;
     }
 }

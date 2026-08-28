@@ -148,14 +148,13 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, Uuid::randomHex()),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistryWithAppType('swag_warranty', [DocumentFormat::PDF->value]),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
             $this->createDocumentPersister(),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->availableTypes();
@@ -331,7 +330,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $controller = new DocumentV2Controller(
             $this->createGenerator($rendererRegistry, $orderId),
-            $rendererRegistry,
+            $this->createDocumentReader($rendererRegistry),
             $this->createTypeRegistryWithAppType('swag_warranty', [DocumentFormat::PDF->value]),
             $this->createArchiveGenerator(static::createStub(MediaService::class)),
             $this->documentRepository,
@@ -341,7 +340,6 @@ class DocumentV2ControllerTest extends TestCase
             ),
             static::createStub(MediaService::class),
             static::createStub(FileNameProvider::class),
-            $this->createDocumentFileResolver(),
         );
 
         $response = $controller->upload(

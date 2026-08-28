@@ -215,21 +215,22 @@ export default class DocumentV2Service {
             return label[locale] ?? label['en-GB'] ?? Object.values(label)[0] ?? technicalName;
         }
 
-        const translationKey = (
-            {
-                [DOCUMENT_TYPES.INVOICE]: 'sw-order.components.createDocumentModal.documentTypes.invoice',
-                [DOCUMENT_TYPES.CREDIT_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.creditNote',
-                [DOCUMENT_TYPES.CANCELLATION_INVOICE]:
-                    'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice',
-                [DOCUMENT_TYPES.DELIVERY_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.deliveryNote',
-            } as Record<string, string>
-        )[technicalName];
+        const translationKey =
+            (
+                {
+                    [DOCUMENT_TYPES.INVOICE]: 'sw-order.components.createDocumentModal.documentTypes.invoice',
+                    [DOCUMENT_TYPES.CREDIT_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.creditNote',
+                    [DOCUMENT_TYPES.CANCELLATION_INVOICE]:
+                        'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice',
+                    [DOCUMENT_TYPES.DELIVERY_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.deliveryNote',
+                } as Record<string, string>
+            )[technicalName] ?? `sw-order.components.createDocumentModal.documentTypes.${technicalName}`;
 
-        if (!translationKey) {
+        if (!Shopware.Snippet?.te?.(translationKey)) {
             return technicalName;
         }
 
         // @ts-expect-error
-        return (Shopware.Snippet?.t(translationKey) as string | undefined) ?? translationKey;
+        return (Shopware.Snippet?.tc(translationKey) as string | undefined) ?? technicalName;
     }
 }

@@ -18,8 +18,8 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
     StorefrontAccountProfile,
     StorefrontAccountAddresses,
     StorefrontAccountPayment,
+    StorefrontPageNotFound
 }) => {
-
     test.slow();
 
     const product = await TestDataService.createBasicProduct();
@@ -83,5 +83,10 @@ test('The Storefront should implement accessibility best practices.', { tag: ['@
     await test.step('Account Payment Accessibility', async () => {
         await ShopCustomer.goesTo(StorefrontAccountPayment.url());
         await ShopCustomer.attemptsTo(ValidateAccessibility('Account Payment', true));
+    });
+
+    await test.step('Page Not Found Accessibility', async () => {
+        await ShopCustomer.goesTo(StorefrontPageNotFound.url());
+        await ShopCustomer.attemptsTo(ValidateAccessibility('Page Not Found', true));
     });
 });

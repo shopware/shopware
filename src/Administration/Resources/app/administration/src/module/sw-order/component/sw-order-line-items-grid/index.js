@@ -287,7 +287,7 @@ export default {
             this.order.lineItems.unshift(item);
 
             this.$nextTick(() => {
-                this.$refs.dataGrid?.startInlineEdit(item);
+                this.$refs.dataGrid?.onDbClickCell(item);
             });
         },
 

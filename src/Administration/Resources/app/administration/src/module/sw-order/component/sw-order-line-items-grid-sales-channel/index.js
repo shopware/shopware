@@ -258,7 +258,7 @@ export default {
             Store.get('swOrder').setCartLineItems(this.cartLineItems);
 
             this.$nextTick(() => {
-                this.$refs.dataGrid?.startInlineEdit(item);
+                this.$refs.dataGrid?.onDbClickCell(item);
             });
         },
 

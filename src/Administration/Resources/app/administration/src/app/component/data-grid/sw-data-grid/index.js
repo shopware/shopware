@@ -702,10 +702,6 @@ export default {
         },
 
         onDbClickCell(record) {
-            this.startInlineEdit(record);
-        },
-
-        startInlineEdit(record) {
             if (!this.allowInlineEdit || !this.isRecordEditable(record)) {
                 return;
             }

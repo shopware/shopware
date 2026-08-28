@@ -196,7 +196,7 @@ With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic el
 
 Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
 
-# 6.7.14.0 (upcoming)
+# 6.7.14.0
 
 ## Features
 

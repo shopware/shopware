@@ -176,6 +176,21 @@ async function createWrapper(salesChannels = []) {
                 'sw-internal-link': true,
                 'sw-sales-channel-modal': true,
                 'router-link': true,
+                'mt-dropdown-menu-root': {
+                    template: '<div class="mt-dropdown-menu-root"><slot /></div>',
+                },
+                'mt-dropdown-menu-trigger': {
+                    template: '<div class="mt-dropdown-menu-trigger"><slot /></div>',
+                },
+                'mt-dropdown-menu-portal': {
+                    template: '<div class="mt-dropdown-menu-portal"><slot /></div>',
+                },
+                'mt-action-menu': {
+                    template: '<div class="mt-action-menu"><slot /></div>',
+                },
+                'mt-action-menu-item': {
+                    template: '<button class="mt-action-menu-item" @click="$emit(\'click\')"><slot /></button>',
+                },
             },
             provide: {
                 domainLinkService: {
@@ -220,6 +235,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
     beforeEach(async () => {
         Shopware.Service('salesChannelFavorites').state.favorites = [];
         Shopware.Store.get('session').languageId = defaultAdminLanguageId;
+        // Tests that collapse the sidebar persist that into localStorage — reset it.
+        Shopware.Store.get('adminMenu').expandSidebar();
         global.repositoryFactoryMock.showError = false;
     });
 
@@ -228,7 +245,7 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper();
 
-        const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');
+        const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-context-menu-add-sales-channel');
         expect(buttonCreateSalesChannel.exists()).toBeTruthy();
     });
 
@@ -237,7 +254,9 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper();
 
-        const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');
+        expect(wrapper.find('.sw-admin-menu__headline-action').exists()).toBeTruthy();
+
+        const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-context-menu-add-sales-channel');
         expect(buttonCreateSalesChannel.exists()).toBeFalsy();
     });
 
@@ -375,6 +394,9 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
         expect(moreItems.isVisible()).toBe(true);
         expect(moreItems.text()).toContain('sw-sales-channel.general.titleMenuMoreItems');
+
+        // the "more" item must never show the current page highlight
+        expect(moreItems.attributes('show-active-state')).toBe('false');
     });
 
     it('shows "more" when more than 50 sales channels are available and marked as favourites', async () => {
@@ -506,5 +528,144 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         await flushPromises();
 
         expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
+    });
+
+    // The collapsed tooltip itself is rendered by sw-admin-menu-item based on this prop
+    it('should pass the sidebar state down to the menu items for the collapsed tooltip', async () => {
+        Shopware.Store.get('adminMenu').collapseSidebar();
+
+        const wrapper = await createWrapper([headlessSalesChannel]);
+        await flushPromises();
+
+        const menuItem = wrapper.find('.sw-admin-menu__sales-channel-item');
+        expect(menuItem.attributes('sidebar-expanded')).toBe('false');
+
+        Shopware.Store.get('adminMenu').expandSidebar();
+        await flushPromises();
+
+        expect(menuItem.attributes('sidebar-expanded')).toBe('true');
+    });
+
+    it('should treat the mobile off-canvas panel as expanded for the menu items', async () => {
+        Shopware.Store.get('adminMenu').collapseSidebar();
+
+        const wrapper = await createWrapper([headlessSalesChannel]);
+        await flushPromises();
+
+        expect(wrapper.vm.mobileViewportQuery.addEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+
+        const menuItem = wrapper.find('.sw-admin-menu__sales-channel-item');
+        expect(menuItem.attributes('sidebar-expanded')).toBe('false');
+
+        wrapper.vm.isMobileViewport = true;
+        await flushPromises();
+
+        expect(menuItem.attributes('sidebar-expanded')).toBe('true');
+    });
+
+    it('should show an add channel menu item when no sales channels exist', async () => {
+        global.activeAclRoles = ['sales_channel.creator'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const addChannelItem = wrapper.find('.sw-sales-channel-menu__add-channel');
+        expect(addChannelItem.exists()).toBe(true);
+        expect(addChannelItem.text()).toContain('sw-sales-channel.general.addSalesChannel');
+
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(false);
+
+        await addChannelItem.find('button').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
+    });
+
+    it('should not show the add channel menu item without the creator privilege', async () => {
+        global.activeAclRoles = [];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-menu__add-channel').exists()).toBe(false);
+    });
+
+    it('should not show the add channel menu item when sales channels exist', async () => {
+        global.activeAclRoles = ['sales_channel.creator'];
+
+        const wrapper = await createWrapper([headlessSalesChannel]);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-menu__add-channel').exists()).toBe(false);
+    });
+
+    // Favourites of deleted channels filter the search down to zero rows although channels exist
+    it('should not show the add channel menu item when only stale favourites return no channels', async () => {
+        global.activeAclRoles = ['sales_channel.creator'];
+
+        const favoritesSpy = jest
+            .spyOn(Shopware.Service('salesChannelFavorites'), 'getFavoriteIds')
+            .mockReturnValue(['deleted-channel-id']);
+
+        const wrapper = await createWrapper([]);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-menu__add-channel').exists()).toBe(false);
+
+        favoritesSpy.mockRestore();
+    });
+
+    it('should close the headline action menu on route change', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.contextMenuOpen = true;
+
+        wrapper.vm.$options.watch['$route.path'].call(wrapper.vm);
+        await flushPromises();
+
+        expect(wrapper.vm.contextMenuOpen).toBe(false);
+    });
+
+    it('should close the headline action menu when the viewport switches to off-canvas mode', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.contextMenuOpen = true;
+
+        wrapper.vm.isMobileViewport = true;
+        await flushPromises();
+
+        expect(wrapper.vm.contextMenuOpen).toBe(false);
+    });
+
+    it('should keep the headline action menu open when the viewport switches back to desktop', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.isMobileViewport = true;
+        await flushPromises();
+
+        wrapper.vm.contextMenuOpen = true;
+
+        wrapper.vm.isMobileViewport = false;
+        await flushPromises();
+
+        expect(wrapper.vm.contextMenuOpen).toBe(true);
+    });
+
+    it('should open the headline action menu beside the rail while the sidebar is collapsed', async () => {
+        Shopware.Store.get('adminMenu').collapseSidebar();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const actionMenu = wrapper.find('.mt-action-menu');
+        expect(actionMenu.attributes('side')).toBe('right');
+
+        Shopware.Store.get('adminMenu').expandSidebar();
+        await flushPromises();
+
+        expect(actionMenu.attributes('side')).toBe('bottom');
     });
 });

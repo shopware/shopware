@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -99,8 +100,11 @@ class RedisCartPersister extends AbstractCartPersister
 
         $this->eventDispatcher->dispatch($event);
         if (!$event->shouldBePersisted()) {
-            $this->delete($cart->getToken(), $context);
-            $cart->setPersisted(false);
+            // skipping the persistence means the stored cart stays untouched, it must not be deleted
+            if (!$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE)) {
+                $this->delete($cart->getToken(), $context);
+                $cart->setPersisted(false);
+            }
 
             return;
         }

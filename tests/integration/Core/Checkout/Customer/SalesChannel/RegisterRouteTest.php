@@ -22,6 +22,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -264,7 +265,7 @@ class RegisterRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-            $response = $this->browser->getResponse();
+            $response = $browser->getResponse();
 
             $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
             static::assertNotEmpty($contextToken);
@@ -351,7 +352,7 @@ class RegisterRouteTest extends TestCase
             ], \JSON_THROW_ON_ERROR)
         );
 
-        $response = $this->browser->getResponse();
+        $response = $browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
         static::assertNotEmpty($contextToken);
@@ -410,8 +411,14 @@ class RegisterRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            static::assertNull($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        } else {
+            static::assertSame(
+                $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN),
+                $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN)
+            );
+        }
 
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $responseData);
@@ -1307,6 +1314,7 @@ class RegisterRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($this->browser->getResponse()->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertNotNull($contextToken);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', (string) $contextToken);
 
         $additionalData = [

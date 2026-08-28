@@ -22,17 +22,14 @@ use Symfony\Component\Finder\Finder;
  * routes to the <area> team and counts as equal to the plain <area> value in both
  * directions.
  *
- * Unit tests are compared against the #[Package] of the classes and traits named in
- * their CoversClass/CoversTrait attributes. Integration tests carry no covers
- * attributes; they are compared against the #[Package] values found in the nearest
- * existing `src/` directory their namespace mirrors, and pass when they match at
- * least one of them.
+ * Unit and migration tests are compared against the #[Package] of the classes and
+ * traits named in their CoversClass/CoversTrait attributes. Integration tests carry
+ * no covers attributes; they are compared against the #[Package] values found in the
+ * nearest existing `src/` directory their namespace mirrors, and pass when they match
+ * at least one of them.
  *
- * Enforced for the core unit and integration suites only. The migration suite joins
- * once it is aligned: several migrations carry `framework` although they migrate
- * feature-domain tables, and there the source value is the one that has to change.
- * Downstream repositories load this rule set as well and carry their own package
- * taxonomy, so their test namespaces stay out.
+ * Enforced for the core test suites only. Downstream repositories load this rule set
+ * as well and carry their own package taxonomy, so their test namespaces stay out.
  *
  * @internal
  *
@@ -42,6 +39,8 @@ use Symfony\Component\Finder\Finder;
 class TestPackageMatchRule implements Rule
 {
     private const UNIT_NAMESPACE = 'Shopware\Tests\Unit\\';
+
+    private const MIGRATION_NAMESPACE = 'Shopware\Tests\Migration\\';
 
     private const INTEGRATION_NAMESPACE = 'Shopware\Tests\Integration\\';
 
@@ -71,8 +70,9 @@ class TestPackageMatchRule implements Rule
         $classReflection = $node->getClassReflection();
         $className = $classReflection->getName();
 
-        $unit = \str_starts_with($className, self::UNIT_NAMESPACE);
-        if (!$unit && !\str_starts_with($className, self::INTEGRATION_NAMESPACE)) {
+        $covers = \str_starts_with($className, self::UNIT_NAMESPACE)
+            || \str_starts_with($className, self::MIGRATION_NAMESPACE);
+        if (!$covers && !\str_starts_with($className, self::INTEGRATION_NAMESPACE)) {
             return [];
         }
 
@@ -85,7 +85,7 @@ class TestPackageMatchRule implements Rule
             return [];
         }
 
-        return $unit
+        return $covers
             ? $this->matchCoveredClasses($node, $testPackage)
             : $this->matchMirroredDirectory($className, $testPackage);
     }

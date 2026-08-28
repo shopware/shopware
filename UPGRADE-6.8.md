@@ -1172,9 +1172,22 @@ The method must raise the stored increment state to at least the given value wit
 
 # Administration
 
+## Deprecated password verification members in `sw-users-permissions-user-listing`
+
+The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
+
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
+## Removed `integrationService.updateAdmin()`
+
+`Shopware.Service('integrationService').updateAdmin()` was removed. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
 
 <details>
 
@@ -2081,7 +2094,7 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 ## Footer collapse headlines and columns now use semantic elements
 
-In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements. 
+In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.
 
 - Collapse section headlines: `<div role="heading">` became `<h2>`.
 - Footer columns wrapper: `<div role="list">` became `<ul>` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).

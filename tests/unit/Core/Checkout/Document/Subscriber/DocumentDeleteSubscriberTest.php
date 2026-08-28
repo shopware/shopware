@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -38,11 +40,17 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentId = Uuid::randomBytes();
         $mediaId = Uuid::randomHex();
         $mediaIdA11y = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+        $documentNumber = '1000';
 
         $document = (new DocumentEntity())->assign([
             'id' => $documentId,
             'documentMediaFileId' => $mediaId,
             'documentA11yMediaFileId' => $mediaIdA11y,
+            'orderId' => $orderId,
+            'orderVersionId' => $orderVersionId,
+            'documentNumber' => $documentNumber,
         ]);
 
         $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
@@ -53,7 +61,7 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([]), // dependency check with empty result
             new EntitySearchResult(
-                DocumentEntity::class,
+                DocumentDefinition::ENTITY_NAME,
                 1,
                 new DocumentCollection([$document]),
                 null,
@@ -70,9 +78,23 @@ class DocumentDeleteSubscriberTest extends TestCase
             $mediaDefinition,
         );
 
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(DocumentDeletedEvent::class))
+            ->willReturnCallback(static function (DocumentDeletedEvent $event) use ($documentId, $orderId, $orderVersionId, $documentNumber) {
+                static::assertSame($documentId, $event->documentId);
+                static::assertSame($orderId, $event->orderId);
+                static::assertSame($orderVersionId, $event->orderVersionId);
+                static::assertSame($documentNumber, $event->documentNumber);
+
+                return $event;
+            });
+
         $subscriber = new DocumentDeleteSubscriber(
             $documentRepository,
             $mediaRepository,
+            $eventDispatcher,
         );
 
         $entityDeleteEvent = $this->createEntityDeleteEvent(
@@ -96,6 +118,9 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentId = Uuid::randomBytes();
         $pdfMediaId = Uuid::randomHex();
         $htmlMediaId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+        $documentNumber = '1000';
 
         $pdfDocumentFile = (new DocumentFileEntity())->assign([
             'id' => Uuid::randomHex(),
@@ -113,6 +138,9 @@ class DocumentDeleteSubscriberTest extends TestCase
         $document = (new DocumentEntity())->assign([
             'id' => $documentId,
             'documentFiles' => new DocumentFileCollection([$pdfDocumentFile, $htmlDocumentFile]),
+            'orderId' => $orderId,
+            'orderVersionId' => $orderVersionId,
+            'documentNumber' => $documentNumber,
         ]);
 
         $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
@@ -123,7 +151,7 @@ class DocumentDeleteSubscriberTest extends TestCase
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([]), // dependency check with empty result
             new EntitySearchResult(
-                DocumentEntity::class,
+                DocumentDefinition::ENTITY_NAME,
                 1,
                 new DocumentCollection([$document]),
                 null,
@@ -140,9 +168,23 @@ class DocumentDeleteSubscriberTest extends TestCase
             $mediaDefinition,
         );
 
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(DocumentDeletedEvent::class))
+            ->willReturnCallback(static function (DocumentDeletedEvent $event) use ($documentId, $orderId, $orderVersionId, $documentNumber) {
+                static::assertSame($documentId, $event->documentId);
+                static::assertSame($orderId, $event->orderId);
+                static::assertSame($orderVersionId, $event->orderVersionId);
+                static::assertSame($documentNumber, $event->documentNumber);
+
+                return $event;
+            });
+
         $subscriber = new DocumentDeleteSubscriber(
             $documentRepository,
             $mediaRepository,
+            $eventDispatcher,
         );
 
         $entityDeleteEvent = $this->createEntityDeleteEvent(
@@ -186,7 +228,7 @@ class DocumentDeleteSubscriberTest extends TestCase
 
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
-                DocumentEntity::class,
+                DocumentDefinition::ENTITY_NAME,
                 1,
                 new DocumentCollection([$dependingDocument]),
                 null,
@@ -206,6 +248,7 @@ class DocumentDeleteSubscriberTest extends TestCase
         $subscriber = new DocumentDeleteSubscriber(
             $documentRepository,
             $mediaRepository,
+            static::createStub(EventDispatcherInterface::class),
         );
 
         $entityDeleteEvent = $this->createEntityDeleteEvent(

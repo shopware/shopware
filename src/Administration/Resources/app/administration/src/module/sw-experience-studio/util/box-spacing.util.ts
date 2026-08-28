@@ -173,22 +173,6 @@ export type SerializeBoxSpacingOptions = {
  * @private
  * @sw-package discovery
  */
-export function isBoxSpacingStyleOption(
-    option:
-        | {
-              adminUI?: {
-                  component?: string;
-              } | null;
-          }
-        | undefined,
-): boolean {
-    return option?.adminUI?.component === 'box-spacing';
-}
-
-/**
- * @private
- * @sw-package discovery
- */
 export function normalizeBoxSpacingCSSValue(value: unknown): string {
     if (value === null || value === undefined) {
         return '';
@@ -209,28 +193,6 @@ export function normalizeBoxSpacingCSSValue(value: unknown): string {
     }
 
     return serializeBoxSpacing(parseBoxSpacing(stringValue), { explicit: true });
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function normalizeBoxSpacingStyleValueForWrite(value: unknown): unknown {
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        return Object.fromEntries(
-            Object.entries(value).map(
-                ([
-                    breakpoint,
-                    entryValue,
-                ]) => [
-                    breakpoint,
-                    normalizeBoxSpacingCSSValue(entryValue),
-                ],
-            ),
-        );
-    }
-
-    return normalizeBoxSpacingCSSValue(value);
 }
 
 /**

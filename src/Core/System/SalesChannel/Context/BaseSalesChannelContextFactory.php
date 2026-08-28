@@ -105,23 +105,21 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             throw SalesChannelException::salesChannelNotFound($salesChannelId);
         }
 
+        $currencyId = $salesChannel->getCurrencyId();
         if (\array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
             $currencyId = $options[SalesChannelContextService::CURRENCY_ID];
             if (!\is_string($currencyId) || !Uuid::isValid($currencyId)) {
                 throw SalesChannelException::invalidCurrencyId();
             }
-
-            $availableCurrencies = $salesChannel->getCurrencies();
-            if ($availableCurrencies === null || !$availableCurrencies->has($currencyId)) {
-                throw SalesChannelException::currencyNotFound($currencyId);
-            }
-
-            $currency = $availableCurrencies->get($currencyId);
-        } else {
-            $currency = $salesChannel->getCurrency();
         }
 
-        if ($currency === null) {
+        $availableCurrencies = $salesChannel->getCurrencies();
+        if ($availableCurrencies === null || (!$availableCurrencies->has($currencyId) && $currencyId !== $salesChannel->getCurrencyId())) {
+            throw SalesChannelException::currencyNotFound($currencyId);
+        }
+
+        $currency = $availableCurrencies->get($currencyId) ?? $salesChannel->getCurrency();
+        if ($currency === null || $currency->getId() !== $currencyId) {
             throw SalesChannelException::currencyNotFound($salesChannel->getCurrencyId());
         }
 

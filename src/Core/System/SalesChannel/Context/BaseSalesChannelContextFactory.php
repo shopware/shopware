@@ -89,6 +89,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
         $criteria = new Criteria([$salesChannelId]);
         $criteria->setTitle('base-context-factory::sales-channel');
+        $criteria->addAssociation('currency');
         $criteria->addAssociation('currencies');
         $criteria->addAssociation('domains');
 
@@ -104,20 +105,25 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             throw SalesChannelException::salesChannelNotFound($salesChannelId);
         }
 
-        $currencyId = $salesChannel->getCurrencyId();
         if (\array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
             $currencyId = $options[SalesChannelContextService::CURRENCY_ID];
             if (!\is_string($currencyId) || !Uuid::isValid($currencyId)) {
                 throw SalesChannelException::invalidCurrencyId();
             }
+
+            $availableCurrencies = $salesChannel->getCurrencies();
+            if ($availableCurrencies === null || !$availableCurrencies->has($currencyId)) {
+                throw SalesChannelException::currencyNotFound($currencyId);
+            }
+
+            $currency = $availableCurrencies->get($currencyId);
+        } else {
+            $currency = $salesChannel->getCurrency();
         }
 
-        $availableCurrencies = $salesChannel->getCurrencies();
-        if ($availableCurrencies === null || !$availableCurrencies->has($currencyId)) {
-            throw SalesChannelException::currencyNotFound($currencyId);
+        if ($currency === null) {
+            throw SalesChannelException::currencyNotFound($salesChannel->getCurrencyId());
         }
-
-        $currency = $availableCurrencies->get($currencyId);
 
         // load not logged in customer with default shop configuration or with provided checkout scopes
         $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);

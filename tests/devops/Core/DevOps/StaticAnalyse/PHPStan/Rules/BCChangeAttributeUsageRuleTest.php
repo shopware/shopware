@@ -22,111 +22,143 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/BCChangeAttributeUsageRule/BCChangeAttributeUsage.php'], [
             [
                 'BecomesFinal on "AlreadyFinalClass": the class is already final.',
-                22,
+                28,
             ],
             [
                 'BecomesInternal on "WrongVersionFormatClass": version "6.8.0" must match the format "v6.8.0".',
-                27,
+                33,
             ],
             [
                 'BecomesInternal on "AlreadyInternalClass": the class is already @internal.',
-                35,
+                41,
             ],
             [
                 'NewOptionalParameter on "MethodLevelViolations::leadingDollar()": parameter name "$states" must be given without the leading "$".',
-                42,
+                48,
             ],
             [
                 'NewOptionalParameter on "MethodLevelViolations::alreadyExistingParameter()": parameter "existing" already exists.',
-                47,
+                53,
             ],
             [
                 'ParameterNameChange on "MethodLevelViolations::missingParameter()": parameter "missing" does not exist.',
-                52,
+                58,
             ],
             [
                 'BecomesAbstract on "MethodLevelViolations::alreadyAbstract()": the method is already abstract.',
-                57,
+                63,
             ],
             [
                 'VisibilityChange on "MethodLevelViolations::alreadyProtected()": announced visibility "protected" is not narrower than the current visibility.',
-                60,
+                66,
             ],
             [
                 'ReturnTypeNarrowing on "SealedClass::narrowingOnFinalClass()": the class is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
-                88,
+                94,
             ],
             [
                 'NewOptionalParameter on "SoftSealedClass::newParameterOnSoftFinalClass()": the class is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
-                105,
+                111,
             ],
             [
                 'ParameterTypeWidening on "ClassWithFinalMethod::wideningOnFinalMethod()": the method is final, so no extenders can exist. Apply the announced change directly instead of announcing it.',
-                113,
+                119,
             ],
             [
                 'ParameterTypeNarrowing on "RuntimeDetectableViolations::narrowingWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
-                121,
+                127,
             ],
             [
                 'BecomesAbstract on "RuntimeDetectableViolations::becomesAbstractWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
-                126,
+                132,
             ],
             [
                 'ParameterRemoval on "RuntimeDetectableViolations::removalWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
-                131,
+                137,
             ],
             [
                 'NewRequiredParameter on "NewRequiredParameterCases::requiredAlreadyExists()": parameter "existing" already exists.',
-                147,
-            ],
-            [
-                'NewRequiredParameter on "NewRequiredParameterCases::requiredWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
                 153,
             ],
             [
+                'NewRequiredParameter on "NewRequiredParameterCases::requiredWithoutTrigger()": the legacy usage is detectable at runtime, but the method does not call "Feature::triggerDeprecationOrThrow". Trigger a deprecation when the method is used in a way that breaks with the announced change.',
+                159,
+            ],
+            [
                 'ExceptionChange on "ExceptionChangeCases::narrowingIsCovered()": every announced exception is already covered by the current "@throws" contract. Throwing narrower exceptions is not a BC change; apply it directly instead of announcing it.',
-                207,
+                213,
             ],
             [
                 'ExceptionChange on "ExceptionChangeCases::unchangedIsCovered()": every announced exception is already covered by the current "@throws" contract. Throwing narrower exceptions is not a BC change; apply it directly instead of announcing it.',
-                215,
+                221,
             ],
             [
                 'ExceptionChange on "ExceptionChangeCases::notAThrowable()": announced class "ArrayObject" is not a Throwable.',
-                223,
+                229,
             ],
             [
                 'ExceptionChange on "ExceptionChangeCases::unresolvableExceptionClass()": announced exception "UnimportedException" is not a resolvable class. Reference exception classes via ::class.',
-                231,
+                237,
             ],
             [
                 'ParameterDefaultValueChange on "ParameterDefaultValueChangeCases::missingParameter()": parameter "missing" does not exist.',
-                247,
+                253,
             ],
             [
                 'ParameterDefaultValueChange on "ParameterDefaultValueChangeCases::requiredParameter()": parameter "required" has no current default value.',
-                252,
+                258,
             ],
             [
                 'ParameterDefaultValueChange on "ParameterDefaultValueChangeCases::unchangedDefault()": announced default value for parameter "value" is already current.',
-                257,
+                263,
             ],
             [
                 'ParameterRemoval on "ParameterRemovalCases::requiredParameter()": parameter "required" is required. Removing a required parameter is not actionable before the major release; introduce a new method or factory with the future signature and deprecate the old method instead.',
-                275,
+                281,
             ],
             [
                 'ParameterRemoval on "ParameterRemovalCases::leadingDollar()": parameter name "$optional" must be given without the leading "$".',
-                288,
+                294,
             ],
             [
                 'ParameterRemoval on "ParameterRemovalCases::leadingDollar()": parameter "$optional" does not exist.',
-                288,
+                294,
+            ],
+            [
+                'VisibilityChange on "PropertyLevelViolations::$alreadyProtected": announced visibility "protected" is not narrower than the current visibility.',
+                310,
+            ],
+            [
+                'PropertyTypeNarrowing on "PropertyLevelViolations::$unchangedType": announced type "string" is identical to the current property type.',
+                313,
+            ],
+            [
+                'BecomesReadonly on "PropertyLevelViolations::$alreadyReadonly": the property is already readonly.',
+                316,
+            ],
+            [
+                'PropertyTypeNarrowing on "PromotedPropertyLevelViolations::$unchangedType": announced type "string" is identical to the current property type.',
+                323,
+            ],
+            [
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "inheritedMethod()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                335,
+            ],
+            [
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "ancestorMethod()" from "HierarchyRoot" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                335,
+            ],
+            [
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "providedByProtectedNewParent()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                335,
+            ],
+            [
+                'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "providedByTrait()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                335,
             ],
             [
                 'NamespaceChange on "NamespaceChangeWithWrongLocation": newLocation "Shopware\\Core\\Some\\Other\\Location" must be the fully qualified class name ending in "NamespaceChangeWithWrongLocation". A namespace move keeps the class name.',
-                302,
+                374,
             ],
         ]);
     }

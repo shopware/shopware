@@ -5,12 +5,14 @@ namespace Shopware\Core\Checkout\Document\SalesChannel;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
@@ -23,6 +25,8 @@ use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -47,7 +51,9 @@ final class DocumentRoute extends AbstractDocumentRoute
      */
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
+        private readonly DocumentReader $documentReader,
         private readonly EntityRepository $documentRepository,
+        private readonly RateLimiter $rateLimiter,
         private readonly GuestAuthenticator $guestAuthenticator,
         private readonly iterable $renderers,
     ) {
@@ -69,40 +75,54 @@ final class DocumentRoute extends AbstractDocumentRoute
         Request $request,
         SalesChannelContext $context,
         string $deepLinkCode = '',
-        ?string $fileType = null
+        ?string $fileType = null,
+        ?string $format = null,
     ): Response {
-        $this->checkAuth($documentId, $request, $context);
-
-        $isGuest = $context->getCustomer() === null || $context->getCustomer()->getGuest();
-        if ($isGuest && $deepLinkCode === '') {
-            throw DocumentException::customerNotLoggedIn();
-        }
+        $documentEntity = $this->checkAuth($documentId, $deepLinkCode, $request, $context);
 
         $download = $request->query->getBoolean('download');
 
-        $fileTypes = $this->resolveRequest($request, $fileType);
+        $documentFiles = $documentEntity->getDocumentFiles();
+        $isDocumentV2 = $documentFiles !== null && $documentFiles->count() > 0;
 
-        $document = $this->readDocument(
-            $documentId,
-            $context->getContext(),
-            $deepLinkCode,
-            $fileTypes,
-        );
+        if ($isDocumentV2 && $format === null && $request->query->has('format')) {
+            $format = $request->query->getString('format');
+        }
 
-        if ($document === null) {
-            if (!Feature::isActive('v6.8.0.0')) {
-                /*
-                 * this response code needs to be removed also in the api-schema-docs:
-                 * src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/paths/document.json
-                 */
-                return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+        if (!$isDocumentV2) {
+            $fileTypes = $this->resolveRequest($request, $fileType);
+
+            $document = $this->readDocument(
+                $documentId,
+                $context->getContext(),
+                $deepLinkCode,
+                $fileTypes,
+            );
+
+            if ($document === null) {
+                if (!Feature::isActive('v6.8.0.0')) {
+                    /*
+                     * this response code needs to be removed also in the api-schema-docs:
+                     * src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/paths/document.json
+                     */
+                    return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+                }
+
+                throw DocumentException::documentFileTypeUnavailable(
+                    $documentId,
+                    $fileTypes
+                );
             }
 
-            throw DocumentException::documentFileTypeUnavailable(
-                $documentId,
-                $fileTypes
+            return $this->createResponse(
+                $document->getName(),
+                $document->getContent(),
+                $download,
+                $document->getContentType()
             );
         }
+
+        $document = $this->documentReader->read($documentId, $context->getContext(), $deepLinkCode, $format);
 
         return $this->createResponse(
             $document->getName(),
@@ -180,39 +200,75 @@ final class DocumentRoute extends AbstractDocumentRoute
         return $response;
     }
 
-    private function checkAuth(string $documentId, Request $request, SalesChannelContext $context): void
+    private function checkAuth(string $documentId, string $deepLinkCode, Request $request, SalesChannelContext $context): DocumentEntity
     {
         $criteria = (new Criteria([$documentId]))
-            ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
+            ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress', 'documentFiles']);
 
         $document = $this->documentRepository->search($criteria, $context->getContext())->getEntities()->first();
+
         if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
         $order = $document->getOrder();
+
         if (!$order) {
             throw DocumentException::orderNotFound($document->getOrderId());
         }
 
         $orderCustomer = $order->getOrderCustomer();
+        $contextCustomer = $context->getCustomer();
 
         if ($orderCustomer === null || $orderCustomer->getCustomerId() === null) {
             throw DocumentException::customerNotLoggedIn();
         }
 
-        if ($orderCustomer->getCustomerId() === $context->getCustomer()?->getId()) {
-            return;
+        $isGuestContext = $contextCustomer === null || $contextCustomer->getGuest();
+        $isOwner = $orderCustomer->getCustomerId() === $contextCustomer?->getId();
+
+        if ($isGuestContext && $deepLinkCode === '') {
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        if ($isOwner) {
+            return $document;
+        }
+
+        if (!$orderCustomer->getCustomer()?->getGuest()) {
+            if (Feature::isActive('v6.8.0.0')) {
+                // always throws here: the validator rejects an order that was not placed by a guest
+                $this->guestAuthenticator->validate($order, $request);
+            }
+
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        $cacheKey = strtolower($documentId) . '-' . ($request->getClientIp() ?? '');
+
+        try {
+            $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
+        } catch (RateLimitExceededException $exception) {
+            throw DocumentException::documentAuthThrottledException($exception->getWaitTime());
+        }
+
+        if ($document->getDeepLinkCode() !== $deepLinkCode) {
+            throw DocumentException::documentNotFound($documentId);
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
             // feature flag due to different exceptions
             Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $orderCustomer, $request));
 
-            return;
+            $this->rateLimiter->reset(RateLimiter::GUEST_LOGIN, $cacheKey);
+
+            return $document;
         }
 
         $this->guestAuthenticator->validate($order, $request);
+        $this->rateLimiter->reset(RateLimiter::GUEST_LOGIN, $cacheKey);
+
+        return $document;
     }
 
     /**

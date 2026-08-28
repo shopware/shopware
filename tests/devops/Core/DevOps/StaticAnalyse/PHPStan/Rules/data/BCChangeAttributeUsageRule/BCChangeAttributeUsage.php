@@ -5,6 +5,8 @@ namespace Shopware\Core\DevOps\MyFakeNamespace;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
@@ -14,9 +16,13 @@ use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\DirectHierarchyMethodTrait;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\NewHierarchyParent;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\OldHierarchyParent;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[BecomesFinal(version: 'v6.8.0')]
@@ -296,6 +302,72 @@ class ParameterRemovalCases
         if ($legacy !== null) {
             Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing a non-default value for $legacy is deprecated');
         }
+    }
+}
+
+class PropertyLevelViolations
+{
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
+    protected string $alreadyProtected;
+
+    #[PropertyTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+    protected string $unchangedType;
+
+    #[BecomesReadonly(version: 'v6.8.0')]
+    protected readonly string $alreadyReadonly;
+}
+
+class PromotedPropertyLevelViolations
+{
+    public function __construct(
+        #[PropertyTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+        protected string $unchangedType,
+    ) {
+    }
+}
+
+class ValidPropertyUsage
+{
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
+    public string $becomesProtected;
+}
+
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Changes parent.', newParentClass: NewHierarchyParent::class)]
+class InvalidHierarchyChange extends OldHierarchyParent
+{
+    public function overriddenWithoutDeprecation(): void
+    {
+    }
+}
+
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Changes parent.', newParentClass: NewHierarchyParent::class)]
+class ValidHierarchyChange extends OldHierarchyParent
+{
+    use DirectHierarchyMethodTrait;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function ancestorMethod(): void
+    {
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function inheritedMethod(): void
+    {
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function overriddenWithoutDeprecation(): void
+    {
+    }
+
+    public function providedByProtectedNewParent(): void
+    {
     }
 }
 

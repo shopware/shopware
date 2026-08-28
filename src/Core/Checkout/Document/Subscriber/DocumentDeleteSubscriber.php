@@ -6,7 +6,9 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
@@ -14,7 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
@@ -33,6 +37,7 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly EntityRepository $documentRepository,
         private readonly EntityRepository $mediaRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -64,6 +69,8 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
         $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
         $mediaIds = [];
+        $deletedDocuments = [];
+
         foreach ($documents as $document) {
             // Legacy documents have a single media file and an optional accessibility media file
             // We keep this logic for backward compatibility
@@ -79,18 +86,40 @@ class DocumentDeleteSubscriber implements EventSubscriberInterface
             foreach ($document->getDocumentFiles() ?? [] as $documentFile) {
                 $mediaIds[] = ['id' => $documentFile->getMediaId()];
             }
+
+            $deletedDocuments[] = [
+                'id' => $document->getId(),
+                'orderId' => $document->getOrderId(),
+                'orderVersionId' => $document->getOrderVersionId(),
+                'documentNumber' => $document->getDocumentNumber() ?? '',
+            ];
         }
 
-        if ($mediaIds === []) {
-            return;
+        if ($mediaIds !== []) {
+            $event->addSuccess(
+                function () use ($mediaIds, $context): void {
+                    $this->mediaRepository->delete(
+                        $mediaIds,
+                        $context,
+                    );
+                }
+            );
         }
 
         $event->addSuccess(
-            function () use ($mediaIds, $context): void {
-                $this->mediaRepository->delete(
-                    $mediaIds,
-                    $context,
-                );
+            function () use ($deletedDocuments, $context): void {
+                $deletedAt = Clock::get()->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+                foreach ($deletedDocuments as $deletedDocument) {
+                    $this->eventDispatcher->dispatch(new DocumentDeletedEvent(
+                        $deletedDocument['id'],
+                        $deletedDocument['orderId'],
+                        $deletedDocument['orderVersionId'],
+                        $deletedDocument['documentNumber'],
+                        $deletedAt,
+                        $context,
+                    ));
+                }
             }
         );
     }

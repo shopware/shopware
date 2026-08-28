@@ -97,6 +97,10 @@ final class LogicDetector
             return true;
         }
 
+        if (!$inThrowableContext && self::configuresTheParent($method->stmts)) {
+            return true;
+        }
+
         // Message-variant if/else arms legitimately write the same local once per arm;
         // with the branches exempt, counting those writes would re-flag them.
         if ($inThrowableContext) {
@@ -206,6 +210,48 @@ final class LogicDetector
         }
 
         return false;
+    }
+
+    /**
+     * A `parent::` call that receives a literal (`parent::__construct($name, 64)`,
+     * `parent::__construct('cart_price_absolute')`, `new WriteProtected()`) hard-codes a
+     * decision the subclass owns: it exists to configure the parent, and that
+     * configuration is behaviour worth pinning. Forwarding its own parameters unchanged
+     * is plain chaining. Exception constructors are exempt (codes and messages are the
+     * error's shape, decided by the throwable exemption).
+     *
+     * @param array<Stmt> $stmts
+     */
+    private static function configuresTheParent(array $stmts): bool
+    {
+        $hit = (new NodeFinder())->findFirst($stmts, static function (Node $node): bool {
+            if (!$node instanceof Expr\StaticCall || !$node->class instanceof Node\Name || $node->class->toLowerString() !== 'parent') {
+                return false;
+            }
+
+            foreach ($node->args as $arg) {
+                if ($arg instanceof Node\Arg && self::isLiteral($arg->value)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        return $hit !== null;
+    }
+
+    private static function isLiteral(Expr $expr): bool
+    {
+        if ($expr instanceof Expr\UnaryMinus || $expr instanceof Expr\UnaryPlus) {
+            return self::isLiteral($expr->expr);
+        }
+
+        return $expr instanceof Node\Scalar
+            || $expr instanceof Expr\ConstFetch
+            || $expr instanceof Expr\ClassConstFetch
+            || $expr instanceof Expr\Array_
+            || $expr instanceof Expr\New_;
     }
 
     /**

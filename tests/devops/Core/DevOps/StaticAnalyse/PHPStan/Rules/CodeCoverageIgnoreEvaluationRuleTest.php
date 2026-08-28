@@ -180,6 +180,35 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             [],
         ];
 
+        yield 'literal handed to the parent constructor fails' => [
+            ['ParentChainConstructorParent.php', 'ParentLiteralConfigClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'ParentLiteralConfigClass is annotated @codeCoverageIgnore but method __construct() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
+        yield 'constructor default equal to the parent default passes' => [
+            ['DefaultingConstructorParent.php', 'ChildSameDefaultClass.php'],
+            [],
+        ];
+
+        yield 'constructor default differing from the parent default fails' => [
+            ['DefaultingConstructorParent.php', 'ChildDefaultOverrideClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'ChildDefaultOverrideClass is annotated @codeCoverageIgnore but method __construct() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
+        yield 'constructor default the parent does not have fails' => [
+            ['DefaultingConstructorParent.php', 'ChildIntroducesDefaultClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'ChildIntroducesDefaultClass is annotated @codeCoverageIgnore but method __construct() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
         yield 'array offset assignment ($this->arr[$k] = $v) is not logic' => [
             ['ArraySetterClass.php'],
             [],

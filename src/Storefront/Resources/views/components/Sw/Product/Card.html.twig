@@ -149,13 +149,13 @@
             </div>
         </div>
         {% block loading_indicator %}
-            <twig:Sw:Product:CardLoader />
+            <twig:Sw:Product:CardPlaceholder
+                :loadingIndicator="true"
+                animation="wave"
+            />
         {% endblock %}
     {% else %}
         <twig:Sw:Media:Image :media="null"/>
-        <twig:Sw:Product:CardLoader 
-            class="sw-product-card__placeholder"
-            :animationType="''"
-        />
+        <twig:Sw:Product:CardPlaceholder />
     {% endif %}
 </div>

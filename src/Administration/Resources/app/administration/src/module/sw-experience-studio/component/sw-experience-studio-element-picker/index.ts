@@ -85,7 +85,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             return groups
                 .sort((a, b) => {
-                    const categoryOrder = this.categoryOrder as string[];
+                    const categoryOrder = this.categoryOrder;
                     const aPriority = categoryOrder.indexOf(a.key);
                     const bPriority = categoryOrder.indexOf(b.key);
                     const resolvedAPriority = aPriority === -1 ? Number.MAX_SAFE_INTEGER : aPriority;

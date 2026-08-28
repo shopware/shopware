@@ -198,7 +198,11 @@ export function normalizeBoxSpacingCSSValue(value: unknown): string {
         return serializeBoxSpacing(parseBoxSpacing(String(value)), { explicit: true });
     }
 
-    const stringValue = String(value).trim();
+    if (typeof value !== 'string') {
+        return '';
+    }
+
+    const stringValue = value.trim();
 
     if (stringValue === '') {
         return '';

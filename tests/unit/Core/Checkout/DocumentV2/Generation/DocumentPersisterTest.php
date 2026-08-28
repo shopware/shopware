@@ -12,12 +12,17 @@ use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
@@ -30,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -70,12 +76,16 @@ class DocumentPersisterTest extends TestCase
 
         $order = new OrderEntity();
         $order->setVersionId($this->renderedOrderVersionId);
+        $order->setSalesChannelId(Uuid::randomHex());
 
         $this->renderInput = new RenderInput(
             self::DOCUMENT_TYPE,
             '12345',
             $order,
-            ['test' => new StaticRenderData()]
+            [
+                'test' => new StaticRenderData(),
+                DocumentMetaProvider::KEY => $this->createMetaRenderData(),
+            ],
         );
 
         $this->renderState = new RenderState();
@@ -124,6 +134,21 @@ class DocumentPersisterTest extends TestCase
         static::assertSame($fileId, $documentFileRepository->creates[0][0]['mediaId']);
     }
 
+    public function testPersistDefaultsDisplayInCustomerAccountToFalseWhenNotConfigured(): void
+    {
+        [$persister, $documentRepository] = $this->createPersister(Uuid::randomHex());
+        $persister->persist(
+            $this->generationRequest,
+            $this->renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            null,
+            $this->context,
+        );
+
+        static::assertFalse($documentRepository->creates[0][0]['config']['displayInCustomerAccount']);
+    }
+
     public function testPersistDispatchesDocumentGeneratedEvent(): void
     {
         $documentTypeId = Uuid::randomHex();
@@ -152,6 +177,32 @@ class DocumentPersisterTest extends TestCase
             null,
             $this->context,
         );
+    }
+
+    public function testPersistCarriesDisplayInCustomerAccountFromTheDocumentTypeConfig(): void
+    {
+        [$persister, $documentRepository] = $this->createPersister(Uuid::randomHex());
+
+        $renderInput = new RenderInput(
+            self::DOCUMENT_TYPE,
+            '12345',
+            $this->renderInput->order,
+            [
+                'test' => new StaticRenderData(),
+                DocumentMetaProvider::KEY => $this->createMetaRenderData(legacyConfig: ['displayInCustomerAccount' => true]),
+            ],
+        );
+
+        $persister->persist(
+            $this->generationRequest,
+            $renderInput,
+            $this->renderState,
+            [self::FORMAT],
+            null,
+            $this->context,
+        );
+
+        static::assertTrue($documentRepository->creates[0][0]['config']['displayInCustomerAccount']);
     }
 
     public function testPersistUsesFileNameProviderResolvedName(): void
@@ -477,5 +528,31 @@ class DocumentPersisterTest extends TestCase
             $documentRepository,
             $documentFileRepository,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $legacyConfig
+     */
+    private function createMetaRenderData(array $legacyConfig = []): DocumentMetaRenderData
+    {
+        return new DocumentMetaRenderData(
+            config: new DocumentConfig(
+                pageSize: 'a4',
+                pageOrientation: 'portrait',
+                itemsPerPage: 10,
+            ),
+            company: new DocumentCompanyInfo(
+                'Example',
+                'Example Street 1',
+                '12345',
+                'Example City',
+                new CountryEntity(),
+            ),
+            display: new DocumentDisplayOptions(),
+            documentDate: '2024-01-01 00:00:00',
+            documentNumber: '12345',
+            documentComment: null,
+            legacyConfig: $legacyConfig,
+        );
     }
 }

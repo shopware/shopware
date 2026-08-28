@@ -29,6 +29,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -99,9 +100,7 @@ class ZugferdDocument
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - added new parameter $calculator
-     */
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'calculator', parameterType: AmountCalculator::class)]
     public function getContent(OrderEntity $order/* , AmountCalculator $calculator */): string
     {
         $calculator = func_get_arg(1);

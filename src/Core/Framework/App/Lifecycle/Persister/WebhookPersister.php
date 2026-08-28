@@ -5,9 +5,11 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 
 /**
@@ -23,19 +25,23 @@ class WebhookPersister
     public function __construct(
         private readonly Connection $connection,
         private readonly WebhookCacheClearer $cacheClearer,
+        private readonly WebhookTargetValidator $targetValidator,
     ) {
     }
 
     /**
      * @param array<array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int}> $webhooks
      */
-    public function updateWebhooksFromArray(array $webhooks, string $appId, Context $context): void
+    public function updateWebhooksFromArray(array $webhooks, string $appId, Context $context, string $appName): void
     {
         $existingWebhooks = $this->getExistingWebhooks($appId);
         $updates = [];
         $inserts = [];
 
         foreach ($webhooks as $webhook) {
+            if ($this->targetValidator->validate($webhook['url']) === null) {
+                throw AppException::registrationFailed($appName, 'Webhook target is not allowed.');
+            }
             $payload = $this->toRecord($webhook, $appId);
 
             if ($id = array_search($webhook['name'], $existingWebhooks, true)) {

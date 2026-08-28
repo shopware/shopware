@@ -123,7 +123,12 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private function validateAggregation(Aggregation $aggregation): void
     {
-        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
+        if (
+            str_contains($aggregation->getName(), '?')
+            || str_contains($aggregation->getName(), ':')
+            // https://www.php.net/manual/en/regexp.reference.unicode.php
+            || preg_match('/\p{Cc}/u', $aggregation->getName()) === 1
+        ) {
             throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
         }
 

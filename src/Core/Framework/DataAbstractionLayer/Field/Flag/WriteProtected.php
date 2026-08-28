@@ -12,6 +12,8 @@ class WriteProtected extends Flag
      */
     private array $allowedScopes = [];
 
+    private bool $allowWriteThroughAdminApi = false;
+
     public function __construct(string ...$allowedScopes)
     {
         foreach ($allowedScopes as $scope) {
@@ -29,8 +31,29 @@ class WriteProtected extends Flag
         return isset($this->allowedScopes[$scope]);
     }
 
+    /**
+     * Allows writes through Admin API endpoints that replace the default DAL API controller with more specific permission handling.
+     *
+     * @see \Shopware\Core\Framework\Api\Controller\UserController
+     * @see \Shopware\Core\Framework\Api\Controller\IntegrationController
+     */
+    public function allowWriteThroughAdminApi(): self
+    {
+        $this->allowWriteThroughAdminApi = true;
+
+        return $this;
+    }
+
+    /**
+     * @return \Generator<string, list<list<string>>>
+     */
     public function parse(): \Generator
     {
+        if ($this->allowWriteThroughAdminApi) {
+            // Admin API writes are authorized by their dedicated controller, so this flag is omitted from the entity schema and enforced only during DAL writes.
+            return;
+        }
+
         yield 'write_protected' => [
             array_keys($this->allowedScopes),
         ];

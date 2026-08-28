@@ -25,6 +25,7 @@ interface StateMachineHistoryData {
     entity: string;
     referencedId?: string;
     internalComment?: string;
+    sourceType?: string;
 }
 
 interface CombinedStates {
@@ -290,6 +291,7 @@ export default Component.wrapComponentConfig({
                 entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
                 referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
                 internalComment: 'internalComment' in entry ? entry.internalComment : undefined,
+                sourceType: !hideUser && 'sourceType' in entry ? entry.sourceType : undefined,
             };
         },
 
@@ -325,6 +327,9 @@ export default Component.wrapComponentConfig({
             if (item.integration) {
                 const integrationLabel = item.integration.label;
                 return `${integrationLabel} (${this.$t('sw-order.stateHistoryModal.labelIntegration')})`;
+            }
+            if (item.sourceType === 'sales-channel') {
+                return this.$t('sw-order.stateHistoryModal.labelCustomer');
             }
 
             return this.$t('sw-order.stateHistoryModal.labelSystemUser');

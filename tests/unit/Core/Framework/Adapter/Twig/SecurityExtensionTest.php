@@ -62,6 +62,22 @@ class SecurityExtensionTest extends TestCase
         yield 'sort not allowed callback function array' => ['{{ ["a", "b", "c"]|sort([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
 
         yield 'sort not allowed callback function array on variable' => ['{{ ["a", "b", "c"]|sort(arrayCaller)|join }}'];
+
+        yield 'find not allowed function' => ['{{ ["a", "b", "c"]|find("strcmp") }}'];
+
+        yield 'find not allowed callback function string' => ['{{ ["a", "b", "c"]|find("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do") }}'];
+
+        yield 'find not allowed callback function array' => ['{{ ["a", "b", "c"]|find([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\']) }}'];
+
+        yield 'find not allowed callback function array on variable' => ['{{ ["a", "b", "c"]|find(arrayCaller) }}'];
+
+        yield 'has some not allowed function' => ['{{ ["a", "b", "c"] has some "strcmp" }}'];
+
+        yield 'has some not allowed callback function array on variable' => ['{{ ["a", "b", "c"] has some arrayCaller }}'];
+
+        yield 'has every not allowed function' => ['{{ ["a", "b", "c"] has every "strcmp" }}'];
+
+        yield 'has every not allowed callback function array on variable' => ['{{ ["a", "b", "c"] has every arrayCaller }}'];
     }
 
     public function testMapWithAllowedFunction(): void
@@ -159,6 +175,65 @@ class SecurityExtensionTest extends TestCase
             '123',
             $this->runTwig('{{ test|sort|join }}', [], ['test' => ['2', '3', '1']])
         );
+    }
+
+    public function testFindClosure(): void
+    {
+        static::assertSame('b', $this->runTwig('{{ ["a", "b", "c"]|find(v => v == "b") }}'));
+    }
+
+    public function testFindWithAllowedFunction(): void
+    {
+        static::assertSame(
+            'TEST',
+            $this->runTwig(
+                '{{ ["", "TEST"]|find(\'Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGoodClass::upper\') }}',
+                ['Shopware\\Tests\\Unit\\Core\\Framework\\Adapter\\Twig\\SecurityExtensionGoodClass::upper'],
+            )
+        );
+    }
+
+    public function testFindWithAllowedSingleArgumentFunction(): void
+    {
+        // is_numeric() accepts exactly one argument, so this pins the single-argument calling convention
+        static::assertSame('1', $this->runTwig('{{ ["a", "1"]|find("is_numeric") }}', ['is_numeric']));
+    }
+
+    public function testFindWithNotCallableFunction(): void
+    {
+        static::assertSame(
+            '',
+            $this->runTwig('{{ ["value"]|find(functionName) }}', ['not_callable'], ['functionName' => 'not_callable'])
+        );
+    }
+
+    /**
+     * @param list<string> $allowedFunctions
+     */
+    #[DataProvider('callbackOperatorTemplates')]
+    public function testCallbackOperators(string $template, array $allowedFunctions, string $expected): void
+    {
+        static::assertSame($expected, $this->runTwig($template, $allowedFunctions));
+    }
+
+    public static function callbackOperatorTemplates(): \Generator
+    {
+        yield 'has some with closure matches' => ['{{ (["a", "b", "c"] has some (v => v == "b")) ? 1 : 0 }}', [], '1'];
+
+        yield 'has some with closure does not match' => ['{{ (["a", "b", "c"] has some (v => v == "z")) ? 1 : 0 }}', [], '0'];
+
+        yield 'has every with closure matches' => ['{{ (["a", "a"] has every (v => v == "a")) ? 1 : 0 }}', [], '1'];
+
+        yield 'has every with closure does not match' => ['{{ (["a", "b"] has every (v => v == "a")) ? 1 : 0 }}', [], '0'];
+
+        // is_numeric() accepts exactly one argument, so these also pin the single-argument calling convention
+        yield 'has some with allowed function matches' => ['{{ (["a", "1"] has some "is_numeric") ? 1 : 0 }}', ['is_numeric'], '1'];
+
+        yield 'has some with allowed function does not match' => ['{{ (["a", "b"] has some "is_numeric") ? 1 : 0 }}', ['is_numeric'], '0'];
+
+        yield 'has every with allowed function matches' => ['{{ (["1", "2"] has every "is_numeric") ? 1 : 0 }}', ['is_numeric'], '1'];
+
+        yield 'has every with allowed function does not match' => ['{{ (["1", "b"] has every "is_numeric") ? 1 : 0 }}', ['is_numeric'], '0'];
     }
 
     public function testAcceptsNull(): void

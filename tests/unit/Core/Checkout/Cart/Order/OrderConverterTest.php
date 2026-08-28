@@ -878,7 +878,7 @@ class OrderConverterTest extends TestCase
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
                 new EntitySearchResult(
-                    'orderAddress',
+                    'order_address',
                     1,
                     new EntityCollection($orderAddressRepositoryResultArray),
                     null,
@@ -906,7 +906,7 @@ class OrderConverterTest extends TestCase
             }
 
             return new EntitySearchResult(
-                'productDownload',
+                'product_download',
                 1,
                 new EntityCollection([$productDownload]),
                 null,

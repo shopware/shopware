@@ -99,6 +99,27 @@
                         :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
                     />
                     {% endblock %}
+
+                    {% block sw_settings_sso_user_detail_content_media_upload %}
+                    <sw-upload-listener
+                        :upload-tag="user.id"
+                        auto-upload
+                        @media-upload-finish="setMediaItem"
+                    />
+
+                    <sw-media-upload-v2
+                        class="sw-sso-detail-card__information-picture"
+                        :source="user.avatarMedia"
+                        :label="$t('sw-users-permissions.users.user-detail.labelProfilePicture')"
+                        :upload-tag="user.id"
+                        :allow-multi-select="false"
+                        :source-context="user"
+                        :disabled="!acl.can('users_and_permissions.editor')"
+                        default-folder="user"
+                        @media-drop="onDropMedia"
+                        @media-upload-remove-image="onRemoveMedia"
+                    />
+                    {% endblock %}
                 </div>
                 {% endblock %}
             </mt-card>
@@ -138,24 +159,13 @@
                     />
                     {% endblock %}
 
-                    {% block sw_settings_sso_user_detail_content_media_upload %}
-                    <sw-upload-listener
-                        :upload-tag="user.id"
-                        auto-upload
-                        @media-upload-finish="setMediaItem"
-                    />
-
-                    <sw-media-upload-v2
-                        class="sw-sso-detail-card__user-interface-picture"
-                        :source="user.avatarMedia"
-                        :label="$t('sw-users-permissions.users.user-detail.labelProfilePicture')"
-                        :upload-tag="user.id"
-                        :allow-multi-select="false"
-                        :source-context="user"
-                        :disabled="!acl.can('users_and_permissions.editor')"
-                        default-folder="user"
-                        @media-drop="onDropMedia"
-                        @media-upload-remove-image="onRemoveMedia"
+                    {% block sw_settings_sso_user_detail_grid_content_theme %}
+                    <mt-theme-select
+                        v-if="isCurrentUser"
+                        v-model="userTheme"
+                        name="sw-field--user-theme"
+                        class="sw-sso-detail-card__user-interface-theme"
+                        :label="$t('sw-profile.index.labelThemeField') + ' (Experimental)'"
                     />
                     {% endblock %}
                 </div>

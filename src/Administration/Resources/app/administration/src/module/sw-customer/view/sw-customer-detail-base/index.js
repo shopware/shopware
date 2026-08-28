@@ -56,14 +56,8 @@ export default {
         this.createdComponent();
     },
 
-    beforeRouteLeave() {
-        Shopware.Store.get('shopwareApps').selectedIds = [];
-    },
-
     methods: {
         createdComponent() {
-            Shopware.Store.get('shopwareApps').selectedIds = this.customer.id ? [this.customer.id] : [];
-
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
                 this.customerCustomFieldSets = customFieldSets;
             });

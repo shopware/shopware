@@ -9,6 +9,8 @@ import '@testing-library/jest-dom';
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
+import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
+import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
 import {
     MtActionMenu,
     MtActionMenuGroup,
@@ -41,10 +43,13 @@ import {
     MtSkeletonBar,
     MtSwitch,
     MtTabs,
+    MtText,
     MtTextField,
     MtTextarea,
+    MtThemeSelect,
     MtToast,
     MtTextEditor,
+    MtTooltip,
 } from '@shopware-ag/meteor-component-library';
 import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
@@ -53,7 +58,12 @@ import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
-import { sendTimeoutExpired, deprecatedTabComponent, deprecatedPopoverComponent } from '../_helper_/allowedErrors';
+import {
+    sendTimeoutExpired,
+    deprecatedTabComponent,
+    deprecatedPopoverComponent,
+    unresolvedComponentWarning,
+} from '../_helper_/allowedErrors';
 import findByText from '../_helper_/find-by-text';
 import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
@@ -239,6 +249,12 @@ config.global.mocks = {
         removeResizeListener: jest.fn(),
         getSystemKey: jest.fn(() => 'CTRL'),
         getViewportWidth: jest.fn(() => 1920),
+        getMediaQuery: jest.fn((query) => ({
+            matches: false,
+            media: query,
+            addEventListener: jest.fn(),
+            removeEventListener: jest.fn(),
+        })),
     },
     $router: {
         replace: jest.fn(),
@@ -257,6 +273,13 @@ config.global.mocks = {
 };
 
 config.global.stubs = {
+    // The real implementations, mirroring what vue.adapter.ts registers from the component registry.
+    // Both render a fragment, so a template using <sw-block> must contribute no DOM element in tests
+    // either - an unresolved <sw-block> element breaks every consumer that walks the DOM instead of
+    // the component tree. Registering them here rather than in `config.global.components` is what
+    // keeps them real under shallowMount, which stubs every child component.
+    'sw-block': SwBlock,
+    'sw-block-parent': SwBlockParent,
     'sw-modal': {
         template: `
         <div class="sw-modal">
@@ -305,10 +328,13 @@ config.global.stubs = {
     'mt-skeleton-bar': MtSkeletonBar,
     'mt-switch': MtSwitch,
     'mt-tabs': MtTabs,
+    'mt-text': MtText,
     'mt-text-field': MtTextField,
     'mt-textarea': MtTextarea,
+    'mt-theme-select': MtThemeSelect,
     'mt-toast': MtToast,
     'mt-text-editor': MtTextEditor,
+    'mt-tooltip': MtTooltip,
     ...config.global.stubs,
 };
 
@@ -528,17 +554,7 @@ global.allowedErrors = [
             return msg0?.includes('Component is missing template or render function');
         },
     },
-    // Vue 3 component resolution warnings for non-registered components in tests
-    {
-        method: 'warn',
-        msgCheck: (msg0) => {
-            if (typeof msg0 !== 'string') {
-                return false;
-            }
-
-            return msg0?.includes('Failed to resolve component');
-        },
-    },
+    unresolvedComponentWarning,
     // Meteor Component Library dynamically imports SVG icons
     // These fail in Jest test environment since they're loaded via dynamic import
     // First the library logs a string message about the missing SVG file

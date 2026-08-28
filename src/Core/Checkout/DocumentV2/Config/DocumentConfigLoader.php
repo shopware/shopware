@@ -4,7 +4,9 @@ namespace Shopware\Core\Checkout\DocumentV2\Config;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
@@ -76,6 +78,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         private readonly EntityRepository $countryRepository,
         private readonly EntityRepository $mediaRepository,
         private readonly SystemConfigService $systemConfigService,
+        private readonly DocumentTypeRegistry $documentTypeRegistry,
     ) {
     }
 
@@ -115,7 +118,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         }
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))
+            ->addFilter(new EqualsFilter('typeName', $documentType))
             ->addAssociation('logo');
 
         $criteria->getAssociation('salesChannels')
@@ -131,10 +134,11 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
         $systemConfigCompanyInfo = $this->resolveCompanyInfoFromSystemConfig($salesChannelId);
         $effectiveCompanyInfo = $systemConfigCompanyInfo ?? $legacyConfig;
+        $appConfig = $this->documentTypeRegistry->getAppConfig($documentType);
 
-        $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $systemConfigCompanyInfo, $documentType, $context);
+        $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $systemConfigCompanyInfo, $documentType, $context, $appConfig);
         $companyInfo = $this->buildDocumentCompanyInfo($effectiveCompanyInfo, $context, $documentType);
-        $displayOptions = $this->buildDisplayOptions($globalRow, $salesChannelRow, $legacyConfig);
+        $displayOptions = $this->buildDisplayOptions($globalRow, $salesChannelRow, $legacyConfig, $appConfig);
 
         $bundle = new DocumentConfigBundle(
             config: $documentConfig,
@@ -175,14 +179,31 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
     /**
      * @param array<string, mixed>|null $systemConfigCompanyInfo
+     * @param array<string, scalar> $appConfig
      */
     private function buildDocumentConfig(
         ?DocumentBaseConfigEntity $globalRow,
         ?DocumentBaseConfigEntity $salesChannelRow,
         ?array $systemConfigCompanyInfo,
         string $documentType,
-        Context $context
+        Context $context,
+        array $appConfig,
     ): DocumentConfig {
+        if ($globalRow === null && $salesChannelRow === null) {
+            if (DocumentType::tryFrom($documentType) !== null || !$this->documentTypeRegistry->supports($documentType)) {
+                throw DocumentV2Exception::invalidDocumentType($documentType);
+            }
+
+            return new DocumentConfig(
+                pageSize: (string) ($appConfig['pageSize'] ?? 'a4'),
+                pageOrientation: (string) ($appConfig['pageOrientation'] ?? 'portrait'),
+                itemsPerPage: (int) ($appConfig['itemsPerPage'] ?? 10),
+                filenamePrefix: isset($appConfig['filenamePrefix']) ? (string) $appConfig['filenamePrefix'] : null,
+                filenameSuffix: isset($appConfig['filenameSuffix']) ? (string) $appConfig['filenameSuffix'] : null,
+                logo: $this->resolveLogo(null, null, $systemConfigCompanyInfo, $context),
+            );
+        }
+
         $pageSize = $salesChannelRow?->getPageSize() ?? $globalRow?->getPageSize() ?? '';
         $pageOrientation = $salesChannelRow?->getPageOrientation() ?? $globalRow?->getPageOrientation() ?? '';
         $itemsPerPage = $salesChannelRow?->getItemsPerPage() ?? $globalRow?->getItemsPerPage() ?? 0;
@@ -200,7 +221,10 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             itemsPerPage: $itemsPerPage,
             filenamePrefix: $salesChannelRow?->getFilenamePrefix() ?? $globalRow?->getFilenamePrefix(),
             filenameSuffix: $salesChannelRow?->getFilenameSuffix() ?? $globalRow?->getFilenameSuffix(),
-            filenameInfixes: $salesChannelRow?->getFilenameInfixes() ?? $globalRow?->getFilenameInfixes() ?? [],
+            filenameInfixes: array_merge(
+                $globalRow?->getFilenameInfixes() ?? [],
+                $salesChannelRow?->getFilenameInfixes() ?? [],
+            ),
             logo: $logo,
         );
     }
@@ -281,25 +305,35 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
     /**
      * @param array<string, mixed> $legacyConfig
+     * @param array<string, scalar> $appConfig
      */
     private function buildDisplayOptions(
         ?DocumentBaseConfigEntity $globalRow,
         ?DocumentBaseConfigEntity $salesChannelRow,
         array $legacyConfig,
+        array $appConfig,
     ): DocumentDisplayOptions {
         return new DocumentDisplayOptions(
-            displayHeader: $salesChannelRow?->getDisplayHeader() ?? $globalRow?->getDisplayHeader() ?? false,
-            displayFooter: $salesChannelRow?->getDisplayFooter() ?? $globalRow?->getDisplayFooter() ?? false,
-            displayPageCount: $salesChannelRow?->getDisplayPageCount() ?? $globalRow?->getDisplayPageCount() ?? false,
-            displayCompanyAddress: $salesChannelRow?->getDisplayCompanyAddress() ?? $globalRow?->getDisplayCompanyAddress() ?? false,
-            displayReturnAddress: $salesChannelRow?->getDisplayReturnAddress() ?? $globalRow?->getDisplayReturnAddress() ?? false,
-            displayCustomerVatId: $salesChannelRow?->getDisplayCustomerVatId() ?? $globalRow?->getDisplayCustomerVatId() ?? false,
-            displayLineItems: (bool) ($legacyConfig['displayLineItems'] ?? false),
-            displayLineItemPosition: (bool) ($legacyConfig['displayLineItemPosition'] ?? false),
-            displayPrices: (bool) ($legacyConfig['displayPrices'] ?? false),
-            displayDivergentDeliveryAddress: (bool) ($legacyConfig['displayDivergentDeliveryAddress'] ?? false),
+            displayHeader: $this->resolveFlag($appConfig, 'displayHeader', $salesChannelRow?->getDisplayHeader() ?? $globalRow?->getDisplayHeader()),
+            displayFooter: $this->resolveFlag($appConfig, 'displayFooter', $salesChannelRow?->getDisplayFooter() ?? $globalRow?->getDisplayFooter()),
+            displayPageCount: $this->resolveFlag($appConfig, 'displayPageCount', $salesChannelRow?->getDisplayPageCount() ?? $globalRow?->getDisplayPageCount()),
+            displayCompanyAddress: $this->resolveFlag($appConfig, 'displayCompanyAddress', $salesChannelRow?->getDisplayCompanyAddress() ?? $globalRow?->getDisplayCompanyAddress()),
+            displayReturnAddress: $this->resolveFlag($appConfig, 'displayReturnAddress', $salesChannelRow?->getDisplayReturnAddress() ?? $globalRow?->getDisplayReturnAddress()),
+            displayCustomerVatId: $this->resolveFlag($appConfig, 'displayCustomerVatId', $salesChannelRow?->getDisplayCustomerVatId() ?? $globalRow?->getDisplayCustomerVatId()),
+            displayLineItems: $this->resolveFlag($appConfig, 'displayLineItems', $legacyConfig['displayLineItems'] ?? null),
+            displayLineItemPosition: $this->resolveFlag($appConfig, 'displayLineItemPosition', $legacyConfig['displayLineItemPosition'] ?? null),
+            displayPrices: $this->resolveFlag($appConfig, 'displayPrices', $legacyConfig['displayPrices'] ?? null),
+            displayDivergentDeliveryAddress: $this->resolveFlag($appConfig, 'displayDivergentDeliveryAddress', $legacyConfig['displayDivergentDeliveryAddress'] ?? null),
             deliveryCountries: $legacyConfig['deliveryCountries'] ?? [],
         );
+    }
+
+    /**
+     * @param array<string, scalar> $appConfig
+     */
+    private function resolveFlag(array $appConfig, string $key, mixed $merchantValue): bool
+    {
+        return (bool) ($appConfig[$key] ?? $merchantValue ?? false);
     }
 
     /**

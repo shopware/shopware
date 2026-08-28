@@ -15,7 +15,6 @@ export default {
     inject: [
         'repositoryFactory',
         'documentV2Service',
-        'documentV2ApiService',
     ],
 
     emits: [
@@ -55,6 +54,9 @@ export default {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
+
             return criteria;
         },
 
@@ -66,7 +68,10 @@ export default {
             return Object.keys(this.supportedDocumentTypes).map((technicalName) => {
                 return {
                     value: technicalName,
-                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(technicalName)),
+                    label: this.documentV2Service.getDocumentTypeLabel(
+                        technicalName,
+                        this.supportedDocumentTypes[technicalName]?.label,
+                    ),
                 };
             });
         },
@@ -139,8 +144,7 @@ export default {
             this.isLoadingSupportedDocumentTypes = true;
 
             try {
-                const response = await this.documentV2ApiService.getAvailableTypes();
-                this.supportedDocumentTypes = response.documentTypes ?? {};
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
             } catch (error) {
                 this.createNotificationError({
                     message: error.message,

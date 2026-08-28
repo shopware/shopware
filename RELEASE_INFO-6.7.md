@@ -1,12 +1,206 @@
 # 6.7.15.0 (upcoming)
 
+## Core
+
+### `system:install` dispatches `SystemInstallCompletedEvent`
+
+`Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
+
+When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
+
+### New document lifecycle business events
+
+Two new events give extensions a hook into the document lifecycle without polling or fetching the document to discover its type, number, order and file:
+
+- `document.generation.completed` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent`) is dispatched when a document is generated or uploaded for an order. It exposes `documentId`, `orderId`, `orderVersionId`, `documentType` and `documentNumber`.
+- `document.generation.deleted` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent`) is dispatched when a document is deleted, for both legacy and Document V2 documents. It exposes `documentId`, `orderId`, `orderVersionId`, `documentNumber` and `deletedAt`.
+
+Both events are selectable as triggers in Flow Builder. `document.generation.completed` fires for both the legacy document pipeline (`Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate()` and `::upload()`) and the Document V2 pipeline (`POST /_action/order/document-v2/create` and `POST /_action/order/document-v2/upload`); `document.generation.deleted` already covers both, since deletion goes through the shared `document` entity regardless of which pipeline created it.
+
+### Customer imports validate customer number patterns
+
+Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.
+
+Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
+
+### `JsonField::addPropertyMapping()` for entity extensions
+
+`Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.
+
+```php
+public function modifyFields(FieldCollection $collection): void
+{
+    $hitCount = $collection->get('hitCount');
+    if (!$hitCount instanceof JsonField) {
+        return;
+    }
+
+    $hitCount->addPropertyMapping(new JsonField('landing_page', 'landing_page', [
+        new IntField('maxSuggestCount', 'maxSuggestCount'),
+        new IntField('maxSearchCount', 'maxSearchCount'),
+    ]));
+}
+```
+
+### App payment method translations are preserved
+
+Installing or updating an app no longer overwrites existing payment method name and description translations. Manifest texts are only applied to languages without a translation.
+
+## API
+
+### Store API context token response header is restricted on cacheable reads
+
+Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
+### Dedicated error code for invalid child line item quantity
+
+`CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
+
 ## Administration
 
 ### Optional order confirmation mail for Administration-created orders
 
 When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.
 
-# 6.7.14.0 (upcoming)
+### Shipping prices can be linked to the tax rate
+
+The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.
+
+Extensions that override the `sw_settings_shipping_price_matrix_price_grid_currencies_list` block or style the removed `.sw-settings-shipping-price-matrix__price-input` class must be adjusted to the `sw-price-field` markup. The gross and net input `name` attributes are unchanged.
+### Admin UI shell rework (sidebar, top bar, smart bar)
+
+The Administration shell — main menu sidebar, top bar, search bar, and smart bar — has been modernized and improved in behavior and responsiveness. Extensions that override these areas via Twig blocks, style them via the removed CSS classes, or rely on the previous color props need to adapt.
+
+#### Removed Twig blocks
+
+The following blocks have been removed and can no longer be extended:
+
+- `src/app/component/structure/sw-admin-menu/sw-admin-menu.html.twig`
+  - `sw_admin_menu_toggle_sidebar`
+  - `sw_admin_menu_toggle_sidebar_icon`
+  - `sw_admin_menu_toggle_sidebar_text`
+  - `sw_admin_menu_user_actions`
+  - `sw_admin_menu_user_actions_label`
+  - `sw_admin_menu_user_actions_list`
+- `src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig`
+  - `sw_admin_menu_item_arrow_indicato` (sic)
+  - `sw_admin_menu_item_arrow_indicator`
+  - `sw_admin_menu_item_external_arrow_indicato` (sic)
+  - `sw_admin_menu_item_external_icon`
+  - `sw_admin_menu_item_external_text`
+- `src/app/component/base/sw-version/sw-version.html.twig`
+  - `sw_version_name`
+  - `sw_version_name_text`
+  - `sw_version_status`
+  - `sw_version_status_badge`
+- `src/app/component/structure/sw-search-bar/sw-search-bar.html.twig`
+  - `sw_search_bar_version_display`
+- `src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig`
+  - `sw_sales_channel_menu_context_button_collapsed`
+
+#### Repurposed block: `sw_admin_menu_user_actions_items`
+
+The user menu in the sidebar footer became an `mt-action-menu` dropdown. The block `sw_admin_menu_user_actions_items` still exists, but its content now renders inside `mt-action-menu` instead of a `<ul>` navigation list. Overrides that add `<li><router-link>` entries produce broken markup inside the dropdown and need to render `mt-action-menu-group` / `mt-action-menu-item` elements instead:
+
+```twig
+{% block sw_admin_menu_user_actions_items %}
+    {% parent %}
+
+    <mt-action-menu-group>
+        <mt-action-menu-item
+            icon="regular-cog"
+            @click="onMyAction"
+        >
+            My entry
+        </mt-action-menu-item>
+    </mt-action-menu-group>
+{% endblock %}
+```
+
+#### Restructured blocks in `sw-page.html.twig`
+
+- A new `sw_page_top_bar` block wraps the top bar. `sw_page_top_bar_actions` is no longer nested inside `sw_page_search_bar` — overrides that copied the previous markup render the top bar actions twice.
+- The root element of `sw_page_smart_bar` changed from a `<template>` to a `<div class="sw-page__smart-bar">`.
+
+#### Smart bar back button styling removed
+
+The `.smart-bar__back-btn` CSS ruleset was removed from `sw-page.scss`. `#smart-bar-back` slot overrides that render a bare `<router-link class="smart-bar__back-btn">` with icons lose their styling. Migrate to the pattern the default back button uses:
+
+```twig
+<template #smart-bar-back>
+    <router-link
+        v-slot="{ href, navigate }"
+        :to="myBackRoute"
+        custom
+    >
+        <mt-button
+            is="a"
+            class="smart-bar__back-btn"
+            variant="secondary"
+            size="default"
+            square
+            :href="href"
+            :aria-label="$t('global.sw-page.backButton')"
+            @click="navigate"
+        >
+            <mt-icon
+                name="solid-long-arrow-left"
+                size="12px"
+            />
+        </mt-button>
+    </router-link>
+</template>
+```
+
+#### Removed snippets and static asset
+
+- `global.sidebar.buttonCollapse` has been removed.
+- `sw-extension.sw-extension-app-module-error-page.error.phrase` and `.error.info` have been removed; the app module error page uses `mt-empty-state` with the new `.error.description` snippet.
+- The static asset `static/img/error-pages/app-error.svg` has been removed. External URLs pointing to it return a 404.
+
+#### Extension SDK: `ui.sidebar.close()` closes asynchronously
+
+Closing a sidebar via the Extension SDK now plays a close animation (~400 ms) before the sidebar deactivates, instead of removing it immediately. With `prefers-reduced-motion` the sidebar still closes without delay. Do not rely on the sidebar being gone synchronously after calling `close()`.
+
+#### `sw-page` and `sw-meteor-page` are CSS containers
+
+Both page components declare `container-type: inline-size`. This creates a new containing block and stacking context: plugin content inside a page that uses `position: fixed` is now positioned relative to the page container instead of the viewport, and `z-index` values no longer compete with elements outside the page.
+
+#### Color props without effect
+
+- `sw-search-bar`: `entitySearchColor` and the `entityIconColor` prop of `sw-search-bar-item` are only applied while the user set the "Module colors" preference to "Colored" (see below). By default search results use the standard icon colors.
+
+#### Optional module icon colors
+
+The main menu and the search bar no longer color their icons by the `color` of the registered module. Users who prefer the previous look can switch the icons back to their module color with the "Module colors" setting in their profile settings (Profile settings > User interface). It defaults to "Neutral" and is stored per user in the `core.userModuleIconColors` user configuration.
+
+The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
+
+### Bulk operations in the My Extensions listing
+
+The "My Extensions" listing can now act on several extensions at once instead of one card at a time, which noticeably speeds up maintaining shops with many extensions. Selecting one or more extensions replaces the listing controls with a bulk actions bar.
+
+The bar offers the same actions already available per card:
+- **Install**, **activate**, **deactivate**, **update**, and **uninstall** for all selected extensions in one step.
+- Each action is enabled only when it applies to at least one selected extension (for example, *activate* counts only "installed but inactive" extensions) and shows how many of the selection it affects.
+- All actions respect the existing `system.plugin_maintain` permission and the runtime extension-management setting, exactly like the single-card actions.
+
+The listing reloads once after the batch finishes rather than after every individual extension. With nothing selected, the listing behaves exactly as before, so the feature is fully opt-in.
+
+## Storefront
+
+### Semantic footer markup
+
+With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic elements.
+
+- Collapse section headlines will become `<h2>` instead of `<div role="heading">`.
+- Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column will become `<li>` instead of `<div role="listitem">`.
+
+### Clear message when adding a second code of the same promotion
+
+Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
+
+# 6.7.14.0
 
 ## Features
 
@@ -17,6 +211,12 @@ Rule Builder and Flow Builder are now reachable from a dedicated top-level "Auto
 ### New app script hook `cookie-group-collect`
 
 Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
+
+### Order state history records where a state change came from
+
+`state_machine_history` entries now carry a `sourceType` field holding the type of the API context source that triggered the transition (`admin-api`, `sales-channel` or `system`). A custom `ContextSource` contributes whatever its public `$type` property holds. The order detail page and the status history modal use it to show state changes that a customer made in the storefront as "Customer" instead of "System", so a cancellation by the customer can be told apart from one made by a plugin or an integration.
+
+State changes that an administrator performs in a sales channel context, for example while creating an order in the Administration, are now attributed to that administrator instead of to the system.
 
 ## API
 
@@ -125,6 +325,10 @@ Assigning a new `languageId` to a sales channel and removing the previous defaul
 Removing the language that the same write assigns as the new default is now rejected with that error code instead of being applied. Such a write previously succeeded and left the sales channel with a default language that was missing from its language list.
 
 ## Core
+
+### Document V1/V2 file compatibility
+
+Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
 
 ### An active shipping method must keep at least one usable price
 
@@ -571,6 +775,14 @@ The dataset updates reactively as the user selects a different media file.
 
 ## Storefront
 
+### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
+
+A failed Google reCAPTCHA on a non-AJAX form is now rendered as a form error instead of a `403` error page: a missing token asks the customer to retry (new `CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION`), other failures show a generic captcha error. Violations without a form field are flashed, field-bound ones keep rendering via `formViolations`. The bot-only honeypot still fails with `403`.
+
+Custom captchas should implement the new `AbstractCaptcha::validate(Request $request, array $captchaConfig): ConstraintViolationList` — an empty list means valid. The deprecated `isValid()`/`getViolations()` are removed in 6.8; until then the default `validate()` delegates to them, so a captcha extending `AbstractCaptcha` keeps working.
+
+One case does change: a captcha extending a shipped captcha (`BasicCaptcha`, `HoneypotCaptcha`, `GoogleReCaptchaV2`, `GoogleReCaptchaV3`) and overriding only `isValid()`/`getViolations()` is no longer consulted, because those implement `validate()` themselves. Migrate it to `validate()` — an unmigrated check stops being applied without an error.
+
 ### Theme CLI commands clean up unused theme directories
 
 Each theme compilation writes its CSS/JS into a new seeded directory under `public/theme/<hash>`. Removing the now-unused previous directories was handled exclusively by the daily `theme.delete_files` scheduled task (`Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask`). In environments where that task does not run reliably — e.g. `bin/console theme:compile` during a build/deploy step, or setups relying on the admin worker without an open Administration session — these directories accumulated without bound and could grow to many gigabytes.
@@ -716,6 +928,73 @@ Fallback sizes apply only in remote-thumbnail mode to media in known folders who
 The service registry decides which Shopware Services a shop installs and where their code is downloaded from. With `APP_ENV=prod`, `SERVICE_REGISTRY_URL` is now only used when its host is `shopware.io` or a subdomain of it. Any other value is ignored and `https://registry.services.shopware.io` is used instead, so a mistyped registry URL no longer breaks service installation on a live shop.
 
 Other environments are unrestricted, so local setups and tests can still point at their own registry.
+
+# 6.7.13.1
+
+## Security Fixes
+
+### Twig templates can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
+
+The Twig `find` filter and the `has some` / `has every` operators now reject string callables that are not listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. Templates passing arrow functions (`v => ...`) are unaffected; add any string callable a template legitimately needs to the allowlist.
+
+### Administration password recovery links use a trusted origin
+
+Administration password recovery links are now built from `APP_URL` when no trusted hosts are configured. If trusted hosts are configured, Shopware can continue to use the request host after Symfony has validated it. Ensure that `APP_URL` contains the public HTTP or HTTPS URL of the shop.
+
+### Custom entity and field names are validated before the schema is built
+
+Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores, `$`, and non-ASCII bytes supported by MySQL/MariaDB identifiers. A manifest using whitespace or punctuation such as `-` is rejected with a clear error.
+
+### Store API aggregation names reject control characters
+
+Aggregation names supplied through Store API criteria can no longer contain control characters. Invalid names are rejected before the aggregation query is built. Integrations must use printable names for aggregations.
+
+### ACL roles and protected Administration fields use authorized write paths
+
+Generic Admin API writes can no longer create or update `acl_role` entities. Direct DAL writes to the `admin` fields of users and integrations remain system-only; the authenticated Administration API controllers continue to authorize these changes, while self-profile and integration management work as before.
+
+The Administration service method `Shopware.Service('integrationService').updateAdmin()` is deprecated and will be removed in Shopware 6.8. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
+
+### Nested `productReviews` associations follow the same visibility rules as the top-level association
+
+Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
+
+### Oversized sales channel criteria are rejected
+
+`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and entity-specific filters such as product availability — to the first 99 criteria nodes it walks. Criteria with more nested associations than that kept the remaining nodes unrestricted. Such criteria are now rejected with a `400` and the error code `SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA` instead of being answered with partially restricted data. No storefront request produces criteria of that size; integrations that build them must split them into several requests.
+
+### Media file extensions are validated on every write
+
+Direct writes to `media.fileExtension` now use the same configured extension allowlist as media uploads. Invalid public or private media extensions are rejected with the error code `MEDIA_ILLEGAL_FILE_EXTENSION`.
+
+### Media import URL checks apply to the address that is connected to
+
+Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.
+
+### Webhook target validation hardened
+
+Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`.
+
+Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
+
+### Guest document downloads are rate limited
+
+Guest document download requests using a deep link code are now covered by the guest login rate limiter. Repeated invalid authentication attempts are rejected once the configured limit is reached; a successful authentication resets the limit.
+
+## Critical Fixes
+
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When an Elasticsearch/OpenSearch mapping update references an analyzer or normalizer that the live index's analysis settings do not define, updating the mapping fails. Analysis settings cannot be added to a live index, so the affected entity is now scheduled for a reindex into a freshly created index with the current analysis settings instead of leaving the outdated mapping in place.
+
+### Document rendering supports decorated Twig environments
+
+The document renderer now type-hints the base `Twig\Environment` instead of Shopware's `TwigEnvironment`, so a decorated `twig` service no longer breaks document generation. The sales channel business timezone override applies only when Shopware's `TwigEnvironment` is in use. With a decorator that does not extend it, documents render in Twig's default timezone.
 
 # 6.7.13.0
 
@@ -3519,21 +3798,6 @@ Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best
 This behaviour is now optional and can be enabled by setting the `core.listing.findBestVariant` config to `true` or setting it via the admin interface under Settings > Products > "Preview best matching variant for search results"
 
 ## Administration
-
-As part of this change, the following deprecations were made:
-- The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
-- `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
-- The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
-- The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
-- A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
-- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
-
-If you have using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
-If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
-
-## Administration
-
-When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
 
 ### Axios upgrade with dual-client dispatcher
 

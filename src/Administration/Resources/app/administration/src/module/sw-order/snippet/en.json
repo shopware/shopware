@@ -332,6 +332,7 @@
       "labelShowHistoryModal": "Show status history",
       "labelLastEditedBy": "Last edited by",
       "labelSystemUser": "System",
+      "labelCustomer": "Customer",
       "labelSelectStatePlaceholder": "Select a status...",
       "labelInternalComment": "Internal comment",
       "labelSelectStateButton": "Update status",
@@ -389,7 +390,8 @@
         "uploadDocument": "Failed to upload the document.",
         "attachMediaToDocumentUpload": "Failed to attach selected media to the document.",
         "loadDocumentPreview": "Failed to load the document preview.",
-        "openDocument": "Failed to open the selected document."
+        "openDocument": "Failed to open the selected document.",
+        "loadDocumentTypes": "Failed to load available document types."
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Duplicate document number. A consecutive number has automatically been drawn from the respective number range."
@@ -442,6 +444,7 @@
       "labelDocumentStornoNumber": "Cancellation number",
       "labelInvoiceNumber": "Invoice",
       "selectInvoiceNumber": "Select invoice",
+      "errorInvoiceMissingCreditItem": "The selected invoice has no credit item.",
       "labelDeliveryNoteNumber": "Delivery note number",
       "labelDocumentComment": "Comment",
       "labelCreateDownload": "Create and download",
@@ -472,6 +475,7 @@
       "modalTitle": "Status history",
       "labelSystemUser": "System",
       "labelIntegration": "Integration",
+      "labelCustomer": "Customer",
       "column": {
         "createdAt": "Date",
         "entity": "Changed",

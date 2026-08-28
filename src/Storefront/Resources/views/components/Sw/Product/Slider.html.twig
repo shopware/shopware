@@ -7,7 +7,9 @@
     productIds = [],
     title = null,
     showNavigationArrows = true,
+    showScrollbar = true,
     itemSizing = 'fixed',
+    scrollBehaviour = 'snap',
     slots = [],
 %}
 
@@ -20,18 +22,39 @@
             fixed: null,
             fit: 'is--fit-content',
         },
+        scrollBehaviour: {
+            snap: 'is--scroll-snap',
+            natural: null,
+        },
+        showScrollbar: {
+            true: null,
+            false: 'is--scrollbar-hidden',
+        },
     },
 }) %}
 
 {% set componentOptions = {} %}
 
+{% set isEmpty = products|length == 0 %}
+
 {% set attributeDefaults = {
-    class: sliderCVA.apply({ itemSizing }),
+    class: sliderCVA.apply({ itemSizing, scrollBehaviour, showScrollbar }),
     'data-component': 'Sw:Product:Slider',
     'data-component-options': componentOptions|json_encode,
-    'aria-labelledby': title ? titleId : false,
-    'aria-label': title ? false : 'listing.productSliderAriaLabel'|trans({ '%total%': products|length })|striptags,
 } %}
+
+{% if isEmpty %}
+    {# An empty slider holds nothing but decorative placeholders, so it stays out of the accessibility tree entirely #}
+    {% set attributeDefaults = attributeDefaults|merge({ 'aria-hidden': true }) %}
+{% elseif title %}
+    {# When a headline title is set, use it to label the slider section #}
+    {% set attributeDefaults = attributeDefaults|merge({ 'aria-labelledby': titleId }) %}
+{% else %}
+    {# When no headline title is set, use a generic aria-label to describe the slider section #}
+    {% set attributeDefaults = attributeDefaults|merge({
+        'aria-label': 'listing.productSliderAriaLabel'|trans({ '%total%': products|length })|striptags,
+    }) %}
+{% endif %}
 
 <section {{ attributes.defaults(attributeDefaults) }}>
     {% if title %}
@@ -39,7 +62,7 @@
     {% endif %}
 
     <div {{ attributes.nested('inner').defaults({ class: 'sw-product-slider__inner' }) }}>
-        {% if products|length > 0 %}
+        {% if not isEmpty %}
             <ul {{ attributes.nested('list').defaults({ class: 'sw-product-slider__list list-unstyled' }) }}>
                 {% block items %}
                     {% for product in products %}
@@ -74,14 +97,13 @@
                 {% endif %}
             {% endblock %}
         {% else %}
-            <p class="visually-hidden">{{ 'listing.emptyResultMessage'|trans|sw_sanitize }}</p>
-            <ul class="sw-product-slider__list list-unstyled">
-                {% for i in 1..9 %}
-                    <li class="sw-product-slider__item">
+            <div class="sw-product-slider__list">
+                {% for i in 1..8 %}
+                    <div class="sw-product-slider__item">
                         <twig:Sw:Product:Card></twig:Sw:Product:Card>
-                    </li>
+                    </div>
                 {% endfor %}
-            </ul>
+            </div>
         {% endif %}
     </div>
 </section>

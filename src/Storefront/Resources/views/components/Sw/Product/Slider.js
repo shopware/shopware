@@ -1,9 +1,5 @@
 export default class ProductSlider extends ShopwareComponent {
 
-    static options = {
-        products: [],
-    };
-
     init() {
         this.list = this.el.querySelector('.sw-product-slider__list');
         this.backwardBtn = this.el.querySelector('.sw-product-slider__nav-button.is--backward');

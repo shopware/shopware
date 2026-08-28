@@ -26,8 +26,11 @@
     overflow-y: hidden;
     overscroll-behavior-x: contain;
     scroll-behavior: smooth;
-    scroll-snap-type: x mandatory;
     padding-bottom: var(--sw-product-slider-list-padding-bottom);
+}
+
+.sw-product-slider.is--scroll-snap .sw-product-slider__list {
+    scroll-snap-type: x mandatory;
 }
 
 @supports not selector(::-webkit-scrollbar) {
@@ -51,6 +54,14 @@
     background-color: var(--sw-product-slider-scrollbar-thumb-color);
     border: 0;
     height: var(--sw-product-slider-scrollbar-size);
+}
+
+.sw-product-slider.is--scrollbar-hidden .sw-product-slider__list {
+    scrollbar-width: none;
+}
+
+.sw-product-slider.is--scrollbar-hidden .sw-product-slider__list::-webkit-scrollbar {
+    display: none;
 }
 
 .sw-product-slider__item {

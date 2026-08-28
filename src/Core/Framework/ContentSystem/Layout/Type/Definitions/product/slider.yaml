@@ -9,6 +9,8 @@ meta:
       - "Select the products to be shown."
       - "Disable the navigation arrows to leave scrolling to the scrollbar and touch gestures."
       - "Use the fit item sizing to fill the available width with whole columns instead of a fixed card width."
+      - "Use the natural scroll behaviour to let the slider stop between cards instead of snapping to them."
+      - "Hide the scrollbar for a cleaner look; the slider stays scrollable via the arrows and touch gestures."
 
 properties:
   products:
@@ -29,14 +31,6 @@ properties:
     adminUI:
       component: "text"
 
-  showNavigationArrows:
-    type: boolean
-    title: "Show Navigation Arrows"
-    description: "Show the arrow buttons to scroll the slider."
-    default: true
-    adminUI:
-      component: "switch"
-
   itemSizing:
     type: string
     title: "Item Sizing"
@@ -47,3 +41,32 @@ properties:
       - "fit"
     adminUI:
       component: "select"
+      helpText: "Fixed keeps a fixed product card width and allows overlapping cards. Fit sizes the cards so a whole number of columns fills the available width."
+
+  scrollBehaviour:
+    type: string
+    title: "Scroll Behaviour"
+    description: "How the slider behaves when scrolling. Snap always aligns the scroll position to the start of a product card, natural stops wherever the scrolling ends."
+    default: "snap"
+    enum:
+      - "snap"
+      - "natural"
+    adminUI:
+      component: "select"
+      helpText: "Snap locks the slider to the start of a product card. Natural stops the slider wherever scrolling ends."
+
+  showNavigationArrows:
+    type: boolean
+    title: "Show Navigation Arrows"
+    description: "Show the arrow buttons to scroll the slider."
+    default: true
+    adminUI:
+      component: "switch"
+
+  showScrollbar:
+    type: boolean
+    title: "Show Scrollbar"
+    description: "Show the horizontal scrollbar below the slider. The slider stays scrollable when the scrollbar is hidden."
+    default: true
+    adminUI:
+      component: "switch"

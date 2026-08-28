@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<TaxProviderEntity>
- *
- * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class TaxProviderCollection extends EntityCollection

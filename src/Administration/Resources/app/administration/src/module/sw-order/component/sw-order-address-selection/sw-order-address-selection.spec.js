@@ -204,6 +204,10 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         wrapper = await createWrapper();
     });
 
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     it('should be able to edit address', async () => {
         expect(wrapper.vm.currentAddress).toBeNull();
 
@@ -422,6 +426,72 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
         expect(information.findAll('p').at(3).text()).toBe('Buzbach');
+    });
+
+    it('should report and clear required field errors when validating an address', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        jest.spyOn(errorStore, 'addApiError');
+        jest.spyOn(errorStore, 'removeApiError');
+        jest.spyOn(Shopware.EntityDefinition, 'getRequiredFields').mockReturnValue({
+            firstName: {},
+            lastName: {},
+        });
+
+        const address = {
+            id: 'new-address-id',
+            firstName: '',
+            lastName: 'Lovelace',
+            getEntityName: () => 'customer_address',
+        };
+
+        const isValid = wrapper.vm.isValidAddress(address);
+
+        expect(isValid).toBe(false);
+        // Missing field reports an error
+        expect(errorStore.addApiError).toHaveBeenCalledWith(
+            expect.objectContaining({ expression: 'customer_address.new-address-id.firstName' }),
+        );
+        // Provided field clears any previously reported error
+        expect(errorStore.removeApiError).toHaveBeenCalledWith('customer_address.new-address-id.lastName');
+    });
+
+    it('should not leave required field warnings on the order page when closing the address modal', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        jest.spyOn(errorStore, 'removeApiError');
+        jest.spyOn(Shopware.EntityDefinition, 'getRequiredFields').mockReturnValue({
+            firstName: {},
+            lastName: {},
+        });
+
+        wrapper.vm.currentAddress = {
+            id: 'new-address-id',
+            getEntityName: () => 'customer_address',
+        };
+
+        wrapper.vm.closeAddressModal();
+
+        expect(errorStore.removeApiError).toHaveBeenCalledWith('customer_address.new-address-id.firstName');
+        expect(errorStore.removeApiError).toHaveBeenCalledWith('customer_address.new-address-id.lastName');
+        expect(wrapper.vm.currentAddress).toBeNull();
+    });
+
+    it('should show a notification when trying to save an invalid address', async () => {
+        await flushPromises();
+
+        jest.spyOn(wrapper.vm, 'isValidAddress').mockReturnValue(false);
+        const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        wrapper.vm.currentAddress = {
+            id: 'new-address-id',
+            getEntityName: () => 'customer_address',
+        };
+
+        await expect(wrapper.vm.onSaveAddress()).rejects.toBeUndefined();
+        expect(notificationSpy).toHaveBeenCalled();
     });
 
     it('renders the selected address details below the select', async () => {

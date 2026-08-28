@@ -242,17 +242,22 @@ export default {
             const ignoreFields = ['createdAt'];
             const entityName = address.getEntityName();
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields(entityName));
+            const errorStore = Shopware.Store.get('error');
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
+                const expression = `${entityName}.${address.id}.${field}`;
+
                 if (ignoreFields.includes(field) || required(address[field])) {
+                    // Clear a previously reported error once the field has a valid value again.
+                    errorStore.removeApiError(expression);
                     return;
                 }
 
                 isValid = false;
 
-                Shopware.Store.get('error').addApiError({
-                    expression: `${entityName}.${this.currentAddress.id}.${field}`,
+                errorStore.addApiError({
+                    expression,
                     error: new ShopwareError({
                         code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                     }),
@@ -260,6 +265,24 @@ export default {
             });
 
             return isValid;
+        },
+
+        closeAddressModal() {
+            this.clearAddressErrors(this.currentAddress);
+            this.currentAddress = null;
+        },
+
+        clearAddressErrors(address) {
+            if (!address) {
+                return;
+            }
+
+            const entityName = address.getEntityName();
+            const errorStore = Shopware.Store.get('error');
+
+            Object.keys(EntityDefinition.getRequiredFields(entityName)).forEach((field) => {
+                errorStore.removeApiError(`${entityName}.${address.id}.${field}`);
+            });
         },
 
         onChangeDefaultAddress(data) {

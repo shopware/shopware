@@ -45,8 +45,8 @@
                     <sw-switch-field
                         :map-inheritance="props"
                         :error="productGuaranteeConfirmedError"
-                        :label="$t('sw-product.settingsForm.labelGuaranteeConfirmed')"
-                        :help-text="$t('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
+                        :label="$tc('sw-product.settingsForm.labelGuaranteeConfirmed')"
+                        :help-text="$tc('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
                         :disabled="props.isInherited || !allowEdit"
                         :value="props.currentValue"
                         @update:value="props.updateCurrentValue"

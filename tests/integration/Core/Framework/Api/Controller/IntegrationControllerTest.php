@@ -154,7 +154,7 @@ class IntegrationControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
-    public function testUpdateIntegrationRolesAsNonAdmin(): void
+    public function testPreventUpdateIntegrationRolesAsNonAdmin(): void
     {
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
@@ -186,25 +186,7 @@ class IntegrationControllerTest extends TestCase
 
         $response = $client->getResponse();
 
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-
-        $criteria = new Criteria([$ids->get('integration')]);
-        $criteria->addAssociation('aclRoles');
-
-        /** @var EntitySearchResult<IntegrationCollection> $assigned */
-        $assigned = static::getContainer()->get('integration.repository')
-            ->search($criteria, $context);
-
-        $integration = $assigned->getEntities()->first();
-        static::assertNotNull($integration);
-        $aclRoles = $integration->getAclRoles();
-        static::assertNotNull($aclRoles);
-
-        $aclRoleIds = array_values($aclRoles->getIds());
-        $expectedIds = $ids->getList(['role-1', 'role-2']);
-        sort($expectedIds);
-
-        static::assertSame($expectedIds, $aclRoleIds);
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
     public function testPreventUpdateIntegrationWithAdministratorRoleAsNonAdmin(): void

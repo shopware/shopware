@@ -47,7 +47,7 @@
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
       "labelManualOrder": "Erstellt von Admin",
-      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichern die Bestellung, bevor Du diese Seite verlässt.",
+      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichere die Bestellung, bevor Du diese Seite verlässt.",
       "messageEmptyLineItems": "Bestellung konnte nicht gespeichert werden. Es gibt keine Positionen."
     },
     "create": {
@@ -331,6 +331,7 @@
       "labelShowHistoryModal": "Statusverlauf anzeigen",
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
+      "labelCustomer": "Kunde",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
       "labelInternalComment": "Interner Kommentar",
       "labelSelectStateButton": "Status aktualisieren",
@@ -441,6 +442,7 @@
       "labelDocumentStornoNumber": "Stornonummer",
       "labelInvoiceNumber": "Rechnung",
       "selectInvoiceNumber": "Rechnung wählen",
+      "errorInvoiceMissingCreditItem": "Die ausgewählte Rechnung enthält keine Gutschriftsposition.",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
       "labelCreateDownload": "Erstellen und herunterladen",
@@ -471,6 +473,7 @@
       "modalTitle": "Statusverlauf",
       "labelSystemUser": "System",
       "labelIntegration": "Integration",
+      "labelCustomer": "Kunde",
       "column": {
         "createdAt": "Datum",
         "entity": "Geändert",

@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
@@ -12,7 +12,7 @@ use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\StateStruct;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(StateAwareTrait::class)]
+#[CoversTrait(StateAwareTrait::class)]
 class StateAwareTraitTest extends TestCase
 {
     public function testTrait(): void

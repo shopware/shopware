@@ -11,6 +11,8 @@ parametersSchema:
 rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\FuturePropertyCompatibilityRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\FuturePropertyVisibilityChangeRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\NoBCPlanningDeprecationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
@@ -36,7 +38,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionOnNonPublicMethodsRule
 
 services:
-    # gated to the core unit and integration test namespaces inside the rule; downstream repositories carry their own package taxonomy
+    # gated to the core test namespaces inside the rule; downstream repositories carry their own package taxonomy
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestPackageMatchRule
         arguments:

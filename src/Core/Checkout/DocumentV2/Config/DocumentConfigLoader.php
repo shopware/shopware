@@ -115,7 +115,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         }
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('documentType.technicalName', $documentType))
+            ->addFilter(new EqualsFilter('typeName', $documentType))
             ->addAssociation('logo');
 
         $criteria->getAssociation('salesChannels')
@@ -200,7 +200,10 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             itemsPerPage: $itemsPerPage,
             filenamePrefix: $salesChannelRow?->getFilenamePrefix() ?? $globalRow?->getFilenamePrefix(),
             filenameSuffix: $salesChannelRow?->getFilenameSuffix() ?? $globalRow?->getFilenameSuffix(),
-            filenameInfixes: $salesChannelRow?->getFilenameInfixes() ?? $globalRow?->getFilenameInfixes() ?? [],
+            filenameInfixes: array_merge(
+                $globalRow?->getFilenameInfixes() ?? [],
+                $salesChannelRow?->getFilenameInfixes() ?? [],
+            ),
             logo: $logo,
         );
     }

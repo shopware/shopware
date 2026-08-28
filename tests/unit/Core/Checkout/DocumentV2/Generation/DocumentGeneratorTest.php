@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -44,6 +45,7 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProv
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencedSnapshotDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencingDocumentDataProvider;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -533,6 +535,8 @@ class DocumentGeneratorTest extends TestCase
             ) use ($document): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 $document->setId($repository->creates[0][0]['id']);
+                $document->setOrderId($repository->creates[0][0]['orderId']);
+                $document->setOrderVersionId($repository->creates[0][0]['orderVersionId']);
 
                 return new DocumentCollection([$document]);
             },
@@ -546,9 +550,10 @@ class DocumentGeneratorTest extends TestCase
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 
-        $providerRegistry = new DocumentDataProviderRegistry(
-            $providers ?? [new StaticDocumentDataProvider([DocumentType::INVOICE->value])],
-        );
+        $providerRegistry = new DocumentDataProviderRegistry([
+            ...($providers ?? [new StaticDocumentDataProvider([DocumentType::INVOICE->value])]),
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], DocumentMetaProvider::KEY),
+        ]);
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(
@@ -580,6 +585,7 @@ class DocumentGeneratorTest extends TestCase
                 $documentTypeRepository,
                 $mediaService,
                 $fileNameProvider,
+                static::createStub(EventDispatcherInterface::class),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),

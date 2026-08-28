@@ -479,7 +479,7 @@ export default {
 
         downloadDocumentArchive(documentId) {
             return this.documentV2ApiService
-                .getDocumentArchive(documentId)
+                .getDocumentArchive([documentId])
                 .then((documentFileResponse) => {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(documentFileResponse.file);

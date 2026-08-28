@@ -85,7 +85,15 @@ class OneToManyAssociationFieldResolver extends AbstractFieldResolver
     private function getSourceColumn(FieldResolverContext $context, OneToManyAssociationField $field): string
     {
         if ($field->is(Inherited::class) && $context->getContext()->considerInheritance()) {
-            return EntityDefinitionQueryHelper::escape($context->getAlias()) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
+            $root = EntityDefinitionQueryHelper::escape($context->getAlias());
+
+            // The inheritance column is filled by the entity indexer, which runs
+            // asynchronously. Until it has run the column is NULL, and joining on it
+            // silently drops the row from every criteria filtering this association.
+            // Fall back to the entity's own id, which is what the indexer writes for
+            // an entity that owns the association itself.
+            return 'COALESCE(' . $root . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName())
+                . ', ' . $root . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField()) . ')';
         }
 
         return EntityDefinitionQueryHelper::escape($context->getAlias()) . '.' . EntityDefinitionQueryHelper::escape($field->getLocalField());

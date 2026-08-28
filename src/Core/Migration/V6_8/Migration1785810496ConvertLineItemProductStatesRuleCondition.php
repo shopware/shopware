@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_7;
+namespace Shopware\Core\Migration\V6_8;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('inventory')]
-class Migration1773829000MigrateLineItemProductStatesRuleCondition extends MigrationStep
+class Migration1785810496ConvertLineItemProductStatesRuleCondition extends MigrationStep
 {
     private const LEGACY_PRODUCT_STATE_TO_TYPE_MAP = [
         'is-download' => 'digital',
@@ -19,25 +19,10 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
 
     public function getCreationTimestamp(): int
     {
-        return 1773829000;
+        return 1785810496;
     }
 
     public function update(Connection $connection): void
-    {
-        // Intentionally empty.
-        //
-        // This migration originally converted cartLineItemProductStates rule conditions
-        // to cartLineItemProductType during the 6.7 upgrade. However, 6.6 code cannot
-        // evaluate cartLineItemProductType (LineItemProductTypeRule was introduced in 6.7),
-        // so running this conversion in update() breaks blue-green deployments where 6.6
-        // pods are still running while the 6.7 DB migration has already been applied.
-        //
-        // The conversion remains in updateDestructive() for the 6.7 contract phase. Shops
-        // that still need this conversion during the regular 6.8 update path are handled by
-        // \Shopware\Core\Migration\V6_8\Migration1785810496ConvertLineItemProductStatesRuleCondition.
-    }
-
-    public function updateDestructive(Connection $connection): void
     {
         $conditions = $connection->fetchAllAssociative(
             'SELECT `id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',

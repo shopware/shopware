@@ -19,6 +19,13 @@ describe('components/sw-select-result-list', () => {
         await flushPromises();
     });
 
+    it('renders the result list inside the floating content so it follows the reference on scroll', async () => {
+        const content = swSelectResultList.find('.mt-floating-ui__content .sw-select-result-list__content');
+
+        expect(content.exists()).toBe(true);
+        expect(swSelectResultList.find('.sw-popover-deprecated').exists()).toBe(false);
+    });
+
     it('emits the paginate event when the element is scrolled to the bottom completely', async () => {
         const scrollEvent = {
             target: {

@@ -1,6 +1,7 @@
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import '../../store/order-detail.store';
+import { getTranslatedCartErrorMessage } from '../../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -630,8 +631,10 @@ export default {
                 return;
             }
 
-            Object.values(response.data.errors).forEach(({ level, message }) => {
-                switch (level) {
+            Object.values(response.data.errors).forEach((error) => {
+                const message = getTranslatedCartErrorMessage(error, this.$t.bind(this));
+
+                switch (error.level) {
                     case 0: {
                         this.createNotificationInfo({ message });
                         break;

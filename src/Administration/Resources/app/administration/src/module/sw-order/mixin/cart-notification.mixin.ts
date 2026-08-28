@@ -1,5 +1,6 @@
 import { defineComponent } from 'vue';
 import type { CartError } from '../order.types';
+import { getTranslatedCartErrorMessage } from '../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -35,12 +36,14 @@ export default Mixin.register(
                 }
 
                 Object.values(info).forEach((value) => {
+                    const message = getTranslatedCartErrorMessage(value, (key, values) => this.$t(key, values ?? {}));
+
                     switch (value.level) {
                         case 0: {
                             // @ts-expect-error
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                             this.createNotificationSuccess({
-                                message: value.message,
+                                message,
                             });
                             break;
                         }
@@ -49,7 +52,7 @@ export default Mixin.register(
                             // @ts-expect-error
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                             this.createNotificationWarning({
-                                message: value.message,
+                                message,
                             });
                             break;
                         }
@@ -58,7 +61,7 @@ export default Mixin.register(
                             // @ts-expect-error
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                             this.createNotificationError({
-                                message: value.message,
+                                message,
                             });
                             break;
                         }

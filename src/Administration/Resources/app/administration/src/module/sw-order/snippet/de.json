@@ -6,6 +6,12 @@
       "descriptionTextModule": "Verwaltung von Bestellungen.",
       "placeholderSearchBar": "Durchsuche alle Bestellungen ..."
     },
+    "cartError": {
+      "promotion-not-found": "Gutscheincode \"{code}\" existiert nicht.",
+      "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf die Bestellung angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
+      "promotion-not-eligible-already-redeemed": "Der Gutscheincode \"{name}\" wurde bereits eingelöst.",
+      "promotion-not-eligible-already-added": "Die Rabattaktion zum Gutscheincode \"{name}\" wurde bereits zur Bestellung hinzugefügt. Eine Rabattaktion kann pro Bestellung nur einmal angewendet werden."
+    },
     "list": {
       "columnCustomerCompany": "Firma",
       "columnCustomerName": "Kundenname",

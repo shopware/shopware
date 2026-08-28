@@ -6,6 +6,12 @@
       "descriptionTextModule": "Manage received orders here.",
       "placeholderSearchBar": "Search all orders..."
     },
+    "cartError": {
+      "promotion-not-found": "Promo code \"{code}\" could not be found.",
+      "promotion-not-eligible": "Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.",
+      "promotion-not-eligible-already-redeemed": "The promo code \"{name}\" has already been redeemed.",
+      "promotion-not-eligible-already-added": "The promotion for code \"{name}\" has already been added to the order. A promotion can only be applied once per order."
+    },
     "list": {
       "columnCustomerCompany": "Company",
       "columnCustomerName": "Customer name",

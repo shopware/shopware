@@ -6,7 +6,8 @@
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: message.type,
                         content: message.text,
-                        announceOnLoad: true
+                        announceOnLoad: true,
+                        ariaLive: (message.type == 'danger' ? 'assertive' : 'polite'),
                     } %}
                 {% endfor %}
             </div>

@@ -361,11 +361,15 @@ describe('core/service/documentV2.service.ts', () => {
         ],
         [
             'foo',
-            'sw-order.components.createDocumentModal.documentTypes.foo',
+            'foo',
         ],
     ])('should translate a core document type via its snippet key', (documentType, expectedKey) => {
         const documentV2Service = new DocumentV2Service();
-        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({ tc: (key) => key });
+
+        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
+            tc: (key) => key,
+            te: () => Object.values(DOCUMENT_TYPES).includes(documentType),
+        });
 
         expect(documentV2Service.getDocumentTypeLabel(documentType)).toStrictEqual(expectedKey);
 
@@ -410,10 +414,17 @@ describe('core/service/documentV2.service.ts', () => {
     });
 
     it('returns the technical name unchanged when no app label map and no core snippet key match', () => {
+        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
+            tc: (key) => key,
+            te: () => false,
+        });
+
         const documentV2Service = new DocumentV2Service();
 
         expect(documentV2Service.getDocumentTypeLabel('swag_warranty')).toBe('swag_warranty');
         expect(documentV2Service.getDocumentTypeLabel('swag_warranty', {})).toBe('swag_warranty');
+
+        snippetSpy.mockRestore();
     });
 
     it('should request the available document types only once and share the result', async () => {

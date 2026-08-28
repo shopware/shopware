@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Psr\Clock\ClockInterface as PsrClockInterface;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
@@ -11,6 +12,10 @@ use Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectPeriodicMetri
 use Shopware\Core\Framework\Telemetry\Metrics\Subscriber\TelemetryFlushListener;
 use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
 use Shopware\Core\Framework\Telemetry\Telemetry;
+use Shopware\Core\Framework\Telemetry\Tracking\TrackingService;
+use Shopware\Core\Framework\Telemetry\Tracking\TrackingTransport;
+use Shopware\Core\Framework\Telemetry\Tracking\UdpTrackingTransport;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -86,4 +91,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.telemetry.periodic_metric_collector'),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(UdpTrackingTransport::class);
+
+    $services->alias(TrackingTransport::class, UdpTrackingTransport::class);
+
+    $services->set(TrackingService::class)
+        ->args([
+            service(SystemConfigService::class),
+            service(TrackingTransport::class),
+            service(PsrClockInterface::class),
+            param('kernel.shopware_version'),
+        ]);
 };

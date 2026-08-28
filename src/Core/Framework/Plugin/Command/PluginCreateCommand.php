@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Shopware\Core\Framework\Plugin\PluginException;
+use Shopware\Core\Framework\Telemetry\Tracking\TrackingService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -34,7 +35,8 @@ class PluginCreateCommand extends Command
         private readonly ScaffoldingCollector $scaffoldingCollector,
         private readonly ScaffoldingWriter $scaffoldingWriter,
         private readonly Filesystem $filesystem,
-        private readonly iterable $generators
+        private readonly iterable $generators,
+        private readonly TrackingService $trackingService,
     ) {
         parent::__construct();
     }
@@ -126,6 +128,8 @@ class PluginCreateCommand extends Command
 
             $io->success('Plugin created successfully');
 
+            $this->trackUsage($input, $output, $configuration, $noScaffold);
+
             return self::SUCCESS;
         } catch (\Throwable $exception) {
             $io->error($exception->getMessage());
@@ -136,6 +140,28 @@ class PluginCreateCommand extends Command
 
             return self::FAILURE;
         }
+    }
+
+    private function trackUsage(
+        InputInterface $input,
+        OutputInterface $output,
+        PluginScaffoldConfiguration $configuration,
+        bool $noScaffold
+    ): void {
+        $this->trackingService->showHint($output);
+
+        $selected = [];
+        foreach ($configuration->options as $key => $value) {
+            if ($value) {
+                $selected[] = $key;
+            }
+        }
+
+        $this->trackingService->track('plugin.create', [
+            'static' => $input->getOption('static') ? 1 : 0,
+            'scaffold' => $noScaffold ? 0 : 1,
+            'options' => implode(',', $selected),
+        ]);
     }
 
     private function askPascalCaseString(

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Telemetry\Tracking\TrackingService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -49,7 +50,16 @@ class MakerCommandTest extends TestCase
         $otherGenerator = $this->createMock(ScaffoldingGenerator::class);
         $otherGenerator->expects($this->never())->method('generateStubs');
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator, $otherGenerator]), $scaffoldingWriter, $pluginService);
+        $trackingService = $this->createMock(TrackingService::class);
+        $trackingService->expects($this->once())->method('showHint');
+        $trackingService->expects($this->once())
+            ->method('track')
+            ->with('make.plugin', [
+                'command' => 'make:foo',
+                'generator' => 'DummyScaffoldingGenerator',
+            ]);
+
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator, $otherGenerator]), $scaffoldingWriter, $pluginService, $trackingService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -62,7 +72,7 @@ class MakerCommandTest extends TestCase
     public function testInteractRejectsBlankPluginName(): void
     {
         $generator = new DummyScaffoldingGenerator();
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), static::createStub(ScaffoldingWriter::class), static::createStub(PluginService::class));
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), static::createStub(ScaffoldingWriter::class), static::createStub(PluginService::class), static::createStub(TrackingService::class));
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -85,7 +95,7 @@ class MakerCommandTest extends TestCase
             ->willReturn($this->getPluginEntity());
 
         $generator = new DummyScaffoldingGenerator();
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService, static::createStub(TrackingService::class));
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -104,7 +114,10 @@ class MakerCommandTest extends TestCase
 
         $generator = new DummyScaffoldingGenerator();
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $trackingService = $this->createMock(TrackingService::class);
+        $trackingService->expects($this->never())->method('track');
+
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService, $trackingService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -126,7 +139,10 @@ class MakerCommandTest extends TestCase
 
         $generator = new DummyScaffoldingGenerator();
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $trackingService = $this->createMock(TrackingService::class);
+        $trackingService->expects($this->never())->method('track');
+
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService, $trackingService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);

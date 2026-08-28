@@ -2,6 +2,10 @@
 
 ## Core
 
+### Anonymous CLI scaffolding telemetry
+
+`plugin:create` and `make:plugin:*` send anonymous usage events so Shopware can see whether those scaffolding commands are used. The payload contains the command name, selected scaffold options, Shopware version, and PHP version. Set `DO_NOT_TRACK` to disable collection. The same `core.telemetry.id` system config key as the Deployment Helper identifies the installation. Learn more at [https://developer.shopware.com/docs/resources/references/telemetry.html](https://developer.shopware.com/docs/resources/references/telemetry.html).
+
 ### `system:install` dispatches `SystemInstallCompletedEvent`
 
 `Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.

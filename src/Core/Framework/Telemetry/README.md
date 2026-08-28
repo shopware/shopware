@@ -2,6 +2,7 @@
 This component contains the code for the collection of telemetry in shopware applications.
 
 Folder structure:
+- `Tracking` - anonymous usage events (CLI scaffolding today). Honours `DO_NOT_TRACK` and shares `core.telemetry.id` with the Deployment Helper.
 - `Metrics` - contains the abstractions for the metrics collection and reporting.
   - `Config` - metric and transport configuration loaded from `telemetry.yaml`.
   - `Exception` - telemetry-specific exceptions.
@@ -245,6 +246,20 @@ MeterProvider::meter()?->emit(new ConfiguredMetric(name: 'database.locks.count',
 | `messenger.message.size` | histogram | `MessageQueueTelemetrySubscriber` | `WorkerMessageReceivedEvent` |
 | `dal.associations.count` | histogram | `EntityTelemetrySubscriber` | `EntitySearchedEvent` |
 | `database.locks.count` | counter | `RetryableQuery` / `RetryableTransaction` | `RetryableException` / deadlock |
+
+## Usage tracking
+
+`Shopware\Core\Framework\Telemetry\Tracking\TrackingService` sends anonymous usage events over UDP. It is the Shopware counterpart of the Deployment Helper tracker: `DO_NOT_TRACK` disables collection, and `core.telemetry.id` is the shared anonymous installation id.
+
+```php
+$this->trackingService->track('plugin.create', [
+    'static' => 0,
+    'scaffold' => 1,
+    'options' => 'create-command',
+]);
+```
+
+CLI scaffolding commands (`plugin:create`, `make:plugin:*`) call this after a successful run. Override the destination with `SHOPWARE_TRACKING_DOMAIN` (default `udp.usage.shopware.io:9000`).
 
 ## Future improvements
 - Currently, emit expects the metric value to be precalculated. That means that if some metric will be disabled, the

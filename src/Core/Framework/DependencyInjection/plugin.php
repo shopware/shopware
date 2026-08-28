@@ -62,6 +62,7 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Tracking\TrackingService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
@@ -84,6 +85,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ScaffoldingCollector::class),
             service(ScaffoldingWriter::class),
             service(PluginService::class),
+            service(TrackingService::class),
         ]);
 
     $services->set(KernelPluginLoader::class)
@@ -308,6 +310,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ScaffoldingWriter::class),
             service(Filesystem::class),
             tagged_iterator('shopware.scaffold.generator'),
+            service(TrackingService::class),
         ])
         ->tag('console.command');
 

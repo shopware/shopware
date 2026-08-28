@@ -9,8 +9,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\PluginCreateCommand;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
+use Shopware\Core\Framework\Telemetry\Tracking\TrackingService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -223,7 +225,11 @@ class PluginCreateCommandTest extends TestCase
 
     public function testDirectoryExists(): void
     {
-        $commandTester = $this->getCommandTester([], true);
+        $trackingService = $this->createMock(TrackingService::class);
+        $trackingService->expects($this->never())->method('track');
+        $trackingService->expects($this->never())->method('showHint');
+
+        $commandTester = $this->getCommandTester([], true, $trackingService);
 
         $commandTester->execute([
             'plugin-name' => 'TestPlugin',
@@ -236,11 +242,99 @@ class PluginCreateCommandTest extends TestCase
         );
     }
 
+    public function testSuccessfulCreateTracksUsage(): void
+    {
+        $trackingService = $this->createMock(TrackingService::class);
+        $trackingService->expects($this->once())->method('showHint');
+        $trackingService->expects($this->once())
+            ->method('track')
+            ->with(
+                'plugin.create',
+                static::callback(static function (array $tags): bool {
+                    return $tags['static'] === 0
+                        && $tags['scaffold'] === 1
+                        && $tags['options'] === '';
+                })
+            );
+
+        $commandTester = $this->getCommandTester(trackingService: $trackingService);
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testSuccessfulStaticCreateTracksSelectedOptions(): void
+    {
+        /** @var MockObject&ScaffoldingGenerator $generator */
+        $generator = $this->createMock(ScaffoldingGenerator::class);
+        $generator->method('hasCommandOption')->willReturn(true);
+        $generator->method('getCommandOptionName')->willReturn('create-command');
+        $generator->expects($this->once())
+            ->method('addScaffoldConfig')
+            ->willReturnCallback(static function (PluginScaffoldConfiguration $configuration): void {
+                $configuration->addOption('create-command', true);
+            });
+
+        $trackingService = $this->createMock(TrackingService::class);
+        $trackingService->expects($this->once())->method('showHint');
+        $trackingService->expects($this->once())
+            ->method('track')
+            ->with(
+                'plugin.create',
+                static::callback(static function (array $tags): bool {
+                    return $tags['static'] === 1
+                        && $tags['scaffold'] === 1
+                        && $tags['options'] === 'create-command';
+                })
+            );
+
+        $commandTester = $this->getCommandTester([$generator], trackingService: $trackingService);
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+            '--static' => true,
+            '--create-command' => true,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testNoScaffoldTracksScaffoldDisabled(): void
+    {
+        $trackingService = $this->createMock(TrackingService::class);
+        $trackingService->expects($this->once())->method('showHint');
+        $trackingService->expects($this->once())
+            ->method('track')
+            ->with(
+                'plugin.create',
+                static::callback(static function (array $tags): bool {
+                    return $tags['static'] === 0
+                        && $tags['scaffold'] === 0
+                        && $tags['options'] === '';
+                })
+            );
+
+        $commandTester = $this->getCommandTester(trackingService: $trackingService);
+        $commandTester->execute([
+            'plugin-name' => 'TestPlugin',
+            'plugin-namespace' => 'Test',
+            '--no-scaffold' => true,
+        ]);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
     /**
      * @param array<ScaffoldingGenerator> $generators
      */
-    private function getCommandTester(array $generators = [], bool $directoryExists = false): CommandTester
-    {
+    private function getCommandTester(
+        array $generators = [],
+        bool $directoryExists = false,
+        ?TrackingService $trackingService = null,
+    ): CommandTester {
         $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')->willReturn($directoryExists);
 
@@ -249,7 +343,8 @@ class PluginCreateCommandTest extends TestCase
             static::createStub(ScaffoldingCollector::class),
             static::createStub(ScaffoldingWriter::class),
             $filesystem,
-            $generators
+            $generators,
+            $trackingService ?? static::createStub(TrackingService::class),
         );
 
         $commandTester = new CommandTester($command);

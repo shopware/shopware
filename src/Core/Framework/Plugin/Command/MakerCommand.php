@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Telemetry\Tracking\TrackingService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,6 +27,7 @@ class MakerCommand extends Command
         private readonly ScaffoldingCollector $scaffoldingCollector,
         private readonly ScaffoldingWriter $scaffoldingWriter,
         private readonly PluginService $pluginService,
+        private readonly TrackingService $trackingService,
     ) {
         parent::__construct();
     }
@@ -105,6 +107,12 @@ class MakerCommand extends Command
             $this->scaffoldingWriter->write($stubCollection, $configuration);
 
             $io->success('Scaffold created successfully');
+
+            $this->trackingService->showHint($output);
+            $this->trackingService->track('make.plugin', [
+                'command' => (string) $this->getName(),
+                'generator' => (new \ReflectionClass($this->generator))->getShortName(),
+            ]);
 
             return self::SUCCESS;
         } catch (\Throwable $exception) {

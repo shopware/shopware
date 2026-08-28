@@ -61,7 +61,13 @@ final class LogicDetector
     {
     }
 
-    public static function methodContainsLogic(ClassMethod $method, bool $inThrowableContext = false): bool
+    /**
+     * @param bool $declaresSchema true for DAL entity extensions: `extendFields($collection)` /
+     *                             `extendProtections($protections)` add declarations to the passed
+     *                             collection, the same declarative content a definition returns
+     *                             from `defineFields()`, so the parameter-mutation check is skipped
+     */
+    public static function methodContainsLogic(ClassMethod $method, bool $inThrowableContext = false, bool $declaresSchema = false): bool
     {
         if ($method->stmts === null) {
             return false;
@@ -97,7 +103,7 @@ final class LogicDetector
             return true;
         }
 
-        if (self::mutatesAParameter($method)) {
+        if (!$declaresSchema && self::mutatesAParameter($method)) {
             return true;
         }
 

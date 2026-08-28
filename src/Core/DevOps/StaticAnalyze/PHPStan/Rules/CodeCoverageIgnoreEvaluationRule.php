@@ -14,6 +14,7 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\Errors;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\ExemptionResolver;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\LogicDetector;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\UseMap;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\Log\Package;
 
 // Trait scanning was intentionally removed: a trait's methods are the trait's
@@ -81,7 +82,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
 
         $classExempted = $classHasIgnore && $this->exemptions->isExempted($node, $useMap);
 
-        return $this->checkMethods($node, $useMap, $className, $classHasIgnore, $classExempted, $this->isThrowable($className));
+        return $this->checkMethods($node, $useMap, $className, $classHasIgnore, $classExempted, $this->isThrowable($className), $this->declaresSchema($className));
     }
 
     private function anyMethodHasIgnore(Class_ $node): bool
@@ -107,13 +108,14 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         bool $classHasIgnore,
         bool $classExempted,
         bool $inThrowableContext,
+        bool $declaresSchema,
     ): array {
         $errors = [];
 
         foreach ($node->getMethods() as $method) {
             $methodName = (string) $method->name;
 
-            if ($classHasIgnore && !$classExempted && (LogicDetector::methodContainsLogic($method, $inThrowableContext) || $this->redefinesAParentDefault($className, $method, $inThrowableContext))) {
+            if ($classHasIgnore && !$classExempted && (LogicDetector::methodContainsLogic($method, $inThrowableContext, $declaresSchema) || $this->redefinesAParentDefault($className, $method, $inThrowableContext))) {
                 $errors[] = Errors::classLevel($className, $methodName, $method->getStartLine());
 
                 continue;
@@ -127,7 +129,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
                 continue;
             }
 
-            if (LogicDetector::methodContainsLogic($method, $inThrowableContext)) {
+            if (LogicDetector::methodContainsLogic($method, $inThrowableContext, $declaresSchema)) {
                 $errors[] = Errors::methodLevel($className, $methodName, $method->getStartLine());
             }
         }
@@ -231,6 +233,20 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         }
 
         return (bool) preg_match('/@codeCoverageIgnore(?![A-Za-z])/', $doc->getText());
+    }
+
+    /**
+     * Entity extensions declare schema by adding to the collections handed to them; that is
+     * the same declarative content a definition returns from `defineFields()`, which the rule
+     * accepts, so the two are treated alike.
+     */
+    private function declaresSchema(string $className): bool
+    {
+        if (!$this->reflectionProvider->hasClass($className) || !$this->reflectionProvider->hasClass(EntityExtension::class)) {
+            return false;
+        }
+
+        return $this->reflectionProvider->getClass($className)->isSubclassOfClass($this->reflectionProvider->getClass(EntityExtension::class));
     }
 
     private function isThrowable(string $className): bool

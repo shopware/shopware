@@ -137,6 +137,21 @@ class LogicDetectorTest extends TestCase
         yield 'literal code and message handed to the parent are the error shape, not logic' => ['parent::__construct(\'Not found\', 404);', false];
     }
 
+    public function testSchemaDeclarationMayAddToThePassedCollection(): void
+    {
+        $method = $this->parseMethod('$name->add(new \\stdClass());');
+
+        static::assertTrue(LogicDetector::methodContainsLogic($method));
+        static::assertFalse(LogicDetector::methodContainsLogic($method, declaresSchema: true));
+    }
+
+    public function testSchemaDeclarationStillFailsOnBranching(): void
+    {
+        $method = $this->parseMethod('if ($key) { $name->add(new \\stdClass()); }');
+
+        static::assertTrue(LogicDetector::methodContainsLogic($method, declaresSchema: true));
+    }
+
     private function parseMethod(string $body): ClassMethod
     {
         $parser = (new ParserFactory())->createForHostVersion();

@@ -188,6 +188,11 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             ]],
         ];
 
+        yield 'entity extension adding fields to the passed collection passes' => [
+            ['SchemaExtensionClass.php'],
+            [],
+        ];
+
         yield 'named constructor initialising a fresh local passes' => [
             ['NamedConstructorClass.php'],
             [],

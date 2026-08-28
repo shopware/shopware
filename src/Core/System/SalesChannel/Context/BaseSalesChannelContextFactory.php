@@ -89,6 +89,9 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
         $criteria = new Criteria([$salesChannelId]);
         $criteria->setTitle('base-context-factory::sales-channel');
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria->addAssociation('currency');
+        }
         $criteria->addAssociation('currencies');
         $criteria->addAssociation('domains');
 
@@ -113,11 +116,20 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         }
 
         $availableCurrencies = $salesChannel->getCurrencies();
-        if ($availableCurrencies === null || !$availableCurrencies->has($currencyId)) {
+        if ($availableCurrencies === null) {
             throw SalesChannelException::currencyNotFound($currencyId);
         }
 
         $currency = $availableCurrencies->get($currencyId);
+        if ($currency === null && !Feature::isActive('v6.8.0.0') && $currencyId === $salesChannel->getCurrencyId()) {
+            $currency = $salesChannel->getCurrency();
+
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The default sales channel currency must be assigned to the sales channel.');
+        }
+
+        if ($currency === null) {
+            throw SalesChannelException::currencyNotFound($currencyId);
+        }
 
         // load not logged in customer with default shop configuration or with provided checkout scopes
         $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);

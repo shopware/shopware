@@ -4,6 +4,10 @@
 
 <details>
 
+## Sales channel default currencies must be assigned
+
+The default currency of every sales channel must be assigned to that sales channel. Before upgrading, add the `currencyId` configured on each sales channel to its `currencies` association.
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.

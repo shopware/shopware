@@ -7,6 +7,9 @@
 `Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
 
 When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
+### Sales channel default currencies must be assigned
+
+Sales channels whose default `currencyId` is not present in their `currencies` association now trigger a deprecation. Assign the default currency to the sales channel before upgrading to 6.8, when this invalid configuration will no longer be supported.
 
 ### New document lifecycle business events
 

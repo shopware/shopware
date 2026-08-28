@@ -57,6 +57,10 @@ Store API responses no longer echo the request `sw-context-token` header on cach
 
 ## Administration
 
+### Runtime guards for deprecated Administration APIs
+
+Deprecated Administration APIs can now call `Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)`. Usage emits a development warning before the matching major feature flag is active and throws when the flag is active. Extension authors should migrate away from deprecated APIs before testing against the next-major feature flags.
+
 ### Shipping prices can be linked to the tax rate
 
 The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.

@@ -34,9 +34,8 @@ export default Shopware.Component.wrapComponentConfig({
                 return true;
             }
 
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-popover',
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
                 'The old usage of "sw-popover" is deprecated and will be removed in v6.8.0.0. Please use "mt-floating-ui" instead.',
             );
 
@@ -55,8 +54,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     created() {
         if (this.useMeteorComponent && this.resizeWidth === true) {
-            Shopware.Utils.debug.warn(
-                'sw-popover',
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
                 'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
             );
         }

@@ -841,6 +841,26 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$swLegacyBlockElse).toBeDefined();
         });
 
+        // @deprecated tag:v6.8.0 - The test will be removed together with $tc.
+        it.deprecated('v6.8.0.0')('$tc should trigger a deprecation warning before the major', () => {
+            const deprecationSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
+
+            // eslint-disable-next-line sw-core-rules/no-tc-translation -- Verifies the deprecated $tc compatibility path.
+            rootComponent.config.globalProperties.$tc('global.my.mock.title');
+
+            expect(deprecationSpy).toHaveBeenCalledWith(
+                'V6_8_0_0',
+                'The $tc function is deprecated and will be removed in v6.8.0. Please use $t instead.',
+            );
+        });
+
+        it.activeFeatureFlags(['V6_8_0_0'])('$tc should throw in the major', () => {
+            expect(() => {
+                // eslint-disable-next-line sw-core-rules/no-tc-translation -- Verifies removal of the deprecated $tc compatibility path.
+                rootComponent.config.globalProperties.$tc('global.my.mock.title');
+            }).toThrow('Tried to access deprecated functionality');
+        });
+
         it('should scope legacy block helpers by component instance', () => {
             const vmOne = { $: { uid: 1 } };
             const vmTwo = { $: { uid: 2 } };

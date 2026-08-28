@@ -179,6 +179,8 @@ jobs:
           set -e
           git remote add bc-checker-upstream https://github.com/shopware/platform.git
           git fetch bc-checker-upstream
+      - name: Unblock the BC baseline install
+        run: composer config --global --json policy.advisories.ignore-id '["PKSA-p9gd-j6gr-6f9t"]'
       - name: BC Checker lastest tag
         if: github.event_name != 'pull_request'
         run: composer run bc-check

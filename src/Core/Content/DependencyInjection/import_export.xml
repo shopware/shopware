@@ -85,6 +85,7 @@
             <argument type="service" id="import_export_file.repository"/>
             <argument type="service" id="logger"/>
             <argument>%shopware.filesystem.private_local_download_strategy%</argument>
+            <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
             <argument>%shopware.filesystem.private_local_path_prefix%</argument>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>

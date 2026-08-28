@@ -174,17 +174,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $currency->setItemRounding($rounding);
         $currency->setId($currencyId);
         $currency->setFactor(1);
-        $salesChannelEntity->setCurrency($currency);
         $salesChannelEntity->setCurrencies(new CurrencyCollection([$currency]));
-
-        $defaultCurrencyId = Uuid::randomHex();
-        $defaultCurrency = clone $currency;
-        $defaultCurrency->setUniqueIdentifier($defaultCurrencyId);
-        $defaultCurrency->setId($defaultCurrencyId);
-
-        $salesChannelWithUnassignedDefaultCurrency = clone $salesChannelEntity;
-        $salesChannelWithUnassignedDefaultCurrency->setCurrencyId($defaultCurrencyId);
-        $salesChannelWithUnassignedDefaultCurrency->setCurrency($defaultCurrency);
 
         $country = new CountryEntity();
         $country->setUniqueIdentifier($countryId);
@@ -329,10 +319,10 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             'expectedException' => SalesChannelException::currencyNotFound('b7d2554b0ce847cd82f3ac9bd1c0dfca'),
         ];
 
-        yield 'default currency is available without mapping' => [
+        yield 'customer group not found' => [
             'options' => [
                 SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
-                SalesChannelContextService::CURRENCY_ID => $defaultCurrencyId,
+                SalesChannelContextService::CURRENCY_ID => $currencyId,
                 SalesChannelContextService::COUNTRY_ID => $countryId,
             ],
             'fetchDataResult' => [
@@ -344,7 +334,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
             'fetchParentLanguageResult' => false,
             'entitySearchResult' => [
                 SalesChannelDefinition::ENTITY_NAME => [
-                    TestDefaults::SALES_CHANNEL => $salesChannelWithUnassignedDefaultCurrency,
+                    TestDefaults::SALES_CHANNEL => $salesChannelEntity,
                 ],
                 CurrencyDefinition::ENTITY_NAME => [
                     $currencyId => $currency,

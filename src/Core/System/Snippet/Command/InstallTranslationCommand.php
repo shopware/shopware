@@ -61,7 +61,10 @@ class InstallTranslationCommand extends Command
             return self::FAILURE;
         }
 
-        $unavailable = $this->unavailableLocales($locales, $metadata);
+        $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
+        $localesWithFiles = $this->localesWithTranslationFiles($locales, $localesRequiringUpdate);
+
+        $unavailable = $this->unavailableLocales($locales, $metadata, $localesWithFiles);
 
         if ($this->everyRequestedLocaleIsUnavailable($locales, $unavailable)) {
             throw SnippetException::translationsUnavailable($unavailable);
@@ -72,13 +75,12 @@ class InstallTranslationCommand extends Command
         }
 
         $installable = array_values(array_diff($locales, $unavailable));
-        $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
 
         if ($localesRequiringUpdate === []) {
             TranslationCommandHelper::printNoTranslationsToUpdate($output);
         }
 
-        $localesToLink = $this->localesToLink($installable, $localesRequiringUpdate);
+        $localesToLink = $this->localesToLink($installable, $localesWithFiles);
         if ($localesToLink !== []) {
             TranslationCommandHelper::printLocalesInstalledFromExistingFiles($output, $localesToLink);
         }
@@ -150,22 +152,36 @@ class InstallTranslationCommand extends Command
     }
 
     /**
-     * Whether a translation is up to date and whether it is actually installed are two different
-     * questions. These locales keep the files they have, because the repository has nothing newer,
-     * but their language and snippet set are ensured just the same.
+     * Locales that are not re-downloaded anyway and already carry files. Both the unavailable set and
+     * the link set are derived from this, so every locale is checked once: on a remote filesystem each
+     * check is a request.
      *
      * @param list<string> $locales
      * @param list<string> $localesRequiringUpdate
      *
      * @return list<string>
      */
-    private function localesToLink(array $locales, array $localesRequiringUpdate): array
+    private function localesWithTranslationFiles(array $locales, array $localesRequiringUpdate): array
     {
         return array_values(array_filter(
-            $locales,
-            fn (string $locale) => !\in_array($locale, $localesRequiringUpdate, true)
-                && $this->translationLoader->hasTranslationFiles($locale),
+            array_diff($locales, $localesRequiringUpdate),
+            fn (string $locale) => $this->translationLoader->hasTranslationFiles($locale),
         ));
+    }
+
+    /**
+     * Whether a translation is up to date and whether it is actually installed are two different
+     * questions. These locales keep the files they have, because the repository has nothing newer,
+     * but their language and snippet set are ensured just the same.
+     *
+     * @param list<string> $locales
+     * @param list<string> $localesWithFiles
+     *
+     * @return list<string>
+     */
+    private function localesToLink(array $locales, array $localesWithFiles): array
+    {
+        return array_values(array_intersect($locales, $localesWithFiles));
     }
 
     /**
@@ -174,15 +190,13 @@ class InstallTranslationCommand extends Command
      * so they are reported and left out instead.
      *
      * @param list<string> $locales
+     * @param list<string> $localesWithFiles
      *
      * @return list<string>
      */
-    private function unavailableLocales(array $locales, MetadataCollection $metadata): array
+    private function unavailableLocales(array $locales, MetadataCollection $metadata, array $localesWithFiles): array
     {
-        return array_values(array_filter(
-            array_diff($locales, $metadata->getKeys()),
-            fn (string $locale) => !$this->translationLoader->hasTranslationFiles($locale),
-        ));
+        return array_values(array_diff($locales, $metadata->getKeys(), $localesWithFiles));
     }
 
     /**

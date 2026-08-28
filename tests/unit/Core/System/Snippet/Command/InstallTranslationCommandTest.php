@@ -454,6 +454,44 @@ class InstallTranslationCommandTest extends TestCase
         $tester->execute(['--locales' => 'en-GB,de-DE', '--offline' => true]);
     }
 
+    public function testOfflineInstallWithAllLinksEveryConfiguredLocale(): void
+    {
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+        $this->metadataStore->expects($this->never())->method('save');
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
+        $this->translationLoader->expects($this->never())->method('load');
+
+        $linked = [];
+        $this->translationLoader->expects($this->exactly(3))
+            ->method('link')
+            ->willReturnCallback(static function (string $locale) use (&$linked): void {
+                $linked[] = $locale;
+            });
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--all' => true, '--offline' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertSame(['en-GB', 'es-ES', 'de-DE'], $linked);
+    }
+
+    public function testOfflineInstallWithAllFailsWhenAnyConfiguredLocaleHasNoFiles(): void
+    {
+        $this->metadataStore->expects($this->never())->method('getUpdatedLocalMetadata');
+        $this->metadataStore->expects($this->never())->method('save');
+        $this->translationLoader->method('hasTranslationFiles')
+            ->willReturnCallback(static fn (string $locale) => $locale !== 'es-ES');
+
+        // --offline is all or nothing: an incomplete provisioning step must not install a subset
+        $this->translationLoader->expects($this->never())->method('link');
+        $this->translationLoader->expects($this->never())->method('load');
+
+        $tester = new CommandTester($this->getCommand());
+
+        $this->expectExceptionObject(SnippetException::translationsUnavailable(['es-ES']));
+        $tester->execute(['--all' => true, '--offline' => true]);
+    }
+
     private function getCommand(): InstallTranslationCommand
     {
         return new InstallTranslationCommand($this->translationLoader, $this->config, $this->metadataStore);

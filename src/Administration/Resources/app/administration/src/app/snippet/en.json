@@ -1403,6 +1403,7 @@
     "closeModal": "Close notification",
     "ignorePlugin": "Ignore permanently",
     "successfullyDeleted": "Extension has been deleted",
+    "alreadyRemoved": "Extension was already removed",
     "table": {
       "plugin": "Extension"
     }

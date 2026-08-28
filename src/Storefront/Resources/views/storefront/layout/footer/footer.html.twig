@@ -13,13 +13,12 @@
                 role="list"
             >
                 {% block layout_footer_navigation_hotline %}
-                    <div class="col-md-4 footer-column js-footer-column pb-4 pb-md-0">
+                    <div class="col-md-4 footer-column js-footer-column pb-4 pb-md-0"{% if feature('ACCESSIBILITY_TWEAKS') %} role="listitem"{% endif %}>
                         {% block layout_footer_navigation_hotline_headline %}
                             {% if feature('ACCESSIBILITY_TWEAKS') %}
 
                                 <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                     id="collapseFooterHotlineTitle"
-                                     role="listitem">
+                                     id="collapseFooterHotlineTitle">
                                     {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
                                     <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
@@ -73,8 +72,8 @@
 
                             <div id="collapseFooterHotline"
                                  class="footer-column-content collapse js-footer-column-content footer-contact{% if feature('ACCESSIBILITY_TWEAKS') %} mb-4 mb-md-0{% endif %}"
-                                 aria-labelledby="collapseFooterHotlineTitle"
-                                 role="listitem">
+                                 aria-labelledby="collapseFooterHotlineTitle"{% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                 role="listitem"{% endif %}>
 
                                 <div class="footer-column-content-inner">
                                     <p class="footer-contact-hotline">
@@ -138,13 +137,12 @@
                 {% block layout_footer_navigation_columns %}
                     {% for root in footer.navigation.tree %}
                         {% block layout_footer_navigation_column %}
-                            <div class="col-md-4 footer-column js-footer-column">
+                            <div class="col-md-4 footer-column js-footer-column"{% if feature('ACCESSIBILITY_TWEAKS') %} role="listitem"{% endif %}>
                                 {% block layout_footer_navigation_information_headline %}
 
                                     {% if feature('ACCESSIBILITY_TWEAKS') %}
                                         <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                             id="collapseFooterTitle{{ loop.index }}"
-                                             role="listitem">
+                                             id="collapseFooterTitle{{ loop.index }}">
 
                                             {% if root.category.type == 'folder' %}
                                                 {{ root.category.translated.name }}
@@ -215,8 +213,8 @@
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
                                          class="footer-column-content collapse js-footer-column-content"
-                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
-                                         role="listitem">
+                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"{% if not feature('ACCESSIBILITY_TWEAKS') %}
+                                         role="listitem"{% endif %}>
 
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}

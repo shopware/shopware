@@ -24,6 +24,14 @@ class Migration1785810496ConvertLineItemProductStatesRuleCondition extends Migra
 
     public function update(Connection $connection): void
     {
+        // \Shopware\Core\Migration\V6_7\Migration1773829000MigrateLineItemProductStatesRuleCondition had to defer this
+        // conversion to updateDestructive(), because converting cartLineItemProductStates during the 6.7 update
+        // breaks 6.6 -> 6.7 blue-green deployments: 6.6 cannot evaluate cartLineItemProductType.
+        //
+        // The regular safe destructive window does not guarantee that the V6_7 destructive migration ran before shops
+        // reach 6.8, so this V6_8 update migration performs the recovery conversion. It is safe here because 6.7, the
+        // previous runtime for 6.7 -> 6.8 blue-green deployments, already supports cartLineItemProductType.
+
         $conditions = $connection->fetchAllAssociative(
             'SELECT `id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',
             ['legacyType' => 'cartLineItemProductStates']

@@ -15,7 +15,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(NavigationLoaderConfigSerializer::class)]
 class NavigationLoaderConfigSerializerTest extends TestCase
 {
@@ -39,7 +39,7 @@ class NavigationLoaderConfigSerializerTest extends TestCase
 
         static::assertInstanceOf(NavigationLoaderConfig::class, $result);
         static::assertNull($result->rootId);
-        static::assertSame(NavigationLoaderConfig::DEFAULT_DEPTH, $result->depth);
+        static::assertNull($result->depth, 'An unconfigured depth stays null so the loader can follow the sales channel.');
         static::assertSame('activeId', $result->activeProperty);
     }
 
@@ -65,7 +65,7 @@ class NavigationLoaderConfigSerializerTest extends TestCase
 
         static::assertInstanceOf(NavigationLoaderConfig::class, $result);
         static::assertSame('service-navigation', $result->rootId);
-        static::assertSame(NavigationLoaderConfig::DEFAULT_DEPTH, $result->depth);
+        static::assertNull($result->depth, 'An unconfigured depth stays null so the loader can follow the sales channel.');
         static::assertSame('activeId', $result->activeProperty);
     }
 
@@ -87,7 +87,7 @@ class NavigationLoaderConfigSerializerTest extends TestCase
 
         static::assertInstanceOf(NavigationLoaderConfig::class, $result);
         static::assertNull($result->rootId);
-        static::assertSame(NavigationLoaderConfig::DEFAULT_DEPTH, $result->depth);
+        static::assertNull($result->depth, 'An unconfigured depth stays null so the loader can follow the sales channel.');
         static::assertSame('navActiveId', $result->activeProperty);
     }
 

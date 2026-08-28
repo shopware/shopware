@@ -1,0 +1,24 @@
+{
+    "title": "Sw/Media/EmbedVideo",
+    "parameters": {
+        "server": {
+            "id": "Sw:Media:EmbedVideo"
+        },
+        "template": "<twig:Sw:Media:EmbedVideo :videoUrl=\"videoUrl\" :videoTitle=\"videoTitle\" :needsConfirmation=\"needsConfirmation\" cookieName=\"youtube-video\" platform=\"YouTube\" />"
+    },
+    "argTypes": {
+        "videoUrl": { "control": "text", "description": "The fully built embed URL (built by the platform component)." },
+        "videoTitle": { "control": "text", "description": "Accessible title for the video iframe." },
+        "needsConfirmation": { "control": "boolean", "description": "Show a consent gate before loading the embed." }
+    },
+    "stories": [
+        {
+            "name": "EmbedVideo",
+            "args": {
+                "videoUrl": "https://www.youtube.com/embed/aqz-KE-bpKQ",
+                "videoTitle": "Big Buck Bunny",
+                "needsConfirmation": false
+            }
+        }
+    ]
+}

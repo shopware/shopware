@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveR
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -22,6 +23,7 @@ use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
@@ -64,6 +66,20 @@ class ProductController extends StorefrontController
         $page = $this->productPageLoader->load($request, $context);
 
         $this->hook(new ProductPageLoadedHook($page, $context));
+
+        $contentPage = $this->loadProductContentPage($page, $request, $context);
+
+        if ($contentPage !== null) {
+            return $this->renderStorefront(
+                '@Storefront/storefront/page/content/page.html.twig',
+                [
+                    'page' => $page,
+                    'contentPage' => $contentPage,
+                    'isNewContentStructure' => true,
+                    'redirectTo' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                ]
+            );
+        }
 
         return $this->renderStorefront(
             '@Storefront/storefront/page/content/product-detail.html.twig',
@@ -253,5 +269,13 @@ class ProductController extends StorefrontController
             'purchaseSteps' => $result->getPurchaseSteps(),
             'maxPurchase' => $result->getMaxPurchase(),
         ]);
+    }
+
+    private function loadProductContentPage(ProductPage $page, Request $request, SalesChannelContext $context): ?ContentPage
+    {
+        $productId = $page->getProduct()->getParentId() ?? $page->getProduct()->getId();
+        $path = '/product/' . $productId;
+
+        return $this->loadContentPage($path, $request, $context);
     }
 }

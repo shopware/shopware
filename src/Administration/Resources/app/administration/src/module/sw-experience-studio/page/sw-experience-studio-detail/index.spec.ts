@@ -104,6 +104,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     it('creates draft mutation payload with sanitized layout and rootSource', () => {
         const vm = {
             resolveMutationRootSource: () => null,
+            sanitizeLayoutForWrite: (layout: unknown) => layout,
         };
 
         const payload = methods.createDraftMutationPayload.call(
@@ -211,6 +212,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             latestMutationRequestId: 0,
             isLoading: false,
             selectedElementId: 'element-1',
+            sanitizeLayoutForWrite: (layout: unknown) => layout,
             editorStore: {
                 pushToHistory,
             },
@@ -268,6 +270,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             latestMutationRequestId: 0,
             isLoading: false,
             selectedElementId: 'element-1',
+            sanitizeLayoutForWrite: (layout: unknown) => layout,
             editorStore: {
                 pushToHistory: jest.fn(),
             },

@@ -1,0 +1,32 @@
+meta:
+  label: "Product Price"
+  description: "Displays a product's price — including list, regulation, reference and graduated (tiered) prices — on the product detail page."
+  icon: "regular-tag"
+  category: "commerce"
+  copilot:
+    summary: "Product detail page price element."
+    hints:
+      - "Place inside a product detail page layout; the product is resolved from the page automatically."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: false
+    title: "Product"
+    description: "Hydrated product whose price is shown."
+
+  showTaxInfo:
+    type: boolean
+    title: "Show tax info"
+    description: "Render the tax/shipping information link below the price."
+    default: true
+    adminUI:
+      component: "switch"
+
+  jsonLd:
+    type: boolean
+    title: "JSON-LD structured data"
+    description: "Emit schema.org (JSON-LD) structured pricing data for search engines. Enabled on the product detail page."
+    default: true
+    adminUI:
+      component: "switch"

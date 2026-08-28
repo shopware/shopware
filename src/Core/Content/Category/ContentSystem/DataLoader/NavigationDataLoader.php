@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpeci
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -25,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @extends AbstractContentDataLoader<Tree>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class NavigationDataLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'navigation';
@@ -45,7 +46,7 @@ class NavigationDataLoader extends AbstractContentDataLoader
     {
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: null),
-            new ConfigKeySpecification('depth', ConfigKeyKind::Literal, 'integer', required: false, hasDefault: true, default: NavigationLoaderConfig::DEFAULT_DEPTH),
+            new ConfigKeySpecification('depth', ConfigKeyKind::Literal, 'integer', required: false, hasDefault: true, default: null),
             new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'activeId'),
         ]);
     }
@@ -62,21 +63,30 @@ class NavigationDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        // Resolve root ID from config or use sales channel's navigation category
         $rootId = $config->rootId ?? 'main-navigation';
         $rootId = $this->aliasResolver->resolve($rootId, $context);
 
-        // Get active ID from element property or use root as active
+        // A recognized alias still resolves to itself when the sales channel has no such category
+        // (service and footer navigation are both optional). Passing that on would reach
+        // Uuid::fromHexToBytes() in NavigationRoute and abort the whole render.
+        if (!Uuid::isValid($rootId)) {
+            return ContentDataLoaderResult::notFound();
+        }
+
+        // The property carries the "{{categoryId}}" placeholder by default, which stays literal on a
+        // layout not rooted on a category. Anything but an id therefore falls back rather than
+        // reaching Uuid::fromHexToBytes() in NavigationRoute.
         $activeProperty = $config->activeProperty;
         $activeId = $element->getProperty($activeProperty);
 
-        if (!\is_string($activeId) || $activeId === '') {
+        if (!\is_string($activeId) || !Uuid::isValid($activeId)) {
             $activeId = $rootId;
         }
 
-        $tree = $this->navigationLoader->load($activeId, $context, $rootId, $config->depth);
+        $depth = $config->depth ?? $context->getSalesChannel()->getNavigationCategoryDepth();
 
-        // NavigationLoader handles its own caching internally
+        $tree = $this->navigationLoader->load($activeId, $context, $rootId, $depth);
+
         return ContentDataLoaderResult::cachedExternally($tree);
     }
 }

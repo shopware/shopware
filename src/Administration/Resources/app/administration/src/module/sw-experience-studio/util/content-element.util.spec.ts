@@ -1,6 +1,8 @@
+import type { ContentSystemPropertyResolution } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentElementNode } from '../types/content-element.types';
 import {
+    applyResolvedContextConsumers,
     findElementLocation,
     sanitizeContentElementLayoutForWrite,
     updateElementPropertiesInLayout,
@@ -315,6 +317,133 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
                     id: 'media-1',
                 },
             },
+        });
+    });
+
+    describe('applyResolvedContextConsumers', () => {
+        const parent = (
+            key: string,
+            contextKey: string,
+            contextType: 'single' | 'collection',
+            required: boolean,
+        ): ContentSystemPropertyResolution => ({
+            key,
+            kind: 'reference',
+            required,
+            type: null,
+            default: null,
+            fqcn: 'App\\Entity',
+            resolved: {
+                origin: 'parent',
+                contextKey,
+                providerElementId: 'root',
+                path: null,
+                distribution: 'broadcast',
+                contextType,
+                loaderSource: null,
+                configTemplate: null,
+                configComplete: false,
+            },
+            candidates: [],
+        });
+
+        const nonParent = (
+            key: string,
+            resolved: ContentSystemPropertyResolution['resolved'],
+        ): ContentSystemPropertyResolution => ({
+            key,
+            kind: 'reference',
+            required: true,
+            type: null,
+            default: null,
+            fqcn: 'App\\Entity',
+            resolved,
+            candidates: [],
+        });
+
+        it('writes a consumer for each parent-resolved property, using the resolved key, type and required', () => {
+            const price: ContentElementNode = { id: 'p1', component: 'Sw:Product:PriceDisplay' };
+
+            applyResolvedContextConsumers([price], {
+                p1: [
+                    parent('product', 'product', 'single', true),
+                    parent('reviews', 'reviews', 'collection', false),
+                ],
+            });
+
+            expect(price.acceptsContext).toEqual({
+                product: { type: 'single', required: true },
+                reviews: { type: 'collection', required: false },
+            });
+        });
+
+        it('ignores loader, stored and unresolved properties', () => {
+            const element: ContentElementNode = { id: 'e1', component: 'Sw:Test' };
+
+            applyResolvedContextConsumers([element], {
+                e1: [
+                    nonParent('media', {
+                        origin: 'loader',
+                        contextKey: null,
+                        providerElementId: null,
+                        path: null,
+                        distribution: null,
+                        contextType: null,
+                        loaderSource: 'entity',
+                        configTemplate: { entity: 'media', property: 'mediaId' },
+                        configComplete: true,
+                    }),
+                    nonParent('wired', {
+                        origin: 'stored',
+                        contextKey: null,
+                        providerElementId: null,
+                        path: null,
+                        distribution: null,
+                        contextType: null,
+                        loaderSource: null,
+                        configTemplate: null,
+                        configComplete: null,
+                    }),
+                    nonParent('missing', null),
+                ],
+            });
+
+            expect(element.acceptsContext).toBeUndefined();
+        });
+
+        it('never overrides authored wiring (consumer or data requirement)', () => {
+            const authored = { product: { type: 'single', required: true, propertyAlias: 'item' } };
+            const withConsumer: ContentElementNode = {
+                id: 'e1',
+                component: 'Sw:Test',
+                acceptsContext: cloneDeep(authored),
+            };
+            const withRequirement: ContentElementNode = {
+                id: 'e2',
+                component: 'Sw:Test',
+                dataRequirements: { product: { source: 'entity', config: { entityName: 'product', id: 'abc' } } },
+            };
+
+            applyResolvedContextConsumers([withConsumer, withRequirement], {
+                e1: [parent('product', 'product', 'single', true)],
+                e2: [parent('product', 'product', 'single', true)],
+            });
+
+            expect(withConsumer.acceptsContext).toEqual(authored);
+            expect(withRequirement.acceptsContext).toBeUndefined();
+        });
+
+        it('resolves nested elements by id and ignores ids not in the layout', () => {
+            const nested: ContentElementNode = { id: 'c1', component: 'Sw:Product:PriceDisplay' };
+            const grid: ContentElementNode = { id: 'g1', component: 'Sw:Grid', slots: { default: [nested] } };
+
+            applyResolvedContextConsumers([grid], {
+                c1: [parent('product', 'product', 'single', true)],
+                unknown: [parent('product', 'product', 'single', true)],
+            });
+
+            expect(nested.acceptsContext).toEqual({ product: { type: 'single', required: true } });
+            expect(grid.acceptsContext).toBeUndefined();
         });
     });
 });

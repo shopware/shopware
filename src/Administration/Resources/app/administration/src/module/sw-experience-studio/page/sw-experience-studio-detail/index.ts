@@ -14,6 +14,7 @@ import type { ContentElementNode } from 'src/module/sw-experience-studio/types/c
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
 import { castContentElementNodes } from 'src/module/sw-experience-studio/util/content-element-label.util';
 import {
+    applyResolvedContextConsumers,
     findElementLocation,
     sanitizeContentElementLayoutForWrite,
     updateElementPropertiesInLayout,
@@ -1001,7 +1002,9 @@ export default Shopware.Component.wrapComponentConfig({
                 }
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
-                this.layout.layout = this.sanitizeLayoutForWrite(response.layout as ContentElementNode[]);
+                const nextLayout = this.sanitizeLayoutForWrite(response.layout as ContentElementNode[]);
+                applyResolvedContextConsumers(nextLayout, response.resolutions);
+                this.layout.layout = nextLayout;
                 this.selectedElementId = resolveSelectedElementId(response);
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {

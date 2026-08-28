@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 import { h } from 'vue';
 
 async function createWrapper(options = {}) {
-    const { props = {}, slots = {}, routerPush = jest.fn() } = options;
+    const { props = {}, slots = {}, attrs = {}, routerPush = jest.fn() } = options;
 
     return mount(await wrapTestComponent('mt-tabs', { sync: true }), {
         props: {
@@ -14,6 +14,7 @@ async function createWrapper(options = {}) {
             positionIdentifier: 'jest-test-component',
             ...props,
         },
+        attrs,
         slots,
         global: {
             stubs: {
@@ -85,6 +86,20 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
 
         expect(mtTabsOriginal.props('vertical')).toBe(true);
+    });
+
+    it('should forward consumer attributes to the Meteor tab list', async () => {
+        const wrapper = await createWrapper({
+            attrs: {
+                class: 'consumer-tabs',
+                'data-testid': 'consumer-tabs',
+            },
+        });
+
+        const tabList = wrapper.get('.mt-tabs');
+
+        expect(tabList.classes()).toContain('consumer-tabs');
+        expect(tabList.attributes('data-testid')).toBe('consumer-tabs');
     });
 
     it('should pass the merged items from the props and extension store to the final component', async () => {

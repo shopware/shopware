@@ -135,6 +135,11 @@ class OneToManyInheritedAssociationFilterTest extends TestCase
 
     private function createSalesChannel(string $id): void
     {
+        $paymentMethodId = $this->getValidPaymentMethodId();
+        $shippingMethodId = $this->getValidShippingMethodId();
+        $navigationCategoryId = $this->getValidCategoryId();
+        $countryId = $this->getValidCountryId();
+
         $data = [
             'id' => $id,
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
@@ -142,19 +147,19 @@ class OneToManyInheritedAssociationFilterTest extends TestCase
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
-            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodId' => $paymentMethodId,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
-            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'navigationCategoryId' => $this->getValidCategoryId(),
+            'navigationCategoryId' => $navigationCategoryId,
             'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => $this->getValidCountryId(),
+            'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
-            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
-            'countries' => [['id' => $this->getValidCountryId()]],
+            'shippingMethods' => [['id' => $shippingMethodId]],
+            'paymentMethods' => [['id' => $paymentMethodId]],
+            'countries' => [['id' => $countryId]],
             'name' => 'inheritance filter sales-channel',
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];

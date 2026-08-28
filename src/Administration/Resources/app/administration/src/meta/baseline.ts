@@ -80,7 +80,6 @@ const missingTests = [
     'src/app/component/tree/sw-tree-input-field/index.js',
     'src/app/component/utils/sw-color-badge/index.js',
     'src/app/component/utils/sw-ignore-class/index.js',
-    'src/app/component/utils/sw-license-violation/index.js',
     'src/app/component/utils/sw-overlay/index.js',
     'src/app/component/utils/sw-popover-deprecated/index.js',
     'src/app/component/utils/sw-progress-bar/index.js',

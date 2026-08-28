@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_7;
+namespace Shopware\Core\Migration\V6_8;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('inventory')]
-class Migration1773829000MigrateLineItemProductStatesRuleCondition extends MigrationStep
+class Migration1785810496ConvertLineItemProductStatesRuleCondition extends MigrationStep
 {
     private const LEGACY_PRODUCT_STATE_TO_TYPE_MAP = [
         'is-download' => 'digital',
@@ -19,26 +19,19 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
 
     public function getCreationTimestamp(): int
     {
-        return 1773829000;
+        return 1785810496;
     }
 
     public function update(Connection $connection): void
     {
-        // Intentionally empty.
+        // \Shopware\Core\Migration\V6_7\Migration1773829000MigrateLineItemProductStatesRuleCondition had to defer this
+        // conversion to updateDestructive(), because converting cartLineItemProductStates during the 6.7 update
+        // breaks 6.6 -> 6.7 blue-green deployments: 6.6 cannot evaluate cartLineItemProductType.
         //
-        // This migration originally converted cartLineItemProductStates rule conditions
-        // to cartLineItemProductType during the 6.7 upgrade. However, 6.6 code cannot
-        // evaluate cartLineItemProductType (LineItemProductTypeRule was introduced in 6.7),
-        // so running this conversion in update() breaks blue-green deployments where 6.6
-        // pods are still running while the 6.7 DB migration has already been applied.
-        //
-        // The conversion remains in updateDestructive() for the 6.7 contract phase. Shops
-        // that still need this conversion during the regular 6.8 update path are handled by
-        // \Shopware\Core\Migration\V6_8\Migration1785810496ConvertLineItemProductStatesRuleCondition.
-    }
+        // The regular safe destructive window does not guarantee that the V6_7 destructive migration ran before shops
+        // reach 6.8, so this V6_8 update migration performs the recovery conversion. It is safe here because 6.7, the
+        // previous runtime for 6.7 -> 6.8 blue-green deployments, already supports cartLineItemProductType.
 
-    public function updateDestructive(Connection $connection): void
-    {
         $conditions = $connection->fetchAllAssociative(
             'SELECT `id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',
             ['legacyType' => 'cartLineItemProductStates']

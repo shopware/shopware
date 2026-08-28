@@ -86,11 +86,6 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
     /**
      * Creates the language and snippet set for translation files that are already on the
      * filesystem, without contacting the translation repository.
-     *
-     * This exists for deployments that provision the files once up front — when building an
-     * image, for example — and then only need each installation to point at them. Presence of
-     * the files is verified first, so an incomplete provisioning step fails here instead of
-     * silently leaving a language with no translations behind it.
      */
     public function link(string $locale, Context $context, bool $activate = true): void
     {

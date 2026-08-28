@@ -38,7 +38,7 @@ class InstallTranslationCommand extends Command
     protected function configure(): void
     {
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Fetch all available translations');
-        $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "de-DE,en-US"');
+        $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "es-ES,en-US"');
         $this->addOption('skip-activation', null, InputOption::VALUE_NONE, 'Skip activation of created languages');
         $this->addOption('offline', null, InputOption::VALUE_NONE, 'Install from translation files that are already on the filesystem, without contacting the translation repository');
     }

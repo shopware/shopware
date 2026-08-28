@@ -134,6 +134,11 @@ Existing values are not migrated. When the card is empty for a sales channel, v2
 
 Generation throws `DocumentV2Exception` (`DOCUMENT_V2__CONFIG_MISSING_REQUIRED_FIELDS`) when `companyName`, `companyStreet`, `companyZipcode`, `companyCity`, or a valid company country is missing.
 
+## Document generation v2 always keeps an accessible HTML version
+
+With the `DOCUMENT_GENERATION_REWORK` flag enabled, every generated document keeps an accessible HTML version, even when HTML was not among the requested formats.
+A PDF-only invoice, for example, still produces and stores its HTML representation alongside the PDF. This HTML version is linked in the order and in document-related flow mails, so recipients can open the document directly in the browser without downloading the PDF.
+
 ## Administration: legacy document generation components deprecated
 
 Deprecated with `@deprecated tag:v6.9.0`, removed in Shopware 6.9.

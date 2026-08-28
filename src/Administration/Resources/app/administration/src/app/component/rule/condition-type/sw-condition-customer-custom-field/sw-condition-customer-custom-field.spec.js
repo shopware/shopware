@@ -280,7 +280,7 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const description = testWrapper.find('.sw-select-result__result-item-description').text();
+        const description = wrapper.find('.sw-select-result__result-item-description').text();
         expect(description).toHaveLength(20);
         expect(description.endsWith('...')).toBe(true);
     });

@@ -32,7 +32,18 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         shouldUseMeteorComponent() {
-            return this.useMeteorComponent;
+            if (this.useMeteorComponent) {
+                return true;
+            }
+
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                Shopware.Utils.debug.warn(
+                    'sw-tabs',
+                    'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
+                );
+            }
+
+            return false;
         },
 
         itemsBackwardCompatible(): TabItem[] {

@@ -35,6 +35,7 @@ test(
         const port = appUrl.port || (appUrl.protocol === 'https:' ? '443' : '80');
         const secondDomainUrl = `${appUrl.protocol}//second-${uniqueId}.127.0.0.1.nip.io:${port}/`;
 
+        await TestDataService.assignSalesChannelCurrency(TestDataService.defaultSalesChannel.id, TestDataService.defaultCurrencyId);
         await TestDataService.createSalesChannelDomain({ url: secondDomainUrl });
         await TestDataService.clearCaches();
 

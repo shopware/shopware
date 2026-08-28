@@ -18,6 +18,7 @@ test(
         const germanDomainUrl = `${(process.env.APP_URL || 'http://localhost:8000').replace(/\/$/, '')}/de-DE/`;
 
         await TestDataService.assignSalesChannelLanguage(salesChannelId, language.id);
+        await TestDataService.assignSalesChannelCurrency(salesChannelId, TestDataService.defaultCurrencyId);
         await TestDataService.createSalesChannelDomain({
             languageId: language.id,
             snippetSetId: snippetSetId,

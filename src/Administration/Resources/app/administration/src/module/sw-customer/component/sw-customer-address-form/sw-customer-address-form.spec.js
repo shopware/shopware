@@ -178,7 +178,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             customer: {
                 company: 'shopware',
             },
-            address: {},
+            address: new Entity('1', 'customer_address', {
+                id: '1',
+            }),
         });
 
         expect(wrapper.find('label[for="sw-field--address-company"]').exists()).toBeTruthy();
@@ -220,8 +222,8 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         const definition = Shopware.EntityDefinition.get('customer_address');
 
-        expect(definition.properties.zipcode.flags?.required).toBeUndefined();
-        expect(definition.properties.countryStateId.flags?.required).toBeUndefined();
+        expect(definition.properties.zipcode.flags?.required).toBe(false);
+        expect(definition.properties.countryStateId.flags?.required).toBe(false);
 
         await wrapper.setData({
             country: {
@@ -234,6 +236,43 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         expect(definition.properties.zipcode.flags?.required).toBe(true);
         expect(definition.properties.countryStateId.flags?.required).toBe(true);
+    });
+
+    it('should not inherit the required flags of a previously edited address', async () => {
+        const definition = Shopware.EntityDefinition.get('customer_address');
+
+        definition.properties.zipcode.flags.required = true;
+        definition.properties.countryStateId.flags.required = true;
+
+        await createWrapper();
+
+        await flushPromises();
+
+        expect(definition.properties.zipcode.flags.required).toBe(false);
+        expect(definition.properties.countryStateId.flags.required).toBe(false);
+    });
+
+    it('should reset the country dependent required flags when the form is closed', async () => {
+        const wrapper = await createWrapper();
+
+        const definition = Shopware.EntityDefinition.get('customer_address');
+
+        await wrapper.setData({
+            country: {
+                postalCodeRequired: true,
+                forceStateInRegistration: true,
+            },
+        });
+
+        await flushPromises();
+
+        expect(definition.properties.zipcode.flags.required).toBe(true);
+        expect(definition.properties.countryStateId.flags.required).toBe(true);
+
+        wrapper.unmount();
+
+        expect(definition.properties.zipcode.flags.required).toBe(false);
+        expect(definition.properties.countryStateId.flags.required).toBe(false);
     });
 
     it('should dispatch error/removeApiError based on the configuration of the country', async () => {

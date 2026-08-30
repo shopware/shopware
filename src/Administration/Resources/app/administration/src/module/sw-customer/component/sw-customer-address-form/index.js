@@ -9,6 +9,11 @@ const { Defaults, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+const COUNTRY_DEPENDENT_FIELDS = [
+    'countryStateId',
+    'zipcode',
+];
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -168,30 +173,37 @@ export default {
             this.customer.company = newVal;
         },
 
-        'country.forceStateInRegistration'(newVal) {
-            if (!newVal) {
-                Shopware.Store.get('error').removeApiError(
-                    `${this.address.getEntityName()}.${this.address.id}.countryStateId`,
-                );
-            }
-
-            const definition = EntityDefinition.get(this.address.getEntityName());
-
-            definition.properties.countryStateId.flags.required = newVal;
+        'country.forceStateInRegistration': {
+            immediate: true,
+            handler(newVal) {
+                this.setFieldRequired('countryStateId', newVal);
+            },
         },
 
-        'country.postalCodeRequired'(newVal) {
-            if (!newVal) {
-                Shopware.Store.get('error').removeApiError(`${this.address.getEntityName()}.${this.address.id}.zipcode`);
-            }
-
-            const definition = EntityDefinition.get(this.address.getEntityName());
-
-            definition.properties.zipcode.flags.required = newVal;
+        'country.postalCodeRequired': {
+            immediate: true,
+            handler(newVal) {
+                this.setFieldRequired('zipcode', newVal);
+            },
         },
     },
 
+    beforeUnmount() {
+        COUNTRY_DEPENDENT_FIELDS.forEach((field) => this.setFieldRequired(field, false));
+    },
+
     methods: {
+        setFieldRequired(field, isRequired) {
+            const required = Boolean(isRequired);
+            const entityName = this.address.getEntityName();
+
+            if (!required) {
+                Shopware.Store.get('error').removeApiError(`${entityName}.${this.address.id}.${field}`);
+            }
+
+            EntityDefinition.get(entityName).properties[field].flags.required = required;
+        },
+
         getCountryStates() {
             if (!this.country) {
                 return Promise.resolve();

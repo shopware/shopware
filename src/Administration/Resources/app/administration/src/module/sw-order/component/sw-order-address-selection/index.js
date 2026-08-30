@@ -249,7 +249,6 @@ export default {
                 const expression = `${entityName}.${address.id}.${field}`;
 
                 if (ignoreFields.includes(field) || required(address[field])) {
-                    // Clear a previously reported error once the field has a valid value again.
                     errorStore.removeApiError(expression);
                     return;
                 }
@@ -277,12 +276,7 @@ export default {
                 return;
             }
 
-            const entityName = address.getEntityName();
-            const errorStore = Shopware.Store.get('error');
-
-            Object.keys(EntityDefinition.getRequiredFields(entityName)).forEach((field) => {
-                errorStore.removeApiError(`${entityName}.${address.id}.${field}`);
-            });
+            Shopware.Store.get('error').removeApiError(`${address.getEntityName()}.${address.id}`);
         },
 
         onChangeDefaultAddress(data) {

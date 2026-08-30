@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
  * @sw-package checkout
@@ -206,6 +207,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
     afterEach(() => {
         jest.restoreAllMocks();
+        Shopware.Store.get('error').resetApiErrors();
     });
 
     it('should be able to edit address', async () => {
@@ -449,22 +451,25 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const isValid = wrapper.vm.isValidAddress(address);
 
         expect(isValid).toBe(false);
-        // Missing field reports an error
         expect(errorStore.addApiError).toHaveBeenCalledWith(
             expect.objectContaining({ expression: 'customer_address.new-address-id.firstName' }),
         );
-        // Provided field clears any previously reported error
         expect(errorStore.removeApiError).toHaveBeenCalledWith('customer_address.new-address-id.lastName');
     });
 
-    it('should not leave required field warnings on the order page when closing the address modal', async () => {
+    it('should not leave any warnings on the order page when closing the address modal', async () => {
         await flushPromises();
 
         const errorStore = Shopware.Store.get('error');
-        jest.spyOn(errorStore, 'removeApiError');
-        jest.spyOn(Shopware.EntityDefinition, 'getRequiredFields').mockReturnValue({
-            firstName: {},
-            lastName: {},
+
+        [
+            'firstName',
+            'zipcode',
+        ].forEach((field) => {
+            errorStore.addApiError({
+                expression: `customer_address.new-address-id.${field}`,
+                error: new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' }),
+            });
         });
 
         wrapper.vm.currentAddress = {
@@ -474,8 +479,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         wrapper.vm.closeAddressModal();
 
-        expect(errorStore.removeApiError).toHaveBeenCalledWith('customer_address.new-address-id.firstName');
-        expect(errorStore.removeApiError).toHaveBeenCalledWith('customer_address.new-address-id.lastName');
+        expect(errorStore.getErrorsForEntity('customer_address', 'new-address-id')).toBeNull();
         expect(wrapper.vm.currentAddress).toBeNull();
     });
 

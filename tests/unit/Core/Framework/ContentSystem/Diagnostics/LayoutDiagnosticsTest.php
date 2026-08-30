@@ -27,6 +27,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpeci
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
@@ -938,7 +939,7 @@ class LayoutDiagnosticsTest extends TestCase
         );
 
         return new LayoutDiagnostics(
-            new AvailableContextResolver($registry, $elementResolver),
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver()),
             $elementResolver,
             $registry,
             new RootContextMapper($loaderProvider),

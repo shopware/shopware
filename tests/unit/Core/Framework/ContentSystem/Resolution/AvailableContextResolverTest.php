@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefiniti
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -381,6 +382,6 @@ class AvailableContextResolverTest extends TestCase
 
         $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers, static::createStub(DataLoaderProvider::class));
 
-        return new AvailableContextResolver($registry, $elementResolver);
+        return new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver());
     }
 }

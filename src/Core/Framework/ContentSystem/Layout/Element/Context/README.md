@@ -12,6 +12,7 @@ Example: A product page with title, price, and images all showing the same produ
 - `ContextConsumer` - Defines what context an element receives from ancestors
 - `ContextDefinitions` - Container holding providers and consumers for an element
 - `ContextDependencyAnalyzer` - Analyzes context dependencies for tree pruning, on `StoredElement`s (the prune runs before the lowering)
+- `ProviderDeliveryKeyResolver` - Computes the child-facing key every provider of one element delivers under, and rejects two producers sharing one
 
 ## Configuration Reference
 

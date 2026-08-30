@@ -21,6 +21,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
@@ -291,7 +292,7 @@ class ContentDiagnoseControllerTest extends TestCase
         );
 
         return new LayoutDiagnostics(
-            new AvailableContextResolver($registry, $elementResolver),
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver()),
             $elementResolver,
             $registry,
             new RootContextMapper(static::createStub(DataLoaderProvider::class)),

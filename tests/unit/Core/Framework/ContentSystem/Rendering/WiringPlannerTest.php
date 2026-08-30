@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
@@ -227,7 +228,7 @@ class WiringPlannerTest extends TestCase
 
     private function planner(): WiringPlanner
     {
-        return new WiringPlanner();
+        return new WiringPlanner(new ProviderDeliveryKeyResolver());
     }
 
     private function createSingleRootLayout(StoredElement $root): RenderableLayout

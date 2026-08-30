@@ -53,6 +53,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\DatabaseStyleOptionLoader;
@@ -323,10 +324,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RenderedTreeFactory::class),
         ]);
 
-    $services->set(WiringPlanner::class);
+    $services->set(WiringPlanner::class)
+        ->args([
+            service(ProviderDeliveryKeyResolver::class),
+        ]);
 
     // Layout Context Utilities
     $services->set(ContextDependencyAnalyzer::class);
+    $services->set(ProviderDeliveryKeyResolver::class);
 
     // Output Services (Post-Hydration Processing)
     $services->set(ElementTreePruner::class);
@@ -614,6 +619,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContentSystemElementTypeRegistry::class),
             service(ElementResolver::class),
+            service(ProviderDeliveryKeyResolver::class),
         ]);
 
     $services->set(ElementResolver::class)

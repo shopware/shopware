@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
@@ -33,6 +34,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final readonly class WiringPlanner
 {
+    public function __construct(
+        private ProviderDeliveryKeyResolver $providerDeliveryKeys,
+    ) {
+    }
+
     /**
      * Runs the structural wiring validation over `$prePruneForest` (a defect in a subtree the partial
      * prune discarded still fails the render), then derives the redistribution expansion over
@@ -72,7 +78,7 @@ final readonly class WiringPlanner
 
             $this->validatePropertyAliases($consumers);
             $this->validateRedistribution($consumers, $element->contextDefinitions->getAllProviders());
-            $this->validateProviderDeliveryKeys($consumers, $element->contextDefinitions->getAllProviders(), $element->id);
+            $this->providerDeliveryKeys->resolve($element->contextDefinitions, $element->id);
 
             foreach ($element->slots as $children) {
                 $this->validateWiring($children);
@@ -134,62 +140,6 @@ final readonly class WiringPlanner
                 throw ContentSystemException::redistributeConflict($contextKey);
             }
         }
-    }
-
-    /**
-     * Rejects two providers of one element that deliver to children under the same child-facing key.
-     *
-     * The child-facing key is the key the distributor matches children on
-     * ({@see ContextDistributor::distribute()}:
-     * `distributionConfig->getConsumerAlias() ?? providerKey`). Two providers sharing it both deliver to
-     * the same children and the later one silently wins by iteration order, so the layout is rejected
-     * instead. The set judges the element's full delivery surface: the authored providers plus the
-     * broadcast providers the derivation will add from `redistribute` consumers, whose child-facing key
-     * is `consumerAlias ?? contextKey` — computed by {@see derivedChildKey()}, the one helper the
-     * derivation itself uses, so this check cannot drift from the delivery it gates.
-     *
-     * @param array<string, ContextConsumer> $consumers
-     * @param array<string, ContextProvider> $existingProviders
-     */
-    private function validateProviderDeliveryKeys(array $consumers, array $existingProviders, string $elementId): void
-    {
-        $childKeys = [];
-
-        foreach ($existingProviders as $providerKey => $provider) {
-            $childKey = $provider->distributionConfig->getConsumerAlias() ?? $providerKey;
-
-            if (\array_key_exists($childKey, $childKeys)) {
-                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], $providerKey, $elementId);
-            }
-
-            $childKeys[$childKey] = $providerKey;
-        }
-
-        foreach ($consumers as $contextKey => $consumer) {
-            if (!$consumer->redistribute) {
-                continue;
-            }
-
-            $childKey = $this->derivedChildKey($consumer, $contextKey);
-
-            if (\array_key_exists($childKey, $childKeys)) {
-                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], $contextKey, $elementId);
-            }
-
-            $childKeys[$childKey] = $contextKey;
-        }
-    }
-
-    /**
-     * The key a redistribute consumer's derived broadcast provider delivers children under.
-     *
-     * The single definition shared by the derivation and its validation: the derivation configures the
-     * virtual provider's broadcast config with this key, and the validation judges collisions on it, so
-     * both read the same formula.
-     */
-    private function derivedChildKey(ContextConsumer $consumer, string $contextKey): string
-    {
-        return $consumer->consumerAlias ?? $contextKey;
     }
 
     /**
@@ -276,7 +226,7 @@ final readonly class WiringPlanner
             }
 
             $providerKey = $consumer->propertyAlias ?? $contextKey;
-            $childKey = $this->derivedChildKey($consumer, $contextKey);
+            $childKey = $this->providerDeliveryKeys->derivedChildKey($consumer, $contextKey);
 
             if (\array_key_exists($providerKey, $existingProviders)) {
                 continue;

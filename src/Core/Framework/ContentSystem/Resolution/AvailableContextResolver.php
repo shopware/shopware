@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\ContentSystem\Resolution;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -34,6 +34,7 @@ class AvailableContextResolver
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly ElementResolver $elementResolver,
+        private readonly ProviderDeliveryKeyResolver $providerDeliveryKeys,
     ) {
     }
 
@@ -41,8 +42,9 @@ class AvailableContextResolver
      * @param list<StoredElement> $tree the layout's root elements
      * @param list<ProvidedContext> $rootContext root-ambient context for top-level elements (broadcast Single)
      *
-     * @throws ContentSystemException when an element on the target's path carries two providers that
-     *                                deliver to children under the same child-facing key
+     * @throws ContentSystemException when an element on the target's path carries two child-facing key
+     *                                producers — authored providers, redistribute consumers, or one of
+     *                                each — that deliver to children under the same key
      *
      * @return list<ProvidedContext>
      */
@@ -58,7 +60,7 @@ class AvailableContextResolver
 
         // The target's own provider set is judged too, and before the top-level early return: a top-level
         // element is the only element of its path, so skipping it would leave its providers unchecked.
-        $this->validateProviderDeliveryKeys($target);
+        $this->providerDeliveryKeys->resolve($target->contextDefinitions, $target->id);
 
         if ($topLevel) {
             return $rootContext;
@@ -67,7 +69,7 @@ class AvailableContextResolver
         $incoming = $rootContext;
 
         foreach ($ancestors as $ancestor) {
-            $this->validateProviderDeliveryKeys($ancestor);
+            $this->providerDeliveryKeys->resolve($ancestor->contextDefinitions, $ancestor->id);
             $incoming = $this->expose($ancestor, $incoming);
         }
 
@@ -209,44 +211,6 @@ class AvailableContextResolver
         }
 
         return null;
-    }
-
-    /**
-     * Rejects an element whose providers would deliver to children under a shared child-facing key — the
-     * gate-side mirror of {@see WiringPlanner}'s wiring
-     * validation, judging the same set the serving path serves: the declared providers (matched by
-     * `distributionConfig->getConsumerAlias() ?? providerKey`, the key {@see expose()} and the distributor
-     * both match children on) plus the broadcast providers the redistribution derivation adds from
-     * `redistribute` consumers (`consumerAlias ?? contextKey`). Two providers sharing a child-facing key
-     * both deliver to the same children and the later one silently wins by iteration order.
-     */
-    private function validateProviderDeliveryKeys(StoredElement $element): void
-    {
-        $childKeys = [];
-
-        foreach ($element->contextDefinitions->getAllProviders() as $providerKey => $provider) {
-            $childKey = $provider->distributionConfig->getConsumerAlias() ?? (string) $providerKey;
-
-            if (\array_key_exists($childKey, $childKeys)) {
-                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], (string) $providerKey, $element->id);
-            }
-
-            $childKeys[$childKey] = (string) $providerKey;
-        }
-
-        foreach ($element->contextDefinitions->getAllConsumers() as $contextKey => $consumer) {
-            if (!$consumer->redistribute) {
-                continue;
-            }
-
-            $childKey = $consumer->consumerAlias ?? (string) $contextKey;
-
-            if (\array_key_exists($childKey, $childKeys)) {
-                throw ContentSystemException::providerDeliveryCollision($childKey, $childKeys[$childKey], (string) $contextKey, $element->id);
-            }
-
-            $childKeys[$childKey] = (string) $contextKey;
-        }
     }
 
     private function resolveProvidedFqcn(string $component, string $contextKey): ?string

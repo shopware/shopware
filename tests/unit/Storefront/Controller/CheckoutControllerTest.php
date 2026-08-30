@@ -177,11 +177,12 @@ class CheckoutControllerTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
 
+        $this->cartServiceMock->method('getCart')->willReturn($cart);
         $this->cartLoadRouteMock->method('load')->willReturn(
             new CartResponse($cart)
         );
 
-        $response = $this->controller->cartJson(new Request(), static::createStub(SalesChannelContext::class), $cart);
+        $response = $this->controller->cartJson(new Request(), static::createStub(SalesChannelContext::class));
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertInstanceOf(CartResponse::class, $response);

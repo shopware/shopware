@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -110,8 +109,10 @@ class CheckoutController extends StorefrontController
         defaults: ['XmlHttpRequest' => true],
         methods: [Request::METHOD_GET]
     )]
-    public function cartJson(Request $request, SalesChannelContext $context, Cart $cart): Response
+    public function cartJson(Request $request, SalesChannelContext $context): Response
     {
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
         // @phpstan-ignore arguments.count (cart is hidden on AbstractCartLoadRoute::load() via NewRequiredParameter to avoid a BC break for decorators; CartLoadRoute reads this 3rd argument for real)
         return $this->cartLoadRoute->load($request, $context, $cart);
     }

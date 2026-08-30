@@ -26,6 +26,9 @@ async function createWrapper() {
         }),
         {
             global: {
+                mocks: {
+                    $route: { query: {} },
+                },
                 stubs: {
                     'mt-card': {
                         template: `<div class="mt-card">
@@ -147,6 +150,10 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         wrapper = await createWrapper();
     });
 
+    afterEach(() => {
+        Shopware.Store.get('error').resetApiErrors();
+    });
+
     it('should show text on last name column  when edit mode is off', async () => {
         const lastNameCell = wrapper.find('td');
 
@@ -201,6 +208,56 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         await wrapper.vm.onSaveAddress();
 
         expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should clear the error of a required field once it holds a value again', async () => {
+        const entityMock = {
+            getEntityName: () => 'customer_address',
+            id: '1',
+        };
+
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+                lastName: 'Wiegand',
+                firstName: 'Daisha',
+                city: 'Lake Waldo',
+                customerId: '1',
+            },
+        });
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
+
+        wrapper.vm.currentAddress.street = 'Stehr Divide';
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(Shopware.Store.get('error').getApiError(entityMock, 'street')).toBeNull();
+    });
+
+    it('should not leave any warnings on the customer page when closing the address modal', async () => {
+        const errorStore = Shopware.Store.get('error');
+
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+                lastName: 'Wiegand',
+                firstName: 'Daisha',
+                city: 'Lake Waldo',
+                customerId: '1',
+            },
+        });
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(errorStore.getErrorsForEntity('customer_address', '1')).not.toBeNull();
+
+        wrapper.vm.onCloseAddressModal();
+
+        expect(errorStore.getErrorsForEntity('customer_address', '1')).toBeNull();
+        expect(wrapper.vm.currentAddress).toBeNull();
     });
 
     it('should clone address line correctly', async () => {

@@ -241,17 +241,21 @@ export default {
         isValidAddress(address) {
             const ignoreFields = ['createdAt'];
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
+            const errorStore = Shopware.Store.get('error');
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
+                const expression = `customer_address.${address.id}.${field}`;
+
                 if (ignoreFields.includes(field) || required(address[field])) {
+                    errorStore.removeApiError(expression);
                     return;
                 }
 
                 isValid = false;
 
-                Shopware.Store.get('error').addApiError({
-                    expression: `customer_address.${this.currentAddress.id}.${field}`,
+                errorStore.addApiError({
+                    expression,
                     error: new ShopwareError({
                         code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                     }),
@@ -274,7 +278,16 @@ export default {
                 this.$route.query.detailId = null;
             }
 
+            this.clearAddressErrors(this.currentAddress);
             this.currentAddress = null;
+        },
+
+        clearAddressErrors(address) {
+            if (!address) {
+                return;
+            }
+
+            Shopware.Store.get('error').removeApiError(`customer_address.${address.id}`);
         },
 
         // customer.addresses only holds the first page, so prefer the records the grid currently shows

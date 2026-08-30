@@ -16,10 +16,17 @@ trait EnvTestBehaviour
     /**
      * A null value removes the variable for the duration of the test.
      *
+     * Services the container has already built keep the value they were injected with; boot a
+     * fresh kernel when the test needs those rebuilt.
+     *
      * @param array<string, string|int|bool|null> $envVars
      */
     public function setEnvVars(array $envVars): void
     {
+        if ($envVars === []) {
+            return;
+        }
+
         foreach ($envVars as $envVar => $value) {
             if (!\array_key_exists($envVar, $this->originalEnvVars)) {
                 $this->originalEnvVars[$envVar] = $_SERVER[$envVar] ?? null;
@@ -27,16 +34,28 @@ trait EnvTestBehaviour
 
             $this->applyEnvVar($envVar, $value);
         }
+
+        KernelLifecycleManager::resetContainerEnvCache();
     }
 
+    /**
+     * Restores the environment and drops the kernel, so nothing the container resolved from the
+     * changed variables survives the test.
+     */
     #[After]
     public function resetEnvVars(): void
     {
+        if ($this->originalEnvVars === []) {
+            return;
+        }
+
         foreach ($this->originalEnvVars as $envVar => $value) {
             $this->applyEnvVar($envVar, $value);
         }
 
         $this->originalEnvVars = [];
+
+        KernelLifecycleManager::ensureKernelShutdown();
     }
 
     private function applyEnvVar(string $envVar, string|int|bool|null $value): void

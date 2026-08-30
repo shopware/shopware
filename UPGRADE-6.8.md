@@ -273,6 +273,19 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `AbstractCartLoadRoute::load()` requires the cart
+
+`Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute::load()` takes the cart to respond with as a third, required parameter. Decorations had to add it to their `load()` declaration and forward it to the decorated route:
+
+```php
+public function load(Request $request, SalesChannelContext $context, Cart $cart): CartResponse
+{
+    return $this->getDecorated()->load($request, $context, $cart);
+}
+```
+
+Callers had to pass a cart as well. In a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request; elsewhere, read it from `CartService::getCart()`. The route no longer reads a cart from the cart storage on its own, so a caller that used to rely on that has to load the cart before calling the route.
+
 ## XML configuration is no longer supported
 
 Symfony 8 removes support for XML configuration, and loading it for Shopware bundles, plugins, and the project-level `config/` directory of an installation is removed with Shopware 6.8. This affects service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes*.xml` and XML files below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Plugins that still ship such files are no longer loaded correctly and fail with an exception; XML files in the project `config/` directory are silently no longer loaded. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.

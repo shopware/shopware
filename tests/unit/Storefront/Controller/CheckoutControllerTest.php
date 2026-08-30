@@ -181,7 +181,7 @@ class CheckoutControllerTest extends TestCase
             new CartResponse($cart)
         );
 
-        $response = $this->controller->cartJson(new Request(), static::createStub(SalesChannelContext::class));
+        $response = $this->controller->cartJson(new Request(), static::createStub(SalesChannelContext::class), $cart);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertInstanceOf(CartResponse::class, $response);

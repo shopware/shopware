@@ -62,4 +62,77 @@ class CartLoadRouteTest extends TestCase
 
         static::assertSame($calculatedCart, $cartLoadRoute->load(new Request(), $salesChannelContext)->getCart());
     }
+
+    public function testLoadReusesTheResolvedCart(): void
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext
+            ->expects($this->once())
+            ->method('getToken')
+            ->willReturn('test');
+
+        $resolvedCart = new Cart('test');
+
+        $persister = $this->createMock(AbstractCartPersister::class);
+        $persister->expects($this->never())->method('load');
+
+        $calculator = $this->createMock(CartCalculator::class);
+        $calculator->expects($this->never())->method('calculate');
+        $calculator
+            ->expects($this->once())
+            ->method('finalize')
+            ->with($resolvedCart, $salesChannelContext)
+            ->willReturn($resolvedCart);
+
+        $cartLoadRoute = new CartLoadRoute(
+            $persister,
+            static::createStub(CartFactory::class),
+            $calculator,
+            static::createStub(TaxProviderProcessor::class),
+        );
+
+        static::assertSame(
+            $resolvedCart,
+            $cartLoadRoute->load(new Request(), $salesChannelContext, $resolvedCart)->getCart()
+        );
+    }
+
+    public function testLoadReadsTheCartFromStorageForAnotherToken(): void
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext
+            ->method('getToken')
+            ->willReturn('context-token');
+
+        $storedCart = new Cart('other-token');
+        $persister = $this->createMock(AbstractCartPersister::class);
+        $persister
+            ->expects($this->once())
+            ->method('load')
+            ->with('other-token')
+            ->willReturn($storedCart);
+
+        $calculatedCart = new Cart('other-token');
+        $calculator = $this->createMock(CartCalculator::class);
+        $calculator->expects($this->never())->method('finalize');
+        $calculator
+            ->expects($this->once())
+            ->method('calculate')
+            ->with($storedCart, $salesChannelContext)
+            ->willReturn($calculatedCart);
+
+        $cartLoadRoute = new CartLoadRoute(
+            $persister,
+            static::createStub(CartFactory::class),
+            $calculator,
+            static::createStub(TaxProviderProcessor::class),
+        );
+
+        $request = new Request(['token' => 'other-token']);
+
+        static::assertSame(
+            $calculatedCart,
+            $cartLoadRoute->load($request, $salesChannelContext, new Cart('context-token'))->getCart()
+        );
+    }
 }

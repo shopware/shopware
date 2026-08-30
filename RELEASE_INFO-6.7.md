@@ -196,6 +196,12 @@ With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic el
 
 Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
 
+### Postal codes are validated in the browser
+
+The country `<option>` rendered by `component/address/field/address-country-field.html.twig` now carries `data-zipcode-pattern` and `data-check-zipcode-pattern`, next to the existing `data-zipcode-required`. `CountryStateSelectPlugin` reads them and applies the pattern to every `[data-input-name="zipcodeInput"]` field, so an invalid postal code is reported on submit instead of only after the rest of the form passes.
+
+If your theme overrides `component_address_field_country` and renders its own `<option>` markup, add both attributes to keep postal code validation working in the browser. Server-side validation is unchanged.
+
 # 6.7.14.0
 
 ## Features

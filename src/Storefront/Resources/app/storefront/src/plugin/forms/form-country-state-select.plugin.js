@@ -21,6 +21,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         stateRequired: 'data-state-required',
         stateDisplayed: 'data-display-state-in-registration',
         zipcodeRequired: 'data-zipcode-required',
+        zipcodePattern: 'data-zipcode-pattern',
+        checkZipcodePattern: 'data-check-zipcode-pattern',
         scopeElementSelector: null,
         prefix: null,
     };
@@ -65,6 +67,8 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
         const zipcodeRequired = !!countrySelectCurrentOption.getAttribute(this.options.zipcodeRequired);
+        const zipcodePattern = countrySelectCurrentOption.getAttribute(this.options.zipcodePattern);
+        const checkZipcodePattern = countrySelectCurrentOption.getAttribute(this.options.checkZipcodePattern) === '1';
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
 
@@ -76,6 +80,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         if (zipcodeRequired) {
             this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
         }
+
+        this._updateZipcodePattern(zipcodeInputs, zipcodePattern, checkZipcodePattern);
 
         if (!vatIdInput) {
             return;
@@ -98,8 +104,11 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
         const zipcodeRequired = !!countrySelect.getAttribute(this.options.zipcodeRequired);
+        const zipcodePattern = countrySelect.getAttribute(this.options.zipcodePattern);
+        const checkZipcodePattern = countrySelect.getAttribute(this.options.checkZipcodePattern) === '1';
 
         this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
+        this._updateZipcodePattern(zipcodeInputs, zipcodePattern, checkZipcodePattern);
 
         if (vatIdInput) {
             this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
@@ -165,6 +174,32 @@ export default class CountryStateSelectPlugin extends Plugin {
                 window.formValidation.setFieldRequired(input);
             } else {
                 window.formValidation.setFieldNotRequired(input);
+            }
+        });
+    }
+
+    /**
+     * Updates the pattern validation of the zip code fields.
+     *
+     * @param {NodeList} inputs
+     * @param {string|null} pattern
+     * @param {boolean} checkPattern
+     * @private
+     */
+    _updateZipcodePattern(inputs, pattern = null, checkPattern = false) {
+        if (!inputs) {
+            return;
+        }
+
+        inputs.forEach((input) => {
+            if (checkPattern && pattern) {
+                input.setAttribute('pattern', pattern);
+            } else {
+                input.removeAttribute('pattern');
+            }
+
+            if (input.value.trim().length > 0) {
+                window.formValidation.validateField(input);
             }
         });
     }

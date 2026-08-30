@@ -1,54 +1,39 @@
 /**
  * @sw-package checkout
  */
-import { getTranslatedCartErrorMessage } from './cart-error.helper';
+import { getCartErrorMessage } from './cart-error.helper';
 import type { CartError } from './order.types';
 
-// Mimics vue-i18n `$t`: interpolates `{param}` placeholders and returns the
-// snippet key unchanged when no translation exists for it.
-const snippets: Record<string, string> = {
-    'sw-order.cartError.promotion-not-found': 'Gutscheincode "{code}" existiert nicht.',
-};
-
-function $t(key: string, values: Record<string, unknown> = {}): string {
-    const snippet = snippets[key];
-
-    if (snippet === undefined) {
-        return key;
-    }
-
-    return snippet.replace(/{(\w+)}/g, (_match, name: string) => String(values[name] ?? ''));
-}
-
 describe('src/module/sw-order/cart-error.helper', () => {
-    it('translates a cart error via its messageKey and parameters', () => {
+    it('uses the server translated message', () => {
         const error = {
             level: 20,
             message: 'Promotion with code SUMMER not found!',
             messageKey: 'promotion-not-found',
-            parameters: { code: 'SUMMER' },
+            translatedMessage: 'Gutscheincode "SUMMER" existiert nicht.',
         } as CartError;
 
-        expect(getTranslatedCartErrorMessage(error, $t)).toBe('Gutscheincode "SUMMER" existiert nicht.');
+        expect(getCartErrorMessage(error)).toBe('Gutscheincode "SUMMER" existiert nicht.');
     });
 
-    it('falls back to the server message when no snippet exists for the messageKey', () => {
+    it('falls back when the translation resolved to the snippet key', () => {
         const error = {
             level: 20,
-            message: 'Some untranslated cart error',
-            messageKey: 'some-unknown-key',
-            parameters: {},
+            message: 'Something went wrong',
+            messageKey: 'custom-plugin-error',
+            translatedMessage: 'checkout.custom-plugin-error',
         } as CartError;
 
-        expect(getTranslatedCartErrorMessage(error, $t)).toBe('Some untranslated cart error');
+        expect(getCartErrorMessage(error)).toBe('Something went wrong');
     });
 
-    it('falls back to the server message when no messageKey is provided', () => {
+    it('falls back when no translated message is present', () => {
         const error = {
             level: 20,
-            message: 'Legacy error without a messageKey',
+            message: 'Legacy error without a translation',
+            messageKey: 'legacy-error',
         } as CartError;
 
-        expect(getTranslatedCartErrorMessage(error, $t)).toBe('Legacy error without a messageKey');
+        expect(getCartErrorMessage(error)).toBe('Legacy error without a translation');
     });
 });

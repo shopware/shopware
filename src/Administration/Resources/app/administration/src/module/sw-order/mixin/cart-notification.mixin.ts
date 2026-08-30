@@ -1,6 +1,6 @@
 import { defineComponent } from 'vue';
 import type { CartError } from '../order.types';
-import { getTranslatedCartErrorMessage } from '../cart-error.helper';
+import { getCartErrorMessage } from '../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -36,7 +36,7 @@ export default Mixin.register(
                 }
 
                 Object.values(info).forEach((value) => {
-                    const message = getTranslatedCartErrorMessage(value, (key, values) => this.$t(key, values ?? {}));
+                    const message = getCartErrorMessage(value);
 
                     switch (value.level) {
                         case 0: {

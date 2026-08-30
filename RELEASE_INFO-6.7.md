@@ -46,6 +46,12 @@ public function modifyFields(FieldCollection $collection): void
 
 Installing or updating an app no longer overwrites existing payment method name and description translations. Manifest texts are only applied to languages without a translation.
 
+### Cart errors keep their translation when an order is recalculated
+
+Cart errors that are re-evaluated on every calculation, such as `promotion-not-eligible`, previously lost their `translatedMessage` during order recalculation. They now keep it.
+
+The Administration renders `translatedMessage` for cart errors in the order create and order detail views, so they appear in the order's language instead of English. Cart errors from extensions are covered as soon as they ship a `checkout.<messageKey>` snippet; without one, `translatedMessage` still holds the unresolved snippet key and the Administration falls back to the untranslated `message`.
+
 ## API
 
 ### Store API context token response header is restricted on cacheable reads

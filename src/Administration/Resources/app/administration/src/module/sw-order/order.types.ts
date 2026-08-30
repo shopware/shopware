@@ -67,7 +67,7 @@ interface CartError {
     level: number;
     message: string;
     messageKey?: string;
-    parameters?: Record<string, unknown>;
+    translatedMessage?: string | null;
 }
 
 interface CartDelivery {

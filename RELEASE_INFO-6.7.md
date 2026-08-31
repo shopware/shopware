@@ -3,6 +3,13 @@
 ## Features
 
 ### Document generation v2 (experimental)
+### `system:install` dispatches `SystemInstallCompletedEvent`
+
+`Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
+
+When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
+
+### New document lifecycle business events
 
 Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.
 
@@ -95,9 +102,44 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### `JsonField::addPropertyMapping()` for entity extensions
+
+`Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.
+
+```php
+public function modifyFields(FieldCollection $collection): void
+{
+    $hitCount = $collection->get('hitCount');
+    if (!$hitCount instanceof JsonField) {
+        return;
+    }
+
+    $hitCount->addPropertyMapping(new JsonField('landing_page', 'landing_page', [
+        new IntField('maxSuggestCount', 'maxSuggestCount'),
+        new IntField('maxSearchCount', 'maxSearchCount'),
+    ]));
+}
+```
+
 ### App payment method translations are preserved
 
 Installing or updating an app no longer overwrites existing payment method name and description translations. Manifest texts are only applied to languages without a translation.
+
+### New event to register product listing sortings at runtime
+
+`Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent` is dispatched while the product listing, search and suggest criteria are built, before the requested sorting is resolved. Add a `ProductSortingEntity` to `$event->getSortings()` to make it selectable and applicable at runtime:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [ProductListingCollectSortingEvent::class => 'addSorting'];
+}
+
+public function addSorting(ProductListingCollectSortingEvent $event): void
+{
+    $event->getSortings()->add($mySorting);
+}
+```
 
 ## API
 
@@ -224,6 +266,17 @@ The main menu and the search bar no longer color their icons by the `color` of t
 
 The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
 
+### Bulk operations in the My Extensions listing
+
+The "My Extensions" listing can now act on several extensions at once instead of one card at a time, which noticeably speeds up maintaining shops with many extensions. Selecting one or more extensions replaces the listing controls with a bulk actions bar.
+
+The bar offers the same actions already available per card:
+- **Install**, **activate**, **deactivate**, **update**, and **uninstall** for all selected extensions in one step.
+- Each action is enabled only when it applies to at least one selected extension (for example, *activate* counts only "installed but inactive" extensions) and shows how many of the selection it affects.
+- All actions respect the existing `system.plugin_maintain` permission and the runtime extension-management setting, exactly like the single-card actions.
+
+The listing reloads once after the batch finishes rather than after every individual extension. With nothing selected, the listing behaves exactly as before, so the feature is fully opt-in.
+
 ## Storefront
 
 ### Semantic footer markup
@@ -238,7 +291,17 @@ With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic el
 
 Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
 
-# 6.7.14.0 (upcoming)
+### Essential characteristics render select, entity and price custom fields
+
+Custom fields of the types `select`, `entity` and `price` are now rendered when they are part of a product's essential characteristics. Their line item payload gained an optional `display` key next to the untouched `content`:
+
+```
+lineItem.payload.features[].value = { id, type, content, display }
+```
+
+`display` holds a list of resolved option or entity labels for `select` and `entity`, and the price of the current currency and tax state as a float for `price`. It is only present on line items built after the update, so templates overriding `component/product/feature/types/feature-custom-field.html.twig` must treat it as optional. A characteristic that cannot be resolved is dropped from the payload, and `component/product/feature/item.html.twig` no longer emits an empty list item for a characteristic its template renders nothing for.
+
+# 6.7.14.0
 
 ## Features
 
@@ -3836,21 +3899,6 @@ Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best
 This behaviour is now optional and can be enabled by setting the `core.listing.findBestVariant` config to `true` or setting it via the admin interface under Settings > Products > "Preview best matching variant for search results"
 
 ## Administration
-
-As part of this change, the following deprecations were made:
-- The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
-- `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
-- The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
-- The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
-- A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
-- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
-
-If you have using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
-If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
-
-## Administration
-
-When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
 
 ### Axios upgrade with dual-client dispatcher
 

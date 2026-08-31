@@ -110,8 +110,17 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
                 \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'BaseDependency::class', 'BaseDependency::class'),
                 39, // ... and again when CoveredChildCases is analysed
             ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_STUB, 'BaseDependency::class', 'BaseDependency::class'),
+                95, // base setUp() fixture reached through the subclass's parent::setUp() chain
+            ],
+            [
+                \sprintf(NoCreateMockWithoutExpectationsRule::ERROR_MIXED, 'BaseDependency::class', 'testSharedValue()'),
+                119, // the chaining child's own mock: expected in its own test, bare in the inherited base test
+            ],
             // NOT flagged: line 24 for CoveredChildCases (its only test reaches the inherited
-            // ->expects()-ing helper), the abstract class itself (skipped, no runnable instances)
+            // ->expects()-ing helper), the abstract class itself (skipped, no runnable instances),
+            // line 95 for ReplacedSetUpChildCases (its setUp() replaces the base's without chaining)
         ]);
     }
 

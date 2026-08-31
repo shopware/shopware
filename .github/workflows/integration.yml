@@ -50,11 +50,10 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}${{ matrix.phpunit == '12' && ' [PHPUnit 12 preview]' || '' }}"
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
-    continue-on-error: ${{ matrix.phpunit == '12' }}
     strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
@@ -98,14 +97,12 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           needs-opensearch: ${{ contains(matrix.test.path, 'Elasticsearch') }}
-          force-phpunit-12: ${{ matrix.phpunit == '12' }}
       - name: Run PHPUnit
         id: phpunit
         uses: ./.github/actions/phpunit-run
         with:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
-          phpunit-options: ${{ matrix.phpunit == '12' && '--display-phpunit-notices' || '' }}
       - name: Upload test results to Codecov
         uses: ./.github/actions/phpunit-upload
         continue-on-error: true

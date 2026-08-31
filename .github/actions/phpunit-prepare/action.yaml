@@ -20,7 +20,7 @@ inputs:
     description: "Rewrite phpunit.xml.dist to scope coverage to the */Migration directories (migration suite)"
   force-phpunit-12:
     default: "false"
-    description: "Preview: force PHPUnit 12 via `composer update phpunit/phpunit:^12.0` after the test install. Used by the non-blocking PHPUnit 12 preview matrix arm."
+    description: "Force PHPUnit 12 via `composer update phpunit/phpunit:^12.4` after the test install (12.4 ships --fail-on-phpunit-notice/-warning). Used by the phpunit-12 gate job."
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the steps below
 # inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
@@ -69,7 +69,7 @@ runs:
       shell: bash
       run: php src/Core/TestBootstrap.php
 
-    - name: Force PHPUnit 12 (preview, non-blocking)
+    - name: Force PHPUnit 12
       if: ${{ inputs.force-phpunit-12 == 'true' }}
       shell: bash
-      run: composer update phpunit/phpunit:^12.0 --with-all-dependencies
+      run: composer update phpunit/phpunit:^12.4 --with-all-dependencies

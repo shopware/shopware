@@ -1,0 +1,25 @@
+meta:
+  label: "Product Variant Selection"
+  description: "Displays the selectable variants of a product on a product detail page."
+  icon: "regular-variants"
+  category: "commerce"
+  copilot:
+    summary: "Product detail page variant selector."
+    hints:
+      - "Place inside a product detail page layout; the product is resolved from the page automatically."
+      - "Use for products with variants and configurable property groups."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: false
+    title: "Product"
+    description: "Hydrated product whose variants can be selected."
+
+  configuratorSettings:
+    type: Shopware\Core\Content\Property\PropertyGroupCollection
+    title: "Configurator groups"
+    description: "Variant property groups and their available options."
+    resolvedBy:
+      product_configurator:
+        productProperty: product

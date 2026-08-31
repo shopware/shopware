@@ -58,6 +58,7 @@ use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer as DalCustomFieldsSerializer;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
@@ -164,6 +165,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('import_export_file.repository'),
             service('logger'),
             param('shopware.filesystem.private_local_download_strategy'),
+            service(RateLimiter::class),
             param('shopware.filesystem.private_local_path_prefix'),
             service(ClockInterface::class),
         ]);

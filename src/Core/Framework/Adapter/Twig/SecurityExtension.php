@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\CallbackOperatorSecurityNodeVisitor;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
+use Twig\NodeVisitor\NodeVisitorInterface;
 use Twig\TwigFilter;
 
 /**
@@ -30,6 +32,17 @@ class SecurityExtension extends AbstractExtension
             new TwigFilter('reduce', $this->reduce(...)),
             new TwigFilter('filter', $this->filter(...)),
             new TwigFilter('sort', $this->sort(...)),
+            new TwigFilter('find', $this->find(...)),
+        ];
+    }
+
+    /**
+     * @return NodeVisitorInterface[]
+     */
+    public function getNodeVisitors(): array
+    {
+        return [
+            new CallbackOperatorSecurityNodeVisitor(),
         ];
     }
 
@@ -46,8 +59,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($function)) {
-            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
-            $function = implode('::', $function);
+            $function = implode('::', \array_map('\strval', $function));
             \assert(\is_callable($function));
         }
 
@@ -79,8 +91,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($function)) {
-            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
-            $function = implode('::', $function);
+            $function = implode('::', \array_map('\strval', $function));
         }
 
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
@@ -111,8 +122,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($arrow)) {
-            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
-            $arrow = implode('::', $arrow);
+            $arrow = implode('::', \array_map('\strval', $arrow));
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
@@ -143,8 +153,7 @@ class SecurityExtension extends AbstractExtension
         }
 
         if (\is_array($arrow)) {
-            /** @phpstan-ignore argument.type (implode needs array of strings, but it is hard to validate at this place) */
-            $arrow = implode('::', $arrow);
+            $arrow = implode('::', \array_map('\strval', $arrow));
         }
 
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
@@ -162,5 +171,72 @@ class SecurityExtension extends AbstractExtension
         }
 
         return $array;
+    }
+
+    /**
+     * @param iterable<mixed> $array
+     * @param callable-string|callable(mixed): bool|\Closure $arrow
+     */
+    public function find(?iterable $array, string|callable|\Closure $arrow): mixed
+    {
+        if ($array === null) {
+            return null;
+        }
+
+        if (\is_array($arrow)) {
+            $arrow = implode('::', \array_map('\strval', $arrow));
+        }
+
+        if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
+            throw AdapterException::securityFunctionNotAllowed($arrow);
+        }
+
+        if (!\is_callable($arrow)) {
+            return null;
+        }
+
+        if ($array instanceof \Traversable) {
+            $array = iterator_to_array($array);
+        }
+
+        // mirror the map filter: custom string functions receive only the value
+        $arrowCallback = \is_string($arrow)
+            ? static fn (mixed $value): bool => (bool) $arrow($value)
+            : static fn (mixed $value, mixed $key): bool => (bool) $arrow($value, $key);
+
+        return \array_find($array, $arrowCallback);
+    }
+
+    /**
+     * Guards callbacks passed to Twig core operators (e.g. "has some"/"has every") that Twig itself
+     * only restricts in sandbox mode. Applies the same allowed-function policy as the filters above.
+     *
+     * @param string|callable|\Closure $callback
+     */
+    public function guardCallback(mixed $callback): \Closure
+    {
+        if ($callback instanceof \Closure) {
+            return $callback;
+        }
+
+        if (\is_array($callback)) {
+            $callback = implode('::', \array_map('\strval', $callback));
+        }
+
+        if (\is_string($callback) && !\in_array($callback, $this->allowedPHPFunctions, true)) {
+            throw AdapterException::securityFunctionNotAllowed($callback);
+        }
+
+        if (!\is_callable($callback)) {
+            // mirror the filters: a non-callable arrow simply never matches
+            return static fn (): bool => false;
+        }
+
+        if (\is_string($callback)) {
+            // mirror the map filter: custom string functions receive only the value, never the key
+            return static fn (mixed $value): mixed => $callback($value);
+        }
+
+        return \Closure::fromCallable($callback);
     }
 }

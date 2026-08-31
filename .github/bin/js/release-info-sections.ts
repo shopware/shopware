@@ -1,8 +1,9 @@
 /**
- * Validate that the lines a pull request adds to a RELEASE_INFO-*.md file land in
- * the version section named by its `milestone/X.Y.Z.P` label.
+ * Validate the lines a pull request adds to a RELEASE_INFO-*.md file: they have to
+ * land in the version section named by its `milestone/X.Y.Z.P` label, and they must
+ * not repeat a heading that section already carries.
  *
- * The invariant: a release section is written by the release it announces. After
+ * The first invariant: a release section is written by the release it announces. After
  * the `X.Y.Z.x` branch-off, new trunk entries belong to the upcoming section, not
  * to the closed `X.Y.Z.*` ones; only a backport still writes into an older line,
  * and its milestone label names the patch section its entries belong to.
@@ -12,13 +13,20 @@
  * label routes the PR there. Both commit statuses are required, so label–branch
  * consistency there plus content–label consistency here closes the gap: an entry
  * can only land in a closed section on a PR that really backports into that line.
+ *
+ * The second invariant: within one version section a heading appears once. Two
+ * `## Features` blocks under the same `# X.Y.Z.P` are what a merge produces when
+ * both sides opened the category independently, and nothing downstream repairs it —
+ * the release notes generated from the section then carry the category twice. Only a
+ * repetition the pull request itself adds is reported, so an older section that
+ * already drifted does not block the PRs that had nothing to do with it.
  */
 
 import { MILESTONE_LABEL_PREFIX, SKIP_CHECK_LABEL as MILESTONE_SKIP_LABEL, pullRequestNumbersInMergeGroup } from './milestone-label.ts';
 
 export const STATUS_CONTEXT = 'release-info/section';
 
-/** Opt-out for deliberate edits of an already-released section, e.g. fixing a typo. */
+/** Opt-out for both halves: a deliberate edit of an already-released section, e.g. fixing a typo, or a deliberate repetition. */
 export const SKIP_CHECK_LABEL = 'skip-release-info-check';
 
 /** RELEASE_INFO files live in the repository root, one per major line. */
@@ -26,6 +34,13 @@ const RELEASE_INFO_PATTERN = /^RELEASE_INFO-\d+\.\d+\.md$/;
 
 /** `# 6.7.14.0 (upcoming)` and `# 6.7.13.0` both open the section they name. */
 const VERSION_HEADING_PATTERN = /^# (\d+\.\d+\.\d+\.\d+)\b/;
+
+/**
+ * `## Features` and `### New thing`. A single `#` is excluded on purpose: a repeated
+ * `# X.Y.Z.P` opens a second section instead of duplicating a heading inside one,
+ * which is the section half of this check.
+ */
+const SUB_HEADING_PATTERN = /^(#{2,6})\s+(\S.*?)\s*$/;
 
 /** Fenced code blocks may quote `# ...` lines that must not open a section. */
 const FENCE_PATTERN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
@@ -66,12 +81,23 @@ export function addedLineNumbers(patch: string): number[] {
  * version heading map to `null`.
  */
 export function sectionByLine(content: string): (string | null)[] {
-    const sections: (string | null)[] = [];
+    return parseLines(content).map(({ section }) => section);
+}
+
+type ParsedLine = { text: string; section: string | null; inFence: boolean };
+
+/** One pass over the file, shared by both halves of the check so the fence handling cannot drift apart. */
+function parseLines(content: string): ParsedLine[] {
+    const parsed: ParsedLine[] = [];
     let current: string | null = null;
     let fence: string | null = null;
 
-    for (const line of content.split('\n')) {
-        const marker = FENCE_PATTERN.exec(line);
+    for (const text of content.split('\n')) {
+        const marker = FENCE_PATTERN.exec(text);
+        // The opening and the closing marker line are not content either, so neither
+        // can be read as a heading.
+        let inFence = fence !== null;
+
         if (fence !== null) {
             // CommonMark: only a bare fence of the same character and at least the
             // opening length closes a block — a ```js line inside it is content.
@@ -83,13 +109,52 @@ export function sectionByLine(content: string): (string | null)[] {
         } else if (marker && !(marker[1][0] === '`' && marker[2].includes('`'))) {
             // A backtick fence's info string may not contain backticks.
             fence = marker[1];
+            inFence = true;
         } else {
-            current = VERSION_HEADING_PATTERN.exec(line)?.[1] ?? current;
+            current = VERSION_HEADING_PATTERN.exec(text)?.[1] ?? current;
         }
-        sections.push(current);
+
+        parsed.push({ text, section: current, inFence });
     }
 
-    return sections;
+    return parsed;
+}
+
+export type RepeatedHeading = {
+    section: string | null;
+    /** The heading as first written, e.g. `## Features`. */
+    heading: string;
+    /** Every line it occurs on, ascending. */
+    lines: number[];
+};
+
+/**
+ * Headings that occur more than once inside the same version section, ordered by
+ * their first occurrence. Comparison ignores case and collapses whitespace, so
+ * `## features` repeats `## Features`; the level is part of the identity, so a
+ * `### Features` entry under `## Features` is not a repetition.
+ */
+export function repeatedHeadings(content: string): RepeatedHeading[] {
+    const groups = new Map<string, RepeatedHeading>();
+
+    parseLines(content).forEach(({ text, section, inFence }, index) => {
+        const heading = inFence ? null : SUB_HEADING_PATTERN.exec(text);
+        if (!heading) {
+            return;
+        }
+
+        const [, level, title] = heading;
+        // NUL cannot occur in any part, so the joined key stays unambiguous.
+        const key = [section, level, title.replace(/\s+/g, ' ').toLowerCase()].join('\0');
+        const group = groups.get(key);
+        if (group) {
+            group.lines.push(index + 1);
+        } else {
+            groups.set(key, { section, heading: `${level} ${title}`, lines: [index + 1] });
+        }
+    });
+
+    return [...groups.values()].filter(({ lines }) => lines.length > 1);
 }
 
 export type ReleaseInfoFile = {
@@ -104,6 +169,17 @@ export type ReleaseInfoFile = {
 export type ReleaseInfoVerdict = { status: 'ok' | 'skipped' | 'invalid'; message: string; short: string };
 
 type Mismatch = { filename: string; section: string | null; lines: number };
+
+type Duplicate = RepeatedHeading & { filename: string };
+
+/** GitHub rejects a status description over 140 characters, so the parts that can grow are clipped. */
+function clip(text: string, limit: number): string {
+    return text.length <= limit ? text : `${text.slice(0, limit - 1)}…`;
+}
+
+function sectionLabel(section: string | null, filename: string): string {
+    return section === null ? `the preamble of \`${filename}\`` : `the \`${section}\` section of \`${filename}\``;
+}
 
 function milestoneVersionOf(labels: string[]): string | undefined {
     const milestones = labels.filter((label) => label.startsWith(MILESTONE_LABEL_PREFIX));
@@ -126,23 +202,13 @@ export function evaluateReleaseInfoSections({ labels, files }: { labels: string[
         return { status: 'skipped', message: `\`${SKIP_CHECK_LABEL}\` is set`, short: `${SKIP_CHECK_LABEL} is set` };
     }
 
-    // Without a trusted milestone there is no section to hold the entries against.
-    if (labels.includes(MILESTONE_SKIP_LABEL)) {
-        return { status: 'skipped', message: `\`${MILESTONE_SKIP_LABEL}\` is set, so no milestone names the section the entries belong to`, short: `${MILESTONE_SKIP_LABEL} is set` };
-    }
-
     const version = milestoneVersionOf(labels);
-    if (version === undefined) {
-        // Missing, duplicated, or malformed labels are the milestone/label
-        // check's verdict to report; repeating it here would only double the noise.
-        return {
-            status: 'skipped',
-            message: `carries no single valid \`${MILESTONE_LABEL_PREFIX}*\` label to name the right section; the \`milestone/label\` status reports that`,
-            short: 'no valid milestone label yet, see milestone/label',
-        };
-    }
+    // Without a trusted milestone there is no section to hold the entries against, but
+    // the repetition half needs no label, so it still runs below.
+    const milestoneTrusted = version !== undefined && !labels.includes(MILESTONE_SKIP_LABEL);
 
     const mismatches: Mismatch[] = [];
+    const duplicates: Duplicate[] = [];
 
     for (const file of releaseInfoFiles) {
         // An unverifiable diff must not pass silently.
@@ -169,6 +235,19 @@ export function evaluateReleaseInfoSections({ labels, files }: { labels: string[
             };
         }
 
+        const addedLines = new Set(added);
+        for (const repeated of repeatedHeadings(file.headContent)) {
+            // Blaming a repetition the PR did not write would fail innocent PRs and
+            // teach everyone to reach for the skip label.
+            if (repeated.lines.some((line) => addedLines.has(line))) {
+                duplicates.push({ filename: file.filename, ...repeated });
+            }
+        }
+
+        if (!milestoneTrusted) {
+            continue;
+        }
+
         const sections = sectionByLine(file.headContent);
         const linesBySection = new Map<string | null, number>();
         for (const line of added) {
@@ -183,10 +262,42 @@ export function evaluateReleaseInfoSections({ labels, files }: { labels: string[
         }
     }
 
+    // A misfiled entry is reported first: it is the more fundamental fault, and moving
+    // the lines into the right section can resolve the repetition on its way.
+    if (mismatches.length === 0 && duplicates.length > 0) {
+        const details = duplicates.map(({ filename, section, heading, lines }) =>
+            `\`${heading}\` appears ${lines.length}× in ${sectionLabel(section, filename)} (lines ${lines.join(', ')})`);
+        const first = duplicates[0];
+        const where = first.section === null ? 'the preamble' : `the ${first.section} section`;
+
+        return {
+            status: 'invalid',
+            message: `${details.join('; ')}. A heading belongs once per version section: put a new entry under the category heading that is already there, `
+                + `and drop or retitle a \`###\` entry the section documents already. For a deliberate repetition, set \`${SKIP_CHECK_LABEL}\`.`,
+            short: duplicates.length === 1
+                ? `duplicate "${clip(first.heading, 60)}" in ${where} of ${first.filename}`
+                : `${duplicates.length} duplicate headings, first "${clip(first.heading, 40)}" in ${where} of ${first.filename}`,
+        };
+    }
+
+    if (!milestoneTrusted) {
+        if (labels.includes(MILESTONE_SKIP_LABEL)) {
+            return { status: 'skipped', message: `\`${MILESTONE_SKIP_LABEL}\` is set, so no milestone names the section the entries belong to`, short: `${MILESTONE_SKIP_LABEL} is set` };
+        }
+
+        // Missing, duplicated, or malformed labels are the milestone/label
+        // check's verdict to report; repeating it here would only double the noise.
+        return {
+            status: 'skipped',
+            message: `carries no single valid \`${MILESTONE_LABEL_PREFIX}*\` label to name the right section; the \`milestone/label\` status reports that`,
+            short: 'no valid milestone label yet, see milestone/label',
+        };
+    }
+
     if (mismatches.length === 0) {
         return {
             status: 'ok',
-            message: `every line it adds to a RELEASE_INFO file is in the \`${version}\` section its milestone names`,
+            message: `every line it adds to a RELEASE_INFO file is in the \`${version}\` section its milestone names, and repeats no heading there`,
             short: `RELEASE_INFO entries are in the ${version} section`,
         };
     }

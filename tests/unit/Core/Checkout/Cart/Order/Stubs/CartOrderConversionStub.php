@@ -156,6 +156,7 @@ final class CartOrderConversionStub
                             'customFields' => null,
                             'advancedPostalCodePattern' => null,
                             'defaultPostalCodePattern' => null,
+                            'vatIdCustomers' => null,
                         ],
                         'state' => [
                             'countryId' => 'country-id',

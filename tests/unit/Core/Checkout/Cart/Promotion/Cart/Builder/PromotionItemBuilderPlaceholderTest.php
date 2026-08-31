@@ -63,6 +63,17 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
         static::assertEquals('CODE-123', $item->getReferencedId());
     }
 
+    #[Group('promotions')]
+    public function testCodeValueInReferenceIdIsTrimmed(): void
+    {
+        $builder = new PromotionItemBuilder();
+
+        $item = $builder->buildPlaceholderItem("\u{00a0}CODE-123 \t");
+
+        static::assertSame(Uuid::fromStringToHex('promotion-CODE-123'), $item->getId());
+        static::assertSame('CODE-123', $item->getReferencedId());
+    }
+
     /**
      * This test verifies that we have our correct prefix in the key.
      * We use the code as key to avoid andy randomly generated UIDs.

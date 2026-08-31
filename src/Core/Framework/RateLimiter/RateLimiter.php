@@ -43,6 +43,8 @@ class RateLimiter
 
     final public const APP_SHOP_VERIFY = 'app_shop_verify';
 
+    final public const IMPORT_EXPORT_FILE_DOWNLOAD = 'import_export_file_download';
+
     /**
      * @var array<string, RateLimiterFactory>
      */

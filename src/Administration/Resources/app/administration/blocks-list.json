@@ -1,5 +1,4 @@
 [
- "formFieldName",
  "media",
  "mt_card",
  "mt_tabs",
@@ -4146,6 +4145,7 @@
  "sw_order_document_card_grid_column_modal",
  "sw_order_document_card_grid_column_sent",
  "sw_order_document_card_grid_column_sent_label",
+ "sw_order_document_card_grid_column_type",
  "sw_order_document_card_header",
  "sw_order_document_card_header_create_document_button_label",
  "sw_order_document_card_header_create_document_context_button",

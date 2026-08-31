@@ -258,6 +258,17 @@ shopware:
                       interval: '30 seconds'
                     - limit: 20
                       interval: '60 seconds'
+            import_export_file_download:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 10
+                      interval: '10 seconds'
+                    - limit: 15
+                      interval: '30 seconds'
+                    - limit: 20
+                      interval: '60 seconds'
             oauth:
                 enabled: true
                 policy: 'time_backoff'
@@ -717,3 +728,7 @@ shopware:
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
         failure_strategy: disable_on_threshold
+
+    app_system:
+        allow_unencrypted_traffic: false
+        allowed_private_ip_addresses: []

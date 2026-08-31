@@ -11,7 +11,7 @@ const { ACTION } = Shopware.Constants.FLOW;
 Shopware.Application.addServiceProvider('documentV2Service', () => {
     return {
         getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
-        getDocumentTypeSnippet: (technicalName) => `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
+        getDocumentTypeLabel: (technicalName) => `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
     };
 });
 

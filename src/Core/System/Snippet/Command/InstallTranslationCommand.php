@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Snippet\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
-use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
+use Shopware\Core\System\Snippet\DataTransfer\TranslationUpdate\TranslationInstallPlan;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Service\TranslationUpdater;
 use Shopware\Core\System\Snippet\SnippetException;
@@ -29,7 +29,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class InstallTranslationCommand extends Command
 {
     public function __construct(
-        private readonly AbstractTranslationLoader $translationLoader,
         private readonly TranslationConfig $config,
         private readonly TranslationMetadataStore $metadataStore,
         private readonly TranslationUpdater $translationUpdater,
@@ -83,11 +82,11 @@ class InstallTranslationCommand extends Command
         $progressBar = TranslationCommandHelper::createProgressBar(
             $output,
             \count($plan->localesToDownload) + \count($plan->localesToLink),
+            'Installing translations',
         );
 
         $this->translationUpdater->install(
             $plan,
-            $metadata,
             Context::createCLIContext(),
             $activate,
             static function (string $locale) use ($progressBar): void {
@@ -112,45 +111,55 @@ class InstallTranslationCommand extends Command
      * it would make a later run believe every locale is current and skip creating the
      * languages it is being asked for.
      *
-     * Locales named with --locales are a contract and are installed as a unit: every one of them is verified
-     * before the first is linked, so an incomplete provisioning step reports all of its missing locales at once
-     * and leaves no half-installed state behind. --all instead means "everything that is provisioned", because a
-     * locale the repository never offered must not make the command unusable for the other forty.
+     * Locales named with --locales are a contract and are installed as a unit: if one of them has no files the
+     * command fails and installs none of them, so an incomplete provisioning step leaves no half-installed state
+     * behind. --all instead means "everything that is provisioned", because a locale the repository never offered
+     * must not make the command unusable for the other forty.
      *
      * @param list<string> $locales
      */
     private function installOffline(array $locales, bool $activate, bool $allRequested, OutputInterface $output): int
     {
-        $missing = array_values(array_filter(
-            $locales,
-            fn (string $locale) => !$this->translationLoader->hasTranslationFiles($locale),
-        ));
+        $plan = $this->translationUpdater->planOfflineInstall($locales);
 
-        if ($missing !== [] && !$allRequested) {
-            throw SnippetException::translationsUnavailable($missing);
+        if ($this->offlineInstallMustFail($plan, $allRequested)) {
+            throw SnippetException::translationsUnavailable($plan->unavailableLocales);
         }
 
-        if ($missing !== []) {
-            $locales = array_values(array_diff($locales, $missing));
-
-            if ($locales === []) {
-                throw SnippetException::translationsUnavailable($missing);
-            }
-
-            TranslationCommandHelper::printLocalesWithoutFiles($output, $missing);
+        if ($plan->unavailableLocales !== []) {
+            TranslationCommandHelper::printLocalesWithoutFiles($output, $plan->unavailableLocales);
         }
 
-        $context = Context::createCLIContext();
-
-        TranslationCommandHelper::executeLoadWithProgressBar(
-            $locales,
+        $progressBar = TranslationCommandHelper::createProgressBar(
             $output,
-            fn (string $locale) => $this->translationLoader->link($locale, $context, $activate),
+            \count($plan->localesToLink),
+            'Installing translations',
         );
 
+        $this->translationUpdater->install(
+            $plan,
+            Context::createCLIContext(),
+            $activate,
+            static function (string $locale) use ($progressBar): void {
+                $progressBar->setMessage($locale);
+                $progressBar->advance();
+            },
+        );
+
+        $progressBar->finish();
         $output->write(\PHP_EOL);
 
         return self::SUCCESS;
+    }
+
+    private function offlineInstallMustFail(TranslationInstallPlan $plan, bool $allRequested): bool
+    {
+        if ($plan->unavailableLocales === []) {
+            return false;
+        }
+
+        // --all installs whatever is provisioned; a locale named with --locales that has no files fails the run
+        return !$allRequested || $plan->localesToLink === [];
     }
 
     /**

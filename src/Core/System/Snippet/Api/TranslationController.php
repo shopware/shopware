@@ -93,7 +93,7 @@ class TranslationController extends AbstractController
             throw SnippetException::translationsUnavailable($plan->unavailableLocales);
         }
 
-        $result = $this->translationUpdater->install($plan, $metadata, $context, $parameters->activate);
+        $result = $this->translationUpdater->install($plan, $context, $parameters->activate);
 
         if ($metadata->getLocalesRequiringUpdate() !== []) {
             $this->metadataStore->save($metadata);

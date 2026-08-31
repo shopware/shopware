@@ -522,7 +522,6 @@ class InstallTranslationCommandTest extends TestCase
     private function getCommand(): InstallTranslationCommand
     {
         return new InstallTranslationCommand(
-            $this->translationLoader,
             $this->config,
             $this->metadataStore,
             new TranslationUpdater($this->translationLoader, $this->metadataStore),

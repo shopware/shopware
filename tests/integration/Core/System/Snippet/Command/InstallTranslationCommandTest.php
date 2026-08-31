@@ -255,7 +255,6 @@ class InstallTranslationCommandTest extends TestCase
         static::assertInstanceOf(TranslationMetadataStore::class, $metadataStore);
 
         $command = new InstallTranslationCommand(
-            $this->translationLoader,
             $this->config,
             $metadataStore,
             new TranslationUpdater($this->translationLoader, $metadataStore),

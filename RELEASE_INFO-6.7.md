@@ -82,7 +82,7 @@ This completes the pairing with `translation:download`, which fetches the files 
 
 The presence of the files is verified per locale before anything is installed. Locales named with `--locales` are installed as a unit: if one of them has no files, the command fails and lists every missing locale instead of leaving a language with no translations behind it. `--offline --all` instead installs every locale that is provisioned and reports the rest, because a locale the translation repository does not offer must not make the command unusable for the others. The metadata store is neither read nor written in this mode, so a later regular `translation:install` or `translation:update` behaves exactly as before.
 
-`Shopware\Core\System\Snippet\Service\AbstractTranslationLoader` gained `link()` and `hasTranslationFiles()` for this. Decorators of the loader inherit both from the abstract class and do not need to be adjusted.
+`Shopware\Core\System\Snippet\Service\AbstractTranslationLoader` gained `link()` and `hasTranslationFiles()` for this, and decorators inherit both from the abstract class without being adjusted. Installing now calls `download()` and `link()` instead of `load()`, so a decorator that wraps `load()` to observe installs has to wrap `link()` as well; `translation:update` keeps going through `load()`. Extensions that listen to `TranslationLoadedEvent` need no change, because `link()` dispatches it exactly like `load()` does.
 
 ### Installing a translation ensures its language and snippet set again
 
@@ -93,7 +93,7 @@ Whether a translation is current and whether it is actually installed are separa
 Two consequences for operators:
 
 - `translation:install` now exits with a non-zero code when none of the requested locales can be installed — that is, when neither the repository offers them nor the filesystem carries them. Previously it printed "All translations are already up to date." and exited `0`. Scripts that check the exit code are affected. The install route already answered such a request with an error.
-- A requested locale that the repository does not offer and that has no files on the filesystem is reported and left out rather than installed as a language without translations. `POST /api/_action/translation/install` keeps reporting those locales in its `unavailable` list, but a locale whose files were provisioned offline no longer appears there, because it can be installed.
+- A requested locale that the repository does not offer and that has no files on the filesystem is reported and left out rather than installed as a language without translations. `POST /api/_action/translation/install` keeps reporting those locales in its `unavailable` list, but a locale whose files were provisioned offline no longer appears there, because it can be installed. Its `skipped` list now names the requested locales that were installed without a download, instead of every locale in the local metadata that was not updated.
 
 ## Administration
 

@@ -56,14 +56,14 @@ class TranslationCommandHelperTest extends TestCase
         };
 
         $output = new BufferedOutput();
-        TranslationCommandHelper::executeLoadWithProgressBar($locales, $output, $callback);
+        TranslationCommandHelper::executeLoadWithProgressBar($locales, $output, 'Installing translations', $callback);
 
         static::assertSame($locales, $loadedLocales);
 
         $content = $output->fetch();
 
-        static::assertStringContainsString('1/3 -- Fetching translations for locale: en-GB', $content);
-        static::assertStringContainsString('3/3 -- Fetching translations for locale: fr-FR', $content);
+        static::assertStringContainsString('1/3 -- Installing translations for locale: en-GB', $content);
+        static::assertStringContainsString('3/3 -- Installing translations for locale: fr-FR', $content);
     }
 
     public function testPrintMetadataLoadingFailed(): void

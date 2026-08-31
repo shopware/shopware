@@ -99,7 +99,9 @@ class UpdateTranslationsTaskHandlerTest extends TestCase
         $updater = static::getContainer()->get(TranslationUpdater::class);
         static::assertInstanceOf(TranslationUpdater::class, $updater);
 
-        $updater->update($store->getUpdatedLocalMetadata([self::PSEUDO_LOCALE]), Context::createCLIContext());
+        $metadata = $store->getUpdatedLocalMetadata([self::PSEUDO_LOCALE]);
+        $updater->install($updater->planInstall([self::PSEUDO_LOCALE], $metadata), Context::createCLIContext());
+        $store->save($metadata);
     }
 
     private function setLanguageAutoUpdate(string $localeCode, bool $enabled): void

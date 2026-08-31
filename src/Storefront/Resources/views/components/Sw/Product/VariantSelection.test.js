@@ -1,10 +1,13 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import 'src/component-system/component';
-import VariantSelection from '../../../../views/components/Sw/Product/VariantSelection';
+import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
+import VariantSelection from './VariantSelection';
 
 describe('views/components/Sw/Product/VariantSelection', () => {
     let form;
     let component;
     let fetch;
+    let createLoadingIndicator;
 
     beforeEach(() => {
         form = document.createElement('form');
@@ -20,13 +23,14 @@ describe('views/components/Sw/Product/VariantSelection', () => {
         document.body.appendChild(form);
 
         window.focusHandler = {
-            resumeFocusStatePersistent: jest.fn(),
-            saveFocusStatePersistent: jest.fn(),
+            resumeFocusStatePersistent: vi.fn(),
+            saveFocusStatePersistent: vi.fn(),
         };
-        fetch = jest.fn().mockResolvedValue({
-            json: jest.fn().mockResolvedValue({ url: '/detail/variant' }),
+        fetch = vi.fn().mockResolvedValue({
+            json: vi.fn().mockResolvedValue({ url: '/detail/variant' }),
         });
         window.fetch = fetch;
+        createLoadingIndicator = vi.spyOn(PageLoadingIndicatorUtil, 'create').mockImplementation(() => {});
 
         component = new VariantSelection(form, {
             url: '/detail/switch/parent',
@@ -39,6 +43,7 @@ describe('views/components/Sw/Product/VariantSelection', () => {
         document.body.innerHTML = '';
         window.focusHandler = undefined;
         window.fetch = undefined;
+        createLoadingIndicator.mockRestore();
     });
 
     test('serializes checked and selected controls while ignoring disabled controls', () => {
@@ -51,7 +56,7 @@ describe('views/components/Sw/Product/VariantSelection', () => {
 
     test('switches the variant with the current selections and preserves focus', async () => {
         const switchedInput = form.querySelector('input[value="blue"]');
-        const redirectToVariant = jest.spyOn(component, 'redirectToVariant').mockImplementation(() => {});
+        const redirectToVariant = vi.spyOn(component, 'redirectToVariant').mockImplementation(() => {});
 
         switchedInput.checked = true;
         switchedInput.dispatchEvent(new Event('change', { bubbles: true }));
@@ -65,6 +70,7 @@ describe('views/components/Sw/Product/VariantSelection', () => {
             '/detail/switch/parent?switched=color&options=%7B%22color%22%3A%22blue%22%2C%22material%22%3A%22cotton%22%7D',
             { headers: { 'X-Requested-With': 'XMLHttpRequest' } },
         );
+        expect(createLoadingIndicator).toHaveBeenCalled();
         expect(redirectToVariant).toHaveBeenCalledWith('/detail/variant');
     });
 

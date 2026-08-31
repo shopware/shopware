@@ -37,7 +37,7 @@ class SalesChannelFileAdministrationReader
         $files = [];
 
         foreach ($this->discovery->discover($fileFamily) as $file) {
-            $configuration = $configurations[$file->fileName] ?? null;
+            $configuration = $configurations[mb_strtolower($file->fileName)] ?? null;
 
             $files[] = new SalesChannelFileAdministrationListItem(
                 $file->fileFamily,
@@ -52,7 +52,7 @@ class SalesChannelFileAdministrationReader
 
     public function detail(string $fileFamily, string $fileName, string $salesChannelId, Context $context): ?SalesChannelFileAdministrationDetail
     {
-        $file = $this->discovery->discover($fileFamily)[$fileName] ?? null;
+        $file = $this->discovery->discover($fileFamily)[mb_strtolower($fileName)] ?? null;
         if (!$file instanceof SalesChannelFile) {
             return null;
         }

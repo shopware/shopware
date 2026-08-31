@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
@@ -21,6 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BundleConfigGenerator::class)]
 class BundleConfigGeneratorTest extends TestCase
 {
@@ -35,8 +37,8 @@ class BundleConfigGeneratorTest extends TestCase
     {
         $this->expectExceptionObject(PluginException::invalidContainerParameter('kernel.project_dir', 'string'));
         new BundleConfigGenerator(
-            $this->createMock(Kernel::class),
-            $this->createMock(ActiveAppsLoader::class),
+            static::createStub(Kernel::class),
+            static::createStub(ActiveAppsLoader::class),
             new NullBundleConfigStyleFileResolver(),
         );
     }
@@ -82,7 +84,7 @@ class BundleConfigGeneratorTest extends TestCase
 
         $kernel = $this->createKernelWithBundles([$coreBundle, $activePlugin, $inactivePlugin], [$activePlugin]);
 
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader = static::createStub(ActiveAppsLoader::class);
         $activeAppsLoader->method('getActiveApps')->willReturn([
             ['name' => 'SwagDemoApp', 'path' => $appRelativePath],
         ]);
@@ -138,7 +140,7 @@ class BundleConfigGeneratorTest extends TestCase
             ]);
 
         $kernel = $this->createKernelWithBundles([$bundle]);
-        $generator = new BundleConfigGenerator($kernel, $this->createMock(ActiveAppsLoader::class), $resolver);
+        $generator = new BundleConfigGenerator($kernel, static::createStub(ActiveAppsLoader::class), $resolver);
         $config = $generator->getConfig();
 
         static::assertSame(
@@ -155,7 +157,7 @@ class BundleConfigGeneratorTest extends TestCase
         $appName = 'SwagDemoApp';
         $appPath = 'extensions/apps/SwagDemoApp';
 
-        $activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $activeAppsLoader = static::createStub(ActiveAppsLoader::class);
         $activeAppsLoader->method('getActiveApps')->willReturn([
             ['name' => $appName, 'path' => $appPath],
         ]);
@@ -199,7 +201,7 @@ class BundleConfigGeneratorTest extends TestCase
         $bundleName = $bundle->getName();
 
         $kernel = $this->createKernelWithBundles([$bundle]);
-        $generator = new BundleConfigGenerator($kernel, $this->createMock(ActiveAppsLoader::class), new NullBundleConfigStyleFileResolver());
+        $generator = new BundleConfigGenerator($kernel, static::createStub(ActiveAppsLoader::class), new NullBundleConfigStyleFileResolver());
         $config = $generator->getConfig();
 
         static::assertFalse($config[$bundleName]['storefront']['hasComponentAssets']);
@@ -219,10 +221,10 @@ class BundleConfigGeneratorTest extends TestCase
             $pluginInstances[$plugin::class] = $plugin;
         }
 
-        $pluginLoader = $this->createMock(KernelPluginLoader::class);
+        $pluginLoader = static::createStub(KernelPluginLoader::class);
         $pluginLoader->method('getPluginInstances')->willReturn(new KernelPluginCollection($pluginInstances));
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getContainer')->willReturn($container);
         $kernel->method('getPluginLoader')->willReturn($pluginLoader);
         $kernel->method('getBundles')->willReturn($bundles);

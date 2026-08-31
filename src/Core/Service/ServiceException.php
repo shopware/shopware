@@ -4,16 +4,15 @@ namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-/**
- * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ServiceException extends HttpException
 {
     public const NOT_FOUND = 'SERVICE__NOT_FOUND';
@@ -24,12 +23,9 @@ class ServiceException extends HttpException
     public const SERVICE_MISSING_APP_VERSION_INFO = 'SERVICE__MISSING_APP_INFO';
     public const SERVICE_CANNOT_WRITE_APP = 'SERVICE__CANNOT_WRITE_APP';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the legacy commercial license sync endpoint support.
-     */
-    public const SERVICE_MISSING_APP_SECRET_INFO = 'SERVICE__MISSING_APP_SECRET_INFO';
-
     public const SERVICE_TOGGLE_ACTION_NOT_ALLOWED = 'SERVICE__TOGGLE_ACTION_NOT_ALLOWED';
+
+    public const SERVICE_STATE_CHANGE_NOT_PERMITTED = 'SERVICE__STATE_CHANGE_NOT_PERMITTED';
 
     public const COULD_NOT_FETCH_PERMISSIONS_REVISIONS = 'SERVICE__COULD_NOT_FETCH_PERMISSIONS_REVISIONS';
 
@@ -113,6 +109,16 @@ class ServiceException extends HttpException
         );
     }
 
+    public static function stateChangeNotPermitted(string $serviceName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SERVICE_STATE_CHANGE_NOT_PERMITTED,
+            'The state of service "{{ serviceName }}" is managed by its requirements and cannot be changed manually.',
+            ['serviceName' => $serviceName]
+        );
+    }
+
     public static function requestTransportError(?\Throwable $previous = null): self
     {
         $message = 'Error performing request';
@@ -146,19 +152,6 @@ class ServiceException extends HttpException
             self::SERVICE_MISSING_APP_VERSION_INFO,
             'Error downloading app. The version information was missing: {{ missingFields }}',
             ['missingFields' => implode(', ', $missingFields)],
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the legacy commercial license sync endpoint support.
-     */
-    public static function missingAppSecretInfo(string $appId): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::SERVICE_MISSING_APP_SECRET_INFO,
-            'Error creating client. The app secret information was missing. App ID: "{{ appId }}"',
-            ['appId' => $appId]
         );
     }
 

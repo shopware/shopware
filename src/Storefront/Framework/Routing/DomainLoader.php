@@ -13,7 +13,7 @@ use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
-#[Package('framework')]
+#[Package('discovery')]
 class DomainLoader extends AbstractDomainLoader
 {
     /**

@@ -1,4 +1,10 @@
 name: Verify release content
+# Rule and reasoning: .github/bin/js/verify-release-content.ts
+#
+# The verdict is delivered through the `release-content/verify` commit status on the release branch
+# head, not through the job result: a missing entry keeps the job green and blocks via the status.
+# A red job here means the verification itself could not run (operational error), so pipeline
+# monitoring only surfaces real CI problems.
 
 on:
   push:
@@ -10,6 +16,10 @@ on:
         description: 'Version prefix to verify (e.g. 6.7.11). Derived from branch name when omitted.'
         required: false
 
+permissions:
+  contents: read
+  statuses: write
+
 jobs:
   verify:
     name: Verify release content
@@ -17,12 +27,9 @@ jobs:
     if: github.repository == 'shopware/shopware'
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: "0"
-
-      - name: Fetch trunk
-        run: git fetch origin trunk
 
       - name: Derive version prefix
         id: version
@@ -34,5 +41,15 @@ jobs:
             echo "prefix=${GITHUB_REF_NAME%.x}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Fetch trunk and release branch
+        # The check compares origin/trunk against origin/<prefix>.x, so both refs must be present.
+        run: git fetch origin trunk "${{ steps.version.outputs.prefix }}.x"
+
       - name: Verify release content
-        run: bash .github/bin/verify_release_content.bash "${{ steps.version.outputs.prefix }}"
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          VERSION_PREFIX: ${{ steps.version.outputs.prefix }}
+        with:
+          script: |
+            const { checkReleaseContent } = await import('${{ github.workspace }}/.github/bin/js/verify-release-content.ts')
+            await checkReleaseContent({ github, core, context })

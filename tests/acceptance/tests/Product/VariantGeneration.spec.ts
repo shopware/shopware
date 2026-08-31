@@ -1,77 +1,77 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { PropertyGroup } from '@shopware-ag/acceptance-test-suite';
 
-test('Shop administrator should be able to create product variants.', { tag: '@Product' }, async ({
-    ShopAdmin,
-    TestDataService,
-    AdminProductDetail,
-    GenerateVariants,
-}) => {
-    const product = await TestDataService.createBasicProduct();
-    const color = await TestDataService.createColorPropertyGroup();
-    const size = await TestDataService.createTextPropertyGroup();
+test(
+    'Shop administrator should be able to create product variants.',
+    { tag: '@Product' },
+    async ({ ShopAdmin, TestDataService, AdminProductDetail, GenerateVariants }) => {
+        const product = await TestDataService.createBasicProduct();
+        const color = await TestDataService.createColorPropertyGroup();
+        const size = await TestDataService.createTextPropertyGroup();
 
-    await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
-    await ShopAdmin.page.waitForLoadState('domcontentloaded');
+        await ShopAdmin.goesTo(AdminProductDetail.url(product.id));
+        await ShopAdmin.page.waitForLoadState('domcontentloaded');
 
-    await ShopAdmin.attemptsTo(GenerateVariants(color.name, size.name));
+        await ShopAdmin.attemptsTo(GenerateVariants(color.name, size.name));
 
-    /**
-     * The test has to handle random behaviour.
-     * Variants displayed in the admin grid can have different order and naming combinations.
-     */
-    const variantLocators = AdminProductDetail.page.locator('.sw-product-variants-overview__variation-link');
-    const variantTexts = await variantLocators.allInnerTexts();
-    const allowedVariants = [
-        'RedMedium',
-        'RedLarge',
-        'BlueMedium',
-        'BlueLarge',
-        'MediumRed',
-        'MediumBlue',
-        'LargeRed',
-        'LargeBlue',
-    ];
+        /**
+         * The test has to handle random behaviour.
+         * Variants displayed in the admin grid can have different order and naming combinations.
+         */
+        const variantLocators = AdminProductDetail.page.locator('.sw-product-variants-overview__variation-link');
+        const variantTexts = await variantLocators.allInnerTexts();
+        const allowedVariants = [
+            'RedMedium',
+            'RedLarge',
+            'BlueMedium',
+            'BlueLarge',
+            'MediumRed',
+            'MediumBlue',
+            'LargeRed',
+            'LargeBlue',
+        ];
 
-    const validateVariants = variantTexts.every(variant => allowedVariants.includes(variant.trim()));
+        const validateVariants = variantTexts.every((variant) => allowedVariants.includes(variant.trim()));
 
-    ShopAdmin.expects(validateVariants).toBeTruthy();
-});
+        ShopAdmin.expects(validateVariants).toBeTruthy();
+    },
+);
 
-test('Customer should be able to see a new property displayed on the product detail page', { tag: ['@Product', '@Storefront'] }, async ({
-    ShopCustomer,
-    TestDataService,
-    StorefrontProductDetail,
-    CheckVisibilityInHome,
-    InstanceMeta,
-}) => {
-
-    test.slow(InstanceMeta.isSaaS);
-    await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
-    const color = await TestDataService.createColorPropertyGroup(
-        {
+test(
+    'Customer should be able to see a new property displayed on the product detail page',
+    {
+        tag: [
+            '@Product',
+            '@Storefront',
+        ],
+    },
+    async ({ ShopCustomer, TestDataService, StorefrontProductDetail, CheckVisibilityInHome }) => {
+        await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
+        const color = await TestDataService.createColorPropertyGroup({
             name: 'Color',
             description: 'Color Description',
-            options: [
-                { name: 'Red', colorHexCode: '#bf0f2a' },
-            ],
-        }
-    );
-    const propertyGroupsColor: PropertyGroup[] = [color];
-    const colorManufacturer = await TestDataService.createBasicManufacturer({
-        name: 'Color Manufacturer',
-        description: 'Color Description Manufacturer',
-    });
-    const parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id });
-    await test.step('Verify property display on the product detail page', async () => {
+            options: [{ name: 'Red', colorHexCode: '#bf0f2a' }],
+        });
+        const propertyGroupsColor: PropertyGroup[] = [color];
+        const colorManufacturer = await TestDataService.createBasicManufacturer({
+            name: 'Color Manufacturer',
+            description: 'Color Description Manufacturer',
+        });
+        const parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id });
+
         const variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
             description: 'Variant description',
         });
-        await CheckVisibilityInHome(variantProductColor.at(0).name)();
-        await ShopCustomer.goesTo(StorefrontProductDetail.url(variantProductColor.at(0)));
-        await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeVisible();
-        await ShopCustomer.expects(StorefrontProductDetail.propertyRadioGroup(color.name)).toBeVisible();
-        await ShopCustomer.expects(StorefrontProductDetail.propertyRadioGroup(color.name).getByRole('radio'))
-            .toHaveCount(variantProductColor.length);
-    });
-});
+        await TestDataService.clearCaches();
+
+        await test.step('Verify property display on the product detail page', async () => {
+            await CheckVisibilityInHome(variantProductColor.at(0).name)();
+            await ShopCustomer.goesTo(StorefrontProductDetail.url(variantProductColor.at(0)));
+            await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeVisible();
+            await ShopCustomer.expects(StorefrontProductDetail.propertyRadioGroup(color.name)).toBeVisible();
+            await ShopCustomer.expects(
+                StorefrontProductDetail.propertyRadioGroup(color.name).getByRole('radio'),
+            ).toHaveCount(variantProductColor.length);
+        });
+    },
+);

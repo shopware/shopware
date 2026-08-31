@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
 use Shopware\Core\Framework\App\Mcp\Mcp;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 
 /**
  * @internal only for use by the app-system
@@ -19,6 +21,8 @@ class McpLifecycleHandler extends AbstractLifecycleHandler
         private readonly McpToolPersister $toolPersister,
         private readonly McpPromptPersister $promptPersister,
         private readonly McpResourcePersister $resourcePersister,
+        private readonly ?AppMcpCapabilityDetector $capabilityDetector = null,
+        private readonly ?McpListChangedNotifier $listChangedNotifier = null,
     ) {
     }
 
@@ -35,11 +39,17 @@ class McpLifecycleHandler extends AbstractLifecycleHandler
     private function persist(AppPersistContext $context): void
     {
         $mcp = $this->getMcp($context);
+        $existingCapabilities = $this->capabilityDetector?->persistedForApp($context->app->getId());
+        $newCapabilities = $this->capabilityDetector?->fromMcp($mcp);
 
         $this->toolPersister->validateRequiredPrivileges($context->manifest, $mcp);
         $this->toolPersister->persist($mcp, $context->app->getId(), $context->defaultLocale, $context->context);
         $this->promptPersister->persist($mcp, $context->app->getId(), $context->defaultLocale, $context->context);
         $this->resourcePersister->persist($mcp, $context->app->getId(), $context->defaultLocale, $context->context);
+
+        if ($existingCapabilities !== null && $newCapabilities !== null) {
+            $this->listChangedNotifier?->notify($existingCapabilities->merge($newCapabilities));
+        }
     }
 
     private function getMcp(AppPersistContext $context): ?Mcp

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
@@ -39,21 +39,21 @@ class A11yRenderedDocumentStorerTest extends TestCase
      */
     private StaticEntityRepository $repository;
 
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private EventDispatcherInterface&Stub $dispatcher;
 
-    private MockObject&MailAttachmentsBuilder $mailAttachmentsBuilder;
+    private MailAttachmentsBuilder&Stub $mailAttachmentsBuilder;
 
     protected function setUp(): void
     {
-        $this->repository = new StaticEntityRepository([[]]);
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $this->repository = StaticEntityRepository::of(DocumentCollection::class, [[]]);
+        $this->dispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->mailAttachmentsBuilder = static::createStub(MailAttachmentsBuilder::class);
         $this->storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $this->mailAttachmentsBuilder);
     }
 
     public function testStoreWithAware(): void
     {
-        $event = $this->createMock(OrderStateMachineStateChangeEvent::class);
+        $event = static::createStub(OrderStateMachineStateChangeEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS, $stored);
@@ -61,7 +61,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(UserRecoveryRequestEvent::class);
+        $event = static::createStub(UserRecoveryRequestEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS, $stored);
@@ -109,7 +109,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $documentCollections->add($documentWithA11yMediaFile);
         $documentCollections->add($documentWithNoA11yMediaFile);
 
-        $this->repository = new StaticEntityRepository([
+        $repository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',
                 2,
@@ -120,19 +120,20 @@ class A11yRenderedDocumentStorerTest extends TestCase
             ),
         ]);
 
-        $this->mailAttachmentsBuilder
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
             ->expects($this->once())
             ->method('getLatestDocumentsOfTypes')
             ->with($orderId, [$documentTypeId])
             ->willReturn([$documentId, $documentId2]);
 
-        $this->storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $this->mailAttachmentsBuilder);
+        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder);
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
         $storable->setData(OrderAware::ORDER_ID, $orderId);
         $storable->setConfig(['documentTypeIds' => [$documentTypeId]]);
 
-        $this->storer->restore($storable);
+        $storer->restore($storable);
 
         $res = $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
 
@@ -180,17 +181,20 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $orderId = Uuid::randomHex();
         $documentTypeId = Uuid::randomHex();
 
-        $this->mailAttachmentsBuilder
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
             ->expects($this->once())
             ->method('getLatestDocumentsOfTypes')
             ->with($orderId, [$documentTypeId])
             ->willReturn([]);
 
+        $storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $mailAttachmentsBuilder);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
         $storable->setData(OrderAware::ORDER_ID, $orderId);
         $storable->setConfig(['documentTypeIds' => [$documentTypeId]]);
 
-        $this->storer->restore($storable);
+        $storer->restore($storable);
 
         $res = $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
 
@@ -204,12 +208,14 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $documentTypeId = Uuid::randomHex();
         $documentId = Uuid::randomHex();
 
-        $this->mailAttachmentsBuilder
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
             ->expects($this->once())
             ->method('getLatestDocumentsOfTypes')
             ->willReturn([$documentId]);
 
-        $this->dispatcher
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher
             ->expects($this->once())
             ->method('dispatch')
             ->with(
@@ -217,11 +223,13 @@ class A11yRenderedDocumentStorerTest extends TestCase
                 'mail-flow.data.document.criteria.event'
             );
 
+        $storer = new A11yRenderedDocumentStorer($this->repository, $dispatcher, $mailAttachmentsBuilder);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => []]);
         $storable->setData(OrderAware::ORDER_ID, $orderId);
         $storable->setConfig(['documentTypeIds' => [$documentTypeId]]);
 
-        $this->storer->restore($storable);
+        $storer->restore($storable);
         $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
     }
 
@@ -238,7 +246,7 @@ class A11yRenderedDocumentStorerTest extends TestCase
         $document->setDeepLinkCode('code1');
         $document->setDocumentA11yMediaFile($a11yDocument);
 
-        $this->repository = new StaticEntityRepository([
+        $repository = new StaticEntityRepository([
             new EntitySearchResult(
                 DocumentDefinition::ENTITY_NAME,
                 1,
@@ -249,16 +257,17 @@ class A11yRenderedDocumentStorerTest extends TestCase
             ),
         ]);
 
-        $this->mailAttachmentsBuilder
+        $mailAttachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $mailAttachmentsBuilder
             ->expects($this->never())
             ->method('getLatestDocumentsOfTypes');
 
-        $this->storer = new A11yRenderedDocumentStorer($this->repository, $this->dispatcher, $this->mailAttachmentsBuilder);
+        $storer = new A11yRenderedDocumentStorer($repository, $this->dispatcher, $mailAttachmentsBuilder);
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS => [$documentId]]);
         $storable->setConfig([]);
 
-        $this->storer->restore($storable);
+        $storer->restore($storable);
 
         $res = $storable->getData(A11yRenderedDocumentAware::A11Y_DOCUMENTS);
 

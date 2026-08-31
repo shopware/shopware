@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
@@ -29,22 +29,22 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(LandingPageUrlProvider::class)]
 class LandingPageUrlProviderTest extends TestCase
 {
-    private readonly ConfigHandler&MockObject $configHandler;
+    private readonly ConfigHandler&Stub $configHandler;
 
-    private readonly Connection&MockObject $connection;
+    private readonly Connection&Stub $connection;
 
-    private readonly EntityRouteResolver&MockObject $entityRouteResolver;
+    private readonly EntityRouteResolver&Stub $entityRouteResolver;
 
-    private readonly EventDispatcher&MockObject $dispatcher;
+    private readonly EventDispatcher&Stub $dispatcher;
 
     private LandingPageUrlProvider $landingPageUrlProvider;
 
     protected function setUp(): void
     {
-        $this->configHandler = $this->createMock(ConfigHandler::class);
-        $this->connection = $this->createMock(Connection::class);
-        $this->entityRouteResolver = $this->createMock(EntityRouteResolver::class);
-        $this->dispatcher = $this->createMock(EventDispatcher::class);
+        $this->configHandler = static::createStub(ConfigHandler::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->entityRouteResolver = static::createStub(EntityRouteResolver::class);
+        $this->dispatcher = static::createStub(EventDispatcher::class);
 
         $this->landingPageUrlProvider = new LandingPageUrlProvider(
             $this->configHandler,
@@ -90,7 +90,7 @@ class LandingPageUrlProviderTest extends TestCase
         $this->entityRouteResolver->method('getRouteNameForEntityName')->willReturn('frontend.landing.page');
         $this->entityRouteResolver->method('generateUrl')->willReturn('landing-page/2/detail');
 
-        $queryBuilderMock = $this->createMock(QueryBuilder::class);
+        $queryBuilderMock = static::createStub(QueryBuilder::class);
         $queryBuilderMock->method('executeQuery')->willReturn($queryResult);
 
         $this->connection->method('createQueryBuilder')->willReturn($queryBuilderMock);

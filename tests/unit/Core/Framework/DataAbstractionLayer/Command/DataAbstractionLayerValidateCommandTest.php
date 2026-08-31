@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DataAbstractionLayerValidateCommand::class)]
 class DataAbstractionLayerValidateCommandTest extends TestCase
 {
@@ -20,7 +22,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testValidationErrors(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1', 'Error 2'],
             'Shopware\\Core\\Content\\Category\\CategoryDefinition' => ['Error 3'],
@@ -39,7 +41,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testFormatJsonOutput(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
         ]);
@@ -59,7 +61,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testJsonOutput(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
         ]);
@@ -90,7 +92,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testNamespaceFilter(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
             'Shopware\\Core\\Content\\Category\\CategoryDefinition' => ['Error 2'],
@@ -110,7 +112,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testNamespaceFilterWithPartialNamespace(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
             'Shopware\\Core\\Content\\Category\\CategoryDefinition' => ['Error 2'],
@@ -131,7 +133,7 @@ class DataAbstractionLayerValidateCommandTest extends TestCase
 
     public function testNamespaceFilterWithMultipleNamespaces(): void
     {
-        $validator = $this->createMock(DefinitionValidator::class);
+        $validator = static::createStub(DefinitionValidator::class);
         $validator->method('validate')->willReturn([
             'Shopware\\Core\\Content\\Product\\ProductDefinition' => ['Error 1'],
             'Shopware\\Core\\Content\\Category\\CategoryDefinition' => ['Error 2'],

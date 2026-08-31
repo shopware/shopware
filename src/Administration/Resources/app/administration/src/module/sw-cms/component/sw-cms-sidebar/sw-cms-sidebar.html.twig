@@ -133,7 +133,7 @@
             >
                 <mt-empty-state
                     v-if="cmsBlocksBySelectedBlockCategory.length === 0 && currentBlockCategory === 'favorite'"
-                    icon="solid-heart"
+                    icon="regular-heart"
                     :headline="$t('sw-cms.detail.title.blockFavoriteEmptyState')"
                     :description="$t('sw-cms.detail.label.blockFavoriteEmptyState')"
                 />
@@ -394,7 +394,7 @@
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-delete"
                             variant="danger"
-                            @click="onSectionDelete(section.id)"
+                            @click="onNavigatorSectionDelete(section.id)"
                         >
                             {{ $t('global.default.delete') }}
                         </sw-context-menu-item>
@@ -419,7 +419,7 @@
                             :removable="blockIsRemovable(block)"
                             :duplicable="blockIsDuplicable(block)"
                             :class="{ 'is--dragging': block.isDragging }"
-                            @block-delete="onBlockDelete($event, section)"
+                            @block-delete="onNavigatorBlockDelete($event, section)"
                             @block-duplicate="onBlockDuplicate($event, section)"
                         />
                     </template>
@@ -456,7 +456,7 @@
                                 :removable="blockIsRemovable(block)"
                                 class="sw-cms-sidebar__navigator-block is--sidebar"
                                 :class="{ 'is--dragging': block.isDragging }"
-                                @block-delete="onBlockDelete($event, section)"
+                                @block-delete="onNavigatorBlockDelete($event, section)"
                                 @block-duplicate="onBlockDuplicate($event, section)"
                             />
                         </template>

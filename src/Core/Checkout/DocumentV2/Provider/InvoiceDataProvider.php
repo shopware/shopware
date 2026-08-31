@@ -5,11 +5,10 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
-use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Template\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
@@ -17,6 +16,7 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,13 +34,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 {
     final public const KEY = 'invoice';
 
-    final public const TEMPLATE_PATHS = [
-        DocumentFormat::HTML->value => '@Framework/documents/invoice.html.twig',
-        DocumentFormat::ZUGFERD_XML->value => '@Framework/documents/zugferd/invoice.xml.twig',
-    ];
-
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
+        private DocumentTypeRegistry $documentTypeRegistry,
         private ValidatorInterface $validator,
     ) {
     }
@@ -50,11 +46,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         return self::KEY;
     }
 
-    public function getDocumentTypes(): array
+    public function supports(string $documentType): bool
     {
-        return [
-            DocumentType::INVOICE->value,
-        ];
+        return $documentType === DocumentType::INVOICE->value;
     }
 
     public function enrichOrderCriteria(Criteria $criteria): void
@@ -85,10 +79,17 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
     }
 
     public function provideRenderingData(
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): InvoiceRenderData {
+        $order = $input->order;
+        $generationRequest = $input->generationRequest;
+        $documentNumber = $generationRequest->documentNumber;
+
+        if ($documentNumber === null) {
+            throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
+        }
+
         $bundle = $this->documentConfigLoader->load(
             $generationRequest->documentType,
             $order->getSalesChannelId(),
@@ -102,23 +103,14 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             $order,
         );
 
-        $documentNumber = $generationRequest->documentNumber;
+        $allowNegative = $this->documentTypeRegistry
+            ->getDocumentType($generationRequest->documentType)
+            ->allowsNegativeLineItems();
 
-        if ($documentNumber === null) {
-            throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
-        }
-
-        $lineItems = LineItemView::listFromOrder($order);
+        $lineItems = LineItemView::listFromOrder($order, $allowNegative);
         $allowanceCharges = AllowanceChargeView::listFromOrder($order);
 
         return new InvoiceRenderData(
-            config: $bundle->config,
-            company: $bundle->company,
-            display: $bundle->display,
-            documentDate: $generationRequest->documentDate,
-            documentNumber: $documentNumber,
-            documentComment: $generationRequest->documentComment,
-            templatePaths: self::TEMPLATE_PATHS,
             typeCode: TypeCode::INVOICE,
             buyerReference: $order->getOrderNumber() ?? '',
             buyer: TradePartyView::buyerFromOrder($order),
@@ -142,7 +134,6 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             ),
             intraCommunityDelivery: $isIntraCommunityDelivery,
             custom: ['invoiceNumber' => $documentNumber],
-            legacyConfig: $bundle->legacyConfig,
         );
     }
 

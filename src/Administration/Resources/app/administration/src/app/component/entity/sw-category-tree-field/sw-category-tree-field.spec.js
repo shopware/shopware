@@ -185,6 +185,8 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         wrapper.vm.removeItem(intitalCategories[0]);
 
         expect(wrapper.vm.categoriesCollection).toHaveLength(1);
+        expect(wrapper.emitted('update:categoriesCollection')).toHaveLength(1);
+        expect(wrapper.emitted('update:categoriesCollection')[0][0]).toHaveLength(1);
     });
 
     it('should display more the category items', async () => {

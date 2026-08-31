@@ -12,8 +12,8 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestEmptyTaxPro
 /**
  * @internal
  */
-#[CoversClass(TaxProviderRegistry::class)]
 #[Package('checkout')]
+#[CoversClass(TaxProviderRegistry::class)]
 class TaxProviderRegistryTest extends TestCase
 {
     public function testProviderRegistered(): void

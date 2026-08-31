@@ -63,7 +63,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testGenerateCashHashWithItemsInCart(?CustomerEntity $customer, Cart $cart, bool $hasCookie, ?string $hashName = null): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getCustomer')->willReturn($customer);
+        $salesChannelContext->expects($this->atLeastOnce())->method('getCustomer')->willReturn($customer);
         if ($customer !== null) {
             $salesChannelContext->expects($this->once())
                 ->method('getRuleIdsByAreas')
@@ -173,7 +173,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testCurrencyChangeLeadsToDifferentCacheHash(): void
     {
         $request = new Request();
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
@@ -185,7 +185,7 @@ class CacheHeadersServiceTest extends TestCase
         $cookies = $response->headers->getCookies();
         static::assertEmpty($cookies);
 
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn('foo');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
@@ -198,7 +198,7 @@ class CacheHeadersServiceTest extends TestCase
         static::assertSame(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $cookies[0]->getName());
         $firstHash = $cookies[0]->getValue();
 
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn('bar');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
@@ -216,7 +216,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testCacheCookieStaysTheSameIfEventPartsAreSortedDifferently(): void
     {
         $customer = new CustomerEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -247,7 +247,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testCacheCookieHasNoCacheValueIfSetInEvent(): void
     {
         $customer = new CustomerEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $request = new Request();
@@ -308,7 +308,7 @@ class CacheHeadersServiceTest extends TestCase
         );
 
         $request = new Request();
-        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
@@ -344,7 +344,7 @@ class CacheHeadersServiceTest extends TestCase
 
     private function createCacheHashContext(string $languageId): SalesChannelContext
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getCustomer')->willReturn(null);
         $salesChannelContext->method('getRuleIds')->willReturn([]);
         $salesChannelContext->method('getRuleIdsByAreas')->willReturn([]);

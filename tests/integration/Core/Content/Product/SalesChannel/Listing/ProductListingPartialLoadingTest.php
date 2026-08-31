@@ -3,16 +3,17 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductListingPartialLoadingTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -45,59 +47,48 @@ class ProductListingPartialLoadingTest extends TestCase
         static::getContainer()->get(SystemConfigService::class)->delete(self::CONFIG_KEY);
     }
 
-    public function testListingLoadsPartialDataWhenEnabled(): void
+    public function testListingExcludesHeavyFieldsButKeepsFullEntity(): void
     {
         $this->createData();
         static::getContainer()->get(SystemConfigService::class)->set(self::CONFIG_KEY, true);
 
-        $result = $this->loadListing();
+        $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
 
-        $product = $result->getEntities()->get($this->ids->get('product0'));
-        static::assertInstanceOf(PartialEntity::class, $product);
+        // Reduced loading drops only the heavy columns and keeps a full, typed entity (no PartialEntity).
+        static::assertInstanceOf(SalesChannelProductEntity::class, $product);
 
-        $translated = $product->get('translated');
-        static::assertIsArray($translated);
-        static::assertArrayNotHasKey('description', array_filter($translated), 'description must not be loaded');
-        static::assertNotEmpty($translated['descriptionTeaser'] ?? null, 'descriptionTeaser must be loaded');
-        static::assertSame(512, mb_strlen($translated['descriptionTeaser']));
-        static::assertStringNotContainsString('<', $translated['descriptionTeaser'], 'descriptionTeaser must not contain HTML');
-        static::assertStringStartsWith('Lorem ipsum', $translated['descriptionTeaser']);
+        $translated = $product->getTranslated();
+        // Excluded heavy columns are not loaded ...
+        static::assertNull($translated['description'] ?? null, 'description must not be loaded');
+        static::assertNull($translated['keywords'] ?? null, 'keywords must not be loaded');
+        // ... but the teaser and everything else (incl. customFields) load as usual.
+        static::assertNotEmpty($translated['descriptionTeaser'] ?? null);
+        static::assertSame(['probe' => 'value'], $translated['customFields'] ?? null, 'customFields must still load');
 
-        static::assertInstanceOf(CalculatedPrice::class, $product->get('calculatedPrice'));
-
-        $calculatedPrices = $product->get('calculatedPrices');
-        static::assertNotNull($calculatedPrices);
-        static::assertCount(1, $calculatedPrices, 'advanced rule prices must survive partial loading');
-
-        $manufacturer = $product->get('manufacturer');
-        static::assertNotNull($manufacturer);
-        static::assertSame('probe-manufacturer', $manufacturer->get('translated')['name'] ?? null);
+        // Typed getters work because it stays a real SalesChannelProductEntity.
+        static::assertCount(1, $product->getCalculatedPrices(), 'advanced rule prices must survive reduced loading');
+        static::assertSame('probe-manufacturer', $product->getManufacturer()?->getTranslation('name'));
     }
 
-    public function testListingLoadsFullDataByDefault(): void
+    public function testListingLoadsAllDataByDefault(): void
     {
         $this->createData();
 
-        // No config set: reduced loading is opt-in, so full entities are loaded by default.
-        $result = $this->loadListing();
-
-        $product = $result->getEntities()->get($this->ids->get('product0'));
+        // No config set: reduced loading is opt-in, so full entities incl. description are loaded.
+        $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotEmpty($product->getTranslation('description'));
         static::assertNotEmpty($product->getTranslation('descriptionTeaser'));
     }
 
-    public function testListingLoadsFullDataWhenDisabled(): void
+    public function testListingLoadsAllDataWhenDisabled(): void
     {
         $this->createData();
         static::getContainer()->get(SystemConfigService::class)->set(self::CONFIG_KEY, false);
 
-        $result = $this->loadListing();
-
-        $product = $result->getEntities()->get($this->ids->get('product0'));
+        $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotEmpty($product->getTranslation('description'));
-        static::assertNotEmpty($product->getTranslation('descriptionTeaser'));
     }
 
     public function testExplicitCriteriaFieldsAreNotOverridden(): void
@@ -108,18 +99,16 @@ class ProductListingPartialLoadingTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFields(['id', 'name', 'description']);
 
-        $result = $this->loadListing($criteria);
+        $product = $this->loadListing($criteria)->getEntities()->get($this->ids->get('product0'));
 
-        $product = $result->getEntities()->get($this->ids->get('product0'));
+        // An explicit allowlist wins; reduced loading is not applied on top (it would conflict with addFields()).
         static::assertInstanceOf(PartialEntity::class, $product);
-
         $translated = $product->get('translated');
         static::assertIsArray($translated);
         static::assertNotEmpty($translated['description'] ?? null, 'explicitly requested description must stay loaded');
-        static::assertArrayNotHasKey('descriptionTeaser', array_filter($translated), 'partial field set must not be merged into explicit fields');
     }
 
-    public function testPartialLoadingRendersCoverMedia(): void
+    public function testCoverMediaIsLoadedAsFullEntity(): void
     {
         $this->createData();
         static::getContainer()->get(SystemConfigService::class)->set(self::CONFIG_KEY, true);
@@ -132,7 +121,6 @@ class ProductListingPartialLoadingTest extends TestCase
             'path' => 'media/probe-image.png',
             'private' => false,
             'alt' => 'Probe alt text',
-            'title' => 'Probe title',
         ]], Context::createDefaultContext());
 
         static::getContainer()->get('product.repository')->update([[
@@ -141,18 +129,12 @@ class ProductListingPartialLoadingTest extends TestCase
         ]], Context::createDefaultContext());
 
         $product = $this->loadListing()->getEntities()->get($this->ids->get('product0'));
-        static::assertInstanceOf(PartialEntity::class, $product);
+        static::assertInstanceOf(SalesChannelProductEntity::class, $product);
 
-        $media = $product->get('cover')?->get('media');
-        static::assertInstanceOf(PartialEntity::class, $media);
+        $media = $product->getCover()?->getMedia();
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertNotEmpty($media->getUrl());
 
-        // The storefront product box gates the cover image on `cover.url`; it must be resolved despite partial loading.
-        static::assertNotEmpty($media->get('url'));
-        static::assertSame('Probe alt text', $media->get('translated')['alt'] ?? null);
-        // MediaLoadedSubscriber must restore thumbnails for partially loaded media as well.
-        static::assertInstanceOf(MediaThumbnailCollection::class, $media->get('thumbnails'));
-
-        // `sw_encode_media_url` must accept the partial media without a type error and yield its url.
         $encoded = static::getContainer()->get(UrlEncodingTwigFilter::class)->encodeMediaUrl($media);
         static::assertIsString($encoded);
         static::assertStringContainsString('probe-image.png', $encoded);
@@ -192,6 +174,8 @@ class ProductListingPartialLoadingTest extends TestCase
                 'productNumber' => $this->ids->get('product' . $i),
                 'name' => 'Probe product ' . $i,
                 'description' => '<p style="color: red;">' . str_repeat('Lorem ipsum dolor sit amet. ', 500) . '</p>',
+                'keywords' => 'probe keywords',
+                'customFields' => ['probe' => 'value'],
                 'manufacturer' => ['id' => $this->ids->create('manufacturer'), 'name' => 'probe-manufacturer'],
                 'stock' => 10,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],

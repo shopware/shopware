@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token;
 
 use Lcobucci\JWT\Configuration;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\Token\Constraint\PaymentTokenRegistered;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
@@ -30,16 +30,16 @@ class PaymentTokenGeneratorTest extends TestCase
 
     private PaymentTokenGenerator $paymentTokenGenerator;
 
-    private DataValidator&MockObject $dataValidator;
+    private DataValidator&Stub $dataValidator;
 
-    private SystemConfigService&MockObject $systemConfigService;
+    private SystemConfigService&Stub $systemConfigService;
 
     private Configuration $jwtConfiguration;
 
     protected function setUp(): void
     {
-        $this->dataValidator = $this->createMock(DataValidator::class);
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
+        $this->dataValidator = static::createStub(DataValidator::class);
+        $this->systemConfigService = static::createStub(SystemConfigService::class);
         $this->jwtConfiguration = JWTConfigurationFactory::createJWTConfiguration();
 
         $this->paymentTokenGenerator = new PaymentTokenGenerator($this->jwtConfiguration, $this->dataValidator, $this->systemConfigService);
@@ -66,7 +66,8 @@ class PaymentTokenGeneratorTest extends TestCase
         $tokenStruct->paymentMethodId = self::PAYMENT_METHOD_ID;
         $token = $this->paymentTokenGenerator->encode($tokenStruct);
 
-        $this->dataValidator
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
             ->expects($this->once())
             ->method('validate')
             ->with(static::isArray(), static::callback(static function (DataValidationDefinition $constraints): bool {
@@ -82,24 +83,27 @@ class PaymentTokenGeneratorTest extends TestCase
                 return true;
             }));
 
-        $this->paymentTokenGenerator->decode($token);
+        $this->createPaymentTokenGenerator(dataValidator: $dataValidator)->decode($token);
     }
 
     public function testGetTokenLifetimeUsesSystemConfig(): void
     {
-        $this->systemConfigService
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService
             ->expects($this->once())
             ->method('getInt')
             ->with('core.cart.paymentFinalizeTransactionTime', self::SALES_CHANNEL_ID)
             ->willReturn(10); // minutes
 
+        $paymentTokenGenerator = $this->createPaymentTokenGenerator(systemConfigService: $systemConfigService);
+
         $tokenStruct = new PaymentToken();
         $tokenStruct->salesChannelId = self::SALES_CHANNEL_ID;
         $tokenStruct->paymentMethodId = self::PAYMENT_METHOD_ID;
 
-        $token = $this->paymentTokenGenerator->encode($tokenStruct);
+        $token = $paymentTokenGenerator->encode($tokenStruct);
 
-        $decoded = $this->paymentTokenGenerator->decode($token);
+        $decoded = $paymentTokenGenerator->decode($token);
 
         // Lifetime should be 10 * 60 = 600 seconds; decode doesn't reveal lifetime directly but getTokenLifetime used during encode to set exp.
         // We'll assert that exp claim (expiration) is approximately now + 600s
@@ -109,5 +113,14 @@ class PaymentTokenGeneratorTest extends TestCase
         static::assertIsInt($exp);
         static::assertGreaterThanOrEqual($now + 590, $exp);
         static::assertLessThanOrEqual($now + 610, $exp);
+    }
+
+    private function createPaymentTokenGenerator(?DataValidator $dataValidator = null, ?SystemConfigService $systemConfigService = null): PaymentTokenGenerator
+    {
+        return new PaymentTokenGenerator(
+            $this->jwtConfiguration,
+            $dataValidator ?? $this->dataValidator,
+            $systemConfigService ?? $this->systemConfigService
+        );
     }
 }

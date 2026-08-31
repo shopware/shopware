@@ -16,11 +16,11 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:create',
     description: 'Create a new theme',
 )]
-#[Package('framework')]
 class ThemeCreateCommand extends Command
 {
     /**
@@ -37,7 +37,11 @@ class ThemeCreateCommand extends Command
     {
         $this
             ->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name')
-            ->addOption('static', null, null, 'Theme will be created in the static-plugins folder');
+            ->addOption('static', null, null, 'Theme will be created in the static-plugins folder')
+            ->addOption('full', null, null, 'Also scaffold a theme config, snippet files, and an SCSS folder structure (shorthand for --with-config --with-snippets --with-scss)')
+            ->addOption('with-config', null, null, 'Also scaffold a theme config.xml')
+            ->addOption('with-snippets', null, null, 'Also scaffold storefront snippet files')
+            ->addOption('with-scss', null, null, 'Also scaffold an SCSS 7-1 folder structure');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -45,6 +49,10 @@ class ThemeCreateCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $themeName = $input->getArgument('theme-name');
         $staticPrefix = $input->getOption('static') ? 'static-' : '';
+        $full = (bool) $input->getOption('full');
+        $withConfig = $full || $input->getOption('with-config');
+        $withSnippets = $full || $input->getOption('with-snippets');
+        $withScss = $full || $input->getOption('with-scss');
 
         if (!$themeName) {
             $question = new Question('Please enter a theme name: ');
@@ -90,6 +98,22 @@ class ThemeCreateCommand extends Command
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront');
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js');
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName);
+
+            if ($withScss) {
+                $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/abstracts');
+                $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/base');
+                $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/components');
+                $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/layout');
+                $this->createDirectory($directory . '/src/Resources/app/storefront/src/scss/pages');
+            }
+
+            if ($withConfig) {
+                $this->createDirectory($directory . '/src/Resources/config');
+            }
+
+            if ($withSnippets) {
+                $this->createDirectory($directory . '/src/Resources/snippet');
+            }
         } catch (ThemeException $e) {
             $io->error($e->getMessage());
 
@@ -102,8 +126,8 @@ class ThemeCreateCommand extends Command
         $variableOverridesFile = $directory . '/src/Resources/app/storefront/src/scss/overrides.scss';
 
         $composer = str_replace(
-            ['#namespace#', '#class#'],
-            [$pluginName, $pluginName],
+            ['#namespace#', '#class#', '#composer-name#'],
+            [$pluginName, $pluginName, 'custom/' . $snakeCaseName],
             $this->getComposerTemplate()
         );
 
@@ -125,9 +149,32 @@ class ThemeCreateCommand extends Command
         $this->filesystem->dumpFile($variableOverridesFile, $this->getVariableOverridesTemplate());
 
         $this->filesystem->touch($directory . '/src/Resources/app/storefront/src/assets/.gitkeep');
-        $this->filesystem->touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
         $this->filesystem->touch($directory . '/src/Resources/app/storefront/src/main.js');
         $this->filesystem->touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '/' . $snakeCaseName . '.js');
+
+        if ($withConfig) {
+            $this->filesystem->dumpFile($directory . '/src/Resources/config/config.xml', $this->getConfigTemplate());
+        }
+
+        if ($withSnippets) {
+            $this->filesystem->dumpFile($directory . '/src/Resources/snippet/storefront.de-DE.json', $this->getSnippetTemplate());
+            $this->filesystem->dumpFile($directory . '/src/Resources/snippet/storefront.en-GB.json', $this->getSnippetTemplate());
+        }
+
+        if ($withScss) {
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/base.scss', $this->getBaseScssTemplate());
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/abstracts/_variables.scss', "// Theme-specific SCSS variables.\n");
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/abstracts/_mixins.scss', "// Theme-specific SCSS mixins.\n");
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/base/_reset.scss', "// Base element resets.\n");
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/base/_typography.scss', "// Base typography styles.\n");
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/components/_buttons.scss', "// Button component styles.\n");
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/layout/_header.scss', "// Header layout styles.\n");
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/layout/_footer.scss', "// Footer layout styles.\n");
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/layout/_navigation.scss', "// Navigation layout styles.\n");
+            $this->filesystem->dumpFile($directory . '/src/Resources/app/storefront/src/scss/pages/_home.scss', "// Homepage-specific styles.\n");
+        } else {
+            $this->filesystem->touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
+        }
 
         return self::SUCCESS;
     }
@@ -161,10 +208,13 @@ EOL;
     {
         return <<<EOL
 {
-  "name": "swag/theme-skeleton",
+  "name": "#composer-name#",
   "description": "Theme skeleton plugin",
   "type": "shopware-platform-plugin",
   "license": "MIT",
+  "require": {
+    "shopware/core": "~6.7.0"
+  },
   "autoload": {
     "psr-4": {
       "#namespace#\\\\": "src/"
@@ -178,6 +228,58 @@ EOL;
     }
   }
 }
+EOL;
+    }
+
+    private function getConfigTemplate(): string
+    {
+        return <<<EOL
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+        <title>Theme configuration</title>
+
+        <input-field type="text">
+            <name>exampleField</name>
+            <label>Example field</label>
+        </input-field>
+    </card>
+
+</config>
+EOL;
+    }
+
+    private function getSnippetTemplate(): string
+    {
+        return <<<EOL
+{
+}
+EOL;
+    }
+
+    private function getBaseScssTemplate(): string
+    {
+        return <<<EOL
+// Abstracts
+@import "abstracts/variables";
+@import "abstracts/mixins";
+
+// Base
+@import "base/reset";
+@import "base/typography";
+
+// Components
+@import "components/buttons";
+
+// Layout
+@import "layout/header";
+@import "layout/footer";
+@import "layout/navigation";
+
+// Pages
+@import "pages/home";
 EOL;
     }
 

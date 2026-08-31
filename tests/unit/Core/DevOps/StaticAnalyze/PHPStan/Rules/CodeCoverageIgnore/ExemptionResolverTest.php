@@ -6,18 +6,23 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
-use PHPStan\Testing\PHPStanTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPStan\Reflection\ReflectionProvider;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\ExemptionResolver;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[CoversClass(ExemptionResolver::class)]
-class ExemptionResolverTest extends PHPStanTestCase
+#[Package('framework')]
+#[CoversNothing]
+class ExemptionResolverTest extends TestCase
 {
+    private const EXISTING_TEST = 'Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookHealthServiceTest';
+
     /**
      * @param array<string, string> $useMap
      */
@@ -25,7 +30,13 @@ class ExemptionResolverTest extends PHPStanTestCase
     #[DataProvider('caseProvider')]
     public function testIsExempted(string $docComment, array $useMap, bool $expected): void
     {
-        $resolver = new ExemptionResolver(self::createReflectionProvider());
+        // a real ReflectionProvider would boot the whole PHPStan container; the resolver
+        // only asks hasClass(), and the end-to-end path runs in the devops rule test
+        $reflectionProvider = static::createStub(ReflectionProvider::class);
+        $reflectionProvider->method('hasClass')
+            ->willReturnCallback(static fn (string $class): bool => $class === self::EXISTING_TEST);
+
+        $resolver = new ExemptionResolver($reflectionProvider);
 
         $node = $this->makeClassWithDoc($docComment);
 
@@ -42,7 +53,7 @@ class ExemptionResolverTest extends PHPStanTestCase
         yield 'docblock without @see' => ['/** @internal */', [], false];
 
         yield 'FQCN to existing integration test exempts' => [
-            '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest */',
+            '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest */',
             [],
             true,
         ];
@@ -60,25 +71,25 @@ class ExemptionResolverTest extends PHPStanTestCase
         ];
 
         yield '::method suffix on the reference is stripped' => [
-            '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest::testFoo */',
+            '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest::testFoo */',
             [],
             true,
         ];
 
         yield 'short-form @see resolved through the use map exempts' => [
-            '/** @see RelatedWebhooksTest */',
-            ['RelatedWebhooksTest' => 'Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest'],
+            '/** @see WebhookHealthServiceTest */',
+            ['WebhookHealthServiceTest' => 'Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest'],
             true,
         ];
 
         yield 'short-form @see not in the use map does not exempt' => [
-            '/** @see RelatedWebhooksTest */',
+            '/** @see WebhookHealthServiceTest */',
             [],
             false,
         ];
 
         yield 'multiple @see; one valid is enough' => [
-            "/**\n * @see SomeBogus\n * @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\RelatedWebhooksTest\n */",
+            "/**\n * @see SomeBogus\n * @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest\n */",
             [],
             true,
         ];

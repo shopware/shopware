@@ -196,6 +196,17 @@
             :options="hreflangLocalisationOptions"
         />
         {% endblock %}
+
+        {% block sw_sales_channel_detail_domains_is_external_storefront %}
+        <mt-checkbox
+            v-if="salesChannelIsHeadless"
+            v-model:checked="currentDomain.isExternalStorefront"
+            class="sw-sales-channel-detail-domains__is-external-storefront"
+            :disabled="isExternalStorefrontDisabled && !currentDomain.isExternalStorefront"
+            :label="$t('sw-sales-channel.detail.labelIsExternalStorefront')"
+            :help-text="$t('sw-sales-channel.detail.helpTextIsExternalStorefront')"
+        />
+        {% endblock %}
         {% endblock %}
 
         <template #modal-footer>
@@ -253,7 +264,7 @@
                 variant="critical"
                 @click="onConfirmDeleteDomain(deleteDomain)"
             >
-                {{ $t('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
+                {{ $t('global.default.delete') }}
             </mt-button>
             {% endblock %}
         </template>

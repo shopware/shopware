@@ -78,6 +78,7 @@ type ActionSequence = Entity<'flow_sequence'> & {
         documentTypes?: Array<{
             documentType: string;
         }>;
+        fileFormats?: string[];
     };
 };
 
@@ -640,16 +641,35 @@ export default class FlowBuilderService {
         const {
             sequence: { config },
             data,
+            translator,
         } = context;
 
-        if (config.documentType) {
-            Object.assign(config, {
-                documentType: [config],
-            });
+        if (config.fileFormats?.length) {
+            const documentTypeName = config.documentType
+                ? Shopware.Service('documentV2Service').getDocumentTypeLabel(config.documentType)
+                : '';
+
+            const fileFormatLabels = config.fileFormats.map((format) =>
+                translator.$t(Shopware.Service('documentV2Service').getFileFormatSnippet(format)),
+            );
+
+            if (!fileFormatLabels.length) {
+                return Shopware.Helper.SanitizerHelper.sanitize(documentTypeName);
+            }
+
+            const formatsLabel = this.convertTagString(fileFormatLabels);
+
+            return Shopware.Helper.SanitizerHelper.sanitize(
+                `${documentTypeName} <span class="sw-flow-sequence-action__file-formats">(${formatsLabel})</span>`,
+            );
         }
 
-        const documentType = config.documentTypes?.map((type) => {
-            return data.documentTypes.find((item) => item.technicalName === type.documentType)?.translated?.name || '';
+        const documentTypesConfig = config.documentType ? [config] : config.documentTypes;
+
+        const documentType = documentTypesConfig?.map((type) => {
+            const name = data.documentTypes.find((item) => item.technicalName === type.documentType)?.translated?.name || '';
+
+            return Shopware.Helper.SanitizerHelper.sanitize(name);
         });
 
         if (!documentType) {

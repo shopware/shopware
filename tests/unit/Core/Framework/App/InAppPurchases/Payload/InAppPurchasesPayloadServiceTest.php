@@ -30,8 +30,8 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 /**
  * @internal
  */
-#[CoversClass(InAppPurchasesPayloadService::class)]
 #[Package('checkout')]
+#[CoversClass(InAppPurchasesPayloadService::class)]
 class InAppPurchasesPayloadServiceTest extends TestCase
 {
     private IdsCollection $ids;

@@ -61,16 +61,19 @@ class PaymentPayloadServiceTest extends TestCase
 
     public function testRequest(): void
     {
-        $definition = new OrderTransactionDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $this->helper->expects($this->never())->method('createRequestOptions');
+        $this->client->expects($this->never())->method('request');
 
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definition = new OrderTransactionDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
+        $definitionInstanceRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityName')
             ->willReturn($definition);
 
         $shopId = ShopId::v2($this->ids->get('shop-id'));
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
             ->willReturn($shopId);
@@ -118,7 +121,7 @@ class PaymentPayloadServiceTest extends TestCase
 
     public function testRequestReturnsExpectedResponse(): void
     {
-        $payload = $this->createMock(PaymentPayloadInterface::class);
+        $payload = static::createStub(PaymentPayloadInterface::class);
         $app = new AppEntity();
         $app->setName('InsecureApp');
         $app->setVersion('1.0.0');
@@ -163,7 +166,7 @@ class PaymentPayloadServiceTest extends TestCase
 
     public function testRequestWithMalformedJsonThrows(): void
     {
-        $payload = $this->createMock(PaymentPayloadInterface::class);
+        $payload = static::createStub(PaymentPayloadInterface::class);
         $app = new AppEntity();
         $app->setName('InsecureApp');
         $app->setVersion('1.0.0');

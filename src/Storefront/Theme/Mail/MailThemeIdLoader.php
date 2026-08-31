@@ -5,16 +5,15 @@ namespace Shopware\Storefront\Theme\Mail;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Storefront\Theme\Mail\MailThemeIdLoaderTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see MailThemeIdLoaderTest
+ * @see \Shopware\Tests\Integration\Storefront\Theme\Mail\MailThemeIdLoaderTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class MailThemeIdLoader
 {
     public function __construct(private readonly Connection $connection)

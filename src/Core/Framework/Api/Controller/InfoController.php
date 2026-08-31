@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -37,8 +38,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class InfoController extends AbstractController
 {
     /**
@@ -59,6 +60,7 @@ class InfoController extends AbstractController
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
+        private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
     ) {
     }
 
@@ -85,7 +87,7 @@ class InfoController extends AbstractController
     /**
      * @deprecated tag:v6.8.0 - Route will be removed. Use /api/_info/message-stats.json instead.
      */
-    #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
+    #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['message_queue_stats:read']], methods: ['GET'])]
     public function queue(): JsonResponse
     {
         if (Feature::isActive('v6.8.0.0')) { // avoiding polluting logs, as our code still calling this endpoint
@@ -108,7 +110,7 @@ class InfoController extends AbstractController
         ], array_values($entries)));
     }
 
-    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', methods: ['GET'])]
+    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['message_queue_stats:read']], methods: ['GET'])]
     public function messageStats(): JsonResponse
     {
         $response = new JsonResponse();
@@ -202,7 +204,8 @@ class InfoController extends AbstractController
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
-                'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
+                'private_allowed_extensions' => $this->mediaFileExtensionListProvider->getAllowedExtensions(true, $context),
+                'private_allowed_mime_types_by_extension' => $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context),
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),

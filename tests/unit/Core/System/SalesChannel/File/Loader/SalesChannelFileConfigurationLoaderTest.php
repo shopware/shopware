@@ -27,7 +27,6 @@ class SalesChannelFileConfigurationLoaderTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $configuration = $this->createConfiguration($salesChannelId, 'agentic', 'llms.txt');
 
-        /** @var StaticEntityRepository<SalesChannelFileCollection> $repository */
         $repository = new StaticEntityRepository([
             function (Criteria $criteria, Context $searchContext) use ($context, $salesChannelId, $configuration): SalesChannelFileCollection {
                 static::assertSame($context, $searchContext);
@@ -52,9 +51,8 @@ class SalesChannelFileConfigurationLoaderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannelId = Uuid::randomHex();
         $llms = $this->createConfiguration($salesChannelId, 'agentic', 'llms.txt');
-        $agents = $this->createConfiguration($salesChannelId, 'agentic', 'agents.md');
+        $agents = $this->createConfiguration($salesChannelId, 'agentic', 'AGENTS.md');
 
-        /** @var StaticEntityRepository<SalesChannelFileCollection> $repository */
         $repository = new StaticEntityRepository([
             function (Criteria $criteria, Context $searchContext) use ($context, $salesChannelId, $llms, $agents): SalesChannelFileCollection {
                 static::assertSame($context, $searchContext);

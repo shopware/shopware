@@ -88,8 +88,7 @@
       "chooseSectionTitle": "Choose a section type to start with.",
       "chooseSectionHelpText": "Sections divide your working space into areas and help you to be more creative. You may combine different sections and move or delete them at any time.",
       "chooseNameTitle": "How do you want to label your new layout?",
-      "createLayout": "Create layout",
-      "stepBack": "Back"
+      "createLayout": "Create layout"
     },
     "detail": {
       "alert": {
@@ -100,7 +99,6 @@
         "cssClassField": "You can add one or more CSS classes separated by spaces"
       },
       "label": {
-        "buttonSave": "Save",
         "pageName": "Layout name",
         "pageNamePlaceholder": "Enter layout name...",
         "pageEntity": "Custom Entity",
@@ -501,7 +499,7 @@
             "autoPlay": "Play automatically",
             "loop": "Play in a loop",
             "showControls": "Show controls",
-            "controlsColor": "Change controls color",
+            "controlsColor": "Change controls colour",
             "byLine": "Show video creator",
             "showPortrait": "Show picture of the creator",
             "showTitle": "Show video title",
@@ -877,10 +875,7 @@
       },
       "cmsListItem": {
         "emptyText": "No layout assigned",
-        "edit": "Edit",
         "rename": "Rename",
-        "delete": "Delete",
-        "duplicate": "Duplicate",
         "view": "View",
         "addPreviewImage": "Add preview image",
         "setAsDefaultProductList": "Set as product listing default",
@@ -894,8 +889,7 @@
           "renameModalTitle": "Rename layout",
           "textRenameConfirm": "Choose a new name for \"{pageName}\":",
           "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",
-          "buttonRename": "Rename",
-          "buttonDelete": "Delete"
+          "buttonRename": "Rename"
         }
       }
     }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Service\Event;
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -14,14 +15,18 @@ use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @phpstan-import-type MailNameCombination from AbstractMailFactory
+ * @phpstan-import-type Contents from AbstractMailFactory
+ */
 #[Package('after-sales')]
 class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.sent';
 
     /**
-     * @param array<string, mixed> $recipients
-     * @param array<string, mixed> $contents
+     * @param MailNameCombination $recipients
+     * @param Contents $contents
      */
     public function __construct(
         private readonly string $subject,
@@ -68,7 +73,7 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
     }
 
     /**
-     * @return array<string, mixed>
+     * @return Contents
      */
     public function getContents(): array
     {
@@ -76,7 +81,7 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
     }
 
     /**
-     * @return array<string, mixed>
+     * @return MailNameCombination
      */
     public function getRecipients(): array
     {

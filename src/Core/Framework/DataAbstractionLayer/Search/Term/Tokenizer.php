@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -12,18 +13,17 @@ class Tokenizer implements TokenizerInterface
      * @param string[] $preservedChars
      *
      * @internal
-     *
-     *  @deprecated tag:v6.8.0 - Property `$tokenMinimumLength` will be removed
      */
     public function __construct(
+        /**
+         * @deprecated tag:v6.8.0 - Property `$tokenMinimumLength` will be removed
+         */
         private readonly int $tokenMinimumLength,
         private readonly array $preservedChars = ['-', '_', '+', '.', '@']
     ) {
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $tokenMinimumLength will be added
-     */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'tokenMinimumLength', parameterType: '?int', defaultValue: null)]
     public function tokenize(string $string/* , ?int $tokenMinimumLength = null */): array
     {
         if (\func_num_args() === 2) {

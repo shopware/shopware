@@ -63,9 +63,15 @@ parameters:
 
         allowedStorefrontRouteNamespaces:
             - Shopware\Storefront
+            # Telemetry route resolvers classify storefront routes by name; they don't depend on the Storefront package being installed
+            - Shopware\Core\Framework\Routing\Telemetry
         allowedUnitTestClassNamespaces:
             - Shopware\Tests\Unit\
             - Shopware\Tests\Migration\
+        # narrows NoCreateMockWithoutExpectationsRule enforcement; consumers rolling the rule out
+        # domain by domain append their enabled test namespaces to this list
+        createMockWithoutExpectationsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -77,4 +83,5 @@ parametersSchema:
         allowedNonDomainExceptions: list(string),
         allowedStorefrontRouteNamespaces: list(string),
         allowedUnitTestClassNamespaces: list(string),
+        createMockWithoutExpectationsEnabledNamespaces: list(string),
 ])

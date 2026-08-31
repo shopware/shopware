@@ -15,7 +15,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(StorefrontScriptResponseFactoryFacade::class)]
 class StorefrontScriptResponseFactoryFacadeTest extends TestCase
 {

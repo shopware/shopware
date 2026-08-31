@@ -123,7 +123,7 @@ class SalesChannelFileControllerTest extends TestCase
     public function testPreviewRendersUnsavedTemplateOverridesForSalesChannel(): void
     {
         $salesChannelId = Uuid::randomHex();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
         $contextFactory
@@ -172,9 +172,9 @@ class SalesChannelFileControllerTest extends TestCase
         ?AbstractSalesChannelContextFactory $salesChannelContextFactory = null,
     ): SalesChannelFileController {
         return new SalesChannelFileController(
-            $administrationReader ?? $this->createMock(SalesChannelFileAdministrationReader::class),
-            $salesChannelFileLoader ?? $this->createMock(SalesChannelFileLoader::class),
-            $salesChannelContextFactory ?? $this->createMock(AbstractSalesChannelContextFactory::class),
+            $administrationReader ?? static::createStub(SalesChannelFileAdministrationReader::class),
+            $salesChannelFileLoader ?? static::createStub(SalesChannelFileLoader::class),
+            $salesChannelContextFactory ?? static::createStub(AbstractSalesChannelContextFactory::class),
             new SalesChannelFileRequestPathResolver(),
         );
     }

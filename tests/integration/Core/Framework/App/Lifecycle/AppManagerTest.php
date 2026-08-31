@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
@@ -53,6 +54,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class AppManagerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -329,12 +331,12 @@ class AppManagerTest extends TestCase
             'webhooks' => [
                 [
                     'name' => 'hook1',
-                    'url' => 'oldUrl.com',
+                    'url' => 'https://old-url.example.com',
                     'eventName' => 'testEvent',
                 ],
                 [
                     'name' => 'shouldGetDeleted',
-                    'url' => 'test.com',
+                    'url' => 'https://test.example.com',
                     'eventName' => 'anotherTest',
                 ],
             ],
@@ -488,12 +490,12 @@ class AppManagerTest extends TestCase
             'webhooks' => [
                 [
                     'name' => 'hook1',
-                    'url' => 'oldUrl.com',
+                    'url' => 'https://old-url.example.com',
                     'eventName' => 'testEvent',
                 ],
                 [
                     'name' => 'shouldGetDeleted',
-                    'url' => 'test.com',
+                    'url' => 'https://test.example.com',
                     'eventName' => 'anotherTest',
                 ],
             ],
@@ -1116,7 +1118,7 @@ class AppManagerTest extends TestCase
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('appShippingMethods.shippingMethod');
 
-        $app = $this->appRepository->search($criteria, $this->context)->first();
+        $app = $this->appRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(AppEntity::class, $app);
 
         $appShippingMethods = $app->getAppShippingMethods();
@@ -1224,7 +1226,7 @@ class AppManagerTest extends TestCase
 
         $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertCount(16, $privileges);
+        static::assertCount(17, $privileges);
 
         static::assertContains('product:read', $privileges);
         static::assertContains('product:create', $privileges);
@@ -1242,6 +1244,8 @@ class AppManagerTest extends TestCase
         static::assertContains('custom_field_set:update', $privileges);
         static::assertContains('order:read', $privileges);
         static::assertContains('user_change_me', $privileges);
+        // implied by the manifest's tax provider
+        static::assertContains('tax_processor', $privileges);
     }
 
     private function assertDefaultWebhooks(string $appId): void

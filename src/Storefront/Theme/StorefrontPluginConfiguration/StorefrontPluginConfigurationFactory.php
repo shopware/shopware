@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfigurationFactory
 {
     /**

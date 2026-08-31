@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\DependencyInjection;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class DependencyInjectionException extends HttpException
 {

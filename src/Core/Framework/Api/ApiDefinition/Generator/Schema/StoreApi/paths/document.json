@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/document/download/{documentId}/{deepLinkCode}": {
@@ -26,6 +26,25 @@
                         "in": "path",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "description": "Selects the persisted document v2 representation. Defaults to PDF.",
+                        "schema": {
+                            "type": "string",
+                            "default": "pdf",
+                            "enum": [
+                                "pdf",
+                                "html",
+                                "zugferd_xml",
+                                "zugferd_embedded_pdf"
+                            ]
                         }
                     }
                 ],
@@ -73,8 +92,22 @@
                     "204": {
                         "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
                     "403": {
                         "description": "Forbidden."
+                    },
+                    "429": {
+                        "description": "Too many guest authentication attempts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Document not found."
@@ -132,6 +165,25 @@
                             "type": "string"
                         },
                         "description": "Required for guest orders to verify the user; ignored for orders with logged-in user."
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "description": "Selects the persisted document v2 representation. Defaults to PDF.",
+                        "schema": {
+                            "type": "string",
+                            "default": "pdf",
+                            "enum": [
+                                "pdf",
+                                "html",
+                                "zugferd_xml",
+                                "zugferd_embedded_pdf"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -159,8 +211,22 @@
                     "204": {
                         "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
                     "403": {
                         "description": "Forbidden."
+                    },
+                    "429": {
+                        "description": "Too many guest authentication attempts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Document not found."

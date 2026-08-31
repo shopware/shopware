@@ -7,8 +7,11 @@ use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
 use Shopware\Core\Installer\Configuration\ShopConfigurationService;
@@ -32,6 +35,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShopConfigurationController::class)]
 class ShopConfigurationControllerTest extends TestCase
 {
@@ -42,7 +46,7 @@ class ShopConfigurationControllerTest extends TestCase
 
     private MockObject&RouterInterface $router;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private MockObject&EnvConfigWriter $envConfigWriter;
 
@@ -50,12 +54,10 @@ class ShopConfigurationControllerTest extends TestCase
 
     private MockObject&AdminConfigurationService $adminConfigService;
 
-    private TranslationConfig $translationConfig;
-
     private ShopConfigurationController $controller;
 
     /**
-     * @var TranslatorInterface&MockObject
+     * @var TranslatorInterface&Stub
      */
     private TranslatorInterface $translator;
 
@@ -64,16 +66,16 @@ class ShopConfigurationControllerTest extends TestCase
         $this->twig = $this->createMock(Environment::class);
         $this->router = $this->createMock(RouterInterface::class);
 
-        $this->connection = $this->createMock(Connection::class);
-        $connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
+        $this->connection = static::createStub(Connection::class);
+        $connectionFactory = static::createStub(DatabaseConnectionFactory::class);
         $connectionFactory->method('getConnection')->willReturn($this->connection);
 
         $this->envConfigWriter = $this->createMock(EnvConfigWriter::class);
         $this->shopConfigService = $this->createMock(ShopConfigurationService::class);
         $this->adminConfigService = $this->createMock(AdminConfigurationService::class);
-        $this->translator = $this->createMock(TranslatorInterface::class);
+        $this->translator = static::createStub(TranslatorInterface::class);
 
-        $this->translationConfig = new TranslationConfig(
+        $translationConfig = new TranslationConfig(
             new Uri('http://localhost:8000'),
             [],
             [],
@@ -90,7 +92,7 @@ class ShopConfigurationControllerTest extends TestCase
             $this->shopConfigService,
             $this->adminConfigService,
             $this->translator,
-            $this->translationConfig,
+            $translationConfig,
             [
                 'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                 'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
@@ -118,8 +120,12 @@ class ShopConfigurationControllerTest extends TestCase
         $request->setSession($session);
         $request->attributes->set('_locale', $requestLocale);
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->router->expects($this->never())->method('generate');
+        $this->envConfigWriter->expects($this->never())->method('writeConfig');
+        $this->shopConfigService->expects($this->never())->method('updateShop');
+        $this->adminConfigService->expects($this->never())->method('createAdmin');
+
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([
                 ['iso3' => 'DEU', 'iso' => 'DE'],
                 ['iso3' => 'GBR', 'iso' => 'GB'],
@@ -174,6 +180,10 @@ class ShopConfigurationControllerTest extends TestCase
         $session = new Session(new MockArraySessionStorage());
         $request->setMethod('GET');
         $request->setSession($session);
+
+        $this->envConfigWriter->expects($this->never())->method('writeConfig');
+        $this->shopConfigService->expects($this->never())->method('updateShop');
+        $this->adminConfigService->expects($this->never())->method('createAdmin');
 
         $this->router->expects($this->once())->method('generate')
             ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
@@ -232,13 +242,16 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->with($connectionInfo, $expectedShopInfo);
         $this->shopConfigService->expects($this->once())->method('updateShop')->with($expectedShopInfo, $this->connection);
 
+        $localeId = Uuid::randomHex();
+        $this->connection->method('fetchOne')->willReturn($localeId);
+
         $expectedAdmin = [
             'email' => 'test@test.com',
             'username' => 'admin',
             'firstName' => 'first',
             'lastName' => 'last',
             'password' => 'shopware',
-            'locale' => 'de-DE',
+            'localeId' => $localeId,
         ];
         $this->adminConfigService->expects($this->once())->method('createAdmin')->with($expectedAdmin, $this->connection);
 
@@ -274,13 +287,17 @@ class ShopConfigurationControllerTest extends TestCase
             'SCRIPT_NAME' => '/shop/index.php',
         ]);
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([
                 ['iso3' => 'DEU', 'iso' => 'DE'],
                 ['iso3' => 'GBR', 'iso' => 'GB'],
                 ['iso3' => 'USA', 'iso' => 'US'],
             ]);
+        $this->connection->method('fetchOne')->willReturn('not-relevant');
+
+        $this->router->expects($this->never())->method('generate');
+        $this->shopConfigService->expects($this->never())->method('updateShop');
+        $this->adminConfigService->expects($this->never())->method('createAdmin');
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
@@ -350,9 +367,13 @@ class ShopConfigurationControllerTest extends TestCase
             ['iso3' => 'DEU', 'iso' => 'DE'],
         ];
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn($countries);
+        $this->connection->method('fetchOne')->willReturn('not-relevant');
+
+        $this->router->expects($this->never())->method('generate');
+        $this->shopConfigService->expects($this->never())->method('updateShop');
+        $this->adminConfigService->expects($this->never())->method('createAdmin');
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 

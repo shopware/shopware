@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_8;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_8\Migration1779977359RemoveMailTemplateTypeTemplateDataColumn;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_8\Migration1779977359RemoveMailTemplateTypeTempla
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(Migration1779977359RemoveMailTemplateTypeTemplateDataColumn::class)]
 class Migration1779977359RemoveMailTemplateTypeTemplateDataColumnTest extends TestCase
 {

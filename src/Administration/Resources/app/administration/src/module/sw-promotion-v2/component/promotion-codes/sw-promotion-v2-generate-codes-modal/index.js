@@ -44,6 +44,22 @@ export default {
         };
     },
 
+    computed: {
+        hasValidPattern() {
+            return /%[sd]/.test(this.promotion.individualCodePattern ?? '');
+        },
+
+        patternError() {
+            if (this.hasValidPattern) {
+                return null;
+            }
+
+            return {
+                detail: this.$t('sw-promotion-v2.detail.base.codes.individual.generateModal.invalidPatternException'),
+            };
+        },
+    },
+
     watch: {
         pattern: {
             deep: true,
@@ -88,7 +104,16 @@ export default {
             }
 
             const regexp = /(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/g;
-            const groups = regexp.exec(currentPattern).groups;
+            const match = regexp.exec(currentPattern);
+
+            // A saved pattern without variables is invalid and can only be corrected in custom mode
+            if (!match) {
+                this.customPatternMode = true;
+
+                return;
+            }
+
+            const groups = match.groups;
 
             // The saved pattern is NOT custom, if it only consists of multiple "%s"
             this.customPatternMode = groups.replacement.includes('d');
@@ -107,11 +132,24 @@ export default {
         },
 
         updatePreview: debounce(function updatePreview() {
+            if (!this.hasValidPattern) {
+                this.preview = '';
+
+                return;
+            }
+
             this.isGenerating = true;
-            this.promotionCodeApiService.generatePreview(this.promotion.individualCodePattern).then((result) => {
-                this.isGenerating = false;
-                this.preview = result;
-            });
+            this.promotionCodeApiService
+                .generatePreview(this.promotion.individualCodePattern)
+                .then((result) => {
+                    this.preview = result;
+                })
+                .catch(() => {
+                    this.preview = '';
+                })
+                .finally(() => {
+                    this.isGenerating = false;
+                });
         }, 500),
 
         onGenerate() {
@@ -132,6 +170,9 @@ export default {
                                 break;
                             case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
                                 errorType = 'alreadyInUseException';
+                                break;
+                            case 'CHECKOUT__INVALID_CODE_PATTERN':
+                                errorType = 'invalidPatternException';
                                 break;
                             default:
                                 errorType = 'unknownErrorCode';

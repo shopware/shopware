@@ -1,0 +1,133 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderTransactionCaptureRefund": {
+                "description": "Added since version: 6.4.12.0",
+                "required": [
+                    "id",
+                    "captureId",
+                    "stateId",
+                    "amount"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "captureId": {
+                        "description": "Unique identity of order transaction capture.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "captureVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "stateId": {
+                        "description": "Unique identity of order state.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "externalReference": {
+                        "description": "External payment provider token.",
+                        "type": "string"
+                    },
+                    "reason": {
+                        "description": "Reason for refunding the amount for an order.",
+                        "type": "string"
+                    },
+                    "amount": {
+                        "required": [
+                            "unitPrice",
+                            "totalPrice",
+                            "quantity"
+                        ],
+                        "properties": {
+                            "unitPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "totalPrice": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "quantity": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "calculatedTaxes": {
+                                "type": "object"
+                            },
+                            "taxRules": {
+                                "type": "object"
+                            },
+                            "referencePrice": {
+                                "type": "object"
+                            },
+                            "listPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "discount": {
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "percentage": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "regulationPrice": {
+                                "properties": {
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "stateMachineState": {
+                        "$ref": "#/components/schemas/StateMachineState"
+                    },
+                    "transactionCapture": {
+                        "$ref": "#/components/schemas/OrderTransactionCapture"
+                    },
+                    "positions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderTransactionCaptureRefundPosition"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

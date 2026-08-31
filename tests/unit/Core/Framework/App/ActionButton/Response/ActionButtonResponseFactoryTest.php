@@ -21,11 +21,13 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ActionButtonResponseFactory::class)]
 class ActionButtonResponseFactoryTest extends TestCase
 {
@@ -35,7 +37,7 @@ class ActionButtonResponseFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $signer = $this->createMock(QuerySigner::class);
+        $signer = static::createStub(QuerySigner::class);
         $signer->method('signUri')->willReturn(new Uri('http://signed.url'));
 
         $this->actionButtonResponseFactory = new ActionButtonResponseFactory([

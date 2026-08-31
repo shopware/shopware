@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -25,26 +25,26 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(DownloadRoute::class)]
 #[Package('checkout')]
+#[CoversClass(DownloadRoute::class)]
 class DownloadRouteTest extends TestCase
 {
     /**
-     * @var MockObject&EntityRepository<OrderLineItemDownloadCollection>
+     * @var Stub&EntityRepository<OrderLineItemDownloadCollection>
      */
-    private MockObject&EntityRepository $downloadRepository;
+    private Stub&EntityRepository $downloadRepository;
 
-    private MockObject&DownloadResponseGenerator $downloadResponseGenerator;
+    private Stub&DownloadResponseGenerator $downloadResponseGenerator;
 
-    private MockObject&SalesChannelContext $salesChannelContext;
+    private Stub&SalesChannelContext $salesChannelContext;
 
     private DownloadRoute $downloadRoute;
 
     protected function setUp(): void
     {
-        $this->downloadRepository = $this->createMock(EntityRepository::class);
-        $this->downloadResponseGenerator = $this->createMock(DownloadResponseGenerator::class);
-        $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $this->downloadRepository = static::createStub(EntityRepository::class);
+        $this->downloadResponseGenerator = static::createStub(DownloadResponseGenerator::class);
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $this->downloadRoute = new DownloadRoute(
             $this->downloadRepository,
@@ -84,7 +84,7 @@ class DownloadRouteTest extends TestCase
         $customer->setId('foobar');
         $this->salesChannelContext->method('getCustomer')->willReturn($customer);
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $this->downloadRepository->method('search')->willReturn($searchResult);
 
         $request = new Request();
@@ -101,7 +101,7 @@ class DownloadRouteTest extends TestCase
         $customer->setId('foobar');
         $this->salesChannelContext->method('getCustomer')->willReturn($customer);
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
+        $searchResult = static::createStub(EntitySearchResult::class);
         $download = new OrderLineItemDownloadEntity();
         $download->setId('foo');
         $download->setMedia(new MediaEntity());

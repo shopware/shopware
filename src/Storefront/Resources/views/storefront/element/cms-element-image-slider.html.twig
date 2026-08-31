@@ -103,8 +103,12 @@
                                             {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
                                         {% endif %}
 
+                                        {% if loop.index0 == 1 %}
+                                            {% set attributes = attributes|merge({ decoding: 'sync' }) %}
+                                        {% endif %}
+
                                         {% sw_thumbnails 'cms-image-slider-thumbnails' with {
-                                            media: image.media
+                                            media: image.media,
                                         } %}
                                     </div>
                                 {% endset %}

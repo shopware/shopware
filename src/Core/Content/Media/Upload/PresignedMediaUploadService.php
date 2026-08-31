@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
+use Shopware\Core\Content\Media\File\FileInfoHelper;
 use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -62,7 +63,7 @@ readonly class PresignedMediaUploadService
     ): PresignedUploadPrepareResult {
         $this->fileNameValidator->validateFileName($payload->fileName);
 
-        ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt] = $this->resolveMediaForPrepare($payload, $context);
+        ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt, 'private' => $isPrivate] = $this->resolveMediaForPrepare($payload, $context);
 
         $isReplace = $payload->mediaId !== null;
 
@@ -72,7 +73,7 @@ readonly class PresignedMediaUploadService
         }
 
         try {
-            $result = $this->generatePresignedUrl($mediaId, $payload, $uploadedAt);
+            $result = $this->generatePresignedUrl($mediaId, $payload, $uploadedAt, $isPrivate);
         } catch (\Throwable $e) {
             if (!$isReplace) {
                 $this->deleteMediaEntity($mediaId, $context);
@@ -103,27 +104,30 @@ readonly class PresignedMediaUploadService
     ): void {
         $media = $this->findMediaWithThumbnails($mediaId, $context);
         $isReplace = $media->hasFile();
+        $isPrivate = $media->isPrivate();
 
         $this->validateFinalizeRequest($mediaId, $payload, $media, $context);
 
         try {
             if (!$isReplace) {
-                $this->ensureFileNameIsUnique($mediaId, $payload->fileName, $payload->extension, $media->isPrivate(), $context);
+                $this->ensureFileNameIsUnique($mediaId, $payload->fileName, $payload->extension, $isPrivate, $context);
             }
 
-            $s3Metadata = $this->verifyFileOnStorage($mediaId, $payload->path);
+            $s3Metadata = $this->verifyFileOnStorage($mediaId, $payload->path, $isPrivate);
 
             if ($isReplace) {
                 $this->cleanupOldMediaData($media, $payload->path, $context);
             }
 
-            $mimeType = $s3Metadata->contentType ?? $payload->mimeType;
+            // The S3 object stores the canonical Content-Type incl. `charset` (see PresignedUploadUrlGenerator);
+            // strip any parameters so the persisted entity mimeType stays bare for media-type/extension detection.
+            $mimeType = FileInfoHelper::stripParameters($s3Metadata->contentType ?? $payload->mimeType);
 
             $this->persistMediaData($mediaId, $payload, $s3Metadata, $mimeType, $media, $context);
             $this->dispatchFinalizeEvents($mediaId, $payload->path, $mimeType, $context);
         } catch (\Throwable $e) {
             if (!$isReplace) {
-                $this->presignedUrlGenerator->deleteFromStorage($payload->path);
+                $this->presignedUrlGenerator->deleteFromStorage($payload->path, $isPrivate);
                 $this->deleteMediaEntity($mediaId, $context);
             }
 
@@ -137,7 +141,7 @@ readonly class PresignedMediaUploadService
     }
 
     /**
-     * @return array{mediaId: string, uploadedAt: \DateTimeImmutable}
+     * @return array{mediaId: string, uploadedAt: \DateTimeImmutable, private: bool}
      */
     private function resolveMediaForPrepare(PresignedUploadPreparePayload $payload, Context $context): array
     {
@@ -150,7 +154,7 @@ readonly class PresignedMediaUploadService
 
             $this->extensionValidator->validate($payload->extension, $media->isPrivate(), $context, $payload->mediaId);
 
-            return ['mediaId' => $payload->mediaId, 'uploadedAt' => $this->clock->now()];
+            return ['mediaId' => $payload->mediaId, 'uploadedAt' => $this->clock->now(), 'private' => $media->isPrivate()];
         }
 
         $this->extensionValidator->validate($payload->extension, $payload->private, $context);
@@ -172,10 +176,10 @@ readonly class PresignedMediaUploadService
             $this->mediaRepository->create([$data], $context);
         });
 
-        return ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt];
+        return ['mediaId' => $mediaId, 'uploadedAt' => $uploadedAt, 'private' => $payload->private];
     }
 
-    private function generatePresignedUrl(string $mediaId, PresignedUploadPreparePayload $payload, \DateTimeImmutable $uploadedAt): PresignedUrlResult
+    private function generatePresignedUrl(string $mediaId, PresignedUploadPreparePayload $payload, \DateTimeImmutable $uploadedAt, bool $private): PresignedUrlResult
     {
         $location = new MediaLocationStruct(
             $mediaId,
@@ -184,7 +188,7 @@ readonly class PresignedMediaUploadService
             $uploadedAt,
         );
 
-        return $this->presignedUrlGenerator->generate($location, $payload->mimeType);
+        return $this->presignedUrlGenerator->generate($location, $payload->mimeType, $private);
     }
 
     private function findMediaWithThumbnails(string $mediaId, Context $context): MediaEntity
@@ -211,9 +215,9 @@ readonly class PresignedMediaUploadService
         $this->validateExpectedPath($mediaId, $payload, $media);
     }
 
-    private function verifyFileOnStorage(string $mediaId, string $path): FileMetadataResult
+    private function verifyFileOnStorage(string $mediaId, string $path, bool $private): FileMetadataResult
     {
-        $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($path);
+        $s3Metadata = $this->presignedUrlGenerator->getFileMetadata($path, $private);
 
         if ($s3Metadata === null) {
             $this->logger->error('Could not verify presigned upload for media "{mediaId}": file not found on storage at path "{path}"', [

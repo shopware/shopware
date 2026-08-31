@@ -16,7 +16,7 @@ const operationToRole: Record<string, string> = {
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function colonToDot(chip: string): string | null {
-    if (chip.startsWith('<')) return null;
+    if (typeof chip !== 'string' || chip.startsWith('<')) return null;
     const [
         entity,
         operation,
@@ -27,6 +27,7 @@ export function colonToDot(chip: string): string | null {
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function isPrivilegeGranted(chip: string, grantedPrivileges: string[]): boolean {
+    if (typeof chip !== 'string') return false;
     if (grantedPrivileges.includes(chip)) return true;
     const [
         entity,
@@ -51,7 +52,7 @@ export function computePrivilegeChips(requiredPrivileges: RequiredPrivileges | n
         return [];
     }
 
-    const chips = [...(requiredPrivileges.static ?? [])];
+    const chips = (requiredPrivileges.static ?? []).filter((priv): priv is string => typeof priv === 'string');
 
     if (requiredPrivileges.entityParam) {
         (requiredPrivileges.operations ?? []).forEach((op) => {

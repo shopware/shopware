@@ -154,7 +154,7 @@
                         :disabled="!acl.can('shipping.editor') || undefined"
                         class="sw-settings-shipping-list__edit-action"
                     >
-                        {{ $t('sw-settings-shipping.list.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -164,7 +164,7 @@
                         :disabled="!acl.can('shipping.deleter') || undefined"
                         @click="onDelete(item.id)"
                     >
-                        {{ $t('sw-settings-shipping.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -203,7 +203,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $t('sw-settings-shipping.list.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>

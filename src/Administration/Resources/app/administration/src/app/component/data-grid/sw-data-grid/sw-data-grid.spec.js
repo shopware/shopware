@@ -8,6 +8,13 @@ import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
+const userConfigServiceMock = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
+
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
     id: '021150d043ee49e18642daef58e92c96',
@@ -57,6 +64,15 @@ describe('components/data-grid/sw-data-grid', () => {
             props = { ...defaultProps, ...props };
         }
 
+        const configurationKey = `grid.setting.${(props ?? defaultProps).identifier}`;
+
+        userConfigServiceMock.search.mockResolvedValue({
+            data: {
+                [configurationKey]: (userConfig ?? defaultUserConfig).value,
+            },
+        });
+        userConfigServiceMock.upsert.mockResolvedValue();
+
         stubs = {
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
             'sw-context-button': await wrapTestComponent('sw-context-button', {
@@ -82,7 +98,9 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': {
+                template: '<div><slot /></div>',
+            },
             'mt-switch': true,
             'sw-provide': true,
         };
@@ -145,13 +163,18 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
             'sw-loader': true,
-            'mt-floating-ui': true,
+            'mt-floating-ui': {
+                template: '<div><slot /></div>',
+            },
             'mt-switch': true,
         };
     });
 
     beforeEach(() => {
+        jest.restoreAllMocks();
         jest.clearAllMocks();
+        userConfigServiceMock.search.mockResolvedValue({ data: {} });
+        userConfigServiceMock.upsert.mockResolvedValue();
     });
 
     it('should be in compact mode by default', async () => {
@@ -241,6 +264,24 @@ describe('components/data-grid/sw-data-grid', () => {
         await name.setChecked(valueChecked);
 
         expect(wrapper.vm.currentColumns[0].visible).toBe(valueChecked);
+    });
+
+    it('should save user configuration through the admin user config store', async () => {
+        const wrapper = await createWrapper({
+            showSettings: true,
+        });
+
+        await flushPromises();
+
+        wrapper.vm.onChangePreviews(true);
+
+        expect(userConfigServiceMock.upsert).toHaveBeenCalledWith({
+            'grid.setting.sw-customer-list': {
+                columns: wrapper.vm.currentColumns,
+                compact: wrapper.vm.compact,
+                previews: true,
+            },
+        });
     });
 
     it('remove property in client', async () => {

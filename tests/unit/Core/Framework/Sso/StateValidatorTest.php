@@ -28,8 +28,8 @@ class StateValidatorTest extends TestCase
     {
         $validator = new StateValidator();
 
-        $session = $this->createMock(SessionInterface::class);
-        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn($storedState);
+        $session = static::createStub(SessionInterface::class);
+        $session->method('get')->willReturn($storedState);
 
         $code = Uuid::randomHex();
 

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import useTheme, { USER_THEME_CONFIG_KEY } from 'src/app/composables/use-theme';
 
 const createDefaultUser = function () {
     return {
@@ -202,21 +203,23 @@ async function createWrapper(user) {
                     userService: {
                         getUser: () => {
                             return Promise.resolve({
-                                id: '2',
-                                attributes: {
+                                data: {
                                     id: '2',
-                                },
-                                relationships: {
-                                    accessKeys: {
-                                        data: [
-                                            {
-                                                id: '12',
-                                                accessKey: 'accessKey',
-                                                secretAccessKey: 'secretAccessKey',
+                                    attributes: {
+                                        id: '2',
+                                    },
+                                    relationships: {
+                                        accessKeys: {
+                                            data: [
+                                                {
+                                                    id: '12',
+                                                    accessKey: 'accessKey',
+                                                    secretAccessKey: 'secretAccessKey',
+                                                },
+                                            ],
+                                            links: {
+                                                related: 'http://localhost/',
                                             },
-                                        ],
-                                        links: {
-                                            related: 'http://localhost/',
                                         },
                                     },
                                 },
@@ -248,6 +251,11 @@ async function createWrapper(user) {
 }
 
 describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail', () => {
+    afterEach(() => {
+        useTheme().setTheme('system');
+        localStorage.removeItem('mt-theme');
+    });
+
     it('should not show invitation banner', async () => {
         const wrapper = await createWrapper();
 
@@ -279,6 +287,9 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         const emailField = wrapper.find('#sw-field--user-email');
         expect(emailField.exists()).toBeTruthy();
 
+        const activeField = wrapper.find('.sw-sso-detail-card__information-active');
+        expect(activeField.exists()).toBeTruthy();
+
         expect(firstNameField.attributes('disabled')).toBeDefined();
         expect(firstNameField.attributes('disabled')).toBe('');
 
@@ -287,6 +298,7 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
 
         expect(emailField.attributes('disabled')).toBeDefined();
         expect(emailField.attributes('disabled')).toBe('');
+        expect(activeField.attributes('disabled')).toBeUndefined();
     });
 
     it('should not be possible to edit fistName, lastName, email with given user', async () => {
@@ -303,6 +315,9 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         const emailField = wrapper.find('#sw-field--user-email');
         expect(emailField.exists()).toBeTruthy();
 
+        const activeField = wrapper.find('.sw-sso-detail-card__information-active');
+        expect(activeField.exists()).toBeTruthy();
+
         expect(firstNameField.attributes('disabled')).toBeDefined();
         expect(firstNameField.attributes('disabled')).toBe('');
 
@@ -311,6 +326,27 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
 
         expect(emailField.attributes('disabled')).toBeDefined();
         expect(emailField.attributes('disabled')).toBe('');
+        expect(activeField.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should render the profile picture field with the SSO-specific class', async () => {
+        const wrapper = await createWrapper();
+
+        const profilePictureField = wrapper.find('.sw-sso-detail-card__information-picture');
+
+        expect(profilePictureField.exists()).toBeTruthy();
+    });
+
+    it('should show the theme select only for the own user', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-sso-detail-card__user-interface-theme').exists()).toBe(false);
+
+        await wrapper.setData({
+            currentUser: { id: '1' },
+        });
+
+        expect(wrapper.find('.sw-sso-detail-card__user-interface-theme').exists()).toBe(true);
     });
 
     it('should disable the roles field', async () => {
@@ -329,6 +365,87 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         const aclSelect = wrapper.find('.sw-sso-detail-card__roles-and-permission-aclRoles');
 
         expect(aclSelect.attributes('class')).not.toContain('is--disabled');
+    });
+
+    it('should reflect an externally changed theme until the user picks one', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.userTheme).toBe('system');
+
+        useTheme().setTheme('dark');
+        expect(wrapper.vm.userTheme).toBe('dark');
+
+        wrapper.vm.userTheme = 'light';
+        useTheme().setTheme('system');
+        expect(wrapper.vm.userTheme).toBe('light');
+    });
+
+    it('should persist the changed theme when saving the own user', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ currentUser: { id: '1' } });
+        jest.spyOn(wrapper.vm.userRepository, 'save').mockResolvedValue();
+
+        wrapper.vm.userTheme = 'dark';
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+            [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
+        });
+        expect(useTheme().theme.value).toBe('dark');
+
+        // The selection is cleared after saving, so the select follows external changes again
+        expect(wrapper.vm.userThemeSelection).toBeNull();
+        useTheme().setTheme('light');
+        expect(wrapper.vm.userTheme).toBe('light');
+    });
+
+    it('should not persist the theme when it is unchanged', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ currentUser: { id: '1' } });
+        jest.spyOn(wrapper.vm.userRepository, 'save').mockResolvedValue();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+    });
+
+    it('should not persist the theme when saving another user', async () => {
+        const wrapper = await createWrapper();
+        jest.spyOn(wrapper.vm.userRepository, 'save').mockResolvedValue();
+
+        wrapper.vm.userTheme = 'dark';
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(Shopware.Service('userConfigService').upsert).not.toHaveBeenCalled();
+        expect(useTheme().theme.value).toBe('system');
+    });
+
+    it('should report a theme-specific error when persisting the theme fails', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ currentUser: { id: '1' } });
+        jest.spyOn(wrapper.vm.userRepository, 'save').mockResolvedValue();
+
+        Shopware.Service('userConfigService').upsert.mockRejectedValueOnce(new Error('upsert failed'));
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.userTheme = 'dark';
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-users-permissions.users.user-detail.notification.themeSaveError.message',
+        });
+
+        // The selection is kept on failure, so saving again retries the persistence
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledTimes(2);
+        expect(wrapper.vm.userThemeSelection).toBeNull();
     });
 
     it('should show the create access key modal', async () => {

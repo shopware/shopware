@@ -176,10 +176,10 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
             )
         );
         $result = $this->mediaRepository->search($criteria, $this->salesChannelContext);
-        static::assertCount(2, $result);
+        static::assertCount(2, $result->getEntities());
 
-        static::assertTrue($result->has($this->ids->get('public-media.1')));
-        static::assertTrue($result->has($this->ids->get('public-media.2')));
+        static::assertTrue($result->getEntities()->has($this->ids->get('public-media.1')));
+        static::assertTrue($result->getEntities()->has($this->ids->get('public-media.2')));
 
         $countResult = $result->getAggregations()->get('public-media-count');
         static::assertInstanceOf(CountResult::class, $countResult);

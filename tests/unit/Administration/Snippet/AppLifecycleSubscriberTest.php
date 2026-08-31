@@ -13,12 +13,14 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(AppLifecycleSubscriber::class)]
 class AppLifecycleSubscriberTest extends TestCase
 {

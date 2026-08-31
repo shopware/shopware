@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -13,6 +14,7 @@ use Symfony\Component\Clock\MockClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookCleanup::class)]
 class WebhookCleanupTest extends TestCase
 {
@@ -63,7 +65,7 @@ class WebhookCleanupTest extends TestCase
             ->with('core.webhook.entryLifetimeSeconds')
             ->willReturn(86400);
 
-        $conn = $this->createMock(Connection::class);
+        $conn = static::createStub(Connection::class);
         $conn->method('executeStatement')->willReturn(0);
 
         $streamLockService = $this->createMock(StreamLockService::class);

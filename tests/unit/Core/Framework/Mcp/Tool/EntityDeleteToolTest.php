@@ -38,10 +38,10 @@ class EntityDeleteToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityDeleteTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $tool = new EntityDeleteTool($registry, $contextProvider, static::createStub(Connection::class));
         $result = $this->decode(($tool)('product', '["abc123"]'));
 
         static::assertFalse($result['success']);
@@ -50,13 +50,13 @@ class EntityDeleteToolTest extends TestCase
 
     public function testReturnsErrorWhenEntityNotFound(): void
     {
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(false);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $tool = new EntityDeleteTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $tool = new EntityDeleteTool($registry, $contextProvider, static::createStub(Connection::class));
         $result = $this->decode(($tool)('unknown_entity', '["abc"]'));
 
         static::assertFalse($result['success']);
@@ -104,11 +104,11 @@ class EntityDeleteToolTest extends TestCase
 
         $writeResult = new EntityWriteResult('abc', [], 'product', EntityWriteResult::OPERATION_DELETE);
         $writtenEvent = new EntityWrittenEvent('product', [$writeResult], Context::createDefaultContext());
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events = static::createStub(EntityWrittenContainerEvent::class);
         $events->method('getEvents')->willReturn(new NestedEventCollection([$writtenEvent]));
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('delete')->willReturn($events);
+        $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '["abc"]', true));
@@ -126,7 +126,7 @@ class EntityDeleteToolTest extends TestCase
         $connection->expects($this->once())->method('rollBack');
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('delete')->willThrowException(new \RuntimeException('FK constraint'));
+        $repository->expects($this->once())->method('delete')->willThrowException(new \RuntimeException('FK constraint'));
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '["abc"]', true));
@@ -141,11 +141,11 @@ class EntityDeleteToolTest extends TestCase
         $connection->expects($this->never())->method('beginTransaction');
         $connection->expects($this->never())->method('rollBack');
 
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events = static::createStub(EntityWrittenContainerEvent::class);
         $events->method('getEvents')->willReturn(new NestedEventCollection());
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('delete')->willReturn($events);
+        $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '["abc123"]', false));
@@ -160,19 +160,19 @@ class EntityDeleteToolTest extends TestCase
     private function createTool(?EntityRepository $repository = null, ?Connection $connection = null): EntityDeleteTool
     {
         if ($repository === null) {
-            $repository = $this->createMock(EntityRepository::class);
-            $events = $this->createMock(EntityWrittenContainerEvent::class);
+            $repository = static::createStub(EntityRepository::class);
+            $events = static::createStub(EntityWrittenContainerEvent::class);
             $events->method('getEvents')->willReturn(new NestedEventCollection());
             $repository->method('delete')->willReturn($events);
         }
 
-        $connection ??= $this->createMock(Connection::class);
+        $connection ??= static::createStub(Connection::class);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getRepository')->willReturn($repository);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         return new EntityDeleteTool($registry, $contextProvider, $connection);

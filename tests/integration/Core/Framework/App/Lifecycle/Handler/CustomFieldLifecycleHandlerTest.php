@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -23,6 +24,7 @@ use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 class CustomFieldLifecycleHandlerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

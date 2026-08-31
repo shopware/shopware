@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\FinishController;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Symfony\Component\Clock\NativeClock;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FinishController::class)]
 class FinishControllerTest extends TestCase
 {
@@ -32,6 +34,10 @@ class FinishControllerTest extends TestCase
 
     public function testFinishWithCompletedParameterRendersTemplate(): void
     {
+        $this->systemLocker
+            ->expects($this->never())
+            ->method('lock');
+
         $controller = $this->getMockBuilder(FinishController::class)
             ->setConstructorArgs([
                 $this->systemLocker,

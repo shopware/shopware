@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Node;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest;
 use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\CaptureNode;
@@ -15,7 +14,7 @@ use Twig\Node\MacroNode;
  *
  * @codeCoverageIgnore
  *
- * @see ReturnNodeTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
  */
 #[Package('framework')]
 #[YieldReady]

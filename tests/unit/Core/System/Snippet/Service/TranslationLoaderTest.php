@@ -11,7 +11,7 @@ use GuzzleHttp\Psr7\Uri;
 use League\Flysystem\Filesystem as FlySystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -26,6 +26,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection as LanguageDtoCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMapping;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Event\TranslationLoadedEvent;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
@@ -33,6 +34,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -42,7 +44,7 @@ use Symfony\Component\Filesystem\Path;
 #[CoversClass(TranslationLoader::class)]
 class TranslationLoaderTest extends TestCase
 {
-    private ClientInterface&MockObject $client;
+    private ClientInterface&Stub $client;
 
     private FlySystem $flysystem;
 
@@ -67,15 +69,18 @@ class TranslationLoaderTest extends TestCase
 
     private TranslationConfig $config;
 
+    private EventDispatcher $eventDispatcher;
+
     protected function setUp(): void
     {
-        $this->client = $this->createMock(ClientInterface::class);
+        $this->client = static::createStub(ClientInterface::class);
         $this->flysystem = new FlySystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->context = Context::createDefaultContext();
+        $this->eventDispatcher = new EventDispatcher();
         $this->ids = new IdsCollection();
-        $this->languageRepository = new StaticEntityRepository([$this->getSearchResult('language')]);
-        $this->localeRepository = new StaticEntityRepository([$this->getSearchResult('locale')]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getSearchResult('snippet-set')]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getSearchResult('language')]);
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getSearchResult('locale')]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getSearchResult('snippet-set')]);
         $this->config = new TranslationConfig(
             new Uri('http://localhost:8000'),
             ['es-ES'],
@@ -98,7 +103,7 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadThrowsExceptionIfProvidedLocaleDoesNotExist(): void
     {
-        $this->localeRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
 
@@ -112,7 +117,7 @@ class TranslationLoaderTest extends TestCase
         $request = new Request('GET', 'http://localhost:8000');
         $requestException = new RequestException('Server Error', $request, $response500);
 
-        $this->client = $this->createMock(ClientInterface::class);
+        $this->client = static::createStub(ClientInterface::class);
         $this->client->method('request')->willThrowException($requestException);
 
         $loader = $this->getTranslationLoader();
@@ -128,7 +133,7 @@ class TranslationLoaderTest extends TestCase
         $request = new Request('GET', 'http://localhost:8000');
         $requestException = new RequestException('Not Found', $request, $response404);
 
-        $this->client = $this->createMock(ClientInterface::class);
+        $this->client = static::createStub(ClientInterface::class);
         $this->client->method('request')->willReturnCallback(static function ($method, $url) use ($requestException) {
             if (str_contains($url, 'administration.json')) {
                 throw $requestException;
@@ -185,8 +190,8 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadCreatesLanguageAndSnippetSet(): void
     {
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context);
@@ -244,13 +249,12 @@ class TranslationLoaderTest extends TestCase
     {
         $loader = $this->getTranslationLoader();
 
-        $noLocaleBasePathPlugin = new TestPlugin(true, '');
-        $noLocaleBasePathPlugin->setName('NoLocaleBasePathExists');
-        static::assertFalse($loader->pluginTranslationExists($noLocaleBasePathPlugin));
-
         $existingPlugin = new TestPlugin(true, '');
         $existingPlugin->setName('SwagPublisher');
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPublisher');
+
+        $noLocaleBasePathPlugin = new TestPlugin(true, '');
+        $noLocaleBasePathPlugin->setName('NoLocaleBasePathExists');
 
         static::assertTrue($loader->pluginTranslationExists($existingPlugin));
         static::assertFalse($loader->pluginTranslationExists($noLocaleBasePathPlugin));
@@ -285,12 +289,12 @@ class TranslationLoaderTest extends TestCase
             new Uri('http://localhost:8000/metadata.json'),
             [],
         );
-        $this->localeRepository = new StaticEntityRepository([
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [
             $this->getEmptySearchResult(),
             $this->getSearchResult('locale'),
         ]);
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
         $loader->load('ach-UG', $this->context);
@@ -311,7 +315,7 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadStillThrowsForUnknownNonPseudoLocale(): void
     {
-        $this->localeRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
 
@@ -340,14 +344,57 @@ class TranslationLoaderTest extends TestCase
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPaypal');
         static::assertFalse($loader->pluginTranslationExistsForLocale($mappedNamePlugin, 'de-DE'));
 
+        // the negative result is memoized, so the loader must be reset to observe the newly installed translation
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/MappedName');
+        $loader->reset();
         static::assertTrue($loader->pluginTranslationExistsForLocale($mappedNamePlugin, 'de-DE'));
+    }
+
+    public function testPluginTranslationExistsForLocaleMemoizesPositiveResult(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        $existingPlugin = new TestPlugin(true, '');
+        $existingPlugin->setName('SwagPublisher');
+
+        $pluginPath = $loader->getLocalePath('de-DE') . '/Plugins/SwagPublisher';
+        $this->flysystem->createDirectory($pluginPath);
+
+        static::assertTrue($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
+
+        // the directory is removed on the filesystem, but the memoized result must be reused without a new remote check
+        $this->flysystem->deleteDirectory($pluginPath);
+        static::assertTrue($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
+
+        // reset() drops the memoized lookup so the next call reflects the current filesystem state again
+        $loader->reset();
+        static::assertFalse($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
+    }
+
+    public function testPluginTranslationExistsForLocaleMemoizesNegativeResult(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        $existingPlugin = new TestPlugin(true, '');
+        $existingPlugin->setName('SwagPublisher');
+
+        $pluginPath = $loader->getLocalePath('de-DE') . '/Plugins/SwagPublisher';
+
+        static::assertFalse($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
+
+        // the directory is created on the filesystem, but the memoized negative result must be reused without a new check
+        $this->flysystem->createDirectory($pluginPath);
+        static::assertFalse($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
+
+        // reset() drops the memoized lookup so the next call reflects the current filesystem state again
+        $loader->reset();
+        static::assertTrue($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
     }
 
     public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void
     {
-        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
-        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context, false); // activate = false
@@ -365,17 +412,17 @@ class TranslationLoaderTest extends TestCase
 
     public function testSnippetSetOnlyCreatedOnce(): void
     {
-        $this->localeRepository = new StaticEntityRepository([
+        $this->localeRepository = StaticEntityRepository::of(LocaleCollection::class, [
             $this->getSearchResult('locale'),
             $this->getSearchResult('locale'),
         ]);
 
-        $this->languageRepository = new StaticEntityRepository([
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [
             $this->getSearchResult('language'),
             $this->getSearchResult('language'),
         ]);
 
-        $this->snippetSetRepository = new StaticEntityRepository([
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [
             $this->getEmptySearchResult(),
             $this->getSearchResult('snippet-set'),
         ]);
@@ -399,6 +446,23 @@ class TranslationLoaderTest extends TestCase
         $this->getTranslationLoader()->getDecorated();
     }
 
+    public function testLoadDispatchesEvent(): void
+    {
+        $dispatched = null;
+        $this->eventDispatcher->addListener(
+            TranslationLoadedEvent::class,
+            static function (TranslationLoadedEvent $event) use (&$dispatched): void {
+                $dispatched = $event;
+            }
+        );
+
+        $this->getTranslationLoader()->load('es-ES', $this->context);
+
+        static::assertInstanceOf(TranslationLoadedEvent::class, $dispatched);
+        static::assertSame('es-ES', $dispatched->getLocale());
+        static::assertSame($this->context, $dispatched->getContext());
+    }
+
     private function getTranslationLoader(): TranslationLoader
     {
         return new TranslationLoader(
@@ -408,6 +472,7 @@ class TranslationLoaderTest extends TestCase
             snippetSetRepository: $this->snippetSetRepository,
             client: $this->client,
             config: $this->config,
+            eventDispatcher: $this->eventDispatcher,
         );
     }
 

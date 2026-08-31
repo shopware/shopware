@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(OrderLineItemEntity::class)]
 #[Package('checkout')]
+#[CoversClass(OrderLineItemEntity::class)]
 class OrderLineItemEntityTest extends TestCase
 {
     public function testJsonSerializeDoesNotExposePurchasePrices(): void

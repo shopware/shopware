@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(Applier::class)]
 #[Package('checkout')]
+#[CoversClass(Applier::class)]
 class ApplierTest extends TestCase
 {
     /**

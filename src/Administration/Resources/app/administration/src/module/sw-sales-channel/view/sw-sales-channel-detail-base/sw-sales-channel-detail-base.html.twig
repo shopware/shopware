@@ -405,6 +405,7 @@
             v-model:value="productExport.salesChannelDomainId"
             class="sw-sales-channel-detail__product-comparison-domain"
             :label="$t('sw-sales-channel.detail.productComparison.storefrontDomain')"
+            :help-text="$t('sw-sales-channel.detail.productComparison.storefrontDomainHelpText')"
             :criteria="storefrontSalesChannelDomainCriteria"
             label-property="url"
             value-property="id"
@@ -860,7 +861,7 @@
                     variant="critical"
                     @click="onConfirmDelete"
                 >
-                    {{ $t('sw-sales-channel.detail.buttonConfirmDelete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
                 {% endblock %}
             </template>

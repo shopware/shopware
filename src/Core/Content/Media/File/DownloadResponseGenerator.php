@@ -51,6 +51,14 @@ class DownloadResponseGenerator
         SalesChannelContext $context,
         string $expiration = self::EXPIRATION_TIME
     ): Response {
+        return $this->getResponseByContext($media, $context->getContext(), $expiration);
+    }
+
+    public function getResponseByContext(
+        MediaEntity $media,
+        Context $context,
+        string $expiration = self::EXPIRATION_TIME
+    ): Response {
         $fileSystem = $this->getFileSystem($media);
 
         $path = $media->getPath();
@@ -68,7 +76,7 @@ class DownloadResponseGenerator
         return $this->getDefaultResponse($media, $context, $fileSystem);
     }
 
-    private function getDefaultResponse(MediaEntity $media, SalesChannelContext $context, FilesystemOperator $fileSystem): Response
+    private function getDefaultResponse(MediaEntity $media, Context $context, FilesystemOperator $fileSystem): Response
     {
         if (!$media->isPrivate()) {
             $url = $this->mediaUrlGenerator->generate([UrlParams::fromMedia($media)]);
@@ -109,9 +117,9 @@ class DownloadResponseGenerator
         }
     }
 
-    private function createStreamedResponse(MediaEntity $media, SalesChannelContext $context): StreamedResponse
+    private function createStreamedResponse(MediaEntity $media, Context $context): StreamedResponse
     {
-        $stream = $context->getContext()->scope(
+        $stream = $context->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $context): StreamInterface => $this->mediaService->loadFileStream($media->getId(), $context)
         );

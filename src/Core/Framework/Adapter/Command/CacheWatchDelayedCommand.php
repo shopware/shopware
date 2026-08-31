@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Adapter\Command;
 
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\Framework\Adapter\Command\CacheWatchDelayedCommandTest;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
@@ -43,7 +42,15 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
      */
     public function getSubscribedSignals(): array
     {
-        return [\SIGINT, \SIGTERM];
+        $signals = [];
+        if (\defined('SIGINT')) {
+            $signals[] = \SIGINT;
+        }
+        if (\defined('SIGTERM')) {
+            $signals[] = \SIGTERM;
+        }
+
+        return $signals;
     }
 
     public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
@@ -98,7 +105,11 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
 
         $this->output = $output;
 
-        $interval = $this->resolveInterval((int) $input->getOption('interval'));
+        $interval = clamp(
+            (int) $input->getOption('interval'),
+            self::MIN_POLL_INTERVAL_MICROSECONDS,
+            self::DEFAULT_POLL_INTERVAL_MICROSECONDS,
+        );
         $section = $output->section();
         $table = new Table($section);
 
@@ -112,7 +123,7 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
      *
      * @codeCoverageIgnore
      *
-     * @see CacheWatchDelayedCommandTest
+     * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Command\CacheWatchDelayedCommandTest
      *
      * @param callable(): array<string> $poll
      */
@@ -132,18 +143,6 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
 
             usleep($interval);
         }
-    }
-
-    /**
-     * Clamps the requested poll interval into the supported range.
-     */
-    private function resolveInterval(int $microseconds): int
-    {
-        return clamp(
-            $microseconds,
-            self::MIN_POLL_INTERVAL_MICROSECONDS,
-            self::DEFAULT_POLL_INTERVAL_MICROSECONDS,
-        );
     }
 
     /**

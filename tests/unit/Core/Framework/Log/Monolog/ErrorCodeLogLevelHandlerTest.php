@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Log\Monolog\ErrorCodeLogLevelHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
@@ -18,6 +19,7 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ErrorCodeLogLevelHandler::class)]
 class ErrorCodeLogLevelHandlerTest extends TestCase
 {

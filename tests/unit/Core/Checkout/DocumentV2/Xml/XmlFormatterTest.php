@@ -60,22 +60,22 @@ class XmlFormatterTest extends TestCase
 
     public function testThrowsOnMalformedXml(): void
     {
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/Generated XML is malformed/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/Generated XML is malformed/');
 
         (new XmlFormatter())->format('<root><unclosed></root>');
     }
 
     public function testThrowsOnEmptyInput(): void
     {
-        static::expectException(DocumentV2Exception::class);
+        $this->expectException(DocumentV2Exception::class);
 
         (new XmlFormatter())->format('');
     }
 
     public function testThrowsOnNonXmlInput(): void
     {
-        static::expectException(DocumentV2Exception::class);
+        $this->expectException(DocumentV2Exception::class);
 
         (new XmlFormatter())->format('this is not xml');
     }

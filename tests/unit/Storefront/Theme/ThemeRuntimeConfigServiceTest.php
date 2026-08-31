@@ -24,7 +24,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeRuntimeConfigService::class)]
 class ThemeRuntimeConfigServiceTest extends TestCase
 {
@@ -182,6 +182,11 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->with($themeId)
             ->willReturn($technicalName);
 
+        $storage
+            ->method('getOwnThemeTechnicalName')
+            ->with($themeId)
+            ->willReturn($technicalName);
+
         $scriptFilesCollection = new FileCollection([
             new File('foo/file1.js', [], 'foo'),
             new File('foo/file2.js', [], 'foo'),
@@ -210,6 +215,58 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         // check that updated config is returned
         static::assertNotNull($result);
         static::assertSame(['js/foo/file1.js', 'js/foo/file2.js'], $result->scriptFiles);
+    }
+
+    /**
+     * A theme copy must be persisted with a NULL technical name, not its parent's, so copies do not
+     * collide on the unique technical_name index.
+     */
+    public function testGenerateRuntimeConfigForCopyStoresNullTechnicalName(): void
+    {
+        $copyId = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+        $parentTechnicalName = 'zenitPlatformGravity';
+
+        $themeConfig = new StorefrontPluginConfiguration($parentTechnicalName);
+        $themeConfig->setIconSets(['set1' => 'path/to/icons']);
+
+        $pluginRegistry = static::createStub(StorefrontPluginRegistry::class);
+        $pluginRegistry
+            ->method('getConfigurations')
+            ->willReturn(new StorefrontPluginConfigurationCollection([$themeConfig]));
+
+        $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
+        $storage->method('getById')->with($copyId)->willReturn(null);
+        // getThemeTechnicalName() inherits the parent's name; getOwnThemeTechnicalName() is NULL for the copy.
+        $storage->method('getThemeTechnicalName')->with($copyId)->willReturn($parentTechnicalName);
+        $storage->method('getOwnThemeTechnicalName')->with($copyId)->willReturn(null);
+        $storage->method('getCopiesIds')->with($copyId)->willReturn([]);
+
+        $this->mergedConfigBuilder->method('getPlainThemeConfiguration')->willReturn(['key' => 'value']);
+        $this->themeFileResolver->method('resolveScriptFiles')->willReturn(new FileCollection());
+
+        $saved = null;
+        $storage
+            ->expects($this->once())
+            ->method('save')
+            ->willReturnCallback(static function (ThemeRuntimeConfig $config) use (&$saved): void {
+                $saved = $config;
+            });
+
+        $result = $this->createService(
+            pluginRegistry: $pluginRegistry,
+            storage: $storage,
+        )->getRuntimeConfig($copyId);
+
+        static::assertNotNull($saved);
+        static::assertNull($saved->technicalName, 'Theme copy must be stored with a NULL technical name');
+        static::assertSame($copyId, $saved->themeId);
+        static::assertSame(
+            ['set1' => ['path' => 'path/to/icons', 'namespace' => $parentTechnicalName]],
+            $saved->iconSets
+        );
+
+        static::assertNotNull($result);
+        static::assertNull($result->technicalName);
     }
 
     public function testRefreshRuntimeConfig(): void
@@ -249,12 +306,14 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
         // No existing config stored — getById called to check for preserved importMap.
         $storage->method('getById')->willReturn(null);
+        $storage->method('getOwnThemeTechnicalName')->with($themeId)->willReturn($technicalName);
 
         $storage
             ->expects($this->once())
             ->method('save')
-            ->willReturnCallback(static function ($config): void {
+            ->willReturnCallback(static function ($config) use ($technicalName): void {
                 static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
+                static::assertSame($technicalName, $config->technicalName);
                 static::assertNotNull($config->scriptFiles);
                 static::assertSame(['js/foo/file1.js', 'js/foo/file2.js'], $config->scriptFiles);
                 static::assertNull($config->importMap);

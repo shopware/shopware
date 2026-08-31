@@ -2,7 +2,12 @@ import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 
 test(
     'Registered shop customer buys a product.',
-    { tag: ['@Checkout', '@Storefront'] },
+    {
+        tag: [
+            '@Checkout',
+            '@Storefront',
+        ],
+    },
     async ({
         ShopCustomer,
         TestDataService,
@@ -25,7 +30,7 @@ test(
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
         await ShopCustomer.expects(StorefrontProductDetail.page).toHaveTitle(
-            `${product.translated.name} | ${product.productNumber}`
+            `${product.translated.name} | ${product.productNumber}`,
         );
 
         await ShopCustomer.attemptsTo(AddProductToCart(product));
@@ -59,8 +64,8 @@ test(
                     orderCustomer: expect.objectContaining({
                         email: DefaultSalesChannel.customer.email,
                     }),
-                })
+                }),
             );
         });
-    }
+    },
 );

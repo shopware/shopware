@@ -8,10 +8,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\App\ActiveAdminAppLoader;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ActiveAdminAppLoader::class)]
 class ActiveAdminAppLoaderTest extends TestCase
 {
@@ -38,6 +40,7 @@ class ActiveAdminAppLoaderTest extends TestCase
                 'integrationId' => 'abc',
                 'baseUrl' => 'https://app.test',
                 'version' => '1.0.0',
+                'sourceType' => 'service',
                 'privileges' => $rawPrivileges,
             ],
         ]));
@@ -45,6 +48,7 @@ class ActiveAdminAppLoaderTest extends TestCase
         $apps = $loader->getActiveAdminApps();
 
         static::assertCount(1, $apps);
+        static::assertSame('service', $apps[0]['sourceType']);
         static::assertSame($expected, $apps[0]['privileges']);
     }
 
@@ -83,7 +87,7 @@ class ActiveAdminAppLoaderTest extends TestCase
     }
 
     /**
-     * @param list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: ?string}> $rows
+     * @param list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, sourceType: string, privileges: ?string}> $rows
      */
     private function stubConnection(array $rows): Connection
     {

@@ -114,6 +114,14 @@ class RedisStub extends \Redis
         return $deletions;
     }
 
+    public function keys(string $pattern): \Redis|array|false
+    {
+        return array_values(array_filter(
+            array_keys($this->data),
+            static fn (string $key): bool => fnmatch($pattern, $key)
+        ));
+    }
+
     public function exists(mixed $key, mixed ...$other_keys): \Redis|int|bool
     {
         if ($other_keys === []) {

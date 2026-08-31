@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ProductListingCmsElementResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -244,7 +246,7 @@ class ProductListingCmsElementResolverTest extends TestCase
 
         $actualSortings = array_values($actualSortings);
 
-        arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
+        arsort($availableSortings);
         $availableSortings = array_keys($availableSortings);
 
         static::assertSame($availableSortings, $actualSortings);

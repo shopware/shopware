@@ -16,6 +16,7 @@ use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -34,6 +35,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AssetService::class)]
 class AssetServiceTest extends TestCase
 {
@@ -178,7 +180,7 @@ class AssetServiceTest extends TestCase
     {
         $filesystem = $this->createFilesystem();
 
-        $classLoader = $this->createMock(ClassLoader::class);
+        $classLoader = static::createStub(ClassLoader::class);
         $classLoader->method('findFile')->willReturn(__FILE__);
         $pluginLoader = new StaticKernelPluginLoader(
             $classLoader,
@@ -205,6 +207,7 @@ class AssetServiceTest extends TestCase
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->willThrowException(new \InvalidArgumentException('foo'));
 
@@ -236,6 +239,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('ExampleBundle')
             ->willThrowException(new \InvalidArgumentException());
@@ -250,7 +254,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsClosesStreamItself(): void
     {
-        $adapter = $this->createMock(FilesystemAdapter::class);
+        $adapter = static::createStub(FilesystemAdapter::class);
         $adapter->method('writeStream')
             ->willReturnCallback(static function (string $path, $stream) {
                 static::assertIsResource($stream);
@@ -261,7 +265,7 @@ class AssetServiceTest extends TestCase
             });
         $adapter->method('read')->willReturn(json_encode([], \JSON_THROW_ON_ERROR));
 
-        $assetService = $this->createAssetService($this->createFilesystem());
+        $assetService = $this->createAssetService(new Filesystem($adapter));
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
     }
@@ -363,6 +367,7 @@ class AssetServiceTest extends TestCase
         ksort($manifest);
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -448,6 +453,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -533,9 +539,8 @@ class AssetServiceTest extends TestCase
         ?ParameterBag $parameterBag = null,
     ): AssetService {
         if ($kernel === null) {
-            $kernel = $this->createMock(KernelInterface::class);
+            $kernel = static::createStub(KernelInterface::class);
             $kernel->method('getBundle')
-                ->with('ExampleBundle')
                 ->willReturn($this->getBundle());
         }
 
@@ -543,8 +548,8 @@ class AssetServiceTest extends TestCase
             $assetFilesystem,
             $privateFilesystem ?? $assetFilesystem,
             $kernel,
-            $pluginLoader ?? new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
-            $cacheInvalidator ?? $this->createMock(CacheInvalidator::class),
+            $pluginLoader ?? new StaticKernelPluginLoader(static::createStub(ClassLoader::class)),
+            $cacheInvalidator ?? static::createStub(CacheInvalidator::class),
             $staticSourceResolver ?? new StaticSourceResolver(),
             $parameterBag ?? new ParameterBag([
                 'shopware.filesystem.asset.type' => 's3',

@@ -12,14 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see WebhookOutboxStoreTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest
  */
 #[Package('framework')]
 class WebhookOutboxStore
@@ -505,8 +504,10 @@ class WebhookOutboxStore
             ['sequence' => $sequence, 'id' => $eventLogId]
         );
 
+        // Restart the stream's cleanup grace window on every delivery write.
         $this->connection->executeStatement(
-            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
+            'INSERT INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)
+             ON DUPLICATE KEY UPDATE created_at = :now',
             [
                 'id' => Uuid::randomBytes(),
                 'pk' => $insert->partitionKey,

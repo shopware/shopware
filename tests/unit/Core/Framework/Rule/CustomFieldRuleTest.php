@@ -198,7 +198,7 @@ class CustomFieldRuleTest extends TestCase
             'config' => [],
         ];
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
 
         $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
@@ -218,7 +218,7 @@ class CustomFieldRuleTest extends TestCase
             'config' => [],
         ];
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
 
         $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
@@ -238,7 +238,7 @@ class CustomFieldRuleTest extends TestCase
             'config' => [],
         ];
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
 
         $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);

@@ -9,6 +9,7 @@ use Shopware\Core\DevOps\Docs\Script\TriggerReferenceGeneratorCommand;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -17,6 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TriggerReferenceGeneratorCommand::class)]
 class TriggerReferenceGeneratorCommandTest extends TestCase
 {

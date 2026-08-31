@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\NullBundleConfigStyleFileResolver;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NullBundleConfigStyleFileResolver::class)]
 class NullBundleConfigStyleFileResolverTest extends TestCase
 {

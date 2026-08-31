@@ -13,17 +13,19 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppLifecycleIterator::class)]
 class AppLifecycleIteratorTest extends TestCase
 {
     public function testInstallMissingApp(): void
     {
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
         $appLoader->method('load')->willReturn([
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
@@ -55,7 +57,7 @@ class AppLifecycleIteratorTest extends TestCase
         $existingApp->set('version', '0.0.0');
         $existingApp->set('aclRoleId', '1234');
 
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
         $appLoader->method('load')->willReturn([
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
@@ -88,7 +90,7 @@ class AppLifecycleIteratorTest extends TestCase
         $existingApp->set('version', '1.0.0');
         $existingApp->set('aclRoleId', '1234');
 
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
         $appLoader->method('load')->willReturn([
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);
@@ -121,7 +123,7 @@ class AppLifecycleIteratorTest extends TestCase
         $existingApp->set('version', '1.0.0');
         $existingApp->set('aclRoleId', '1234');
 
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
 
         /** @var StaticEntityRepository<AppCollection> */
         $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
@@ -143,6 +145,40 @@ class AppLifecycleIteratorTest extends TestCase
         );
     }
 
+    public function testAppWithPendingSecretIsKeptForRecoveryNotDeleted(): void
+    {
+        // An app left with a pending secret is mid-recovery: an ambiguous registration kept it so a later
+        // installation can re-register against the secret the app may already hold. A refresh runs this
+        // cleanup routinely, so it must not uninstall the app and destroy that secret.
+        $existingApp = new PartialEntity();
+        $existingApp->setUniqueIdentifier('PendingApp');
+        $existingApp->set('id', 'PendingApp');
+        $existingApp->set('name', 'PendingApp');
+        $existingApp->set('version', '1.0.0');
+        $existingApp->set('aclRoleId', '1234');
+        $existingApp->set('unconfirmedAppSecrets', 'left-over-pending');
+
+        // The app is not on disk, so without the pending-secret guard the cleanup would uninstall it.
+        $appLoader = static::createStub(AppLoader::class);
+
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
+
+        $lifecycle = new AppLifecycleIterator(
+            $repository,
+            $appLoader
+        );
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle->expects($this->never())->method('uninstall');
+
+        $lifecycle->iterateOverApps(
+            $appLifecycle,
+            new AppInstallParameters(),
+            Context::createCLIContext()
+        );
+    }
+
     public function testRefreshSpecificOneDoesNotDeleteOthers(): void
     {
         $existingApp = new PartialEntity();
@@ -152,7 +188,7 @@ class AppLifecycleIteratorTest extends TestCase
         $existingApp->set('version', '1.0.0');
         $existingApp->set('aclRoleId', '1234');
 
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
 
         /** @var StaticEntityRepository<AppCollection> */
         $repository = new StaticEntityRepository([new EntityCollection([$existingApp]), new EntityCollection([$existingApp])]);
@@ -177,7 +213,7 @@ class AppLifecycleIteratorTest extends TestCase
 
     public function testInstallationException(): void
     {
-        $appLoader = $this->createMock(AppLoader::class);
+        $appLoader = static::createStub(AppLoader::class);
         $appLoader->method('load')->willReturn([
             'ValidManifestApp' => Manifest::createFromXmlFile(__DIR__ . '/_fixtures/appDirValidationTest/ValidManifestApp/manifest.xml'),
         ]);

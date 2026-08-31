@@ -41,14 +41,6 @@ async function createWrapper() {
                             },
                         }),
                     },
-                    userConfigService: {
-                        upsert: () => {
-                            return Promise.resolve();
-                        },
-                        search: () => {
-                            return Promise.resolve();
-                        },
-                    },
                     searchPreferencesService: {
                         getDefaultSearchPreferences: () => {},
                         getUserSearchPreferences: () => {},

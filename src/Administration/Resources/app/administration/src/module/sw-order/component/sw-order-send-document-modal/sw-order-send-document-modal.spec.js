@@ -402,7 +402,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.findByText('button', 'sw-order.documentSendModal.labelClose').trigger('click');
+        await wrapper.findByText('button', 'global.default.close').trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('modal-close')).toHaveLength(1);
@@ -527,6 +527,31 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             deepLinkCode: '12345',
             fileExtension: 'html',
         });
+    });
+
+    it('should fall back to the V2 html document file for a11y links', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            document: {
+                ...mockDocuments[0],
+                documentA11yMediaFile: null,
+                documentFiles: [
+                    {
+                        documentFormat: 'html',
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.a11yDocuments).toEqual([
+            {
+                documentId: mockDocuments[0].id,
+                deepLinkCode: '12345',
+                fileExtension: 'html',
+            },
+        ]);
     });
 
     describe('auto select mail template by document type', () => {

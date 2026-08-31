@@ -28,6 +28,21 @@ describe('Form CMS Handler tests', () => {
         expect(typeof formCmsHandlerPlugin).toBe('object');
     });
 
+    test('form cms handler stops submitting after it was destroyed', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('[{"type":"success","alert":""}]'),
+            })
+        );
+
+        formCmsHandlerPlugin.destroy();
+
+        formElement.dispatchEvent(new Event('submit'));
+        await new Promise(process.nextTick);
+
+        expect(global.fetch).not.toHaveBeenCalled();
+    });
+
     test('form cms handler resets form after successful ajax submission', async () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({

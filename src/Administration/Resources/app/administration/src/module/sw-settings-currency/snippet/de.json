@@ -14,10 +14,7 @@
       "columnFactor": "Faktor",
       "columnDecimalPrecision": "Nachkommastellen",
       "buttonAddCurrency": "Währung anlegen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
-      "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonDelete": "Löschen"
+      "messageDeleteSuccess": "Die Währung \"{name}\" wurde erfolgreich gelöscht."
     },
     "detail": {
       "textHeadline": "Neue Währung",
@@ -35,7 +32,6 @@
       "placeholderShortName": "Kurznamen eingeben ...",
       "placeholderSymbol": "Symbol eingeben ...",
       "placeholderFactor": "Faktor eingeben ...",
-      "buttonSave": "Speichern",
       "notificationErrorMessage": "Fehler beim Speichern der Währung.",
       "titleRoundingCard": "Preisrundung",
       "titleCountryRoundingCard": "Länder",

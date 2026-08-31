@@ -10,12 +10,13 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStr
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
@@ -33,6 +34,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
+    public const INDEXER_NAME = 'product_stream_mapping.indexer';
+
     /**
      * @internal
      *
@@ -52,7 +55,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     public function getName(): string
     {
-        return 'product_stream_mapping.indexer';
+        return self::INDEXER_NAME;
     }
 
     public function iterate(?array $offset): ?EntityIndexingMessage
@@ -102,7 +105,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         try {
             $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
-        } catch (UnmappedFieldException) {
+        } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+            // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
             // invalid filter, remove all mappings
             $newMatches = [];
         }
@@ -203,7 +207,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
             try {
                 $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
-            } catch (UnmappedFieldException) {
+            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // skip if filter field is not found
                 continue;
             }
@@ -321,8 +326,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     private function replaceCheapestPriceFilters(array $filters): array
     {
         foreach ($filters as $key => $filter) {
-            if (!empty($filter['queries'])) {
-                $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($filter['queries']);
+            $queries = $filter['queries'] ?? null;
+            if (\is_array($queries) && $queries !== []) {
+                /** @var non-empty-array<int, array<string, mixed>> $queries */
+                $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($queries);
             }
 
             if (!$priceQueries = $this->getPriceQueries($filter)) {

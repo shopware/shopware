@@ -13,6 +13,13 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['service-permissions-revoked'],
 
+    props: {
+        servicesWithAccountRequirement: {
+            type: Array,
+            default: () => [],
+        },
+    },
+
     data() {
         return {
             isLoading: false,

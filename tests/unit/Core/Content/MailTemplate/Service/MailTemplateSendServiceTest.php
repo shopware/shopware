@@ -20,8 +20,8 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
-#[CoversClass(MailTemplateSendService::class)]
 #[Package('after-sales')]
+#[CoversClass(MailTemplateSendService::class)]
 class MailTemplateSendServiceTest extends TestCase
 {
     private AbstractMailService&MockObject $mailService;
@@ -83,6 +83,9 @@ class MailTemplateSendServiceTest extends TestCase
         $order = new OrderEntity();
         $order->setId('order-id');
 
+        $this->mailDataProvider->expects($this->never())
+            ->method('getTemplateData');
+
         $this->mailService->expects($this->once())
             ->method('send')
             ->with(
@@ -96,7 +99,7 @@ class MailTemplateSendServiceTest extends TestCase
                 $context,
                 ['order' => $order]
             )
-            ->willReturn($this->createMock(Email::class));
+            ->willReturn(static::createStub(Email::class));
 
         $mailTemplateSendService = $this->createService();
 

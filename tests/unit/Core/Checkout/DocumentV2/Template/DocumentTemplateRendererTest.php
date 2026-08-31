@@ -19,6 +19,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentSource;
 use Twig\Extension\CoreExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Loader\ArrayLoader;
@@ -75,6 +76,7 @@ class DocumentTemplateRendererTest extends TestCase
                     return $parameters['order'] === $order
                         && $parameters['documentNumber'] === '12345'
                         && $parameters['rootDir'] === 'rootDir'
+                        && $parameters['documentV2'] === true
                         && !\array_key_exists('counter', $parameters)
                         && $parameters['context'] instanceof SalesChannelContext;
                 }),
@@ -83,10 +85,10 @@ class DocumentTemplateRendererTest extends TestCase
             ->willReturn($template);
 
         $salesChannel = new SalesChannelEntity();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
-        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         $contextFactory->method('create')->willReturn($salesChannelContext);
 
         $renderer = new DocumentTemplateRenderer(
@@ -111,6 +113,67 @@ class DocumentTemplateRendererTest extends TestCase
 
         static::assertIsString($result);
         static::assertSame($template, $result);
+    }
+
+    public function testRenderAcceptsANonOrderDocumentSource(): void
+    {
+        $locale = new LocaleEntity();
+        $locale->setId(Uuid::randomHex());
+        $locale->setCode('de-DE');
+
+        $lang = new LanguageEntity();
+        $lang->setId(Uuid::randomHex());
+        $lang->setLocale($locale);
+
+        $source = new StaticDocumentSource(
+            salesChannelId: Uuid::randomHex(),
+            languageId: Uuid::randomHex(),
+            language: $lang,
+        );
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())
+            ->method('injectSettings')
+            ->with(
+                $source->getSalesChannelId(),
+                $source->getLanguageId(),
+                $locale->getCode(),
+            );
+
+        $finder = static::createStub(TemplateFinder::class);
+        $finder->method('find')->willReturn('path');
+
+        $env = $this->createMock(TwigEnvironment::class);
+        $env->expects($this->once())
+            ->method('renderWithTimezoneOverride')
+            ->with(
+                'path',
+                static::callback(static fn (array $parameters): bool => $parameters['order'] === $source),
+                null,
+            )
+            ->willReturn('rendered');
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannel')->willReturn(new SalesChannelEntity());
+
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
+        $contextFactory->method('create')->willReturn($salesChannelContext);
+
+        $renderer = new DocumentTemplateRenderer(
+            $finder,
+            $env,
+            $translator,
+            $contextFactory,
+            'rootDir',
+        );
+
+        $result = $renderer->render(
+            'path',
+            new RenderInput('quotes', '12345', $source),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('rendered', $result);
     }
 
     public function testRenderUsesSalesChannelBusinessTimeZone(): void
@@ -149,22 +212,22 @@ class DocumentTemplateRendererTest extends TestCase
 
     private function createRenderer(TwigEnvironment $twig, ?string $businessTimeZone): DocumentTemplateRenderer
     {
-        $templateFinder = $this->createMock(TemplateFinder::class);
+        $templateFinder = static::createStub(TemplateFinder::class);
         $templateFinder->method('find')->willReturnArgument(0);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setBusinessTimeZone($businessTimeZone);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
 
-        $contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $contextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         $contextFactory->method('create')->willReturn($salesChannelContext);
 
         return new DocumentTemplateRenderer(
             $templateFinder,
             $twig,
-            $this->createMock(AbstractTranslator::class),
+            static::createStub(AbstractTranslator::class),
             $contextFactory,
             'rootDir',
         );

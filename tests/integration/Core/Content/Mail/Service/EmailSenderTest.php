@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailSender;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -16,6 +17,7 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
+#[Package('after-sales')]
 class EmailSenderTest extends TestCase
 {
     use KernelTestBehaviour;

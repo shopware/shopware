@@ -105,6 +105,9 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     'sw-loader': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                    'mt-floating-ui': {
+                        template: '<div><slot /></div>',
+                    },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
@@ -466,7 +469,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         await flushPromises();
 
         await wrapper.find('.sw-select-option--0').trigger('click');
-        await wrapper.findByText('button', 'sw-product.variations.configuratorModal.save').trigger('click');
+        await wrapper.findByText('button', 'global.default.save').trigger('click');
 
         expect(wrapper.vm.product.variantRestrictions).toEqual([
             {

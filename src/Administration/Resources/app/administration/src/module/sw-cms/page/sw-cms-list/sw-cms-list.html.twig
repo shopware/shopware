@@ -45,22 +45,38 @@
                 {% block sw_cms_list_sidebar %}
                 <div class="sw-cms-list__sidebar">
                     {% block sw_cms_list_sidebar_tabs %}
-                    <sw-tabs
-                        is-vertical
-                        small
-                        position-identifier="sw-cms-list-sidebar"
-                        class="sw-cms-list__type-nav"
-                    >
-                        <sw-tabs-item
-                            v-for="pageType in sortPageTypes"
-                            :key="pageType.name"
-                            :disabled="pageType.disabled || undefined"
-                            :active="pageType.active"
-                            @click="onSortPageType(pageType.value)"
+                    <template v-if="feature.isActive('v6.8.0.0')">
+                        {% block sw_cms_list_sidebar_mt_tabs %}
+                        <mt-tabs
+                            vertical
+                            position-identifier="sw-cms-list-sidebar"
+                            class="sw-cms-list__type-nav"
+                            :default-item="activePageTypeTab"
+                            :items="cmsListPageTypeTabs"
+                            :use-routes-for-extensions="false"
+                            :small="true"
+                        />
+                        {% endblock %}
+                    </template>
+
+                    <template v-else>
+                        <sw-tabs
+                            is-vertical
+                            small
+                            position-identifier="sw-cms-list-sidebar"
+                            class="sw-cms-list__type-nav"
                         >
-                            {{ pageType.name }}
-                        </sw-tabs-item>
-                    </sw-tabs>
+                            <sw-tabs-item
+                                v-for="pageType in sortPageTypes"
+                                :key="pageType.name"
+                                :disabled="pageType.disabled || undefined"
+                                :active="pageType.active"
+                                @click="onSortPageType(pageType.value)"
+                            >
+                                {{ pageType.name }}
+                            </sw-tabs-item>
+                        </sw-tabs>
+                    </template>
                     {% endblock %}
                 </div>
                 {% endblock %}
@@ -190,7 +206,7 @@
                                                     class="sw-cms-list-item__option-duplicate"
                                                     @click="onDuplicateCmsPage(cmsPage)"
                                                 >
-                                                    {{ $t('sw-cms.components.cmsListItem.duplicate') }}
+                                                    {{ $t('global.default.duplicate') }}
                                                 </sw-context-menu-item>
                                                 {% endblock %}
 
@@ -215,7 +231,7 @@
                                                     :disabled="optionContextDeleteDisabled(cmsPage) || undefined"
                                                     @click="onDeleteCmsPage(cmsPage)"
                                                 >
-                                                    {{ $t('sw-cms.components.cmsListItem.delete') }}
+                                                    {{ $t('global.default.delete') }}
                                                 </sw-context-menu-item>
                                             {% endblock %}
 
@@ -338,7 +354,7 @@
                                                 {{ $t('sw-cms.components.cmsListItem.view') }}
                                             </template>
                                             <template v-else>
-                                                {{ $t('sw-cms.components.cmsListItem.edit') }}
+                                                {{ $t('global.default.edit') }}
                                             </template>
                                         </sw-context-menu-item>
                                         {% endblock %}
@@ -363,7 +379,7 @@
                                             class="sw-cms-list__context-menu-item-duplicate"
                                             @click="onDuplicateCmsPage(item)"
                                         >
-                                            {{ $t('sw-cms.components.cmsListItem.duplicate') }}
+                                            {{ $t('global.default.duplicate') }}
                                         </sw-context-menu-item>
                                         {% endblock %}
 
@@ -387,7 +403,7 @@
                                             :disabled="optionContextDeleteDisabled(item) || undefined"
                                             @click="onDeleteCmsPage(item)"
                                         >
-                                            {{ $t('sw-cms.components.cmsListItem.delete') }}
+                                            {{ $t('global.default.delete') }}
 
                                         </sw-context-menu-item>
                                         {% endblock %}
@@ -517,7 +533,7 @@
                         size="small"
                         @click="onConfirmPageDelete"
                     >
-                        {{ $t('sw-cms.components.cmsListItem.modal.buttonDelete') }}
+                        {{ $t('global.default.delete') }}
                     </mt-button>
                     {% endblock %}
                 </template>

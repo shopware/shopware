@@ -144,7 +144,9 @@ export default {
                 });
             },
             set(newValue) {
-                this.currentValue = this.getKey(newValue, this.valueProperty);
+                // getKey (lodash get) returns undefined instead of null when clearing,
+                // which JSON.stringify drops from the save payload
+                this.currentValue = newValue ? this.getKey(newValue, this.valueProperty) : null;
                 this.$emit('item-selected', newValue);
             },
         },

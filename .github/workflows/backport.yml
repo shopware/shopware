@@ -13,9 +13,7 @@ jobs:
   find-linked-issue:
     runs-on: ubuntu-24.04
     if: >
-      github.event.act ||
-      github.event.pull_request.merged
-      && (
+      github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
           && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
         || (
@@ -38,8 +36,9 @@ jobs:
           scope: shopware
           identity: ShopwareBackport
 
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
           sparse-checkout: |
             .github/bin/js
@@ -71,18 +70,15 @@ jobs:
   reopen-linked-issue:
     runs-on: ubuntu-24.04
     if: >
-      github.event.act ||
-      github.event.pull_request.merged
-      && (
+      github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
           && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
         || (
           github.event.action == 'labeled'
           && contains(github.event.label.name, 'backport-')
         )
-      )
-      && needs.find-linked-issue.outputs.id
-    needs: [ find-linked-issue ]
+      ) && needs.find-linked-issue.outputs.id
+    needs: [find-linked-issue]
     steps:
       - uses: shopware/octo-sts-action@main
         id: sts-shopware-backport
@@ -131,9 +127,7 @@ jobs:
   parse-labels:
     runs-on: ubuntu-24.04
     if: >
-      github.event.act ||
-      github.event.pull_request.merged
-      && (
+      github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
           && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
         || (
@@ -169,9 +163,7 @@ jobs:
   backport:
     runs-on: ubuntu-24.04
     if: >
-      github.event.act ||
-      github.event.pull_request.merged
-      && (
+      github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
           && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
         || (
@@ -179,7 +171,7 @@ jobs:
           && contains(github.event.label.name, 'backport-')
         )
       )
-    needs: [ find-linked-issue, parse-labels ]
+    needs: [find-linked-issue, parse-labels]
     strategy:
       matrix:
         target-branch: ${{ fromJSON(needs.parse-labels.outputs.target-branches) }}
@@ -193,7 +185,7 @@ jobs:
           identity: ShopwareBackport
 
       - name: Backporting
-        uses: kiegroup/git-backporting@0e567a8311137583de0d6f08a4cbcc39255eb33d # main
+        uses: kiegroup/git-backporting@2d651f7b8d88f89656c888eaa4779796db946b5b # main
         with:
           auth: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
           target-branch: ${{ matrix.target-branch }}
@@ -209,8 +201,7 @@ jobs:
           assignees: >- # Inherit original assignees
             ${{ github.event.pull_request.assignees && join(github.event.pull_request.assignees.*.login, ',') || '' }}
           reviewers: >- # Add the original assignees, as well as the reviewers of the original PR
-            ${{ github.event.pull_request.assignees && format('{0},', join(github.event.pull_request.assignees.*.login, ',')) || '' }}
-            ${{ github.event.pull_request.requested_reviewers && join(github.event.pull_request.requested_reviewers.*.login, ',') || '' }}
+            ${{ github.event.pull_request.assignees && format('{0},', join(github.event.pull_request.assignees.*.login, ',')) || '' }} ${{ github.event.pull_request.requested_reviewers && join(github.event.pull_request.requested_reviewers.*.login, ',') || '' }}
           labels: >- # Inherit original labels, except backport and milestone ones
             ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
           dry-run: ${{ github.event.act && true || false }}

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
@@ -29,6 +30,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityExtensionReadTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
@@ -169,7 +171,7 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('manyToOne');
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertSame($productId, $product->getId());
@@ -211,7 +213,7 @@ class EntityExtensionReadTest extends TestCase
 
         $manyToOneRepo = static::getContainer()->get('many_to_one_product.repository');
         static::assertInstanceOf(EntityRepository::class, $manyToOneRepo);
-        $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->first();
+        $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(ArrayEntity::class, $manyToOne);
         static::assertCount(1, $manyToOne->get('products'));

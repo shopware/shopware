@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Checkout\Cart\Telemetry\CartMetricsInstrumentor;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -16,13 +16,14 @@ class CartCalculator
 {
     public function __construct(
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly CartContextHasher $cartContextHasher
+        private readonly CartContextHasher $cartContextHasher,
+        private readonly CartMetricsInstrumentor $cartMetrics,
     ) {
     }
 
     public function calculate(Cart $cart, SalesChannelContext $context): Cart
     {
-        return Profiler::trace('cart-calculation', function () use ($cart, $context) {
+        return $this->cartMetrics->measure($context, function () use ($cart, $context): Cart {
             // validate cart against the context rules
             $cart = $this->cartRuleLoader
                 ->loadByCart($context, $cart, new CartBehavior($context->getPermissions()))

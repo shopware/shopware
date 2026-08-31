@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -33,6 +35,7 @@ class EntityReadToolTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $entity = new ArrayEntity(['id' => 'prod-123', 'name' => 'Test Product']);
+        $entity->internalSetEntityData('product', new FieldVisibility([]));
         $collection = new EntitySearchResult(
             'product',
             1,
@@ -42,28 +45,28 @@ class EntityReadToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($collection);
 
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->with('product')->willReturn($definition);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
 
         $readCriteria = new Criteria(['prod-123']);
         $readCriteria->setIncludes([]);
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($readCriteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn(['id' => 'prod-123', 'name' => 'Test Product']);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', 'prod-123');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -86,27 +89,27 @@ class EntityReadToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($emptyCollection);
 
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->with('product')->willReturn($definition);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
 
         $missingCriteria = new Criteria(['prod-missing']);
         $missingCriteria->setIncludes([]);
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($missingCriteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', 'prod-missing');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -122,14 +125,15 @@ class EntityReadToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntityReadTool(
             $registry,
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
         $output = ($tool)('product', 'some-id', 'not-json');
 
@@ -150,10 +154,10 @@ class EntityReadToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityReadTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider, $this->createMock(JsonEntityEncoder::class));
+        $tool = new EntityReadTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(JsonEntityEncoder::class), static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', 'some-id');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -163,20 +167,58 @@ class EntityReadToolTest extends TestCase
         static::assertStringContainsString('product:read', $data['error']);
     }
 
+    public function testDeniesAccessWhenCriteriaRequiresMissingAssociationPrivilege(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['order:read']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('search');
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn($repository);
+
+        $criteria = new Criteria(['order-id']);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willReturn($criteria);
+
+        $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
+        $criteriaValidator->expects($this->once())
+            ->method('validate')
+            ->with('order', static::identicalTo($criteria), $context)
+            ->willReturn(['order_customer:read']);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, static::createStub(JsonEntityEncoder::class), $criteriaValidator);
+        $output = ($tool)('order', 'order-id', '{"associations": {"orderCustomer": {}}}');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege:', $data['error']);
+        static::assertStringContainsString('order_customer:read', $data['error']);
+    }
+
     public function testUnknownEntityReturnsError(): void
     {
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(false);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntityReadTool(
             $registry,
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
         $output = ($tool)('unknown_entity', 'some-id');
 

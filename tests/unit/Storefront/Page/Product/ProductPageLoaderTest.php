@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -45,6 +46,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductPageLoader::class)]
 class ProductPageLoaderTest extends TestCase
 {
@@ -113,7 +115,7 @@ class ProductPageLoaderTest extends TestCase
             static::assertSame(1, $reviewData->getTotal());
             static::assertSame($productId, $reviewData->getProductId());
 
-            $loadedReview = $reviewData->first();
+            $loadedReview = $reviewData->getEntities()->first();
             static::assertNotNull($loadedReview);
             static::assertSame('Great product', $loadedReview->getTitle());
         } else {
@@ -328,17 +330,19 @@ class ProductPageLoaderTest extends TestCase
         $review->setTitle('myReviewTitle');
         $review->setComment('this product changed my life');
 
-        $productReviewResult = new ProductReviewResult(
-            ProductReviewDefinition::ENTITY_NAME,
+        return ProductReviewResult::fromSearchResult(
+            new EntitySearchResult(
+                ProductReviewDefinition::ENTITY_NAME,
+                1,
+                new ProductReviewCollection([$review]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ),
+            new RatingMatrix([]),
+            Uuid::randomHex(),
             1,
-            new ProductReviewCollection([$review]),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
         );
-        $productReviewResult->setMatrix(new RatingMatrix([]));
-
-        return $productReviewResult;
     }
 
     private function getReviewBlock(SalesChannelProductEntity $productEntity): CmsBlockEntity

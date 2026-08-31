@@ -6,7 +6,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/mixin/translate-with-fallback.mixin';
 
-async function createWrapper(privileges = [], isSso = { isSso: false }) {
+async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
     return mount(
         await wrapTestComponent('sw-users-permissions-user-listing', {
             sync: true,
@@ -25,6 +25,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                         },
                     },
                     userService: {},
+                    loginService: {},
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
@@ -63,9 +64,9 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                                     ),
                                 );
                             },
+                            delete: deleteFunction,
                         }),
                     },
-                    loginService: {},
                     searchRankingService: {
                         isValidTerm: (term) => {
                             return term && term.trim().length >= 1;
@@ -92,6 +93,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }) {
                         ],
                     },
                     'sw-user-sso-invitation-modal': true,
+                    'sw-verify-user-modal': true,
                     'sw-container': true,
                     'sw-simple-search-field': true,
                     'sw-avatar': true,
@@ -114,6 +116,12 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+    });
+
+    it('should retain the deprecated password verification members', () => {
+        expect(wrapper.vm.loginService).toBeDefined();
+        expect(wrapper.vm.confirmPassword).toBe('');
+        expect(wrapper.vm.isConfirmingPassword).toBe(false);
     });
 
     it('the data-grid should show the right columns', async () => {
@@ -139,6 +147,10 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
             {
                 property: 'email',
                 label: 'sw-users-permissions.users.user-grid.labelEmail',
+            },
+            {
+                property: 'status',
+                label: 'sw-users-permissions.users.user-grid.status',
             },
         ];
 
@@ -188,6 +200,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                 firstName: 'Max',
                 lastName: 'Mustermann',
                 email: 'max@mustermann.com',
+                active: false,
                 aclRoles: ['testRole'],
             },
             {
@@ -195,6 +208,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                 firstName: '',
                 lastName: 'admin',
                 email: 'info@shopware.com',
+                active: true,
                 aclRoles: [
                     'adminRole',
                     'superUser',
@@ -221,6 +235,13 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
             const email = wrapper.findByText('div.sw-data-grid__cell-content', user.email);
             expect(email.exists()).toBe(true);
+
+            const activeText = user.active ? 'active' : 'inactive';
+            const statusLabel = wrapper.findByText(
+                '.sw-user-sso-status-label',
+                `sw-users-permissions.sso.user-listing.status-label.${activeText}`,
+            );
+            expect(statusLabel.exists()).toBe(true);
         });
     });
 
@@ -336,6 +357,33 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
         const addUserButton = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
         expect(addUserButton.find('span').text()).toBe('sw-users-permissions.sso.inviteButtonLabel');
+    });
+
+    it('should open the verification modal before deleting a user', async () => {
+        const deleteFunction = jest.fn().mockResolvedValue(undefined);
+        wrapper = await createWrapper(['users_and_permissions.deleter'], { isSso: false }, deleteFunction);
+        const user = { id: 'different-user', firstName: 'Max', lastName: 'Mustermann' };
+        Shopware.Store.get('session').setCurrentUser({ id: 'current-user' });
+
+        wrapper.vm.onDelete(user);
+        wrapper.vm.onConfirmDelete(user);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBe(true);
+        expect(deleteFunction).not.toHaveBeenCalled();
+    });
+
+    it('should delete an SSO user without password verification', async () => {
+        const deleteFunction = jest.fn().mockResolvedValue(undefined);
+        wrapper = await createWrapper(['users_and_permissions.deleter'], { isSso: true }, deleteFunction);
+        const user = { id: 'different-user', firstName: 'Max', lastName: 'Mustermann' };
+        Shopware.Store.get('session').setCurrentUser({ id: 'current-user' });
+
+        wrapper.vm.onDelete(user);
+        wrapper.vm.onConfirmDelete(user);
+        await flushPromises();
+
+        expect(deleteFunction).toHaveBeenCalledWith(user.id, Shopware.Context.api);
     });
 
     it('should use the correct route for the Edit context menu item', async () => {

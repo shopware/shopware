@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1779176196AddFeedLabelToProductExport;
@@ -12,6 +13,7 @@ use Shopware\Core\Migration\V6_7\Migration1779176196AddFeedLabelToProductExport;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(Migration1779176196AddFeedLabelToProductExport::class)]
 class Migration1779176196AddFeedLabelToProductExportTest extends TestCase
 {

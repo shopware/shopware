@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -30,16 +31,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Event\NestedEventDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityRepository::class)]
 class EntityRepositoryTest extends TestCase
 {
@@ -62,13 +66,13 @@ class EntityRepositoryTest extends TestCase
         $aggregator->expects($this->never())->method('aggregate');
 
         $repo = new EntityRepository(
-            $this->createMock(EntityDefinition::class),
+            static::createStub(EntityDefinition::class),
             $reader,
-            $this->createMock(VersionManager::class),
+            static::createStub(VersionManager::class),
             $searcher,
             $aggregator,
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->search(new Criteria(), Context::createDefaultContext());
@@ -101,11 +105,11 @@ class EntityRepositoryTest extends TestCase
         $repo = new EntityRepository(
             new ProductDefinition(),
             $reader,
-            $this->createMock(VersionManager::class),
+            static::createStub(VersionManager::class),
             $searcher,
             $aggregator,
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $criteria = new Criteria();
@@ -138,11 +142,11 @@ class EntityRepositoryTest extends TestCase
         $repo = new EntityRepository(
             new ProductDefinition(),
             $reader,
-            $this->createMock(VersionManager::class),
+            static::createStub(VersionManager::class),
             $searcher,
             $aggregator,
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $criteria = new Criteria();
@@ -201,11 +205,11 @@ class EntityRepositoryTest extends TestCase
         $repo = new EntityRepository(
             new ProductDefinition(),
             $reader,
-            $this->createMock(VersionManager::class),
+            static::createStub(VersionManager::class),
             $searcher,
             $aggregator,
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $criteria = new Criteria();
@@ -215,8 +219,8 @@ class EntityRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntitySearchedEvent::class, $event);
 
-        static::assertCount(4, $result);
-        $productEntity = $result->first();
+        static::assertCount(4, $result->getEntities());
+        $productEntity = $result->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $productEntity);
 
         static::assertSame('test-1', $productEntity->getId());
@@ -233,8 +237,9 @@ class EntityRepositoryTest extends TestCase
     {
         $product = new PartialEntity();
         $product->setUniqueIdentifier('test');
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
-        $reader = $this->createMock(EntityReaderInterface::class);
+        $reader = static::createStub(EntityReaderInterface::class);
         $reader
             ->method('read')
             ->willReturn(new EntityCollection([$product]));
@@ -245,14 +250,17 @@ class EntityRepositoryTest extends TestCase
             $event = $inner;
         });
 
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('product');
+
         $repo = new EntityRepository(
-            $this->createMock(EntityDefinition::class),
+            $definition,
             $reader,
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            new EntityLoadedEventFactory($this->createMock(DefinitionInstanceRegistry::class))
+            new EntityLoadedEventFactory(static::createStub(DefinitionInstanceRegistry::class))
         );
 
         $criteria = new Criteria();
@@ -284,12 +292,12 @@ class EntityRepositoryTest extends TestCase
 
         $repo = new EntityRepository(
             $definition,
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         static::assertSame($definition, $repo->getDefinition());
@@ -306,12 +314,12 @@ class EntityRepositoryTest extends TestCase
 
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->aggregate(new Criteria(), Context::createDefaultContext());
@@ -335,12 +343,12 @@ class EntityRepositoryTest extends TestCase
 
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->searchIds(new Criteria(), Context::createDefaultContext());
@@ -366,12 +374,12 @@ class EntityRepositoryTest extends TestCase
 
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
+            static::createStub(EntityReaderInterface::class),
             $versionManager,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->create([['name' => 'foo']], Context::createDefaultContext());
@@ -398,12 +406,12 @@ class EntityRepositoryTest extends TestCase
 
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
+            static::createStub(EntityReaderInterface::class),
             $versionManager,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->update([['name' => 'foo']], Context::createDefaultContext());
@@ -447,12 +455,12 @@ class EntityRepositoryTest extends TestCase
 
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
+            static::createStub(EntityReaderInterface::class),
             $versionManager,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->update([['name' => 'foo']], $context);
@@ -480,12 +488,12 @@ class EntityRepositoryTest extends TestCase
 
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
+            static::createStub(EntityReaderInterface::class),
             $versionManager,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->upsert([['name' => 'foo']], Context::createDefaultContext());
@@ -520,12 +528,12 @@ class EntityRepositoryTest extends TestCase
 
         $repo = new EntityRepository(
             new ProductDefinition(),
-            $this->createMock(EntityReaderInterface::class),
+            static::createStub(EntityReaderInterface::class),
             $versionManager,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->delete([['id' => 'test']], Context::createDefaultContext());
@@ -538,13 +546,13 @@ class EntityRepositoryTest extends TestCase
     public function testCreateVersionNotVersionAware(): void
     {
         $repo = new EntityRepository(
-            $this->createMock(EntityDefinition::class),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityDefinition::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $this->expectExceptionObject(DataAbstractionLayerException::entityNotVersionAware(''));
@@ -556,17 +564,17 @@ class EntityRepositoryTest extends TestCase
     {
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager->expects($this->once())->method('createVersion');
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
         $definition->method('isVersionAware')->willReturn(true);
 
         $repo = new EntityRepository(
             $definition,
-            $this->createMock(EntityReaderInterface::class),
+            static::createStub(EntityReaderInterface::class),
             $versionManager,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->createVersion('test', Context::createDefaultContext());
@@ -575,13 +583,13 @@ class EntityRepositoryTest extends TestCase
     public function testMergeVersionNotVersionAware(): void
     {
         $repo = new EntityRepository(
-            $this->createMock(EntityDefinition::class),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityDefinition::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $this->expectExceptionObject(DataAbstractionLayerException::entityNotVersionAware(''));
@@ -593,17 +601,17 @@ class EntityRepositoryTest extends TestCase
     {
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager->expects($this->once())->method('merge');
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
         $definition->method('isVersionAware')->willReturn(true);
 
         $repo = new EntityRepository(
             $definition,
-            $this->createMock(EntityReaderInterface::class),
+            static::createStub(EntityReaderInterface::class),
             $versionManager,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->merge('test', Context::createDefaultContext());
@@ -612,13 +620,13 @@ class EntityRepositoryTest extends TestCase
     public function testCloneInvalidId(): void
     {
         $repo = new EntityRepository(
-            $this->createMock(EntityDefinition::class),
-            $this->createMock(EntityReaderInterface::class),
-            $this->createMock(VersionManager::class),
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntityDefinition::class),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             new EventDispatcher(),
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         static::expectExceptionObject(DataAbstractionLayerException::invalidEntityUuidException('test'));
@@ -642,18 +650,141 @@ class EntityRepositoryTest extends TestCase
             ->willReturn([[new EntityWriteResult('new-id', [], 'product', EntityWriteResult::OPERATION_UPDATE)]]);
 
         $repo = new EntityRepository(
-            $this->createMock(EntityDefinition::class),
-            $this->createMock(EntityReaderInterface::class),
+            static::createStub(EntityDefinition::class),
+            static::createStub(EntityReaderInterface::class),
             $versionManager,
-            $this->createMock(EntitySearcherInterface::class),
-            $this->createMock(EntityAggregatorInterface::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
             $eventDispatcher,
-            $this->createMock(EntityLoadedEventFactory::class),
+            static::createStub(EntityLoadedEventFactory::class),
         );
 
         $repo->clone('test', Context::createDefaultContext());
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $event);
         static::assertSame(['new-id'], $event->getPrimaryKeys('product'));
+    }
+
+    public function testSearchIdsIsRoutedThroughTheInstrumentor(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        $repo->searchIds(new Criteria(), Context::createDefaultContext());
+
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH_IDS], $operations);
+    }
+
+    public function testAggregateIsRoutedThroughTheInstrumentor(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        $repo->aggregate(new Criteria(), Context::createDefaultContext());
+
+        static::assertSame([DalSearchInstrumentor::OPERATION_AGGREGATE], $operations);
+    }
+
+    public function testReadOnlySearchIsRoutedThroughTheInstrumentor(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        // an empty criteria needs no id lookup, so only the outer search operation is measured
+        $repo->search(new Criteria(), Context::createDefaultContext());
+
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
+    }
+
+    public function testSearchWithIdLookupDoesNotEmitANestedSearchIds(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm('foo');
+        $repo->search($criteria, Context::createDefaultContext());
+
+        // the id lookup runs through the private _searchIds(); the outer search is the only measured operation,
+        // so its duration is not double-counted by a nested searchIds sample
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
+    }
+
+    public function testSearchWithAggregationsDoesNotEmitANestedAggregate(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new TermsAggregation('agg', 'id'));
+        $repo->search($criteria, Context::createDefaultContext());
+
+        // the aggregate is a nested sub-operation (profiled, not metered); only the outer search is measured
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
+    }
+
+    /**
+     * An instrumentor mock that records each measured operation and transparently runs the wrapped
+     * callback, so tests can assert the repository delegates to it.
+     *
+     * @param list<string> $operations
+     */
+    private function recordingInstrumentor(array &$operations): DalSearchInstrumentor
+    {
+        $instrumentor = static::createStub(DalSearchInstrumentor::class);
+        $instrumentor->method('measure')->willReturnCallback(
+            function (string $operation, EntityDefinition $definition, Criteria $criteria, \Closure $callback) use (&$operations): mixed {
+                $operations[] = $operation;
+
+                return $callback();
+            }
+        );
+
+        return $instrumentor;
     }
 }

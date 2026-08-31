@@ -41,7 +41,7 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
 
     public function testItServesSalesChannelFileForUnresolvedNotFoundWithExistingSalesChannelContext(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $request = Request::create('/llms.txt');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
 
@@ -75,7 +75,7 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
 
     public function testItServesSalesChannelFileFromWellKnownSubFolder(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $request = Request::create('/.well-known/ucp.json');
 
         $loader = $this->createMock(SalesChannelFileLoader::class);
@@ -103,7 +103,7 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
 
     public function testItUsesContextResolverForCandidateFilePath(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $request = Request::create('/llms.txt');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'sales-channel-id');
 
@@ -152,7 +152,7 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
     {
         $request = Request::create('/llms.txt');
         $request->attributes->set('_route', 'frontend.example');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
 
         $loader = $this->createMock(SalesChannelFileLoader::class);
         $loader
@@ -169,7 +169,7 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
     public function testItReturnsEarlyForInvalidPublicPath(): void
     {
         $request = Request::create('/folder/file');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
 
         $loader = $this->createMock(SalesChannelFileLoader::class);
         $loader
@@ -186,7 +186,7 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
     public function testItReturnsEarlyForNonNotFoundExceptions(): void
     {
         $request = Request::create('/llms.txt');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
 
         $loader = $this->createMock(SalesChannelFileLoader::class);
         $loader
@@ -203,7 +203,7 @@ class SalesChannelFileNotFoundSubscriberTest extends TestCase
     private function createExceptionEvent(Request $request, ?\Throwable $throwable = null): ExceptionEvent
     {
         return new ExceptionEvent(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $throwable ?? new NotFoundHttpException(),

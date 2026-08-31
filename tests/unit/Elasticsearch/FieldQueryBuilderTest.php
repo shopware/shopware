@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch;
 
 use OpenSearchDSL\Query\Compound\DisMaxQuery;
+use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -24,8 +25,8 @@ use Shopware\Elasticsearch\ResolvedField;
 /**
  * @internal
  */
-#[CoversClass(FieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(FieldQueryBuilder::class)]
 class FieldQueryBuilderTest extends TestCase
 {
     public function testGetDecoratedThrowsException(): void
@@ -72,35 +73,34 @@ class FieldQueryBuilderTest extends TestCase
         static::assertInstanceOf(DisMaxQuery::class, $query);
     }
 
-    public function testMultiTokenTextFieldUsesAndLogic(): void
+    public function testPhraseConfigProducesOnlyMatchPhrasePrefix(): void
     {
+        // The builder is single-token; multi-word proximity is a dedicated phrase config
+        // ({@see SearchFieldConfig::withPhrase()}) that emits a single match_phrase_prefix
+        // with the configurable phrase boost folded into the field ranking (no DisMax wrapper).
         $builder = new FieldQueryBuilder();
         $field = new ResolvedField(new StringField('name', 'name'));
-        $config = new SearchFieldConfig('name', 500, false, true, true);
+        $config = (new SearchFieldConfig('name', 500, false, true, true))->withPhrase();
 
         $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
 
         static::assertNotNull($query);
+        static::assertInstanceOf(MatchPhrasePrefixQuery::class, $query);
         $array = $query->toArray();
-        $exactMatch = $array['dis_max']['queries'][0] ?? null;
-        static::assertNotNull($exactMatch);
-        static::assertArrayHasKey('bool', $exactMatch);
-        static::assertArrayHasKey('must', $exactMatch['bool']);
+        static::assertArrayHasKey('name.search', $array['match_phrase_prefix']);
+        static::assertSame('foo bar', $array['match_phrase_prefix']['name.search']['query']);
+        static::assertSame(4.0 * 500, $array['match_phrase_prefix']['name.search']['boost']);
     }
 
-    public function testMultiTokenTextFieldUsesOrLogic(): void
+    public function testPhraseConfigReturnsNullWhenPrefixMatchDisabled(): void
     {
         $builder = new FieldQueryBuilder();
         $field = new ResolvedField(new StringField('name', 'name'));
-        $config = new SearchFieldConfig('name', 500, false, false, true);
+        $config = (new SearchFieldConfig('name', 500, false, true, false))->withPhrase();
 
         $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
 
-        static::assertNotNull($query);
-        $array = $query->toArray();
-        $exactMatch = $array['dis_max']['queries'][0] ?? null;
-        static::assertNotNull($exactMatch);
-        static::assertArrayHasKey('terms', $exactMatch);
+        static::assertNull($query);
     }
 
     public function testSingleTokenExactMatchUsesExactSubfieldWhenConfigured(): void
@@ -140,28 +140,6 @@ class FieldQueryBuilderTest extends TestCase
         static::assertSame('and', $exactMatch['match']['name.search']['operator']);
     }
 
-    public function testMultiTokenExactMatchDoesNotUseExactSubfieldWhenConfigured(): void
-    {
-        $builder = new FieldQueryBuilder();
-        $field = new ResolvedField(new StringField('name', 'name'));
-        $config = new SearchFieldConfig('name', 500, false, true, true, true);
-
-        $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
-
-        static::assertNotNull($query);
-        $array = $query->toArray();
-        $exactMatch = $array['dis_max']['queries'][0] ?? null;
-        static::assertNotNull($exactMatch);
-        static::assertStringNotContainsString(
-            '"name.exact"',
-            json_encode($exactMatch, \JSON_THROW_ON_ERROR),
-        );
-        static::assertStringContainsString(
-            '"name"',
-            json_encode($exactMatch, \JSON_THROW_ON_ERROR),
-        );
-    }
-
     public function testNgramQueryIncludedForLongTokenizedTerm(): void
     {
         $builder = new FieldQueryBuilder(4);
@@ -175,8 +153,11 @@ class FieldQueryBuilderTest extends TestCase
         $queries = $array['dis_max']['queries'];
         $hasNgram = false;
         foreach ($queries as $q) {
-            if (isset($q['match']) && array_key_first($q['match']) === 'name.ngram') {
+            // n-gram is wrapped in constant_score so a rare fragment can't spike its score.
+            $match = $q['constant_score']['filter']['match'] ?? null;
+            if ($match !== null && array_key_first($match) === 'name.ngram') {
                 $hasNgram = true;
+                static::assertSame(0.4, $q['constant_score']['boost']);
             }
         }
         static::assertTrue($hasNgram);
@@ -336,5 +317,54 @@ class FieldQueryBuilderTest extends TestCase
         $query = $builder->build($field, 'abc', $config, Context::createDefaultContext());
 
         static::assertNull($query);
+    }
+
+    public function testNonTextFieldWithPhraseConfigReturnsNull(): void
+    {
+        // A phrase boost is a multi-word proximity signal with no meaning for non-text fields.
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new IntField('stock', 'stock'));
+        $config = (new SearchFieldConfig('stock', 500, false))->withPhrase();
+
+        static::assertNull($builder->build($field, '5', $config, Context::createDefaultContext()));
+    }
+
+    public function testPhraseConfigWithoutLanguageAnalyzerUsesWhitespaceAnalyzer(): void
+    {
+        $builder = new FieldQueryBuilder(4, false);
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = (new SearchFieldConfig('name', 500, false, true, true))->withPhrase();
+
+        $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
+
+        static::assertInstanceOf(MatchPhrasePrefixQuery::class, $query);
+        static::assertSame(
+            'sw_whitespace_analyzer',
+            $query->toArray()['match_phrase_prefix']['name.search']['analyzer'] ?? null,
+        );
+    }
+
+    public function testExplainModeTagsClausesWithMatchType(): void
+    {
+        $builder = new FieldQueryBuilder(4);
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, true, true, true);
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, 'foobar', $config, $context);
+
+        static::assertNotNull($query);
+        $array = $query->toArray();
+
+        // Each dis_max clause is tagged with a _name payload describing how it matched.
+        $exactName = $array['dis_max']['queries'][0]['match']['name.search']['_name'] ?? null;
+        static::assertNotNull($exactName);
+
+        $payload = json_decode((string) $exactName, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('name', $payload['field']);
+        static::assertSame('foobar', $payload['term']);
+        static::assertSame('exact', $payload['type']);
     }
 }

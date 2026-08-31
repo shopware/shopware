@@ -8,21 +8,24 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\AddColumnTrait;
 
 /**
  * @internal
  */
-#[CoversClass(AddColumnTrait::class)]
+#[Package('framework')]
+#[CoversTrait(AddColumnTrait::class)]
 class AddColumnTraitTest extends TestCase
 {
     public function testReturnsFalseIfColumnExists(): void
     {
-        $connection = $this->createConnectionMock(columnExists: true);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($this->createSchemaManager(columnExists: true));
         $connection->expects($this->never())->method('executeStatement');
 
         $migration = new TestAddColumnMigration();
@@ -45,7 +48,8 @@ class AddColumnTraitTest extends TestCase
         string $default,
         string $expectedInstantSql
     ): void {
-        $connection = $this->createConnectionMock(columnExists: false);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($this->createSchemaManager(columnExists: false));
         $connection->expects($this->once())
             ->method('executeStatement')
             ->with($expectedInstantSql);
@@ -59,7 +63,8 @@ class AddColumnTraitTest extends TestCase
 
     public function testFallsBackWhenInstantNotSupported(): void
     {
-        $connection = $this->createConnectionMock(columnExists: false);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($this->createSchemaManager(columnExists: false));
 
         $instantSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT()), ALGORITHM=INSTANT;';
         $fallbackSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT());';
@@ -118,21 +123,15 @@ class AddColumnTraitTest extends TestCase
         ];
     }
 
-    /**
-     * @return Connection&MockObject
-     */
-    private function createConnectionMock(bool $columnExists): Connection
+    private function createSchemaManager(bool $columnExists): MySQLSchemaManager&Stub
     {
-        $table = $this->createMock(Table::class);
+        $table = static::createStub(Table::class);
         $table->method('hasColumn')->willReturn($columnExists);
 
-        $schemaManager = $this->createMock(MySQLSchemaManager::class);
+        $schemaManager = static::createStub(MySQLSchemaManager::class);
         $schemaManager->method('introspectTableByUnquotedName')->willReturn($table);
 
-        $connection = $this->createMock(Connection::class);
-        $connection->method('createSchemaManager')->willReturn($schemaManager);
-
-        return $connection;
+        return $schemaManager;
     }
 }
 

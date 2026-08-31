@@ -48,6 +48,12 @@
         {% endblock %}
     </div>
 
+    <sw-verify-user-modal
+        v-if="isConfirmingPasswordModalOpen"
+        @verified="deleteUser"
+        @close="onCloseConfirmPasswordModal"
+    />
+
     {% block sw_settings_user_list_content %}
     {% block sw_settings_user_list_content_grid %}
     <sw-data-grid
@@ -67,7 +73,7 @@
                 :disabled="!acl.can('users_and_permissions.editor') || undefined"
                 :router-link="{ name: userDetailRouterLink, params: { id: item.id } }"
             >
-                {{ $t('sw-users-permissions.users.user-grid.contextMenuEdit') }}
+                {{ $t('global.default.edit') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -78,7 +84,7 @@
                 :disabled="!acl.can('users_and_permissions.deleter') || undefined"
                 @click="onDelete(item)"
             >
-                {{ $t('sw-users-permissions.users.user-grid.contextMenuDelete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -132,10 +138,7 @@
         {% endblock %}
 
         {% block sw_settings_user_list_column_status %}
-        <template
-            v-if="isSso"
-            #column-status="{item}"
-        >
+        <template #column-status="{ item }">
             <sw-user-sso-status-label :user="item" />
         </template>
         {% endblock %}
@@ -176,7 +179,7 @@
         <template #action-modals="{ item }">
         {% block sw_settings_user_list_delete_modal %}
             <sw-modal
-                v-if="getItemToDelete(item)"
+                v-if="isConfirmDeleteModalOpen && getItemToDelete(item)"
                 :title="$t('global.default.warning')"
                 variant="small"
                 class="sw-settings-user-list__delete-modal"
@@ -188,19 +191,8 @@
                 </p>
                 {% endblock %}
 
+                {# @deprecated tag:v6.8.0 - will be removed #}
                 {% block sw_settings_user_list_delete_modal_input__confirm_password %}
-                <mt-password-field
-                    v-if="!isSso"
-                    v-model="confirmPassword"
-                    class="sw-settings-user-detail__confirm-password"
-                    required
-                    name="sw-field--confirm-password"
-                    :password-toggle-able="true"
-                    :label="$t('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
-                    :placeholder="$t('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')"
-                    autocomplete="off"
-                    @keypress.enter="onConfirmDelete(item)"
-                />
                 {% endblock %}
 
                 {% block sw_settings_user_list_delete_modal_footer %}
@@ -217,13 +209,11 @@
 
                     {% block sw_settings_user_list_delete_modal_confirm %}
                     <mt-button
-                        :disabled="!confirmPassword && !isSso || undefined"
-                        :is-loading="isConfirmingPassword"
                         variant="critical"
                         size="small"
                         @click="onConfirmDelete(item)"
                     >
-                        {{ $t('sw-users-permissions.users.user-grid.labelButtonDelete') }}
+                        {{ $t('global.default.delete') }}
                     </mt-button>
                     {% endblock %}
                 </template>

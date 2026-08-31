@@ -36,6 +36,11 @@ shopware:
         major: true
         toggleable: true
         description: "Execute flows after the main unit of work has concluded. Will become the default for next major 6.8"
+      - name: DOCUMENT_GENERATION_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enable the new document generation implementation and its accompanying UI changes."
       - name: PERFORMANCE_TWEAKS
         default: false
         major: true
@@ -66,6 +71,11 @@ shopware:
         major: false
         toggleable: true
         description: "Defers cart errors that happen during SalesChannelContext creation\nThis feature will be standard as of v6.8.0"
+      - name: SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION
+        default: false
+        major: true
+        toggleable: true
+        description: "Convert shipping price matrix ranges by the active currency factor.\nThis feature will be standard as of v6.8.0"
       - name: REPEATED_PAYMENT_FINALIZE
         default: false
         major: true
@@ -81,11 +91,6 @@ shopware:
         major: false
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
-      - name: MCP_SERVER
-        default: false
-        major: false
-        toggleable: true
-        description: "Experimental! Enable MCP (Model Context Protocol) server for AI tool integration"
       - name: JSON_LD_DATA
         default: false
         major: true
@@ -101,3 +106,8 @@ shopware:
         major: true
         toggleable: true
         description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
+      - name: ADMIN_EXTENSION_TOOLING
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Run the Administration extension tooling (admin:setup-extension-tooling) automatically during composer setup."

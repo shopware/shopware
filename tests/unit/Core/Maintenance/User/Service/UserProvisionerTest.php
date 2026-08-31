@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\User\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
@@ -14,6 +15,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UserProvisioner::class)]
 class UserProvisionerTest extends TestCase
 {

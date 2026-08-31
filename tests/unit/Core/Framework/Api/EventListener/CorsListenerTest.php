@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\CorsListener;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CorsListener::class)]
 class CorsListenerTest extends TestCase
 {

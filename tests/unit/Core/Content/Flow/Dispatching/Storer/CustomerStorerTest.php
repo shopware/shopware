@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -28,22 +28,18 @@ class CustomerStorerTest extends TestCase
 {
     private CustomerStorer $storer;
 
-    private MockObject&CustomerProvider $customerProvider;
+    private Stub&CustomerProvider $customerProvider;
 
     protected function setUp(): void
     {
-        $this->customerProvider = $this->createMock(CustomerProvider::class);
+        $this->customerProvider = static::createStub(CustomerProvider::class);
 
-        $this->storer = new CustomerStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->customerProvider,
-        );
+        $this->storer = $this->createStorer($this->customerProvider);
     }
 
     public function testStoreWithAware(): void
     {
-        $event = $this->createMock(CustomerRegisterEvent::class);
+        $event = static::createStub(CustomerRegisterEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(CustomerAware::CUSTOMER_ID, $stored);
@@ -51,7 +47,7 @@ class CustomerStorerTest extends TestCase
 
     public function testStoreWillCatchCustomerDeleteException(): void
     {
-        $event = $this->createMock(OrderStateMachineStateChangeEvent::class);
+        $event = static::createStub(OrderStateMachineStateChangeEvent::class);
         $event->method('getCustomerId')->willThrowException(new CustomerDeletedException('id'));
 
         $stored = [];
@@ -61,7 +57,7 @@ class CustomerStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(UserRecoveryRequestEvent::class);
+        $event = static::createStub(UserRecoveryRequestEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(CustomerAware::CUSTOMER_ID, $stored);
@@ -87,12 +83,15 @@ class CustomerStorerTest extends TestCase
 
     public function testLazyLoadEntity(): void
     {
+        $customerProvider = $this->createMock(CustomerProvider::class);
+        $storer = $this->createStorer($customerProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
-        $this->storer->restore($storable);
+        $storer->restore($storable);
         $entity = new CustomerEntity();
         $entity->setId('id');
 
-        $this->customerProvider->expects($this->once())->method('getData')->willReturn($entity);
+        $customerProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('customer');
 
         static::assertSame($res, $entity);
@@ -100,10 +99,13 @@ class CustomerStorerTest extends TestCase
 
     public function testLazyLoadNullEntity(): void
     {
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
-        $this->storer->restore($storable);
+        $customerProvider = $this->createMock(CustomerProvider::class);
+        $storer = $this->createStorer($customerProvider);
 
-        $this->customerProvider->expects($this->once())->method('getData')->willReturn(null);
+        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerId' => 'id'], []);
+        $storer->restore($storable);
+
+        $customerProvider->expects($this->once())->method('getData')->willReturn(null);
         $res = $storable->getData('customer');
 
         static::assertNull($res);
@@ -116,5 +118,14 @@ class CustomerStorerTest extends TestCase
         $customerGroup = $storable->getData('customer');
 
         static::assertNull($customerGroup);
+    }
+
+    private function createStorer(CustomerProvider $customerProvider): CustomerStorer
+    {
+        return new CustomerStorer(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $customerProvider,
+        );
     }
 }

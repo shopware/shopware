@@ -50,15 +50,20 @@ class SalesChannelFileTemplateResolver
         $this->templateFinder->reset();
 
         $templates = [];
+        $templatePaths = $file->templatePaths ?: [$file->templatePath];
 
         foreach (array_keys($this->namespaceHierarchyBuilder->buildHierarchy()) as $twigNamespace) {
-            $templateName = '@' . $twigNamespace . '/' . $file->templatePath;
+            foreach ($templatePaths as $templatePath) {
+                $templateName = '@' . $twigNamespace . '/' . $templatePath;
 
-            if (!$this->loader->exists($templateName)) {
-                continue;
+                if (!$this->loader->exists($templateName)) {
+                    continue;
+                }
+
+                $templates[$twigNamespace] = $templateName;
+
+                break;
             }
-
-            $templates[$twigNamespace] = $templateName;
         }
 
         return $templates ?: $file->templates;

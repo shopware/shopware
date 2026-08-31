@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontHealthCheckResult extends Struct
 {
     private function __construct(

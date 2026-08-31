@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Administration\Framework\Routing\KnownIps;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(KnownIpsCollector::class)]
 class KnownIpsCollectorTest extends TestCase
 {

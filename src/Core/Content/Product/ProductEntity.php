@@ -66,6 +66,10 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?string $manufacturerNumber = null;
 
+    protected ?int $guaranteeMonths = null;
+
+    protected bool $guaranteeConfirmed = false;
+
     protected ?string $ean = null;
 
     protected int $sales;
@@ -187,7 +191,7 @@ class ProductEntity extends Entity implements \Stringable
     protected ?CmsPageEntity $cmsPage = null;
 
     /**
-     * @var array<string, array<string, array<string, string>>>|null
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
 
@@ -362,6 +366,26 @@ class ProductEntity extends Entity implements \Stringable
     public function setManufacturerNumber(?string $manufacturerNumber): void
     {
         $this->manufacturerNumber = $manufacturerNumber;
+    }
+
+    public function getGuaranteeMonths(): ?int
+    {
+        return $this->guaranteeMonths;
+    }
+
+    public function setGuaranteeMonths(?int $guaranteeMonths): void
+    {
+        $this->guaranteeMonths = $guaranteeMonths;
+    }
+
+    public function isGuaranteeConfirmed(): bool
+    {
+        return $this->guaranteeConfirmed;
+    }
+
+    public function setGuaranteeConfirmed(bool $guaranteeConfirmed): void
+    {
+        $this->guaranteeConfirmed = $guaranteeConfirmed;
     }
 
     public function getEan(): ?string
@@ -793,7 +817,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string, array<string, array<string, string>>>|null
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -801,7 +825,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string, array<string, array<string, string>>> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {

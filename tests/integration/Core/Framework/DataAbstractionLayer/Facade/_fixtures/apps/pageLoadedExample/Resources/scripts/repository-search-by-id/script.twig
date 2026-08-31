@@ -5,6 +5,6 @@
     'ids': [ hook.productId ]
 } %}
 
-{% set product = services.repository.search('product', criteria).first %}
+{% set product = services.repository.search('product', criteria).getEntities().first %}
 
 {% do page.addExtension('myProduct', product) %}

@@ -4,15 +4,19 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\CoreExtension;
 use Twig\Loader\ArrayLoader;
+use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TwigEnvironment::class)]
 class TwigEnvironmentTest extends TestCase
 {
@@ -23,6 +27,33 @@ class TwigEnvironmentTest extends TestCase
 
         static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute', $code);
         static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'),', $code);
+    }
+
+    public function testResetClearsCachedEscaperRuntimeCache(): void
+    {
+        CachedEscaperRuntime::resetEscapeCache();
+
+        try {
+            $callCount = 0;
+            $originalEscaperRuntime = new EscaperRuntime();
+            $originalEscaperRuntime->setEscaper('test', static function (string $string) use (&$callCount): string {
+                ++$callCount;
+
+                return $string;
+            });
+
+            CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test');
+            CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test');
+
+            (new TwigEnvironment(new ArrayLoader()))->reset();
+
+            CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test');
+            CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test');
+
+            static::assertSame(2, $callCount, 'The inner runtime should be called once before and once after the reset');
+        } finally {
+            CachedEscaperRuntime::resetEscapeCache();
+        }
     }
 
     public function testMarkupEscapeIsWorkingCorrectly(): void
@@ -97,7 +128,7 @@ TWIG;
             ->setConstructorArgs([new ArrayLoader(['test' => ''])])
             ->onlyMethods(['render'])
             ->getMock();
-        $twig->method('render')->willThrowException($exception);
+        $twig->expects($this->once())->method('render')->willThrowException($exception);
         $this->getCoreExtension($twig)->setTimezone('UTC');
 
         static::expectExceptionObject($exception);
@@ -184,7 +215,7 @@ TWIG;
             ->setConstructorArgs([new ArrayLoader()])
             ->onlyMethods(['hasExtension'])
             ->getMock();
-        $twig->method('hasExtension')->willReturn(false);
+        $twig->expects($this->atLeastOnce())->method('hasExtension')->willReturn(false);
         $this->getCoreExtension($twig)->setTimezone('UTC');
 
         $twig->overrideTimezone('Europe/Berlin');

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 class CacheInvalidationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -64,7 +66,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->cacheInvalidationSubscriber = new CacheInvalidationSubscriber(
             $cacheInvalidator,
             static::getContainer()->get(Connection::class),
-            true
+            true,
         );
     }
 

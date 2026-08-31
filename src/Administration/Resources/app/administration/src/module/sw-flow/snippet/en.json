@@ -199,7 +199,11 @@
       "document": {
         "titleCreateDocument": "Generate documents",
         "labelDocumentType": "Documents",
-        "placeholderDocumentType": "Select documents..."
+        "placeholderDocumentType": "Select documents...",
+        "labelDocumentTypeSingle": "Document type",
+        "placeholderDocumentTypeSingle": "Select document type...",
+        "labelFileFormats": "File formats",
+        "placeholderFileFormats": "Select file formats..."
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Set download access",
@@ -295,7 +299,6 @@
       }
     },
     "leavePageModal": {
-      "headline": "Warning",
       "description": "There are unsaved changes. Are you sure you want to leave this page?",
       "confirmButton": "Leave page"
     },
@@ -340,7 +343,6 @@
       "request": "Request",
       "message": "Message",
       "sent": "Sent",
-      "confirm": "Confirm",
       "unsubscribe": "Unsubscribe",
       "log": "Log",
       "cancelled": "Cancelled",

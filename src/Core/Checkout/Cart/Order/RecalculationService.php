@@ -440,7 +440,10 @@ class RecalculationService
         // we switch to the live version that we don't have to consider live version fallbacks inside the calculation
         return $context->live(function ($live) use ($cart): Cart {
             /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed */
-            $behavior = new CartBehavior($live->getPermissions(), true, isRecalculation: !Feature::isActive('v6.8.0.0'));
+            $behavior = Feature::silent(
+                'v6.8.0.0',
+                fn (): CartBehavior => new CartBehavior($live->getPermissions(), true, isRecalculation: !Feature::isActive('v6.8.0.0')),
+            );
 
             // all prices are now prepared for calculation - starts the cart calculation
             $cart = $this->processor->process($cart, $live, $behavior);

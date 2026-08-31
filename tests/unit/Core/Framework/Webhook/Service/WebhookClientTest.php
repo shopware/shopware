@@ -13,9 +13,11 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
+use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
@@ -69,6 +71,125 @@ class WebhookClientTest extends TestCase
         static::assertSame('another', $request->getHeaderLine('X-Another'));
     }
 
+    public function testSendMapsSecurityMiddlewareTargetRejectionToFailureResult(): void
+    {
+        /** @var list<array{request: RequestInterface, options: array<string, mixed>}> $history */
+        $history = [];
+        $historyMiddleware = Middleware::history($history);
+        $mockHandler = new MockHandler([new Response(200, [], '{}')]);
+        $stack = HandlerStack::create($mockHandler);
+        $stack->after(
+            'allow_redirects',
+            new AppSystemHttpMiddleware(new TrustedUrlResolver(static fn (): array => ['10.0.0.10']), false, true),
+            'app_system_http_security',
+        );
+        $stack->push($historyMiddleware);
+
+        $client = new WebhookClient(
+            new Client(['handler' => $stack]),
+            new NativeClock(),
+        );
+
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertFalse($result->successful());
+        static::assertSame('App system request target is not allowed.', $result->errorMessage);
+        static::assertIsArray($history);
+        static::assertCount(0, $history);
+    }
+
+    public function testSendStrictlyPreservesPostAndPinsRedirectTarget(): void
+    {
+        /** @var list<array{request: RequestInterface, options: array<string, mixed>}> $history */
+        $history = [];
+        $historyMiddleware = Middleware::history($history);
+        $mockHandler = new MockHandler([
+            new Response(302, ['Location' => 'https://redirect.example.com/webhook']),
+            new Response(200, [], '{}'),
+        ]);
+        $stack = HandlerStack::create($mockHandler);
+        $stack->after(
+            'allow_redirects',
+            new AppSystemHttpMiddleware(new TrustedUrlResolver(static fn (string $host): array => match ($host) {
+                'example.com' => ['93.184.216.34'],
+                'redirect.example.com' => ['93.184.216.35'],
+                default => [],
+            }), false, true),
+            'app_system_http_security',
+        );
+        $stack->push($historyMiddleware);
+
+        $client = new WebhookClient(new Client(['handler' => $stack]), new NativeClock());
+
+        $result = $client->send($this->createWebhookRequest(url: 'https://example.com/webhook'));
+
+        static::assertTrue($result->successful());
+        static::assertIsArray($history);
+        static::assertCount(2, $history);
+        static::assertInstanceOf(RequestInterface::class, $history[1]['request']);
+        static::assertSame('POST', $history[1]['request']->getMethod());
+        static::assertSame('https://redirect.example.com/webhook', (string) $history[1]['request']->getUri());
+        static::assertContains('redirect.example.com:443:93.184.216.35', $history[1]['options']['curl'][\CURLOPT_RESOLVE] ?? []);
+    }
+
+    public function testSendReturnsFailureAfterFiveNativeRedirectsWithoutSeventhDispatch(): void
+    {
+        /** @var list<array{request: RequestInterface, options: array<string, mixed>}> $history */
+        $history = [];
+        $stack = HandlerStack::create(new MockHandler([
+            new Response(302, ['Location' => 'https://example.com/1']),
+            new Response(302, ['Location' => 'https://example.com/2']),
+            new Response(302, ['Location' => 'https://example.com/3']),
+            new Response(302, ['Location' => 'https://example.com/4']),
+            new Response(302, ['Location' => 'https://example.com/5']),
+            new Response(302, ['Location' => 'https://example.com/6']),
+        ]));
+        $stack->after(
+            'allow_redirects',
+            new AppSystemHttpMiddleware(new TrustedUrlResolver(static fn (): array => ['93.184.216.34']), false, true),
+            'app_system_http_security',
+        );
+        $stack->push(Middleware::history($history));
+
+        $result = (new WebhookClient(new Client(['handler' => $stack]), new NativeClock()))->send($this->createWebhookRequest());
+
+        static::assertFalse($result->successful());
+        static::assertNotNull($result->errorMessage);
+        static::assertIsArray($history);
+        static::assertCount(6, $history);
+    }
+
+    public function testSendBlocksPrivateRedirectBeforeTargetDispatch(): void
+    {
+        /** @var list<array{request: RequestInterface, options: array<string, mixed>}> $history */
+        $history = [];
+        $historyMiddleware = Middleware::history($history);
+        $mockHandler = new MockHandler([
+            new Response(302, ['Location' => 'https://redirect.example.com/webhook']),
+            new Response(200, [], '{}'),
+        ]);
+        $stack = HandlerStack::create($mockHandler);
+        $stack->after(
+            'allow_redirects',
+            new AppSystemHttpMiddleware(new TrustedUrlResolver(static fn (string $host): array => match ($host) {
+                'example.com' => ['93.184.216.34'],
+                'redirect.example.com' => ['10.0.0.10'],
+                default => [],
+            }), false, true),
+            'app_system_http_security',
+        );
+        $stack->push($historyMiddleware);
+
+        $client = new WebhookClient(new Client(['handler' => $stack]), new NativeClock());
+
+        $result = $client->send($this->createWebhookRequest(url: 'https://example.com/webhook'));
+
+        static::assertFalse($result->successful());
+        static::assertSame('App system request target is not allowed.', $result->errorMessage);
+        static::assertIsArray($history);
+        static::assertCount(1, $history);
+    }
+
     public function testSendReturnsFailureResultOnHttpError(): void
     {
         $errorBody = ['error' => 'Bad request'];
@@ -119,7 +240,7 @@ class WebhookClientTest extends TestCase
         ]);
 
         $handlerStack = HandlerStack::create($mockHandler);
-        $handlerStack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $handlerStack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $handlerStack->push($historyMiddleware);
         $guzzle = new Client(['handler' => $handlerStack]);
         $client = new WebhookClient($guzzle, new NativeClock());
@@ -175,7 +296,7 @@ class WebhookClientTest extends TestCase
         ]);
 
         $handlerStack = HandlerStack::create($mockHandler);
-        $handlerStack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $handlerStack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $handlerStack->push($historyMiddleware);
 
         $client = new WebhookClient(new Client(['handler' => $handlerStack]), new NativeClock());
@@ -341,8 +462,14 @@ class WebhookClientTest extends TestCase
     private function createClient(MockHandler $mockHandler): WebhookClient
     {
         $stack = HandlerStack::create($mockHandler);
-        $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
+
+        $stack->after(
+            'allow_redirects',
+            new AppSystemHttpMiddleware(new TrustedUrlResolver(static fn (): array => ['93.184.216.34']), false, true),
+            'app_system_http_security',
+        );
 
         return new WebhookClient($guzzle, new NativeClock());
     }

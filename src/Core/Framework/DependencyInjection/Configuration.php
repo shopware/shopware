@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
@@ -58,10 +59,13 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
+                ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
+                ->append($this->createTranslationSection())
             ->end();
 
         return $treeBuilder;
@@ -155,6 +159,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
+                ->booleanNode('path_cache_buster')->defaultTrue()->end()
                 ->arrayNode('fastly')
                     ->children()
                         ->scalarNode('api_key')->end()
@@ -342,6 +347,16 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->booleanNode('enable')->end()
                         ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
+                        ->arrayNode('fallback_sizes')
+                            ->performNoDeepMerging()
+                            ->defaultValue([])
+                            ->arrayPrototype()
+                                ->children()
+                                    ->integerNode('width')->isRequired()->min(1)->end()
+                                    ->integerNode('height')->isRequired()->min(1)->end()
+                                ->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
                 ->scalarNode('thumbnail_processor')
@@ -683,6 +698,40 @@ class Configuration implements ConfigurationInterface
     {
         $rootNode = (new TreeBuilder('cache'))->getRootNode();
         $rootNode
+            // @deprecated tag:v6.8.0 - remove this whole "beforeNormalization" block
+            ->beforeNormalization()
+                ->always()->then(static function ($config) {
+                    if (!\is_array($config)) {
+                        return $config;
+                    }
+
+                    if (\array_key_exists('cache_compression', $config) && !\array_key_exists('compress', $config)) {
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Parameter "shopware.cache.cache_compression" is deprecated and will be removed. Please use "shopware.cache.compress" instead.'
+                        );
+                        $config['compress'] = $config['cache_compression'];
+                    }
+
+                    if (\array_key_exists('cache_compression_method', $config) && !\array_key_exists('compression_method', $config)) {
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.8.0.0',
+                            'Parameter "shopware.cache.cache_compression_method" is deprecated and will be removed. Please use "shopware.cache.compression_method" instead.'
+                        );
+                        $config['compression_method'] = $config['cache_compression_method'];
+                    }
+
+                    // backward compatibility
+                    if (!isset($config['cache_compression']) && isset($config['compress'])) {
+                        $config['cache_compression'] = $config['compress'];
+                    }
+                    if (!isset($config['cache_compression_method']) && isset($config['compression_method'])) {
+                        $config['cache_compression_method'] = $config['compression_method'];
+                    }
+
+                    return $config;
+                })
+            ->end()
             ->children()
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')
@@ -1250,12 +1299,10 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->validate()
             ->ifFalse(
-                static fn (array $v) => \count(
-                    array_filter(
-                        array_keys($v),
-                        static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
-                    )
-                ) === 0
+                static fn (array $v) => array_filter(
+                    array_keys($v),
+                    static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
+                ) === []
             )
             ->thenInvalid('Key must be "default" or a valid UUID')
             ->end();
@@ -1579,6 +1626,24 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createProductExportSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product_export');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->integerNode('read_buffer_size')
+                    ->info('Number of products read and rendered per product export batch. Higher values reduce per-batch overhead but increase peak worker memory, as each batch hydrates and renders that many full product entities.')
+                    ->min(1)
+                    ->defaultValue(200)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createMcpSection(): ArrayNodeDefinition
     {
         $rootNode = (new TreeBuilder('mcp'))->getRootNode();
@@ -1636,6 +1701,93 @@ class Configuration implements ConfigurationInterface
                     ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createAppSystemSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('app_system');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
+                ->arrayNode('allowed_private_ip_addresses')
+                    ->performNoDeepMerging()
+                    ->defaultValue([])
+                    ->scalarPrototype()
+                        ->cannotBeEmpty()
+                        ->validate()
+                            ->ifTrue(static fn (string $value): bool => filter_var($value, \FILTER_VALIDATE_IP) === false)
+                            ->thenInvalid('"%s" is not a valid IP address.')
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTranslationSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('translation');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->info('Overrides for the built-in translation system. Options left unset fall back to the shipped defaults in translation.yaml.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->scalarNode('repository_url')->defaultNull()->end()
+                ->scalarNode('metadata_url')->defaultNull()->end()
+                ->scalarNode('community_translations_url')->defaultNull()->end()
+                ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
+                ->integerNode('completeness_threshold')->defaultNull()->end()
+                // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
+                ->arrayNode('plugins')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('excluded_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('pseudo_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('plugin_mapping')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('plugin')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('languages')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('locale')->isRequired()->cannotBeEmpty()->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->booleanNode('use_local_filesystem')->defaultFalse()->end()
+                ->arrayNode('scheduled_task')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                    ->end()
                 ->end()
             ->end();
 

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_6\Migration1736831335AddGenerateDocumentTypesForDocumentConfig;
@@ -14,6 +15,7 @@ use Shopware\Core\Migration\V6_6\Migration1736831335AddGenerateDocumentTypesForD
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(Migration1736831335AddGenerateDocumentTypesForDocumentConfig::class)]
 class Migration1736831335AddGenerateDocumentTypesForDocumentConfigTest extends TestCase
 {

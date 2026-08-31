@@ -31,7 +31,24 @@
         width: 100%;
     }
 
-    .sw-empty-state {
+    &__list .sw-data-grid__cell-content {
+        line-height: var(--font-line-height-xs);
+    }
+
+    .sw-product-properties-list__column-values {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--scale-size-6);
+        align-items: center;
+        min-width: 0;
+
+        .sw-label {
+            min-width: auto;
+            margin: 0;
+        }
+    }
+
+    .mt-empty-state {
         padding: var(--scale-size-30);
     }
 }

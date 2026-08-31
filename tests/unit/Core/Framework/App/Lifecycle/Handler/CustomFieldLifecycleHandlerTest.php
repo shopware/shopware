@@ -9,14 +9,19 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
+use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomFieldLifecycleHandler::class)]
 class CustomFieldLifecycleHandlerTest extends TestCase
 {
@@ -77,10 +82,53 @@ class CustomFieldLifecycleHandlerTest extends TestCase
         $handler->install($this->createContext($this->tmpDir));
     }
 
-    private function createContext(string $appDir): AppPersistContext
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with inline custom-fields support in manifest.xml
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testPersistWithInlineManifestCustomFields(): void
     {
-        $manifest = $this->createMock(Manifest::class);
-        $manifest->method('getCustomFields')->willReturn(null);
+        $fixtureFile = \dirname(__DIR__, 4) . '/System/CustomField/_fixtures/custom-fields.xml';
+        $inlineCustomFields = CustomFieldXmlLoader::load($fixtureFile);
+
+        $sharedPersister = $this->createMock(CustomFieldSetPersister::class);
+        $sharedPersister->expects($this->once())
+            ->method('sync')
+            ->willReturnCallback(function (CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context) use ($inlineCustomFields): void {
+                static::assertSame($inlineCustomFields, $customFields);
+                static::assertSame('app-id-123', $appId);
+                static::assertSame('TestApp', $extensionName);
+            });
+
+        $handler = new CustomFieldLifecycleHandler($sharedPersister);
+        $handler->install($this->createContext($this->tmpDir, $inlineCustomFields));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with inline custom-fields support in manifest.xml
+     */
+    public function testPersistWithInlineManifestCustomFieldsThrowsWithMajorFlag(): void
+    {
+        $fixtureFile = \dirname(__DIR__, 4) . '/System/CustomField/_fixtures/custom-fields.xml';
+        $inlineCustomFields = CustomFieldXmlLoader::load($fixtureFile);
+
+        $sharedPersister = $this->createMock(CustomFieldSetPersister::class);
+        $sharedPersister->expects($this->never())->method('sync');
+
+        $handler = new CustomFieldLifecycleHandler($sharedPersister);
+        $context = $this->createContext($this->tmpDir, $inlineCustomFields);
+
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: Defining custom fields inline in manifest.xml is deprecated, use Resources/config/custom-fields.xml instead.'
+        ));
+
+        $handler->install($context);
+    }
+
+    private function createContext(string $appDir, ?CustomFields $inlineCustomFields = null): AppPersistContext
+    {
+        $manifest = static::createStub(Manifest::class);
+        $manifest->method('getCustomFields')->willReturn($inlineCustomFields);
 
         $app = new AppEntity();
         $app->setId('app-id-123');

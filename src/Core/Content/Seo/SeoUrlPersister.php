@@ -42,10 +42,40 @@ class SeoUrlPersister
      */
     public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
     {
+        $this->doUpdateSeoUrls($context, $routeName, $foreignKeys, $seoUrls, $salesChannel, false);
+    }
+
+    /**
+     * Like {@see self::updateSeoUrls()} but bypasses the write-protection guard
+     * that normally keeps automatic template regeneration from overwriting
+     * manually modified (`isModified = true`) SEO URLs.
+     *
+     * Intended for explicit admin/API updates where the user wants to edit or
+     * reset a manually modified SEO URL; must not be used for automatic
+     * template regeneration pipelines (indexers, subscribers on other entities).
+     *
+     * @param array<string> $foreignKeys
+     * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
+     */
+    public function forceUpdateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
+    {
+        $this->doUpdateSeoUrls($context, $routeName, $foreignKeys, $seoUrls, $salesChannel, true);
+    }
+
+    /**
+     * @param array<string> $foreignKeys
+     * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
+     */
+    private function doUpdateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel, bool $overwrite): void
+    {
         $languageId = $context->getLanguageId();
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, true);
+        $table = $this->seoUrlRepository->getDefinition()->getEntityName();
+        $insertQuery = new MultiInsertQueryQueue($this->connection, 250, false, false);
+        foreach (['foreign_key', 'path_info', 'seo_path_info', 'route_name', 'is_canonical', 'is_modified', 'is_deleted'] as $updateField) {
+            $insertQuery->addUpdateFieldOnDuplicateKey($table, $updateField);
+        }
 
         $updatedFks = [];
         $obsoleted = [];
@@ -77,15 +107,14 @@ class SeoUrlPersister
 
             $updatedFks[] = $fk;
 
-            if (!empty($seoUrl['error'])) {
+            if (($seoUrl['error'] ?? '') !== '') {
                 continue;
             }
             $existing = $canonicals[$fk][$salesChannelId] ?? null;
 
-            if ($existing) {
+            if ($existing !== null) {
                 // entity has override or does not change
-                /** @phpstan-ignore-next-line PHPStan could not recognize the array generated from the jsonSerialize method of the SeoUrlEntity */
-                if ($this->skipUpdate($existing, $seoUrl)) {
+                if ($this->skipUpdate($existing, $seoUrl, $overwrite)) {
                     continue;
                 }
                 $obsoleted[] = $existing['id'];
@@ -119,7 +148,7 @@ class SeoUrlPersister
 
             $insert['created_at'] = $dateTime;
 
-            $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
+            $insertQuery->addInsert($table, $insert);
         }
 
         $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos, $languageId, $salesChannelId);
@@ -136,7 +165,7 @@ class SeoUrlPersister
         });
 
         // When a seoPathInfo is added that is already associated with a foreignKey, EX: Entity A,
-        // the existing row is seamlessly replaced due to the useReplace flag being set to true within the MultiInsertQueryQueue configuration above.
+        // the existing row is seamlessly taken over by the ON DUPLICATE KEY UPDATE part configured on the MultiInsertQueryQueue above.
         // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical and is_modified to true,
         // thereby preserving the canonical SEO URL for Entity A.
         $this->updateCanonicalSeoUrls($inuseSeoUrls, $languageId);
@@ -146,16 +175,30 @@ class SeoUrlPersister
 
     /**
      * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
-     * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
+     * @param array<string, mixed> $seoUrl the raw seo url as generated/handed in, so its keys are not statically typed
      */
-    private function skipUpdate(array $existing, array $seoUrl): bool
+    private function skipUpdate(array $existing, array $seoUrl, bool $overwrite = false): bool
     {
-        if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
+        // Write-protection guard: automatic template regeneration (overwrite=false)
+        // must never replace a manually modified (isModified=1) SEO URL that still
+        // has a non-empty path.
+        if (!$overwrite && $existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim((string) ($seoUrl['seoPathInfo'] ?? '')) !== '') {
             return true;
         }
 
-        return $seoUrl['seoPathInfo'] === $existing['seoPathInfo']
-            && $seoUrl['salesChannelId'] === $existing['salesChannelId'];
+        // A different path or sales channel is always a real change, so never skip.
+        if ($seoUrl['seoPathInfo'] !== $existing['seoPathInfo']
+            || $seoUrl['salesChannelId'] !== $existing['salesChannelId']) {
+            return false;
+        }
+
+        // Path and sales channel are identical. Normally we skip to avoid creating a
+        // duplicate row. For an explicit overwrite, however, we must still proceed when
+        // only the isModified flag differs, so that an admin "reset to template" can drop
+        // the write-protection flag even when the manual value already equals the template
+        // output (shopware/shopware#4413). When the flag matches too, nothing changed -> skip.
+        return !$overwrite
+            || ($seoUrl['isModified'] ?? false) === $existing['isModified'];
     }
 
     /**
@@ -272,11 +315,13 @@ class SeoUrlPersister
             return;
         }
 
-        $this->connection->executeStatement(
-            'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
-            ['ids' => $ids],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+        RetryableQuery::retryable($this->connection, function () use ($ids): void {
+            $this->connection->executeStatement(
+                'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
+                ['ids' => $ids],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        });
     }
 
     /**
@@ -320,6 +365,9 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_deleted', $deleted ? '1' : '0')
             ->where('foreign_key IN (:fks)')
+            // skip rows that already hold the target value to reduce write amplification
+            // and lock contention between concurrent url generations (see NEXT-22174)
+            ->andWhere('is_deleted != ' . ($deleted ? '1' : '0'))
             ->setParameter('fks', $ids, ArrayParameterType::BINARY);
 
         if ($salesChannelId) {

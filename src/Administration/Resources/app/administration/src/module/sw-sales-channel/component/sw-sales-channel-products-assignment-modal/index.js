@@ -21,6 +21,10 @@ const updateElementVisibility = (element, binding) => {
 export default {
     template,
 
+    inject: [
+        'feature',
+    ],
+
     emits: [
         'modal-close',
         'products-add',
@@ -47,6 +51,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'singleProducts',
             singleProducts: [],
             categoryProducts: [],
             groupProducts: [],
@@ -81,6 +86,23 @@ export default {
                 ],
                 'id',
             );
+        },
+
+        productAssignmentTabs() {
+            return [
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.singleProducts'),
+                    name: 'singleProducts',
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.categories.title'),
+                    name: 'categories',
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title'),
+                    name: 'dynamicProductGroups',
+                },
+            ];
         },
     },
 

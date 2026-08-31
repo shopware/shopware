@@ -52,6 +52,33 @@ class SalesChannelFilePublicRequestTest extends TestCase
         static::assertStringContainsString('Custom public guidance', $content);
     }
 
+    public function testAgentFileLookupPreservesLowercaseConfigurationAndIgnoresCase(): void
+    {
+        $salesChannelId = $this->getSalesChannelId();
+        static::assertNotEmpty($salesChannelId);
+
+        $this->getSalesChannelFileRepository()->upsert([
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'fileFamily' => 'agentic',
+                'fileName' => 'agents.md',
+                'enabled' => true,
+                'templateOverrides' => [
+                    'user_provided_content' => 'Legacy custom guidance',
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $uppercaseResponse = $this->request('GET', 'AGENTS.md', []);
+        $lowercaseResponse = $this->request('GET', 'agents.md', []);
+
+        static::assertSame(Response::HTTP_OK, $uppercaseResponse->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $lowercaseResponse->getStatusCode());
+        static::assertSame($uppercaseResponse->getContent(), $lowercaseResponse->getContent());
+        static::assertStringContainsString('Legacy custom guidance', (string) $uppercaseResponse->getContent());
+    }
+
     public function testEnabledAiCatalogDoesNotExposeAdminMcpServer(): void
     {
         $salesChannelId = $this->getSalesChannelId();

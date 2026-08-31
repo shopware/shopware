@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
@@ -34,46 +33,21 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(SalesChannelContextService::class)]
 class SalesChannelContextServiceTest extends TestCase
 {
-    private SalesChannelContextFactory&MockObject $factory;
-
-    private CartRuleLoader&MockObject $cartRuleLoader;
-
-    private SalesChannelContextPersister&MockObject $persister;
-
-    private CartService&MockObject $cartService;
-
-    private EventDispatcherInterface&MockObject $eventDispatcher;
-
     private RequestStack $requestStack;
-
-    private SalesChannelContextService $service;
 
     protected function setUp(): void
     {
-        $this->factory = $this->createMock(SalesChannelContextFactory::class);
-        $this->cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $this->persister = $this->createMock(SalesChannelContextPersister::class);
-        $this->cartService = $this->createMock(CartService::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->requestStack = new RequestStack();
-
-        $this->service = new SalesChannelContextService(
-            $this->factory,
-            $this->cartRuleLoader,
-            $this->persister,
-            $this->cartService,
-            $this->eventDispatcher,
-            $this->requestStack,
-        );
     }
 
     public function testTokenExpired(): void
     {
-        $this->persister->method('load')->willReturn(['expired' => true]);
+        $persister = static::createStub(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn(['expired' => true]);
 
         $expiredToken = Uuid::randomHex();
 
@@ -81,7 +55,8 @@ class SalesChannelContextServiceTest extends TestCase
         $context->setRuleIds(['rule-1', 'rule-2']);
         $context->setAreaRuleIds([RuleAreas::PRODUCT_AREA => ['rule-1'], RuleAreas::PROMOTION_AREA => ['rule-2']]);
 
-        $this->factory->expects($this->once())
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory->expects($this->once())
             ->method('create')
             ->with(
                 static::logicalNot(static::equalTo($expiredToken)),
@@ -97,20 +72,31 @@ class SalesChannelContextServiceTest extends TestCase
         $cart->setRuleIds(['rule-1', 'rule-2']);
         $result = new RuleLoaderResult($cart, new RuleCollection());
 
-        $this->cartRuleLoader
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
             ->expects($this->once())
             ->method('loadByToken')
             ->with($context, static::logicalNot(static::equalTo($expiredToken)))
             ->willReturn($result);
 
-        $this->cartService
+        $cartService = $this->createMock(CartService::class);
+        $cartService
             ->expects($this->once())
             ->method('setCart')
             ->with($result->getCart());
 
         $request = $this->setupSessionAndRequest();
 
-        $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $expiredToken, Defaults::LANGUAGE_SYSTEM));
+        $service = new SalesChannelContextService(
+            $factory,
+            $cartRuleLoader,
+            $persister,
+            $cartService,
+            static::createStub(EventDispatcherInterface::class),
+            $this->requestStack,
+        );
+
+        $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $expiredToken, Defaults::LANGUAGE_SYSTEM));
 
         $session = $request->getSession();
 
@@ -123,11 +109,13 @@ class SalesChannelContextServiceTest extends TestCase
         $customerId = Uuid::randomHex();
         $noneExpiringToken = Uuid::randomHex();
 
-        $this->persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
+        $persister = static::createStub(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->factory->expects($this->once())
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory->expects($this->once())
             ->method('create')
             ->with(
                 $noneExpiringToken,
@@ -144,20 +132,31 @@ class SalesChannelContextServiceTest extends TestCase
         $cart->setRuleIds(['rule-3', 'rule-4']);
         $result = new RuleLoaderResult($cart, new RuleCollection());
 
-        $this->cartRuleLoader
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
             ->expects($this->once())
             ->method('loadByToken')
             ->with($context, $noneExpiringToken)
             ->willReturn($result);
 
-        $this->cartService
+        $cartService = $this->createMock(CartService::class);
+        $cartService
             ->expects($this->once())
             ->method('setCart')
             ->with($result->getCart());
 
         $this->setupSessionAndRequest();
 
-        $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $noneExpiringToken, Defaults::LANGUAGE_SYSTEM));
+        $service = new SalesChannelContextService(
+            $factory,
+            $cartRuleLoader,
+            $persister,
+            $cartService,
+            static::createStub(EventDispatcherInterface::class),
+            $this->requestStack,
+        );
+
+        $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $noneExpiringToken, Defaults::LANGUAGE_SYSTEM));
     }
 
     public function testDispatchesSalesChannelContextCreatedEvent(): void
@@ -166,20 +165,32 @@ class SalesChannelContextServiceTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $session = ['foo' => 'bar'];
 
-        $this->persister->method('load')->willReturn($session);
+        $persister = static::createStub(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn($session);
 
-        $this->factory->expects($this->once())
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory->expects($this->once())
             ->method('create')
             ->with($token, TestDefaults::SALES_CHANNEL, $session)
             ->willReturn($context);
 
-        $this->eventDispatcher->expects($this->once())
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(new SalesChannelContextCreatedEvent($context, $token, $session));
 
         $this->setupSessionAndRequest();
 
-        $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
+        $service = new SalesChannelContextService(
+            $factory,
+            static::createStub(CartRuleLoader::class),
+            $persister,
+            static::createStub(CartService::class),
+            $eventDispatcher,
+            $this->requestStack,
+        );
+
+        $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
 
     #[DataProvider('skipCartCalculationIfAlreadyDoneAndESISubrequestProvider')]
@@ -189,38 +200,43 @@ class SalesChannelContextServiceTest extends TestCase
         $token = Uuid::randomHex();
         $result = new RuleLoaderResult(new Cart($token), new RuleCollection());
 
-        $this->persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
+        $persister = static::createStub(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->factory
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory
             ->expects($this->once())
             ->method('create')
             ->willReturn($context);
 
-        $this->cartService
+        $cartService = $this->createMock(CartService::class);
+        $cartService
             ->expects($this->once())
             ->method('hasCart')
             ->with($token)
             ->willReturn($hasCart);
 
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+
         if ($expectCalculation) {
-            $this->cartRuleLoader
+            $cartRuleLoader
                 ->expects($this->once())
                 ->method('loadByToken')
                 ->with($context, $token)
                 ->willReturn($result);
 
-            $this->cartService
+            $cartService
                 ->expects($this->once())
                 ->method('setCart')
                 ->with($result->getCart());
         } else {
-            $this->cartRuleLoader
+            $cartRuleLoader
                 ->expects($this->never())
                 ->method(static::anything());
 
-            $this->cartService
+            $cartService
                 ->expects($this->never())
                 ->method('setCart');
         }
@@ -232,7 +248,16 @@ class SalesChannelContextServiceTest extends TestCase
         $request->setSession($session);
         $this->requestStack->push($request);
 
-        $context = $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
+        $service = new SalesChannelContextService(
+            $factory,
+            $cartRuleLoader,
+            $persister,
+            $cartService,
+            static::createStub(EventDispatcherInterface::class),
+            $this->requestStack,
+        );
+
+        $context = $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
 
         static::assertSame($session->get(SalesChannelContextService::RULE_IDS), $context->getRuleIds());
         static::assertSame($session->get(SalesChannelContextService::AREA_RULE_IDS), $context->getAreaRuleIds());
@@ -252,7 +277,7 @@ class SalesChannelContextServiceTest extends TestCase
         $originalContext = new Context(new SystemSource());
         $originalContext->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('withPermissions')->willReturn($this->createMock(RuleLoaderResult::class));
+        $context->method('withPermissions')->willReturn(static::createStub(RuleLoaderResult::class));
         $context->expects($this->once())
             ->method('addState')
             ->with(Context::ELASTICSEARCH_EXPLAIN_MODE);
@@ -262,7 +287,7 @@ class SalesChannelContextServiceTest extends TestCase
             'originalContext' => $originalContext,
         ];
 
-        $persister = $this->createMock(SalesChannelContextPersister::class);
+        $persister = static::createStub(SalesChannelContextPersister::class);
         $persister->method('load')->willReturn($session);
 
         $factory = $this->createMock(SalesChannelContextFactory::class);
@@ -278,9 +303,9 @@ class SalesChannelContextServiceTest extends TestCase
 
         $service = new SalesChannelContextService(
             $factory,
-            $this->createMock(CartRuleLoader::class),
+            static::createStub(CartRuleLoader::class),
             $persister,
-            $this->createMock(CartService::class),
+            static::createStub(CartService::class),
             $dispatcher,
             $this->requestStack,
         );
@@ -302,15 +327,18 @@ class SalesChannelContextServiceTest extends TestCase
         $token = Uuid::randomHex();
         $ruleIds = ['rule-1', 'rule-2', 'rule-3'];
 
-        $this->persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => Uuid::randomHex()]);
+        $persister = static::createStub(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => Uuid::randomHex()]);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $this->factory
+        $factory = $this->createMock(SalesChannelContextFactory::class);
+        $factory
             ->expects($this->once())
             ->method('create')
             ->willReturn($context);
 
-        $this->cartService
+        $cartService = $this->createMock(CartService::class);
+        $cartService
             ->expects($this->once())
             ->method('hasCart')
             ->with($token)
@@ -321,10 +349,11 @@ class SalesChannelContextServiceTest extends TestCase
             ->method('setRuleIds')
             ->with($ruleIds);
 
-        $this->cartRuleLoader
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
             ->expects($this->never())
             ->method('loadByToken');
-        $this->cartService
+        $cartService
             ->expects($this->never())
             ->method('setCart');
 
@@ -334,7 +363,16 @@ class SalesChannelContextServiceTest extends TestCase
             '_esi' => true,
         ]);
 
-        $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
+        $service = new SalesChannelContextService(
+            $factory,
+            $cartRuleLoader,
+            $persister,
+            $cartService,
+            static::createStub(EventDispatcherInterface::class),
+            $this->requestStack,
+        );
+
+        $service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
     }
 
     /**

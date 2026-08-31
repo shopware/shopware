@@ -147,8 +147,8 @@ class ZugferdTwigExtensionTest extends TestCase
 
     public function testZugferdDate102WrapsMalformedStringInDomainException(): void
     {
-        static::expectException(DocumentV2Exception::class);
-        static::expectExceptionMessageMatches('/zugferd_date_102/');
+        $this->expectException(DocumentV2Exception::class);
+        $this->expectExceptionMessageMatches('/zugferd_date_102/');
 
         $this->extension->zugferdDate102('not-a-date');
     }

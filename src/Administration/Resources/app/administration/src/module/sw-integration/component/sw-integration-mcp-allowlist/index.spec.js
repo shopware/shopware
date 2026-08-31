@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import 'src/module/sw-integration/component/sw-integration-mcp-allowlist';
 
 const defaultCapabilities = {
@@ -125,6 +125,37 @@ describe('sw-integration-mcp-allowlist', () => {
         });
 
         expect(wrapper.vm.toolsAllowlist).toStrictEqual(['shopware-entity-search']);
+    });
+
+    it('groups tools by backend group when present', async () => {
+        mcpToolService.getCapabilities.mockResolvedValue({
+            ...defaultCapabilities,
+            tools: [
+                {
+                    name: 'shopware-entity-search',
+                    group: 'catalogue',
+                    description: 'Search entities',
+                    dependencies: [],
+                    requiredPrivileges: [],
+                },
+                {
+                    name: 'swag-order-export',
+                    group: 'orders',
+                    description: 'Export orders',
+                    dependencies: [],
+                    requiredPrivileges: [],
+                },
+            ],
+        });
+
+        const wrapper = await createWrapper({ allowlist: { tools: null, resources: null, prompts: null } });
+        await flushPromises();
+
+        expect(Object.keys(wrapper.vm.toolGroups)).toStrictEqual([
+            'catalogue',
+            'orders',
+        ]);
+        expect(wrapper.vm.groupLabel('tools', 'catalogue')).toBe('Catalogue');
     });
 
     it('resourcesAllowlist returns resources sub-array when allowlist is set', async () => {
@@ -341,5 +372,72 @@ describe('sw-integration-mcp-allowlist', () => {
         const names = wrapper.vm.missingCapabilitySuggestions.map((s) => s.name);
         expect(names).toContain('shopware-context');
         expect(names).not.toContain('shopware-debug');
+    });
+
+    describe('no capabilities registered', () => {
+        it('renders the empty state when capabilities are empty and all-toggle is off', async () => {
+            mcpToolService.getCapabilities.mockResolvedValue({ tools: [], resources: [], prompts: [] });
+
+            const wrapper = await createWrapper({
+                allowlist: { tools: null, resources: null, prompts: null },
+            });
+            await flushPromises();
+
+            expect(wrapper.find('mt-empty-state-stub').exists()).toBe(true);
+        });
+
+        it('tolerates a capabilities payload with missing keys', async () => {
+            mcpToolService.getCapabilities.mockResolvedValue({});
+
+            const wrapper = await createWrapper({
+                allowlist: { tools: null, resources: null, prompts: null },
+            });
+            await flushPromises();
+
+            expect(wrapper.vm.availableTools).toStrictEqual([]);
+            expect(wrapper.vm.availableResources).toStrictEqual([]);
+            expect(wrapper.vm.availablePrompts).toStrictEqual([]);
+            expect(wrapper.find('mt-empty-state-stub').exists()).toBe(true);
+        });
+
+        it('does not throw when toggling all capabilities off with no capabilities', async () => {
+            mcpToolService.getCapabilities.mockResolvedValue({ tools: [], resources: [], prompts: [] });
+
+            const wrapper = await createWrapper({ allowlist: null });
+            await flushPromises();
+
+            expect(() => {
+                wrapper.vm.allCapabilitiesEnabled = false;
+            }).not.toThrow();
+        });
+    });
+
+    describe('malformed capability data', () => {
+        it('does not throw when a tool exposes an undefined privilege chip', async () => {
+            mcpToolService.getCapabilities.mockResolvedValue({
+                tools: [
+                    {
+                        name: 'broken-tool',
+                        description: 'Broken tool',
+                        dependencies: [],
+                        // static privilege list contains a nullish entry
+                        requiredPrivileges: { static: [undefined] },
+                    },
+                ],
+                resources: [],
+                prompts: [],
+            });
+
+            const wrapper = await createWrapper({
+                allowlist: { tools: null, resources: null, prompts: null },
+                // non-empty granted privileges + non-admin => the chip guard is actually evaluated
+                isAdmin: false,
+                grantedPrivileges: ['product.viewer'],
+            });
+            await flushPromises();
+
+            expect(() => wrapper.vm.privilegeChipClass(undefined)).not.toThrow();
+            expect(wrapper.vm.privilegeChipClass(undefined)).toBe('neutral');
+        });
     });
 });

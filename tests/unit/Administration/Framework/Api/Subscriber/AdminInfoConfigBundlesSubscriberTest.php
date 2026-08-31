@@ -10,6 +10,7 @@ use Shopware\Administration\Framework\Api\Subscriber\AdminInfoConfigBundlesSubsc
 use Shopware\Administration\Framework\App\ActiveAdminAppLoader;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\Filesystem\Filesystem;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdminInfoConfigBundlesSubscriber::class)]
 class AdminInfoConfigBundlesSubscriberTest extends TestCase
 {
@@ -148,6 +150,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
                 'integrationId' => 'abc',
                 'baseUrl' => 'https://app.test',
                 'version' => '1.0.0',
+                'sourceType' => 'service',
                 'privileges' => ['read' => ['product']],
             ],
         ]);
@@ -156,6 +159,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
 
         static::assertArrayHasKey('AcmeApp', $bundles);
         static::assertSame('app', $bundles['AcmeApp']['type']);
+        static::assertSame('service', $bundles['AcmeApp']['sourceType']);
         static::assertSame('https://app.test', $bundles['AcmeApp']['baseUrl']);
         static::assertTrue($bundles['AcmeApp']['active']);
         static::assertSame(['read' => ['product']], $bundles['AcmeApp']['permissions']);

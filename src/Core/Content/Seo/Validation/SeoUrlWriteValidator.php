@@ -35,12 +35,8 @@ class SeoUrlWriteValidator implements EventSubscriberInterface
     {
         $constraint = new ValidSeoPathInfo();
 
-        foreach ($event->getCommands() as $command) {
+        foreach ($event->getCommandsForEntity(SeoUrlDefinition::ENTITY_NAME) as $command) {
             if (!$command instanceof InsertCommand && !$command instanceof UpdateCommand) {
-                continue;
-            }
-
-            if ($command->getEntityName() !== SeoUrlDefinition::ENTITY_NAME) {
                 continue;
             }
 

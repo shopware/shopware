@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ScheduledTaskExecutorCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\DummyScheduledTaskHandler;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScheduledTaskExecutorCompilerPass::class)]
 class ScheduledTaskExecutorCompilerPassTest extends TestCase
 {

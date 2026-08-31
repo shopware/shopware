@@ -26,6 +26,8 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -46,6 +48,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductController::class)]
 class ProductControllerTest extends TestCase
 {
@@ -274,17 +277,21 @@ class ProductControllerTest extends TestCase
 
         $productReview = new ProductReviewEntity();
         $productReview->setUniqueIdentifier($ids->get('productReview'));
-        $reviewResult = new ProductReviewResult(
-            'review',
+        $reviewResult = ProductReviewResult::fromSearchResult(
+            new EntitySearchResult(
+                'product_review',
+                1,
+                new ProductReviewCollection([$productReview]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ),
+            new RatingMatrix([]),
+            $productId,
             1,
-            new ProductReviewCollection([$productReview]),
             null,
-            new Criteria(),
-            Context::createDefaultContext()
+            $parentId,
         );
-        $reviewResult->setMatrix(new RatingMatrix([]));
-        $reviewResult->setProductId($productId);
-        $reviewResult->setParentId($parentId);
 
         $this->productReviewLoaderMock->method('load')->willReturn($reviewResult);
 

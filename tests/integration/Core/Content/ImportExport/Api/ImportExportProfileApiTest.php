@@ -8,6 +8,7 @@ use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -59,14 +60,24 @@ class ImportExportProfileApiTest extends TestCase
 
         // read created data from db
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
-        $translationRecords = $this->getTranslationRecords();
+
+        $translationRecords = [];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $translationRecords = $this->getTranslationRecords();
+        }
 
         // compare expected and resulting data
         static::assertCount($num, $records);
+
         foreach ($records as $record) {
             $expect = $data[$record['id']];
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
+            }
+
             static::assertSame($expect['technicalName'], $record['technical_name']);
-            static::assertSame($expect['label'], $translationRecords[$record['id']]['label']);
             static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
             static::assertSame($expect['sourceEntity'], $record['source_entity']);
             static::assertSame($expect['fileType'], $record['file_type']);
@@ -119,8 +130,12 @@ class ImportExportProfileApiTest extends TestCase
             for ($i = 0; $i < $num; ++$i) {
                 $importExportProfile = $content['data'][$i];
                 $expect = $expectData[$importExportProfile['_uniqueIdentifier']];
+
+                if (!Feature::isActive('v6.8.0.0')) {
+                    static::assertSame($expect['label'], $importExportProfile['label']);
+                }
+
                 static::assertSame($expect['technicalName'], $importExportProfile['technicalName']);
-                static::assertSame($expect['label'], $importExportProfile['label']);
                 static::assertSame($expect['systemDefault'], (bool) $importExportProfile['systemDefault']);
                 static::assertSame($expect['sourceEntity'], $importExportProfile['sourceEntity']);
                 static::assertSame($expect['fileType'], $importExportProfile['fileType']);
@@ -168,8 +183,12 @@ class ImportExportProfileApiTest extends TestCase
         for ($i = 0; $i < $num; ++$i) {
             $importExportProfile = $content['data'][$i];
             $expect = $expectData[$importExportProfile['_uniqueIdentifier']];
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertSame($expect['label'], $importExportProfile['label']);
+            }
+
             static::assertSame($expect['technicalName'], $importExportProfile['technicalName']);
-            static::assertSame($expect['label'], $importExportProfile['label']);
             static::assertSame($expect['systemDefault'], (bool) $importExportProfile['systemDefault']);
             static::assertSame($expect['sourceEntity'], $importExportProfile['sourceEntity']);
             static::assertSame($expect['fileType'], $importExportProfile['fileType']);
@@ -260,7 +279,11 @@ class ImportExportProfileApiTest extends TestCase
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             static::assertSame($expect['technicalName'], $content['data']['technicalName']);
-            static::assertSame($expect['label'], $content['data']['label']);
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertSame($expect['label'], $content['data']['label']);
+            }
+
             static::assertSame($expect['systemDefault'], (bool) $content['data']['systemDefault']);
             static::assertSame($expect['sourceEntity'], $content['data']['sourceEntity']);
             static::assertSame($expect['fileType'], $content['data']['fileType']);
@@ -380,10 +403,9 @@ class ImportExportProfileApiTest extends TestCase
         for ($i = 1; $i <= $num; ++$i) {
             $uuid = Uuid::randomHex();
 
-            $data[Uuid::fromHexToBytes($uuid)] = [
+            $profile = [
                 'id' => $uuid,
                 'technicalName' => uniqid('test_name_'),
-                'label' => \sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => (($i % 2 === 0) ? true : false),
                 'sourceEntity' => \sprintf('Test entity %d %s', $i, $add),
                 'fileType' => \sprintf('Test file type %d %s', $i, $add),
@@ -391,6 +413,12 @@ class ImportExportProfileApiTest extends TestCase
                 'enclosure' => \sprintf('Test enclosure %d %s', $i, $add),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i . $add],
             ];
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                $profile['label'] = \sprintf('Test label %d %s', $i, $add);
+            }
+
+            $data[Uuid::fromHexToBytes($uuid)] = $profile;
         }
 
         return $data;

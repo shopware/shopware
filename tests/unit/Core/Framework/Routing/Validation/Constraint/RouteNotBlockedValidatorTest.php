@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing\Validation\Constraint;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlocked;
 use Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlockedValidator;
@@ -15,13 +16,14 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RouteNotBlockedValidator::class)]
 class RouteNotBlockedValidatorTest extends TestCase
 {
     public function testValidateThrowsExceptionForWrongConstraintType(): void
     {
         $wrongConstraint = new Uuid();
-        $blocklistService = $this->createMock(RouteBlocklistService::class);
+        $blocklistService = static::createStub(RouteBlocklistService::class);
 
         $validator = new RouteNotBlockedValidator($blocklistService);
 
@@ -64,7 +66,7 @@ class RouteNotBlockedValidatorTest extends TestCase
 
     public function testValidateAddsViolationForNonStringValue(): void
     {
-        $blocklistService = $this->createMock(RouteBlocklistService::class);
+        $blocklistService = static::createStub(RouteBlocklistService::class);
         $constraint = new RouteNotBlocked();
 
         $violationBuilder = $this->createMock(ConstraintViolationBuilderInterface::class);

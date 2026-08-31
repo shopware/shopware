@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -618,6 +619,33 @@ class CreditNoteRendererTest extends TestCase
         }
     }
 
+    public function testRenderIncludesInvoiceCreditItemsWhenInvoiceUsesLiveOrderVersion(): void
+    {
+        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateCreditItems($cart, [-1]);
+
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
+
+        $invoice = $this->generateInvoice($orderId);
+        $invoiceId = $invoice->getId();
+
+        static::assertNotSame(Defaults::LIVE_VERSION, $this->fetchDocumentOrderVersionId($invoiceId));
+        $this->setDocumentOrderVersionId($invoiceId, Defaults::LIVE_VERSION);
+        static::assertSame(Defaults::LIVE_VERSION, $this->fetchDocumentOrderVersionId($invoiceId));
+
+        $result = $this->renderCreditNote($orderId, $invoiceId);
+        $result = $result->getSuccess()[$orderId] ?? null;
+        static::assertNotNull($result);
+
+        $creditItems = $result->getParameters()['creditItems'];
+        static::assertInstanceOf(OrderLineItemCollection::class, $creditItems);
+        static::assertCount(1, $creditItems);
+
+        $creditItem = $creditItems->first();
+        static::assertNotNull($creditItem);
+        static::assertSame('credit-1', $creditItem->getLabel());
+    }
+
     /**
      * Verifies credit note generation fails when all available credit items have already been processed
      * in previous credit notes or in the invoice which is referenced.
@@ -1021,5 +1049,26 @@ class CreditNoteRendererTest extends TestCase
         );
 
         return $result;
+    }
+
+    private function setDocumentOrderVersionId(string $documentId, string $orderVersionId): void
+    {
+        static::getContainer()->get(Connection::class)->update('document', [
+            'order_version_id' => Uuid::fromHexToBytes($orderVersionId),
+        ], [
+            'id' => Uuid::fromHexToBytes($documentId),
+        ]);
+    }
+
+    private function fetchDocumentOrderVersionId(string $documentId): string
+    {
+        $orderVersionId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT order_version_id FROM document WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($documentId)]
+        );
+
+        static::assertIsString($orderVersionId);
+
+        return Uuid::fromBytesToHex($orderVersionId);
     }
 }

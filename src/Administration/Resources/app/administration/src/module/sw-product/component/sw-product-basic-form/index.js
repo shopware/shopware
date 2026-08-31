@@ -5,8 +5,7 @@
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
 
-const { Criteria } = Shopware.Data;
-const { Context, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,8 +13,6 @@ export default {
     template,
 
     inject: [
-        'repositoryFactory',
-        'userConfigService',
         'feature',
     ],
 
@@ -65,10 +62,6 @@ export default {
             'active',
             'markAsTopseller',
         ]),
-
-        numberRangeRepository() {
-            return this.repositoryFactory.create('number_range');
-        },
 
         isTitleRequired() {
             return Shopware.Store.get('context').isSystemDefaultLanguage;
@@ -128,15 +121,6 @@ export default {
                 0,
             );
         },
-
-        numberRangeCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.equals('type.technicalName', 'product'));
-            criteria.addFilter(Criteria.equals('global', true));
-
-            return criteria;
-        },
     },
 
     created() {
@@ -150,15 +134,16 @@ export default {
         },
 
         async loadCoverImageDescriptionHintConfig() {
-            const response = await this.userConfigService.search(['product.hideCoverImageDescriptionHint']);
+            const config = (await Shopware.Service('userConfigService').search(['product.hideCoverImageDescriptionHint']))
+                ?.data?.['product.hideCoverImageDescriptionHint'];
 
-            this.hideCoverImageDescriptionHint = !!response?.data?.['product.hideCoverImageDescriptionHint']?.value;
+            this.hideCoverImageDescriptionHint = !!config?.value;
         },
 
         async onCloseCoverImageDescriptionHint() {
             this.hideCoverImageDescriptionHint = true;
 
-            await this.userConfigService.upsert({
+            await Shopware.Service('userConfigService').upsert({
                 'product.hideCoverImageDescriptionHint': {
                     value: true,
                 },
@@ -179,9 +164,24 @@ export default {
         },
 
         loadProductNumberRangeId() {
-            return this.numberRangeRepository.searchIds(this.numberRangeCriteria, Context.api).then((numberRangeIds) => {
-                this.productNumberRangeId = numberRangeIds.data[0];
-            });
+            const criteria = new Shopware.Data.Criteria(1, 25);
+
+            criteria.addFilter(Shopware.Data.Criteria.equals('type.technicalName', 'product'));
+            criteria.addFilter(Shopware.Data.Criteria.equals('global', true));
+
+            return Shopware.Service('repositoryFactory')
+                .create('number_range')
+                .searchIds(criteria, Shopware.Context.api, {
+                    cacheKey: [
+                        'shared-data',
+                        'number-range-ids',
+                        'product',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((numberRangeIds) => {
+                    this.productNumberRangeId = numberRangeIds.data[0];
+                });
         },
     },
 };

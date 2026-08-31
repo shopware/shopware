@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -13,11 +14,13 @@ use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 
 /**
  * @internal only for use by the app-system
  *
+ * @phpstan-type WebhookFromXml array{name: string, eventName: string, url: string, appId: string, active?: bool, onlyLiveVersion?: bool, errorCount?: int}
  * @phpstan-type WebhookRecord array{name: string, event_name: string, url: string, only_live_version: int, app_id: string, active: int, error_count: int}
  */
 #[Package('framework')]
@@ -27,6 +30,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
         private readonly Connection $connection,
         private readonly WebhookCacheClearer $cacheClearer,
         private readonly ClockInterface $clock,
+        private readonly WebhookTargetValidator $targetValidator,
     ) {
     }
 
@@ -43,6 +47,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
     private function persist(AppPersistContext $context): void
     {
         $appId = $context->app->getId();
+        $appName = $context->manifest->getMetadata()->getName();
         $flowActions = $this->getFlowActions($context->appFilesystem);
         $webhooks = $this->getWebhooks($context->manifest, $flowActions, $appId, $context->defaultLocale, $context->hasAppSecret());
 
@@ -51,6 +56,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
         $inserts = [];
 
         foreach ($webhooks as $webhook) {
+            $this->validateWebhookTarget($webhook['url'], $appName);
             $payload = $this->toRecord($webhook, $appId);
 
             if ($id = array_search($webhook['name'], $existingWebhooks, true)) {
@@ -113,7 +119,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
     }
 
     /**
-     * @param array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int} $webhook
+     * @param WebhookFromXml $webhook
      *
      * @return WebhookRecord
      */
@@ -139,8 +145,15 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
         return Action::createFromXmlFile($fs->path('Resources/flow.xml'));
     }
 
+    private function validateWebhookTarget(string $url, string $appName): void
+    {
+        if ($this->targetValidator->validate($url) === null) {
+            throw AppException::registrationFailed($appName, 'Webhook target is not allowed.');
+        }
+    }
+
     /**
-     * @return array<array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int}>
+     * @return list<WebhookFromXml>
      */
     private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
     {
@@ -150,7 +163,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
             $actions = $flowActions->getActions()?->getActions() ?? [];
         }
 
-        $webhooks = array_map(function ($action) use ($appId) {
+        $webhooks = array_map(static function ($action) use ($appId) {
             $name = $action->getMeta()->getName();
 
             return [
@@ -169,9 +182,9 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
 
         $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
 
-        return array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
-            /** @var array{name: string, event: string, url: string} $payload */
+        return array_merge($webhooks, array_map(static function (Webhook $webhook) use ($defaultLocale, $appId) {
             $payload = $webhook->toArray($defaultLocale);
+            unset($payload['event']);
             $payload['appId'] = $appId;
             $payload['eventName'] = $webhook->getEvent();
 

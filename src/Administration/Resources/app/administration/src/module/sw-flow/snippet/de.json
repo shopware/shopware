@@ -199,7 +199,11 @@
       "document": {
         "titleCreateDocument": "Dokumente erzeugen",
         "labelDocumentType": "Dokumente",
-        "placeholderDocumentType": "Dokumente auswählen ..."
+        "placeholderDocumentType": "Dokumente auswählen ...",
+        "labelDocumentTypeSingle": "Dokumenttyp",
+        "placeholderDocumentTypeSingle": "Dokumenttyp auswählen ...",
+        "labelFileFormats": "Dateiformate",
+        "placeholderFileFormats": "Dateiformate auswählen ..."
       },
       "downloadAccess": {
         "titleSetDownloadAccess": "Download-Recht setzen",
@@ -295,7 +299,6 @@
       }
     },
     "leavePageModal": {
-      "headline": "Warnung",
       "description": "Ungespeicherte Änderungen vorhanden. Willst Du die Seite trotzdem verlassen?",
       "confirmButton": "Seite verlassen"
     },
@@ -340,7 +343,6 @@
       "request": "Anfrage",
       "message": "Nachricht",
       "sent": "Abgeschickt",
-      "confirm": "Bestätigen",
       "unsubscribe": "Abbestellen",
       "log": "Protokoll",
       "cancelled": "Abgebrochen",

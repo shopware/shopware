@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider;
@@ -22,6 +23,7 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IndexMappingUpdater::class)]
 class IndexMappingUpdaterTest extends TestCase
 {
@@ -31,10 +33,10 @@ class IndexMappingUpdaterTest extends TestCase
         $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(false);
 
         $registry = new ElasticsearchRegistry([
-            $this->createMock(ElasticsearchProductDefinition::class),
+            static::createStub(ElasticsearchProductDefinition::class),
         ]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indicesNamespace = $this->createMock(IndicesNamespace::class);
         $indicesNamespace
             ->expects($this->never())
@@ -74,10 +76,10 @@ class IndexMappingUpdaterTest extends TestCase
         $elasticsearchHelper->method('getIndexName')->willReturn('index');
 
         $registry = new ElasticsearchRegistry([
-            $this->createMock(ElasticsearchProductDefinition::class),
+            static::createStub(ElasticsearchProductDefinition::class),
         ]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indicesNamespace = $this->createMock(IndicesNamespace::class);
         $indicesNamespace
             ->expects($this->once())
@@ -93,7 +95,7 @@ class IndexMappingUpdaterTest extends TestCase
             ->method('indices')
             ->willReturn($indicesNamespace);
 
-        $indexMappingProvider = $this->createMock(IndexMappingProvider::class);
+        $indexMappingProvider = static::createStub(IndexMappingProvider::class);
         $indexMappingProvider
             ->method('build')
             ->willReturn(['foo' => '1']);
@@ -103,7 +105,7 @@ class IndexMappingUpdaterTest extends TestCase
             $elasticsearchHelper,
             $client,
             $indexMappingProvider,
-            $this->createMock(AbstractKeyValueStorage::class),
+            static::createStub(AbstractKeyValueStorage::class),
         );
 
         $updater->update(Context::createDefaultContext());
@@ -115,14 +117,14 @@ class IndexMappingUpdaterTest extends TestCase
         $elasticsearchHelper->method('getIndexName')->willReturn('index');
         $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
         $definition
             ->method('getEntityDefinition')
             ->willReturn(new ProductDefinition());
 
         $registry = new ElasticsearchRegistry([$definition]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indicesNamespace = $this->createMock(IndicesNamespace::class);
         $indicesNamespace
             ->expects($this->once())
@@ -138,7 +140,7 @@ class IndexMappingUpdaterTest extends TestCase
             ->method('indices')
             ->willReturn($indicesNamespace);
 
-        $indexMappingProvider = $this->createMock(IndexMappingProvider::class);
+        $indexMappingProvider = static::createStub(IndexMappingProvider::class);
         $indexMappingProvider
             ->method('build')
             ->willReturn(['foo' => '1']);
@@ -174,14 +176,14 @@ class IndexMappingUpdaterTest extends TestCase
         $elasticsearchHelper->method('getIndexName')->willReturn('index');
         $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
         $definition
             ->method('getEntityDefinition')
             ->willReturn(new ProductDefinition());
 
         $registry = new ElasticsearchRegistry([$definition]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indicesNamespace = $this->createMock(IndicesNamespace::class);
         $indicesNamespace
             ->expects($this->once())
@@ -197,7 +199,7 @@ class IndexMappingUpdaterTest extends TestCase
             ->method('indices')
             ->willReturn($indicesNamespace);
 
-        $indexMappingProvider = $this->createMock(IndexMappingProvider::class);
+        $indexMappingProvider = static::createStub(IndexMappingProvider::class);
         $indexMappingProvider
             ->method('build')
             ->willReturn(['foo' => '1']);
@@ -228,14 +230,14 @@ class IndexMappingUpdaterTest extends TestCase
         $elasticsearchHelper->method('getIndexName')->willReturn('index');
         $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
         $definition
             ->method('getEntityDefinition')
             ->willReturn(new ProductDefinition());
 
         $registry = new ElasticsearchRegistry([$definition]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indicesNamespace = $this->createMock(IndicesNamespace::class);
         $indicesNamespace
             ->expects($this->once())
@@ -251,7 +253,7 @@ class IndexMappingUpdaterTest extends TestCase
             ->method('indices')
             ->willReturn($indicesNamespace);
 
-        $indexMappingProvider = $this->createMock(IndexMappingProvider::class);
+        $indexMappingProvider = static::createStub(IndexMappingProvider::class);
         $indexMappingProvider
             ->method('build')
             ->willReturn(['foo' => '1']);
@@ -287,14 +289,14 @@ class IndexMappingUpdaterTest extends TestCase
         $elasticsearchHelper->method('getIndexName')->willReturn('index');
         $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
 
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
         $definition
             ->method('getEntityDefinition')
             ->willReturn(new ProductDefinition());
 
         $registry = new ElasticsearchRegistry([$definition]);
 
-        $client = $this->createMock(Client::class);
+        $client = static::createStub(Client::class);
         $indicesNamespace = $this->createMock(IndicesNamespace::class);
         $indicesNamespace
             ->expects($this->once())
@@ -310,7 +312,66 @@ class IndexMappingUpdaterTest extends TestCase
             ->method('indices')
             ->willReturn($indicesNamespace);
 
-        $indexMappingProvider = $this->createMock(IndexMappingProvider::class);
+        $indexMappingProvider = static::createStub(IndexMappingProvider::class);
+        $indexMappingProvider
+            ->method('build')
+            ->willReturn(['foo' => '1']);
+
+        $elasticsearchHelper->expects($this->once())->method('logAndThrowException')->with(
+            static::callback(static function (ElasticsearchProductException $exception) {
+                return $exception->getMessage() === 'One or more fields already exist in the index with different types. Please reset the index and rebuild it.';
+            }),
+        );
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->expects($this->once())
+            ->method('set')
+            ->with(
+                SystemUpdateListener::CONFIG_KEY,
+                ['product'],
+            );
+
+        $updater = new IndexMappingUpdater(
+            $registry,
+            $elasticsearchHelper,
+            $client,
+            $indexMappingProvider,
+            $storage,
+        );
+
+        $updater->update(Context::createDefaultContext());
+    }
+
+    public function testUpdateWithAnalyzerNotConfiguredError(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper->method('getIndexName')->willReturn('index');
+        $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
+
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
+        $definition
+            ->method('getEntityDefinition')
+            ->willReturn(new ProductDefinition());
+
+        $registry = new ElasticsearchRegistry([$definition]);
+
+        $client = static::createStub(Client::class);
+        $indicesNamespace = $this->createMock(IndicesNamespace::class);
+        $indicesNamespace
+            ->expects($this->once())
+            ->method('putMapping')
+            ->with([
+                'index' => 'index',
+                'body' => [
+                    'foo' => '1',
+                ],
+            ])->willThrowException(new BadRequestHttpException('mapper_parsing_exception: analyzer [sw_whitespace_technical_term_search_analyzer] has not been configured in mappings'));
+
+        $client
+            ->method('indices')
+            ->willReturn($indicesNamespace);
+
+        $indexMappingProvider = static::createStub(IndexMappingProvider::class);
         $indexMappingProvider
             ->method('build')
             ->willReturn(['foo' => '1']);

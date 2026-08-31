@@ -24,7 +24,7 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+#[Package('checkout')]
 class AddressListingPageLoader
 {
     /**

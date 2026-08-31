@@ -7,11 +7,13 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MemoryAdapterFactory::class)]
 class MemoryAdapterFactoryTest extends TestCase
 {

@@ -100,8 +100,7 @@
       "descriptionTextModule": "Manage themes here.",
       "mainMenuHeader": "Your themes",
       "captionMediaUpload": "Upload an image",
-      "lockedToolTip": "Themes installed via plugin are locked and can not be deleted",
-      "titleError": "Error",
+      "lockedToolTip": "Themes installed via plugin are locked and cannot be deleted",
       "messageSaveError": "Theme could not be assigned to Sales Channel.",
       "defaultTab": "General"
     },
@@ -114,11 +113,9 @@
     },
     "themeListItem": {
       "rename": "Rename",
-      "duplicate": "Duplicate",
       "emptyText": "No theme assigned",
       "addPreviewImage": "Add preview",
       "removePreviewImage": "Remove preview",
-      "notificationDeleteErrorTitle": "Error",
       "notificationDeleteErrorMessage": "The theme you want to delete is still allocated to at least one Sales Channel."
     },
     "modal": {
@@ -175,7 +172,7 @@
         "success": "Validation successful",
         "successMessage": "The configuration was successfully validated. You can save the changes now.",
         "failed": "Validation failed",
-        "failedMessage": "The configuration is faulty. The changes can not be saved."
+        "failedMessage": "The configuration is faulty. The changes cannot be saved."
       },
       "label": {
         "media": "Media",
@@ -205,6 +202,11 @@
           "title": "Invalid configuration",
           "message": "The configuration is faulty. The theme cannot be saved."
         }
+      },
+      "asyncCompilation": {
+        "started": "The changes are being compiled in the background. They will be visible in about 1 minute. You will receive a notification once the compilation is complete.",
+        "completed": "The theme compilation has been completed.",
+        "error": "The theme compilation failed in the background. The theme was not changed."
       }
     },
     "themeModal": {

@@ -139,7 +139,6 @@ class LineItemViewTest extends TestCase
         $product->setUniqueIdentifier(Uuid::randomHex());
         $product->setProductNumber('SKU-1');
         $product->setEan('1234567890123');
-        $product->setPurchaseUnit(2.5);
 
         $lineItem = $this->createProductLineItem('p-1', 'Widget');
         $lineItem->setProduct($product);
@@ -148,24 +147,46 @@ class LineItemViewTest extends TestCase
 
         static::assertSame('SKU-1', $view->productNumber);
         static::assertSame('1234567890123', $view->ean);
-        static::assertSame(2.5, $view->basisQuantity);
     }
 
-    public function testListFromOrderDefaultsBasisQuantityWhenPurchaseUnitMissing(): void
+    public function testListFromOrderIgnoresPurchaseUnitForBasisQuantity(): void
     {
         $product = new ProductEntity();
         $product->setUniqueIdentifier(Uuid::randomHex());
-        $product->setProductNumber('SKU-NO-PU');
+        $product->setProductNumber('SKU-1');
+        $product->setPurchaseUnit(2.5);
 
         $lineItem = $this->createProductLineItem('p-1', 'Widget');
         $lineItem->setProduct($product);
 
         $view = LineItemView::listFromOrder($this->createOrder(CartPrice::TAX_STATE_NET, [$lineItem]))[0];
 
-        static::assertSame(LineItemView::DEFAULT_BASIS_QUANTITY, $view->basisQuantity);
+        static::assertSame(1.0, $view->basisQuantity);
     }
 
-    public function testListFromOrderThrowsOnNonPositiveQuantity(): void
+    public function testListFromOrderThrowsOnNegativeQuantityByDefault(): void
+    {
+        $item = $this->createLineItemOfType(LineItem::PRODUCT_LINE_ITEM_TYPE, 'Widget', 'p-1');
+        $item->setQuantity(-2);
+        $item->setPrice(new CalculatedPrice(
+            10.0,
+            -20.0,
+            new CalculatedTaxCollection([new CalculatedTax(-3.19, 19.0, -20.0)]),
+            new TaxRuleCollection(),
+        ));
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, [$item]);
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
+            $order->getId(),
+            'lineItem.quantity',
+            'Line item "p-1" has negative quantity.',
+        ));
+
+        LineItemView::listFromOrder($order);
+    }
+
+    public function testListFromOrderThrowsOnZeroQuantityEvenWhenNegativeAllowed(): void
     {
         $item = $this->createLineItemOfType(LineItem::PRODUCT_LINE_ITEM_TYPE, 'Widget', 'p-1');
         $item->setQuantity(0);
@@ -178,13 +199,202 @@ class LineItemViewTest extends TestCase
 
         $order = $this->createOrder(CartPrice::TAX_STATE_NET, [$item]);
 
-        static::expectExceptionObject(DocumentV2Exception::invalidOrderData(
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
             $order->getId(),
             'lineItem.quantity',
-            'Line item "p-1" has non-positive quantity 0.',
+            'Line item "p-1" has zero quantity.',
         ));
 
-        LineItemView::listFromOrder($order);
+        LineItemView::listFromOrder($order, allowNegative: true);
+    }
+
+    public function testListFromOrderKeepsNetPricePositiveForNegativeQuantityWhenAllowed(): void
+    {
+        $item = $this->createLineItemOfType(LineItem::PRODUCT_LINE_ITEM_TYPE, 'Widget', 'p-1');
+        $item->setQuantity(-2);
+        $item->setPrice(new CalculatedPrice(
+            10.0,
+            -20.0,
+            new CalculatedTaxCollection([new CalculatedTax(-3.19, 19.0, -20.0)]),
+            new TaxRuleCollection(),
+        ));
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, [$item]);
+
+        $views = LineItemView::listFromOrder($order, allowNegative: true);
+
+        static::assertCount(1, $views);
+        static::assertSame(-2.0, $views[0]->quantity);
+        static::assertLessThan(0, $views[0]->lineTotal);
+        static::assertGreaterThan(0, $views[0]->netUnitPrice);
+    }
+
+    public function testListFromCreditItemsEmitsOneViewPerTaxRowForAMultiRateCredit(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(
+            140.0,
+            140.0,
+            new CalculatedTaxCollection([
+                new CalculatedTax(19.0, 19.0, 100.0),
+                new CalculatedTax(7.0, 7.0, 40.0),
+            ]),
+            new TaxRuleCollection(),
+        ));
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$credit]));
+
+        static::assertCount(2, $views);
+
+        static::assertSame('1-1', $views[0]->lineId);
+        static::assertSame(100.0, $views[0]->lineTotal);
+        static::assertSame(19.0, $views[0]->taxRate);
+
+        static::assertSame('1-2', $views[1]->lineId);
+        static::assertSame(40.0, $views[1]->lineTotal);
+        static::assertSame(7.0, $views[1]->taxRate);
+
+        static::assertSame(140.0, $views[0]->lineTotal + $views[1]->lineTotal);
+    }
+
+    public function testListFromCreditItemsEmitsASingleUnsuffixedViewForOneTaxRow(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(
+            100.0,
+            100.0,
+            new CalculatedTaxCollection([new CalculatedTax(19.0, 19.0, 100.0)]),
+            new TaxRuleCollection(),
+        ));
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$credit]));
+
+        static::assertCount(1, $views);
+        static::assertSame('1', $views[0]->lineId);
+        static::assertSame(100.0, $views[0]->lineTotal);
+        static::assertSame(100.0, $views[0]->netUnitPrice);
+    }
+
+    public function testListFromCreditItemsSubtractsTaxPerRowForGrossOrders(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(
+            119.0,
+            119.0,
+            new CalculatedTaxCollection([new CalculatedTax(19.0, 19.0, 119.0)]),
+            new TaxRuleCollection(),
+        ));
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_GROSS, [$credit]));
+
+        static::assertCount(1, $views);
+        static::assertSame(100.0, $views[0]->lineTotal);
+    }
+
+    public function testListFromCreditItemsFallsBackToTheTotalWhenNoTaxRowExists(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(
+            50.0,
+            50.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+        ));
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$credit]));
+
+        static::assertCount(1, $views);
+        static::assertSame('1', $views[0]->lineId);
+        static::assertSame(50.0, $views[0]->lineTotal);
+        static::assertSame(TaxCategory::ZERO_RATED, $views[0]->taxCategory);
+    }
+
+    public function testListFromCreditItemsIgnoresProductAndPromotionLineItems(): void
+    {
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, [
+            $this->createProductLineItem('p-1', 'Widget'),
+            $this->createLineItemOfType(LineItem::PROMOTION_LINE_ITEM_TYPE, 'PROMO'),
+            $this->createCreditLineItem('Refund', new CalculatedPrice(
+                30.0,
+                30.0,
+                new CalculatedTaxCollection([new CalculatedTax(0.0, 0.0, 30.0)]),
+                new TaxRuleCollection(),
+            )),
+        ]);
+
+        $views = LineItemView::listFromCreditItems($order);
+
+        static::assertCount(1, $views);
+        static::assertSame('Refund', $views[0]->name);
+    }
+
+    public function testListFromCreditItemsKeepsTheParentPositionPathForNestedCredits(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(
+            30.0,
+            30.0,
+            new CalculatedTaxCollection([new CalculatedTax(0.0, 0.0, 30.0)]),
+            new TaxRuleCollection(),
+        ), position: 2);
+
+        $container = $this->createLineItemOfType(LineItem::CONTAINER_LINE_ITEM, 'Bundle');
+        $container->setChildren(new OrderLineItemCollection([$credit]));
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$container]));
+
+        static::assertCount(1, $views);
+        static::assertSame('1-2', $views[0]->lineId);
+    }
+
+    public function testListFromCreditItemsThrowsOnZeroQuantity(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(
+            0.0,
+            0.0,
+            new CalculatedTaxCollection([new CalculatedTax(0.0, 0.0, 0.0)]),
+            new TaxRuleCollection(),
+        ));
+        $credit->setQuantity(0);
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, [$credit]);
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
+            $order->getId(),
+            'lineItem.quantity',
+            'Line item "credit" has zero quantity.',
+        ));
+
+        LineItemView::listFromCreditItems($order);
+    }
+
+    public function testListFromCreditItemsThrowsOnNegativeQuantity(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(
+            30.0,
+            30.0,
+            new CalculatedTaxCollection([new CalculatedTax(0.0, 0.0, 30.0)]),
+            new TaxRuleCollection(),
+        ));
+        $credit->setQuantity(-1);
+
+        $order = $this->createOrder(CartPrice::TAX_STATE_NET, [$credit]);
+
+        $this->expectExceptionObject(DocumentV2Exception::invalidOrderData(
+            $order->getId(),
+            'lineItem.quantity',
+            'Line item "credit" has negative quantity.',
+        ));
+
+        LineItemView::listFromCreditItems($order);
+    }
+
+    private function createCreditLineItem(
+        string $label,
+        CalculatedPrice $price,
+        int $quantity = 1,
+        int $position = 1,
+    ): OrderLineItemEntity {
+        $item = $this->createLineItemOfType(LineItem::CREDIT_LINE_ITEM_TYPE, $label, 'credit', $position);
+        $item->setQuantity($quantity);
+        $item->setPrice($price);
+
+        return $item;
     }
 
     /**

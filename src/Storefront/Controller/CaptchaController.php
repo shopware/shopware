@@ -20,8 +20,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class CaptchaController extends StorefrontController
 {
     /**
@@ -55,7 +55,7 @@ class CaptchaController extends StorefrontController
             throw RoutingException::missingRequestParameter('formId');
         }
 
-        if ($this->basicCaptcha->isValid($request, [])) {
+        if ($this->basicCaptcha->validate($request, [])->count() === 0) {
             $fakeSession = RequestParamHelper::get($request, BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
             $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 

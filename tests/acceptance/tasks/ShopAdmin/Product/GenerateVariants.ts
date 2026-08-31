@@ -30,12 +30,14 @@ export const GenerateVariants = base.extend<{ GenerateVariants: Task }, FixtureT
 
                 // Proceed to generate variants
                 await AdminProductDetail.variantsNextButton.click();
-                await ShopAdmin.expects(AdminProductDetail.page.getByText('4 variants will be added, 0 variants will be deleted.')).toBeVisible();
+                await ShopAdmin.expects(
+                    AdminProductDetail.page.getByText('4 variants will be added, 0 variants will be deleted.'),
+                ).toBeVisible();
 
                 // Save variants
                 await AdminProductDetail.variantsSaveButton.click();
                 await ShopAdmin.expects(AdminProductDetail.variantsModal).not.toBeVisible({ timeout: 30000 });
-            }
+            };
         };
 
         await use(task);

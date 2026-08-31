@@ -1,4 +1,5 @@
-import type { AxiosInstance, CancelToken } from 'axios';
+import type { CancelToken } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 
@@ -9,7 +10,7 @@ import type { LoginService } from '../login.service';
  * @sw-package framework
  */
 class MessageQueueApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'message-queue') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'message-queue') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'messageQueueService';
     }

@@ -98,7 +98,7 @@ class GoodsPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testValidateWithIntAmount(): void
@@ -122,7 +122,7 @@ class GoodsPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testAvailableOperators(): void
@@ -184,7 +184,7 @@ class GoodsPriceRuleTest extends TestCase
             $this->conditionRepository->search(
                 new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]),
                 $this->context
-            )
+            )->getEntities()
         );
     }
 
@@ -231,7 +231,7 @@ class GoodsPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testCreateRuleWithFilter(): void

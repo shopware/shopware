@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -21,23 +21,23 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(MediaRoute::class)]
 class MediaRouteTest extends TestCase
 {
     /**
-     * @var EntityRepository<MediaCollection>&MockObject
+     * @var EntityRepository<MediaCollection>&Stub
      */
-    private EntityRepository&MockObject $mediaRepository;
+    private EntityRepository&Stub $mediaRepository;
 
-    private CacheTagCollector&MockObject $cacheTagCollector;
+    private CacheTagCollector&Stub $cacheTagCollector;
 
     private MediaRoute $mediaRoute;
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $this->mediaRepository = static::createStub(EntityRepository::class);
+        $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
         $this->mediaRoute = new MediaRoute(
             $this->mediaRepository,
             $this->cacheTagCollector,
@@ -73,17 +73,21 @@ class MediaRouteTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $this->mediaRepository
+        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository
             ->expects($this->once())
             ->method('search')
             ->willReturn($mediaEntitySearchResult);
 
-        $this->cacheTagCollector
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
             ->expects($this->once())
             ->method('addTag')
             ->with('media-testMediaId1', 'media-testMediaId2');
 
-        $response = $this->mediaRoute->load($request, $salesChannelContext);
+        $mediaRoute = new MediaRoute($mediaRepository, $cacheTagCollector);
+
+        $response = $mediaRoute->load($request, $salesChannelContext);
         $mediaCollection = $response->getMediaCollection();
         $firstMediaEntity = $mediaCollection->first();
 

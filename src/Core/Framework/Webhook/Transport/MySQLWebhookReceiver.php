@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLease;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
-use Shopware\Tests\Integration\Core\Framework\Webhook\Transport\MySQLWebhookReceiverTest;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\TransportException;
 use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
@@ -32,7 +31,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @codeCoverageIgnore
  *
- * @see MySQLWebhookReceiverTest
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Transport\MySQLWebhookReceiverTest
  */
 #[Package('framework')]
 class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterface, ResetInterface

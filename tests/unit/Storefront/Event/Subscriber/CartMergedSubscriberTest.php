@@ -22,13 +22,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(CartMergedSubscriber::class)]
 class CartMergedSubscriberTest extends TestCase
 {
     public function testMergedHintIsAdded(): void
     {
         $session = new Session(new MockArraySessionStorage());
+        $session->start();
         $request = new Request();
         $request->setSession($session);
         $requestStack = new RequestStack();

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 class ShippingMethodLifecycleHandlerTest extends TestCase
 {
     use ExtensionBehaviour;
@@ -190,7 +192,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         $criteria->addAssociation('appShippingMethods.shippingMethod');
         $criteria->addFilter(new EqualsFilter('app.name', 'test'));
 
-        $app = $appRepository->search($criteria, Context::createDefaultContext())->first();
+        $app = $appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(AppEntity::class, $app);
 

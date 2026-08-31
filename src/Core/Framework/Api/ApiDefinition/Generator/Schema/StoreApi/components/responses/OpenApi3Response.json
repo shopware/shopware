@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
@@ -12,6 +12,10 @@
                             "properties": {
                                 "openapi": {
                                     "type": "string"
+                                },
+                                "$self": {
+                                    "type": "string",
+                                    "format": "uri-reference"
                                 },
                                 "info": {
                                     "type": "object",
@@ -142,7 +146,16 @@
                                             "name": {
                                                 "type": "string"
                                             },
+                                            "summary": {
+                                                "type": "string"
+                                            },
                                             "description": {
+                                                "type": "string"
+                                            },
+                                            "parent": {
+                                                "type": "string"
+                                            },
+                                            "kind": {
                                                 "type": "string"
                                             },
                                             "externalDocs": {

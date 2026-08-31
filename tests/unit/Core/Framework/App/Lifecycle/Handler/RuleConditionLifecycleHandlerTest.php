@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\RuleConditionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
@@ -19,6 +20,7 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RuleConditionLifecycleHandler::class)]
 class RuleConditionLifecycleHandlerTest extends TestCase
 {
@@ -105,7 +107,7 @@ class RuleConditionLifecycleHandlerTest extends TestCase
         $conditionRepository = $this->createConditionRepository(...$conditionIds);
 
         $persister = new RuleConditionLifecycleHandler(
-            $this->createMock(ScriptFileReader::class),
+            static::createStub(ScriptFileReader::class),
             $conditionRepository,
             AppFixture::createAppRepository($app),
         );
@@ -125,7 +127,7 @@ class RuleConditionLifecycleHandlerTest extends TestCase
         $conditionRepository = $this->createConditionRepository(...$conditionIds);
 
         $persister = new RuleConditionLifecycleHandler(
-            $this->createMock(ScriptFileReader::class),
+            static::createStub(ScriptFileReader::class),
             $conditionRepository,
             AppFixture::createAppRepository($app),
         );
@@ -143,7 +145,6 @@ class RuleConditionLifecycleHandlerTest extends TestCase
      */
     private function createConditionRepository(string ...$conditionIds): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
         $conditionRepository = new StaticEntityRepository([]);
         $conditionRepository->addSearch($conditionIds);
 

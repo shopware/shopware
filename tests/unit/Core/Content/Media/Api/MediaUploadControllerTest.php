@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Api\MediaUploadController;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -28,20 +28,20 @@ class MediaUploadControllerTest extends TestCase
 {
     public static bool $simulateFailedTempnam = false;
 
-    private FileSaver&MockObject $fileSaver;
+    private FileSaver&Stub $fileSaver;
 
-    private MediaService&MockObject $mediaService;
+    private MediaService&Stub $mediaService;
 
-    private FileNameProvider&MockObject $fileNameProvider;
+    private FileNameProvider&Stub $fileNameProvider;
 
-    private ResponseFactoryInterface&MockObject $responseFactory;
+    private ResponseFactoryInterface&Stub $responseFactory;
 
     protected function setUp(): void
     {
-        $this->fileSaver = $this->createMock(FileSaver::class);
-        $this->mediaService = $this->createMock(MediaService::class);
-        $this->fileNameProvider = $this->createMock(FileNameProvider::class);
-        $this->responseFactory = $this->createMock(ResponseFactoryInterface::class);
+        $this->fileSaver = static::createStub(FileSaver::class);
+        $this->mediaService = static::createStub(MediaService::class);
+        $this->fileNameProvider = static::createStub(FileNameProvider::class);
+        $this->responseFactory = static::createStub(ResponseFactoryInterface::class);
     }
 
     protected function tearDown(): void
@@ -65,17 +65,19 @@ class MediaUploadControllerTest extends TestCase
             Uuid::randomHex()
         );
 
-        $this->mediaService->expects($this->once())
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())
             ->method('fetchFile')
             ->willReturn($uploadFile);
 
-        $this->fileSaver->expects($this->once())
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver->expects($this->once())
             ->method('persistFileToMedia')
             ->with($uploadFile, 'filename.png', $mediaId, $context);
 
         $mediaUploadController = new MediaUploadController(
-            $this->mediaService,
-            $this->fileSaver,
+            $mediaService,
+            $fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
             new EventDispatcher()
@@ -92,13 +94,14 @@ class MediaUploadControllerTest extends TestCase
 
         $request = new Request([], ['fileName' => $invalidFileName]);
 
-        $this->fileSaver->expects($this->once())
+        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver->expects($this->once())
             ->method('renameMedia')
             ->with($mediaId, 'filename.png', $context);
 
         $mediaUploadController = new MediaUploadController(
             $this->mediaService,
-            $this->fileSaver,
+            $fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
             new EventDispatcher()
@@ -119,14 +122,15 @@ class MediaUploadControllerTest extends TestCase
             'mediaId' => $mediaId,
         ]);
 
-        $this->fileNameProvider->expects($this->once())
+        $fileNameProvider = $this->createMock(FileNameProvider::class);
+        $fileNameProvider->expects($this->once())
             ->method('provide')
             ->with('filename.png', 'jpg', $mediaId, $context);
 
         $mediaUploadController = new MediaUploadController(
             $this->mediaService,
             $this->fileSaver,
-            $this->fileNameProvider,
+            $fileNameProvider,
             new MediaDefinition(),
             new EventDispatcher()
         );

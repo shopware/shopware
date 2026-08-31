@@ -10,13 +10,16 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -25,7 +28,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -48,7 +50,7 @@ class ProductStreamBuilderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private ProductStreamBuilder $service;
+    private AbstractProductStreamBuilder&ProductStreamBuilderInterface $service;
 
     protected function setUp(): void
     {
@@ -179,13 +181,15 @@ class ProductStreamBuilderTest extends TestCase
     }
 
     #[IgnoreDeprecations]
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedBuildFiltersTriggersDeprecationAndStillBuildsFilters(): void
     {
         // Before v6.8.0.0 the deprecated fallback (used for builders that do not extend
         // AbstractProductStreamBuilder) must stay functional and emit a deprecation notice; TESTS_RUNNING is
         // disabled so the notice is triggered instead of suppressed. Once the flag is active it throws
-        // instead, which the unit test covers.
+        // instead, which the unit test covers. #[DisabledFeatures] has no effect in integration tests
+        // (the FeatureFlagExtension only covers the unit-test namespace), so skip explicitly.
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
         $ids = new IdsCollection();

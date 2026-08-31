@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class GuestNotAuthenticatedException extends OrderException
 {

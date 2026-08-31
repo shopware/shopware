@@ -60,7 +60,7 @@
                         :disabled="!acl.can('product.editor') || undefined"
                         :router-link="{ name: 'sw.review.detail', params: { id: item.id } }"
                     >
-                        {{ $t('sw-product.reviewForm.contextMenuEdit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -71,7 +71,7 @@
                         :disabled="!acl.can('product.editor') || undefined"
                         @click="onStartReviewDelete(item)"
                     >
-                        {{ $t('sw-product.reviewForm.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -144,7 +144,7 @@
                     variant="critical"
                     @click="onConfirmReviewDelete"
                 >
-                    {{ $t('sw-product.reviewForm.modal.buttonDelete') }}
+                    {{ $t('global.default.delete') }}
                 </mt-button>
                 {% endblock %}
             </template>

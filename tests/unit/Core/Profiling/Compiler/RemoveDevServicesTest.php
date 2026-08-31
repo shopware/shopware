@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Compiler\RemoveDevServices;
 use Shopware\Core\Profiling\Controller\ProfilerController;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -13,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RemoveDevServices::class)]
 class RemoveDevServicesTest extends TestCase
 {

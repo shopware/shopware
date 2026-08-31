@@ -101,7 +101,7 @@ Module.register('sw-sales-channel', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-green-500)',
-    icon: 'solid-server',
+    icon: 'regular-server',
     entity: 'sales_channel',
 
     searchMatcher: (regex, labelType, manifest) => {

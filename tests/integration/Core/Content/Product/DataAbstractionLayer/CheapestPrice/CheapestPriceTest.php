@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,6 +33,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class CheapestPriceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -100,7 +102,8 @@ class CheapestPriceTest extends TestCase
                 $criteria = new Criteria($ids->getList($keys));
 
                 $products = static::getContainer()->get('sales_channel.product.repository')
-                    ->search($criteria, $context);
+                    ->search($criteria, $context)
+                    ->getEntities();
 
                 foreach ($assertions as $key => $assertion) {
                     $id = $ids->get($key);
@@ -182,7 +185,8 @@ class CheapestPriceTest extends TestCase
                 $criteria = new Criteria($ids->getList($keys));
 
                 $products = static::getContainer()->get('sales_channel.product.repository')
-                    ->search($criteria, $context);
+                    ->search($criteria, $context)
+                    ->getEntities();
 
                 foreach ($assertions as $key => $assertion) {
                     $id = $ids->get($key);

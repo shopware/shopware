@@ -17,8 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language as LanguageDto;
@@ -349,18 +347,18 @@ class SnippetServiceTest extends TestCase
         $snippetSetCollection = new SnippetSetCollection();
         $snippetSetCollection->add($snippetSet);
 
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository([
             static function ($criteria, $context) use ($snippetSetCollection) {
                 return $snippetSetCollection;
             },
         ]);
-        /** @var StaticEntityRepository<SnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([
             static function ($criteria, $context) {
                 return new SnippetCollection();
             },
         ]);
+
+        $this->connection->expects($this->never())->method('fetchOne');
 
         $service = $this->createSnippetService(
             snippetRepository: $snippetRepository,
@@ -455,10 +453,10 @@ class SnippetServiceTest extends TestCase
         $snippetSetCollection = new SnippetSetCollection();
         $snippetSetCollection->add($snippetSet);
 
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository([$snippetSetCollection]);
-        /** @var StaticEntityRepository<SnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([new SnippetCollection()]);
+
+        $this->connection->expects($this->never())->method('fetchOne');
 
         $service = $this->createSnippetService(
             snippetRepository: $snippetRepository,
@@ -507,7 +505,7 @@ class SnippetServiceTest extends TestCase
 
         $snippetFileCollection = $snippetFileCollection ?? $this->snippetCollection;
         $connection = $connection ?? $this->connection;
-        $snippetFilterFactory = $snippetFilterFactory ?? $this->createMock(SnippetFilterFactory::class);
+        $snippetFilterFactory = $snippetFilterFactory ?? static::createStub(SnippetFilterFactory::class);
         $extensionDispatcher = $extensionDispatcher ?? new ExtensionDispatcher(new EventDispatcher());
 
         /** @var EntityRepository<SnippetCollection> $snippetRepository */
@@ -527,13 +525,10 @@ class SnippetServiceTest extends TestCase
 
     private function getTranslationLoader(TranslationConfig $config): TranslationLoader
     {
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository([]);
 
         return new TranslationLoader(
@@ -541,8 +536,9 @@ class SnippetServiceTest extends TestCase
             languageRepository: $languageRepository,
             localeRepository: $localeRepository,
             snippetSetRepository: $snippetSetRepository,
-            client: $this->createMock(ClientInterface::class),
+            client: static::createStub(ClientInterface::class),
             config: $config,
+            eventDispatcher: new EventDispatcher(),
         );
     }
 }

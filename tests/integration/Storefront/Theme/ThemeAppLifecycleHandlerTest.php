@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -16,17 +17,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\ThemeCollection;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeAppLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private AppLifecycle $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
     private AppManager $appManager;
 
@@ -60,7 +63,7 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
         $this->appLifecycle->uninstall(
             $app->getName(),
-            ['id' => $app->getId(), 'roleId' => $app->getAclRoleId()],
+            ['id' => $app->getId()],
             $this->context,
             $keepUserData
         );
@@ -114,6 +117,6 @@ class ThemeAppLifecycleHandlerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
 
-        return $this->themeRepository->search($criteria, $this->context)->getElements();
+        return $this->themeRepository->search($criteria, $this->context)->getEntities()->getElements();
     }
 }

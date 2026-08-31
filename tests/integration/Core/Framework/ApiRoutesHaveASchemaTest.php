@@ -9,12 +9,15 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\CustomEntity\Api\CustomEntityApiController;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Tests\Integration\Core\Framework\fixtures\QueryParameterAllowList;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
@@ -22,10 +25,25 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiRoutesHaveASchemaTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SnapshotTesting;
+
+    /**
+     * @var array<string, true>
+     */
+    private const OPEN_API_METHODS = [
+        'delete' => true,
+        'get' => true,
+        'head' => true,
+        'options' => true,
+        'patch' => true,
+        'post' => true,
+        'put' => true,
+        'trace' => true,
+    ];
 
     private RouteCollection $routes;
 
@@ -85,6 +103,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
             }
             $path = $route->getPath();
             if (!$this->isStoreApi($path)) {
+                continue;
+            }
+            if (!$this->shouldRouteBeIncludedInOpenApi($route)) {
                 continue;
             }
             $path = \substr($path, \strlen('/store-api'));
@@ -151,6 +172,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
             if (!$this->isAdminApi($path)) {
                 continue;
             }
+            if (!$this->shouldRouteBeIncludedInOpenApi($route)) {
+                continue;
+            }
 
             if (!\array_key_exists($subPath, $this->schemaRoutes)) {
                 $this->handleRouteNotInSchema($route, $subPath);
@@ -182,6 +206,65 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 'actual' => $this->missingRoutes,
             ],
         ]);
+    }
+
+    public function testSchemaPathFilesDoNotDeclareDuplicateOperations(): void
+    {
+        $duplicates = [];
+
+        foreach (['AdminApi', 'StoreApi'] as $api) {
+            $operations = [];
+            $finder = new Finder();
+            $finder
+                ->in(__DIR__ . '/../../../../src/Core/Framework/Api/ApiDefinition/Generator/Schema/' . $api . '/paths')
+                ->name('*.json')
+                ->sortByName();
+
+            foreach ($finder as $entry) {
+                try {
+                    $data = json_decode((string) file_get_contents($entry->getPathname()), true, 512, \JSON_THROW_ON_ERROR);
+                } catch (\JsonException $exception) {
+                    static::fail(\sprintf('Schema file "%s" contains invalid JSON: %s', $entry->getRelativePathname(), $exception->getMessage()));
+                }
+
+                static::assertIsArray($data);
+
+                $paths = $data['paths'] ?? [];
+                static::assertIsArray($paths);
+
+                foreach ($paths as $path => $pathItem) {
+                    static::assertIsString($path);
+                    static::assertIsArray($pathItem);
+
+                    foreach (array_keys($pathItem) as $method) {
+                        static::assertIsString($method);
+
+                        $method = strtolower($method);
+                        if (!isset(self::OPEN_API_METHODS[$method])) {
+                            continue;
+                        }
+
+                        $operation = \sprintf('%s %s', strtoupper($method), $path);
+
+                        if (isset($operations[$operation])) {
+                            $duplicates[] = \sprintf(
+                                '%s %s is declared in both %s and %s',
+                                $api,
+                                $operation,
+                                $operations[$operation],
+                                $entry->getRelativePathname()
+                            );
+
+                            continue;
+                        }
+
+                        $operations[$operation] = $entry->getRelativePathname();
+                    }
+                }
+            }
+        }
+
+        static::assertSame([], $duplicates);
     }
 
     private function handleRouteNotInSchema(Route $route, string $subPath): void
@@ -258,6 +341,11 @@ class ApiRoutesHaveASchemaTest extends TestCase
         $controllerClass = strtok($route->getDefault('_controller'), ':');
 
         return $controllerClass === ApiController::class || $controllerClass === CustomEntityApiController::class;
+    }
+
+    private function shouldRouteBeIncludedInOpenApi(Route $route): bool
+    {
+        return $route->getDefault(PlatformRequest::ATTRIBUTE_OPENAPI) !== false;
     }
 
     private function isCoreRoute(Route $route): bool

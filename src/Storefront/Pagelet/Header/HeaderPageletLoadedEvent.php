@@ -7,7 +7,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('discovery')]
 class HeaderPageletLoadedEvent extends PageletLoadedEvent
 {
     public function __construct(

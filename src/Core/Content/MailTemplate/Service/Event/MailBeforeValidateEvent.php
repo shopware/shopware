@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Service\Event;
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -14,13 +15,16 @@ use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @phpstan-import-type MailData from AbstractMailFactory
+ */
 #[Package('after-sales')]
 class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.before.send';
 
     /**
-     * @param array<string, mixed> $data
+     * @param MailData $data
      * @param array<string, mixed> $templateData
      */
     public function __construct(
@@ -43,7 +47,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     }
 
     /**
-     * @return array<string, scalar|array<mixed>|null>
+     * @return array{data: MailData, templateData: array<string, mixed>}
      */
     public function getValues(): array
     {
@@ -54,7 +58,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     }
 
     /**
-     * @return array<string, mixed>
+     * @return MailData
      */
     public function getData(): array
     {
@@ -62,7 +66,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param MailData $data
      */
     public function setData(array $data): void
     {
@@ -74,6 +78,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
      */
     public function addData(string $key, $value): void
     {
+        /** @phpstan-ignore assign.propertyType (To fix this issue, each allowed array key would need to be checked for its allowed value) */
         $this->data[$key] = $value;
     }
 

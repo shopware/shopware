@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Util\UrlEncoder;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-#[Package('framework')]
+#[Package('discovery')]
 class UrlEncodingTwigFilter extends AbstractExtension
 {
     /**

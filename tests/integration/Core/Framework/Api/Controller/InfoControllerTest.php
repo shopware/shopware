@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -31,6 +33,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
@@ -38,6 +41,7 @@ use Symfony\Component\Messenger\Envelope;
 /**
  * @internal
  */
+#[Package('framework')]
 class InfoControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -152,13 +156,50 @@ class InfoControllerTest extends TestCase
         $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        static::assertArrayHasKey('private_allowed_mime_types_by_extension', $decodedResponse['settings']);
+        static::assertIsArray($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
+        static::assertContains('application/pdf', $decodedResponse['settings']['private_allowed_mime_types_by_extension']['pdf']);
 
         // reset environment-based mismatch
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
         $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
+        unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
 
         static::assertSame($expected, $decodedResponse);
+    }
+
+    public function testGetConfigIncludesMimeTypesForEventAddedPrivateExtensions(): void
+    {
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
+
+        $listener = static function (MediaFileExtensionWhitelistEvent $event): void {
+            $extensions = $event->getWhitelist();
+            $extensions[] = 'epub';
+
+            $event->setWhitelist($extensions);
+        };
+
+        $eventDispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listener);
+
+        try {
+            $client = $this->getBrowser();
+            $client->request(Request::METHOD_GET, '/api/_info/config');
+
+            $content = $client->getResponse()->getContent();
+            static::assertNotFalse($content);
+
+            $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+            static::assertContains('epub', $decodedResponse['settings']['private_allowed_extensions']);
+            static::assertSame(
+                ['application/epub+zip'],
+                $decodedResponse['settings']['private_allowed_mime_types_by_extension']['epub']
+            );
+        } finally {
+            $eventDispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listener);
+        }
     }
 
     public function testGetConfigWithPermissions(): void
@@ -200,6 +241,7 @@ class InfoControllerTest extends TestCase
             'active' => true,
             'integrationId' => $ids->get('integration'),
             'type' => 'app',
+            'sourceType' => 'local',
             'baseUrl' => 'https://example.com',
             'permissions' => [
                 'create' => ['user'],
@@ -247,6 +289,71 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('PHPUnit', $bundles);
         static::assertIsArray($bundles['PHPUnit']);
         static::assertSame($bundle, $bundles['PHPUnit']);
+    }
+
+    public function testGetConfigWithServiceSourceType(): void
+    {
+        $ids = new IdsCollection();
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([
+            [
+                'name' => 'PHPUnitService',
+                'path' => '/foo/bar',
+                'active' => true,
+                'configurable' => false,
+                'version' => '1.0.0',
+                'label' => 'PHPUnitService',
+                'sourceType' => 'service',
+                // Service apps are self-managed; this excludes them from the automatic script
+                // refresh (ScriptLifecycleHandler::refresh) which would otherwise try to resolve
+                // the service filesystem and fail without a full source config.
+                'selfManaged' => true,
+                'integration' => [
+                    'id' => $ids->create('integration'),
+                    'label' => 'foo',
+                    'accessKey' => '123',
+                    'secretAccessKey' => '456',
+                ],
+                'aclRole' => [
+                    'name' => 'PHPUnitServiceRole',
+                    'privileges' => [
+                        'user:read',
+                    ],
+                ],
+                'baseAppUrl' => 'https://example.com',
+            ],
+        ], Context::createDefaultContext());
+
+        $bundle = [
+            'active' => true,
+            'integrationId' => $ids->get('integration'),
+            'type' => 'app',
+            'sourceType' => 'service',
+            'baseUrl' => 'https://example.com',
+            'permissions' => [
+                'read' => ['user'],
+            ],
+            'version' => '1.0.0',
+            'name' => 'PHPUnitService',
+        ];
+
+        $url = '/api/_info/config';
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, $url);
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertJson($content);
+
+        $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+
+        $bundles = $decodedResponse['bundles'];
+        static::assertIsArray($bundles);
+        static::assertArrayHasKey('PHPUnitService', $bundles);
+        static::assertIsArray($bundles['PHPUnitService']);
+        static::assertSame($bundle, $bundles['PHPUnitService']);
     }
 
     public function testGetShopwareVersion(): void

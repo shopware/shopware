@@ -16,7 +16,7 @@ const productMock = {
     ],
 };
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(
         await wrapTestComponent('sw-cms-el-buy-box', {
             sync: true,
@@ -32,6 +32,7 @@ async function createWrapper() {
                         value: null,
                     },
                 },
+                ...props,
             },
             global: {
                 stubs: {
@@ -61,6 +62,20 @@ describe('module/sw-cms/elements/buy-box/component', () => {
         });
 
         expect((await createWrapper()).get('.sw-cms-el-buy-box__skeleton')).toBeTruthy();
+    });
+
+    it('should not change the persisted lock state on product detail pages', async () => {
+        const element = {
+            data: {},
+            config: {},
+        };
+        Shopware.Store.get('cmsPage').setCurrentPage({
+            type: 'product_detail',
+        });
+
+        await createWrapper({ element });
+
+        expect(element.locked).toBeUndefined();
     });
 
     it('should show dummy data initially if page type is not product page and no product config', async () => {

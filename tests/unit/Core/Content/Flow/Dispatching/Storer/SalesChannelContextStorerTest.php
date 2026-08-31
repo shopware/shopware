@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\SalesChannelContextStorer;
@@ -23,19 +23,19 @@ use Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer\Stub\SalesChannelCo
 #[CoversClass(SalesChannelContextStorer::class)]
 class SalesChannelContextStorerTest extends TestCase
 {
-    private AbstractSalesChannelContextFactory&MockObject $factory;
+    private AbstractSalesChannelContextFactory&Stub $factory;
 
     private SalesChannelContextStorer $storer;
 
     protected function setUp(): void
     {
-        $this->factory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $this->factory = static::createStub(AbstractSalesChannelContextFactory::class);
         $this->storer = new SalesChannelContextStorer($this->factory);
     }
 
     public function testStoreWithNonAwareEventReturnsUnchanged(): void
     {
-        $event = $this->createMock(FlowEventAware::class);
+        $event = static::createStub(FlowEventAware::class);
 
         $stored = $this->storer->store($event, ['existing' => 'value']);
 
@@ -44,7 +44,7 @@ class SalesChannelContextStorerTest extends TestCase
 
     public function testStoreWithAuthenticatedContext(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getDomainId')->willReturn('domain-id');
         $salesChannelContext->method('getCustomerId')->willReturn('customer-id');
         $event = new SalesChannelContextAwareEvent('sales-channel-id', $salesChannelContext);
@@ -58,7 +58,7 @@ class SalesChannelContextStorerTest extends TestCase
 
     public function testStoreWithAnonymousContextDoesNotStoreCustomerId(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getDomainId')->willReturn('domain-id');
         $salesChannelContext->method('getCustomerId')->willReturn(null);
         $event = new SalesChannelContextAwareEvent('sales-channel-id', $salesChannelContext);
@@ -72,7 +72,7 @@ class SalesChannelContextStorerTest extends TestCase
 
     public function testStoreWithNullDomainIdDoesNotStoreDomainId(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getDomainId')->willReturn(null);
         $salesChannelContext->method('getCustomerId')->willReturn(null);
         $event = new SalesChannelContextAwareEvent('sales-channel-id', $salesChannelContext);
@@ -87,9 +87,11 @@ class SalesChannelContextStorerTest extends TestCase
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), []);
 
-        $this->factory->expects($this->never())->method('create');
+        $factory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $factory->expects($this->never())->method('create');
+        $storer = new SalesChannelContextStorer($factory);
 
-        $this->storer->restore($storable);
+        $storer->restore($storable);
 
         static::assertNull($storable->getData(SalesChannelContextAware::SALES_CHANNEL_CONTEXT));
     }
@@ -101,16 +103,18 @@ class SalesChannelContextStorerTest extends TestCase
             SalesChannelContextAware::SALES_CHANNEL_CUSTOMER_ID => 'customer-id',
         ]);
 
-        $this->factory->expects($this->never())->method('create');
+        $factory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $factory->expects($this->never())->method('create');
+        $storer = new SalesChannelContextStorer($factory);
 
-        $this->storer->restore($storable);
+        $storer->restore($storable);
 
         static::assertNull($storable->getData(SalesChannelContextAware::SALES_CHANNEL_CONTEXT));
     }
 
     public function testRestoreReconstructsAnonymousContextLazily(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $this->factory->method('create')->willReturn($salesChannelContext);
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [

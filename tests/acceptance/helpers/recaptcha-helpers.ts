@@ -10,7 +10,7 @@ import { expect } from '@playwright/test';
 export async function verifyRecaptchaScriptNotLoaded(
     page: Page,
     test: { step: (name: string, fn: () => Promise<void>) => Promise<void> },
-    version: 'V2' | 'V3' = 'V3'
+    version: 'V2' | 'V3' = 'V3',
 ): Promise<void> {
     await test.step(`Verify reCaptcha ${version} script is not loaded before cookie consent`, async () => {
         const reCaptchaScript = page.locator('#recaptcha-script');
@@ -25,7 +25,6 @@ export async function verifyRecaptchaScriptNotLoaded(
  * @param retries - Number of retry attempts (default: 3)
  */
 export async function waitForRecaptchaScriptLoaded(page: Page, retries = 3): Promise<void> {
-    await page.waitForLoadState('networkidle');
     // Retry mechanism for script loading
     let remainingRetries = retries;
     while (remainingRetries > 0) {
@@ -52,7 +51,7 @@ export async function waitForRecaptchaScriptLoaded(page: Page, retries = 3): Pro
 export async function verifyRecaptchaProtectionNotice(
     page: Page,
     test: { step: (name: string, fn: () => Promise<void>) => Promise<void> },
-    version: 'V2' | 'V3' = 'V3'
+    version: 'V2' | 'V3' = 'V3',
 ): Promise<void> {
     await test.step(`Verify reCaptcha ${version} protection notice is visible`, async () => {
         const reCaptchaNotice = page.getByText('This site is protected by reCAPTCHA');
@@ -71,7 +70,7 @@ export async function setupRecaptchaFlow(
     page: Page,
     test: { step: (name: string, fn: () => Promise<void>) => Promise<void> },
     acceptTechnicalRequiredCookies: () => Promise<void>,
-    version: 'V2' | 'V3' = 'V3'
+    version: 'V2' | 'V3' = 'V3',
 ): Promise<void> {
     await verifyRecaptchaScriptNotLoaded(page, test, version);
     await acceptTechnicalRequiredCookies();
@@ -91,7 +90,7 @@ export async function acceptTechnicalRequiredCookiesWithRecaptcha(
     page: Page,
     test: { step: (name: string, fn: () => Promise<void>) => Promise<void> },
     acceptTechnicalRequiredCookies: () => Promise<void>,
-    version: 'V2' | 'V3' = 'V3'
+    version: 'V2' | 'V3' = 'V3',
 ): Promise<void> {
     await test.step(`Accept technical required cookies and verify reCaptcha ${version} setup`, async () => {
         await acceptTechnicalRequiredCookies();

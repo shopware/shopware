@@ -50,6 +50,7 @@ export default {
             duplicateMappings: [],
             systemRequiredFields: {},
             missingRequiredFields: [],
+            activeTab: 'general',
         };
     },
 
@@ -88,6 +89,28 @@ export default {
 
         profileRepository() {
             return this.repositoryFactory.create('import_export_profile');
+        },
+
+        profileTabs() {
+            const tabs = [
+                {
+                    label: this.$t('sw-import-export.profile.generalTab'),
+                    name: 'general',
+                },
+                {
+                    label: this.$t('sw-import-export.profile.mappingsTab'),
+                    name: 'mappings',
+                },
+            ];
+
+            if (this.profile.type !== 'export' && this.profile.config.updateEntities !== false) {
+                tabs.push({
+                    label: this.$t('sw-import-export.profile.advancedTab'),
+                    name: 'advanced',
+                });
+            }
+
+            return tabs;
         },
     },
 

@@ -114,7 +114,7 @@ class TaxProviderLifecycleHandlerTest extends TestCase
 
     public function testNoTaxInManifest(): void
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest
             ->method('getTax')
             ->willReturn(null);
@@ -182,7 +182,7 @@ class TaxProviderLifecycleHandlerTest extends TestCase
      */
     private function createManifest(array $providers = []): Manifest
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
 
         $tax = Tax::fromArray([
             'taxProviders' => $providers,

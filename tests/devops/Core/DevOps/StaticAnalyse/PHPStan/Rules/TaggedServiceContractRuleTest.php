@@ -6,6 +6,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\Contract;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedServiceContractRule\WrongContract;
 
@@ -14,6 +15,7 @@ use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\TaggedSer
  *
  * @extends RuleTestCase<TaggedServiceContractRule>
  */
+#[Package('framework')]
 class TaggedServiceContractRuleTest extends RuleTestCase
 {
     public function testRule(): void

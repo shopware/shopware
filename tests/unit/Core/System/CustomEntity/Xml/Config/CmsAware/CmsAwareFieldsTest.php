@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\CmsAware;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
 use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\JsonField;
@@ -15,6 +16,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CmsAwareFields::class)]
 class CmsAwareFieldsTest extends TestCase
 {

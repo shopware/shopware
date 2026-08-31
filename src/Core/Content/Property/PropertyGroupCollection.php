@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Property;
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -45,34 +47,52 @@ class PropertyGroupCollection extends EntityCollection
         });
     }
 
-    public function sortByConfig(): void
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'localeCode', parameterType: 'string')]
+    public function sortByConfig(/* string $localeCode = 'en_GB' */): void
     {
+        $localeCode = \func_num_args() === 1 ? func_get_arg(0) : 'en_GB';
+        if ($localeCode === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'sortByConfig(string $localeCode)'));
+        }
+
+        $collator = $this->createCollator($localeCode ?? 'en_GB');
+
         foreach ($this->elements as $group) {
             $options = $group->getOptions();
-            if (!$options instanceof PropertyGroupOptionCollection) {
+            if ($options === null) {
                 continue;
             }
 
-            $columns = [];
-            $entities = [];
+            $elements = $options->getElements();
+            $sortingByPosition = $group->getSortingType() !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
+            $posititionCol = [];
+            $nameCol = [];
 
-            $sortingType = $group->getSortingType();
+            foreach ($elements as $element) {
+                $name = $element->getTranslation('name') ?? '';
+                $nameCol[] = (string) $collator->getSortKey($name);
 
-            foreach ($options->getIterator() as $option) {
-                if ($sortingType === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                    $columns[] = (string) ($option->getTranslation('name') ?? '');
-                } else {
-                    $columns[] = (int) ($option->getTranslation('position') ?? $option->getPosition() ?? 0);
+                if ($sortingByPosition) {
+                    $posititionCol[] = (int) ($element->getTranslation('position') ?? $element->get('position') ?? 0);
                 }
-
-                $entities[] = $option;
             }
 
-            array_multisort($columns, \SORT_ASC, \SORT_NATURAL, $entities);
+            $sortArgs = [];
+            if ($sortingByPosition) {
+                $sortArgs[] = &$posititionCol;
+                $sortArgs[] = \SORT_ASC;
+                $sortArgs[] = \SORT_NUMERIC;
+            }
+
+            $sortArgs[] = &$nameCol;
+            $sortArgs[] = \SORT_ASC;
+            $sortArgs[] = \SORT_STRING;
+            $sortArgs[] = &$elements;
+
+            array_multisort(...$sortArgs);
 
             $sortedOptions = new PropertyGroupOptionCollection();
-            // Bypass expected class validation for performance optimization
-            $sortedOptions->fillOptions($entities);
+            $sortedOptions->fill($elements);
 
             $group->setOptions($sortedOptions);
         }
@@ -86,5 +106,23 @@ class PropertyGroupCollection extends EntityCollection
     protected function getExpectedClass(): string
     {
         return PropertyGroupEntity::class;
+    }
+
+    private function createCollator(string $localeCode): \Collator
+    {
+        $locale = $localeCode !== '' ? \Locale::canonicalize($localeCode) : '';
+        if ($locale === null || $locale === '') {
+            $locale = \Locale::getDefault() ?: 'en_GB';
+        }
+
+        $collator = new \Collator($locale);
+        if (intl_is_failure(intl_get_error_code())) {
+            $collator = new \Collator('en_GB');
+        }
+
+        $collator->setAttribute(\Collator::NUMERIC_COLLATION, \Collator::ON);
+        $collator->setAttribute(\Collator::ALTERNATE_HANDLING, \Collator::SHIFTED);
+
+        return $collator;
     }
 }

@@ -44,12 +44,17 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     },
                     stubs: {
                         'mt-card': {
-                            template: '<div><slot></slot></div>',
+                            template: `
+                                <div class="mt-card">
+                                    <slot name="toolbar"></slot>
+                                    <slot></slot>
+                                </div>
+                            `,
                         },
                         'sw-empty-state': {
                             template: '<div class="sw-empty-state"></div>',
                         },
-                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                        'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
@@ -317,5 +322,33 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 priority: 1,
             },
         ]);
+    });
+
+    it('should disable fields on locked product sorting', async () => {
+        await wrapper.setProps({
+            productSortingEntity: {
+                label: 'Top result',
+                key: 'score',
+                fields: [
+                    {
+                        field: '_score',
+                        naturalSorting: 0,
+                        order: 'desc',
+                        priority: 1,
+                    },
+                ],
+                locked: true,
+            },
+        });
+
+        const criteriaSelect = wrapper.find('.sw-settings-listing-option-criteria-grid__criteria-select');
+        const isDisabled = criteriaSelect.attributes('disabled');
+
+        expect(isDisabled).toBeTruthy();
+
+        const dataGrid = wrapper.findComponent('.sw-settings-listing-option-criteria-grid__data-grid');
+
+        expect(dataGrid.vm.showActions).toBeFalsy();
+        expect(dataGrid.vm.allowInlineEdit).toBeFalsy();
     });
 });

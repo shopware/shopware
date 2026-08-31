@@ -18,6 +18,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[\Shopware\Core\Framework\Log\Package('discovery')]
 #[CoversClass(SitemapLister::class)]
 class SitemapListerTest extends TestCase
 {
@@ -25,12 +26,12 @@ class SitemapListerTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $filesystem = $this->createMock(FilesystemOperator::class);
+        $filesystem = static::createStub(FilesystemOperator::class);
         $filesystem->method('listContents')->willReturn(new DirectoryListing([
             new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId(), 0, null, null, null),
         ]));
 
-        $package = $this->createMock(Package::class);
+        $package = static::createStub(Package::class);
         $package->method('getUrl')->willReturnCallback(static function (string $path) {
             return $path;
         });
@@ -69,13 +70,13 @@ class SitemapListerTest extends TestCase
 
         $context->getSalesChannel()->setDomains($domains);
 
-        $filesystem = $this->createMock(FilesystemOperator::class);
+        $filesystem = static::createStub(FilesystemOperator::class);
         $filesystem->method('listContents')->willReturn(new DirectoryListing([
             new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId() . '-' . $defaultDomainId, 0, null, null, null),
             new FileAttributes('sitemap/salesChannel-' . $context->getSalesChannelId() . '-' . $context->getLanguageId() . '/' . $context->getSalesChannelId() . '-' . $domainId, 0, null, null, null),
         ]));
 
-        $package = $this->createMock(Package::class);
+        $package = static::createStub(Package::class);
         $package->method('getUrl')->willReturnCallback(static function (string $path) {
             return $path;
         });

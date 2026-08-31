@@ -9,18 +9,20 @@ use Shopware\Core\Content\Seo\EmptyPathInfoResolver;
 use Shopware\Core\Content\Seo\ResolvedSeoUrl;
 use Shopware\Core\Content\Seo\SeoUrlRequestContext;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(EmptyPathInfoResolver::class)]
 class EmptyPathInfoResolverTest extends TestCase
 {
     public function testResolveUrlReturnsRootForEmptyPath(): void
     {
-        $decorated = $this->createMock(AbstractSeoResolver::class);
+        $decorated = static::createMock(AbstractSeoResolver::class);
         $decorated->expects($this->never())->method('resolveUrl');
 
         $resolver = new EmptyPathInfoResolver($decorated);
@@ -33,7 +35,7 @@ class EmptyPathInfoResolverTest extends TestCase
 
     public function testResolveUrlReturnsRootForSlashOnlyPath(): void
     {
-        $decorated = $this->createMock(AbstractSeoResolver::class);
+        $decorated = static::createMock(AbstractSeoResolver::class);
         $decorated->expects($this->never())->method('resolveUrl');
 
         $resolver = new EmptyPathInfoResolver($decorated);
@@ -48,7 +50,7 @@ class EmptyPathInfoResolverTest extends TestCase
     {
         $expected = new ResolvedSeoUrl(pathInfo: '/detail/1234', isCanonical: true);
 
-        $decorated = $this->createMock(AbstractSeoResolver::class);
+        $decorated = static::createMock(AbstractSeoResolver::class);
         $decorated
             ->expects($this->once())
             ->method('resolveUrl')
@@ -64,7 +66,7 @@ class EmptyPathInfoResolverTest extends TestCase
 
     public function testGetDecoratedReturnsInjectedResolver(): void
     {
-        $decorated = $this->createMock(AbstractSeoResolver::class);
+        $decorated = static::createStub(AbstractSeoResolver::class);
         $resolver = new EmptyPathInfoResolver($decorated);
 
         static::assertSame($decorated, $resolver->getDecorated());
@@ -73,7 +75,7 @@ class EmptyPathInfoResolverTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedResolveReturnsRootArrayForEmptyPath(): void
     {
-        $decorated = $this->createMock(AbstractSeoResolver::class);
+        $decorated = static::createMock(AbstractSeoResolver::class);
         $decorated->expects($this->never())->method('resolveUrl');
 
         $resolver = new EmptyPathInfoResolver($decorated);
@@ -86,7 +88,7 @@ class EmptyPathInfoResolverTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedResolveProjectsAllPopulatedFieldsToArray(): void
     {
-        $decorated = $this->createMock(AbstractSeoResolver::class);
+        $decorated = static::createMock(AbstractSeoResolver::class);
         $decorated
             ->expects($this->once())
             ->method('resolveUrl')
@@ -117,7 +119,7 @@ class EmptyPathInfoResolverTest extends TestCase
             static::markTestSkipped('Feature v6.8.0.0 must be active to assert the throw behaviour.');
         }
 
-        $resolver = new EmptyPathInfoResolver($this->createMock(AbstractSeoResolver::class));
+        $resolver = new EmptyPathInfoResolver(static::createStub(AbstractSeoResolver::class));
 
         $this->expectException(\Throwable::class);
         $resolver->resolve(Uuid::randomHex(), Uuid::randomHex(), '/awesome-product');

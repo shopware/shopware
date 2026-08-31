@@ -9,6 +9,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -24,6 +26,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 class SearchCasesTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -572,19 +575,24 @@ class SearchCasesTest extends TestCase
             'expectedFirst' => 'i3-target',
         ];
 
-        $ids = new IdsCollection();
-        yield 'lowercase glued Channelline reached via .ngram subfield fallback' => [
-            'ids' => $ids,
-            'products' => [
-                self::product($ids, 'i4-target', 'DE-I4-1', 'Channelline Drill Premium'),
-                self::product($ids, 'i4-other', 'DE-I4-2', 'Basic Hammer'),
-            ],
-            'searchFields' => ['name'],
-            'searchScores' => ['name' => 1000],
-            'minScore' => null,
-            'term' => 'Channel Line',
-            'expectedFirst' => 'i4-target',
-        ];
+        // @deprecated tag:v6.8.0 - under the major pre-tokenization search, querying "Channel Line" no
+        // longer matches the lowercase glued term "Channelline" (the case-variation scenario is already
+        // covered by the PascalCase case above). This data set therefore only applies to the legacy mapping.
+        if (!Feature::isActive('v6.8.0.0')) {
+            $ids = new IdsCollection();
+            yield 'lowercase glued Channelline reached via .ngram subfield fallback' => [
+                'ids' => $ids,
+                'products' => [
+                    self::product($ids, 'i4-target', 'DE-I4-1', 'Channelline Drill Premium'),
+                    self::product($ids, 'i4-other', 'DE-I4-2', 'Basic Hammer'),
+                ],
+                'searchFields' => ['name'],
+                'searchScores' => ['name' => 1000],
+                'minScore' => null,
+                'term' => 'Channel Line',
+                'expectedFirst' => 'i4-target',
+            ];
+        }
 
         // Compressed-form decimal+unit query bridges to spaced-form indexed
         // content via sw_decimal_normalize (3,3 → 3.3) and sw_unit_glue
@@ -738,6 +746,44 @@ class SearchCasesTest extends TestCase
             'term' => 'bohrcraft',
             'expectedFirst' => 'k1-focused',
         ];
+    }
+
+    public function testExactPhraseMatchRanksAheadOfScatteredWordMatch(): void
+    {
+        $this->clearElasticsearch();
+
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create([
+            // contains the full phrase contiguously, but a long name -> weaker per-word BM25
+            self::product($ids, 'phrase', 'DE-PHRASE-1', 'Paper Rippers Special Edition Deluxe Collectors Bundle'),
+            // contains both words but not as a phrase, and a short name -> stronger per-word BM25
+            self::product($ids, 'scattered', 'DE-SCATTER-1', 'Rippers Paper'),
+        ], Context::createDefaultContext());
+
+        $this->setSearchConfiguration(true, ['name']);
+        $this->setSearchScores(['name' => 700]);
+
+        $this->indexElasticSearch();
+
+        $searcher = $this->createEntitySearcher();
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setTerm('Paper Rippers');
+
+        $definition = static::getContainer()->get(ProductDefinition::class);
+
+        $result = $searcher->search($definition, $criteria, Context::createDefaultContext());
+
+        // The contiguous-phrase product must win thanks to the match_phrase boost,
+        // even though its longer name gives it weaker per-word (BM25) scores. Without
+        // the phrase clause the short "Rippers Paper" would rank first.
+        $firstId = $result->firstId();
+        static::assertNotNull($firstId, print_r($result->getData(), true));
+        static::assertSame('phrase', $ids->getKey($firstId), print_r($result->getData(), true));
     }
 
     protected function getDiContainer(): ContainerInterface

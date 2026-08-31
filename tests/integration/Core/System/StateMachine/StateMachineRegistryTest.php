@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,6 +35,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class StateMachineRegistryTest extends TestCase
 {
     use BasicTestDataBehaviour;
@@ -188,7 +190,7 @@ EOF;
             ]
         );
 
-        $orderBefore = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->first();
+        $orderBefore = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $orderBefore);
         static::assertNull($orderBefore->getUpdatedAt());
 
@@ -200,14 +202,14 @@ EOF;
         $toPlace = $stateCollection->get('toPlace');
         static::assertNotNull($toPlace);
 
-        $orderAfter = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->first();
+        $orderAfter = $orderRepo->search(new Criteria([$ids->get('o-1')]), $context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $orderAfter);
 
         static::assertSame($toPlace->getId(), $orderAfter->getStateId());
         static::assertNotNull($orderAfter->getUpdatedAt());
     }
 
-    public function testStateMachineTransitionStoresUserAndIntegrationIdAndInternalComment(): void
+    public function testStateMachineTransitionStoresTheActorTheSourceAndTheInternalComment(): void
     {
         $ids = new IdsCollection();
 
@@ -249,7 +251,7 @@ EOF;
         $connection = self::getContainer()->get(Connection::class);
         static::assertInstanceOf(Connection::class, $connection);
 
-        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id, internal_comment FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
+        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id, source_type, internal_comment FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
             'id' => Uuid::fromHexToBytes($ids->get('o-1')),
             'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
         ]);
@@ -258,6 +260,7 @@ EOF;
         static::assertSame([
             'integration_id' => $ids->get('integration-1'),
             'user_id' => $userId,
+            'source_type' => 'admin-api',
             'internal_comment' => 'internal comment',
         ], $historyData);
     }

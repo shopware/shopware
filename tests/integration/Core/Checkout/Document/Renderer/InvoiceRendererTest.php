@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -267,7 +268,7 @@ class InvoiceRendererTest extends TestCase
                 ]], Context::createDefaultContext());
 
                 $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()]);
-                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($operation->getOrderId());
+                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->getEntities()->get($operation->getOrderId());
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 $context = clone Context::createDefaultContext();
@@ -369,7 +370,7 @@ class InvoiceRendererTest extends TestCase
             static function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
-                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($orderId);
+                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
                 $country = $order->getDeliveries()?->getShippingAddress()->getCountries()->first();
                 self::assertNotNull($country);
@@ -428,7 +429,7 @@ class InvoiceRendererTest extends TestCase
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 $order = $container->get('order.repository')
-                    ->search($criteria, Context::createDefaultContext())->get($orderId);
+                    ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
@@ -469,7 +470,7 @@ class InvoiceRendererTest extends TestCase
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 $order = $container->get('order.repository')
-                    ->search($criteria, Context::createDefaultContext())->get($orderId);
+                    ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
@@ -520,7 +521,7 @@ class InvoiceRendererTest extends TestCase
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 $order = $container->get('order.repository')
-                    ->search($criteria, Context::createDefaultContext())->get($orderId);
+                    ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
@@ -570,7 +571,7 @@ class InvoiceRendererTest extends TestCase
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 $order = $container->get('order.repository')
-                    ->search($criteria, Context::createDefaultContext())->get($orderId);
+                    ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
@@ -676,6 +677,134 @@ class InvoiceRendererTest extends TestCase
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
     }
 
+    #[DataProvider('invoiceDataProviderTestAddressBasedVatDisplay')]
+    public function testRenderDocumentUsesExpectedAddressForVatDisplay(
+        bool $billingCompanyTaxEnabled,
+        bool $billingCountryIsConfigured,
+        bool $shippingCompanyTaxEnabled,
+        bool $shippingCountryIsEu
+    ): void {
+        $cart = $this->generateDemoCartWithTaxes([7]);
+        $orderId = $this->persistCart($cart);
+        $invoice = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION);
+
+        $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
+        $order = static::getContainer()->get('order.repository')
+            ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
+        static::assertInstanceOf(OrderEntity::class, $order);
+        $billingAddressId = $order->getBillingAddressId();
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+        static::assertNotNull($orderDelivery);
+        $shippingAddressId = $orderDelivery->getShippingOrderAddressId();
+
+        $billingCountryId = $this->getCountryIdByIsoCode('DE');
+        $shippingCountryId = $this->getCountryIdByIsoCode('NL');
+
+        static::getContainer()->get('order_address.repository')->update([
+            [
+                'id' => $billingAddressId,
+                'countryId' => $billingCountryId,
+            ],
+            [
+                'id' => $shippingAddressId,
+                'countryId' => $shippingCountryId,
+            ],
+        ], Context::createDefaultContext());
+
+        static::getContainer()->get('country.repository')->update([
+            [
+                'id' => $billingCountryId,
+                'companyTax' => [
+                    'enabled' => $billingCompanyTaxEnabled,
+                    'amount' => 0,
+                    'currencyId' => Context::createDefaultContext()->getCurrencyId(),
+                ],
+            ],
+            [
+                'id' => $shippingCountryId,
+                'isEu' => $shippingCountryIsEu,
+                'checkVatIdPattern' => false,
+                'companyTax' => [
+                    'enabled' => $shippingCompanyTaxEnabled,
+                    'amount' => 0,
+                    'currencyId' => Context::createDefaultContext()->getCurrencyId(),
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->upsertBaseConfig([
+            'displayAdditionalNoteDelivery' => true,
+            'displayCustomerVatId' => false,
+            'displayHeader' => true,
+            'displayLineItems' => true,
+            'displayPrices' => true,
+            'deliveryCountries' => $billingCountryIsConfigured ? [$billingCountryId] : [],
+            'fileTypes' => ['pdf', 'html'],
+        ], InvoiceRenderer::TYPE);
+
+        static::getContainer()->get('order_customer.repository')->upsert([[
+            'id' => $order->getOrderCustomer()?->getId(),
+            'vatIds' => ['NL123456789B01'],
+        ]], Context::createDefaultContext());
+
+        static::getContainer()->get('customer.repository')->upsert([[
+            'id' => $order->getOrderCustomer()?->getCustomerId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'vatIds' => ['NL123456789B01'],
+        ]], Context::createDefaultContext());
+
+        $rendered = $this->invoiceRenderer->render(
+            [$orderId => $invoice],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        $content = $rendered->getSuccess()[$orderId]->getContent();
+        $usesShippingAddress = Feature::isActive('v6.8.0.0');
+        $shouldDisplayVatId = $usesShippingAddress
+            ? $shippingCompanyTaxEnabled && $shippingCountryIsEu
+            : $billingCompanyTaxEnabled && $billingCountryIsConfigured;
+
+        if ($shouldDisplayVatId) {
+            static::assertStringContainsString('VAT Reg.No: NL123456789B01', $content);
+            static::assertStringNotContainsString('Incl. VAT', $content);
+        } else {
+            static::assertStringNotContainsString('VAT Reg.No: NL123456789B01', $content);
+            static::assertStringContainsString('Incl. VAT', $content);
+        }
+    }
+
+    public static function invoiceDataProviderTestAddressBasedVatDisplay(): \Generator
+    {
+        yield 'billing address matches, shipping company tax is disabled' => [
+            'billingCompanyTaxEnabled' => true,
+            'billingCountryIsConfigured' => true,
+            'shippingCompanyTaxEnabled' => false,
+            'shippingCountryIsEu' => true,
+        ];
+
+        yield 'billing address matches, shipping country is not in the EU' => [
+            'billingCompanyTaxEnabled' => true,
+            'billingCountryIsConfigured' => true,
+            'shippingCompanyTaxEnabled' => true,
+            'shippingCountryIsEu' => false,
+        ];
+
+        yield 'billing country is not configured, shipping address matches' => [
+            'billingCompanyTaxEnabled' => true,
+            'billingCountryIsConfigured' => false,
+            'shippingCompanyTaxEnabled' => true,
+            'shippingCountryIsEu' => true,
+        ];
+
+        yield 'billing company tax is disabled, shipping address matches' => [
+            'billingCompanyTaxEnabled' => false,
+            'billingCountryIsConfigured' => true,
+            'shippingCompanyTaxEnabled' => true,
+            'shippingCountryIsEu' => true,
+        ];
+    }
+
     #[DataProvider('invoiceDataProviderTestIntraCommunityDeliveryLabel')]
     public function testRenderDocumentDisplayOfIntraCommunityDeliveryLabel(
         string $customerType,
@@ -693,7 +822,7 @@ class InvoiceRendererTest extends TestCase
         $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
         $order = static::getContainer()->get('order.repository')
-            ->search($criteria, Context::createDefaultContext())->get($orderId);
+            ->search($criteria, Context::createDefaultContext())->getEntities()->get($orderId);
         static::assertInstanceOf(OrderEntity::class, $order);
 
         static::getContainer()->get('customer.repository')->update([[
@@ -703,6 +832,10 @@ class InvoiceRendererTest extends TestCase
 
         $data = [
             'displayAdditionalNoteDelivery' => $enableIntraCommunityDeliveryLabel,
+            'displayCustomerVatId' => false,
+            'displayHeader' => true,
+            'displayLineItems' => true,
+            'displayPrices' => true,
             'fileTypes' => ['pdf', 'html'],
         ];
 
@@ -734,6 +867,13 @@ class InvoiceRendererTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
+        static::getContainer()->get('customer.repository')->upsert([
+            [
+                'id' => $order->getOrderCustomer()?->getCustomerId(),
+                'vatIds' => [$vatNumber],
+            ],
+        ], Context::createDefaultContext());
+
         $rendered = $this->invoiceRenderer->render(
             [$orderId => $invoice],
             $this->context,
@@ -745,8 +885,17 @@ class InvoiceRendererTest extends TestCase
 
         if ($shouldDisplay) {
             static::assertStringContainsString('Intra-community delivery (EU)', $data[$orderId]->getContent());
+            if (Feature::isActive('v6.8.0.0')) {
+                static::assertStringContainsString("VAT Reg.No: $vatNumber", $data[$orderId]->getContent());
+                static::assertStringNotContainsString('Incl. VAT', $data[$orderId]->getContent());
+            } else {
+                static::assertStringNotContainsString('VAT Reg.No:', $data[$orderId]->getContent());
+                static::assertStringContainsString('Incl. VAT', $data[$orderId]->getContent());
+            }
         } else {
             static::assertStringNotContainsString('Intra-community delivery (EU)', $data[$orderId]->getContent());
+            static::assertStringNotContainsString('VAT Reg.No:', $data[$orderId]->getContent());
+            static::assertStringContainsString('Incl. VAT', $data[$orderId]->getContent());
         }
     }
 

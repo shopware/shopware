@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Twig\TokenParser\MacroOverrideTokenParserMac
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\SwMacroFunctionTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Shopware\Core\Framework\Util\Hasher;
@@ -33,10 +34,8 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array

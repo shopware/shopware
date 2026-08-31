@@ -30,7 +30,7 @@
                             <ul class="account-orders-overview list-unstyled">
                                 {% block page_account_orders_table %}
                                     {% block page_account_orders_table_body %}
-                                        {% for order in page.orders %}
+                                        {% for order in page.orders.entities %}
                                             <li class="order-table" data-order-detail-loader="true">
                                                 {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
                                             </li>

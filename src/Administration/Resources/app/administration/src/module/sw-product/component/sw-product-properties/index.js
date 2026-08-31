@@ -103,6 +103,7 @@ export default {
                     property: 'values',
                     label: 'sw-product.properties.columnValue',
                     sortable: false,
+                    multiLine: true,
                 },
             ];
         },

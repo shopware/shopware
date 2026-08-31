@@ -20,11 +20,13 @@ shopware:
             tag_invalidation_log_enabled: false
 
     increment:
+        # The mysql gateway keeps increment state in the test database, so it
+        # survives a kernel service reset (e.g. worker mode runtimes).
         user_activity:
-            type: 'array'
+            type: 'mysql'
 
         message_queue:
-            type: 'array'
+            type: 'mysql'
 
     admin_worker:
         poll_interval: 1
@@ -32,6 +34,12 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: false
+
+    app_system:
+        allow_unencrypted_traffic: true
+        allowed_private_ip_addresses:
+            - '127.0.0.1'
+            - '::1'
 
     html_sanitizer:
         sets:

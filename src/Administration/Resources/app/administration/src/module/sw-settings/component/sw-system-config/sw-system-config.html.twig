@@ -15,9 +15,10 @@
         v-for="card, index in config"
         :key="index"
         position-identifier="sw-system-config-content"
-        :class="`sw-system-config__card--${index}`"
+        :class="[ `sw-system-config__card--${index}`, card.name ? `sw-system-config__card--${kebabCase(card.name)}` : null ]"
         :is-loading="isLoading"
         :title="getInlineSnippet(card.title)"
+        :subtitle="getInlineSnippet(card.subtitle)"
     >
         <slot name="title">
             <sw-ai-copilot-badge v-if="card.aiBadge" />
@@ -25,7 +26,7 @@
 
         <slot
             name="beforeElements"
-            v-bind="{ card, config: actualConfigData[currentSalesChannelId] }"
+            v-bind="{ card, config: actualConfigData[currentSalesChannelId], currentSalesChannelId }"
         ></slot>
 
         <template
@@ -50,7 +51,7 @@
             <template v-for="element in card.elements">
                 <slot
                     name="card-element"
-                    v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }"
+                    v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card, currentSalesChannelId }"
                 >
                     {% block sw_system_config_content_card_group %}
                     <template v-if="isMeteorComponent(element)">
@@ -96,12 +97,15 @@
                     {% endblock %}
                 </slot>
             </template>
-            <slot name="card-element-last"></slot>
+            <slot
+                name="card-element-last"
+                v-bind="{ currentSalesChannelId }"
+            ></slot>
         </template>
 
         <slot
             name="afterElements"
-            v-bind="{ card, config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"
+            v-bind="{ card, config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null, currentSalesChannelId }"
         >
         </slot>
     </mt-card>

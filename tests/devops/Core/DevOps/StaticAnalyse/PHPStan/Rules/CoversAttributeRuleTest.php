@@ -6,12 +6,14 @@ use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\CoversAttributeRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<CoversAttributeRule>
  */
+#[Package('framework')]
 class CoversAttributeRuleTest extends RuleTestCase
 {
     public function testAllowsConfiguredUnitTestNamespace(): void
@@ -19,11 +21,16 @@ class CoversAttributeRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/CoversAttributeRule/Unit/ConfiguredUnitFixture.php'], []);
     }
 
+    public function testAllowsCoversTraitAttribute(): void
+    {
+        $this->analyse([__DIR__ . '/data/CoversAttributeRule/Unit/CoversTraitFixture.php'], []);
+    }
+
     public function testRejectsCoversAttributeOutsideConfiguredUnitTestNamespace(): void
     {
         $this->analyse([__DIR__ . '/data/CoversAttributeRule/Integration/IntegrationFixture.php'], [
             [
-                'Only Unit & Migration test classes can have CoversClass, CoversFunction or CoversNothing attribute',
+                'Only Unit & Migration test classes can have CoversClass, CoversTrait, CoversFunction or CoversNothing attribute',
                 8,
             ],
         ]);

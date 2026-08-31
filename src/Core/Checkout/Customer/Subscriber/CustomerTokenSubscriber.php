@@ -41,11 +41,7 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
 
     public function onCustomerWritten(EntityWrittenEvent $event): void
     {
-        foreach ($event->getWriteResults() as $writeResult) {
-            if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_UPDATE) {
-                continue;
-            }
-
+        foreach ($event->getResults()->only(EntityWriteResult::OPERATION_UPDATE) as $writeResult) {
             $payload = $writeResult->getPayload();
             if (!$this->customerCredentialsChanged($payload)) {
                 continue;
@@ -105,8 +101,8 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
             'token' => $newToken,
         ]);
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to customer token migration updating the storefront session.) */
-        if (!$mainRequest->hasSession()) {
+        // Only migrate an initialized storefront session. Store API requests use their context token directly.
+        if (!$mainRequest->hasSession(true)) {
             return null;
         }
 

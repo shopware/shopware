@@ -88,6 +88,23 @@ describe('mediaPresignedUploadService', () => {
         );
     });
 
+    it('uploadToPresignedUrl appends charset=utf-8 for text-based mime types', async () => {
+        const s3Client = Axios.create();
+        const service = getMediaPresignedUploadApiService();
+        const file = new File(['Schöppingen'], 'umlauts.txt', { type: 'text/plain' });
+
+        await service.uploadToPresignedUrl('https://s3.example.com/presigned', file, 'text/plain');
+
+        expect(s3Client.put).toHaveBeenCalledWith(
+            'https://s3.example.com/presigned',
+            file,
+            expect.objectContaining({
+                headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+                timeout: 0,
+            }),
+        );
+    });
+
     it('uploadToPresignedUrl passes progress callback as onUploadProgress', async () => {
         const s3Client = Axios.create();
         const service = getMediaPresignedUploadApiService();

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -38,8 +38,8 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
-#[CoversClass(PromotionDeliveryCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionDeliveryCalculator::class)]
 class PromotionDeliveryCalculatorTest extends TestCase
 {
     private const CART_PROMOTION = 'cart-promotion';
@@ -48,22 +48,22 @@ class PromotionDeliveryCalculatorTest extends TestCase
 
     private IdsCollection $ids;
 
-    private QuantityPriceCalculator&MockObject $quantityPriceCalculator;
+    private QuantityPriceCalculator&Stub $quantityPriceCalculator;
 
-    private PercentagePriceCalculator&MockObject $percentagePriceCalculator;
+    private PercentagePriceCalculator&Stub $percentagePriceCalculator;
 
     private PromotionDeliveryCalculator $promotionDeliveryCalculator;
 
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->quantityPriceCalculator = $this->createMock(QuantityPriceCalculator::class);
-        $this->percentagePriceCalculator = $this->createMock(PercentagePriceCalculator::class);
+        $this->quantityPriceCalculator = static::createStub(QuantityPriceCalculator::class);
+        $this->percentagePriceCalculator = static::createStub(PercentagePriceCalculator::class);
 
         $this->promotionDeliveryCalculator = new PromotionDeliveryCalculator(
             $this->quantityPriceCalculator,
             $this->percentagePriceCalculator,
-            $this->createMock(PromotionItemBuilder::class)
+            static::createStub(PromotionItemBuilder::class)
         );
     }
 
@@ -83,7 +83,7 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new LineItemCollection([$promotion]),
             $cart,
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertCount(1, $cart->getLineItems());
@@ -136,7 +136,7 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new LineItemCollection([$noRequirement, $falseRequirement, $trueRequirement]),
             $cart,
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertCount(3, $cart->getDeliveries());
@@ -146,6 +146,47 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertNotNull($cart->getErrors()->get('promotion-discount-added-no-requirement'));
         static::assertNotNull($cart->getErrors()->get('promotion-discount-added-true-requirement'));
         static::assertNotNull($cart->getErrors()->get('promotion-not-eligible'));
+    }
+
+    public function testDeliveryDiscountWithZeroFixedUnitValueRestoresPriceDefinition(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        // simulate a recalculation where the copied delivery discount line item
+        // still carries a QuantityPriceDefinition that needs to be restored. A
+        // "Fixed price per unit" discount with value "0" makes shipping free.
+        $discount = $this->getDiscountItem('free-shipping')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', '0')
+            ->setPriceDefinition(new QuantityPriceDefinition(0, new TaxRuleCollection(), 1));
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$discount]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        $priceDefinition = $discount->getPriceDefinition();
+        static::assertInstanceOf(AbsolutePriceDefinition::class, $priceDefinition);
+        static::assertSame(0.0, $priceDefinition->getPrice());
+        static::assertSame(0.0, $cart->getShippingCosts()->getTotalPrice());
     }
 
     public function testPromotionPrioritySorting(): void
@@ -181,7 +222,7 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new LineItemCollection([$secondDiscountItem, $firstDiscountItem]),
             $cart,
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertCount(2, $cart->getLineItems());
@@ -320,7 +361,7 @@ class PromotionDeliveryCalculatorTest extends TestCase
             new LineItemCollection([$firstFixedDiscount, $secondFixedDiscount, $thirdFixedDiscount]),
             $cart,
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         // Should apply the lowest fixed price (20)

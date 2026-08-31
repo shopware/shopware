@@ -11,7 +11,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class CartMergedSubscriber implements EventSubscriberInterface
 {
     /**
@@ -38,14 +38,13 @@ class CartMergedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to cart merge reading flash messages.) */
-        if ($mainRequest->hasSession() === false) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 
         $session = $mainRequest->getSession();
 
-        if (!method_exists($session, 'getFlashBag')) {
+        if (!$session->isStarted() || !method_exists($session, 'getFlashBag')) {
             return;
         }
 

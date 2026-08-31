@@ -4,27 +4,23 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\PostUpdateIndexer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Reconciles `description_teaser` with `description`: a full run recomputes every teaser via
- * {@see ProductDescriptionTeaserBuilder} and only writes rows whose teaser actually differs.
- * Scheduled by Migration1780645634AddProductDescriptionTeaser to backfill existing products
- * asynchronously; also usable for recovery via `dal:refresh:index`. Live writes are handled
- * synchronously by {@see ProductDescriptionTeaserSubscriber}, so this indexer intentionally does
- * nothing on the write path.
+ * Backfills and repairs `description_teaser`: it rebuilds each teaser from the current description and
+ * rewrites only the rows whose stored value is missing or out of date, so products that predate the
+ * column or were changed outside the DAL get reconciled. Runs through the post-update flow.
  *
  * @internal
  */
 #[Package('inventory')]
-class ProductDescriptionTeaserIndexer extends EntityIndexer
+class ProductDescriptionTeaserIndexer extends PostUpdateIndexer
 {
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -50,12 +46,6 @@ class ProductDescriptionTeaserIndexer extends EntityIndexer
         return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
-    public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
-    {
-        // Live writes are kept in sync synchronously by ProductDescriptionTeaserSubscriber.
-        return null;
-    }
-
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
@@ -63,20 +53,28 @@ class ProductDescriptionTeaserIndexer extends EntityIndexer
             return;
         }
 
+        // Rebuild each teaser from the current description and rewrite only rows whose stored value is
+        // missing or stale. Live writes stay in sync via ProductDescriptionTeaserSubscriber; this also
+        // repairs rows changed outside the DAL (raw SQL) or after the html_sanitizer rules changed —
+        // cases the subscriber never sees. The `<=>` pre-filter drops rows already trivially equal in
+        // the database; the builder check below is still required, since SQL cannot reproduce the HTML
+        // stripping.
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
                 SELECT product_id, product_version_id, language_id, description, description_teaser
                 FROM product_translation
                 WHERE product_id IN (:ids)
+                  AND description IS NOT NULL
+                  AND NOT (description <=> description_teaser)
             SQL,
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );
 
         foreach ($rows as $row) {
-            $expected = $this->teaserBuilder->build($row['description']);
+            $teaser = $this->teaserBuilder->build($row['description']);
 
-            if ($expected === $row['description_teaser']) {
+            if ($teaser === $row['description_teaser']) {
                 continue;
             }
 
@@ -89,7 +87,7 @@ class ProductDescriptionTeaserIndexer extends EntityIndexer
                       AND language_id = :languageId
                 SQL,
                 [
-                    'teaser' => $expected,
+                    'teaser' => $teaser,
                     'productId' => $row['product_id'],
                     'versionId' => $row['product_version_id'],
                     'languageId' => $row['language_id'],

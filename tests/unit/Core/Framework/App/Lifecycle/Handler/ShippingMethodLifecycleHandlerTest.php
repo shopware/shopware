@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -27,6 +28,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShippingMethodLifecycleHandler::class)]
 class ShippingMethodLifecycleHandlerTest extends TestCase
 {
@@ -58,7 +60,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
         $shippingMethodHandler = $this->createShippingMethodHandler([
             'shippingMethodRepository' => $shippingMethodRepositoryMock,
             'appShippingMethodRepository' => $appShippingMethodRepositoryMock,
-            'mediaService' => $this->createMock(MediaService::class),
+            'mediaService' => static::createStub(MediaService::class),
         ]);
 
         $shippingMethodHandler->install($this->buildContext($manifest));
@@ -109,7 +111,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
      */
     private function createAppShippingMethodRepositoryMock(): EntityRepository
     {
-        $appShippingMethodMock = $this->createMock(EntityRepository::class);
+        $appShippingMethodMock = static::createStub(EntityRepository::class);
         $appShippingMethodMock->method('search')->willReturn(
             new EntitySearchResult(
                 AppShippingMethodEntity::class,
@@ -129,7 +131,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
      */
     private function createMediaRepositoryMock(): EntityRepository
     {
-        $mediaRepositoryMock = $this->createMock(EntityRepository::class);
+        $mediaRepositoryMock = static::createStub(EntityRepository::class);
         $mediaRepositoryMock->method('searchIds')->willReturn(
             new IdSearchResult(
                 0,

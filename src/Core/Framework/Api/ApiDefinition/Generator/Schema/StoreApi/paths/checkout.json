@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/shipping-cost/product/{productId}": {
@@ -78,6 +78,14 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No product exists for the given `productId` in this sales channel."
                     }
                 },
                 "security": [
@@ -146,6 +154,10 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -163,7 +175,11 @@
                 "summary": "Fetch or create a cart",
                 "description": "Used to fetch the current cart or for creating a new one.",
                 "operationId": "readCart",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Cart",
@@ -174,6 +190,10 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -199,6 +219,10 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -216,7 +240,11 @@
                 "summary": "Add items to the cart",
                 "description": "This route adds items to the cart. An item can be a product or promotion for example. They are referenced by the `referencedId`-parameter.\n\nExample: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#adding-new-items-to-the-cart)",
                 "operationId": "addLineItem",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -229,6 +257,15 @@
                 "responses": {
                     "200": {
                         "description": "The updated cart.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains sw-context-token value",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -239,6 +276,10 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -280,6 +321,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "One of the given ids does not reference a line item of the current cart."
                     }
                 },
                 "security": [
@@ -295,7 +344,11 @@
                 "summary": "Update items in the cart",
                 "description": "This route updates items in the cart. A typical example is updating the quantity of an item.\n\nExample: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#updating-items-in-the-cart)",
                 "operationId": "updateLineItem",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -315,6 +368,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "A line item cannot be updated, e.g. a quantity that is not a positive integer, a quantity that is not a multiple of the parent quantity or a line item type that does not support updates."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "One of the given ids does not reference a line item of the current cart."
                     }
                 },
                 "security": [
@@ -332,7 +397,11 @@
                 "summary": "Remove items from the cart",
                 "description": "This route removes items from the cart and recalculates it.\n\nExample: [Working with the cart - Guide](https://developer.shopware.com/docs/guides/integrations-api/store-api-guide/work-with-the-cart#deleting-items-in-the-cart)",
                 "operationId": "removeLineItem",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -367,6 +436,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "One of the given ids does not reference a line item of the current cart."
                     }
                 },
                 "security": [
@@ -384,7 +461,11 @@
                 "summary": "Create an order from a cart",
                 "description": "Creates a new order from the current cart and deletes the cart.\n\nIf you are using the [prepared payment flow](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/payments#2.1-prepare-payment-optional), this endpoint also receives additional transaction details. The exact name of the parameters depends on the implementation of the corresponding *payment handler*.",
                 "operationId": "createOrder",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
                 "requestBody": {
                     "description": "Contains additional metadata which is stored together with the order. It can also contain payment transaction details.",
                     "content": {
@@ -419,6 +500,21 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The cart cannot be turned into an order, e.g. because it is empty."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
+                    },
+                    "409": {
+                        "description": "The `hash` sent by the client does not match the current cart content, so the cart changed since it was last read."
                     }
                 },
                 "security": [
@@ -505,11 +601,20 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

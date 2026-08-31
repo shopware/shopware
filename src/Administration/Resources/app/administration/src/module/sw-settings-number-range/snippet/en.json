@@ -16,10 +16,7 @@
       "columnUsedIn": "Type",
       "columnAssignment": "Assignment",
       "buttonAddNumberRange": "Add number range",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Number range \"{name}\" has been deleted.",
-      "buttonDelete": "Delete",
       "global": "Global"
     },
     "detail": {

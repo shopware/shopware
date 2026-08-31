@@ -98,6 +98,7 @@ class LandingPageLoaderTest extends TestCase
         $cmsPageLoaded = $page->getLandingPage();
         static::assertNotNull($cmsPageLoaded);
         static::assertSame($cmsPage, $cmsPageLoaded->getCmsPage());
+        static::assertSame($landingPageId, $page->getNavigationId());
     }
 
     public function testItLoadsProperPageMetaInformation(): void

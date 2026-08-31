@@ -65,6 +65,14 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
         $this->toBeInstalled[$manifest->getMetadata()->getName()] = $manifest;
     }
 
+    public function activate(string $appId, Context $context): void
+    {
+    }
+
+    public function deactivate(string $appId, Context $context): void
+    {
+    }
+
     public function update(Manifest $manifest, AppUpdateParameters $parameters, array $app, Context $context): void
     {
         $this->toBeUpdated[$manifest->getMetadata()->getName()] = $manifest;

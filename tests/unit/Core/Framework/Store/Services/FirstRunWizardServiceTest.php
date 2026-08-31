@@ -79,19 +79,19 @@ class FirstRunWizardServiceTest extends TestCase
 
     public function testFrwLoginFailsIfContextSourceIsNotAdminApi(): void
     {
-        $frwClient = $this->createMock(FirstRunWizardClient::class);
+        $frwClient = static::createStub(FirstRunWizardClient::class);
         $frwClient->method('frwLogin')
             ->willThrowException(new InvalidContextSourceException(AdminApiSource::class, SystemSource::class));
 
         $frwService = new FirstRunWizardService(
-            $this->createMock(StoreService::class),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(StoreService::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(FilesystemOperator::class),
             true,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $frwClient,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(TrackingEventClient::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(TrackingEventClient::class),
         );
 
         $this->expectException(InvalidContextSourceException::class);
@@ -939,14 +939,14 @@ class FirstRunWizardServiceTest extends TestCase
         ?TrackingEventClient $trackingEventClient = null,
     ): FirstRunWizardService {
         return new FirstRunWizardService(
-            $storeService ?? $this->createMock(StoreService::class),
-            $systemConfigService ?? $this->createMock(SystemConfigService::class),
-            $filesystemOperator ?? $this->createMock(FilesystemOperator::class),
+            $storeService ?? static::createStub(StoreService::class),
+            $systemConfigService ?? static::createStub(SystemConfigService::class),
+            $filesystemOperator ?? static::createStub(FilesystemOperator::class),
             $autoRun ?? true,
-            $eventDispatcher ?? $this->createMock(EventDispatcherInterface::class),
-            $frwClient ?? $this->createMock(FirstRunWizardClient::class),
-            $userConfigRepository ?? $this->createMock(EntityRepository::class),
-            $trackingEventClient ?? $this->createMock(TrackingEventClient::class),
+            $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
+            $frwClient ?? static::createStub(FirstRunWizardClient::class),
+            $userConfigRepository ?? static::createStub(EntityRepository::class),
+            $trackingEventClient ?? static::createStub(TrackingEventClient::class),
         );
     }
 }

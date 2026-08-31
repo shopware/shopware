@@ -61,6 +61,9 @@
                 launchingArView: 'spatial.ar.launchingArView'|trans|striptags,
             }
         } %}
+
+        {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+        {% set isProduct = element.fieldConfig.elements.sliderItems.value == 'product.media' and element.fieldConfig.elements.sliderItems.source == 'mapped' %}
     {% endif %}
 
     {% if fallbackImageTitle is not defined %}

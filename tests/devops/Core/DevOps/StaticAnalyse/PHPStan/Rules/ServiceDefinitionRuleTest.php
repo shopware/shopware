@@ -7,12 +7,14 @@ use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ServiceDefinitionCollector;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ServiceDefinitionRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<ServiceDefinitionRule>
  */
+#[Package('framework')]
 class ServiceDefinitionRuleTest extends RuleTestCase
 {
     public function testRule(): void

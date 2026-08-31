@@ -60,14 +60,24 @@
 
     &.is--no-checkbox {
         .sw-tree-item__element {
-            grid-template-columns: var(--scale-size-30) 0 var(--scale-size-20) auto var(--scale-size-64);
+            grid-template-columns:
+                var(--scale-size-30)
+                0
+                var(--scale-size-20)
+                minmax(0, 1fr)
+                var(--scale-size-64);
         }
     }
 
     .sw-tree-item__element {
         height: var(--scale-size-42);
         display: grid;
-        grid-template-columns: var(--scale-size-30) var(--scale-size-24) var(--scale-size-20) auto var(--scale-size-64);
+        grid-template-columns:
+            var(--scale-size-30)
+            var(--scale-size-24)
+            var(--scale-size-20)
+            minmax(0, 1fr)
+            var(--scale-size-64);
         grid-column-gap: var(--scale-size-2);
         align-items: center;
         align-content: center;
@@ -243,7 +253,12 @@
 .sw-tree-item__element {
     height: var(--scale-size-42);
     display: grid;
-    grid-template-columns: var(--scale-size-30) var(--scale-size-24) var(--scale-size-20) auto var(--scale-size-64);
+    grid-template-columns:
+        var(--scale-size-30)
+        var(--scale-size-24)
+        var(--scale-size-20)
+        minmax(0, 1fr)
+        var(--scale-size-64);
     grid-column-gap: var(--scale-size-2);
     align-items: center;
     align-content: center;

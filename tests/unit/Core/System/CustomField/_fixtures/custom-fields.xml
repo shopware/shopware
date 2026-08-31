@@ -15,6 +15,7 @@
                 <position>1</position>
                 <min>0</min>
                 <max>100</max>
+                <include-in-search>true</include-in-search>
             </int>
             <text name="test_set_text_field">
                 <label>Text Field</label>

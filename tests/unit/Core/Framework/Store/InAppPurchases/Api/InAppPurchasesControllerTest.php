@@ -152,7 +152,6 @@ class InAppPurchasesControllerTest extends TestCase
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setName('test-extension');
-        /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
 
         return new InAppPurchasesController(

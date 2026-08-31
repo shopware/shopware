@@ -34,11 +34,11 @@ class EntitySchemaToolTest extends TestCase
     public function testReturnsAllFieldTypesCorrectly(): void
     {
         $definition = new RichTestEntityDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->with('rich_test')->willReturn($definition);
+        $registry->method('getByEntityName')->willReturn($definition);
 
         $tool = new EntitySchemaTool($registry);
         $result = json_decode(($tool)('rich_test'), true, 512, \JSON_THROW_ON_ERROR);
@@ -66,10 +66,10 @@ class EntitySchemaToolTest extends TestCase
     public function testReturnsAssociationsCorrectly(): void
     {
         $definition = new RichTestEntityDefinition();
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $definition->compile($registry);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->with('rich_test')->willReturn($definition);
+        $registry->method('getByEntityName')->willReturn($definition);
 
         $tool = new EntitySchemaTool($registry);
         $result = json_decode(($tool)('rich_test'), true, 512, \JSON_THROW_ON_ERROR);
@@ -89,9 +89,9 @@ class EntitySchemaToolTest extends TestCase
     public function testFieldWithoutRequiredFlagIsNotRequired(): void
     {
         $definition = new RichTestEntityDefinition();
-        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
 

@@ -5,6 +5,8 @@ namespace Shopware\Core\System\StateMachine;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -181,14 +183,17 @@ class StateMachineRegistry implements ResetInterface
             );
         }
 
+        $source = $this->resolveOriginalSource($context->getSource());
+
         $stateMachineHistoryEntity = [
             'stateMachineId' => $toPlace->getStateMachineId(),
             'entityName' => $transition->getEntityName(),
             'fromStateId' => $fromPlace->getId(),
             'toStateId' => $toPlace->getId(),
             'transitionActionName' => $transition->getTransitionName(),
-            'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
-            'integrationId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getIntegrationId() : null,
+            'userId' => $source instanceof AdminApiSource ? $source->getUserId() : null,
+            'integrationId' => $source instanceof AdminApiSource ? $source->getIntegrationId() : null,
+            'sourceType' => $this->resolveSourceType($source),
             'referencedId' => $transition->getEntityId(),
             'referencedVersionId' => $context->getVersionId(),
             'internalComment' => $transition->getInternalComment(),
@@ -218,6 +223,23 @@ class StateMachineRegistry implements ResetInterface
             $fromPlace,
             $toPlace,
         );
+    }
+
+    private function resolveOriginalSource(ContextSource $source): ContextSource
+    {
+        if ($source instanceof AdminSalesChannelApiSource) {
+            return $source->getOriginalContext()->getSource();
+        }
+
+        return $source;
+    }
+
+    private function resolveSourceType(ContextSource $source): ?string
+    {
+        // read from the source itself, so a custom ContextSource can contribute its own type
+        $type = get_object_vars($source)['type'] ?? null;
+
+        return \is_string($type) ? $type : null;
     }
 
     private function dispatchTransitionEvents(Transition $transition, Context $context, StateMachineTransitionResult $result): void
@@ -385,7 +407,7 @@ class StateMachineRegistry implements ResetInterface
         Context $context,
         EntityRepository $repository
     ): StateMachineStateEntity {
-        $entity = $repository->search(new Criteria([$entityId]), $context)->get($entityId);
+        $entity = $repository->search(new Criteria([$entityId]), $context)->getEntities()->get($entityId);
 
         if (!$entity) {
             throw StateMachineException::stateMachineInvalidEntityId($entityName, $entityId);

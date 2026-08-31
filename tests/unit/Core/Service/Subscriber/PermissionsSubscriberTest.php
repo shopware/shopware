@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Service\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
 use Shopware\Core\Service\LifecycleManager;
@@ -16,19 +16,14 @@ use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PermissionsSubscriber::class)]
 class PermissionsSubscriberTest extends TestCase
 {
-    private LifecycleManager&MockObject $manager;
-
-    private PermissionsSubscriber $subscriber;
-
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->manager = $this->createMock(LifecycleManager::class);
-        $this->subscriber = new PermissionsSubscriber($this->manager);
         $this->context = Context::createDefaultContext();
     }
 
@@ -42,12 +37,13 @@ class PermissionsSubscriberTest extends TestCase
         );
         $event = new PermissionsGrantedEvent($consent, $this->context);
 
-        $this->manager
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ServiceConsentRequirement::NAME, $this->context);
 
-        $this->subscriber->syncConsentRequirement($event);
+        (new PermissionsSubscriber($manager))->syncConsentRequirement($event);
     }
 
     public function testSyncConsentRequirementOnRevoke(): void
@@ -60,12 +56,13 @@ class PermissionsSubscriberTest extends TestCase
         );
         $event = new PermissionsRevokedEvent($consent, $this->context);
 
-        $this->manager
+        $manager = $this->createMock(LifecycleManager::class);
+        $manager
             ->expects($this->once())
-            ->method('syncRequirement')
+            ->method('reevaluateRequirement')
             ->with(ServiceConsentRequirement::NAME, $this->context);
 
-        $this->subscriber->syncConsentRequirement($event);
+        (new PermissionsSubscriber($manager))->syncConsentRequirement($event);
     }
 
     public function testSubscribedEvents(): void

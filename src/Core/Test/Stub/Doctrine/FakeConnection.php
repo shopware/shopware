@@ -27,9 +27,7 @@ class FakeConnection extends Connection
     public function __construct(private readonly array $dbRows)
     {
         parent::__construct(
-            [
-                'url' => 'sqlite:///:memory:',
-            ],
+            [],
             new Driver(),
             new Configuration()
         );

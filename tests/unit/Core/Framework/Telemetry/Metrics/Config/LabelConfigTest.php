@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelConfig;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(LabelConfig::class)]
 class LabelConfigTest extends TestCase
 {

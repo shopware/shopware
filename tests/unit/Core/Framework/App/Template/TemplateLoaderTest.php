@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Template\TemplateLoader;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TemplateLoader::class)]
 class TemplateLoaderTest extends TestCase
 {

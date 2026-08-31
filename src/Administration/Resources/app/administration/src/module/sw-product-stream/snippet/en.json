@@ -128,7 +128,6 @@
     },
     "detail": {
       "titleCard": "General information",
-      "buttonSave": "Save",
       "labelName": "Name",
       "placeholderName": "Enter title...",
       "labelDescription": "Description",
@@ -151,8 +150,7 @@
     },
     "previewModal": {
       "title": "Preview",
-      "empty": "No products found.",
-      "close": "Close"
+      "empty": "No products found."
     }
   },
   "sw-privileges": {

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser;
 
-#[Package('framework')]
+#[Package('discovery')]
 class DomainRuleStruct extends Struct
 {
     /**

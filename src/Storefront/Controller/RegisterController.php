@@ -48,8 +48,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class RegisterController extends StorefrontController
 {
     /**
@@ -186,6 +186,9 @@ class RegisterController extends StorefrontController
             [
                 'redirectTo' => $redirect,
                 'errorRoute' => $errorRoute,
+                'loginError' => $request->attributes->getBoolean('loginError'),
+                'errorSnippet' => $request->attributes->get('errorSnippet'),
+                'waitTime' => $request->attributes->get('waitTime'),
                 'page' => $page,
                 'header' => $header,
                 'footer' => $footer,

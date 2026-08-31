@@ -8,11 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\DashboardController;
 use Shopware\Administration\Dashboard\OrderAmountService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DashboardController::class)]
 class DashboardControllerTest extends TestCase
 {

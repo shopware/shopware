@@ -16,7 +16,7 @@ use Symfony\Component\Routing\RouterInterface;
  *
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontScriptResponseFactoryFacadeHookFactory extends ScriptResponseFactoryFacadeHookFactory
 {
     public function __construct(

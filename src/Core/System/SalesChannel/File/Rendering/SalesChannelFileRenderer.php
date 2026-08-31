@@ -46,6 +46,7 @@ class SalesChannelFileRenderer
     {
         $templates = $this->templateResolver->resolveTemplateChain($file, $context->getSalesChannelId());
         $overrideTemplates = $this->buildOverrideTemplates($templates, $templateOverrides);
+        $overrideTemplates += $this->buildCaseVariantAliases($file, $templates);
         $parameters = $this->buildParameters($file, $context);
         $templateName = $this->getRenderTemplateName($file, $templates);
 
@@ -93,6 +94,30 @@ class SalesChannelFileRenderer
         }
 
         return $overrideTemplates;
+    }
+
+    /**
+     * @param array<string, string> $templates
+     *
+     * @return array<string, string>
+     */
+    private function buildCaseVariantAliases(SalesChannelFile $file, array $templates): array
+    {
+        $aliases = [];
+
+        foreach ($templates as $twigNamespace => $templateName) {
+            foreach ($file->templatePaths as $templatePath) {
+                $alias = '@' . $twigNamespace . '/' . $templatePath;
+
+                if ($alias !== $templateName) {
+                    $encodedTemplateName = json_encode($templateName, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+                    \assert(\is_string($encodedTemplateName));
+                    $aliases[$alias] = \sprintf('{%% extends %s %%}', $encodedTemplateName);
+                }
+            }
+        }
+
+        return $aliases;
     }
 
     /**
@@ -160,7 +185,7 @@ class SalesChannelFileRenderer
         $criteria->getAssociation('currencies')->addSorting(new FieldSorting('isoCode', FieldSorting::ASCENDING));
         $criteria->getAssociation('domains')->addSorting(new FieldSorting('url', FieldSorting::ASCENDING));
 
-        $salesChannel = $this->salesChannelRepository->search($criteria, $context->getContext())->first();
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         if (!$salesChannel instanceof SalesChannelEntity) {
             return $context->getSalesChannel();

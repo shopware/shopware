@@ -3,10 +3,8 @@
 .sw-product-feature-set-form__container {
     .sw-product-feature-set-form {
         &__description {
-            &-title {
-                font-weight: var(--font-weight-bold);
-                font-size: var(--font-size-s);
-            }
+            gap: var(--scale-size-8);
+            margin-bottom: var(--scale-size-24);
 
             &-body,
             &-config-info {

@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -320,6 +321,12 @@ class VersionManager
             $payloadCursor = &$payload;
 
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
+                continue;
+            }
+
+            // wasModifiedByUser is derived from the write scope and rejects explicit values;
+            // a clone is a fresh, system-created record, so let the serializer set it to false.
+            if ($field instanceof WasModifiedByUserField) {
                 continue;
             }
 

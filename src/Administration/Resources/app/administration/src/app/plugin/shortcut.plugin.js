@@ -2,17 +2,100 @@
  * @sw-package framework
  */
 
-const util = Shopware.Utils;
-
+const componentShortcutKeystrokeDelay = 1000;
 /**
  * @private
  */
 export default {
     install(Vue) {
         let activeShortcuts = [];
+        // Component shortcuts trigger instance methods, so they keep their own keydown sequence state.
+        let componentShortcutState = {
+            buffer: [],
+        };
 
-        const handleKeyDownDebounce = util.debounce(function handleKeyDown(event) {
-            if (event.constructor !== KeyboardEvent && window.Cypress === undefined) {
+        function areShortcutsDisabled() {
+            return Shopware.Service('shortcutService')?.isShortcutsDisabled?.() === true;
+        }
+
+        function resetComponentShortcutState() {
+            componentShortcutState = {
+                buffer: [],
+            };
+        }
+
+        const resetComponentShortcutStateDebounced = Shopware.Utils.debounce(
+            resetComponentShortcutState,
+            componentShortcutKeystrokeDelay,
+        );
+
+        function resetSequenceNow() {
+            resetComponentShortcutStateDebounced.cancel?.();
+            resetComponentShortcutState();
+        }
+
+        function isSystemShortcut(shortcutKey) {
+            return /SYSTEMKEY/.test(shortcutKey);
+        }
+
+        function isRestrictedSource(event) {
+            const isEditableDiv = event.target.tagName === 'DIV' && event.target.isContentEditable;
+            const restrictedTags = /INPUT|TEXTAREA|SELECT/;
+            const isRestrictedTag = restrictedTags.test(event.target.tagName);
+
+            return isEditableDiv || isRestrictedTag;
+        }
+
+        function findShortcut(key) {
+            return activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === key);
+        }
+
+        function hasLongerSequenceThan(sequence) {
+            return activeShortcuts.some((shortcut) => {
+                const registeredKey = shortcut.key.toUpperCase();
+
+                return !isSystemShortcut(registeredKey) && registeredKey.startsWith(sequence) && registeredKey !== sequence;
+            });
+        }
+
+        function getMatchedShortcut(shortcutKey) {
+            if (isSystemShortcut(shortcutKey)) {
+                resetSequenceNow();
+
+                return findShortcut(shortcutKey);
+            }
+
+            const buffer = [
+                ...componentShortcutState.buffer,
+                shortcutKey,
+            ];
+            const sequence = buffer.join('');
+            const matchedShortcut = findShortcut(sequence);
+
+            componentShortcutState = {
+                buffer,
+            };
+            resetComponentShortcutStateDebounced();
+
+            if (matchedShortcut) {
+                resetSequenceNow();
+
+                return matchedShortcut;
+            }
+
+            if (hasLongerSequenceThan(sequence)) {
+                return null;
+            }
+
+            resetSequenceNow();
+
+            return findShortcut(shortcutKey);
+        }
+
+        function handleKeyDown(event) {
+            if (areShortcutsDisabled()) {
+                resetComponentShortcutState();
+
                 return;
             }
 
@@ -21,6 +104,8 @@ export default {
             const isFromModal = eventTarget?.closest('.sw-modal') || eventTarget?.closest('.sw-modal__dialog');
 
             if (isFromModal) {
+                resetComponentShortcutState();
+
                 return;
             }
 
@@ -30,8 +115,15 @@ export default {
             const systemKeyPressed = systemKey === 'CTRL' ? ctrlKey : altKey;
 
             // create combined key name and look for matching shortcut
-            const combinedKey = `${systemKeyPressed ? 'SYSTEMKEY+' : ''}${key.toUpperCase()}`;
-            const matchedShortcut = activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === combinedKey);
+            const combinedKey = (systemKeyPressed ? 'SYSTEMKEY+' : '') + key.toUpperCase();
+
+            if (!isSystemShortcut(combinedKey) && isRestrictedSource(event)) {
+                resetComponentShortcutState();
+
+                return;
+            }
+
+            const matchedShortcut = getMatchedShortcut(combinedKey);
 
             if (!matchedShortcut) {
                 return;
@@ -41,28 +133,17 @@ export default {
                 return;
             }
 
-            // check for editable elements
-            const isEditableDiv = eventTarget?.tagName === 'DIV' && eventTarget.isContentEditable;
-            const restrictedTags = /INPUT|TEXTAREA|SELECT/;
-            const isRestrictedTag = eventTarget ? restrictedTags.test(eventTarget.tagName) : false;
-            const isAceEditorInput = eventTarget?.classList.contains('ace_text-input') ?? false;
-            let shouldNotTrigger = false;
-
-            // SYSTEMKEY shortcuts combinations should always trigger
-            if (/SYSTEMKEY/.test(matchedShortcut.key) === false) {
-                // check for restricted elements
-                shouldNotTrigger = isEditableDiv || isRestrictedTag;
-            }
-
             // check for situations where the shortcut should not trigger
-            if (shouldNotTrigger || !matchedShortcut.instance || !matchedShortcut.functionName) {
+            if (!matchedShortcut.instance || !matchedShortcut.functionName) {
                 return;
             }
 
-            // blur editable fields on save shortcut to react on changes before saving
+            // blur editable fields, rich text and code editor inputs on save shortcut to react on changes before saving
             if (
                 matchedShortcut.key === 'SYSTEMKEY+S' &&
-                (isEditableDiv || isRestrictedTag || isAceEditorInput) &&
+                (eventTarget?.isContentEditable ||
+                    isRestrictedSource(event) ||
+                    eventTarget?.classList.contains('ace_text-input')) &&
                 typeof eventTarget?.blur === 'function'
             ) {
                 eventTarget.blur();
@@ -73,7 +154,7 @@ export default {
                 // trigger function
                 matchedShortcut.instance[matchedShortcut.functionName].call(matchedShortcut.instance);
             }
-        }, 200);
+        }
 
         // Register component shortcuts
         Vue.mixin({
@@ -120,7 +201,7 @@ export default {
                         // Find any active component instance to get the context for $device
                         const anyInstance = activeShortcuts[0]?.instance;
                         if (anyInstance) {
-                            handleKeyDownDebounce.call(anyInstance, event);
+                            handleKeyDown.call(anyInstance, event);
                         }
                     });
                 }

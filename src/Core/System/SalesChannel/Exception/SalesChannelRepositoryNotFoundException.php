@@ -5,6 +5,9 @@ namespace Shopware\Core\System\SalesChannel\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class SalesChannelRepositoryNotFoundException extends ShopwareHttpException
 {

@@ -5,16 +5,18 @@ namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCovera
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\LogicDetector;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[CoversClass(LogicDetector::class)]
+#[Package('framework')]
+#[CoversNothing]
 class LogicDetectorTest extends TestCase
 {
     #[TestDox('methodContainsLogic($_dataName)')]
@@ -57,6 +59,33 @@ class LogicDetectorTest extends TestCase
         yield 'try catch' => ['try {} catch (\Throwable $e) {}', true];
         yield 'ternary' => ['return $x ? "a" : "b";', true];
         yield 'nested logic inside method-call argument' => ['call_user_func(fn () => $x ? 1 : 2);', true];
+    }
+
+    #[TestDox('in a Throwable context, methodContainsLogic($_dataName)')]
+    #[DataProvider('throwableContextProvider')]
+    public function testMethodContainsLogicInThrowableContext(string $body, bool $expected): void
+    {
+        static::assertSame($expected, LogicDetector::methodContainsLogic($this->parseMethod($body), true));
+    }
+
+    /**
+     * @return \Generator<string, array{0: string, 1: bool}>
+     */
+    public static function throwableContextProvider(): \Generator
+    {
+        yield 'feature-flag fork between two exceptions is not logic' => [
+            'if (!$flag) { return new \RuntimeException(""); } return new \LogicException("");',
+            false,
+        ];
+        yield 'message-variant if/else is not logic' => [
+            'if ($code === null) { $m = "a"; } else { $m = "b"; } return new \RuntimeException($m);',
+            false,
+        ];
+        yield 'ternary is not logic' => ['return $x ? "a" : "b";', false];
+        yield 'foreach aggregation is still logic' => ['foreach ([] as $i) {}', true];
+        yield 'try catch is still logic' => ['try {} catch (\Throwable $e) {}', true];
+        yield 'match is still logic' => ['return match ($x) { 1 => "a", default => "b" };', true];
+        yield 'multi-statement throw is still logic' => ['$x = 1; throw new \RuntimeException("");', true];
     }
 
     private function parseMethod(string $body): ClassMethod

@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ProductListingCmsElementResolver::class)]
 class ProductListingTypeDataResolverTest extends TestCase
 {
@@ -31,7 +33,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $mock = $this->createMock(ProductListingRoute::class);
+        $mock = static::createStub(ProductListingRoute::class);
         $mock->method('load')->willReturn(
             new ProductListingRouteResponse(
                 new ProductListingResult('product', 0, new ProductCollection(), null, new Criteria(), Context::createDefaultContext())
@@ -51,7 +53,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     public function testCollect(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -64,7 +66,7 @@ class ProductListingTypeDataResolverTest extends TestCase
 
     public function testEnrichWithoutListingContext(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();

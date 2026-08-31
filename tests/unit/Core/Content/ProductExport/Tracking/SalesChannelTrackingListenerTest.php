@@ -148,8 +148,7 @@ class SalesChannelTrackingListenerTest extends TestCase
 
     public function testCreateTrackingRecordsSkipsNonLiveVersion(): void
     {
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $listener = $this->createListener(orderRepo: $orderRepo);
 
@@ -163,8 +162,7 @@ class SalesChannelTrackingListenerTest extends TestCase
 
     public function testCreateTrackingRecordsSkipsIfNoRequest(): void
     {
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $listener = $this->createListener(orderRepo: $orderRepo, mainRequest: null);
 
@@ -177,8 +175,7 @@ class SalesChannelTrackingListenerTest extends TestCase
 
     public function testCreateTrackingRecordsSkipsUnrelatedEntityWithoutInitializingSession(): void
     {
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $request = new Request();
         $request->setSessionFactory(static function (): Session {
@@ -197,8 +194,7 @@ class SalesChannelTrackingListenerTest extends TestCase
 
     public function testCreateTrackingRecordsSkipsLazySessionWithoutInitializingIt(): void
     {
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $request = new Request();
         $request->setSessionFactory(static function (): Session {
@@ -217,8 +213,7 @@ class SalesChannelTrackingListenerTest extends TestCase
 
     public function testCreateTrackingRecordsSkipsIfNoReferralCodeInSession(): void
     {
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $request = $this->createStorefrontRequest();
         $listener = $this->createListener(orderRepo: $orderRepo, mainRequest: $request);
@@ -235,8 +230,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         $orderId = Uuid::randomHex();
         $channelId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $request = $this->createStorefrontRequest();
         $request->getSession()->set(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE, $channelId);
@@ -264,8 +258,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         $customerId = Uuid::randomHex();
         $channelId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<SalesChannelTrackingCustomerCollection> $customerRepo */
-        $customerRepo = new StaticEntityRepository([new SalesChannelTrackingCustomerCollection()]);
+        $customerRepo = StaticEntityRepository::of(SalesChannelTrackingCustomerCollection::class, [new SalesChannelTrackingCustomerCollection()]);
 
         $request = $this->createStorefrontRequest();
         $request->getSession()->set(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE, $channelId);
@@ -290,8 +283,7 @@ class SalesChannelTrackingListenerTest extends TestCase
     {
         $channelId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $request = $this->createStorefrontRequest();
         $request->getSession()->set(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE, $channelId);
@@ -320,7 +312,7 @@ class SalesChannelTrackingListenerTest extends TestCase
     {
         $channelId = Uuid::randomHex();
 
-        $orderRepo = $this->createMock(EntityRepository::class);
+        $orderRepo = static::createStub(EntityRepository::class);
         $orderRepo->method('upsert')->willThrowException(new \RuntimeException('DB error'));
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -334,10 +326,8 @@ class SalesChannelTrackingListenerTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepo */
-        $salesChannelRepo = new StaticEntityRepository([new SalesChannelCollection()]);
-        /** @var StaticEntityRepository<SalesChannelTrackingCustomerCollection> $customerRepo */
-        $customerRepo = new StaticEntityRepository([new SalesChannelTrackingCustomerCollection()]);
+        $salesChannelRepo = StaticEntityRepository::of(SalesChannelCollection::class, [new SalesChannelCollection()]);
+        $customerRepo = StaticEntityRepository::of(SalesChannelTrackingCustomerCollection::class, [new SalesChannelTrackingCustomerCollection()]);
 
         $listener = new SalesChannelTrackingListener(
             $salesChannelRepo,
@@ -357,7 +347,7 @@ class SalesChannelTrackingListenerTest extends TestCase
     {
         $channelId = Uuid::randomHex();
 
-        $customerRepo = $this->createMock(EntityRepository::class);
+        $customerRepo = static::createStub(EntityRepository::class);
         $customerRepo->method('upsert')->willThrowException(new \RuntimeException('DB error'));
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -371,10 +361,8 @@ class SalesChannelTrackingListenerTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepo */
-        $salesChannelRepo = new StaticEntityRepository([new SalesChannelCollection()]);
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $salesChannelRepo = StaticEntityRepository::of(SalesChannelCollection::class, [new SalesChannelCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $listener = new SalesChannelTrackingListener(
             $salesChannelRepo,
@@ -395,8 +383,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         $channelId = Uuid::randomHex();
         $orderId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
 
         $request = $this->createStorefrontRequest();
         $request->getSession()->set(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE, $channelId);
@@ -428,8 +415,7 @@ class SalesChannelTrackingListenerTest extends TestCase
     {
         $channelId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<SalesChannelTrackingCustomerCollection> $customerRepo */
-        $customerRepo = new StaticEntityRepository([new SalesChannelTrackingCustomerCollection()]);
+        $customerRepo = StaticEntityRepository::of(SalesChannelTrackingCustomerCollection::class, [new SalesChannelTrackingCustomerCollection()]);
 
         $request = $this->createStorefrontRequest();
         $request->getSession()->set(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE, $channelId);
@@ -460,10 +446,8 @@ class SalesChannelTrackingListenerTest extends TestCase
         $customerId = Uuid::randomHex();
         $channelId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
-        /** @var StaticEntityRepository<SalesChannelTrackingCustomerCollection> $customerRepo */
-        $customerRepo = new StaticEntityRepository([new SalesChannelTrackingCustomerCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
+        $customerRepo = StaticEntityRepository::of(SalesChannelTrackingCustomerCollection::class, [new SalesChannelTrackingCustomerCollection()]);
 
         $request = $this->createStorefrontRequest();
         $request->getSession()->set(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE, $channelId);
@@ -497,16 +481,13 @@ class SalesChannelTrackingListenerTest extends TestCase
         $channelId = Uuid::randomHex();
         $cache = new TagAwareAdapter(new ArrayAdapter());
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepo */
-        $salesChannelRepo = new StaticEntityRepository([[], [$channelId]]);
+        $salesChannelRepo = StaticEntityRepository::of(SalesChannelCollection::class, [[], [$channelId]]);
         $requestStack = new RequestStack();
         $request = $this->createStorefrontRequest($channelId);
         $requestStack->push($request);
 
-        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
-        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
-        /** @var StaticEntityRepository<SalesChannelTrackingCustomerCollection> $customerRepo */
-        $customerRepo = new StaticEntityRepository([new SalesChannelTrackingCustomerCollection()]);
+        $orderRepo = StaticEntityRepository::of(SalesChannelTrackingOrderCollection::class, [new SalesChannelTrackingOrderCollection()]);
+        $customerRepo = StaticEntityRepository::of(SalesChannelTrackingCustomerCollection::class, [new SalesChannelTrackingCustomerCollection()]);
 
         $listener = new SalesChannelTrackingListener(
             $salesChannelRepo,
@@ -551,8 +532,7 @@ class SalesChannelTrackingListenerTest extends TestCase
             $requestStack->push($mainRequest);
         }
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepo */
-        $salesChannelRepo = new StaticEntityRepository([$salesChannelIds]);
+        $salesChannelRepo = StaticEntityRepository::of(SalesChannelCollection::class, [$salesChannelIds]);
 
         return new SalesChannelTrackingListener(
             $salesChannelRepo,
@@ -577,7 +557,7 @@ class SalesChannelTrackingListenerTest extends TestCase
     private function createControllerEvent(Request $request): ControllerEvent
     {
         return new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static fn () => new \stdClass(),
             $request,
             HttpKernelInterface::MAIN_REQUEST,

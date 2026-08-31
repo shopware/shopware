@@ -141,6 +141,17 @@
                     </xs:unique>
                 </xs:element>
                 <xs:element name="gateways" type="gateways" minOccurs="0"/>
+                <xs:element name="documents" type="documents" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register document types your app provides.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueDocumentTypeIdentifier">
+                        <xs:selector xpath="document-type"/>
+                        <xs:field xpath="identifier"/>
+                    </xs:unique>
+                </xs:element>
                 <xs:element name="requirements" type="requirements" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">
@@ -305,6 +316,7 @@
             <xs:element name="position" type="xs:int" minOccurs="0" default="1"/>
             <xs:element name="allow-customer-write" type="xs:boolean" minOccurs="0" default="false"/>
             <xs:element name="allow-cart-expose" type="xs:boolean" minOccurs="0" default="false"/>
+            <xs:element name="include-in-search" type="xs:boolean" minOccurs="0" default="false"/>
         </xs:choice>
     </xs:group>
     <xs:complexType name="custom-field-int-type">
@@ -450,6 +462,8 @@
             <xs:element name="delivery_time" type="empty" minOccurs="0"/>
             <xs:element name="document_base_config" type="empty" minOccurs="0"/>
             <xs:element name="language" type="empty" minOccurs="0"/>
+            <xs:element name="media_folder" type="empty" minOccurs="0"/>
+            <xs:element name="media_folder_configuration" type="empty" minOccurs="0"/>
             <xs:element name="number_range" type="empty" minOccurs="0"/>
             <xs:element name="payment_method" type="empty" minOccurs="0"/>
             <xs:element name="rule" type="empty" minOccurs="0"/>
@@ -616,5 +630,57 @@
             <!-- Allow any requirement element; presence means enabled -->
             <xs:any processContents="lax"/>
         </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="documents">
+        <xs:sequence>
+            <xs:element name="document-type" type="document-type" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="document-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="identifier">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="[a-z0-9_]+"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element type="translatableString" name="label" maxOccurs="unbounded"/>
+            <xs:element type="document-type-formats" name="formats"/>
+            <xs:element type="document-type-config" name="config" minOccurs="0"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="document-type-formats">
+        <xs:sequence>
+            <xs:element name="format" maxOccurs="unbounded">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="html"/>
+                        <xs:enumeration value="pdf"/>
+                        <xs:enumeration value="zugferd_xml"/>
+                        <xs:enumeration value="zugferd_embedded_pdf"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="document-type-config">
+        <xs:all>
+            <xs:element type="xs:string" name="page-size" minOccurs="0"/>
+            <xs:element type="xs:string" name="page-orientation" minOccurs="0"/>
+            <xs:element type="xs:int" name="items-per-page" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-header" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-footer" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-page-count" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-line-items" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-prices" minOccurs="0"/>
+            <xs:element type="xs:string" name="filename-prefix" minOccurs="0"/>
+            <xs:element type="xs:string" name="filename-suffix" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-company-address" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-return-address" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-customer-vat-id" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-line-item-position" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="display-divergent-delivery-address" minOccurs="0"/>
+        </xs:all>
     </xs:complexType>
 </xs:schema>

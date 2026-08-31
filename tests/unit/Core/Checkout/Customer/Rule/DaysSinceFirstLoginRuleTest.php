@@ -50,7 +50,7 @@ class DaysSinceFirstLoginRuleTest extends TestCase
             'daysPassed' => null,
         ]);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
@@ -65,7 +65,7 @@ class DaysSinceFirstLoginRuleTest extends TestCase
         ?\DateTimeImmutable $day,
         bool $noCustomer = false
     ): void {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setFirstLogin($day);
 
@@ -73,7 +73,7 @@ class DaysSinceFirstLoginRuleTest extends TestCase
             $customer = null;
         }
         $salesChannelContext->method('getCustomer')->willReturn($customer);
-        $scope = $this->createMock(CheckoutRuleScope::class);
+        $scope = static::createStub(CheckoutRuleScope::class);
         $scope->method('getSalesChannelContext')->willReturn($salesChannelContext);
         $scope->method('getCustomer')->willReturn($customer);
         $scope->method('getCurrentTime')->willReturn(self::getTestTimestamp());

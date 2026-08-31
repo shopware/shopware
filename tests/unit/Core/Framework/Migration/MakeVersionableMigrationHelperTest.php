@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MakeVersionableMigrationHelper;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
@@ -23,6 +24,7 @@ use Shopware\Core\System\Unit\UnitDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MakeVersionableMigrationHelper::class)]
 class MakeVersionableMigrationHelperTest extends TestCase
 {

@@ -3,6 +3,7 @@
     "error": {
       "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
       "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein.",
+      "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert.",
       "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
       "VIOLATION::PASSWORD_IS_TOO_SHORT": "Das gewählte Passwort ist zu kurz."
     },
@@ -33,6 +34,7 @@
       }
     },
     "card": {
+      "buttonConvertCustomer": "In ein registriertes Konto umwandeln",
       "buttonImitateCustomer": "Als Kunde anmelden",
       "tooltipImitateCustomerGuest": "Gastbesteller können nicht imitiert werden.",
       "tooltipImitateCustomerInactive": "Inaktive Kunden können nicht imitiert werden.",
@@ -82,13 +84,8 @@
       "columnActive": "Aktiv",
       "columnCreatedAt": "Erstellt am",
       "emptyBoundSalesChannel": "Alle",
-      "contextMenuView": "Anzeigen",
-      "contextMenuDuplicate": "Duplizieren",
-      "contextMenuDelete": "Löschen",
-      "contextMenuEdit": "Bearbeiten",
       "messageEmpty": "Noch keine Kunden",
       "textDeleteConfirm": "Möchtest Du den Kunden \"{name}\" wirklich löschen?",
-      "buttonDelete": "Löschen",
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
@@ -157,7 +154,6 @@
       "titleDefaultBillingAddress": "Standard-Rechnungsadresse",
       "buttonAddAddress": "Adresse anlegen",
       "buttonTitleEditAddress": "Adresse bearbeiten",
-      "buttonSave": "Speichern",
       "buttonEdit": "Kunden bearbeiten",
       "buttonChangePassword": "Passwort ändern",
       "labelAccountActiveField": "Konto ist aktiv"
@@ -166,8 +162,6 @@
       "cardTitle": "Adressen",
       "filterPlaceholder": "Adressen durchsuchen …",
       "buttonAddAddress": "Adresse anlegen",
-      "buttonClose": "Schließen",
-      "buttonDelete": "Löschen",
       "buttonSelect": "Auswahl",
       "buttonSaveAndSelect": "Speichern und auswählen",
       "modalTitleAddress": "Adresse",
@@ -183,9 +177,6 @@
       "columnZipCode": "PLZ",
       "columnCity": "Stadt",
       "columnActions": "Aktionen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
-      "contextMenuDuplicate": "Duplizieren",
       "contextMenuDefaultShippingAddress": "Als Standard-Lieferadresse festlegen",
       "contextMenuDefaultBillingAddress": "Als Standard-Rechnungsadresse festlegen"
     },
@@ -207,8 +198,21 @@
       "modalDescription": "Wähle den Verkaufskanal, in dem Du Dich als {firstname} {lastname} anmelden möchtest.",
       "modalInfo": "Bitte denke daran, Dich {logout}, nachdem du Deine Arbeit erledigt hast.",
       "modalInfoLogout": "abzumelden",
-      "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen.",
-      "labelCancel": "Schließen"
+      "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen."
+    },
+    "convertGuest": {
+      "modalTitle": "Benutzer konvertieren",
+      "mail": {
+        "title": "Passwort-Reset-E-Mail senden (empfohlen)",
+        "description": "Der Kunde erhält einen sicheren Link, um ein neues Passwort festzulegen.",
+        "button": "Reset-E-Mail senden"
+      },
+      "manual": {
+        "title": "Passwort manuell setzen",
+        "passwordLabel": "Neues Passwort",
+        "description": "Ein neues Passwort wird direkt für den Kunden festgelegt. Der Kunde wird nicht benachrichtigt.",
+        "button": "Passwort setzen"
+      }
     },
     "addressForm": {
       "labelCompany": "Firma",
@@ -244,8 +248,6 @@
       "placeholderVatId": "Gib die USt-IdNr. ein ..."
     },
     "detail": {
-      "buttonSave": "Speichern",
-      "buttonEdit": "Bearbeiten",
       "tabGeneral": "Allgemein",
       "tabAddresses": "Adressen",
       "messageCustomerNotFound": "Der Kunde konnte nicht gefunden werden. Der Kunde wurde möglicherweise gelöscht.",

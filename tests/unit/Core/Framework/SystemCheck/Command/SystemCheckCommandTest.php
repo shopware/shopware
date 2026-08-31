@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\SystemCheck\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Command\SystemCheckCommand;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemCheckCommand::class)]
 class SystemCheckCommandTest extends TestCase
 {

@@ -61,7 +61,7 @@
                 {% block sw_integration_list_detail_modal %}
                 <sw-modal
                     v-if="currentIntegration"
-                    size="550px"
+                    size="650px"
                     class="sw-integration-list__detail"
                     :is-loading="isModalLoading"
                     :title="showSecretAccessKey ? $t('sw-integration.detail.detailModalTitle') : $t('sw-integration.detail.detailModalTitleEdit') + ' ' + currentIntegration.label"
@@ -207,7 +207,7 @@
 
                 {% block sw_integration_list_mcp_modal %}
                 <sw-modal
-                    v-if="feature.isActive('MCP_SERVER') && mcpIntegration"
+                    v-if="mcpIntegration"
                     class="sw-integration-list__mcp-modal"
                     :title="$t('sw-integration.mcp.modalTitle') + ': ' + mcpIntegration.label"
                     @modal-close="onCloseMcpModal"
@@ -321,7 +321,6 @@
 
                         {% block sw_integration_list_grid_inner_slot_columns_actions_edit_mcp %}
                         <sw-context-menu-item
-                            v-if="feature.isActive('MCP_SERVER')"
                             class="sw_integration_list__edit-mcp-action"
                             :disabled="!acl.can('integration_mcp.editor')"
                             @click="onShowMcpModal(item)"
@@ -337,7 +336,7 @@
                             :disabled="!acl.can('integration.deleter') || isAppIntegration(item)"
                             @click="showDeleteModal = item.id"
                         >
-                            {{ $t('sw-integration.list.contextMenuDelete') }}
+                            {{ $t('global.default.delete') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </template>
@@ -346,7 +345,7 @@
                         {% block sw_integration_list_grid_inner_slot_delete_modal %}
                         <sw-modal
                             v-if="showDeleteModal === item.id"
-                            :title="$t('sw-integration.detail.deleteModalTitle')"
+                            :title="$t('global.default.delete')"
                             @modal-close="onCloseDeleteModal"
                         >
                             {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
@@ -371,7 +370,7 @@
                                     variant="critical"
                                     @click="onConfirmDelete(item.id)"
                                 >
-                                    {{ $t('sw-integration.detail.buttonDelete') }}
+                                    {{ $t('global.default.delete') }}
                                 </mt-button>
                             </template>
                             {% endblock %}

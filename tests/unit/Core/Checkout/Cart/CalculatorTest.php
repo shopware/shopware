@@ -32,8 +32,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(Calculator::class)]
 #[Package('checkout')]
+#[CoversClass(Calculator::class)]
 class CalculatorTest extends TestCase
 {
     private Calculator $calculator;
@@ -54,7 +54,7 @@ class CalculatorTest extends TestCase
             new AbsolutePriceCalculator($quantityPriceCalculator, $percentageTaxRuleBuilder)
         );
 
-        $this->context = $this->createMock(SalesChannelContext::class);
+        $this->context = static::createStub(SalesChannelContext::class);
         $this->context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
     }
 

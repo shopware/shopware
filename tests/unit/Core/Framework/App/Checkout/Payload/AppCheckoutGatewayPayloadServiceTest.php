@@ -26,8 +26,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppCheckoutGatewayPayloadService::class)]
-#[Package('checkout')]
 class AppCheckoutGatewayPayloadServiceTest extends TestCase
 {
     public function testRequest(): void
@@ -66,7 +66,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
         $service = new AppCheckoutGatewayPayloadService(
             $helper,
             $client,
-            $this->createMock(ExceptionLogger::class),
+            static::createStub(ExceptionLogger::class),
         );
 
         $gatewayResponse = $service->request('https://example.com', $payload, $app);
@@ -102,7 +102,7 @@ class AppCheckoutGatewayPayloadServiceTest extends TestCase
             ->with($e);
 
         $service = new AppCheckoutGatewayPayloadService(
-            $this->createMock(AppPayloadServiceHelper::class),
+            static::createStub(AppPayloadServiceHelper::class),
             $client,
             $logger,
         );

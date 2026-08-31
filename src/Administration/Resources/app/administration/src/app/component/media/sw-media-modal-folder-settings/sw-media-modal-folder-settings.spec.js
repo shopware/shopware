@@ -41,7 +41,27 @@ async function createWrapper() {
                     'mt-number-field': true,
                     'sw-media-add-thumbnail-form': true,
                     'sw-loader': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
+                    'mt-icon': true,
                     'sw-tabs-deprecated': true,
                 },
                 provide: {
@@ -88,6 +108,63 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render deprecated tabs', async () => {
+        await flushPromises();
+
+        expect(wrapper.find('sw-tabs-deprecated-stub').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs and switch active content', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        expect(tabs.exists()).toBe(true);
+        expect(tabs.props('positionIdentifier')).toBe('sw-media-modal-folder-settings');
+        expect(tabs.props('defaultItem')).toBe('settings');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'global.sw-media-modal-folder-settings.labelSettings',
+                name: 'settings',
+                hasError: false,
+            },
+            {
+                label: 'global.sw-media-modal-folder-settings.labelThumbnails',
+                name: 'thumbnails',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+
+        await tabs.vm.$emit('new-item-active', 'thumbnails');
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe('thumbnails');
+        expect(wrapper.vm.modalClass).toBe('');
+        expect(wrapper.find('.sw-media-modal-folder-settings__thumbnails-container').exists()).toBe(true);
+    });
+
+    it('should publish the media folder and configuration data sets for app extensions', async () => {
+        const publishData = jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
+
+        await wrapper.vm.createdComponent();
+
+        expect(publishData).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'sw-media-modal-folder-settings__mediaFolder',
+                path: 'mediaFolder',
+            }),
+        );
+        expect(publishData).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: 'sw-media-modal-folder-settings__configuration',
+                path: 'configuration',
+            }),
+        );
     });
 
     it('should get thumbnail sizes and unused thumbnail sizes with the correct criteria', async () => {
@@ -225,6 +302,16 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted',
+        });
+    });
+
+    it('should invalidate media default folder cache', async () => {
+        const invalidateCaches = jest.spyOn(Shopware.Service('cacheService'), 'invalidateCaches');
+
+        await wrapper.vm.invalidateMediaDefaultFolderCache();
+
+        expect(invalidateCaches).toHaveBeenCalledWith({
+            cacheKey: ['media-default-folder'],
         });
     });
 });

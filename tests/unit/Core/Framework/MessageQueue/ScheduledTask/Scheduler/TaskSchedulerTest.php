@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -32,6 +33,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(TaskScheduler::class)]
 class TaskSchedulerTest extends TestCase
 {
@@ -42,12 +44,12 @@ class TaskSchedulerTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetNextExecutionTime(array $aggregationResult, ?\DateTime $time): void
     {
-        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+        $scheduledTaskRepository = static::createStub(EntityRepository::class);
         $scheduledTaskRepository->method('aggregate')->willReturn(new AggregationResultCollection($aggregationResult));
 
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             new ParameterBag(),
             new Logger('test'),
             12,
@@ -92,12 +94,12 @@ class TaskSchedulerTest extends TestCase
     #[DataProvider('providerGetMinRunInterval')]
     public function testGetMinRunInterval(array $aggregationResult, ?int $time): void
     {
-        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+        $scheduledTaskRepository = static::createStub(EntityRepository::class);
         $scheduledTaskRepository->method('aggregate')->willReturn(new AggregationResultCollection($aggregationResult));
 
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             new ParameterBag(),
             new Logger('test'),
             12,
@@ -168,7 +170,7 @@ class TaskSchedulerTest extends TestCase
         $scheduledTask->setRunInterval(TestScheduledTask::getDefaultInterval());
         $scheduledTask->setNextExecutionTime($nextExecutionTime);
         $scheduledTask->setScheduledTaskClass(TestScheduledTask::class);
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
         $scheduledTaskRepository->expects($this->once())->method('search')->willReturn($result);
         $scheduledTaskRepository->expects($this->once())->method('update')->willReturnCallback(static function (array $data, Context $context) {
@@ -208,7 +210,7 @@ class TaskSchedulerTest extends TestCase
         $scheduledTask->setNextExecutionTime(new \DateTimeImmutable());
         $scheduledTask->setScheduledTaskClass(TestScheduledTask::class);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
 
         $scheduledTaskRepository = $this->createMock(EntityRepository::class);
@@ -266,17 +268,17 @@ class TaskSchedulerTest extends TestCase
         /** @phpstan-ignore argument.type (wrong class string is needed for test case) */
         $scheduledTask->setScheduledTaskClass(ScheduledTaskEntity::class);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
 
-        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+        $scheduledTaskRepository = static::createStub(EntityRepository::class);
         $scheduledTaskRepository
             ->method('search')
             ->willReturn($result);
 
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             new ParameterBag(),
             new Logger('test'),
             12,
@@ -294,10 +296,10 @@ class TaskSchedulerTest extends TestCase
         /** @phpstan-ignore argument.type (wrong class string is needed for test case) */
         $scheduledTask->setScheduledTaskClass('foo');
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
 
-        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+        $scheduledTaskRepository = static::createStub(EntityRepository::class);
         $scheduledTaskRepository
             ->method('search')
             ->willReturn($result);
@@ -308,7 +310,7 @@ class TaskSchedulerTest extends TestCase
 
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(MessageBusInterface::class),
             new ParameterBag(),
             $logger,
             12,

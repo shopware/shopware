@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
@@ -13,6 +14,7 @@ use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SalesChannelDomainProvider::class)]
 class SalesChannelDomainProviderTest extends TestCase
 {

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -40,6 +39,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -49,7 +50,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -1110,7 +1111,6 @@ class EntityAggregatorTest extends TestCase
     }
 
     #[DataProvider('dateHistogramProvider')]
-    #[Group('slow')]
     public function testDateHistogram(DateHistogramCase $case): void
     {
         $context = Context::createDefaultContext();
@@ -1335,31 +1335,46 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
 
-        static::expectExceptionObject(new \InvalidArgumentException('Backtick not allowed in identifier'));
+        if (Feature::isActive('v6.8.0.0')) {
+            static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('`taxRate`'));
+        } else {
+            static::expectExceptionObject(new \InvalidArgumentException('Backtick not allowed in identifier'));
+        }
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedName(): void
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedAggregationNames(): \Generator
+    {
+        yield 'question mark' => ['foo?foo'];
+        yield 'control character' => ["foo\nfoo"];
+    }
+
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedName(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
-        $criteria->addAggregation(new SumAggregation('foo?foo', 'taxRate'));
+        $criteria->addAggregation(new SumAggregation($name, 'taxRate'));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedNameNested(): void
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedNameNested(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
 
-        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation('foo?foo', 'taxRate')));
+        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation($name, 'taxRate')));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }

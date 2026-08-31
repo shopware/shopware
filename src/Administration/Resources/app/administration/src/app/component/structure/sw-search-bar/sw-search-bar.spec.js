@@ -8,6 +8,7 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
 import Criteria from 'src/core/data/criteria.data';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const { Module } = Shopware;
 const register = Module.register;
@@ -73,7 +74,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
         return mount(swSearchBarComponent, {
             global: {
                 stubs: {
-                    'sw-version': true,
                     'sw-loader': true,
                     'sw-search-more-results': true,
                     'sw-search-bar-item': await wrapTestComponent('sw-search-bar-item', { sync: true }),
@@ -308,6 +308,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
         Shopware.Store.get('session').setCurrentUser({
             id: 'id',
         });
@@ -475,6 +476,74 @@ describe('src/app/component/structure/sw-search-bar', () => {
         Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
 
         expect(wrapper.vm.isOffCanvasShown).toBe(false);
+    });
+
+    it('should collapse the search when the viewport shrinks into the collapsible range', async () => {
+        wrapper = await createWrapper();
+        expect(wrapper.vm.isSearchBarShown).toBe(true);
+
+        // Fire the registered media query listener like a real breakpoint change would.
+        const [
+            ,
+            changeHandler,
+        ] = wrapper.vm.collapseQuery.addEventListener.mock.calls.find(([event]) => event === 'change');
+
+        wrapper.vm.collapseQuery.matches = true;
+        changeHandler();
+
+        expect(wrapper.vm.isSearchBarShown).toBe(false);
+    });
+
+    it('should remove the media query listener on unmount', async () => {
+        wrapper = await createWrapper();
+        const query = wrapper.vm.collapseQuery;
+
+        wrapper.unmount();
+
+        expect(query.removeEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+    });
+
+    it('should render the off-canvas toggle next to the full search bar and toggle the menu', async () => {
+        wrapper = await createWrapper();
+
+        const toggle = wrapper.find('.sw-search-bar__off-canvas-toggle');
+        expect(toggle.exists()).toBe(true);
+        expect(wrapper.find('.sw-search-bar__field-wrapper').exists()).toBe(true);
+
+        await toggle.trigger('click');
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+    });
+
+    it('should focus the search input when the field wrapper is clicked', async () => {
+        wrapper = await createWrapper();
+
+        const setFocusSpy = jest.spyOn(wrapper.vm, 'setFocus');
+
+        await wrapper.find('.sw-search-bar__field-wrapper').trigger('click');
+        expect(setFocusSpy).toHaveBeenCalledTimes(1);
+
+        // Interactive children keep their own click behavior.
+        await wrapper.find('.sw-search-bar__type--v2').trigger('click');
+        expect(setFocusSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should close the dropdowns and blur the search input on escape', async () => {
+        wrapper = await createWrapper();
+
+        const input = wrapper.find('.sw-search-bar__input');
+        const blurSpy = jest.spyOn(input.element, 'blur');
+
+        await wrapper.setData({
+            showTypeSelectContainer: true,
+            showResultsContainer: true,
+        });
+
+        await input.trigger('keyup.esc');
+
+        expect(wrapper.vm.showTypeSelectContainer).toBe(false);
+        expect(wrapper.vm.showResultsContainer).toBe(false);
+        expect(blurSpy).toHaveBeenCalled();
     });
 
     it('should search with repository when no service is set in searchTypeService', async () => {
@@ -1480,6 +1549,24 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.currentSearchType).toBeNull();
     });
 
+    it('should search in the listing when the initial search type is not a registered global search type', async () => {
+        // mirrors an admin ES / Advanced Search instance, where the prop defaults to true
+        wrapper = await createWrapper({
+            initialSearchType: 'flow_template',
+            typeSearchAlwaysInContainer: true,
+        });
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+        await searchInput.setValue('Order');
+
+        await swSearchBarComponent.methods.doListSearch.flush();
+        await flushPromises();
+
+        expect(wrapper.emitted('search')).toEqual([['Order']]);
+        expect(spyLoadTypeSearchResults).not.toHaveBeenCalled();
+    });
+
     it('should search global with ES when adminEsEnable is true', async () => {
         Shopware.Context.app.adminEsEnable = true;
         wrapper = await createWrapper(
@@ -1892,5 +1979,77 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid@route1');
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleInvalid@routeNonExistent');
         expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid2@route2');
+    });
+
+    describe('module icon colors', () => {
+        afterEach(() => {
+            useModuleIconColors().enabled.value = false;
+        });
+
+        it('should use the neutral icon color for the module filter icons by default', async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.getTypeIconColor('order')).toBe('var(--color-icon-primary-default)');
+        });
+
+        it('should use the module color for the module filter icons when the preference is enabled', async () => {
+            register('sw-order', {
+                title: 'Orders',
+                color: 'var(--color-purple-500)',
+                icon: 'regular-shopping-bag',
+                entity: 'order',
+
+                routes: {
+                    index: {
+                        component: 'sw-order-list',
+                        path: 'index',
+                    },
+                },
+            });
+
+            useModuleIconColors().enabled.value = true;
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.vm.getTypeIconColor('order')).toBe('var(--color-purple-500)');
+        });
+
+        it('should leave the search type button to the stylesheet by default', async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            const button = wrapper.find('.sw-search-bar__type--v2');
+
+            expect(wrapper.vm.searchTypeColor).toBeNull();
+            expect(button.classes()).not.toContain('is--module-colored');
+            expect(button.attributes('style')).toBeUndefined();
+        });
+
+        it('should paint the search type button in the module color when the preference is enabled', async () => {
+            register('sw-order', {
+                title: 'Orders',
+                color: 'var(--color-purple-500)',
+                icon: 'regular-shopping-bag',
+                entity: 'order',
+
+                routes: {
+                    index: {
+                        component: 'sw-order-list',
+                        path: 'index',
+                    },
+                },
+            });
+
+            useModuleIconColors().enabled.value = true;
+            wrapper = await createWrapper({ initialSearchType: 'order' });
+            await flushPromises();
+
+            const button = wrapper.find('.sw-search-bar__type--v2');
+
+            expect(wrapper.vm.searchTypeColor).toBe('var(--color-purple-500)');
+            expect(button.classes()).toContain('is--module-colored');
+            expect(button.attributes('style')).toContain('--sw-search-bar-type-color: var(--color-purple-500)');
+        });
     });
 });

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Sitemap\Service;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -19,6 +20,7 @@ use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -31,6 +33,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SitemapExporter::class)]
 class SitemapExporterTest extends TestCase
 {
@@ -71,7 +74,7 @@ class SitemapExporterTest extends TestCase
                 $sitemapHandler2
             );
 
-        $cacheItemPoolInterface = $this->createMock(CacheItemPoolInterface::class);
+        $cacheItemPoolInterface = static::createStub(CacheItemPoolInterface::class);
         $cacheItemPoolInterface->method('getItem')->willReturn(new CacheItem());
 
         $exporter = $this->createSitemapExporter($cacheItemPoolInterface, [$customerUrlProvider], $sitemapHandlerFactory);
@@ -108,7 +111,7 @@ class SitemapExporterTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext($salesChannel, $rules);
 
-        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache = static::createStub(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn(new CacheItem());
 
         $cartRuleLoader = $this->createMock(CartRuleLoader::class);
@@ -120,7 +123,7 @@ class SitemapExporterTest extends TestCase
 
     public function testGenerateThrowsExceptionINoSitemapHandlesCreated(): void
     {
-        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache = static::createStub(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn(new CacheItemMock());
 
         $exporter = $this->createSitemapExporter($cache);
@@ -134,7 +137,7 @@ class SitemapExporterTest extends TestCase
 
     public function testGenerateThrowsExceptionIfSitemapIsAlreadyLocked(): void
     {
-        $cache = $this->createMock(CacheItemPoolInterface::class);
+        $cache = static::createStub(CacheItemPoolInterface::class);
         $cache->method('getItem')->willReturn(new CacheItemMock());
 
         $exporter = $this->createSitemapExporter($cache);
@@ -150,7 +153,7 @@ class SitemapExporterTest extends TestCase
      * @param iterable<AbstractUrlProvider>|null $urlProvider
      */
     private function createSitemapExporter(
-        CacheItemPoolInterface&MockObject $cache,
+        CacheItemPoolInterface&Stub $cache,
         ?iterable $urlProvider = null,
         (SitemapHandleFactoryInterface&MockObject)|null $sitemapHandleFactory = null,
         ?CartRuleLoader $cartRuleLoader = null
@@ -159,10 +162,10 @@ class SitemapExporterTest extends TestCase
             $urlProvider ?? [],
             $cache,
             10,
-            $this->createMock(FilesystemOperator::class),
-            $sitemapHandleFactory ?? $this->createMock(SitemapHandleFactoryInterface::class),
-            $this->createMock(EventDispatcher::class),
-            $cartRuleLoader ?? $this->createMock(CartRuleLoader::class)
+            static::createStub(FilesystemOperator::class),
+            $sitemapHandleFactory ?? static::createStub(SitemapHandleFactoryInterface::class),
+            static::createStub(EventDispatcher::class),
+            $cartRuleLoader ?? static::createStub(CartRuleLoader::class)
         );
     }
 

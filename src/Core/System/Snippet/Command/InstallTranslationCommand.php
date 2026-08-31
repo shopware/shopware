@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -20,17 +20,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'translation:install',
     description: 'Downloads and installs translations from the translations GitHub repository for the specified locales or all available locales. Re-installing will overwrite existing translations.',
 )]
-#[Package('discovery')]
 class InstallTranslationCommand extends Command
 {
     public function __construct(
         private readonly AbstractTranslationLoader $translationLoader,
         private readonly TranslationConfig $config,
-        private readonly TranslationMetadataLoader $metadataLoader,
+        private readonly TranslationMetadataStore $metadataStore,
     ) {
         parent::__construct();
     }
@@ -47,7 +47,7 @@ class InstallTranslationCommand extends Command
         $locales = $this->getLocales($input, $output);
 
         try {
-            $metadata = $this->metadataLoader->getUpdatedLocalMetadata($locales);
+            $metadata = $this->metadataStore->getUpdatedLocalMetadata($locales);
         } catch (\Throwable $e) {
             TranslationCommandHelper::printMetadataLoadingFailed($output, $e);
 
@@ -77,7 +77,7 @@ class InstallTranslationCommand extends Command
 
         $output->write(\PHP_EOL);
 
-        TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataLoader->save($metadata), $output);
+        TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataStore->save($metadata), $output);
 
         return self::SUCCESS;
     }
@@ -103,7 +103,7 @@ class InstallTranslationCommand extends Command
 
         $locales = explode(',', $locales);
 
-        $this->validateLocales($locales);
+        $this->config->assertLocalesAreConfigured($locales);
 
         return $locales;
     }
@@ -152,34 +152,8 @@ class InstallTranslationCommand extends Command
         /** @var list<string> $selected */
         $selected = (new SymfonyStyle($input, $output))->askQuestion($question);
 
-        $this->validateLocales($selected);
+        $this->config->assertLocalesAreConfigured($selected);
 
         return $selected;
-    }
-
-    /**
-     * @param list<string> $locales
-     */
-    private function validateLocales(array $locales): void
-    {
-        if ($locales === []) {
-            throw SnippetException::noLocalesArgumentProvided();
-        }
-
-        $errors = [];
-        foreach ($locales as $locale) {
-            if (!\in_array($locale, $this->config->locales, true)) {
-                $errors[] = $locale;
-            }
-        }
-
-        if (!$errors) {
-            return;
-        }
-
-        throw SnippetException::invalidLocalesProvided(
-            implode(', ', $errors),
-            implode(', ', $this->config->locales)
-        );
     }
 }

@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -43,6 +44,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductPriceCalculator::class)]
 class ProductPriceCalculatorTest extends TestCase
 {
@@ -54,7 +56,6 @@ class ProductPriceCalculatorTest extends TestCase
     {
         $this->eventDispatcher = new EventDispatcher();
 
-        /** @var StaticEntityRepository<UnitCollection> $unitRepository */
         $unitRepository = new StaticEntityRepository([
             new UnitCollection([(
             new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']])]),
@@ -80,13 +81,13 @@ class ProductPriceCalculatorTest extends TestCase
         $post->expects($this->once())->method('__invoke');
         $this->eventDispatcher->addListener(ProductPriceCalculationExtension::NAME . '.post', $post);
 
-        $this->calculator->calculate([], $this->createMock(SalesChannelContext::class));
+        $this->calculator->calculate([], static::createStub(SalesChannelContext::class));
     }
 
     #[DataProvider('priceWillBeCalculated')]
     public function testPriceWillBeCalculated(Entity $entity, ?PriceAssertion $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 
@@ -114,7 +115,7 @@ class ProductPriceCalculatorTest extends TestCase
     #[DataProvider('taxStateWillBeUsedProvider')]
     public function testTaxStateWillBeUsed(Entity $product, string $state, float $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         $context->method('getTaxState')->willReturn($state);
@@ -152,12 +153,12 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertNull($property->getValue($this->calculator));
 
-        $this->calculator->calculate([], $this->createMock(SalesChannelContext::class));
+        $this->calculator->calculate([], static::createStub(SalesChannelContext::class));
 
         static::assertNotNull($property->getValue($this->calculator));
 
         // repository mock assertion to ensure only one load
-        $this->calculator->calculate([], $this->createMock(SalesChannelContext::class));
+        $this->calculator->calculate([], static::createStub(SalesChannelContext::class));
 
         // good moment to test reset interface here
         $this->calculator->reset();
@@ -169,7 +170,7 @@ class ProductPriceCalculatorTest extends TestCase
         $this->expectException(DecorationPatternException::class);
 
         (new ProductPriceCalculator(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             new QuantityPriceCalculator(
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
@@ -269,7 +270,7 @@ class ProductPriceCalculatorTest extends TestCase
     #[DataProvider('advancedPricesWillBeCalculatedProvider')]
     public function testAdvancedPricesWillBeCalculated(Entity $product, array $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
         $context->method('getRuleIds')->willReturn([Defaults::CURRENCY]);
@@ -296,6 +297,87 @@ class ProductPriceCalculatorTest extends TestCase
 
             static::assertSame($value, $price->getTotalPrice());
         }
+    }
+
+    public function testFilterRulePricesReturnsFirstMatchingContextRuleInOrder(): void
+    {
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        // ruleA takes precedence because it is listed first in the context rule ids
+        $context->method('getRuleIds')->willReturn([$ruleA, $ruleB]);
+        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
+
+        $product = (new PartialEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'taxId' => Uuid::randomHex(),
+            'prices' => new ProductPriceCollection([
+                (new ProductPriceEntity())->assign([
+                    'id' => Uuid::randomHex(),
+                    '_uniqueIdentifier' => Uuid::randomHex(),
+                    'ruleId' => $ruleB,
+                    'price' => new PriceCollection([new Price(Defaults::CURRENCY, 5, 5, false)]),
+                    'quantityStart' => 1,
+                    'quantityEnd' => null,
+                ]),
+                (new ProductPriceEntity())->assign([
+                    'id' => Uuid::randomHex(),
+                    '_uniqueIdentifier' => Uuid::randomHex(),
+                    'ruleId' => $ruleA,
+                    'price' => new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, false)]),
+                    'quantityStart' => 1,
+                    'quantityEnd' => null,
+                ]),
+            ]),
+        ]);
+
+        $this->calculator->calculate([$product], $context);
+
+        $prices = $product->get('calculatedPrices');
+
+        static::assertInstanceOf(CalculatedPriceCollection::class, $prices);
+        static::assertCount(1, $prices);
+        // 1.0 proves ruleA won; the regression would pick ruleB (5.0)
+        static::assertSame(1.0, $prices->first()?->getTotalPrice());
+    }
+
+    public function testFilterRulePricesSkipsContextRulesWithoutMatchingPrices(): void
+    {
+        $ruleWithoutPrices = Uuid::randomHex();
+        $ruleWithPrices = Uuid::randomHex();
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        // the first context rule has no price, the calculator must fall through to the next
+        $context->method('getRuleIds')->willReturn([$ruleWithoutPrices, $ruleWithPrices]);
+        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(19)]));
+
+        $product = (new PartialEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'taxId' => Uuid::randomHex(),
+            'prices' => new ProductPriceCollection([
+                (new ProductPriceEntity())->assign([
+                    'id' => Uuid::randomHex(),
+                    '_uniqueIdentifier' => Uuid::randomHex(),
+                    'ruleId' => $ruleWithPrices,
+                    'price' => new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, false)]),
+                    'quantityStart' => 1,
+                    'quantityEnd' => null,
+                ]),
+            ]),
+        ]);
+
+        $this->calculator->calculate([$product], $context);
+
+        $prices = $product->get('calculatedPrices');
+
+        static::assertInstanceOf(CalculatedPriceCollection::class, $prices);
+        static::assertCount(1, $prices);
+        static::assertSame(1.0, $prices->first()?->getTotalPrice());
     }
 
     public static function advancedPricesWillBeCalculatedProvider(): \Generator
@@ -370,7 +452,7 @@ class ProductPriceCalculatorTest extends TestCase
     #[DataProvider('cheapestPriceWillBeCalculatedProvider')]
     public function testCheapestPriceWillBeCalculated(Entity $entity, ?PriceAssertion $expected): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
 

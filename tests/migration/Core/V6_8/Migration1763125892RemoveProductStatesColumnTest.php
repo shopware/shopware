@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_8;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
@@ -13,6 +14,7 @@ use Shopware\Core\Migration\V6_8\Migration1763125892RemoveProductStatesColumn;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(Migration1763125892RemoveProductStatesColumn::class)]
 class Migration1763125892RemoveProductStatesColumnTest extends TestCase
 {

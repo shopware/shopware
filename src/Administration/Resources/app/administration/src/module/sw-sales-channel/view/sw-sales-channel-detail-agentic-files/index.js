@@ -172,7 +172,10 @@ export default {
 
             return (
                 salesChannelFiles.find((configuration) => {
-                    return configuration.fileFamily === file.fileFamily && configuration.fileName === file.fileName;
+                    return (
+                        configuration.fileFamily === file.fileFamily &&
+                        configuration.fileName.toLowerCase() === file.fileName.toLowerCase()
+                    );
                 }) ?? null
             );
         },

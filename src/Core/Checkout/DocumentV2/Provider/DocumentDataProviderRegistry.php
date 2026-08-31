@@ -12,39 +12,44 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DocumentDataProviderRegistry
 {
     /**
-     * @var array<string, array<string, AbstractDocumentDataProvider>>
+     * @var list<AbstractDocumentDataProvider>
      */
-    private array $providersByDocumentType;
+    private array $providers;
 
     /**
      * @param iterable<AbstractDocumentDataProvider> $documentDataProviders
      */
     public function __construct(iterable $documentDataProviders)
     {
-        $providersByDocumentType = [];
-
-        foreach ($documentDataProviders as $provider) {
-            $key = $provider->getKey();
-
-            foreach ($provider->getDocumentTypes() as $documentType) {
-                if (isset($providersByDocumentType[$documentType][$key])) {
-                    throw DocumentV2Exception::duplicateProviderKey($key, $documentType);
-                }
-
-                $providersByDocumentType[$documentType][$key] = $provider;
-            }
-        }
-
-        $this->providersByDocumentType = $providersByDocumentType;
+        $this->providers = array_values([...$documentDataProviders]);
     }
 
     /**
-     * Returns all providers that should contribute render data for the given document type.
+     * Returns all providers that contribute render data for the given document type, each provider
+     * deciding via {@see AbstractDocumentDataProvider::supports()}.
+     *
+     * @throws DocumentV2Exception
      *
      * @return list<AbstractDocumentDataProvider>
      */
     public function getByDocumentType(string $documentType): array
     {
-        return array_values($this->providersByDocumentType[$documentType] ?? []);
+        $matched = [];
+
+        foreach ($this->providers as $provider) {
+            if (!$provider->supports($documentType)) {
+                continue;
+            }
+
+            $key = $provider->getKey();
+
+            if (isset($matched[$key])) {
+                throw DocumentV2Exception::duplicateProviderKey($key, $documentType);
+            }
+
+            $matched[$key] = $provider;
+        }
+
+        return array_values($matched);
     }
 }

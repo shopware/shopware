@@ -42,8 +42,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[CoversClass(CartLineItemController::class)]
 #[Package('checkout')]
+#[CoversClass(CartLineItemController::class)]
 class CartLineItemControllerTest extends TestCase
 {
     private CartLineItemController $controller;

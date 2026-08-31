@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +16,7 @@ use Shopware\Core\Migration\V6_7\Migration1773829001MigrateProductStreamProductS
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(Migration1773829001MigrateProductStreamProductStatesFilter::class)]
 class Migration1773829001MigrateProductStreamProductStatesFilterTest extends TestCase
 {

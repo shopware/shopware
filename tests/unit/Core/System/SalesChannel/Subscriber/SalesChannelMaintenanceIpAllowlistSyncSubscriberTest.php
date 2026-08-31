@@ -38,7 +38,8 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriberTest extends TestCase
     {
         $value = json_encode(['127.0.0.1'], \JSON_THROW_ON_ERROR);
 
-        $command = $this->createCommand(InsertCommand::class, ['maintenance_ip_allowlist' => $value]);
+        $command = $this->createMock(InsertCommand::class);
+        $this->configureCommand($command, ['maintenance_ip_allowlist' => $value]);
         $command->expects($this->once())->method('addPayload')->with('maintenance_ip_whitelist', $value);
 
         $this->dispatch($command);
@@ -48,7 +49,8 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriberTest extends TestCase
     {
         $value = json_encode(['10.0.0.1'], \JSON_THROW_ON_ERROR);
 
-        $command = $this->createCommand(UpdateCommand::class, ['maintenance_ip_whitelist' => $value]);
+        $command = $this->createMock(UpdateCommand::class);
+        $this->configureCommand($command, ['maintenance_ip_whitelist' => $value]);
         $command->expects($this->once())->method('addPayload')->with('maintenance_ip_allowlist', $value);
 
         $this->dispatch($command);
@@ -59,7 +61,8 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriberTest extends TestCase
         $allowlist = json_encode(['127.0.0.1'], \JSON_THROW_ON_ERROR);
         $whitelist = json_encode(['10.0.0.1'], \JSON_THROW_ON_ERROR);
 
-        $command = $this->createCommand(UpdateCommand::class, [
+        $command = $this->createMock(UpdateCommand::class);
+        $this->configureCommand($command, [
             'maintenance_ip_allowlist' => $allowlist,
             'maintenance_ip_whitelist' => $whitelist,
         ]);
@@ -70,7 +73,8 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriberTest extends TestCase
 
     public function testSkipsWritesWithoutMaintenanceIpColumns(): void
     {
-        $command = $this->createCommand(UpdateCommand::class, ['name' => 'Storefront']);
+        $command = $this->createMock(UpdateCommand::class);
+        $this->configureCommand($command, ['name' => 'Storefront']);
         $command->expects($this->never())->method('addPayload');
 
         $this->dispatch($command);
@@ -89,7 +93,8 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriberTest extends TestCase
     public function testIsNoOpWhenMajorIsActive(): void
     {
         Feature::fake(['v6.8.0.0'], function (): void {
-            $command = $this->createCommand(InsertCommand::class, [
+            $command = $this->createMock(InsertCommand::class);
+            $this->configureCommand($command, [
                 'maintenance_ip_allowlist' => json_encode(['127.0.0.1'], \JSON_THROW_ON_ERROR),
             ]);
             $command->expects($this->never())->method('addPayload');
@@ -99,21 +104,15 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriberTest extends TestCase
     }
 
     /**
-     * @param class-string<WriteCommand> $class
      * @param array<string, mixed> $payload
-     *
-     * @return WriteCommand&MockObject
      */
-    private function createCommand(string $class, array $payload): WriteCommand
+    private function configureCommand(WriteCommand&MockObject $command, array $payload): void
     {
-        $command = $this->createMock($class);
         $command->method('getEntityName')->willReturn(SalesChannelDefinition::ENTITY_NAME);
         $command->method('getPayload')->willReturn($payload);
         $command->method('hasField')->willReturnCallback(
             static fn (string $storageName): bool => \array_key_exists($storageName, $payload)
         );
-
-        return $command;
     }
 
     private function dispatch(WriteCommand $command): void

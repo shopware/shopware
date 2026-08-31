@@ -1,6 +1,7 @@
 <?php
 
-$nightly = $_SERVER['argv'][1] ?? false;
+// argv[1] is the run profile: '' (PR), 'nightly' or 'release'. Only nightly widens the matrix.
+$nightly = ($_SERVER['argv'][1] ?? '') === 'nightly';
 $major = filter_var($_SERVER['argv'][2] ?? false, \FILTER_VALIDATE_BOOLEAN);
 
 // Integration shards: the paths + framework batches together cover the whole tests/integration tree.
@@ -35,7 +36,45 @@ $db = ['mysql:8.0'];
 
 if ($nightly) {
     $php = ['8.2', '8.5'];
-    $db = ['mysql:8.0', 'mariadb:11', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
+}
+
+$includes = [
+    [
+        'test' => ['testsuite' => 'devops'],
+        'php' => '8.5',
+        'db' => 'mariadb:11'
+    ],
+    // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
+    // skips without it.
+    [
+        'test' => ['testsuite' => 'devops'],
+        'php' => '8.2',
+        'db' => 'mysql:8.4'
+    ]
+];
+
+if ($nightly) {
+    // The DB spread runs on PHP 8.2 only and the PHP spread (8.5) on mysql:8.0 only:
+    // DB behaviour does not depend on the PHP version, so the full cross product
+    // adds jobs but no signal.
+    $nightlyDbs = ['mysql:9.7', 'mariadb:11', 'mariadb:12.3', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
+    foreach ($nightlyDbs as $nightlyDb) {
+        foreach (array_merge($integrationTests, [['testsuite' => 'migration']]) as $test) {
+            $includes[] = [
+                'test' => $test,
+                'php' => '8.2',
+                'db' => $nightlyDb,
+                'opensearch' => 'opensearchproject/opensearch:3',
+            ];
+        }
+    }
+} else {
+    // Covered by the nightly DB spread above; PR/release runs need the explicit lane.
+    $includes[] = [
+        'test' => ['testsuite' => 'migration'],
+        'php' => '8.2',
+        'db' => 'mariadb:11'
+    ];
 }
 
 $matrix = [
@@ -47,18 +86,7 @@ $matrix = [
         'php' => $php,
         'db' => $db,
         'opensearch' => ['opensearchproject/opensearch:3'],
-        'include' => [
-            [
-                'test' => ['testsuite' => 'migration'],
-                'php' => '8.2',
-                'db' => 'mariadb:11'
-            ],
-            [
-                'test' => ['testsuite' => 'devops'],
-                'php' => '8.5',
-                'db' => 'mariadb:11'
-            ]
-        ]
+        'include' => $includes
     ]
 ];
 

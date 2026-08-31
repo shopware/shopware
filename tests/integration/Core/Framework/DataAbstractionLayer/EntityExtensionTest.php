@@ -18,20 +18,25 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\FkFieldExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ModifyFieldsExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ModifyJsonFieldExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NestedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ReferenceVersionExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
@@ -43,6 +48,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityExtensionTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
@@ -597,8 +603,26 @@ class EntityExtensionTest extends TestCase
         static::assertCount(4, $definition->getFields(), 'ModifyFieldsExtension should not be able to add or remove fields');
     }
 
+    public function testICanAddJsonPropertyMappingByModifyFields(): void
+    {
+        $definition = $this->registerDefinition(NestedDefinition::class);
+        $data = $definition->getFields()->get('data');
+        static::assertInstanceOf(JsonField::class, $data);
+        static::assertCount(3, $data->getPropertyMapping());
+
+        $definition = $this->registerDefinitionWithExtensions(NestedDefinition::class, ModifyJsonFieldExtension::class);
+        $data = $definition->getFields()->get('data');
+        static::assertInstanceOf(JsonField::class, $data);
+
+        $propertyNames = array_map(
+            static fn (Field $field) => $field->getPropertyName(),
+            $data->getPropertyMapping()
+        );
+        static::assertSame(['gross', 'net', 'foo', 'extended'], $propertyNames);
+    }
+
     /**
-     * @return array{id:string, productNumber:string, stock:int, name:string, ean:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}, manufacturer:array{name:string}, tax:array{name:string, taxRate:int}, myPrices:array{array{id:string}}}
+     * @return array{id:string, productNumber:string, stock:int, name:string, ean:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}, manufacturer:array{name:string}, tax:array{name:string, taxRate:int}, myPrices:list<array{id:string, currencyId:string, quantityStart:int, ruleId:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}}>}
      */
     private function getPricesData(string $id): array
     {
@@ -644,7 +668,7 @@ class EntityExtensionTest extends TestCase
     }
 
     /**
-     * @return array{id:string, productNumber:string, stock:int, name:string, ean:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}, manufacturer:array{name:string}, tax:array{name:string, taxRate:int}, myCategories:array{array{id:string}}}
+     * @return array{id:string, productNumber:string, stock:int, name:string, ean:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}, manufacturer:array{name:string}, tax:array{name:string, taxRate:int}, myCategories:list<array{id:string}>}
      */
     private function getCategoriesData(string $id): array
     {

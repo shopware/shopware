@@ -10,11 +10,11 @@
     },
     "generalTab": {
       "labelSearchBehaviour": "Search behaviour",
-      "textTitleSearchBehaviour": "Predefine your Sales Channels' search behaviour.",
-      "labelSearchAndCondition": "“AND” Search",
-      "textSearchAndConditionExplain": "Search results match with every single element of the entered search term.\nExample: \"Jeans summer\" will find search results that contain both search terms \"jeans\" and \"summer\".",
-      "labelSearchOrCondition": "“OR” Search",
-      "textSearchOrConditionExplain": "Search results match with any element of the entered search term.\nExample: \"Jeans summer\" will find search results that contain either the search term \"jeans\" or the search term \"summer\".",
+      "textTitleSearchBehaviour": "Choose how strictly entered search terms need to match.",
+      "labelSearchAndCondition": "Exact search (AND)",
+      "textSearchAndConditionExplain": "Show only results that match all entered search terms.",
+      "labelSearchOrCondition": "Broad search (OR)",
+      "textSearchOrConditionExplain": "Show results that match any of the entered search terms.",
       "labelMinimalSearchTerm": "Minimal search term length",
       "labelExcludedSearchTerms": "Excluded search terms",
       "textEmptyStateExcludedSearchTerms": "No search terms excluded yet",
@@ -62,8 +62,7 @@
         "columnRankingPoints": "Ranking score",
         "columnContent": "Content",
         "columnSplitKeywords": "Split search terms",
-        "textResetRanking": "Reset ranking",
-        "textRemove": "Remove"
+        "textResetRanking": "Reset ranking"
       },
       "configFields": {
         "name": "Product name",

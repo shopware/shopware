@@ -65,13 +65,18 @@ final readonly class AllowanceChargeView
             $taxes = $shippingCosts->getCalculatedTaxes();
 
             if ($taxes->count() === 0) {
+                $actualAmount = self::signedAmount(
+                    true,
+                    NetAmount::fromTax(null, $shippingCosts, $isGross)
+                );
+
                 $views[] = new self(
                     isCharge: true,
-                    actualAmount: abs(NetAmount::fromTax(null, $shippingCosts, $isGross)),
+                    actualAmount: $actualAmount,
                     basisAmount: null,
                     calculationPercent: null,
-                    reasonCode: AllowanceChargeReason::DELIVERY,
-                    reason: AllowanceChargeReason::DELIVERY->defaultLabel(),
+                    reasonCode: AllowanceChargeReason::SHIPPING_AND_HANDLING,
+                    reason: AllowanceChargeReason::SHIPPING_AND_HANDLING->defaultLabel(),
                     taxCategory: TaxCategory::ZERO_RATED,
                     taxRate: 0.0,
                 );
@@ -80,15 +85,18 @@ final readonly class AllowanceChargeView
             }
 
             foreach ($taxes as $tax) {
-                $actualAmount = abs(NetAmount::fromTax($tax, $shippingCosts, $isGross));
+                $actualAmount = self::signedAmount(
+                    true,
+                    NetAmount::fromTax($tax, $shippingCosts, $isGross)
+                );
 
                 $views[] = new self(
                     isCharge: true,
                     actualAmount: $actualAmount,
                     basisAmount: null,
                     calculationPercent: null,
-                    reasonCode: AllowanceChargeReason::DELIVERY,
-                    reason: AllowanceChargeReason::DELIVERY->defaultLabel(),
+                    reasonCode: AllowanceChargeReason::SHIPPING_AND_HANDLING,
+                    reason: AllowanceChargeReason::SHIPPING_AND_HANDLING->defaultLabel(),
                     taxCategory: TaxCategory::fromRate($tax->getTaxRate()),
                     taxRate: $tax->getTaxRate(),
                 );
@@ -170,15 +178,18 @@ final readonly class AllowanceChargeView
         }
 
         foreach ($taxes as $tax) {
-            $absAmount = abs(NetAmount::fromTax($tax, $price, $isGross));
+            $amount = self::signedAmount(
+                $isCharge,
+                NetAmount::fromTax($tax, $price, $isGross)
+            );
 
             $basisAmount = $isPercentage && $discountValue !== 0.0
-                ? $absAmount * 100 / $discountValue
+                ? $amount * 100 / $discountValue
                 : null;
 
             $views[] = new self(
                 isCharge: $isCharge,
-                actualAmount: $absAmount,
+                actualAmount: $amount,
                 basisAmount: $basisAmount,
                 calculationPercent: $isPercentage ? $discountValue : null,
                 reasonCode: AllowanceChargeReason::DISCOUNT,
@@ -197,15 +208,18 @@ final readonly class AllowanceChargeView
         bool $isPercentage,
         float $discountValue,
     ): self {
-        $absAmount = abs(NetAmount::fromTax(null, $price, $isGross));
+        $amount = self::signedAmount(
+            $isCharge,
+            NetAmount::fromTax(null, $price, $isGross)
+        );
 
         $basisAmount = $isPercentage && $discountValue !== 0.0
-            ? $absAmount * 100 / $discountValue
+            ? $amount * 100 / $discountValue
             : null;
 
         return new self(
             isCharge: $isCharge,
-            actualAmount: $absAmount,
+            actualAmount: $amount,
             basisAmount: $basisAmount,
             calculationPercent: $isPercentage ? $discountValue : null,
             reasonCode: AllowanceChargeReason::DISCOUNT,
@@ -213,5 +227,15 @@ final readonly class AllowanceChargeView
             taxCategory: TaxCategory::ZERO_RATED,
             taxRate: 0.0,
         );
+    }
+
+    /**
+     * Signed allowance/charge amount. Charges keep the source sign, allowances flip it, so the
+     * amount is positive on a normal invoice and negative on a cancellation while the
+     * charge/allowance indicator stays constant (the monetary totals and VAT breakdown rely on it).
+     */
+    private static function signedAmount(bool $isCharge, float $netAmount): float
+    {
+        return $isCharge ? $netAmount : -$netAmount;
     }
 }

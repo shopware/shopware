@@ -1,32 +1,34 @@
 name: 'Code Owners'
 
 concurrency:
-  group: codeowners-${{ github.ref }}
+  group: codeowners-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 on:
-  pull_request:
-    types: [opened, reopened, ready_for_review]
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, synchronize]
+  pull_request_review:
+    types: [submitted]
 
 permissions:
   contents: read
-  issues: write
-  pull-requests: write
+  id-token: write
+  statuses: write
 
 jobs:
   codeowners:
     name: 'Run Codeowners Plus'
     runs-on: ubuntu-latest
+    # Fork PR reviews cannot mint a token here — see codeowner-fork-review-relay.yml.
+    if: github.event_name != 'pull_request_review' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: 'Checkout Code Repository'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - name: 'Codeowners Plus'
-        uses: multimediallc/codeowners-plus@44c6f1355e06e1e606161468b91a70ebab7ce730 # v1.9.1
+      - uses: ./.github/actions/codeowners-plus-status
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
-          pr: '${{ github.event.pull_request.number }}'
-          verbose: true
-          quiet: ${{ github.event.pull_request.draft }}
+          pr-number: ${{ github.event.pull_request.number }}
+          draft: ${{ github.event.pull_request.draft }}
+          head-sha: ${{ github.event.pull_request.head.sha }}

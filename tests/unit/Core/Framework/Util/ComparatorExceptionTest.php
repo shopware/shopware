@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use UtilException::operatorNotSupported()
  */
+#[Package('framework')]
 #[CoversClass(ComparatorException::class)]
 class ComparatorExceptionTest extends TestCase
 {

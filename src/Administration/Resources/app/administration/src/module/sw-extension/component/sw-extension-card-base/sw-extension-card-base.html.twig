@@ -2,7 +2,15 @@
     class="sw-extension-card-base"
     :class="extensionCardClasses"
 >
-    <sw-loader v-if="isLoading" />
+    <sw-loader v-if="showLoader" />
+
+    <div class="sw-extension-card-base__select">
+        <mt-checkbox
+            :checked="selected"
+            :aria-label="$t('sw-extension.my-extensions.bulk.selectExtensionAria', { name: extension.label })"
+            @update:checked="$emit('select-change', $event)"
+        />
+    </div>
 
     <div class="sw-extension-card-base__switch">
         {% block sw_extension_card_base_activation_switch_switch %}
@@ -96,7 +104,7 @@
             v-else-if="extension.configurable"
             :to="configLink"
         >
-            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.config') }}
+            {{ $t('global.default.configure') }}
         </router-link>
     </div>
 
@@ -167,7 +175,7 @@
             variant="danger"
             @click="openRemovalModal"
         >
-            {{ $t('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel') }}
+            {{ $t('global.default.remove') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item

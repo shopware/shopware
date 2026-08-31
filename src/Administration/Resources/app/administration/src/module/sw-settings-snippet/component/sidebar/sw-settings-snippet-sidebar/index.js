@@ -34,6 +34,16 @@ export default {
         },
     },
 
+    shortcuts: {
+        OF: 'openFilterSidebar',
+    },
+
+    data() {
+        return {
+            filterSidebarItem: null,
+        };
+    },
+
     computed: {
         activeFilterNumber() {
             let count = 0;
@@ -69,17 +79,33 @@ export default {
     },
 
     methods: {
+        registerFilterSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+        },
+
         closeContent() {
-            if (this.filterSidebarIsOpen) {
-                this.$refs.filterSideBar.closeContent();
-                this.filterSidebarIsOpen = false;
-                this.$emit('sw-sidebar-close');
+            if (this.filterSidebarItem?.isActive) {
+                this.$emit('sw-sidebar-open');
                 return;
             }
 
-            this.$refs.filterSideBar?.openContent?.();
-            this.filterSidebarIsOpen = true;
+            if (this.filterSidebarItem?.closeContent) {
+                this.filterSidebarItem.closeContent();
+            }
 
+            this.$emit('sw-sidebar-close');
+        },
+
+        openFilterSidebar() {
+            if (this.filterSidebarItem?.isActive) {
+                return;
+            }
+
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
+
+            this.filterSidebarItem.openContent();
             this.$emit('sw-sidebar-open');
         },
 

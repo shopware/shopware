@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -12,17 +11,18 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:shop-id:change',
     description: 'Change the shop ID by choosing a resolution strategy',
     /** @deprecated tag:v6.8.0 - Alias `app:url-change:resolve` will be removed */
     aliases: ['app:url-change:resolve'],
 )]
-#[Package('framework')]
 class ChangeShopIdCommand extends Command
 {
     public function __construct(private readonly Resolver $shopIdChangeResolver)
@@ -37,7 +37,7 @@ class ChangeShopIdCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         if ($input->hasArgument('command') && $input->getArgument('command') === 'app:url-change:resolve') {
             Feature::triggerDeprecationOrThrow(

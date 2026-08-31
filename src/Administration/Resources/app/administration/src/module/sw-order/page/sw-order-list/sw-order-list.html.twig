@@ -252,7 +252,7 @@
                         class="sw-order-list__order-view-action"
                         :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
                     >
-                        {{ $t('sw-order.list.contextMenuView') }}
+                        {{ $t('global.default.view') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -263,7 +263,7 @@
                         data-analytics-id="sw-order-list.delete-order"
                         @click="onDelete(item.id)"
                     >
-                        {{ $t('sw-order.list.contextMenuDelete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -304,7 +304,7 @@
                                 data-analytics-id="sw-order-list.delete-modal-confirm"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $t('sw-order.list.buttonDelete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -337,7 +337,7 @@
                         @click="showBulkEditModal = true"
                         @keydown.enter="showBulkEditModal = true"
                     >
-                        {{ $t('global.sw-bulk-edit-modal.bulkEdit') }}
+                        {{ $t('global.default.bulkEdit') }}
                     </a>
                     {% endblock %}
                 </template>

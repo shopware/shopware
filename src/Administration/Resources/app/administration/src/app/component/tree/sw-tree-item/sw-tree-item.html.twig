@@ -105,6 +105,7 @@
                 <template v-if="currentEditElement === item.data.id">
                     <sw-confirm-field
                         v-model="item.data.name"
+                        v-autofocus
                         class="sw-tree-detail__edit-tree-item"
                         :prevent-empty-submit="true"
                         :placeholder="$t(`${translationContext}.general.buttonCreate`)"
@@ -272,6 +273,7 @@
                 :active-item-ids="activeItemIds"
                 :mark-inactive="markInactive"
                 :sortable="sortable"
+                :allow-drop-into-folder="allowDropIntoFolder"
                 :should-focus="shouldFocus"
                 :active-focus-id="activeFocusId"
                 :display-checkbox="displayCheckbox"
@@ -293,6 +295,7 @@
                         <template v-if="currentEditElement === item.data.id">
                             <sw-confirm-field
                                 v-model="item.data.name"
+                                v-autofocus
                                 class="sw-tree-detail__edit-tree-item"
                                 :prevent-empty-submit="true"
                                 :placeholder="$t(`${translationContext}.general.buttonCreate`)"

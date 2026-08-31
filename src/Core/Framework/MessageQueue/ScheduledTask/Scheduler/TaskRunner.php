@@ -84,7 +84,7 @@ class TaskRunner
         $criteria->addFilter(new EqualsFilter('name', $taskName));
 
         /** @var ScheduledTaskEntity|null $task */
-        $task = $this->scheduledTaskRepository->search($criteria, $context)->first();
+        $task = $this->scheduledTaskRepository->search($criteria, $context)->getEntities()->first();
 
         if ($task === null) {
             throw MessageQueueException::cannotFindTaskByName($taskName);

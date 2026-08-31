@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -136,7 +137,9 @@ class PromotionPercentageCalculationTest extends TestCase
          */
         static::assertSame(50.0, $cart->getPrice()->getTotalPrice());
         static::assertSame(50.0, $cart->getPrice()->getPositionPrice());
-        static::assertSame(41.66, $cart->getPrice()->getNetPrice());
+        // v6.8: PercentagePriceCalculator scales and rounds each calculated tax instead of recalculating,
+        // so the included tax of the discount rounds to 8.33 instead of 8.34
+        static::assertSame(Feature::isActive('v6.8.0.0') ? 41.67 : 41.66, $cart->getPrice()->getNetPrice());
 
         $promotion = $cart->getLineItems()->getElements();
         $promotion = array_values($promotion)[1];
@@ -146,7 +149,7 @@ class PromotionPercentageCalculationTest extends TestCase
         static::assertInstanceOf(CalculatedPrice::class, $price);
         static::assertSame(-50.0, $price->getTotalPrice());
         static::assertNotNull($price->getCalculatedTaxes()->first());
-        static::assertSame(-8.33, $price->getCalculatedTaxes()->first()->getTax());
+        static::assertSame(Feature::isActive('v6.8.0.0') ? -8.34 : -8.33, $price->getCalculatedTaxes()->first()->getTax());
     }
 
     /**

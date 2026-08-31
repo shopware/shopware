@@ -9,11 +9,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearchHydrator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchEntitySearchHydrator::class)]
 class ElasticsearchEntitySearchHydratorTest extends TestCase
 {
@@ -29,7 +31,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
     public function testHydrateWithEmptyResult(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $result = [
             'hits' => [
@@ -45,7 +47,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
     public function testHydrateWithHits(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $result = [
             'hits' => [
@@ -72,7 +74,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
     public function testHydrateWithoutTotal(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
@@ -100,7 +102,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
     public function testHydrateWithExactTotal(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
@@ -154,7 +156,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
     public function testHydrateWithNestedHits(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
@@ -199,7 +201,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
     public function testHydrateWithIdSorting(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria(['2', '1']);
         $result = [
             'hits' => [

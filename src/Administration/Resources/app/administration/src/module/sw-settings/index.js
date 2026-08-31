@@ -9,6 +9,7 @@ const { Module } = Shopware;
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-item', () => import('./component/sw-settings-item'));
 Shopware.Component.register('sw-system-config', () => import('./component/sw-system-config'));
+Shopware.Component.register('sw-system-config-media-upload', () => import('./component/sw-system-config-media-upload'));
 Shopware.Component.register('sw-settings-index', () => import('./page/sw-settings-index'));
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
@@ -19,7 +20,7 @@ Module.register('sw-settings', {
     title: 'sw-settings.general.mainMenuItemGeneral',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {
@@ -62,7 +63,7 @@ Module.register('sw-settings', {
             color: '#9AA8B5',
             icon: 'regular-cog',
             path: 'sw.settings.index',
-            position: 80,
+            position: 90,
         },
     ],
 });

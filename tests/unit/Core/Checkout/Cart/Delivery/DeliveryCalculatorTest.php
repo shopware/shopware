@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -28,9 +29,15 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -40,8 +47,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(DeliveryCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(DeliveryCalculator::class)]
 class DeliveryCalculatorTest extends TestCase
 {
     private DeliveryTime $deliveryTime;
@@ -271,6 +278,24 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame($costs, $delivery->getShippingCosts());
     }
 
+    public function testPriceMatrixCartPriceRangeConvertsRangesToActiveCurrencyWhenFeatureIsEnabled(): void
+    {
+        Feature::withFeatureEnabled('SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION', function (): void {
+            $shippingCosts = $this->calculateShippingCostsForCartPriceRange(52.0);
+
+            static::assertSame(22.0, $shippingCosts->getTotalPrice());
+        });
+    }
+
+    public function testPriceMatrixCartPriceRangeKeepsLegacyComparisonWhenFeatureIsDisabled(): void
+    {
+        Feature::withFeatureDisabled('SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION', function (): void {
+            $shippingCosts = $this->calculateShippingCostsForCartPriceRange(52.0);
+
+            static::assertSame(0.0, $shippingCosts->getTotalPrice());
+        });
+    }
+
     public function testShippingCostTaxPercentagesUseRoundedLineItemTotal(): void
     {
         $context = static::createStub(SalesChannelContext::class);
@@ -365,5 +390,109 @@ class DeliveryCalculatorTest extends TestCase
         }
 
         static::assertEqualsWithDelta(100.0, $totalPercentage, 0.001);
+    }
+
+    private function calculateShippingCostsForCartPriceRange(float $cartTotal): CalculatedPrice
+    {
+        $shippingMethod = $this->createShippingMethodWithPriceRanges();
+        $delivery = $this->createDeliveryWithCartTotal($shippingMethod, $cartTotal);
+        $context = $this->createSalesChannelContextWithCurrencyFactor(1.1);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $deliveryCalculator = new DeliveryCalculator(
+            $this->createQuantityPriceCalculator(),
+            static::createStub(PercentageTaxRuleBuilder::class),
+            static::createStub(CashRounding::class),
+        );
+
+        $deliveryCalculator->calculate($data, new Cart('test'), new DeliveryCollection([$delivery]), $context);
+
+        return $delivery->getShippingCosts();
+    }
+
+    private function createShippingMethodWithPriceRanges(): ShippingMethodEntity
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId($shippingMethodId);
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
+        $shippingMethod->setTaxId(Uuid::randomHex());
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([
+            $this->createShippingMethodPrice($shippingMethodId, 0, 50, 20),
+            $this->createShippingMethodPrice($shippingMethodId, 50, null, 0),
+        ]));
+
+        return $shippingMethod;
+    }
+
+    private function createShippingMethodPrice(string $shippingMethodId, float $start, ?float $end, float $price): ShippingMethodPriceEntity
+    {
+        $shippingMethodPrice = new ShippingMethodPriceEntity();
+        $shippingMethodPrice->setId(Uuid::randomHex());
+        $shippingMethodPrice->setShippingMethodId($shippingMethodId);
+        $shippingMethodPrice->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
+        $shippingMethodPrice->setQuantityStart($start);
+        $shippingMethodPrice->setCurrencyPrice(new PriceCollection([
+            new Price(Defaults::CURRENCY, $price, $price, false),
+        ]));
+
+        if ($end !== null) {
+            $shippingMethodPrice->setQuantityEnd($end);
+        }
+
+        return $shippingMethodPrice;
+    }
+
+    private function createDeliveryWithCartTotal(ShippingMethodEntity $shippingMethod, float $cartTotal): Delivery
+    {
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(new DeliveryInformation(1, 1.0, false, null, $this->deliveryTime));
+        $lineItem->setPrice(new CalculatedPrice($cartTotal, $cartTotal, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $price = $lineItem->getPrice();
+        static::assertNotNull($price);
+
+        return new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(Uuid::randomHex(), $lineItem, 1, $price, new DeliveryDate(new \DateTime(), new \DateTime())),
+            ]),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        );
+    }
+
+    private function createSalesChannelContextWithCurrencyFactor(float $currencyFactor): SalesChannelContext
+    {
+        $baseContext = Context::createDefaultContext();
+        $baseContext->assign(['currencyFactor' => $currencyFactor]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getRuleIds')->willReturn([]);
+        $context->method('getContext')->willReturn($baseContext);
+        $context->method('getCurrencyId')->willReturn(Uuid::randomHex());
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection());
+
+        return $context;
+    }
+
+    private function createQuantityPriceCalculator(): QuantityPriceCalculator
+    {
+        $quantityPriceCalculator = static::createStub(QuantityPriceCalculator::class);
+        $quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static fn (QuantityPriceDefinition $definition): CalculatedPrice => new CalculatedPrice(
+                $definition->getPrice(),
+                $definition->getPrice(),
+                new CalculatedTaxCollection(),
+                new TaxRuleCollection(),
+            ));
+
+        return $quantityPriceCalculator;
     }
 }

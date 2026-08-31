@@ -1,937 +1,477 @@
-import fs, { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import path, { join } from 'node:path';
-import { findTwigFile, getCliUsage, normaliseJsContent, parseCliOptions, runMigration } from './run-sfc-migration';
+/**
+ * @sw-package framework
+ */
 
-const FIXTURES_DIR = path.join(__dirname, '__fixtures__');
+import * as fs from 'fs';
+import * as path from 'path';
+import { spawnSync } from 'child_process';
+import { runMigration, type MigrationResult } from './run-sfc-migration';
+import { makeRoot, manifest, writeFile } from './spec-helpers';
 
-function readFixture(name: string): string {
-    return readFileSync(join(FIXTURES_DIR, name), 'utf-8');
-}
+const FIXTURES = path.join(__dirname, '__fixtures__');
 
-function createTempDir(): string {
-    return mkdtempSync(join(tmpdir(), 'sfc-migration-test-'));
-}
+/** One component: an `index.js` importing the Twig next to it, and that Twig. */
+const writeComponent = (root: string, dir: string, twigName = path.basename(dir)): void => {
+    writeFile(
+        root,
+        `${dir}/index.js`,
+        [
+            `import template from './${twigName}.html.twig';`,
+            '',
+            '/**',
+            ' * @sw-package framework',
+            ' */',
+            'export default {',
+            '    template,',
+            '',
+            '    data() {',
+            "        return { label: 'x' };",
+            '    },',
+            '};',
+            '',
+        ].join('\n'),
+    );
+    writeFile(
+        root,
+        `${dir}/${twigName}.html.twig`,
+        `{% block ${twigName.replace(/-/g, '_')} %}\n    <p>{{ label }}</p>\n{% endblock %}\n`,
+    );
+};
 
-function makeComponent(baseDir: string, componentName: string, jsContent: string, twigContent?: string): string {
-    const dir = join(baseDir, componentName);
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, 'index.js'), jsContent, 'utf-8');
-    if (twigContent !== undefined) {
-        writeFileSync(join(dir, `${componentName}.html.twig`), twigContent, 'utf-8');
-    }
-    return dir;
-}
+const writeModuleIndex = (root: string, ...registrations: string[]): void => {
+    writeFile(root, 'index.js', `${registrations.join('\n')}\n`);
+};
 
-describe('parseCliOptions', () => {
-    it('sets help when --help is provided', () => {
-        expect(parseCliOptions(['--help'])).toMatchObject({
-            help: true,
-            targetDir: undefined,
-            dryRun: true,
+const registerAll = (root: string, ...names: string[]): void =>
+    writeModuleIndex(root, ...names.map((name) => `Component.register('${name}', () => import('./${name}'));`));
+
+const reportOf = (result: MigrationResult, name: string): MigrationResult['reports'][number] | undefined =>
+    result.reports.find((entry) => entry.name === name);
+
+/** The working tree without git's own bookkeeping, which `git status` may refresh on its own. */
+const trackedManifest = (root: string): Record<string, Buffer> =>
+    Object.fromEntries(Object.entries(manifest(root)).filter(([file]) => !file.startsWith('.git/')));
+
+describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
+    describe('CLI', () => {
+        let tmpDir: string;
+
+        const runCli = (...args: string[]): { status: number | null; output: string } => {
+            const result = spawnSync(
+                process.execPath,
+                [
+                    '-r',
+                    'ts-node/register/transpile-only',
+                    path.join(__dirname, 'run-sfc-migration.ts'),
+                    ...args,
+                ],
+                { cwd: process.cwd(), encoding: 'utf8' },
+            );
+
+            return { status: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}` };
+        };
+
+        beforeEach(() => {
+            tmpDir = makeRoot('sfc-cli-');
+        });
+
+        afterEach(() => {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        });
+
+        it.each([
+            [
+                'unknown flag',
+                '--unknown',
+            ],
+            [
+                'replacement without write',
+                '--replace-originals',
+            ],
+            [
+                'duplicate write',
+                '--write',
+                '--write',
+            ],
+        ])('rejects %s with a nonzero exit code', (_label, ...flags: string[]) => {
+            const result = runCli(tmpDir, ...flags);
+
+            expect(result.status).toBe(1);
+            expect(result.output).toContain('Usage: npm run codemod:sfc-migration');
+        });
+
+        it('returns zero for a successful read-only empty scan', () => {
+            const result = runCli(tmpDir);
+
+            expect(result.status).toBe(0);
+            expect(result.output).toContain('dry run — nothing written');
+        });
+
+        it('returns nonzero when the target is not a directory', () => {
+            writeFile(tmpDir, 'not-a-directory.js', 'export default {};\n');
+
+            const result = runCli(path.join(tmpDir, 'not-a-directory.js'));
+
+            expect(result.status).toBe(1);
+            expect(result.output).toContain('Not a directory:');
+        });
+
+        // `git checkout` is the undo button for a written run, which only works while the tree
+        // carries nothing else — so the second run, dirtied by the first run's own draft, refuses.
+        it('refuses to write into a target directory with uncommitted changes', () => {
+            const git = (...args: string[]): void => {
+                const result = spawnSync('git', args, { cwd: tmpDir, encoding: 'utf8' });
+
+                expect(result.status).toBe(0);
+            };
+
+            writeComponent(tmpDir, 'sw-alpha-item');
+            registerAll(tmpDir, 'sw-alpha-item');
+            git('init');
+            git('add', '.');
+            git('-c', 'user.name=codemod', '-c', 'user.email=codemod@example.com', 'commit', '-m', 'baseline');
+
+            const clean = runCli(tmpDir, '--write');
+
+            expect(clean.status).toBe(0);
+            expect(fs.existsSync(path.join(tmpDir, 'sw-alpha-item', 'sw-alpha-item.vue'))).toBe(true);
+
+            const before = trackedManifest(tmpDir);
+            const dirty = runCli(tmpDir, '--write');
+
+            expect(dirty.status).toBe(1);
+            expect(dirty.output).toContain('Refusing to write into a dirty working tree');
+            expect(dirty.output).toContain('sw-alpha-item.vue');
+            expect(trackedManifest(tmpDir)).toEqual(before);
+        }, 120000);
+    });
+
+    describe('writing a synthesized component tree', () => {
+        // Names chosen so the middle component proves the batch remains deterministic.
+        const NAMES = [
+            'sw-alpha-item',
+            'sw-bravo-item',
+            'sw-charlie-item',
+        ];
+
+        let tmpDir: string;
+
+        beforeEach(() => {
+            tmpDir = makeRoot('sfc-run-');
+            NAMES.forEach((name) => writeComponent(tmpDir, name));
+            registerAll(tmpDir, ...NAMES);
+        });
+
+        afterEach(() => {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        });
+
+        it('writes validated drafts while retaining every legacy source', async () => {
+            const result = await runMigration(tmpDir, { write: true });
+
+            expect(result.stats).toEqual({ full: 3, partial: 0, skipped: 0, 'already-migrated': 0, error: 0 });
+
+            NAMES.forEach((name) => {
+                expect(fs.existsSync(path.join(tmpDir, name, `${name}.vue`))).toBe(true);
+                expect(fs.existsSync(path.join(tmpDir, name, `${name}.html.twig`))).toBe(true);
+                expect(fs.readFileSync(path.join(tmpDir, name, 'index.js'), 'utf8')).toContain('export default {');
+            });
+        });
+
+        it('replaces only in explicit replacement mode and retains Twig', async () => {
+            const result = await runMigration(tmpDir, { write: true, replaceOriginals: true });
+
+            expect(result.stats).toEqual({ full: 3, partial: 0, skipped: 0, 'already-migrated': 0, error: 0 });
+
+            NAMES.forEach((name) => {
+                expect(fs.readFileSync(path.join(tmpDir, name, 'index.js'), 'utf8')).toContain(
+                    `export { default } from './${name}.vue';`,
+                );
+                expect(fs.existsSync(path.join(tmpDir, name, `${name}.html.twig`))).toBe(true);
+            });
+        });
+
+        it('retains Twig even when another module imports it too', async () => {
+            writeFile(
+                tmpDir,
+                'consumer.js',
+                "import template from './sw-alpha-item/sw-alpha-item.html.twig';\n\nconsole.log(template);\n",
+            );
+
+            const result = await runMigration(tmpDir, { write: true });
+
+            expect(reportOf(result, 'sw-alpha-item')).toMatchObject({ outcome: 'full', reasons: [] });
+            expect(fs.existsSync(path.join(tmpDir, 'sw-alpha-item', 'sw-alpha-item.html.twig'))).toBe(true);
+        });
+
+        it.each([
+            [
+                'draft from a previous run',
+                '<template><div /></template>\n<script setup>\n// TODO(sfc-migration): x\n</script>\n',
+                /^draft from a previous run:/,
+            ],
+            [
+                'half-migrated',
+                '<template><div /></template>\n<script setup>\nswDefinePublic({});\n</script>\n',
+                /^half-migrated:/,
+            ],
+            [
+                'foreign file',
+                '<template><p>unrelated storybook demo</p></template>\n',
+                /did not generate/,
+            ],
+        ])('reports an existing .vue as %s and rewrites nothing', async (_label, contents, expected) => {
+            const vuePath = path.join(tmpDir, 'sw-alpha-item', 'sw-alpha-item.vue');
+
+            fs.writeFileSync(vuePath, contents);
+
+            const result = await runMigration(tmpDir, { write: true });
+
+            expect(reportOf(result, 'sw-alpha-item')?.outcome).toBe('already-migrated');
+            expect(reportOf(result, 'sw-alpha-item')?.reasons[0]).toMatch(expected);
+            expect(fs.readFileSync(vuePath, 'utf8')).toBe(contents);
+        });
+
+        it('reports a template it cannot read and still migrates the rest', async () => {
+            const twig = path.join(tmpDir, 'sw-bravo-item', 'sw-bravo-item.html.twig');
+
+            fs.rmSync(twig);
+            fs.mkdirSync(twig);
+
+            const result = await runMigration(tmpDir, { write: true });
+
+            expect(result.stats).toMatchObject({ full: 2, error: 1 });
+            expect(reportOf(result, 'sw-bravo-item')?.reasons[0]).toContain('EISDIR');
+        });
+
+        // Everything outside the conversion itself — the precheck reads and stats — is guarded too,
+        // so no single unreadable component can cost the report for the run.
+        it('reports a failure from outside the conversion and still migrates the rest', async () => {
+            fs.mkdirSync(path.join(tmpDir, 'sw-bravo-item', 'sw-bravo-item.vue'));
+
+            const result = await runMigration(tmpDir, { write: true });
+
+            expect(result.stats).toMatchObject({ full: 2, error: 1 });
+            expect(reportOf(result, 'sw-bravo-item')?.reasons[0]).toMatch(/^unexpected failure:/);
         });
     });
 
-    it('sets help when -h is provided', () => {
-        expect(parseCliOptions(['-h'])).toMatchObject({
-            help: true,
-            targetDir: undefined,
-            dryRun: true,
+    describe('a real fixture tree written with --write', () => {
+        let tmpDir: string;
+        let result: MigrationResult;
+        let beforeManifest: Record<string, Buffer>;
+
+        beforeAll(async () => {
+            tmpDir = makeRoot('sfc-migration-');
+            [
+                'sw-simple-card',
+                'sw-partial-todos',
+                'sw-mixin-demo',
+                // Both would migrate on their own; they are here to prove the registration kind, not
+                // their contents, is what keeps them off the destructive path.
+                'sw-slot-in-child',
+                'sw-lifecycle-demo',
+            ].forEach((name) => fs.cpSync(path.join(FIXTURES, name), path.join(tmpDir, name), { recursive: true }));
+            // The module index registers components the way the real modules do; it carries no
+            // component config itself, so it is never discovered as a component.
+            writeModuleIndex(
+                tmpDir,
+                "Component.register('sw-simple-card', () => import('./sw-simple-card'));",
+                "Component.register('sw-partial-todos', () => import('./sw-partial-todos'));",
+                "Shopware.Component.extend('sw-slot-in-child', 'sw-simple-card', () => import('./sw-slot-in-child'));",
+                "Component.override('sw-lifecycle-demo', () => import('./sw-lifecycle-demo'));",
+                "Component.override('sw-simple-card', { template: '' });",
+            );
+
+            beforeManifest = manifest(tmpDir);
+            result = await runMigration(tmpDir, { write: true });
+        });
+
+        afterAll(() => {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        });
+
+        it('adds only validated drafts and retains every legacy byte', () => {
+            const afterManifest = manifest(tmpDir);
+
+            expect(Object.keys(afterManifest)).toEqual(
+                [
+                    ...Object.keys(beforeManifest),
+                    'sw-partial-todos/sw-partial-todos.vue',
+                    'sw-simple-card/sw-simple-card.vue',
+                ].sort(),
+            );
+
+            Object.entries(beforeManifest).forEach(
+                ([
+                    file,
+                    bytes,
+                ]) => {
+                    expect(afterManifest[file]).toEqual(bytes);
+                },
+            );
+        });
+
+        it('writes nothing for a skipped component', () => {
+            expect(fs.existsSync(path.join(tmpDir, 'sw-mixin-demo', 'sw-mixin-demo.vue'))).toBe(false);
+        });
+
+        it('classifies every reported component by its registration', () => {
+            expect(reportOf(result, 'sw-simple-card')?.registration).toBe('register');
+            expect(reportOf(result, 'sw-partial-todos')?.registration).toBe('register');
+            expect(reportOf(result, 'sw-slot-in-child')?.registration).toBe('extend');
+            expect(reportOf(result, 'sw-lifecycle-demo')?.registration).toBe('override');
+            // sw-mixin-demo is a hard skip for its own reasons; the unregistered class is what gates
+            // the destructive path.
+            expect(reportOf(result, 'sw-mixin-demo')?.registration).toBe('unregistered');
+        });
+
+        it.each([
+            [
+                'sw-slot-in-child',
+                "Component.extend child of 'sw-simple-card' (inherits the parent template)",
+            ],
+            [
+                'sw-lifecycle-demo',
+                "Component.override registration (patches another component's template)",
+            ],
+        ])('leaves %s untouched, because its template is not self-contained', (name, reason) => {
+            expect(reportOf(result, name)).toMatchObject({ outcome: 'skipped', reasons: [reason] });
+            expect(fs.existsSync(path.join(tmpDir, name, `${name}.vue`))).toBe(false);
+            expect(fs.readFileSync(path.join(tmpDir, name, 'index.js'), 'utf8')).toBe(
+                fs.readFileSync(path.join(FIXTURES, name, 'index.js'), 'utf8'),
+            );
+        });
+
+        it('carries the inline overrides through, which own no component directory', () => {
+            expect(result.inlineOverrides).toEqual([{ file: path.join(tmpDir, 'index.js'), name: 'sw-simple-card' }]);
+        });
+
+        it('is idempotent: a second run reports already-migrated and re-converts nothing', async () => {
+            const second = await runMigration(tmpDir, { write: true });
+
+            expect(second.stats).toEqual({ full: 0, partial: 0, skipped: 3, 'already-migrated': 2, error: 0 });
         });
     });
 
-    it('keeps dry-run mode by default', () => {
-        const result = parseCliOptions(['src/app/component/base/sw-button']);
+    it('requires an explicit replacement option for an unambiguous full registration', async () => {
+        const root = makeRoot('sfc-migration-replace-');
 
-        expect(result).toMatchObject({
-            targetDir: path.resolve('src/app/component/base/sw-button'),
-            dryRun: true,
-            force: false,
-            deleteOriginals: false,
+        try {
+            fs.cpSync(path.join(FIXTURES, 'sw-created-pattern'), path.join(root, 'sw-created-pattern'), {
+                recursive: true,
+            });
+            writeModuleIndex(root, "Component.register('sw-created-pattern', () => import('./sw-created-pattern'));");
+
+            const result = await runMigration(root, { write: true, replaceOriginals: true });
+            const dir = path.join(root, 'sw-created-pattern');
+
+            expect(reportOf(result, 'sw-created-pattern')).toMatchObject({ outcome: 'full', registration: 'register' });
+            expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toContain(
+                "export { default } from './sw-created-pattern.vue';",
+            );
+            expect(Object.keys(manifest(root)).sort()).toEqual([
+                'index.js',
+                'sw-created-pattern/index.js',
+                'sw-created-pattern/sw-created-pattern.html.twig',
+                'sw-created-pattern/sw-created-pattern.vue',
+            ]);
+            expect(manifest(root)['sw-created-pattern/sw-created-pattern.html.twig']).toEqual(
+                fs.readFileSync(path.join(FIXTURES, 'sw-created-pattern', 'sw-created-pattern.html.twig')),
+            );
+        } finally {
+            fs.rmSync(root, { recursive: true, force: true });
+        }
+    });
+
+    describe('component names come from the registration', () => {
+        let tmpDir: string;
+        let result: MigrationResult;
+
+        beforeAll(async () => {
+            tmpDir = makeRoot('sfc-migration-registry-');
+
+            // CMS block layout: the registering module index sits one level above the component.
+            writeFile(
+                tmpDir,
+                'blocks/demo/index.js',
+                "Shopware.Component.register('sw-cms-block-demo', () => import('./component'));\n",
+            );
+            writeComponent(tmpDir, 'blocks/demo/component', 'sw-cms-block-demo');
+
+            // Page layout: the registration spells the index module out.
+            writeFile(tmpDir, 'sw-login/index.js', "Component.register('sw-login', () => import('./page/index'));\n");
+            writeComponent(tmpDir, 'sw-login/page', 'sw-login');
+
+            // A registered name no second source confirms: the template is named differently.
+            writeFile(
+                tmpDir,
+                'blocks/mismatch/index.js',
+                "Component.register('sw-cms-block-mismatch', () => import('./component'));\n",
+            );
+            writeComponent(tmpDir, 'blocks/mismatch/component', 'sw-cms-block-other');
+
+            // The same name registered for two directories.
+            writeFile(
+                tmpDir,
+                'duplicates/index.js',
+                [
+                    "Component.register('sw-duplicate-demo', () => import('./first'));",
+                    "Component.register('sw-duplicate-demo', () => import('./second'));",
+                    '',
+                ].join('\n'),
+            );
+            writeComponent(tmpDir, 'duplicates/first', 'sw-duplicate-demo');
+            writeComponent(tmpDir, 'duplicates/second', 'sw-duplicate-demo');
+
+            // Nothing registers this directory, so its basename stays the only name source.
+            writeComponent(tmpDir, 'orphan/preview', 'sw-orphan-preview');
+
+            result = await runMigration(tmpDir, { write: true });
         });
-    });
 
-    it('disables dry-run mode when --write is provided', () => {
-        const result = parseCliOptions([
-            '--write',
-            'src/app/component/base/sw-button',
-        ]);
-
-        expect(result.dryRun).toBe(false);
-    });
-
-    it('lets --dry-run win when both --dry-run and --write are provided', () => {
-        const result = parseCliOptions([
-            '--dry-run',
-            '--write',
-            'src/app/component/base/sw-button',
-        ]);
-
-        expect(result.dryRun).toBe(true);
-    });
-
-    it('parses --force and --delete-originals flags', () => {
-        const result = parseCliOptions([
-            '--write',
-            '--force',
-            '--delete-originals',
-            'src/app/component/base/sw-button',
-        ]);
-
-        expect(result.force).toBe(true);
-        expect(result.deleteOriginals).toBe(true);
-    });
-
-    it('leaves targetDir empty when no path is provided', () => {
-        const result = parseCliOptions(['--write']);
-
-        expect(result.targetDir).toBeUndefined();
-    });
-
-    it('builds usage output from the option definitions', () => {
-        const usage = getCliUsage();
-
-        expect(usage).toContain('SFC Migration Codemod');
-        expect(usage).toContain('--dry-run');
-        expect(usage).toContain('--delete-originals');
-    });
-});
-
-describe('findTwigFile', () => {
-    let tmpDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('returns the twig file path when a .html.twig file exists', () => {
-        writeFileSync(join(tmpDir, 'my-component.html.twig'), '<div/>', 'utf-8');
-        const result = findTwigFile(tmpDir, 'my-component');
-        expect(result).toBe(join(tmpDir, 'my-component.html.twig'));
-    });
-
-    it('prefers the twig file that matches the component name', () => {
-        writeFileSync(join(tmpDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
-        writeFileSync(join(tmpDir, 'sw-foo.html.twig'), '<div>component</div>', 'utf-8');
-
-        const result = findTwigFile(tmpDir, 'sw-foo');
-
-        expect(result).toBe(join(tmpDir, 'sw-foo.html.twig'));
-    });
-
-    it('returns null when two .html.twig files are present that do not match the component name', () => {
-        writeFileSync(join(tmpDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
-        writeFileSync(join(tmpDir, 'sidebar.html.twig'), '<div>sidebar</div>', 'utf-8');
-
-        const result = findTwigFile(tmpDir, 'sw-foo');
-
-        expect(result).toBeNull();
-    });
-
-    it('returns null when no .html.twig file is present', () => {
-        writeFileSync(join(tmpDir, 'index.js'), 'export default {}', 'utf-8');
-        const result = findTwigFile(tmpDir, 'missing-component');
-        expect(result).toBeNull();
-    });
-});
-
-describe('normaliseJsContent', () => {
-    it('is a no-op when the content already uses Shopware.Component.register', () => {
-        const input = readFixture('simple-component.index.js');
-        const result = normaliseJsContent(input, 'sw-simple-card');
-        expect(result).toBe(input);
-    });
-
-    it('wraps export default {} with Shopware.Component.register()', () => {
-        const input = `export default {\n    name: 'foo',\n};`;
-        const result = normaliseJsContent(input, 'sw-foo');
-        expect(result).toContain(`Shopware.Component.register('sw-foo', {`);
-        expect(result).toContain('});');
-        expect(result).not.toContain('export default');
-    });
-
-    it('escapes component names when wrapping export default {}', () => {
-        const input = `export default {};`;
-        const result = normaliseJsContent(input, `sw-foo's-card`);
-
-        expect(result).toBe(`Shopware.Component.register('sw-foo\\'s-card', {});`);
-    });
-
-    it('handles a multiline export default with nested objects', () => {
-        const input = `export default {\n    data() {\n        return {\n            x: 1,\n        };\n    },\n};`;
-        const result = normaliseJsContent(input, 'sw-multi');
-        expect(result).toContain(`Shopware.Component.register('sw-multi', {`);
-        // inner `};` must not be replaced — only the outermost one
-        expect(result).toContain('return {\n            x: 1,\n        };');
-        expect(result.endsWith('});')).toBe(true);
-    });
-
-    it('does not match a module-level `};` that appears before the export default', () => {
-        const input = [
-            `const DEFAULT_CONFIG = {`,
-            `    timeout: 5000,`,
-            `};`,
-            ``,
-            `export default {`,
-            `    data() { return {}; },`,
-            `};`,
-        ].join('\n');
-        const result = normaliseJsContent(input, 'sw-config');
-        expect(result).toContain(`Shopware.Component.register('sw-config', {`);
-        expect(result).toContain('const DEFAULT_CONFIG = {');
-        expect(result).not.toContain('export default');
-    });
-
-    it('does not corrupt trailing module-level code that contains `};` after the export default', () => {
-        const input = [
-            `export default {`,
-            `    data() { return { x: 1 }; },`,
-            `};`,
-            ``,
-            `const TRAILING = {`,
-            `    timeout: 5000,`,
-            `};`,
-        ].join('\n');
-        const result = normaliseJsContent(input, 'sw-trailing');
-        expect(result).toContain(`Shopware.Component.register('sw-trailing', {`);
-        // trailing const must survive unchanged
-        expect(result).toContain('const TRAILING = {');
-        expect(result).toContain('    timeout: 5000,');
-        // export default keyword must be gone
-        expect(result).not.toContain('export default');
-    });
-});
-
-describe('runMigration — target validation', () => {
-    let tmpDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('throws when the target path does not exist', () => {
-        const missingPath = join(tmpDir, 'missing');
-
-        expect(() => runMigration(missingPath, { dryRun: true })).toThrow(`Target path does not exist: ${missingPath}`);
-    });
-
-    it('throws when the target path is a file', () => {
-        const filePath = join(tmpDir, 'component.js');
-        writeFileSync(filePath, 'export default {};', 'utf-8');
-
-        expect(() => runMigration(filePath, { dryRun: true })).toThrow(`Target path must be a directory: ${filePath}`);
-    });
-});
-
-describe('runMigration — dry-run (default)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeAll(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-simple-card',
-            readFixture('simple-component.index.js'),
-            readFixture('simple-component.html.twig'),
-        );
-    });
-
-    afterAll(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('does not write any .vue file to disk', () => {
-        runMigration(tmpDir, { dryRun: true });
-        expect(existsSync(join(componentDir, 'sw-simple-card.vue'))).toBe(false);
-    });
-
-    it('returns fully-migrated status in stats', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: true });
-        expect(stats.fullyMigrated).toBe(1);
-        expect(stats.partiallyMigrated).toBe(0);
-        expect(stats.notMigratable).toBe(0);
-        expect(stats.skipped).toBe(0);
-    });
-
-    it('report line contains [DRY RUN] prefix', () => {
-        const { report } = runMigration(tmpDir, { dryRun: true });
-        expect(report).toHaveLength(1);
-        expect(report[0]).toContain('[DRY RUN] Would write:');
-        expect(report[0]).toContain('sw-simple-card.vue');
-    });
-
-    it('report line contains fully-migrated label', () => {
-        const { report } = runMigration(tmpDir, { dryRun: true });
-        expect(report[0]).toContain('fully-migrated');
-    });
-});
-
-describe('runMigration — report paths', () => {
-    let originalCwd: string;
-    let tmpDir: string;
-
-    beforeEach(() => {
-        originalCwd = process.cwd();
-        tmpDir = createTempDir();
-        process.chdir(tmpDir);
-        tmpDir = process.cwd();
-    });
-
-    afterEach(() => {
-        process.chdir(originalCwd);
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('prints component report paths relative to the current working directory', () => {
-        makeComponent(
-            join(tmpDir, 'src/module/sw-dashboard/page'),
-            'sw-dashboard-index',
-            'const config = {};',
-            '<div class="sw-dashboard-index"></div>',
-        );
-        makeComponent(join(tmpDir, 'src/module'), 'sw-customer', readFixture('simple-component.index.js'));
-        makeComponent(
-            join(tmpDir, 'src/module/sw-customer/view'),
-            'sw-customer-detail-order',
-            readFixture('simple-component.index.js'),
-            readFixture('simple-component.html.twig'),
-        );
-        makeComponent(
-            join(tmpDir, 'src/module/sw-customer/view'),
-            'sw-customer-detail-addresses',
-            readFixture('mixin-component.index.js'),
-            '<div class="sw-customer-detail-addresses"></div>',
-        );
-
-        const { report } = runMigration(join(tmpDir, 'src/module'), { dryRun: true });
-
-        expect(report).toContain(
-            '✗  not-migratable      [no options object found]  ./src/module/sw-dashboard/page/sw-dashboard-index/index.js',
-        );
-        expect(report).toContain('SKIP (no twig)  ./src/module/sw-customer/index.js');
-        expect(report).toContain(
-            '✓  fully-migrated        [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-order/sw-customer-detail-order.vue',
-        );
-        expect(report).toContain(
-            '~  partially-migrated  [mixins]  [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.vue',
-        );
-        expect(report.join('\n')).not.toContain(tmpDir);
-    });
-});
-
-describe('runMigration — write mode', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-simple-card',
-            readFixture('simple-component.index.js'),
-            readFixture('simple-component.html.twig'),
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('writes the .vue file to disk', () => {
-        runMigration(tmpDir, { dryRun: false });
-        expect(existsSync(join(componentDir, 'sw-simple-card.vue'))).toBe(true);
-    });
-
-    it('written file contains <template> and <script setup> sections', () => {
-        runMigration(tmpDir, { dryRun: false });
-        const content = readFileSync(join(componentDir, 'sw-simple-card.vue'), 'utf-8');
-        expect(content).toContain('<template>');
-        expect(content).toContain('<script setup>');
-    });
-
-    it('returns correct stats', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false });
-        expect(stats.fullyMigrated).toBe(1);
-        expect(stats.partiallyMigrated).toBe(0);
-    });
-
-    it('report line does not contain [DRY RUN] prefix', () => {
-        const { report } = runMigration(tmpDir, { dryRun: false });
-        expect(report[0]).not.toContain('[DRY RUN]');
-        expect(report[0]).toContain('fully-migrated');
-        expect(report[0]).toContain('sw-simple-card.vue');
-    });
-});
-
-describe('runMigration — skip (no twig file)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-no-twig',
-            readFixture('simple-component.index.js'),
-            // no twig content → no .html.twig created
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('increments skipped count', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false });
-        expect(stats.skipped).toBe(1);
-        expect(stats.fullyMigrated).toBe(0);
-    });
-
-    it('does not write any .vue file', () => {
-        runMigration(tmpDir, { dryRun: false });
-        expect(existsSync(join(componentDir, 'sw-no-twig.vue'))).toBe(false);
-    });
-
-    it('report line contains SKIP (no twig)', () => {
-        const { report } = runMigration(tmpDir, { dryRun: false });
-        expect(report[0]).toContain('SKIP (no twig)');
-    });
-});
-
-describe('runMigration — filesystem errors', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(tmpDir, 'sw-unreadable-twig-dir', readFixture('simple-component.index.js'));
-    });
-
-    afterEach(() => {
-        jest.restoreAllMocks();
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('reports readdir errors as errors instead of no-twig skips', () => {
-        const originalReaddirSync = fs.readdirSync.bind(fs) as (...args: unknown[]) => unknown;
-
-        jest.spyOn(fs, 'readdirSync').mockImplementation(((...args: unknown[]) => {
-            const [dir] = args;
-            const isComponentDir = typeof dir === 'string' && dir === componentDir;
-            const isSelectTwigFileCall = new Error().stack?.includes('selectTwigFile') ?? false;
-
-            if (isComponentDir && isSelectTwigFileCall) {
-                throw new Error('EACCES: permission denied, scandir');
-            }
-
-            return originalReaddirSync(...args);
-        }) as typeof fs.readdirSync);
-
-        const { stats, report } = runMigration(tmpDir, { dryRun: true });
-
-        expect(stats.errors).toBe(1);
-        expect(stats.skipped).toBe(0);
-        expect(report[0]).toContain('ERROR');
-        expect(report[0]).toContain('index.js');
-        expect(report[0]).toContain('EACCES: permission denied, scandir');
-    });
-});
-
-describe('runMigration — skip (ambiguous twig files)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(tmpDir, 'sw-ambiguous-card', readFixture('simple-component.index.js'));
-        writeFileSync(join(componentDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
-        writeFileSync(join(componentDir, 'sidebar.html.twig'), '<div>sidebar</div>', 'utf-8');
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('increments skipped count', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false });
-        expect(stats.skipped).toBe(1);
-        expect(stats.fullyMigrated).toBe(0);
-    });
-
-    it('does not write any .vue file', () => {
-        runMigration(tmpDir, { dryRun: false });
-        expect(existsSync(join(componentDir, 'sw-ambiguous-card.vue'))).toBe(false);
-    });
-
-    it('does not delete originals even when deleteOriginals is true', () => {
-        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
-        expect(existsSync(join(componentDir, 'helper.html.twig'))).toBe(true);
-        expect(existsSync(join(componentDir, 'sidebar.html.twig'))).toBe(true);
-    });
-
-    it('report line contains SKIP (ambiguous twig) and the candidate files', () => {
-        const { report } = runMigration(tmpDir, { dryRun: false });
-        expect(report[0]).toContain('SKIP (ambiguous twig)');
-        expect(report[0]).toContain('helper.html.twig');
-        expect(report[0]).toContain('sidebar.html.twig');
-    });
-});
-
-describe('runMigration — not-migratable (render function)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        // render-component has no .html.twig fixture, so provide a minimal one
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-render-component',
-            readFixture('render-component.index.js'),
-            '<div class="sw-render-component"></div>',
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('increments notMigratable count', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false });
-        expect(stats.notMigratable).toBe(1);
-        expect(stats.fullyMigrated).toBe(0);
-    });
-
-    it('does not write a .vue file even in write mode', () => {
-        runMigration(tmpDir, { dryRun: false });
-        expect(existsSync(join(componentDir, 'sw-render-component.vue'))).toBe(false);
-    });
-
-    it('report line contains ✗ and not-migratable', () => {
-        const { report } = runMigration(tmpDir, { dryRun: false });
-        expect(report[0]).toContain('✗');
-        expect(report[0]).toContain('not-migratable');
-    });
-});
-
-describe('runMigration — not-migratable (unsupported twig template)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-extends-component',
-            readFixture('simple-component.index.js'),
-            "{% extends 'bar' %}{% block foo %}<div>content</div>{% endblock %}",
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('increments notMigratable count without incrementing errors', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false });
-
-        expect(stats.notMigratable).toBe(1);
-        expect(stats.errors).toBe(0);
-    });
-
-    it('does not write a .vue file even in write mode', () => {
-        runMigration(tmpDir, { dryRun: false });
-
-        expect(existsSync(join(componentDir, 'sw-extends-component.vue'))).toBe(false);
-    });
-
-    it('report line contains not-migratable with the twig blocker', () => {
-        const { report } = runMigration(tmpDir, { dryRun: false });
-
-        expect(report[0]).toContain('not-migratable');
-        expect(report[0]).toContain('twig extends');
-        expect(report[0]).not.toContain('ERROR');
-    });
-});
-
-describe('runMigration — overwrite protection', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-simple-card',
-            readFixture('simple-component.index.js'),
-            readFixture('simple-component.html.twig'),
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('skips an existing .vue file and increments skippedExisting', () => {
-        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
-        const { stats } = runMigration(tmpDir, { dryRun: false });
-        expect(stats.skippedExisting).toBe(1);
-        expect(stats.fullyMigrated).toBe(0);
-    });
-
-    it('preserves the existing .vue content when skipping', () => {
-        const originalContent = 'existing content';
-        writeFileSync(join(componentDir, 'sw-simple-card.vue'), originalContent, 'utf-8');
-        runMigration(tmpDir, { dryRun: false });
-        const content = readFileSync(join(componentDir, 'sw-simple-card.vue'), 'utf-8');
-        expect(content).toBe(originalContent);
-    });
-
-    it('report line contains SKIP (already exists) label', () => {
-        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
-        const { report } = runMigration(tmpDir, { dryRun: false });
-        expect(report[0]).toContain('SKIP (already exists)');
-        expect(report[0]).toContain('sw-simple-card.vue');
-    });
-
-    it('overwrites the existing .vue file when force is true', () => {
-        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
-        runMigration(tmpDir, { dryRun: false, force: true });
-        const content = readFileSync(join(componentDir, 'sw-simple-card.vue'), 'utf-8');
-        expect(content).not.toBe('existing content');
-        expect(content).toContain('<template>');
-    });
-
-    it('counts as fully-migrated (not skippedExisting) when force is true', () => {
-        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
-        const { stats } = runMigration(tmpDir, { dryRun: false, force: true });
-        expect(stats.fullyMigrated).toBe(1);
-        expect(stats.skippedExisting).toBe(0);
-    });
-
-    it('does not skip in dry-run mode (dry-run never writes, so existence is irrelevant)', () => {
-        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
-        const { stats } = runMigration(tmpDir, { dryRun: true });
-        expect(stats.fullyMigrated).toBe(1);
-        expect(stats.skippedExisting).toBe(0);
-    });
-});
-
-describe('runMigration — partially-migrated (mixins)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        // mixin-component has no .html.twig fixture, so provide a minimal one
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-mixin-list',
-            readFixture('mixin-component.index.js'),
-            '<div class="sw-mixin-list"></div>',
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('increments partiallyMigrated count in dry-run', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: true });
-        expect(stats.partiallyMigrated).toBe(1);
-    });
-
-    it('does not write .vue file in dry-run', () => {
-        runMigration(tmpDir, { dryRun: true });
-        expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(false);
-    });
-
-    it('writes .vue file in write mode', () => {
-        runMigration(tmpDir, { dryRun: false });
-        expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(true);
-    });
-
-    it('dry-run report line contains [DRY RUN] and blocker info', () => {
-        const { report } = runMigration(tmpDir, { dryRun: true });
-        expect(report[0]).toContain('[DRY RUN] Would write:');
-        expect(report[0]).toContain('partially-migrated');
-        expect(report[0]).toContain('mixins');
-    });
-
-    it('skips an existing .vue file without counting it as partially migrated', () => {
-        const originalContent = 'existing content';
-        writeFileSync(join(componentDir, 'sw-mixin-list.vue'), originalContent, 'utf-8');
-
-        const { report, stats } = runMigration(tmpDir, { dryRun: false });
-        const content = readFileSync(join(componentDir, 'sw-mixin-list.vue'), 'utf-8');
-
-        expect(content).toBe(originalContent);
-        expect(stats.skippedExisting).toBe(1);
-        expect(stats.partiallyMigrated).toBe(0);
-        expect(report[0]).toContain('SKIP (already exists)');
-    });
-});
-
-describe('runMigration — partially-migrated (extends)', () => {
-    let tmpDir: string;
-
-    beforeAll(() => {
-        tmpDir = createTempDir();
-        // extend-component has no .html.twig fixture, so provide a minimal one
-        makeComponent(
-            tmpDir,
-            'sw-extended-button',
-            readFixture('extend-component.index.js'),
-            '<div class="sw-extended-button"></div>',
-        );
-    });
-
-    afterAll(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('increments partiallyMigrated count', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: true });
-        expect(stats.partiallyMigrated).toBe(1);
-        expect(stats.fullyMigrated).toBe(0);
-    });
-
-    it('increments extendsComponents stat', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: true });
-        expect(stats.extendsComponents).toBe(1);
-    });
-
-    it('report line contains partially-migrated and the parent component name', () => {
-        const { report } = runMigration(tmpDir, { dryRun: true });
-        const mainLine = report.find((l) => l.includes('partially-migrated'));
-        expect(mainLine).toBeDefined();
-        expect(mainLine).toContain('extends (parent: sw-button)');
-    });
-
-    it('report includes a ⚠ warning line with the parent name and README reference', () => {
-        const { report } = runMigration(tmpDir, { dryRun: true });
-        const warnLine = report.find((l) => l.includes('⚠'));
-        expect(warnLine).toBeDefined();
-        expect(warnLine).toContain('sw-button');
-        expect(warnLine).toContain('README.md');
-    });
-
-    it('warning line appears after the partially-migrated line in the report', () => {
-        const { report } = runMigration(tmpDir, { dryRun: true });
-        const mainIdx = report.findIndex((l) => l.includes('partially-migrated'));
-        const warnIdx = report.findIndex((l) => l.includes('⚠'));
-        expect(mainIdx).toBeGreaterThanOrEqual(0);
-        expect(warnIdx).toBeGreaterThan(mainIdx);
-    });
-
-    it('does not increment extendsComponents for a mixins-only component', () => {
-        const mixinDir = createTempDir();
-        makeComponent(mixinDir, 'sw-mixin-list', readFixture('mixin-component.index.js'), '<div/>');
-        const { stats } = runMigration(mixinDir, { dryRun: true });
-        expect(stats.extendsComponents).toBe(0);
-        rmSync(mixinDir, { recursive: true, force: true });
-    });
-});
-
-describe('runMigration — delete-originals (fully-migrated)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-simple-card',
-            readFixture('simple-component.index.js'),
-            readFixture('simple-component.html.twig'),
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('replaces index.js with an SFC entry point and deletes .html.twig after writing the .vue file', () => {
-        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
-        expect(existsSync(join(componentDir, 'sw-simple-card.html.twig'))).toBe(false);
-    });
-
-    it('keeps directory imports working through the generated index.js entry point', () => {
-        writeFileSync(join(tmpDir, 'consumer.js'), "import './sw-simple-card';\n", 'utf-8');
-
-        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-
-        const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
-        expect(entrypoint).toBe(
-            "import component from './sw-simple-card.vue';\n\nShopware.Component.register('sw-simple-card', component);\n",
-        );
-    });
-
-    it('writes the .vue file before deleting originals', () => {
-        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'sw-simple-card.vue'))).toBe(true);
-    });
-
-    it('increments deletedOriginals stat', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(stats.deletedOriginals).toBe(1);
-        expect(stats.fullyMigrated).toBe(1);
-    });
-
-    it('report includes entrypoint replacement and twig deletion lines', () => {
-        const { report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(report.some((l) => l.includes('replaced entrypoint') && l.includes('index.js'))).toBe(true);
-        expect(report.some((l) => l.includes('deleted original') && l.includes('.html.twig'))).toBe(true);
-    });
-
-    it('does not delete originals in dry-run mode even when deleteOriginals is true', () => {
-        runMigration(tmpDir, { dryRun: true, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
-        expect(existsSync(join(componentDir, 'sw-simple-card.html.twig'))).toBe(true);
-    });
-
-    it('does not delete originals when deleteOriginals is false', () => {
-        runMigration(tmpDir, { dryRun: false, deleteOriginals: false });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
-        expect(existsSync(join(componentDir, 'sw-simple-card.html.twig'))).toBe(true);
-    });
-
-    it('deletedOriginals stat is 0 when deleteOriginals is false', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: false });
-        expect(stats.deletedOriginals).toBe(0);
-    });
-});
-
-describe('runMigration — delete-originals (partially-migrated)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-mixin-list',
-            readFixture('mixin-component.index.js'),
-            '<div class="sw-mixin-list"></div>',
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('keeps originals for a partially-migrated component', () => {
-        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(true);
-        expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(true);
-
-        const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
-        expect(entrypoint).toBe(readFixture('mixin-component.index.js'));
-    });
-
-    it('does not increment deletedOriginals stat for partially-migrated component', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(stats.deletedOriginals).toBe(0);
-        expect(stats.partiallyMigrated).toBe(1);
-    });
-
-    it('reports that originals were kept for manual follow-up', () => {
-        const { report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-
-        expect(report).toContain(
-            '   ⚠  kept originals because partial migration requires manual follow-up before replacing the entrypoint',
-        );
-    });
-});
-
-describe('runMigration — $el warning', () => {
-    let tmpDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        makeComponent(
-            tmpDir,
-            'sw-composables',
-            readFixture('composables-component.index.js'),
-            readFixture('composables-component.html.twig'),
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('increments elWarnings stat for a component that uses $el', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: true });
-        expect(stats.elWarnings).toBe(1);
-    });
-
-    it('does not increment elWarnings for a component without $el', () => {
-        const cleanDir = createTempDir();
-        makeComponent(
-            cleanDir,
-            'sw-simple-card',
-            readFixture('simple-component.index.js'),
-            readFixture('simple-component.html.twig'),
-        );
-        const { stats } = runMigration(cleanDir, { dryRun: true });
-        expect(stats.elWarnings).toBe(0);
-        rmSync(cleanDir, { recursive: true, force: true });
-    });
-
-    it('report includes a ⚠ warning line after the component line', () => {
-        const { report } = runMigration(tmpDir, { dryRun: true });
-        const warnLine = report.find((l) => l.includes('⚠'));
-        expect(warnLine).toBeDefined();
-        expect(warnLine).toContain('$el usage detected');
-    });
-
-    it('warning line appears after the fully-migrated line in the report', () => {
-        const { report } = runMigration(tmpDir, { dryRun: true });
-        const migratedIdx = report.findIndex((l) => l.includes('fully-migrated'));
-        const warnIdx = report.findIndex((l) => l.includes('⚠'));
-        expect(migratedIdx).toBeGreaterThanOrEqual(0);
-        expect(warnIdx).toBeGreaterThan(migratedIdx);
-    });
-});
-
-describe('runMigration — delete-originals (not-migratable)', () => {
-    let tmpDir: string;
-    let componentDir: string;
-
-    beforeEach(() => {
-        tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-render-component',
-            readFixture('render-component.index.js'),
-            '<div class="sw-render-component"></div>',
-        );
-    });
-
-    afterEach(() => {
-        rmSync(tmpDir, { recursive: true, force: true });
-    });
-
-    it('never deletes originals for a not-migratable component', () => {
-        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
-        expect(existsSync(join(componentDir, 'sw-render-component.html.twig'))).toBe(true);
-    });
-
-    it('deletedOriginals stat remains 0 for not-migratable component', () => {
-        const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(stats.deletedOriginals).toBe(0);
+        afterAll(() => {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        });
+
+        it('migrates a CMS-block-like component under its registered name', () => {
+            const dir = path.join(tmpDir, 'blocks', 'demo', 'component');
+
+            expect(reportOf(result, 'sw-cms-block-demo')).toMatchObject({ outcome: 'full', registration: 'register' });
+            expect(fs.existsSync(path.join(dir, 'sw-cms-block-demo.vue'))).toBe(true);
+            expect(fs.readFileSync(path.join(dir, 'index.js'), 'utf8')).toContain('export default {');
+        });
+
+        it('migrates a page registered through its index module', () => {
+            expect(reportOf(result, 'sw-login')).toMatchObject({ outcome: 'full', registration: 'register' });
+            expect(fs.existsSync(path.join(tmpDir, 'sw-login', 'page', 'sw-login.vue'))).toBe(true);
+        });
+
+        it('skips a registered name the template filename does not confirm', () => {
+            expect(reportOf(result, 'sw-cms-block-mismatch')).toMatchObject({
+                outcome: 'skipped',
+                reasons: ['template filename does not match the registered component name'],
+            });
+            expect(fs.existsSync(path.join(tmpDir, 'blocks', 'mismatch', 'component', 'sw-cms-block-mismatch.vue'))).toBe(
+                false,
+            );
+        });
+
+        it('skips every directory sharing a registered name', () => {
+            const duplicates = result.reports.filter((entry) => entry.name === 'sw-duplicate-demo');
+
+            expect(duplicates).toHaveLength(2);
+            duplicates.forEach((entry) =>
+                expect(entry).toMatchObject({ outcome: 'skipped', reasons: ['component name registered more than once'] }),
+            );
+        });
+
+        it('keeps skipping an unregistered directory whose basename is not kebab-case', () => {
+            expect(reportOf(result, 'preview')).toMatchObject({
+                outcome: 'skipped',
+                registration: 'unregistered',
+                reasons: ['component name is not multi-segment kebab-case'],
+            });
+        });
     });
 });

@@ -6,9 +6,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -17,12 +18,16 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,6 +37,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CategoryBreadcrumbBuilder::class)]
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
@@ -158,7 +164,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setId($categoryIds[0]);
         $categoryEntity->setName('category-name-1');
 
-        $categoryRepositoryMock = $this->getCategoryRepositoryMock([], [$categoryEntity]);
+        $categoryRepositoryMock = $this->createMock(EntityRepository::class);
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $categoryRepositoryMock,
             $this->getProductRepositoryMock([], []),
@@ -167,9 +173,10 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
         $product = $this->getProductEntity([], $categoryIds);
 
+        $context = $this->salesChannelContext->getContext();
         $categoryRepositoryMock->expects($this->once())
             ->method('search')
-            ->willReturnCallback(static function (Criteria $criteria): void {
+            ->willReturnCallback(static function (Criteria $criteria) use ($categoryEntity, $context): EntitySearchResult {
                 $levelSorting = array_values(array_filter(
                     $criteria->getSorting(),
                     static fn (FieldSorting $sorting) => $sorting->getField() === 'level'
@@ -178,25 +185,33 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 static::assertNotNull($levelSorting);
                 static::assertSame(FieldSorting::DESCENDING, $levelSorting->getDirection());
 
-                static::assertTrue($criteria->hasEqualsFilter('visible'));
+                static::assertContains('visible', $criteria->getFilterFields());
+                static::assertContains('active', $criteria->getFilterFields());
+
+                $visibleActiveAndFilter = array_values(array_filter(
+                    $criteria->getFilters(),
+                    static fn (Filter $filter) => $filter instanceof AndFilter && \array_intersect(['visible', 'active'], $filter->getFields()) === ['visible', 'active']
+                ))[0] ?? null;
+
+                static::assertInstanceOf(AndFilter::class, $visibleActiveAndFilter);
 
                 $visibleFilter = array_values(array_filter(
-                    $criteria->getFilters(),
+                    $visibleActiveAndFilter->getQueries(),
                     static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'visible'
                 ))[0] ?? null;
 
                 static::assertInstanceOf(EqualsFilter::class, $visibleFilter);
                 static::assertTrue($visibleFilter->getValue());
 
-                static::assertTrue($criteria->hasEqualsFilter('active'));
-
                 $activeFilter = array_values(array_filter(
-                    $criteria->getFilters(),
+                    $visibleActiveAndFilter->getQueries(),
                     static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'active'
                 ))[0] ?? null;
 
                 static::assertInstanceOf(EqualsFilter::class, $activeFilter);
                 static::assertTrue($activeFilter->getValue());
+
+                return new EntitySearchResult('category', 1, new CategoryCollection([$categoryEntity]), null, $criteria, $context);
             });
 
         $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -272,7 +287,24 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertCount(1, $firstBreadcrumb->seoUrls);
     }
 
-    public function testConvertCategoriesToBreadcrumbUrlsWithNoSeoUrls(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function breadcrumbWithoutSeoUrlDataProvider(): iterable
+    {
+        yield 'page category has a navigation fallback path' => [
+            CategoryDefinition::TYPE_PAGE,
+            'navigation/019192b9cd82711482744d7b456b6c03',
+        ];
+
+        yield 'folder category has no navigable path' => [
+            CategoryDefinition::TYPE_FOLDER,
+            '',
+        ];
+    }
+
+    #[DataProvider('breadcrumbWithoutSeoUrlDataProvider')]
+    public function testConvertCategoriesToBreadcrumbUrlsWithNoSeoUrls(string $categoryType, string $expectedPath): void
     {
         $categoryEntityOne = $this->createNewCategoryEntity(
             '019192b9cd82711482744d7b456b6c03',
@@ -286,11 +318,12 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 ],
             ]
         );
+        $categoryEntityOne->setType($categoryType);
 
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock(),
+            $this->getConnectionMock([]),
             $this->entityRouteResolver,
         );
 
@@ -303,7 +336,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertArrayHasKey('name', (array) $result[0]);
         static::assertArrayHasKey('path', (array) $result[0]);
         static::assertSame('Home sweet home', $firstBreadcrumb->name);
-        static::assertSame('navigation/1', $firstBreadcrumb->path);
+        static::assertSame($expectedPath, $firstBreadcrumb->path);
+        static::assertSame([], $firstBreadcrumb->seoUrls);
     }
 
     // write a test to cover getProductBreadcrumbUrls method
@@ -359,30 +393,31 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertNull($result);
     }
 
-    private function getConnectionMock(): Connection
+    /**
+     * @param array<int, array{categoryId: string, pathInfo: string, seoPathInfo: string}> $seoUrls
+     */
+    private function getConnectionMock(array $seoUrls = [
+        [
+            'categoryId' => '019192b9cd82711482744d7b456b6c01',
+            'pathInfo' => 'pathInfo/1',
+            'seoPathInfo' => 'seoPathInfo/1',
+        ],
+        [
+            'categoryId' => '019192b9cd82711482744d7b456b6c02',
+            'pathInfo' => 'pathInfo/1',
+            'seoPathInfo' => '',
+        ],
+        [
+            'categoryId' => '019192b9cd82711482744d7b456b6c03',
+            'pathInfo' => 'navigation/1',
+            'seoPathInfo' => '',
+        ],
+    ]): Connection
     {
-        $connection = $this->createMock(Connection::class);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $result = $this->createMock(Result::class);
-        $result->method('fetchAllAssociative')->willReturn(
-            [
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c01',
-                    'pathInfo' => 'pathInfo/1',
-                    'seoPathInfo' => 'seoPathInfo/1',
-                ],
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c02',
-                    'pathInfo' => 'pathInfo/1',
-                    'seoPathInfo' => '',
-                ],
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c03',
-                    'pathInfo' => 'navigation/1',
-                    'seoPathInfo' => '',
-                ],
-            ]
-        );
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
+        $result = static::createStub(Result::class);
+        $result->method('fetchAllAssociative')->willReturn($seoUrls);
 
         $queryBuilder->method('select')->willReturnSelf();
         $queryBuilder->method('executeQuery')->willReturn($result);
@@ -413,11 +448,11 @@ class CategoryBreadcrumbBuilderTest extends TestCase
      * @param array<CategoryEntity> $categoryEntityCollection1
      * @param array<CategoryEntity> $categoryEntityCollection2
      *
-     * @return EntityRepository<CategoryCollection>&MockObject
+     * @return EntityRepository<CategoryCollection>
      */
-    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository&MockObject
+    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository
     {
-        $categoryRepositoryMock = $this->createMock(EntityRepository::class);
+        $categoryRepositoryMock = static::createStub(EntityRepository::class);
         $categoryRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
             new EntitySearchResult('category', 1, new CategoryCollection($categoryEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
@@ -434,7 +469,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
      */
     private function getProductRepositoryMock(array $productEntityCollection1, array $productEntityCollection2): SalesChannelRepository
     {
-        $productRepositoryMock = $this->createMock(SalesChannelRepository::class);
+        $productRepositoryMock = static::createStub(SalesChannelRepository::class);
         $productRepositoryMock->method('search')->willReturnOnConsecutiveCalls(
             new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection1), null, new Criteria(), $this->salesChannelContext->getContext()),
             new EntitySearchResult('product', 1, new ProductCollection($productEntityCollection2), null, new Criteria(), $this->salesChannelContext->getContext()),
@@ -454,6 +489,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $product->setId(Uuid::randomHex());
         $product->setStreamIds($streamIds);
         $product->setCategoryIds($categoryIds);
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         return $product;
     }
@@ -462,6 +498,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     {
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId(Uuid::randomHex());
+        $salesChannelEntity->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         $salesChannelEntity->setNavigationCategoryId('navigationCategoryId');
         $salesChannelEntity->setServiceCategoryId('serviceCategoryId');
         $salesChannelEntity->setFooterCategoryId('footerCategoryId');

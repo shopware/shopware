@@ -1,5 +1,6 @@
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
+import useSession from 'src/app/composables/use-session';
 
 const { Component, Mixin } = Shopware;
 
@@ -198,7 +199,7 @@ export default Component.wrapComponentConfig({
                     this.progressbarValue = Math.floor((response.offset / response.total) * 100);
 
                     if (response.offset === response.total) {
-                        this.redirectToPage(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
+                        this.redirectToPage(this.buildRecoveryUrl());
                     } else {
                         this.deactivatePlugins(response.offset);
                     }
@@ -233,6 +234,13 @@ export default Component.wrapComponentConfig({
                         });
                     }
                 });
+        },
+
+        buildRecoveryUrl(): string {
+            const url = `${Shopware.Context.api.basePath}/shopware-installer.phar.php`;
+            const locale = useSession().currentLocale.value ?? '';
+
+            return locale === '' ? url : `${url}?language=${encodeURIComponent(locale)}`;
         },
 
         redirectToPage(url: string) {

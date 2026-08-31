@@ -52,6 +52,23 @@ class CheapestPriceUpdater
             $this->connection->prepare('UPDATE product SET cheapest_price_accessor = :accessor WHERE id = :id AND version_id = :version')
         );
 
+        // Pre-load the existing cheapest-price accessors of all variants for every parent in a single
+        // query, keyed by parent id, instead of issuing one SELECT per parent inside the loop below.
+        $existingAccessorsByParent = [];
+        if ($all !== []) {
+            $rows = $this->connection->fetchAllAssociative(
+                'SELECT LOWER(HEX(`parent_id`)) AS parentId, `id` AS id, `cheapest_price_accessor` AS accessor
+                 FROM product
+                 WHERE `parent_id` IN (:ids) AND `version_id` = :version',
+                ['ids' => Uuid::fromHexToBytesList(array_keys($all)), 'version' => $versionId],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+
+            foreach ($rows as $row) {
+                $existingAccessorsByParent[$row['parentId']][$row['id']] = $row['accessor'];
+            }
+        }
+
         $variantIdsUpdated = [];
 
         foreach ($all as $productId => $prices) {
@@ -69,10 +86,7 @@ class CheapestPriceUpdater
                 continue;
             }
 
-            $existingAccessors = $this->connection->fetchAllKeyValue(
-                'SELECT id, cheapest_price_accessor FROM product WHERE parent_id = :id AND version_id = :version',
-                ['id' => Uuid::fromHexToBytes($productId), 'version' => $versionId]
-            );
+            $existingAccessors = $existingAccessorsByParent[$productId] ?? [];
 
             foreach ($container->getVariantIds() as $variantId) {
                 $accessor = Json::encode($this->buildAccessor($container, $variantId));

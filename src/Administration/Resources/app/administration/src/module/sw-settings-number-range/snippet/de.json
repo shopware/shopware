@@ -16,10 +16,7 @@
       "columnUsedIn": "Typ",
       "columnAssignment": "Zuweisung",
       "buttonAddNumberRange": "Nummernkreis anlegen",
-      "contextMenuEdit": "Bearbeiten",
-      "contextMenuDelete": "Löschen",
       "messageDeleteSuccess": "Der Nummernkreis \"{name}\" wurde erfolgreich gelöscht.",
-      "buttonDelete": "Löschen",
       "global": "Global"
     },
     "detail": {

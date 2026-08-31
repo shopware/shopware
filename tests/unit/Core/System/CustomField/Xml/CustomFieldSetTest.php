@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\System\CustomField\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Xml\CustomFieldSet;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomFieldSet::class)]
 class CustomFieldSetTest extends TestCase
 {

@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(PromotionCodeTuple::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionCodeTuple::class)]
 class PromotionCodeTupleTest extends TestCase
 {
     /**

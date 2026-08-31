@@ -5,11 +5,12 @@ namespace Shopware\Core\Framework;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
- * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, static?: bool}
+ * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
  */
 #[Package('framework')]
 class Feature
@@ -22,7 +23,12 @@ class Feature
     public static bool $emitDeprecations = true;
 
     /**
-     * @var array<bool>
+     * @internal
+     */
+    public static ?Triggerer $triggerer = null;
+
+    /**
+     * @var array<string, true>
      */
     private static array $silent = [];
 
@@ -134,7 +140,7 @@ class Feature
             && !isset(self::$registeredFeatures[$feature])
             && $env !== 'prod'
         ) {
-            trigger_error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
+            (self::$triggerer ??= new Triggerer())->error('Unknown feature "' . $feature . '"', \E_USER_WARNING);
         }
 
         // Specific configurations are higher priority then FEATURE_ALL
@@ -266,11 +272,19 @@ class Feature
 
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
     {
-        if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
+        if (!self::$emitDeprecations) {
             return;
         }
 
-        if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
+        if (isset(self::$silent[$majorFlag])) {
+            return;
+        }
+
+        if (self::isActive($majorFlag)) {
+            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+        }
+
+        if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
             throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
         }
 
@@ -284,12 +298,12 @@ class Feature
         }
 
         if ($introducedIn === null) {
-            trigger_deprecation('', '', $message);
+            (self::$triggerer ??= new Triggerer())->deprecation('', '', $message);
 
             return;
         }
 
-        trigger_deprecation('shopware/core', $introducedIn, $message);
+        (self::$triggerer ??= new Triggerer())->deprecation('shopware/core', $introducedIn, $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

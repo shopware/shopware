@@ -10,7 +10,6 @@
     "list": {
       "contextMenuEdit": "Edit Integration",
       "contextMenuEditMcp": "Edit MCP Allowlist",
-      "contextMenuDelete": "Delete",
       "messageEmpty": "No integrations yet",
       "sublineEmpty": "The module for managing integrations.",
       "permissions": "Roles",
@@ -50,13 +49,11 @@
       "missingCapabilitySuggestions": "{count} resource(s) or prompt(s) from the same module are not in the allowlist:"
     },
     "detail": {
-      "deleteModalTitle": "Delete",
       "detailModalTitle": "Create integration",
       "detailModalTitleEdit": "Edit:",
       "confirmDelete" : "Are you sure you want to delete this integration?",
       "buttonApply": "Save integration",
       "buttonApplyEdit": "Save changes",
-      "buttonDelete": "Delete",
       "buttonCreateNewApiKeys": "Create new API key",
       "hintCreateNewApiKeys": "The regeneration of the API access keys requires updating all associated scripts or applications.",
       "labelFieldLabel": "Name",

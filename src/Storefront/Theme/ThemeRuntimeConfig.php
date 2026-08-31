@@ -35,7 +35,7 @@ use Symfony\Component\Clock\Clock;
  *     updatedAt?: \DateTimeInterface|null
  * }
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfig
 {
     public function __construct(

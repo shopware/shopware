@@ -9,12 +9,14 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaFolderControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -90,10 +92,10 @@ class MediaFolderControllerTest extends TestCase
         static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
         static::assertEmpty($response->getContent());
 
-        $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $this->context)->get($folderId);
+        $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $this->context)->getEntities()->get($folderId);
         static::assertNull($folder);
 
-        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->get($configId);
+        $config = $this->mediaFolderConfigRepo->search(new Criteria([$configId]), $this->context)->getEntities()->get($configId);
         static::assertNull($config);
     }
 }

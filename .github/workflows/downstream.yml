@@ -23,8 +23,21 @@ permissions:
   statuses: read
 
 jobs:
+  markdown-only-changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: check
+        uses: ./.github/actions/markdown-only-changes
+
   rufus:
     name: Rufus
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - id: sts
@@ -37,7 +50,7 @@ jobs:
         uses: shopware/github-actions/downstream@main
         if: steps.sts.outputs.token
         env:
-            NEW_LOGIC: 1
+          NEW_LOGIC: 1
         with:
           repo: shopware/rufus
           workflow: .github/workflows/downstream.yml
@@ -45,11 +58,13 @@ jobs:
           timeout: 30m
           token: ${{ steps.sts.outputs.token }}
           upstream-token: ${{ github.token }}
-          env:
-            NIGHTLY=${{ inputs.nightly }}
+          env: NIGHTLY=${{ inputs.nightly }}
 
   commercial:
     name: Commercial
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - id: sts
@@ -62,7 +77,7 @@ jobs:
         uses: shopware/github-actions/downstream@main
         if: steps.sts.outputs.token
         env:
-            NEW_LOGIC: 1
+          NEW_LOGIC: 1
         with:
           repo: shopware/SwagCommercial
           workflow: Downstream
@@ -71,11 +86,13 @@ jobs:
           poll_interval: 1m
           token: ${{ steps.sts.outputs.token }}
           upstream-token: ${{ github.token }}
-          env:
-            NIGHTLY=${{ inputs.nightly }}\nUPSTREAM_EVENT_NAME=${{ github.event_name }}
+          env: NIGHTLY=${{ inputs.nightly }}\nUPSTREAM_EVENT_NAME=${{ github.event_name }}
 
   mergeability-check:
     name: Downstream Mergeability Check
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - id: sts
@@ -211,14 +228,15 @@ jobs:
   downstream-check:
     if: always()
     needs:
-    - rufus
-    - commercial
-    - mergeability-check
+      - markdown-only-changes
+      - rufus
+      - commercial
+      - mergeability-check
 
     runs-on: Ubuntu-latest
     steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
-      with:
-        allowed-skips: rufus, commercial
-        jobs: ${{ toJSON(needs) }}
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'rufus, commercial, mergeability-check' || 'rufus, commercial' }}
+          jobs: ${{ toJSON(needs) }}

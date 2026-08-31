@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\File;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
@@ -26,6 +26,7 @@ use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -52,40 +53,22 @@ class FileSaverTest extends TestCase
 
     private FileSaver $fileSaver;
 
-    private MockObject&SqlMediaLocationBuilder $locationBuilder;
+    private Stub&SqlMediaLocationBuilder $locationBuilder;
 
-    private MockObject&AbstractMediaPathStrategy $mediaPathStrategy;
+    private Stub&AbstractMediaPathStrategy $mediaPathStrategy;
 
-    private MockObject&FilesystemOperator $filesystemPublic;
+    private FilesystemOperator&Stub $filesystemPublic;
 
     protected function setUp(): void
     {
         $this->mediaRepository = new StaticEntityRepository([], new MediaDefinition());
 
-        $this->filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $thumbnailService = $this->createMock(ThumbnailService::class);
+        $this->filesystemPublic = static::createStub(FilesystemOperator::class);
         $this->messageBus = new CollectingMessageBus();
-        $metadataLoader = $this->createMock(MetadataLoader::class);
-        $typeDetector = $this->createMock(TypeDetector::class);
-        $filesystemPrivate = $this->createMock(FilesystemOperator::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->locationBuilder = $this->createMock(SqlMediaLocationBuilder::class);
-        $this->mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
+        $this->locationBuilder = static::createStub(SqlMediaLocationBuilder::class);
+        $this->mediaPathStrategy = static::createStub(AbstractMediaPathStrategy::class);
 
-        $this->fileSaver = new FileSaver(
-            $this->mediaRepository,
-            $this->filesystemPublic,
-            $filesystemPrivate,
-            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
-            $metadataLoader,
-            $typeDetector,
-            $eventDispatcher,
-            $this->locationBuilder,
-            $this->mediaPathStrategy,
-            new MediaFileCleanupService($this->filesystemPublic, $filesystemPrivate, $thumbnailService, $this->messageBus, false),
-            new MediaFileExtensionValidator($eventDispatcher, ['png'], ['png']),
-            new NativeClock()
-        );
+        $this->fileSaver = $this->createFileSaver();
     }
 
     #[DataProvider('duplicateFileNameProvider')]
@@ -204,16 +187,16 @@ class FileSaverTest extends TestCase
     {
         $fileSaver = new FileSaver(
             $this->mediaRepository,
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             new FileContentValidationStrategy([$this->createSvgContentValidator()]),
-            $this->createMock(MetadataLoader::class),
-            $this->createMock(TypeDetector::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(SqlMediaLocationBuilder::class),
-            $this->createMock(AbstractMediaPathStrategy::class),
-            $this->createMock(MediaFileCleanupService::class),
-            $this->createMock(MediaFileExtensionValidator::class),
+            static::createStub(MetadataLoader::class),
+            static::createStub(TypeDetector::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SqlMediaLocationBuilder::class),
+            static::createStub(AbstractMediaPathStrategy::class),
+            static::createStub(MediaFileCleanupService::class),
+            static::createStub(MediaFileExtensionValidator::class),
             new NativeClock(),
             true,
         );
@@ -329,7 +312,8 @@ class FileSaverTest extends TestCase
         );
 
         $matcher = $this->exactly(2);
-        $this->filesystemPublic->expects($matcher)
+        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $filesystemPublic->expects($matcher)
             ->method('move')
             ->willReturnCallback(static function (string $from, string $to) use ($matcher): void {
                 if ($matcher->numberOfInvocations() === 1) {
@@ -369,7 +353,7 @@ class FileSaverTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
-        $this->fileSaver->renameMedia($mediaId, 'foobar', $context);
+        $this->createFileSaver($filesystemPublic)->renameMedia($mediaId, 'foobar', $context);
 
         static::assertCount(1, $this->mediaRepository->updates);
         $update = $this->mediaRepository->updates[0];
@@ -428,20 +412,20 @@ class FileSaverTest extends TestCase
 
     public function testRenameMediaWithInvalidThumbnailAndRemoteThumbnailsEnable(): void
     {
-        $locationBuilder = $this->createMock(SqlMediaLocationBuilder::class);
-        $mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
+        $locationBuilder = static::createStub(SqlMediaLocationBuilder::class);
+        $mediaPathStrategy = static::createStub(AbstractMediaPathStrategy::class);
         $fileSaver = new FileSaver(
             $this->mediaRepository,
-            $this->createMock(FilesystemOperator::class),
-            $this->createMock(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
             new FileContentValidationStrategy([$this->createSvgContentValidator()]),
-            $this->createMock(MetadataLoader::class),
-            $this->createMock(TypeDetector::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(MetadataLoader::class),
+            static::createStub(TypeDetector::class),
+            static::createStub(EventDispatcherInterface::class),
             $locationBuilder,
             $mediaPathStrategy,
-            $this->createMock(MediaFileCleanupService::class),
-            $this->createMock(MediaFileExtensionValidator::class),
+            static::createStub(MediaFileCleanupService::class),
+            static::createStub(MediaFileExtensionValidator::class),
             new NativeClock(),
             true,
         );
@@ -494,6 +478,28 @@ class FileSaverTest extends TestCase
         static::assertCount(1, $update);
         static::assertSame($mediaId, $update[0]['id']);
         static::assertSame('foobar', $update[0]['fileName']);
+    }
+
+    private function createFileSaver(?FilesystemOperator $filesystemPublic = null, bool $remoteThumbnailsEnabled = false): FileSaver
+    {
+        $filesystemPublic ??= $this->filesystemPublic;
+        $filesystemPrivate = static::createStub(FilesystemOperator::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
+
+        return new FileSaver(
+            $this->mediaRepository,
+            $filesystemPublic,
+            $filesystemPrivate,
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
+            static::createStub(MetadataLoader::class),
+            static::createStub(TypeDetector::class),
+            $eventDispatcher,
+            $this->locationBuilder,
+            $this->mediaPathStrategy,
+            new MediaFileCleanupService($filesystemPublic, $filesystemPrivate, static::createStub(ThumbnailService::class), $this->messageBus, $remoteThumbnailsEnabled),
+            new MediaFileExtensionValidator(new MediaFileExtensionListProvider($eventDispatcher, ['png'], ['png'])),
+            new NativeClock()
+        );
     }
 
     private function createSvgContentValidator(): SvgContentValidator

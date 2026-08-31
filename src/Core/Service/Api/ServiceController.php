@@ -3,23 +3,20 @@
 namespace Shopware\Core\Service\Api;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppStateService;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
+use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
-use Shopware\Core\Service\State;
+use Shopware\Core\Service\ServiceLifecycle;
+use Shopware\Core\Service\ServiceStorage;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,19 +26,16 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal only for use by the service-system
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ServiceController
 {
-    /**
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
-        private readonly EntityRepository $appRepository,
+        private readonly ServiceStorage $serviceStorage,
         private readonly MessageBusInterface $messageBus,
-        private readonly AppStateService $appStateService,
-        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly ServiceLifecycle $serviceLifecycle,
         private readonly LifecycleManager $manager,
+        private readonly RequirementsValidator $requirementsValidator,
     ) {
     }
 
@@ -60,7 +54,7 @@ class ServiceController
             throw ServiceException::notFound('integrationId', $integrationId);
         }
 
-        $this->messageBus->dispatch(new UpdateServiceMessage($app->getName()));
+        $this->messageBus->dispatch(new UpdateServiceMessage($app->name));
 
         return new JsonResponse([]);
     }
@@ -70,25 +64,14 @@ class ServiceController
         name: 'api.service.activate',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
         ],
         methods: [Request::METHOD_POST]
     )]
     public function activate(string $serviceName, Context $context): JsonResponse
     {
-        $this->extractIntegrationIdOrFail($context);
+        $this->validateActivationAccess($context);
 
-        $service = $this->loadServiceByName($serviceName, $context);
-
-        if (!$service) {
-            throw ServiceException::notFound('name', $serviceName);
-        }
-
-        if (!$service->isActive()) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-                $this->appStateService->activateApp($service->getId(), $context);
-            });
-        }
+        $this->serviceLifecycle->activate($serviceName, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -98,25 +81,14 @@ class ServiceController
         name: 'api.service.deactivate',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
         ],
         methods: [Request::METHOD_POST]
     )]
     public function deactivate(string $serviceName, Context $context): JsonResponse
     {
-        $this->extractIntegrationIdOrFail($context);
+        $this->validateActivationAccess($context);
 
-        $service = $this->loadServiceByName($serviceName, $context);
-
-        if (!$service) {
-            throw ServiceException::notFound('name', $serviceName);
-        }
-
-        if ($service->isActive()) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-                $this->appStateService->deactivateApp($service->getId(), $context);
-            });
-        }
+        $this->serviceLifecycle->deactivate($serviceName, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -132,15 +104,13 @@ class ServiceController
     public function uninstall(string $serviceName, Context $context): JsonResponse
     {
         $integrationId = $this->extractIntegrationIdOrFail($context);
-        $service = $this->loadServiceByNameAndIntegrationId($serviceName, $integrationId, $context);
+        $service = $this->serviceStorage->findByNameAndIntegrationId($serviceName, $integrationId, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-            $this->appLifecycle->uninstall($service->getId(), ['id' => $service->getId()], $context);
-        });
+        $this->serviceLifecycle->uninstall($service->name, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -202,83 +172,68 @@ class ServiceController
     )]
     public function categorizedPermissions(string $serviceName, Context $context): Response
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(
-            new EqualsFilter('selfManaged', true),
-            new EqualsFilter('name', $serviceName),
-        )->addAssociation('app.acl_role');
-
-        $service = $this->appRepository->search($criteria, $context)->first();
+        $service = $this->serviceStorage->findByName($serviceName, $context);
 
         if ($service === null) {
             throw ServiceException::notFound('name', $serviceName);
         }
 
         return new JsonResponse([
-            'permissions' => Utils::makeCategorizedPermissions(array_unique(array_merge(
-                $service->getRequestedPrivileges(),
-                $service->getAclRole()?->getPrivileges() ?? [],
-            ))),
+            'permissions' => Utils::makeCategorizedPermissions($service->getAllPrivileges()),
         ]);
     }
 
     /**
-     * @return array<array{id: string, name: string, active: bool}>
+     * @return list<array{id: string, name: string, label: string, active: bool, icon: string|null, description: string|null, updated_at: string|null, version: string, requested_privileges: list<string>, privileges: list<string>, state: string, domains: list<string>, requirements: list<string>, state_change_permitted: bool}>
      */
     private function loadAllServices(Context $context): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('selfManaged', true))
-            ->addAssociation('app.acl_role');
-
-        return array_values($this->appRepository->search($criteria, $context)->getEntities()->map(static fn (AppEntity $app) => [
-            'id' => $app->getId(),
-            'name' => $app->getName(),
-            'label' => $app->getTranslated()['label'] ?? $app->getName(),
-            'active' => $app->isActive(),
-            'icon' => $app->getIcon(),
-            'description' => $app->getTranslated()['description'] ?? null,
-            'updated_at' => ($app->getUpdatedAt() ?? $app->getCreatedAt())?->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'version' => $app->getVersion(),
-            'requested_privileges' => $app->getRequestedPrivileges(),
-            'privileges' => $app->getAclRole()?->getPrivileges(),
-            'state' => State::state($app),
-            'domains' => $app->getAllowedHosts(),
-        ]));
+        return array_map(fn (Service $service) => [
+            'id' => $service->id,
+            'name' => $service->name,
+            'label' => $service->label,
+            'active' => $service->active,
+            'icon' => $service->icon,
+            'description' => $service->description,
+            'updated_at' => $service->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'version' => $service->version,
+            'requested_privileges' => $service->requestedPrivileges,
+            'privileges' => $service->privileges,
+            'state' => $service->state->value,
+            'domains' => $service->domains,
+            'requirements' => $service->requirements,
+            'state_change_permitted' => $this->requirementsValidator->permitsStateChange($service->requirements),
+        ], $this->serviceStorage->findAll($context));
     }
 
-    private function loadService(Context $context): ?AppEntity
+    private function loadService(Context $context): ?Service
     {
         $source = $context->getSource();
         \assert($source instanceof AdminApiSource);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('integrationId', $source->getIntegrationId()));
-        $criteria->addFilter(new EqualsFilter('selfManaged', true));
-
-        return $this->appRepository->search($criteria, $context)->getEntities()->first();
+        return $this->serviceStorage->findByIntegrationId((string) $source->getIntegrationId(), $context);
     }
 
-    private function loadServiceByName(string $name, Context $context): ?AppEntity
+    private function validateActivationAccess(Context $context): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $name));
-        $criteria->addFilter(new EqualsFilter('selfManaged', true));
-        $criteria->setLimit(1);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ServiceException::updateRequiresAdminApiSource($source);
+        }
 
-        return $this->appRepository->search($criteria, $context)->getEntities()->first();
-    }
+        if ($source->getIntegrationId() !== null) {
+            if ($context->isAllowed('api_service_toggle')) {
+                return;
+            }
 
-    private function loadServiceByNameAndIntegrationId(string $name, string $integrationId, Context $context): ?AppEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $name));
-        $criteria->addFilter(new EqualsFilter('integrationId', $integrationId));
-        $criteria->addFilter(new EqualsFilter('selfManaged', true));
-        $criteria->setLimit(1);
+            throw ApiException::missingPrivileges(['api_service_toggle']); // @phpstan-ignore shopware.domainException (Same exception as route ACL listener)
+        }
 
-        return $this->appRepository->search($criteria, $context)->getEntities()->first();
+        if ($context->isAllowed('system.plugin_maintain')) {
+            return;
+        }
+
+        throw ApiException::missingPrivileges(['system.plugin_maintain']); // @phpstan-ignore shopware.domainException (Same exception as route ACL listener)
     }
 
     private function extractIntegrationIdOrFail(Context $context): string

@@ -50,7 +50,7 @@ class SalesChannelFileDiscovery
             return null;
         }
 
-        return $this->discover($fileFamily)[$fileName] ?? null;
+        return $this->discover($fileFamily)[mb_strtolower($fileName)] ?? null;
     }
 
     /**
@@ -59,14 +59,19 @@ class SalesChannelFileDiscovery
     private function discoverUncached(string $fileFamily): array
     {
         $files = [];
-        foreach ($this->catalogueRegisteredFiles($fileFamily) as $fileName => $templatePath) {
-            $files[$fileName] = new SalesChannelFile(
+        foreach ($this->catalogueRegisteredFiles($fileFamily) as $normalizedFileName => $templatePaths) {
+            $templatePath = $templatePaths[0];
+            $fileName = $this->extractFileName($fileFamily, $templatePath);
+            \assert($fileName !== null);
+
+            $files[$normalizedFileName] = new SalesChannelFile(
                 $fileFamily,
                 $fileName,
                 $templatePath,
                 $this->resolveContentType($fileName),
                 $templatePath,
                 [],
+                $templatePaths,
             );
         }
 
@@ -74,7 +79,7 @@ class SalesChannelFileDiscovery
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, list<string>>
      */
     private function catalogueRegisteredFiles(string $fileFamily): array
     {
@@ -88,10 +93,15 @@ class SalesChannelFileDiscovery
             }
 
             $fileName = mb_substr($templatePath, mb_strlen($templatePathPrefix), -mb_strlen(SalesChannelFile::TEMPLATE_SUFFIX));
-            $paths[$fileName] = $templatePath;
+            $paths[mb_strtolower($fileName)][$templatePath] = $templatePath;
         }
 
         ksort($paths);
+
+        foreach ($paths as $normalizedFileName => $templatePaths) {
+            ksort($templatePaths, \SORT_STRING);
+            $paths[$normalizedFileName] = array_values($templatePaths);
+        }
 
         return $paths;
     }

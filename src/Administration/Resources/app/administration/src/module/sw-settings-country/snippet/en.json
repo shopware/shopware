@@ -25,10 +25,7 @@
       "columnIso3": "ISO3",
       "columnActive": "Active",
       "buttonAddCountry": "Add country",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "messageDeleteSuccess": "Country \"{name}\" has been deleted.",
-      "buttonDelete": "Delete"
+      "messageDeleteSuccess": "Country \"{name}\" has been deleted."
     },
     "detail": {
       "textHeadline": "New country",
@@ -53,7 +50,6 @@
       "placeholderStateSearch": "Search states/regions...",
       "placeholderIso": "Enter alpha-2 ISO code...",
       "placeholderIso3": "Enter alpha-3 ISO code...",
-      "buttonSave": "Save",
       "buttonAddCountryState": "Add state/region",
       "editAction": "Edit",
       "columnStateNameLabel": "Name",
@@ -88,7 +84,6 @@
   "sw-country-state-detail": {
     "titleNew": "New state/region",
     "titleEdit": "Edit state/region",
-    "buttonSave": "Save",
     "labelName": "Name",
     "labelPosition": "Position",
     "labelShortCode": "ISO",

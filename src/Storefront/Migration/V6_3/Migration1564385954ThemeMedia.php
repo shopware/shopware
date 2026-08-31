@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1564385954ThemeMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int

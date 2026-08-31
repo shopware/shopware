@@ -117,7 +117,6 @@ It has one public method with a signature that could look like this:
  */
 public function generate(
     string $orderId,
-    string $orderVersionId,
     string $docType,
     array $formats,
     Context $context,
@@ -125,10 +124,17 @@ public function generate(
 ): DocumentEntity
 ```
 
+Update: we initially decided that the caller must create an order version upfront and pass it in,
+with the `DocumentGenerator` rejecting `LIVE_VERSION` outright. We reverted this, the `DocumentGenerator` always
+creates a new order version itself for every generation call. Creating the order version is centralized in the `DocumentGenerator` instead of
+duplicated across every call site, and it keeps the API simple - callers never have to think about
+order versions at all.
+
+The one exception is the preview method: since nothing is persisted, there is no snapshot to keep
+consistent for a result that is discarded right after it is returned, so preview renders directly
+against `LIVE_VERSION` instead of creating a new order version.
+
 The caller is responsible for:
-- Creating an order version to persist the order data in its current state.
-  - Then passing in an existing order version for which documents should be generated.
-  - Passing in `LIVE_VERSION` is not allowed and will throw an exception.
 - Passing in a single document type.
   - It is passed as a string by design for extensibility, but you can use the `DocumentType` enum values.
   - The actual implementation will probably use a union type of `DocumentType|string` in all relevant places.

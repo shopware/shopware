@@ -9,12 +9,17 @@ parametersSchema:
     shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
 
 rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\FuturePropertyCompatibilityRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\FuturePropertyVisibilityChangeRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\NoBCPlanningDeprecationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalMethodRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\AddColumnRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\NoAfterStatementRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\NoDropStatementInUpdateRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\NonStandardFkGuardRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AbstractClassUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PackageAnnotationRule
@@ -29,8 +34,18 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NameConstantEntityDefinition
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\StorefrontRouteUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRuntimeExceptionInDomainExceptionsRule
+    # core-only until the commercial repositories have swept their own reflection backlogs
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoReflectionOnNonPublicMethodsRule
 
 services:
+    # gated to the core test namespaces inside the rule; downstream repositories carry their own package taxonomy
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\TestPackageMatchRule
+        arguments:
+            projectDir: %currentWorkingDirectory%
+        tags:
+            - phpstan.rules.rule
+
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\TaggedServiceContractRule
         arguments:

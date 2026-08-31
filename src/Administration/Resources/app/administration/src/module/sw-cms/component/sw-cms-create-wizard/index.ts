@@ -52,6 +52,25 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsPageTypeService.getVisibleTypes();
         },
 
+        pageTypeSelectionStyle() {
+            const count = this.visiblePageTypes.length;
+
+            if (count === 0) {
+                return {};
+            }
+
+            const maxPerRow = 5;
+            const tileWidth = 140;
+            const gap = 20;
+
+            const rows = Math.ceil(count / maxPerRow);
+            const columns = Math.ceil(count / rows);
+
+            return {
+                'max-width': `${columns * (tileWidth + gap) - gap}px`,
+            };
+        },
+
         currentPageType() {
             return this.cmsPageTypeService.getType(this.page.type);
         },

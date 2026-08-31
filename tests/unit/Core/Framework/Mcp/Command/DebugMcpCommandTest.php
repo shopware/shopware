@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Command;
 use Mcp\Capability\Registry;
 use Mcp\Schema\Prompt;
 use Mcp\Schema\PromptArgument;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server;
@@ -29,30 +29,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(McpCapabilityCatalog::class)]
 class DebugMcpCommandTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        $_SERVER['MCP_SERVER'] = '1';
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SERVER['MCP_SERVER']);
-    }
-
-    public function testExecuteReturnsErrorWhenFeatureFlagIsOff(): void
-    {
-        $_SERVER['MCP_SERVER'] = false;
-        try {
-            $tester = new CommandTester($this->makeCommand(new Registry()));
-            $tester->execute([]);
-
-            static::assertSame(1, $tester->getStatusCode());
-            static::assertStringContainsString('MCP bundle is not installed', $tester->getDisplay());
-        } finally {
-            $_SERVER['MCP_SERVER'] = '1';
-        }
-    }
-
     /**
      * @return iterable<string, array{?Builder, ?Registry}>
      */
@@ -107,7 +83,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', null, self::inputSchema(), 'Does things', null),
             'Acme\\MyTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -126,7 +101,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('McpHelloWorld-hello', null, self::inputSchema(), 'Says hello', null),
             static function (): string { return 'hello'; },
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -143,7 +117,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('array-tool', null, self::inputSchema(), null, null),
             ['Acme\\MyTool', 'handle'],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -158,7 +131,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', 'My Human-Readable Tool', self::inputSchema(), 'Does things', null),
             'Acme\\MyTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -173,7 +145,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', null, self::inputSchema(), 'Does things', null),
             'Acme\\MyTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -188,7 +159,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('my-tool', null, self::inputSchema(), 'Does things for you', null),
             'Acme\\MyTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -216,7 +186,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('search-tool', null, $schema, 'Searches entities', null),
             'Acme\\SearchTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -237,7 +206,6 @@ class DebugMcpCommandTest extends TestCase
             new Prompt('my-prompt', null, 'Explains everything', []),
             'Acme\\MyPrompt',
             [],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -255,9 +223,8 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://test', 'my-resource', 'A helpful resource', null, null, null),
+            new ResourceDefinition('shopware://test', 'my-resource', null, 'A helpful resource', null, null, null),
             'Acme\\MyResource',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -275,9 +242,8 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://entities', 'entities', 'All entity types', null, null, null),
+            new ResourceDefinition('shopware://entities', 'entities', null, 'All entity types', null, null, null),
             'Acme\\EntitiesResource',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -290,9 +256,9 @@ class DebugMcpCommandTest extends TestCase
     public function testToolsFilterShowsOnlyTools(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
-        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool');
+        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', []);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource');
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--tools' => true]);
@@ -308,9 +274,9 @@ class DebugMcpCommandTest extends TestCase
     public function testPromptsFilterShowsOnlyPrompts(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
-        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool');
+        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', []);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource');
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--prompts' => true]);
@@ -326,9 +292,9 @@ class DebugMcpCommandTest extends TestCase
     public function testResourcesFilterShowsOnlyResources(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool', true);
-        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', [], true);
-        $registry->registerResource(new Resource('shopware://test', 'my-resource', 'Resource desc', null, null, null), 'Acme\\MyResource', true);
+        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool');
+        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', []);
+        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource');
 
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['--resources' => true]);
@@ -344,8 +310,8 @@ class DebugMcpCommandTest extends TestCase
     public function testIntegrationOptionWithNullAllowlistShowsAllToolsAndNote(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA', true);
-        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB', true);
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
+        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB');
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: null));
@@ -363,8 +329,8 @@ class DebugMcpCommandTest extends TestCase
     public function testIntegrationOptionFiltersToAllowedTools(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA', true);
-        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB', true);
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
+        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB');
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
@@ -382,7 +348,7 @@ class DebugMcpCommandTest extends TestCase
     public function testIntegrationOptionWithEmptyAllowlistShowsNoTools(): void
     {
         $registry = new Registry();
-        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA', true);
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
 
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
@@ -402,7 +368,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('shopware-entity-delete', null, self::inputSchema(), 'Delete entities', null),
             'Acme\\DeleteTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog(
@@ -428,7 +393,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
             'Acme\\SearchTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog(
@@ -454,7 +418,6 @@ class DebugMcpCommandTest extends TestCase
             ]),
             'Acme\\MyPrompt',
             [],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -472,9 +435,8 @@ class DebugMcpCommandTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerResource(
-            new Resource('shopware://json', 'json-resource', 'JSON resource', 'application/json', null, null),
+            new ResourceDefinition('shopware://json', 'json-resource', null, 'JSON resource', 'application/json', null, null),
             'Acme\\JsonResource',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -489,7 +451,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
             'Acme\\SearchTool',
-            true,
         );
 
         $catalog = new McpCapabilityCatalog(
@@ -508,14 +469,35 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('<entity>:read', $output);
     }
 
+    public function testListShowsGroupColumn(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
+            'Acme\\SearchTool',
+        );
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            toolGroups: ['shopware-entity-search' => 'catalogue'],
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry, catalog: $catalog));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Group', $output);
+        static::assertStringContainsString('catalogue', $output);
+    }
+
     public function testResourceTemplatesAreRendered(): void
     {
         $registry = new Registry();
         $registry->registerResourceTemplate(
-            new ResourceTemplate('shopware://{entity}/{id}', 'entity-by-id', 'Get entity by ID'),
+            new ResourceTemplate('shopware://{entity}/{id}', 'entity-by-id', null, 'Get entity by ID'),
             'Acme\\EntityByIdTemplate',
             [],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -550,7 +532,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('schema-tool', null, $schema, 'Does things', null),
             'Acme\\SchemaTool',
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -568,7 +549,6 @@ class DebugMcpCommandTest extends TestCase
         $registry->registerTool(
             new Tool('object-tool', null, self::inputSchema(), null, null),
             [new \stdClass(), 'handle'],
-            true,
         );
 
         $tester = new CommandTester($this->makeCommand($registry));
@@ -577,10 +557,169 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('stdClass::handle', $tester->getDisplay());
     }
 
+    public function testStoreApiCapabilitiesAreListedAlongsideAdminOnesByDefault(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Admin API (/api/_mcp)', $output);
+        static::assertStringContainsString('admin-tool', $output);
+        static::assertStringContainsString('Store API (/store-api/_mcp)', $output);
+        static::assertStringContainsString('store-tool', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testSectionHeadingsNameTheirScope(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Admin API: Tools (1)', $output);
+        static::assertStringContainsString('Admin API: Prompts (0)', $output);
+        static::assertStringContainsString('Store API: Tools (1)', $output);
+        static::assertStringContainsString('Store API: Prompts (0)', $output);
+        static::assertStringContainsString('Store API: Resources (0)', $output);
+        static::assertStringContainsString('Store API: Resource Templates (0)', $output);
+    }
+
+    public function testAllowlistCountsStayOnTheAdminSectionHeading(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
+        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
+
+        $tester = new CommandTester($this->makeCommand($registry, $allowlistProvider, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--integration' => 'SWIA-restricted']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Admin API: Tools (1/2 allowed)', $output);
+        static::assertStringContainsString('Store API: Tools (1)', $output);
+    }
+
+    public function testScopeOptionLimitsOutputToStoreApi(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--scope' => 'store-api']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('store-tool', $output);
+        static::assertStringNotContainsString('admin-tool', $output);
+        static::assertStringNotContainsString('Admin API (/api/_mcp)', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testScopeOptionLimitsOutputToAdminApi(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--scope' => 'api']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('admin-tool', $output);
+        static::assertStringNotContainsString('store-tool', $output);
+        static::assertStringNotContainsString('Store API (/store-api/_mcp)', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testUnknownScopeIsRejected(): void
+    {
+        $tester = new CommandTester($this->makeCommand(new Registry()));
+        $tester->execute(['--scope' => 'nonsense']);
+
+        static::assertSame(2, $tester->getStatusCode());
+        static::assertStringContainsString('Invalid scope "nonsense"', $tester->getDisplay());
+    }
+
+    public function testStoreApiScopeIsSkippedWhenOnlyAdminIsAvailable(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $tester = new CommandTester($this->makeCommand($registry));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('admin-tool', $output);
+        static::assertStringNotContainsString('Store API (/store-api/_mcp)', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testDetailViewResolvesStoreApiCapabilityAndShowsItsScope(): void
+    {
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(
+            new Tool('store-tool', null, self::inputSchema(), 'Runs in the sales channel context', null),
+            'Acme\\StoreTool',
+        );
+
+        $tester = new CommandTester($this->makeCommand(new Registry(), storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['name' => 'store-tool']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Runs in the sales channel context', $output);
+        static::assertStringContainsString('Store API (/store-api/_mcp)', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testIntegrationAllowlistDoesNotFilterStoreApiTools(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+        $registry->registerTool(new Tool('admin-hidden', null, self::inputSchema(), null, null), 'Acme\\AdminHidden');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: ['admin-tool'], resources: null, prompts: null));
+
+        $tester = new CommandTester($this->makeCommand($registry, $allowlistProvider, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--integration' => 'SWIA-restricted']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('only apply to the admin scope', $output);
+        static::assertStringContainsString('admin-tool', $output);
+        static::assertStringNotContainsString('admin-hidden', $output);
+        static::assertStringContainsString('store-tool', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
     private function makeCommand(
         Registry $registry,
         ?McpAllowlistProvider $allowlistProvider = null,
         ?McpCapabilityCatalog $catalog = null,
+        ?Registry $storeApiRegistry = null,
     ): DebugMcpCommand {
         $builder = Server::builder()->setRegistry($registry);
 
@@ -591,7 +730,19 @@ class DebugMcpCommandTest extends TestCase
 
         $catalog ??= new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
 
-        return new DebugMcpCommand($builder, $registry, $allowlistProvider, $catalog);
+        if ($storeApiRegistry === null) {
+            return new DebugMcpCommand($builder, $registry, $allowlistProvider, $catalog);
+        }
+
+        return new DebugMcpCommand(
+            $builder,
+            $registry,
+            $allowlistProvider,
+            $catalog,
+            Server::builder()->setRegistry($storeApiRegistry),
+            $storeApiRegistry,
+            new McpCapabilityCatalog($storeApiRegistry, $this->stubPrivilegeProvider()),
+        );
     }
 
     private function stubPrivilegeProvider(): AppMcpPrivilegeProvider

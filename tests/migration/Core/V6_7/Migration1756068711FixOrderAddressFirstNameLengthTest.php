@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1756068711FixOrderAddressFirstNameLength;
@@ -13,6 +14,7 @@ use Shopware\Core\Migration\V6_7\Migration1756068711FixOrderAddressFirstNameLeng
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(Migration1756068711FixOrderAddressFirstNameLength::class)]
 class Migration1756068711FixOrderAddressFirstNameLengthTest extends TestCase
 {

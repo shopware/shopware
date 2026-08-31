@@ -197,6 +197,7 @@ export default class ShopwareExtensionService {
         const modules = await this.appModulesService.fetchAppModules();
 
         Shopware.Store.get('shopwareApps').apps = modules;
+        Shopware.Store.get('shopwareApps').appsLoaded = true;
     }
 
     private async getLinkToTheme(extension: Extension) {

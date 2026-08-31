@@ -86,8 +86,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(OrderConverter::class)]
 #[Package('checkout')]
+#[CoversClass(OrderConverter::class)]
 class OrderConverterTest extends TestCase
 {
     private EventDispatcher $eventDispatcher;
@@ -602,20 +602,18 @@ class OrderConverterTest extends TestCase
                 $salesChannelContext->getContext()
             ));
 
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([new RuleCollection()]);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([new CustomerCollection([$this->getCustomer(false)])]);
 
         $converter = new OrderConverter(
             $customerRepository,
-            $this->createMock(SalesChannelContextFactory::class),
+            static::createStub(SalesChannelContextFactory::class),
             $dispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $addressRepository,
-            $this->createMock(InitialStateIdLoader::class),
-            $this->createMock(LineItemDownloadLoader::class),
+            static::createStub(InitialStateIdLoader::class),
+            static::createStub(LineItemDownloadLoader::class),
             $ruleRepository,
         );
 
@@ -852,17 +850,17 @@ class OrderConverterTest extends TestCase
     {
         // Setup classes for OrderConverter
         // Static
-        $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
-        $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
+        $initialStateIdLoader = static::createStub(InitialStateIdLoader::class);
+        $numberRangeValueGenerator = static::createStub(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator->method('getValue')->willReturn('10000');
 
         // Dynamic
-        $salesChannelContextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         if ($salesChannelContextFactoryCreateCallable !== null) {
             $salesChannelContextFactory->method('create')->willReturnCallback($salesChannelContextFactoryCreateCallable);
         }
 
-        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository = static::createStub(EntityRepository::class);
         if ($customerRepositoryResultArray !== null) {
             $customerRepository->method('search')->willReturn(
                 new EntitySearchResult(
@@ -876,11 +874,11 @@ class OrderConverterTest extends TestCase
             );
         }
 
-        $orderAddressRepository = $this->createMock(EntityRepository::class);
+        $orderAddressRepository = static::createStub(EntityRepository::class);
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
                 new EntitySearchResult(
-                    'orderAddress',
+                    'order_address',
                     1,
                     new EntityCollection($orderAddressRepositoryResultArray),
                     null,
@@ -893,14 +891,13 @@ class OrderConverterTest extends TestCase
         $rule = new RuleEntity();
         $rule->setId('rule-id');
         $rule->setAreas([RuleAreas::PAYMENT_AREA]);
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([new RuleCollection([$rule])]);
 
         $productDownload = new ProductDownloadEntity();
         $productDownload->setId(Uuid::randomHex());
         $productDownload->setMediaId(Uuid::randomHex());
         $productDownload->setPosition(0);
-        $productDownloadRepository = $this->createMock(EntityRepository::class);
+        $productDownloadRepository = static::createStub(EntityRepository::class);
         $productDownloadRepository->method('search')->willReturnCallback(static function (Criteria $criteria) use ($productDownload): EntitySearchResult {
             $filters = $criteria->getFilters();
             if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {
@@ -909,7 +906,7 @@ class OrderConverterTest extends TestCase
             }
 
             return new EntitySearchResult(
-                'productDownload',
+                'product_download',
                 1,
                 new EntityCollection([$productDownload]),
                 null,

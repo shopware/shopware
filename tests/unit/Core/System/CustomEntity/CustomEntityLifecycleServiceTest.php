@@ -9,11 +9,13 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
@@ -32,6 +34,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEntityLifecycleService::class)]
 class CustomEntityLifecycleServiceTest extends TestCase
 {
@@ -46,7 +49,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
 
-        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator();
+        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $customEntityLifecycleService = new CustomEntityLifecycleService(
             $customEntityPersister,
@@ -56,8 +59,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new StaticSourceResolver([
                 'SwagExampleTest' => new StaticFilesystem(),
             ]),
-            $this->createMock(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(EntityRepository::class),
             new NativeClock(),
         );
 
@@ -77,7 +80,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
 
-        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator();
+        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $customEntityLifecycleService = new CustomEntityLifecycleService(
             $customEntityPersister,
@@ -87,8 +90,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new StaticSourceResolver([
                 'SwagExampleTest' => new Filesystem(__DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntities/app'),
             ]),
-            $this->createMock(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(EntityRepository::class),
             new NativeClock(),
         );
 
@@ -112,7 +115,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $adminUiXmlSchemaValidator = new AdminUiXmlSchemaValidator();
         $customEntityEnrichmentService = new CustomEntityEnrichmentService($adminUiXmlSchemaValidator);
 
-        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator();
+        $customEntityXmlSchemaValidator = new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator());
 
         $customEntityLifecycleService = new CustomEntityLifecycleService(
             $customEntityPersister,
@@ -122,8 +125,8 @@ class CustomEntityLifecycleServiceTest extends TestCase
             new StaticSourceResolver([
                 'SwagExampleTest' => new Filesystem(__DIR__ . '/_fixtures/CustomEntityLifecycleServiceTest/withCustomEntitiesAndAdminUis/app'),
             ]),
-            $this->createMock(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(Connection::class),
+            static::createStub(EntityRepository::class),
             new NativeClock(),
         );
 
@@ -273,7 +276,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->never())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater
         );
@@ -296,7 +299,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->never())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater,
             $clock
@@ -325,7 +328,7 @@ class CustomEntityLifecycleServiceTest extends TestCase
         $customEntitySchemaUpdater->expects($this->once())->method('update');
 
         $customEntityLifecycleService = $this->createLifecycleService(
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             $customEntityRepository,
             $customEntitySchemaUpdater
         );
@@ -381,10 +384,10 @@ class CustomEntityLifecycleServiceTest extends TestCase
         ?ClockInterface $clock = null
     ): CustomEntityLifecycleService {
         return new CustomEntityLifecycleService(
-            $this->createMock(CustomEntityPersister::class),
-            $customEntitySchemaUpdater ?? $this->createMock(CustomEntitySchemaUpdater::class),
+            static::createStub(CustomEntityPersister::class),
+            $customEntitySchemaUpdater ?? static::createStub(CustomEntitySchemaUpdater::class),
             new CustomEntityEnrichmentService(new AdminUiXmlSchemaValidator()),
-            new CustomEntityXmlSchemaValidator(),
+            new CustomEntityXmlSchemaValidator(new CustomEntityNameValidator()),
             new StaticSourceResolver([]),
             $connection,
             $customEntityRepository ?? $this->createCustomEntityRepository(),
@@ -397,7 +400,6 @@ class CustomEntityLifecycleServiceTest extends TestCase
      */
     private function createCustomEntityRepository(CustomEntityEntity ...$customEntities): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<CustomEntityCollection> $repository */
         $repository = new StaticEntityRepository([new CustomEntityCollection($customEntities)]);
 
         return $repository;

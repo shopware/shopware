@@ -10,7 +10,6 @@ use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
-use Shopware\Tests\Integration\Storefront\Framework\HealthCheck\SalesChannelsReadinessCheckTest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,9 +18,9 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @codeCoverageIgnore
  *
- * @see SalesChannelsReadinessCheckTest
+ * @see \Shopware\Tests\Integration\Storefront\Framework\HealthCheck\SalesChannelsReadinessCheckTest
  */
-#[Package('framework')]
+#[Package('discovery')]
 class SalesChannelsReadinessCheck extends BaseCheck
 {
     private const INDEX_PAGE = 'frontend.home.page';

@@ -7,14 +7,13 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\MaintenanceException;
-use Shopware\Tests\Integration\Core\Maintenance\System\Service\SetupDatabaseAdapterTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see SetupDatabaseAdapterTest
+ * @see \Shopware\Tests\Integration\Core\Maintenance\System\Service\SetupDatabaseAdapterTest
  */
 #[Package('framework')]
 class SetupDatabaseAdapter

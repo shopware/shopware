@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -28,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -43,6 +43,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -270,7 +271,6 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame('test', $actualProduct->getLabel());
     }
 
-    #[Group('slow')]
     public function testLineItemPropertiesPurchasePrice(): void
     {
         $this->createProduct();
@@ -319,15 +319,15 @@ class ProductCartProcessorTest extends TestCase
      * @param array{type: string, id: string|null, name: string|null, position: int} $testedFeature
      * @param array<string, mixed> $productData
      * @param array{type: string, value: mixed, label: string} $expectedFeature
+     * @param array<string, mixed> $customFieldData
      */
     #[DataProvider('productFeatureProvider')]
-    #[Group('slow')]
-    public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
+    public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature, array $customFieldData = []): void
     {
         $this->createLanguage(self::TEST_LANGUAGE_ID);
 
         if ($testedFeature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
-            $this->createCustomField([]);
+            $this->createCustomField($customFieldData);
         }
 
         $this->createProduct([...[
@@ -356,7 +356,8 @@ class ProductCartProcessorTest extends TestCase
      * @return iterable<string, array{
      *     array{type: string, id: string|null, name: string|null, position: int},
      *     array<string, mixed>,
-     *     array{type: string, value: mixed, label: string}
+     *     array{type: string, value: mixed, label: string},
+     *     3?: array<string, mixed>
      * }>
      */
     public static function productFeatureProvider(): iterable
@@ -516,6 +517,78 @@ class ProductCartProcessorTest extends TestCase
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
             ],
         ];
+        yield 'custom field of the system language is exposed as a custom field feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+                'id' => null,
+                'name' => 'lorem_ipsum',
+                'position' => 3,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'customFields' => [
+                            'lorem_ipsum' => 'Default',
+                        ],
+                    ],
+                    self::TEST_LANGUAGE_ID => [
+                        'name' => 'Dolor sit amet.',
+                    ],
+                ],
+            ],
+            [
+                'label' => 'lorem_ipsum',
+                'value' => [
+                    'id' => self::CUSTOM_FIELD_ID,
+                    'type' => CustomFieldTypes::TEXT,
+                    'content' => 'Default',
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+        ];
+        yield 'select custom field exposes the labels of the selected options' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+                'id' => null,
+                'name' => 'lorem_ipsum',
+                'position' => 3,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'customFields' => [
+                            'lorem_ipsum' => ['oak', 'pine'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'lorem_ipsum',
+                'value' => [
+                    'id' => self::CUSTOM_FIELD_ID,
+                    'type' => CustomFieldTypes::SELECT,
+                    'content' => ['oak', 'pine'],
+                    'display' => ['Oak', 'Pine'],
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+            [
+                'type' => CustomFieldTypes::SELECT,
+                'config' => [
+                    'componentName' => 'sw-multi-select',
+                    'customFieldType' => CustomFieldTypes::SELECT,
+                    'label' => [
+                        'en-GB' => 'lorem_ipsum',
+                    ],
+                    'options' => [
+                        ['value' => 'oak', 'label' => ['en-GB' => 'Oak']],
+                        ['value' => 'pine', 'label' => ['en-GB' => 'Pine']],
+                    ],
+                ],
+            ],
+        ];
         yield 'translated pack unit is exposed as a reference price feature' => [
             [
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
@@ -594,7 +667,6 @@ class ProductCartProcessorTest extends TestCase
     }
 
     #[DataProvider('productDeliverabilityProvider')]
-    #[Group('slow')]
     public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, ?string $errorKey): void
     {
         $additionalData = [

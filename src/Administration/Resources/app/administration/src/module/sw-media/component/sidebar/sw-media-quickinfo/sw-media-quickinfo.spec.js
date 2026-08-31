@@ -32,6 +32,8 @@ const arPlacementOptions = [
     { id: 'horizontal', value: 'horizontal', label: 'Horizontal' },
     { id: 'vertical', value: 'vertical', label: 'Vertical' },
 ];
+const originalCreateObjectURL = window.URL.createObjectURL;
+const originalRevokeObjectURL = window.URL.revokeObjectURL;
 
 async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
     return mount(await wrapTestComponent('sw-media-quickinfo', { sync: true }), {
@@ -79,6 +81,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 },
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
+                    prepareDownloadMedia: jest.fn(),
                     ...mediaServiceFunctions,
                 },
                 customFieldDataProviderService: {
@@ -204,6 +207,17 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     afterEach(() => {
+        jest.restoreAllMocks();
+        Object.defineProperty(window.URL, 'createObjectURL', {
+            configurable: true,
+            writable: true,
+            value: originalCreateObjectURL,
+        });
+        Object.defineProperty(window.URL, 'revokeObjectURL', {
+            configurable: true,
+            writable: true,
+            value: originalRevokeObjectURL,
+        });
         Shopware.Store.get('actionButtons').buttons = [];
     });
 
@@ -487,6 +501,170 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         await wrapper.vm.onSave();
 
         expect(eventBusEmitSpy).toHaveBeenCalledWith('sw-media-library-item-updated', wrapper.vm.item.id);
+    });
+
+    it('should download private media with media service', async () => {
+        const mediaBlob = new Blob(['media-content']);
+        const prepareDownloadMediaMock = jest.fn().mockResolvedValue({ type: 'blob' });
+        const downloadMediaMock = jest.fn().mockResolvedValue(mediaBlob);
+        const objectUrl = 'blob:media-download';
+        const createObjectURLMock = jest.fn().mockReturnValue(objectUrl);
+        const revokeObjectURLMock = jest.fn();
+        const originalCreateElement = document.createElement.bind(document);
+        const link = document.createElement('a');
+        const createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tagName, options) => {
+            if (tagName === 'a') {
+                return link;
+            }
+
+            return originalCreateElement(tagName, options);
+        });
+        const dispatchEventSpy = jest.spyOn(link, 'dispatchEvent').mockImplementation(() => true);
+        const removeSpy = jest.spyOn(link, 'remove').mockImplementation(() => {});
+
+        Object.defineProperty(window.URL, 'createObjectURL', {
+            configurable: true,
+            writable: true,
+            value: createObjectURLMock,
+        });
+        Object.defineProperty(window.URL, 'revokeObjectURL', {
+            configurable: true,
+            writable: true,
+            value: revokeObjectURLMock,
+        });
+
+        const wrapper = await createWrapper(
+            {
+                hasFile: true,
+                private: true,
+                fileName: 'private-media',
+                fileExtension: 'jpg',
+            },
+            {
+                prepareDownloadMedia: prepareDownloadMediaMock,
+                downloadMedia: downloadMediaMock,
+            },
+        );
+
+        const downloadAction = wrapper.find('.quickaction--download');
+
+        expect(downloadAction.find('sw-external-link-stub').exists()).toBe(false);
+
+        await downloadAction.trigger('click');
+        await flushPromises();
+
+        expect(prepareDownloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
+        expect(downloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
+        expect(createObjectURLMock).toHaveBeenCalledWith(mediaBlob);
+        expect(createElementSpy).toHaveBeenCalledWith('a');
+        expect(link.href).toBe(objectUrl);
+        expect(link.download).toBe('private-media.jpg');
+        expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(MouseEvent));
+        expect(removeSpy).toHaveBeenCalled();
+        expect(revokeObjectURLMock).toHaveBeenCalledWith(objectUrl);
+    });
+
+    it('should directly trigger external media downloads', async () => {
+        const prepareDownloadMediaMock = jest.fn().mockResolvedValue({
+            type: 'external',
+            url: 'https://cdn.example.test/download',
+        });
+        const downloadMediaMock = jest.fn();
+        const createObjectURLMock = jest.fn();
+        const originalCreateElement = document.createElement.bind(document);
+        const link = document.createElement('a');
+        const createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tagName, options) => {
+            if (tagName === 'a') {
+                return link;
+            }
+
+            return originalCreateElement(tagName, options);
+        });
+        const dispatchEventSpy = jest.spyOn(link, 'dispatchEvent').mockImplementation(() => true);
+        const removeSpy = jest.spyOn(link, 'remove').mockImplementation(() => {});
+
+        Object.defineProperty(window.URL, 'createObjectURL', {
+            configurable: true,
+            writable: true,
+            value: createObjectURLMock,
+        });
+
+        const wrapper = await createWrapper(
+            {
+                hasFile: true,
+                private: true,
+                fileName: 'private-media',
+                fileExtension: 'jpg',
+            },
+            {
+                prepareDownloadMedia: prepareDownloadMediaMock,
+                downloadMedia: downloadMediaMock,
+            },
+        );
+
+        const downloadAction = wrapper.find('.quickaction--download');
+        await downloadAction.trigger('click');
+        await flushPromises();
+
+        expect(prepareDownloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
+        expect(downloadMediaMock).not.toHaveBeenCalled();
+        expect(createObjectURLMock).not.toHaveBeenCalled();
+        expect(createElementSpy).toHaveBeenCalledWith('a');
+        expect(link.href).toBe('https://cdn.example.test/download');
+        expect(link.download).toBe('');
+        expect(link.target).toBe('_blank');
+        expect(link.rel).toBe('noopener noreferrer');
+        expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(MouseEvent));
+        expect(removeSpy).toHaveBeenCalled();
+    });
+
+    it('should show notification when private media download fails', async () => {
+        const prepareDownloadMediaMock = jest.fn().mockResolvedValue({ type: 'blob' });
+        const downloadMediaMock = jest.fn().mockRejectedValue(new Error('Download failed'));
+        const wrapper = await createWrapper(
+            {
+                hasFile: true,
+                private: true,
+            },
+            {
+                prepareDownloadMedia: prepareDownloadMediaMock,
+                downloadMedia: downloadMediaMock,
+            },
+        );
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        await wrapper.vm.downloadMedia();
+        await flushPromises();
+
+        expect(prepareDownloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
+        expect(downloadMediaMock).toHaveBeenCalledWith(wrapper.vm.item.id);
+        expect(createNotificationErrorSpy).toHaveBeenCalledWith({
+            message: 'global.sw-media-media-item.notification.downloadError.message',
+        });
+    });
+
+    it('should return the file name without an extension when none exists', async () => {
+        const wrapper = await createWrapper({
+            fileName: 'private-media',
+            fileExtension: null,
+        });
+
+        expect(wrapper.vm.fileName).toBe('private-media');
+    });
+
+    it('should render external download link for public media', async () => {
+        const wrapper = await createWrapper({
+            hasFile: true,
+            private: false,
+            url: 'https://example.com/media/public.jpg',
+        });
+        await flushPromises();
+
+        const externalDownloadLink = wrapper.find('.quickaction--download sw-external-link-stub');
+
+        expect(externalDownloadLink.exists()).toBe(true);
+        expect(externalDownloadLink.attributes('href')).toBe('https://example.com/media/public.jpg');
+        expect(externalDownloadLink.attributes('download')).toBeDefined();
     });
 
     it('should show action button from apps', async () => {

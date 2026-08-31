@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\System\CustomField\Xml\CustomFieldTypes;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\IntField;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IntField::class)]
 class IntFieldTest extends TestCase
 {

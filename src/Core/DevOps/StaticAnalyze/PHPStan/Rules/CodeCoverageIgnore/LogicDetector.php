@@ -36,11 +36,24 @@ final class LogicDetector
         Expr\Ternary::class,
     ];
 
+    /**
+     * Plain conditionals are exempt inside \Throwable subclasses: an exception factory
+     * that branches between returning one exception or another (feature-flag forks,
+     * message variants) selects an error shape, it does not implement business logic.
+     * Loops, try/catch, switch/match and multi-statement throws still count.
+     */
+    private const THROWABLE_EXEMPT_NODE_TYPES = [
+        Stmt\If_::class,
+        Stmt\ElseIf_::class,
+        Stmt\Else_::class,
+        Expr\Ternary::class,
+    ];
+
     private function __construct()
     {
     }
 
-    public static function methodContainsLogic(ClassMethod $method): bool
+    public static function methodContainsLogic(ClassMethod $method, bool $inThrowableContext = false): bool
     {
         if ($method->stmts === null) {
             return false;
@@ -53,8 +66,13 @@ final class LogicDetector
             return false;
         }
 
-        $hit = (new NodeFinder())->findFirst($method->stmts, static function (Node $node): bool {
-            foreach (self::LOGIC_NODE_TYPES as $type) {
+        $logicNodeTypes = self::LOGIC_NODE_TYPES;
+        if ($inThrowableContext) {
+            $logicNodeTypes = array_values(array_diff($logicNodeTypes, self::THROWABLE_EXEMPT_NODE_TYPES));
+        }
+
+        $hit = (new NodeFinder())->findFirst($method->stmts, static function (Node $node) use ($logicNodeTypes): bool {
+            foreach ($logicNodeTypes as $type) {
                 if ($node instanceof $type) {
                     return true;
                 }

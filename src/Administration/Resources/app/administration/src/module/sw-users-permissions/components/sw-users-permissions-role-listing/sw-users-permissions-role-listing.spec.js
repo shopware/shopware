@@ -42,7 +42,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'solid-content',
+                                icon: 'regular-content',
                             },
                         },
                     },

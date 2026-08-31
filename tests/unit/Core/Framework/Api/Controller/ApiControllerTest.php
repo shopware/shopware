@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -36,6 +37,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ApiController::class)]
 class ApiControllerTest extends TestCase
 {
@@ -46,7 +48,7 @@ class ApiControllerTest extends TestCase
         $this->createApiController('child_entity.secondChildOneToOneParent.id', $parentId)->list(
             new Request(),
             Context::createDefaultContext(),
-            $this->createMock(ResponseFactoryInterface::class),
+            static::createStub(ResponseFactoryInterface::class),
             'parent-entity',
             \sprintf('/%s/second-child-one-to-one', $parentId)
         );
@@ -59,7 +61,7 @@ class ApiControllerTest extends TestCase
         $this->createApiController('child_entity.secondManyToOneParents.id', $parentId)->list(
             new Request(),
             Context::createDefaultContext(),
-            $this->createMock(ResponseFactoryInterface::class),
+            static::createStub(ResponseFactoryInterface::class),
             'parent-entity',
             \sprintf('/%s/second-child-many-to-one', $parentId)
         );
@@ -72,7 +74,7 @@ class ApiControllerTest extends TestCase
         $this->createApiController('child_entity.secondParentOneToManyId', $parentId)->list(
             new Request(),
             Context::createDefaultContext(),
-            $this->createMock(ResponseFactoryInterface::class),
+            static::createStub(ResponseFactoryInterface::class),
             'parent-entity',
             \sprintf('/%s/second-one-to-many-children', $parentId)
         );
@@ -86,8 +88,8 @@ class ApiControllerTest extends TestCase
 
         $definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
             [ParentDefinition::class, ChildDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
             $container
         );
 
@@ -97,15 +99,15 @@ class ApiControllerTest extends TestCase
             $aggregationParser,
             new ApiCriteriaValidator($definitionInstanceRegistry),
             new CriteriaArrayConverter($aggregationParser),
-            $this->createMock(CompressedCriteriaDecoder::class)
+            static::createStub(CompressedCriteriaDecoder::class)
         );
 
         return new ApiController(
             $definitionInstanceRegistry,
-            $this->createMock(DecoderInterface::class),
+            static::createStub(DecoderInterface::class),
             $requestCriteriaBuilder,
-            $this->createMock(EntityProtectionValidator::class),
-            $this->createMock(AclCriteriaValidator::class)
+            static::createStub(EntityProtectionValidator::class),
+            static::createStub(AclCriteriaValidator::class)
         );
     }
 
@@ -124,9 +126,9 @@ class ApiControllerTest extends TestCase
             'child_entity.repository' => $childDefinition,
         ]);
 
-        $container->set('parent_entity.repository', $this->createMock(EntityRepository::class));
+        $container->set('parent_entity.repository', static::createStub(EntityRepository::class));
 
-        $childRepo = $this->createMock(EntityRepository::class);
+        $childRepo = static::createStub(EntityRepository::class);
         $childRepo->method('search')->willReturnCallback(static function (Criteria $criteria, Context $context) use ($expectedFilterField, $parentId): EntitySearchResult {
             $filter = $criteria->getFilters()[0];
             static::assertInstanceOf(EqualsFilter::class, $filter);

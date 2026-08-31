@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
-#[Package('framework')]
+#[Package('discovery')]
 abstract class AbstractConfigLoader
 {
     abstract public function getDecorated(): AbstractConfigLoader;

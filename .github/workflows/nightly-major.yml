@@ -1,0 +1,40 @@
+name: Nightly Major
+
+# Runs the "major" test suites (for the upcoming major version) on their own schedule while they are
+# still being stabilised, so the regular Nightly can stay green: the major acceptance tests and the
+# integration-major PHPUnit suite (tracked under https://github.com/shopware/shopware/issues/17978).
+# Once these are green, fold them back into nightly.yml (drop `major: exclude` from its acceptance
+# call and restore the integration-major job) and delete this workflow.
+# Note: only the acceptance arm posts to Slack; integration-major status is its own check.
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # every day at 03:00, offset from the regular nightly (01:00)
+  workflow_dispatch:
+
+jobs:
+  acceptance:
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      profile: nightly
+      currents: false
+      major: only
+  integration-major:
+    uses: ./.github/workflows/integration-major.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+
+  # turn a red major matrix into a domain-grouped tracking issue, aggregated from
+  # the junit-phpunit-* artifacts integration-major.yml uploads on scheduled failures
+  report-phpunit-failures:
+    if: always() && github.event_name == 'schedule' && needs.integration-major.result == 'failure'
+    needs:
+      - integration-major
+    uses: ./.github/workflows/report-phpunit-failures.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      report-title: "[nightly] Nightly Major test failures"

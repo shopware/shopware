@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\MockClock;
 
@@ -67,7 +68,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->guzzleMock = new MockHandler();
         $stack = HandlerStack::create($this->guzzleMock);
-        $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $this->webhookClient = new WebhookClient(new Client(['handler' => $stack]), $this->clock);
 
         $this->appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
@@ -86,6 +87,9 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg2 = $this->createMessage();
 
         $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
+        $this->appPayloadServiceHelper->expects($this->never())->method('createWebhookRequest');
+        $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
+        $this->logger->expects($this->never())->method('error');
 
         $service->process([$msg1, $msg2]);
 
@@ -100,7 +104,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('recordInflightOutboxEntry')
             ->with(static::isInstanceOf(OutboxInsert::class))
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
@@ -111,6 +115,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
             ->willReturn(true);
         $this->webhookHealthService->expects($this->once())->method('resetErrorCount');
+        $this->logger->expects($this->never())->method('error');
 
         $service = $this->createService(isAdminWorkerEnabled: true);
         $service->process([$msg]);
@@ -118,12 +123,13 @@ class WebhookDeliveryServiceTest extends TestCase
         static::assertCount(0, $this->bus->getMessages());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testProcessDeliversBatchSynchronouslyWhenForceSynchronous(): void
     {
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('recordInflightOutboxEntry')
             ->with(static::isInstanceOf(OutboxInsert::class))
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
@@ -133,8 +139,11 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
             ->willReturn(true);
+        $this->webhookHealthService->expects($this->once())->method('resetErrorCount');
+        $this->logger->expects($this->never())->method('error');
 
         $service = $this->createService(isAdminWorkerEnabled: false);
+
         $service->process([$msg], forceSynchronous: true);
 
         static::assertCount(0, $this->bus->getMessages());
@@ -145,7 +154,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
             ->with($msg->getWebhookEventId())
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
@@ -159,6 +168,7 @@ class WebhookDeliveryServiceTest extends TestCase
             ->with($msg->getWebhookId());
         $this->webhookOutboxStore->expects($this->never())->method('markPendingRetry');
         $this->webhookOutboxStore->expects($this->never())->method('markFailed');
+        $this->logger->expects($this->never())->method('error');
 
         $service = $this->createService();
         $service->deliver($msg);
@@ -169,7 +179,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'));
 
@@ -180,6 +190,7 @@ class WebhookDeliveryServiceTest extends TestCase
             ->with(static::isInstanceOf(OutboxEntry::class), static::isInstanceOf(\DateTimeImmutable::class), static::anything())
             ->willReturn(true);
         $this->webhookOutboxStore->expects($this->never())->method('markFailed');
+        $this->logger->expects($this->never())->method('error');
 
         $service = $this->createService();
         $service->deliver($msg);
@@ -190,7 +201,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 6, deliveryStatus: 'running'));
 
@@ -203,6 +214,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->webhookHealthService->expects($this->once())->method('recordFailure')
             ->with($msg->getWebhookId(), WebhookFailureStrategy::DisableOnThreshold);
         $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
+        $this->logger->expects($this->never())->method('error');
 
         $service = $this->createService();
         $service->deliver($msg);
@@ -222,6 +234,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->webhookOutboxStore->expects($this->never())->method('markFailed');
         $this->webhookHealthService->expects($this->never())->method('recordFailure');
         $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
+        $this->logger->expects($this->once())->method('warning');
 
         $service = $this->createService();
         $service->deliver($msg);
@@ -232,7 +245,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
 
@@ -243,6 +256,7 @@ class WebhookDeliveryServiceTest extends TestCase
             ->willReturn(false);
         $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
         $this->webhookHealthService->expects($this->never())->method('recordFailure');
+        $this->logger->expects($this->once())->method('warning');
         $this->webhookOutboxStore->expects($this->never())->method('markPendingRetry');
         $this->webhookOutboxStore->expects($this->never())->method('markFailed');
 
@@ -258,7 +272,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $webhookRequest1 = $this->createWebhookRequest();
         $webhookRequest2 = $this->createWebhookRequest();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')
+        $this->appPayloadServiceHelper->expects($this->exactly(2))->method('createWebhookRequest')
             ->willReturnOnConsecutiveCalls($webhookRequest1, $webhookRequest2);
 
         $this->webhookOutboxStore->method('recordInflightOutboxEntry')
@@ -297,7 +311,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg1 = $this->createMessage();
         $msg2 = $this->createMessage();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')
+        $this->appPayloadServiceHelper->expects($this->exactly(2))->method('createWebhookRequest')
             ->willReturnOnConsecutiveCalls($this->createWebhookRequest(), $this->createWebhookRequest());
 
         $this->webhookOutboxStore->method('recordInflightOutboxEntry')
@@ -351,6 +365,10 @@ class WebhookDeliveryServiceTest extends TestCase
         ]);
         $entry = new OutboxEntry(webhookEventId: $msg->getWebhookEventId(), sequence: 42, executionCount: 3, deliveryStatus: 'running');
 
+        $this->webhookOutboxStore->expects($this->never())->method('markRunning');
+        $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
+        $this->logger->expects($this->never())->method('error');
+
         $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')
             ->with(
                 static::anything(),
@@ -384,7 +402,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
-        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: $executionCount, deliveryStatus: 'running'));
 
@@ -393,6 +411,8 @@ class WebhookDeliveryServiceTest extends TestCase
         $dbalException = new DBALInvalidArgumentException('Connection lost');
         $this->webhookOutboxStore->expects($this->once())->method($throwingMethod)
             ->willThrowException($dbalException);
+
+        $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
 
         $this->logger->expects($this->once())->method('error')
             ->with(
@@ -426,7 +446,7 @@ class WebhookDeliveryServiceTest extends TestCase
         bool $isAdminWorkerEnabled = false,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ): WebhookDeliveryService {
-        $signingSecretResolver = $this->createMock(WebhookSigningSecretResolver::class);
+        $signingSecretResolver = static::createStub(WebhookSigningSecretResolver::class);
         $signingSecretResolver->method('resolve')->willReturnCallback(
             static fn (WebhookEventMessage $message): ?string => $message->getSecret()
         );

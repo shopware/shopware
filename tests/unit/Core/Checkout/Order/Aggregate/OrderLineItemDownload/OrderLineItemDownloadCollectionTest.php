@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(OrderLineItemDownloadCollection::class)]
 #[Package('checkout')]
+#[CoversClass(OrderLineItemDownloadCollection::class)]
 class OrderLineItemDownloadCollectionTest extends TestCase
 {
     public function testFilterByOrderLineItemId(): void

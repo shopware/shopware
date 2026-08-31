@@ -71,7 +71,7 @@ class ProductCategoryDenormalizerTest extends TestCase
     {
         $productRepository = static::getContainer()->get('product.repository');
         /** @var ProductEntity $testableProduct */
-        $testableProduct = $productRepository->search(new Criteria([$productId]), $this->context)->first();
+        $testableProduct = $productRepository->search(new Criteria([$productId]), $this->context)->getEntities()->first();
 
         $productCategoryIds = $testableProduct->getCategoryTree();
         if ($productCategoryIds !== null) {

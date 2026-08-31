@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Session;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\PlatformRequest;
@@ -13,6 +14,7 @@ use Symfony\Component\Uid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpSessionIdValidator::class)]
 class McpSessionIdValidatorTest extends TestCase
 {

@@ -21,6 +21,17 @@ elasticsearch:
         # match across multiple fields or language variants without diluting the primary match.
         # Valid range: 0.0 (pure dis_max) to 1.0 (effectively a bool/should sum).
         dismax_tie_breaker: 0.2
+        # Per-match-type boosts for product search (the dis_max clauses). Higher = that
+        # match type contributes more to the score. Keep exact/phrase above the weaker
+        # prefix/fuzzy/partial, otherwise a whole-word or whole-phrase match can be
+        # outranked by a looser one. Field-level ranking (product_search_config) still
+        # multiplies on top of these.
+        boost:
+            exact: 2.0
+            phrase: 4.0
+            fuzzy: 0.4
+            prefix: 0.4
+            partial: 0.4
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"

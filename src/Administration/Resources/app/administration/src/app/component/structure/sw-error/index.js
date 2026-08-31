@@ -82,7 +82,7 @@ export default {
     methods: {
         createdComponent() {
             if (!this.linkText) {
-                this.linkText = this.$t('sw-error.general.textLink');
+                this.linkText = this.$t('global.default.back');
             }
         },
     },

@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MessageQueueException::class)]
 class MessageQueueExceptionTest extends TestCase
 {

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppDownloadException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppDownloadException::class)]
 class AppDownloadExceptionTest extends TestCase
 {

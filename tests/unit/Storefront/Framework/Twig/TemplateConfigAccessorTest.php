@@ -5,16 +5,21 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
+use Symfony\Component\Asset\UrlPackage;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TemplateConfigAccessor::class)]
 class TemplateConfigAccessorTest extends TestCase
 {
@@ -36,6 +41,7 @@ class TemplateConfigAccessorTest extends TestCase
             $this->themeConfigAccessor,
             $this->themeScripts,
             'prod',
+            [],
         );
     }
 
@@ -56,42 +62,197 @@ class TemplateConfigAccessorTest extends TestCase
         static::assertSame([], $this->accessor->scripts());
     }
 
-    public function testImportMapReturnsStoredMapDirectly(): void
+    public function testImportMapResolvesStoredRelativeMapWithAssetPackage(): void
     {
-        // URLs are pre-computed at compile time; accessor just passes the map through.
         $storedMap = [
             'imports' => [
-                'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
-                'Sw:Button' => 'https://cdn.example.com/theme/abc123/js/components/Sw/Button.js',
-                'Sw:Product:BuyButton' => 'https://cdn.example.com/theme/abc123/js/components/Sw/Product/BuyButton.js',
+                'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
+                'Sw:Button' => '/bundles/storefront/storefront/components/Sw/Button.js',
+                'Sw:Product:BuyButton' => '/bundles/storefront/storefront/components/Sw/Product/BuyButton.js',
             ],
         ];
 
         $this->themeScripts->method('getImportMap')->willReturn($storedMap);
-        $result = $this->accessor->importMap();
+        $accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'prod',
+            ['asset' => new UrlPackage('https://cdn.example.com', new EmptyVersionStrategy())],
+        );
+        $result = $accessor->importMap();
 
-        static::assertSame($storedMap, $result);
+        static::assertSame(
+            [
+                'imports' => [
+                    'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+                    'Sw:Button' => 'https://cdn.example.com/bundles/storefront/storefront/components/Sw/Button.js',
+                    'Sw:Product:BuyButton' => 'https://cdn.example.com/bundles/storefront/storefront/components/Sw/Product/BuyButton.js',
+                ],
+            ],
+            $result
+        );
     }
 
     public function testImportMapReturnsScopesFromStoredMap(): void
     {
         $storedMap = [
             'imports' => [
-                'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
-                'debounce' => 'https://cdn.example.com/theme/abc123/js/components/MyPlugin/vendor/debounce-abc123.js',
-                'MyPlugin:Wusel:Counter' => 'https://cdn.example.com/theme/abc123/js/components/MyPlugin/Wusel/Counter.js',
+                'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
+                'debounce' => '/bundles/myplugin/storefront/components/vendor/debounce-abc123.js',
+                'MyPlugin:Wusel:Counter' => '/bundles/myplugin/storefront/components/MyPlugin/Wusel/Counter.js',
             ],
             'scopes' => [
-                'https://cdn.example.com/theme/abc123/js/components/MyPlugin/' => [
-                    'debounce' => 'https://cdn.example.com/theme/abc123/js/components/MyPlugin/vendor/debounce-abc123.js',
+                '/bundles/myplugin/storefront/components/MyPlugin/' => [
+                    'debounce' => '/bundles/myplugin/storefront/components/vendor/debounce-abc123.js',
                 ],
             ],
         ];
 
         $this->themeScripts->method('getImportMap')->willReturn($storedMap);
-        $result = $this->accessor->importMap();
+        $accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'prod',
+            ['asset' => new UrlPackage('https://cdn.example.com', new EmptyVersionStrategy())],
+        );
+        $result = $accessor->importMap();
 
-        static::assertSame($storedMap, $result);
+        static::assertSame(
+            [
+                'imports' => [
+                    'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+                    'debounce' => 'https://cdn.example.com/bundles/myplugin/storefront/components/vendor/debounce-abc123.js',
+                    'MyPlugin:Wusel:Counter' => 'https://cdn.example.com/bundles/myplugin/storefront/components/MyPlugin/Wusel/Counter.js',
+                ],
+                'scopes' => [
+                    'https://cdn.example.com/bundles/myplugin/storefront/components/MyPlugin/' => [
+                        'debounce' => 'https://cdn.example.com/bundles/myplugin/storefront/components/vendor/debounce-abc123.js',
+                    ],
+                ],
+            ],
+            $result
+        );
+    }
+
+    public function testImportMapResolvesStylesWithAssetPackage(): void
+    {
+        $storedMap = [
+            'imports' => [
+                'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
+            ],
+            'styles' => [
+                '/bundles/storefront/storefront/components/Sw/Button.css',
+                '/bundles/myplugin/storefront/components/MyPlugin/Wusel/Counter.css',
+            ],
+        ];
+
+        $this->themeScripts->method('getImportMap')->willReturn($storedMap);
+        $accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'prod',
+            ['asset' => new UrlPackage('https://cdn.example.com', new EmptyVersionStrategy())],
+        );
+
+        static::assertSame(
+            [
+                'imports' => [
+                    'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+                ],
+                'styles' => [
+                    'https://cdn.example.com/bundles/storefront/storefront/components/Sw/Button.css',
+                    'https://cdn.example.com/bundles/myplugin/storefront/components/MyPlugin/Wusel/Counter.css',
+                ],
+            ],
+            $accessor->importMap()
+        );
+    }
+
+    public function testImportMapKeepsNonImportKeysUnchangedWithoutAssetPackage(): void
+    {
+        $storedMap = [
+            'imports' => [
+                'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
+            ],
+            'scopes' => [
+                '/bundles/myplugin/storefront/components/MyPlugin/' => [
+                    'debounce' => '/bundles/myplugin/storefront/components/vendor/debounce-abc123.js',
+                ],
+            ],
+            'styles' => [
+                '/bundles/storefront/storefront/components/Sw/Button.css',
+            ],
+            'scripts' => [
+                '/bundles/storefront/storefront/components/Sw/Button.js',
+            ],
+            'themeId' => 'theme-123',
+        ];
+
+        $this->themeScripts->method('getImportMap')->willReturn($storedMap);
+        $accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'prod',
+            [],
+        );
+
+        static::assertSame($storedMap, $accessor->importMap());
+    }
+
+    public function testImportMapStripsQueryFromResolvedScopeKeys(): void
+    {
+        $storedMap = [
+            'imports' => [
+                '@ext/vendor' => '/bundles/myextension/storefront/components/vendor/ext-HASH.js',
+            ],
+            'scopes' => [
+                '/bundles/myextension/storefront/components/MyExtension/' => [
+                    '@ext/vendor' => '/bundles/myextension/storefront/components/vendor/ext-HASH.js',
+                ],
+            ],
+        ];
+
+        $this->themeScripts->method('getImportMap')->willReturn($storedMap);
+        $accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'prod',
+            [
+                'asset' => new UrlPackage(
+                    'https://cdn.example.com/base',
+                    new class implements VersionStrategyInterface {
+                        public function getVersion(string $path): string
+                        {
+                            return 'v123';
+                        }
+
+                        public function applyVersion(string $path): string
+                        {
+                            return $path . '?v123';
+                        }
+                    }
+                ),
+            ],
+        );
+
+        static::assertSame(
+            [
+                'imports' => [
+                    '@ext/vendor' => 'https://cdn.example.com/base/bundles/myextension/storefront/components/vendor/ext-HASH.js?v123',
+                ],
+                'scopes' => [
+                    'https://cdn.example.com/base/bundles/myextension/storefront/components/MyExtension/' => [
+                        '@ext/vendor' => 'https://cdn.example.com/base/bundles/myextension/storefront/components/vendor/ext-HASH.js?v123',
+                    ],
+                ],
+            ],
+            $accessor->importMap()
+        );
     }
 
     public function testImportMapReturnsEmptyImportsWhenNoBuildPresent(): void
@@ -182,6 +343,7 @@ class TemplateConfigAccessorTest extends TestCase
             $this->themeConfigAccessor,
             $this->themeScripts,
             'dev',
+            [],
         );
 
         static::assertSame($storedMap, $accessor->importMap());

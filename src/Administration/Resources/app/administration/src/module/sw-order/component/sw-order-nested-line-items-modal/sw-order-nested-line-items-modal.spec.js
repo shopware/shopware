@@ -106,13 +106,10 @@ async function createWrapper() {
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
-                    'sw-loader': await wrapTestComponent('sw-loader', {
-                        sync: true,
-                    }),
+                    'mt-loader': true,
                     'sw-order-nested-line-items-row': await wrapTestComponent('sw-order-nested-line-items-row', {
                         sync: true,
                     }),
-                    'sw-loader-deprecated': true,
                     'router-link': true,
                 },
                 mocks: {

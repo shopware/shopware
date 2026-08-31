@@ -4,12 +4,14 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class SlugifyExtensionTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;

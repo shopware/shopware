@@ -21,10 +21,11 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
 
-Shopware.Utils.debounce = function debounce(fn) {
-    return function execFunction(...args) {
-        fn.apply(this, args);
-    };
+Shopware.Utils.debounce = function debounce() {
+    const execFunction = jest.fn();
+    execFunction.cancel = jest.fn();
+
+    return execFunction;
 };
 
 const createWrapper = async (componentOverride = {}) => {
@@ -90,6 +91,107 @@ describe('app/plugins/shortcut.plugin', () => {
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
+    });
+
+    it('String sequence: should call the shortcut method', async () => {
+        const openFiltersMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                OF: 'openFilters',
+            },
+            methods: {
+                openFilters() {
+                    openFiltersMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'o',
+        });
+
+        expect(openFiltersMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(openFiltersMock).toHaveBeenCalledTimes(1);
+
+        wrapper.unmount();
+    });
+
+    it('String sequence: should prefer the shortcut sequence over a single key shortcut', async () => {
+        const openFiltersMock = jest.fn();
+        const focusSearchMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                f: 'focusSearch',
+                OF: 'openFilters',
+            },
+            methods: {
+                focusSearch() {
+                    focusSearchMock();
+                },
+
+                openFilters() {
+                    openFiltersMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'o',
+        });
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(openFiltersMock).toHaveBeenCalledTimes(1);
+        expect(focusSearchMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(focusSearchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call the shortcut method when keyboard shortcuts are disabled', async () => {
+        const onSaveMock = jest.fn();
+        const originalService = Shopware.Service.bind(Shopware);
+        const serviceSpy = jest.spyOn(Shopware, 'Service').mockImplementation((serviceName) => {
+            if (serviceName === 'shortcutService') {
+                return {
+                    isShortcutsDisabled: () => true,
+                };
+            }
+
+            return originalService(serviceName);
+        });
+
+        try {
+            wrapper = await createWrapper({
+                shortcuts: {
+                    s: 'onSave',
+                },
+                methods: {
+                    onSave() {
+                        onSaveMock();
+                    },
+                },
+            });
+
+            await wrapper.trigger('keydown', {
+                key: 's',
+            });
+
+            expect(onSaveMock).not.toHaveBeenCalled();
+        } finally {
+            serviceSpy.mockRestore();
+        }
     });
 
     it('Object with boolean active: should call the onSave method', async () => {

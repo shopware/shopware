@@ -6,6 +6,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
 use Shopware\Core\Framework\Adapter\Composer\ComposerPackage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 use SwagTestComposerLoaded\SwagTestComposerLoaded;
@@ -13,6 +14,7 @@ use SwagTestComposerLoaded\SwagTestComposerLoaded;
 /**
  * @internal
  */
+#[Package('framework')]
 class ComposerPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

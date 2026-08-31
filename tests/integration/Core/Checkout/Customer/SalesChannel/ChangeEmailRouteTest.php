@@ -183,7 +183,7 @@ class ChangeEmailRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $this->customerId));
-        $ids = $customerRecoveryRepository->search($criteria, Context::createDefaultContext());
+        $ids = $customerRecoveryRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         static::assertSame('test@fooware.de', $response['email']);
         static::assertCount(0, $ids);

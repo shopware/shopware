@@ -69,7 +69,7 @@ class IdTokenParserTest extends TestCase
 
     private function createValidator(bool $isValid): ValidatorInterface
     {
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn($isValid);
 
         return $validator;
@@ -89,10 +89,10 @@ class IdTokenParserTest extends TestCase
         $jwks = \file_get_contents(__DIR__ . '/_fixtures/jwks.json');
         static::assertIsString($jwks);
 
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getContent')->willReturn($jwks);
 
-        $client = $this->createMock(HttpClientInterface::class);
+        $client = static::createStub(HttpClientInterface::class);
         $client->method('request')->willReturn($response);
 
         return $client;
@@ -113,12 +113,12 @@ class IdTokenParserTest extends TestCase
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
             ],
-            $this->createMock(RouterInterface::class)
+            static::createStub(RouterInterface::class)
         );
     }
 
     private function createClock(): ClockInterface
     {
-        return $this->createMock(ClockInterface::class);
+        return static::createStub(ClockInterface::class);
     }
 }

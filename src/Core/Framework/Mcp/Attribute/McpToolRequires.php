@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Attribute;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Declares the ACL privileges a tool requires to function.
  * Apply repeatedly to list multiple requirements.
@@ -26,8 +26,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore
  */
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
 final class McpToolRequires
 {
     /**

@@ -12,13 +12,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 #[CoversClass(SeoUrlRouteConfig::class)]
 class SeoUrlRouteConfigTest extends TestCase
 {
     public function testConfig(): void
     {
-        $entityDefinition = $this->createMock(EntityDefinition::class);
+        $entityDefinition = static::createStub(EntityDefinition::class);
         $config = new SeoUrlRouteConfig(
             $entityDefinition,
             'foo_bar',
@@ -39,7 +39,7 @@ class SeoUrlRouteConfigTest extends TestCase
 
     public function testGetPrimaryKeyParameterThrowsWhenNoKeyConfigured(): void
     {
-        $defintion = $this->createMock(EntityDefinition::class);
+        $defintion = static::createStub(EntityDefinition::class);
         $defintion->method('getEntityName')->willReturn('foo_bar');
 
         $config = new SeoUrlRouteConfig(

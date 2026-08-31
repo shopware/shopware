@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,16 +20,17 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'media:generate-thumbnails',
     description: 'Generates thumbnails for all media files',
 )]
-#[Package('discovery')]
 class GenerateThumbnailsCommand extends Command
 {
-    private ShopwareStyle $io;
+    private SymfonyStyle $io;
 
     private ?int $batchSize = null;
 
@@ -39,6 +39,8 @@ class GenerateThumbnailsCommand extends Command
     private bool $isAsync;
 
     private bool $isStrict;
+
+    private bool $isForce;
 
     /**
      * @internal
@@ -80,6 +82,12 @@ class GenerateThumbnailsCommand extends Command
                 InputOption::VALUE_NONE,
                 'Additionally checks that physical files for existing thumbnails are present'
             )
+            ->addOption(
+                'force',
+                'f',
+                InputOption::VALUE_NONE,
+                'Regenerates thumbnails for all configured sizes even when a thumbnail already exists, e.g. after changing the thumbnail quality'
+            )
         ;
     }
 
@@ -88,7 +96,7 @@ class GenerateThumbnailsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         if ($this->remoteThumbnailsEnable) {
             $this->io->comment('Remote thumbnails are enabled. Skipping thumbnail generation.');
@@ -118,6 +126,7 @@ class GenerateThumbnailsCommand extends Command
         $this->batchSize = $this->getBatchSizeFromInput($input);
         $this->isAsync = $input->getOption('async');
         $this->isStrict = $input->getOption('strict');
+        $this->isForce = $input->getOption('force');
     }
 
     private function getBatchSizeFromInput(InputInterface $input): int
@@ -147,7 +156,7 @@ class GenerateThumbnailsCommand extends Command
             throw MediaException::mediaFolderNameNotFound($rawInput);
         }
 
-        return new EqualsAnyFilter('mediaFolderId', $searchResult->getIds());
+        return new EqualsAnyFilter('mediaFolderId', $searchResult->getEntities()->getIds());
     }
 
     /**
@@ -165,7 +174,7 @@ class GenerateThumbnailsCommand extends Command
         while (($result = $iterator->fetch()) !== null) {
             foreach ($result->getEntities() as $media) {
                 try {
-                    if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict) > 0) {
+                    if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict, $this->isForce) > 0) {
                         ++$generated;
                     } else {
                         ++$skipped;
@@ -175,7 +184,7 @@ class GenerateThumbnailsCommand extends Command
                     $errors[] = [\sprintf('Cannot process file "%s" (id: %s) due error: %s', $media->getFileName() ?? '', $media->getId(), $e->getMessage())];
                 }
             }
-            $this->io->progressAdvance($result->count());
+            $this->io->progressAdvance($result->getEntities()->count());
         }
 
         return [
@@ -246,6 +255,7 @@ class GenerateThumbnailsCommand extends Command
         while (($result = $mediaIterator->fetch()) !== null) {
             $msg = new UpdateThumbnailsMessage();
             $msg->setStrict($this->isStrict);
+            $msg->setForce($this->isForce);
             $msg->setMediaIds($result->getEntities()->getIds());
             $msg->setContext($context);
 

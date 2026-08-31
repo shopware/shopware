@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
@@ -31,21 +30,9 @@ abstract readonly class AbstractDocumentRenderer
     abstract public function getFormat(): string;
 
     /**
-     * Returns the document types this renderer can render.
-     *
-     * @see DocumentType
-     *
-     * @return list<string>
+     * Returns the file extension produced by this renderer.
      */
-    abstract public function getDocumentTypes(): array;
-
-    /**
-     * Returns whether this renderer can render the given document type.
-     */
-    public function supports(string $type): bool
-    {
-        return \in_array($type, $this->getDocumentTypes(), true);
-    }
+    abstract public function getFileExtension(): string;
 
     /**
      * Returns prerequisite formats that must exist in RenderState before this renderer runs.

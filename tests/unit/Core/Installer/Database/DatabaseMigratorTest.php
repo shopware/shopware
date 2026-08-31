@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Installer\Database\DatabaseMigrator;
@@ -19,12 +21,13 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DatabaseMigrator::class)]
 class DatabaseMigratorTest extends TestCase
 {
     private MockObject&SetupDatabaseAdapter $setupAdapter;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private MockObject&MigrationCollection $migrationCollection;
 
@@ -38,23 +41,26 @@ class DatabaseMigratorTest extends TestCase
     {
         $this->setupAdapter = $this->createMock(SetupDatabaseAdapter::class);
 
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
 
         $this->migrationCollection = $this->createMock(MigrationCollection::class);
 
         $migrationLoader = $this->createMock(MigrationCollectionLoader::class);
-        $migrationLoader->method('collectAllForVersion')
+        $migrationLoader->expects($this->once())
+            ->method('collectAllForVersion')
             ->with(Kernel::SHOPWARE_FALLBACK_VERSION)
             ->willReturn($this->migrationCollection);
 
         $migrationCollectorFactory = $this->createMock(MigrationCollectionFactory::class);
         $migrationCollectorFactory
+            ->expects($this->once())
             ->method('getMigrationCollectionLoader')
             ->with($this->connection)
             ->willReturn($migrationLoader);
 
         $this->iniConfigReader = $this->createMock(IniConfigReader::class);
         $this->iniConfigReader
+            ->expects($this->once())
             ->method('get')
             ->with('max_execution_time')
             ->willReturnCallback(fn (): string => $this->maxExecutionTime);

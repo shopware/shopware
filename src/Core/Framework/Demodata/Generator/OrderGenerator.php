@@ -27,7 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class OrderGenerator implements DemodataGeneratorInterface
 {
     /**

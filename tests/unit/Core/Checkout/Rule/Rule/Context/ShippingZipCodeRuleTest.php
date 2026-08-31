@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Context;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -30,13 +30,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[CoversClass(ZipCodeRule::class)]
 class ShippingZipCodeRuleTest extends TestCase
 {
-    private MockObject&SalesChannelContext $context;
+    private Stub&SalesChannelContext $context;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->context = $this->createMock(SalesChannelContext::class);
+        $this->context = static::createStub(SalesChannelContext::class);
     }
 
     public function testMatchZipCodeThrowsExceptionWithUnsupportedOperator(): void
@@ -175,7 +175,7 @@ class ShippingZipCodeRuleTest extends TestCase
     public function testRuleMatchingNumeric(string $operator, bool $isMatching, string $zipCode): void
     {
         $zipCodes = ['90210', '81985'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setZipcode($zipCode);
@@ -218,7 +218,7 @@ class ShippingZipCodeRuleTest extends TestCase
         string $customerZipCode = '9E21L',
         bool $noAddress = false
     ): void {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setZipcode($customerZipCode);

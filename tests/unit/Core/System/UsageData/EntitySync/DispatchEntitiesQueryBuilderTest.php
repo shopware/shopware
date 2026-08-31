@@ -170,8 +170,8 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         $definition = new TestEntityDefinition();
         new StaticDefinitionInstanceRegistry(
             [$definition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGateway::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGateway::class),
         );
 
         static::assertSame($this->queryHelper, $this->queryHelper->checkLiveVersion($definition));

@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\File\Rendering;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -19,6 +19,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelFileStoreApiMcpSubscriber::class)]
 class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
 {
@@ -44,41 +45,13 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
         );
         $extension->result = [];
 
-        Feature::withFeatureEnabled('MCP_SERVER', static fn () => $subscriber->addStoreApiMcpContext($extension));
+        $subscriber->addStoreApiMcpContext($extension);
 
         static::assertSame([
             'salesChannelFileContext' => [
                 'baseUrl' => 'https://headless.example.com/en',
                 'publisher' => 'headless.example.com',
                 'storeApiMcpServerUrl' => 'https://headless.example.com/en/store-api/_mcp',
-            ],
-        ], $extension->result);
-    }
-
-    public function testAiCatalogContextIsAddedWithoutStoreApiMcpUrl(): void
-    {
-        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator
-            ->expects($this->never())
-            ->method('generate');
-
-        $subscriber = new SalesChannelFileStoreApiMcpSubscriber($urlGenerator);
-        $extension = new SalesChannelFileRenderParametersExtension(
-            $this->createSalesChannelFile('.well-known/ai-catalog.json'),
-            $this->createSalesChannelContext(null),
-            $this->createSalesChannel(
-                Defaults::SALES_CHANNEL_TYPE_API,
-                new SalesChannelDomainCollection([$this->createDomain('https://headless.example.com')])
-            )
-        );
-        $extension->result = [];
-
-        Feature::withFeatureDisabled('MCP_SERVER', static fn () => $subscriber->addStoreApiMcpContext($extension));
-
-        static::assertSame([
-            'salesChannelFileContext' => [
-                'baseUrl' => 'https://headless.example.com',
-                'publisher' => 'headless.example.com',
             ],
         ], $extension->result);
     }
@@ -107,7 +80,7 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
 
     private function createSalesChannelContext(?string $domainId): SalesChannelContext
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getDomainId')->willReturn($domainId);
 
         return $context;

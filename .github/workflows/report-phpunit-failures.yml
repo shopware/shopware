@@ -1,0 +1,101 @@
+name: Report PHPUnit failures
+
+# Files (or updates) one flat tracking issue per owning domain from the junit.xml
+# artifacts of a failed scheduled test run — deliberately no parent issue, flat
+# per-domain issues only. Called by nightly.yml and nightly-major.yml;
+# the PHPUnit jobs of the run (redis, integration.yml, integration-major.yml, php.yml)
+# upload the `junit-phpunit-*` artifacts this consumes, the Jest jobs upload
+# `jest-*-results` junit artifacts (routed by @sw-package instead of #[Package]).
+
+on:
+  workflow_call:
+    inputs:
+      report-title:
+        type: string
+        required: true
+        description: "Tracking-issue title; together with the body marker it is the dedupe key"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: lts/*
+
+      - name: Download junit reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: junit-phpunit-*
+          path: ${{ runner.temp }}/junit-reports
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: jest-*-results
+          path: ${{ runner.temp }}/junit-reports
+
+      - name: Build issue payload
+        env:
+          REPORT_TITLE: ${{ inputs.report-title }}
+        run: |
+          node ./.github/bin/js/report-phpunit-nightly-failures.ts \
+            "$RUNNER_TEMP/junit-reports" \
+            "$RUNNER_TEMP/phpunit-failure-issue-payload.json"
+
+      - name: Create or update tracking issues
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          ISSUE_PAYLOAD_FILE: ${{ runner.temp }}/phpunit-failure-issue-payload.json
+        with:
+          script: |
+            const fs = require('node:fs');
+            const payload = JSON.parse(fs.readFileSync(process.env.ISSUE_PAYLOAD_FILE, 'utf8'));
+            const { owner, repo } = context.repo;
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            // comment on the tracked issue when one is open, create it otherwise
+            const upsert = async (content, labels) => {
+              const existing = openIssues.find((issue) =>
+                issue.title === content.issueTitle
+                  && typeof issue.body === 'string'
+                  && issue.body.includes(content.issueMarker)
+              );
+
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: existing.number,
+                  body: content.commentBody,
+                });
+                core.info(`Added comment to issue #${existing.number}`);
+                return existing;
+              }
+
+              const created = await github.rest.issues.create({
+                owner,
+                repo,
+                title: content.issueTitle,
+                body: content.issueBody,
+                labels,
+              });
+              core.info(`Created issue #${created.data.number}`);
+              return created.data;
+            };
+
+            for (const issue of payload.issues) {
+              await upsert(issue, issue.label ? [issue.label] : []);
+            }

@@ -52,6 +52,7 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
      *     active: bool,
      *     integrationId: string,
      *     baseUrl: string,
+     *     sourceType: string,
      *     version: string,
      *     permissions: array<string, list<string>>
      * }>
@@ -89,6 +90,7 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
                 'active' => (bool) $app['active'],
                 'integrationId' => $app['integrationId'],
                 'type' => 'app',
+                'sourceType' => $app['sourceType'],
                 'baseUrl' => $app['baseUrl'],
                 'permissions' => $app['privileges'],
                 'version' => $app['version'],

@@ -26,7 +26,7 @@ class TemplateIteratorTest extends TestCase
         $fixtureBundlePath = __DIR__ . '/_fixtures/template-iterator/TemplateIteratorShopwareFixtureBundle';
         $fixtureBundle = new TemplateIteratorShopwareFixtureBundle($fixtureBundlePath);
 
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $kernel
             ->method('getBundles')
             ->willReturn([self::FIXTURE_BUNDLE_NAME => $fixtureBundle]);

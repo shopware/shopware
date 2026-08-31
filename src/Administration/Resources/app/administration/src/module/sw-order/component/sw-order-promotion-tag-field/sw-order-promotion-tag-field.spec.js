@@ -205,4 +205,44 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
             'sw-tagged-field__tag-list--disabled': true,
         });
     });
+
+    it('should keep the empty input visible when the field loses focus', async () => {
+        const wrapper = await createWrapper();
+
+        const input = wrapper.find('.sw-tagged-field__input');
+        expect(input.classes()).toContain('sw-tagged-field__input--full-width');
+        expect(input.classes()).not.toContain('sw-tagged-field__input--hidden');
+    });
+
+    it('should show the typed code while the field has focus', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+            hasFocus: true,
+        });
+
+        expect(wrapper.find('.sw-tagged-field__input').classes()).not.toContain('sw-tagged-field__input--hidden');
+    });
+
+    it('should hide an unsubmitted code when the field loses focus', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            newTagName: 'SUMMER-SALE',
+            hasFocus: false,
+        });
+
+        expect(wrapper.find('.sw-tagged-field__input').classes()).toContain('sw-tagged-field__input--hidden');
+    });
+
+    it('should hide the input when codes exist and the field loses focus', async () => {
+        const wrapper = await createWrapper({
+            value: [
+                { code: 'SUMMER-SALE' },
+            ],
+        });
+
+        expect(wrapper.find('.sw-tagged-field__input').classes()).toContain('sw-tagged-field__input--hidden');
+    });
 });

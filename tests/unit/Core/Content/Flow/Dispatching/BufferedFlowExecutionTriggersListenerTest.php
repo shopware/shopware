@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutionTriggersListener;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
@@ -21,22 +21,16 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
 {
     private BufferedFlowExecutionTriggersListener $bufferedFlowExecutionTriggersListener;
 
-    private MockObject&ContainerInterface $containerMock;
+    private ContainerInterface&Stub $containerMock;
 
-    private MockObject&BufferedFlowExecutor $bufferedFlowExecutorMock;
-
-    private MockObject&BufferedFlowQueue $bufferedFlowQueueMock;
+    private BufferedFlowQueue&Stub $bufferedFlowQueueMock;
 
     protected function setUp(): void
     {
-        $this->containerMock = $this->createMock(ContainerInterface::class);
-        $this->bufferedFlowQueueMock = $this->createMock(BufferedFlowQueue::class);
-        $this->bufferedFlowExecutorMock = $this->createMock(BufferedFlowExecutor::class);
+        $this->containerMock = static::createStub(ContainerInterface::class);
+        $this->bufferedFlowQueueMock = static::createStub(BufferedFlowQueue::class);
 
-        $this->bufferedFlowExecutionTriggersListener = new BufferedFlowExecutionTriggersListener(
-            $this->containerMock,
-            $this->bufferedFlowQueueMock,
-        );
+        $this->bufferedFlowExecutionTriggersListener = $this->createListener();
     }
 
     public function testRegistersBufferedFlowExecutionTriggers(): void
@@ -57,29 +51,42 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
 
     public function testDoesNotLoadServicesIfNoFlowsAreQueued(): void
     {
-        $this->bufferedFlowQueueMock->expects($this->once())
+        $bufferedFlowQueue = $this->createMock(BufferedFlowQueue::class);
+        $bufferedFlowQueue->expects($this->once())
             ->method('isEmpty')
             ->willReturn(true);
 
-        $this->containerMock->expects($this->never())
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->never())
             ->method('get');
 
-        $this->bufferedFlowExecutionTriggersListener->triggerBufferedFlowExecution();
+        $this->createListener($container, $bufferedFlowQueue)->triggerBufferedFlowExecution();
     }
 
     public function testExecutesBufferedFlowsIfFlowsAreQueued(): void
     {
-        $this->bufferedFlowQueueMock->method('isEmpty')
+        $bufferedFlowQueue = static::createStub(BufferedFlowQueue::class);
+        $bufferedFlowQueue->method('isEmpty')
             ->willReturn(false);
 
-        $this->containerMock->expects($this->once())
-            ->method('get')
-            ->with(BufferedFlowExecutor::class)
-            ->willReturn($this->bufferedFlowExecutorMock);
-
-        $this->bufferedFlowExecutorMock->expects($this->once())
+        $bufferedFlowExecutor = $this->createMock(BufferedFlowExecutor::class);
+        $bufferedFlowExecutor->expects($this->once())
             ->method('executeBufferedFlows');
 
-        $this->bufferedFlowExecutionTriggersListener->triggerBufferedFlowExecution();
+        $container = $this->createMock(ContainerInterface::class);
+        $container->expects($this->once())
+            ->method('get')
+            ->with(BufferedFlowExecutor::class)
+            ->willReturn($bufferedFlowExecutor);
+
+        $this->createListener($container, $bufferedFlowQueue)->triggerBufferedFlowExecution();
+    }
+
+    private function createListener(?ContainerInterface $container = null, ?BufferedFlowQueue $bufferedFlowQueue = null): BufferedFlowExecutionTriggersListener
+    {
+        return new BufferedFlowExecutionTriggersListener(
+            $container ?? $this->containerMock,
+            $bufferedFlowQueue ?? $this->bufferedFlowQueueMock,
+        );
     }
 }

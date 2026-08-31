@@ -42,7 +42,7 @@ class OpenApiSchemaBuilder
 
     public function enrich(OpenApi $openApi, string $api): void
     {
-        $openApi->merge($this->createServers($api));
+        $openApi->merge(array_values($this->createServers($api)));
         $openApi->info = $this->createInfo($api, $this->version);
 
         $security = $openApi->security;
@@ -62,9 +62,26 @@ class OpenApiSchemaBuilder
     {
         $url = (string) EnvironmentHelper::getVariable('APP_URL', '');
 
+        if ($this->shouldUseRelativeServerUrl($url)) {
+            return [
+                new Server(['url' => self::API[$api]['url']]),
+            ];
+        }
+
         return [
             new Server(['url' => rtrim($url, '/') . self::API[$api]['url']]),
         ];
+    }
+
+    private function shouldUseRelativeServerUrl(string $url): bool
+    {
+        if (EnvironmentHelper::getVariable('APP_ENV', 'prod') !== 'prod') {
+            return false;
+        }
+
+        $host = parse_url($url, \PHP_URL_HOST);
+
+        return \is_string($host) && \in_array($host, ['localhost', '127.0.0.1', '::1'], true);
     }
 
     private function createInfo(string $api, string $version): Info
@@ -99,9 +116,12 @@ EOF,
 
     private function enrichComponents(Components $components, string $api): void
     {
-        $components->merge($this->getDefaultSchemas());
-        $components->merge($this->createSecurityScheme($api));
-        $components->merge($this->createDefaultResponses());
+        if ($api !== DefinitionService::STORE_API) {
+            $components->merge(array_values($this->getDefaultSchemas()));
+        }
+
+        $components->merge(array_values($this->createSecurityScheme($api)));
+        $components->merge(array_values($this->createDefaultResponses($api)));
     }
 
     /**
@@ -260,23 +280,25 @@ EOF,
                 'schema' => 'relationships',
                 'description' => 'Members of the relationships object ("relationships") represent references from the resource object in which it\'s defined to other resource objects.',
                 'type' => 'object',
-                'anyOf' => [
-                    ['required' => ['data']],
-                    ['required' => ['meta']],
-                    ['required' => ['links']],
-                    [
-                        'type' => 'object',
-                        'properties' => [
-                            'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
-                            'data' => [
-                                'description' => 'Member, whose value represents "resource linkage".',
-                                'oneOf' => [
-                                    ['$ref' => '#/components/schemas/relationshipToOne'],
-                                    ['$ref' => '#/components/schemas/relationshipToMany'],
-                                ],
-                            ],
+                'additionalProperties' => [
+                    '$ref' => '#/components/schemas/relationship',
+                ],
+            ]),
+            'relationship' => new Schema([
+                'schema' => 'relationship',
+                'description' => 'A relationship object describes links, resource linkage, or meta-information for a related resource.',
+                'type' => 'object',
+                'minProperties' => 1,
+                'properties' => [
+                    'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
+                    'data' => [
+                        'description' => 'Member, whose value represents "resource linkage".',
+                        'oneOf' => [
+                            ['$ref' => '#/components/schemas/relationshipToOne'],
+                            ['$ref' => '#/components/schemas/relationshipToMany'],
                         ],
                     ],
+                    'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
                 'additionalProperties' => false,
             ]),
@@ -427,16 +449,21 @@ EOF,
     /**
      * @return OpenApiResponse[]
      */
-    private function createDefaultResponses(): array
+    private function createDefaultResponses(string $api): array
     {
-        return [
+        $responses = [
             Response::HTTP_NOT_FOUND => $this->createErrorResponse(Response::HTTP_NOT_FOUND, 'Not Found', 'Resource with given parameter was not found.'),
             Response::HTTP_FORBIDDEN => $this->createErrorResponse(Response::HTTP_FORBIDDEN, 'Forbidden', 'This operation is restricted to logged in users.'),
             Response::HTTP_UNAUTHORIZED => $this->createErrorResponse(Response::HTTP_UNAUTHORIZED, 'Unauthorized', 'Authorization information is missing or invalid.'),
             Response::HTTP_BAD_REQUEST => $this->createErrorResponse(Response::HTTP_BAD_REQUEST, 'Bad Request', 'Bad parameters for this endpoint. See documentation for the correct ones.'),
             Response::HTTP_TOO_MANY_REQUESTS => $this->createErrorResponse(Response::HTTP_TOO_MANY_REQUESTS, 'Too Many Requests', 'Rate limit exceeded. Please wait before retrying.'),
-            Response::HTTP_NO_CONTENT => new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]),
         ];
+
+        if ($api !== DefinitionService::STORE_API) {
+            $responses[Response::HTTP_NO_CONTENT] = new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]);
+        }
+
+        return $responses;
     }
 
     private function createErrorResponse(int $statusCode, string $title, string $description): OpenApiResponse

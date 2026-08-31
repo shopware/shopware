@@ -9,6 +9,8 @@ use Shopware\Storefront\Framework\StorefrontFrameworkException;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use {@see StorefrontFrameworkException::mediaValidatorMissing} instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class MediaValidatorMissingException extends ShopwareHttpException

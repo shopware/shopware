@@ -24,8 +24,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  *
  * @final
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 class ElasticsearchIndexer
 {
     /**
@@ -87,6 +87,18 @@ class ElasticsearchIndexer
         }
 
         $this->__invoke($this->generateMessage($definition, $ids));
+    }
+
+    /**
+     * Creates empty indices and aliases without populating documents.
+     */
+    public function createIndices(): void
+    {
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
+
+        $this->createIndex(\DateTime::createFromImmutable($this->clock->now()));
     }
 
     /**

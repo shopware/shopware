@@ -61,7 +61,7 @@ class CountryRouteTest extends TestCase
                 $this->salesChannelContext->getContext(),
             ));
 
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
         $route = new CountryRoute($countryRepository, $dispatcher, $cacheTagCollector);
         $route->load(new Request(), new Criteria(), $this->salesChannelContext);

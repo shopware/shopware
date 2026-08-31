@@ -43,6 +43,20 @@ const mediaMock = [
         mediaId: '30c0082ccb03494799b42f22c7fa07d9',
         position: 0,
     },
+    {
+        id: '88uy773yd1ssd299si1d837dy1ud628',
+        mailTemplateId: 'ed3866445dd744bb9e0f88f8f340141f',
+        languageId: '60a91bbbc83f42a3abedd20dd45b9fb0',
+        mediaId: '1svd4de52e6924d70ya5u75cd7ze4gd01',
+        position: 0,
+    },
+    {
+        id: 'ad3466455ed794bb9e0f28s8g3701s1z',
+        mailTemplateId: 'ed3866445dd744bb9e0f88f8f340141f',
+        languageId: '60a91bbbc83f42a3abedd20dd45b9fb0',
+        mediaId: '30c0082ccb03494799b42f22c7fa07d9',
+        position: 0,
+    },
 ];
 
 const mailTemplateMediaMock = {
@@ -286,6 +300,41 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
     });
 
+    it('should be able to add an item to the attachment exist this item with different language', async () => {
+        const originalLanguageId = Shopware.Context.api.languageId;
+
+        const wrapper = await createWrapper();
+        await wrapper.setData({ mailTemplateMedia: [] });
+        wrapper.vm.createNotificationInfo = jest.fn();
+
+        // Add media
+        wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
+        expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
+
+        // Add same media again and expect error
+        wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
+        expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
+            message: 'sw-mail-template.list.errorMediaItemDuplicated',
+        });
+
+        // reset mock function to be sure error message is correct
+        wrapper.vm.createNotificationInfo = jest.fn();
+
+        // Switch language and add same media again and expect success
+        Shopware.Context.api.languageId = '9886595ca65447d6a812fe9de1096079';
+        wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
+
+        expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
+
+        // Add same media again and expect error
+        wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
+        expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
+            message: 'sw-mail-template.list.errorMediaItemDuplicated',
+        });
+
+        Shopware.Context.api.languageId = originalLanguageId;
+    });
+
     it('should be unable to add an item to the attachment exist this item', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.createNotificationInfo = jest.fn();
@@ -360,15 +409,17 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         });
 
         const hasMediaBeforeTest = wrapper.vm.mailTemplate.media.some(
-            (media) => media.id === 'ad3466455ed794bb9e0f28s8g3701s1z',
+            (media) =>
+                media.id === 'ad3466455ed794bb9e0f28s8g3701s1z' && media.languageId === Shopware.Context.api.languageId,
         );
         expect(hasMediaBeforeTest).toBeTruthy();
 
         wrapper.vm.onDeleteSelectedMedia();
 
-        expect(wrapper.vm.mailTemplate.media).toHaveLength(mailTemplateMock.media.length);
+        expect(wrapper.vm.mailTemplate.media).toHaveLength(mediaMock.length - 1);
         const hasMediaAfterTest = wrapper.vm.mailTemplate.media.some(
-            (media) => media.id === 'ad3466455ed794bb9e0f28s8g3701s1z',
+            (media) =>
+                media.id === 'ad3466455ed794bb9e0f28s8g3701s1z' && media.languageId === Shopware.Context.api.languageId,
         );
         expect(hasMediaAfterTest).toBeFalsy();
     });
@@ -509,6 +560,32 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             message: 'CTRL + S',
             appearance: 'light',
         });
+    });
+
+    it('should enable the preview button only with edit permission', async () => {
+        const wrapper = await createWrapper(['api_send_email']);
+        await wrapper.setData({
+            isLoading: false,
+            triggerEvent: { name: 'checkout.order.placed' },
+        });
+
+        const previewButton = wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'sw-mail-template.detail.previewModalTitle');
+
+        expect(previewButton?.attributes('disabled')).toBeDefined();
+
+        const editorWrapper = await createWrapper(['mail_templates.editor']);
+        await editorWrapper.setData({
+            isLoading: false,
+            triggerEvent: { name: 'checkout.order.placed' },
+        });
+
+        const editorPreviewButton = editorWrapper
+            .findAll('button')
+            .find((button) => button.text() === 'sw-mail-template.detail.previewModalTitle');
+
+        expect(editorPreviewButton?.attributes('disabled')).toBeUndefined();
     });
 
     it('should not be able to show preview if html content is empty', async () => {

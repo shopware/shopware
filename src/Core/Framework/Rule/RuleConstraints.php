@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
@@ -12,10 +13,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-final
- */
 #[Package('fundamentals@after-sales')]
+#[BecomesFinal(version: 'v6.8.0')]
 class RuleConstraints
 {
     /**

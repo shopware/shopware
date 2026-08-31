@@ -8,7 +8,7 @@
         "general": {
             "tooltipOpenStorefront": "Open storefront",
             "titleMenuItems": "Sales Channels",
-            "titleMenuMoreItems": "More",
+            "titleMenuMoreItems": "View all",
             "manageSalesChannels": "Manage Sales Channels",
             "addSalesChannel": "Add Sales Channel"
         },
@@ -17,6 +17,8 @@
             "subTitle": "Sales Channels let you sell items to your customers through social media, storefronts, marketplaces or in person.",
             "placeholderSearchBar": "Search Sales Channels...",
             "buttonAddSalesChannel": "Add Sales Channel",
+            "emptyStateHeadline": "No Sales Channels yet",
+            "emptyStateDescription": "Add your first Sales Channel to start selling through storefronts, marketplaces or social media.",
             "columnName": "Sales Channel",
             "columnType": "Type",
             "columnStatus": "Status",
@@ -27,7 +29,6 @@
                 "online": "Online",
                 "offline": "Offline"
             },
-            "contextMenuEdit": "Edit",
             "productsLabel": "Products",
             "productsCount": "products | product | products"
         },
@@ -36,7 +37,6 @@
             "buttonAddChannel": "Add Sales Channel",
             "titleDetailPrefix": "{name} - details",
             "buttonShowDetails": "Show details",
-            "buttonBack": "Back",
             "titleDescription": "Information",
             "messageAgenticCommerce": "In order to create agentic commerce sales channels, please install the Agentic Commerce extension from the Shopware Store.",
             "messageNoProductStreams": "In order to use product comparisons or agentic commerce sales channels, a dynamic product group has to be created first."
@@ -47,7 +47,6 @@
             "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
             "messageMeasurementUnitsSetError": "Could not load system configuration for product measurements.",
             "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
-            "buttonSave": "Save",
             "buttonCreateNewApiKeys": "Create new API key",
             "tabBase": "General",
             "tabTheme": "Theme",
@@ -98,7 +97,6 @@
             "buttonDelete": "Delete Sales Channel",
             "deleteModalTitle": "Delete Sales Channel",
             "textConfirmDelete": "Are you sure you want to delete this Sales Channel?",
-            "buttonConfirmDelete": "Delete",
             "textHeadline": "New Sales Channel",
             "placeholderName": "Enter Sales Channel name...",
             "placeholderInputCategories": "Add categories...",
@@ -107,19 +105,20 @@
             "labelInputCurrency": "Currency",
             "labelInputLanguage": "Language",
             "labelInputSnippet": "Snippet",
+            "labelIsExternalStorefront": "External storefront",
+            "helpTextIsExternalStorefront": "SEO URLs are only generated for domains that point to an external storefront. Per language, only one external storefront can be set for a single sales channel.",
             "buttonDeleteDomain": "Delete domain",
             "messageDeleteDomainError": "The domain \"{url}\" could not be deleted because it is linked to existing product exports.",
             "foreignKeyDelete": "This sales channel cannot be deleted because it is still in use by {assignment}.",
             "buttonAddDomain": "Add domain",
             "deleteDomainModalTitle": "Delete domain",
             "textConfirmDeleteDomain": "Are you sure you want to delete this domain? The Sales Channel will no longer be accessible by \"{url}\"",
-            "buttonConfirmDeleteDomain": "Delete",
             "customerGroup": "Customer group",
             "favouriteLabel": "Mark Sales Channel as favourite",
             "navigation": "Navigation",
             "navigationCategoryId": "Entry point main navigation",
             "navigationCategoryDepth": "Navigation levels",
-            "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customisable link\" or \"structuring element\".",
+            "navigationCategoryHelpText": "For this entry point, you cannot select categories of the type \"customisable link\" or \"structuring element\".",
             "footerCategory": "Entry point footer navigation",
             "serviceCategory": "Entry point footer service navigation",
             "titleOptionsApiKey": "API access",
@@ -209,8 +208,9 @@
                     "518400": "6 days",
                     "604800": "1 week"
                 },
-                "storefront": "Storefront Sales Channel",
-                "storefrontDomain": "Storefront domain",
+                "storefront": "Sales Channel",
+                "storefrontDomain": "Domain",
+                "storefrontDomainHelpText": "For headless sales channels, only domains marked as an external storefront are selectable here. Mark a domain as external storefront in the sales channel's domain settings.",
                 "storefrontDomainLanguage": {
                     "label": "Language",
                     "help": "Automatically selected by Sales Channel domain"
@@ -289,7 +289,6 @@
                 "columnDescription": "Description",
                 "emptyState": "No agentic files found",
                 "messageLoadError": "Could not load agentic files.",
-                "actionEdit": "Edit",
                 "actionEnable": "Enable",
                 "actionDisable": "Disable",
                 "enabledState": {

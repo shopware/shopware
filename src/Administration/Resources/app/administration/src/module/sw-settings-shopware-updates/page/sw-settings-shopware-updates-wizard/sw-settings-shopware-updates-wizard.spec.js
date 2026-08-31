@@ -2,12 +2,14 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import useSession from 'src/app/composables/use-session';
 
 describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard', () => {
     let wrapper;
 
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
+        useSession().currentLocale.value = null;
         wrapper = mount(
             await wrapTestComponent('sw-settings-shopware-updates-wizard', {
                 sync: true,
@@ -81,7 +83,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                                     title: 'sw-settings.general.mainMenuItemGeneral',
                                     color: '#9AA8B5',
                                     icon: 'default-action-settings',
-                                    favicon: 'icon-module-settings.png',
+                                    favicon: 'icon-module-settings.svg',
                                     routes: {
                                         index: {
                                             path: '/sw/settings/index',
@@ -231,6 +233,40 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         await wrapper.vm.deactivatePlugins(0);
 
         expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
+    });
+
+    it('deactivate plugins success forwards the admin locale to the recovery tool', async () => {
+        useSession().currentLocale.value = 'de-DE';
+
+        wrapper.vm.updateService.deactivatePlugins = () => {
+            return Promise.resolve({
+                offset: 0,
+                total: 0,
+            });
+        };
+
+        const redirectSpy = jest.fn();
+        wrapper.vm.redirectToPage = redirectSpy;
+
+        await wrapper.vm.deactivatePlugins(0);
+
+        expect(redirectSpy).toHaveBeenCalledWith(
+            `${Shopware.Context.api.basePath}/shopware-installer.phar.php?language=de-DE`,
+        );
+    });
+
+    it('buildRecoveryUrl appends the admin locale as the language parameter', () => {
+        useSession().currentLocale.value = 'en-GB';
+
+        expect(wrapper.vm.buildRecoveryUrl()).toBe(
+            `${Shopware.Context.api.basePath}/shopware-installer.phar.php?language=en-GB`,
+        );
+    });
+
+    it('buildRecoveryUrl omits the language parameter when no locale is set', () => {
+        useSession().currentLocale.value = null;
+
+        expect(wrapper.vm.buildRecoveryUrl()).toBe(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
     });
 
     it('deactivate plugins success loops to disable all', async () => {

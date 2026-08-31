@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Installer;
 use Shopware\Core\Installer\InstallerKernel;
 use Shopware\Core\Test\Stub\Installer\InstallerKernelStub;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InstallerKernel::class)]
 class InstallerKernelTest extends TestCase
 {
@@ -70,15 +72,15 @@ class InstallerKernelTest extends TestCase
         $kernel->exposeConfigureContainer($container, $loader);
     }
 
-    #[TestDox('configureRoutes imports the installer routes xml')]
-    public function testConfigureRoutesImportsRoutesXml(): void
+    #[TestDox('configureRoutes imports the installer routes file')]
+    public function testConfigureRoutesImportsRoutesFile(): void
     {
         $kernel = new InstallerKernelStub('test', false, '6.6.0.0@abc123');
 
         $loader = $this->createMock(PhpFileLoader::class);
         $loader->expects($this->once())
             ->method('import')
-            ->with(static::stringEndsWith('/Installer/Resources/config/routes.xml'))
+            ->with(static::stringEndsWith('/Installer/Resources/config/routes.php'))
             ->willReturn(new RouteCollection());
 
         $routes = new RoutingConfigurator(new RouteCollection(), $loader, '', '');

@@ -1,5 +1,15 @@
 .sw-customer-card {
-    &__metadata-customer-name {
+    &__metadata-customer-name,
+    &__header {
+        display: flex;
+        gap: var(--scale-size-8);
+    }
+
+    .sw-customer-card__metadata {
+        padding-top: 17px;
+    }
+
+    .sw-customer-card__metadata-customer-name {
         align-items: center;
         display: flex;
         font-weight: var(--font-weight-semibold);

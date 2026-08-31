@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Validation\Constraint;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfTypeValidator;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -17,6 +18,7 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ArrayOfTypeValidator::class)]
 class ArrayOfTypeValidatorTest extends TestCase
 {

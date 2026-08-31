@@ -3,7 +3,10 @@ import { test, PropertyGroup, getCurrencyCodeFromLocale, formatPrice } from '@fi
 test(
     'As a customer, I should see the correct listing price and normal price for variant products with differing prices.',
     {
-        tag: ['@Product, @Variant', '@Storefront'],
+        tag: [
+            '@Product, @Variant',
+            '@Storefront',
+        ],
     },
     async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
@@ -53,19 +56,16 @@ test(
             price: prices,
         });
 
-        await ShopCustomer.expects(async () => {
-            await test.step('Wait for products to be visible on storefront.', async () => {
-                await TestDataService.clearCaches();
-                await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-                const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
-                await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
-            });
-        }).toPass({
-            intervals: [1_000, 2_500],
+        await TestDataService.clearCaches();
+
+        await test.step('Product is visible on storefront.', async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
+            await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
         });
 
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+            await ShopCustomer.goesTo(StorefrontHome.url());
             const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
             await ShopCustomer.expects(productItemLocators.productPrice).toContainText(formatPrice(10.0));
             await ShopCustomer.expects(productItemLocators.productListingPrice).toContainText(formatPrice(20.0));
@@ -78,13 +78,11 @@ test(
                 await ShopCustomer.goesTo(StorefrontProductDetail.url(variantProduct));
                 await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(formatPrice(10.0));
                 await ShopCustomer.expects(StorefrontProductDetail.productListingPriceBadge).toContainText('%');
-                await ShopCustomer.expects(StorefrontProductDetail.productListingPrice).toContainText(
-                    formatPrice(20.0)
-                );
+                await ShopCustomer.expects(StorefrontProductDetail.productListingPrice).toContainText(formatPrice(20.0));
                 await ShopCustomer.expects(StorefrontProductDetail.productListingPricePercentage).toContainText(
-                    '(50% saved)'
+                    '(50% saved)',
                 );
             }
         });
-    }
+    },
 );

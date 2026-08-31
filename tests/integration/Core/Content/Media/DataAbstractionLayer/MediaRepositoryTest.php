@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -30,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,7 +40,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('discovery')]
 class MediaRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -97,7 +97,7 @@ class MediaRepositoryTest extends TestCase
         });
 
         static::assertNotNull($media);
-        static::assertCount(0, $media);
+        static::assertCount(0, $media->getEntities());
     }
 
     public function testDeletePrivateMedia(): void
@@ -132,6 +132,7 @@ class MediaRepositoryTest extends TestCase
 
         $media = static::getContainer()->get('media.repository')
             ->search(new Criteria([$ids->get('media')]), $context)
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -214,7 +215,7 @@ class MediaRepositoryTest extends TestCase
         $media = $this->context->scope(Context::USER_SCOPE, static fn (Context $context) => $mediaRepository->search(new Criteria([$mediaId]), $context));
 
         static::assertInstanceOf(EntitySearchResult::class, $media);
-        static::assertCount(0, $media);
+        static::assertCount(0, $media->getEntities());
 
         $documentRepository = $this->documentRepository;
         $document = null;
@@ -224,8 +225,8 @@ class MediaRepositoryTest extends TestCase
             $document = $documentRepository->search($criteria, $context);
         });
         static::assertNotNull($document);
-        static::assertCount(1, $document);
-        $document = $document->get($documentId);
+        static::assertCount(1, $document->getEntities());
+        $document = $document->getEntities()->get($documentId);
         static::assertInstanceOf(DocumentEntity::class, $document);
         $media = $document->getDocumentMediaFile();
         static::assertInstanceOf(MediaEntity::class, $media);
@@ -256,7 +257,7 @@ class MediaRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame($mediaId, $media->getId());
@@ -278,7 +279,7 @@ class MediaRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $mediaPath = $media->getPath();
@@ -322,7 +323,7 @@ class MediaRepositoryTest extends TestCase
             ],
             $this->context
         );
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $mediaPath = $media->getPath();
@@ -384,9 +385,9 @@ class MediaRepositoryTest extends TestCase
             ),
             $this->context
         );
-        $firstMedia = $read->get($firstId);
+        $firstMedia = $read->getEntities()->get($firstId);
         static::assertInstanceOf(MediaEntity::class, $firstMedia);
-        $secondMedia = $read->get($secondId);
+        $secondMedia = $read->getEntities()->get($secondId);
         static::assertInstanceOf(MediaEntity::class, $secondMedia);
 
         $firstPath = $firstMedia->getPath();
@@ -439,7 +440,7 @@ class MediaRepositoryTest extends TestCase
         );
 
         $read = $this->mediaRepository->search(new Criteria([$secondId]), $this->context);
-        $secondMedia = $read->get($secondId);
+        $secondMedia = $read->getEntities()->get($secondId);
         static::assertInstanceOf(MediaEntity::class, $secondMedia);
 
         $secondPath = $secondMedia->getPath();
@@ -530,7 +531,7 @@ class MediaRepositoryTest extends TestCase
             ],
         ]], $this->context);
 
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $mediaUrl = $media->getPath();
@@ -623,7 +624,7 @@ class MediaRepositoryTest extends TestCase
         );
         $criteria = new Criteria([$mediaId]);
         $criteria->addFields(['id', 'url']);
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId);
 
         static::assertSame('http://some.domain/media.png', $media?->get('url'));
     }
@@ -644,14 +645,14 @@ class MediaRepositoryTest extends TestCase
             $this->context
         );
 
-        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame('https://localhost:8000/image.jpg', $media->getPath());
 
         $this->context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
-        $deletedMedia = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
+        $deletedMedia = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getEntities()->get($mediaId);
         static::assertNull($deletedMedia);
     }
 
@@ -686,7 +687,7 @@ class MediaRepositoryTest extends TestCase
 
         $criteria = new Criteria([$mediaId]);
         $criteria->addAssociation('thumbnails');
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($mediaId);
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
         static::assertSame('https://localhost:8000/image.jpg', $media->getPath());
         static::assertInstanceOf(MediaThumbnailCollection::class, $media->getThumbnails());
@@ -699,7 +700,7 @@ class MediaRepositoryTest extends TestCase
         $this->context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
         $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
 
-        $deletedMedia = $this->mediaRepository->search($criteria, $this->context)->get($mediaId);
+        $deletedMedia = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($mediaId);
         static::assertNull($deletedMedia);
     }
 

@@ -12,8 +12,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(CartFactory::class)]
 #[Package('checkout')]
+#[CoversClass(CartFactory::class)]
 class CartFactoryTest extends TestCase
 {
     public function testCreatesNewCart(): void

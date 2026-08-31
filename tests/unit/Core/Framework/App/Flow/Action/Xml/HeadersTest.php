@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Headers;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Parameter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Headers::class)]
 class HeadersTest extends TestCase
 {
@@ -28,6 +30,9 @@ XML));
         static::assertSame('auth-token', $headers->getParameters()[1]->getName());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

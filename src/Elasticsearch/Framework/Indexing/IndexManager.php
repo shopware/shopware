@@ -6,14 +6,13 @@ use OpenSearch\Client;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
-use Shopware\Tests\Integration\Elasticsearch\Framework\Indexing\IndexManagerTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore can not be unit tested; covered by integration test
  *
- * @see IndexManagerTest
+ * @see \Shopware\Tests\Integration\Elasticsearch\Framework\Indexing\IndexManagerTest
  */
 #[Package('framework')]
 class IndexManager

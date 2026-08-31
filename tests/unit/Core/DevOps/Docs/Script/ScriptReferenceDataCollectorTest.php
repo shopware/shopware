@@ -7,11 +7,13 @@ namespace Shopware\Tests\Unit\Core\DevOps\Docs\Script;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScriptReferenceDataCollector::class)]
 class ScriptReferenceDataCollectorTest extends TestCase
 {

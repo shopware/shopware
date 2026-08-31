@@ -13,7 +13,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeRuntimeConfigService
 {
     /**
@@ -136,7 +136,7 @@ class ThemeRuntimeConfigService
 
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
             'themeId' => $themeId,
-            'technicalName' => $themeConfig->getTechnicalName(),
+            'technicalName' => $this->storage->getOwnThemeTechnicalName($themeId),
             'resolvedConfig' => $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $context),
             'viewInheritance' => $themeConfig->getViewInheritance(),
             'scriptFiles' => $scriptFiles,

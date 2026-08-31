@@ -31,7 +31,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
             ->method('deleteNotUsedMedia')
             ->willReturn(2);
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['yes']);
@@ -52,7 +52,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
             ->with($limit, static::identicalTo($offset))
             ->willReturn(2);
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['yes']);
@@ -79,7 +79,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['no']);
@@ -98,7 +98,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
             ->method('deleteNotUsedMedia')
             ->willReturn(5);
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([], ['interactive' => false]);
@@ -117,7 +117,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
             ->with(50, null, 20, 'product')
             ->willReturn(2);
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['yes']);
@@ -144,7 +144,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['yes']);
@@ -175,7 +175,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['yes']);
@@ -202,7 +202,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['no']);
@@ -229,7 +229,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['--dry-run' => true], ['interactive' => false]);
@@ -245,9 +245,9 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
     public function testErrorIsReportedIfIncompatibleOptionsPassed(): void
     {
-        $service = $this->createMock(UnusedMediaPurger::class);
+        $service = static::createStub(UnusedMediaPurger::class);
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(['--dry-run' => true, '--report' => true]);
@@ -280,7 +280,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         $service->expects($this->never())
             ->method('deleteNotUsedMedia');
 
-        $command = new DeleteNotUsedMediaCommand($service, $this->createMock(EventDispatcherInterface::class));
+        $command = new DeleteNotUsedMediaCommand($service, static::createStub(EventDispatcherInterface::class));
 
         $commandTester = new CommandTester($command);
         $commandTester->setInputs(['yes']);

@@ -29,8 +29,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(PromotionItemBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderPayloadTest extends TestCase
 {
     private PromotionEntity $promotion;
@@ -107,6 +107,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
             'limitedRedemptions' => true,
+            'hasGlobalRedemptionLimit' => true,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -162,6 +163,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'individual',
             'limitedRedemptions' => true,
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -216,6 +218,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
             'limitedRedemptions' => false,
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -320,6 +323,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'global',
             'limitedRedemptions' => false,
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductDescriptionTeaserBuilder::class)]
 class ProductDescriptionTeaserBuilderTest extends TestCase
 {

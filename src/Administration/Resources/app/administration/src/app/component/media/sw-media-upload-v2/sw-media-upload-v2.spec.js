@@ -492,8 +492,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
     });
 
-    it('should show backend error notification on failed upload event', async () => {
-        wrapper.vm.createNotificationError = jest.fn();
+    it('should remove media item on failed upload event', async () => {
         wrapper.vm.onRemoveMediaItem = jest.fn();
 
         wrapper.vm.handleMediaServiceUploadEvent({
@@ -513,10 +512,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             },
         });
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            title: 'global.default.error',
-            message: 'SVG files with active content are not allowed.',
-        });
         expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
     });
 
@@ -687,6 +682,29 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(isFileAccepted).toBe(true);
     });
 
+    it('should pass extension mime types to the extension check', async () => {
+        const file = {
+            name: 'book.epub',
+            type: 'application/epub+zip',
+        };
+        const extensionMimeTypesByExtension = {
+            epub: ['application/epub+zip'],
+        };
+        const checkByExtension = jest.fn().mockReturnValue(true);
+        wrapper.vm.fileValidationService.checkByExtension = checkByExtension;
+
+        await wrapper.setProps({
+            extensionAccept: 'epub',
+            extensionMimeTypesByExtension,
+            fileAccept: '*/*',
+        });
+
+        const isFileAccepted = wrapper.vm.checkFileType(file);
+
+        expect(isFileAccepted).toBe(true);
+        expect(checkByExtension).toHaveBeenCalledWith(file, 'epub', null, extensionMimeTypesByExtension);
+    });
+
     it('should reject uploads when no fileAccept or extensionAccept is defined', async () => {
         const file = {
             name: 'dummy.pdf',
@@ -733,6 +751,86 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             mimeType: 'application/pdf',
             type: 'application/pdf',
             name: 'media',
+        });
+    });
+
+    describe('pending upload cleanup', () => {
+        beforeEach(() => {
+            // Defaults so the teardown cleanup has a repository to call; deletion tests override these.
+            wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValue({ hasFile: true });
+            wrapper.vm.mediaRepository.delete = jest.fn().mockResolvedValue({});
+        });
+
+        it('tracks synced media entities as pending until the upload finishes', async () => {
+            wrapper.vm.mediaRepository.create = jest
+                .fn()
+                .mockReturnValueOnce({ id: 'media-1' })
+                .mockReturnValueOnce({ id: 'media-2' });
+            wrapper.vm.mediaRepository.sync = jest.fn().mockResolvedValue({});
+
+            await wrapper.vm.handleUpload([
+                new File([''], 'foo.jpg'),
+                new File([''], 'bar.gif'),
+            ]);
+
+            expect(Array.from(wrapper.vm.pendingUploadMediaIds)).toEqual([
+                'media-1',
+                'media-2',
+            ]);
+        });
+
+        it('clears a media id from the pending set on finish but keeps it on fail', async () => {
+            wrapper.vm.createNotificationError = jest.fn();
+            wrapper.vm.onRemoveMediaItem = jest.fn();
+
+            wrapper.vm.pendingUploadMediaIds.add('media-1');
+            wrapper.vm.pendingUploadMediaIds.add('media-2');
+
+            wrapper.vm.handleMediaServiceUploadEvent({
+                action: 'media-upload-finish',
+                payload: { targetId: 'media-1' },
+            });
+            expect(wrapper.vm.pendingUploadMediaIds.has('media-1')).toBe(false);
+
+            wrapper.vm.handleMediaServiceUploadEvent({
+                action: 'media-upload-fail',
+                payload: { targetId: 'media-2' },
+            });
+            expect(wrapper.vm.pendingUploadMediaIds.has('media-2')).toBe(true);
+        });
+
+        it('deletes empty pending media but keeps media that already has a file', async () => {
+            const getMock = jest
+                .fn()
+                .mockResolvedValueOnce({ id: 'media-1', hasFile: false })
+                .mockResolvedValueOnce({ id: 'media-2', hasFile: true });
+            const deleteMock = jest.fn().mockResolvedValue({});
+            wrapper.vm.mediaRepository.get = getMock;
+            wrapper.vm.mediaRepository.delete = deleteMock;
+
+            wrapper.vm.pendingUploadMediaIds.add('media-1');
+            wrapper.vm.pendingUploadMediaIds.add('media-2');
+
+            wrapper.vm.cleanupOrphanedMedia();
+            await flushPromises();
+
+            expect(deleteMock).toHaveBeenCalledWith('media-1', expect.anything());
+            expect(deleteMock).not.toHaveBeenCalledWith('media-2', expect.anything());
+            expect(wrapper.vm.pendingUploadMediaIds.size).toBe(0);
+        });
+
+        it('cleans up abandoned empty media on unmount', async () => {
+            const getMock = jest.fn().mockResolvedValue({ id: 'media-1', hasFile: false });
+            const deleteMock = jest.fn().mockResolvedValue({});
+            wrapper.vm.mediaRepository.get = getMock;
+            wrapper.vm.mediaRepository.delete = deleteMock;
+
+            wrapper.vm.pendingUploadMediaIds.add('media-1');
+
+            wrapper.unmount();
+            await flushPromises();
+
+            expect(deleteMock).toHaveBeenCalledWith('media-1', expect.anything());
         });
     });
 });

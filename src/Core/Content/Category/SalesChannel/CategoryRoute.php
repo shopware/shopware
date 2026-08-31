@@ -22,8 +22,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CategoryRoute extends AbstractCategoryRoute
 {
     final public const HOME = 'home';
@@ -60,8 +60,6 @@ class CategoryRoute extends AbstractCategoryRoute
     )]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
-        $this->cacheTagCollector->addTag(self::buildName($navigationId));
-
         if ($navigationId === self::HOME) {
             $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
             $request->attributes->set('navigationId', $navigationId);
@@ -70,6 +68,8 @@ class CategoryRoute extends AbstractCategoryRoute
             $routeParams['navigationId'] = $navigationId;
             $request->attributes->set('_route_params', $routeParams);
         }
+
+        $this->cacheTagCollector->addTag(self::buildName($navigationId));
 
         $category = $this->loadCategory($navigationId, $context);
 
@@ -106,7 +106,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $resolverContext,
         );
 
-        $cmsPage = $pages->first();
+        $cmsPage = $pages->getEntities()->first();
         if ($cmsPage === null) {
             throw CategoryException::pageNotFound($pageId);
         }

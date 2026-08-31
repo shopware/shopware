@@ -155,7 +155,7 @@ class CustomerTagRuleTest extends TestCase
 
     public function createScope(?CustomerEntity $customer): CheckoutRuleScope
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
         return new CheckoutRuleScope($context);

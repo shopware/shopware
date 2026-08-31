@@ -1,0 +1,254 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/_action/translation/list": {
+            "get": {
+                "tags": [
+                    "Translation Management"
+                ],
+                "summary": "List configured translation locales",
+                "description": "Lists every locale configured for translation download, merging its local install state with the remotely available metadata.",
+                "operationId": "translationList",
+                "responses": {
+                    "200": {
+                        "description": "The configured locales with their merged local install state and remote metadata.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "total": {
+                                            "description": "Number of configured locales.",
+                                            "type": "integer"
+                                        },
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "locale": {
+                                                        "description": "The locale code, for example `de-DE`.",
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "description": "The configured language name.",
+                                                        "type": "string"
+                                                    },
+                                                    "lastUpdate": {
+                                                        "description": "ISO-8601 timestamp of the last installation, or null if not installed.",
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "progress": {
+                                                        "description": "Translation completeness in percent, taken from the remote metadata. Null when the remote source is unreachable or does not offer the locale.",
+                                                        "type": "integer"
+                                                    },
+                                                    "updateAvailable": {
+                                                        "description": "Whether a newer translation than the installed one is available.",
+                                                        "type": "boolean"
+                                                    },
+                                                    "isPseudoLanguage": {
+                                                        "description": "Whether the locale is a pseudo-language used for translation testing.",
+                                                        "type": "boolean"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/translation/meta": {
+            "get": {
+                "tags": [
+                    "Translation Management"
+                ],
+                "summary": "Get translation meta information",
+                "description": "Returns translation meta information that is independent of the configured locales: the built-in locales, the community translation and documentation URLs and the completeness threshold.",
+                "operationId": "translationMeta",
+                "responses": {
+                    "200": {
+                        "description": "The translation meta information.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "builtInLocales": {
+                                            "description": "Locale codes shipped with the platform and excluded from the community translation download.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "communityTranslationsUrl": {
+                                            "description": "URL of the community translation platform, or null if not configured.",
+                                            "type": "string",
+                                            "format": "uri"
+                                        },
+                                        "documentationUrlSnippetKey": {
+                                            "description": "Admin snippet key that resolves to the localized translation documentation URL, or null if not configured.",
+                                            "type": "string"
+                                        },
+                                        "completenessThreshold": {
+                                            "description": "Minimum translation completeness in percent considered sufficient.",
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/translation/install": {
+            "post": {
+                "tags": [
+                    "Translation Management"
+                ],
+                "summary": "Install translations for locales",
+                "description": "Downloads and installs translations for the given locales, or for all configured locales when `all` is set. Created languages are activated unless `activate` is set to `false`.",
+                "operationId": "translationInstall",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "locales": {
+                                        "description": "Locale codes to install, for example `[\"de-DE\", \"fr-FR\"]`. Required unless `all` is true.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "all": {
+                                        "description": "Install all configured locales instead of the `locales` list.",
+                                        "type": "boolean"
+                                    },
+                                    "activate": {
+                                        "description": "Whether created languages are activated. Defaults to true.",
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The locales that were updated and the ones skipped as already up to date.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "updated": {
+                                            "description": "Locale codes that were downloaded and installed.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "skipped": {
+                                            "description": "Locale codes that were already up to date.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "unavailable": {
+                                            "description": "Requested locale codes that have no translation available and were not installed.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/translation/update": {
+            "post": {
+                "tags": [
+                    "Translation Management"
+                ],
+                "summary": "Update all installed translations",
+                "description": "Updates all installed translations.",
+                "operationId": "translationUpdate",
+                "responses": {
+                    "200": {
+                        "description": "The locales that were updated and the ones skipped as already up to date.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "updated": {
+                                            "description": "Locale codes that were downloaded and installed.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "skipped": {
+                                            "description": "Locale codes that were already up to date.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "unavailable": {
+                                            "description": "Requested locale codes that have no translation available and were not installed.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/translation/{locale}": {
+            "delete": {
+                "tags": [
+                    "Translation Management"
+                ],
+                "summary": "Uninstall a translation",
+                "description": "Removes the downloaded translation files and the metadata entry for the given locale. The associated language, locale and snippet set records are left untouched and can be managed through their regular admin API endpoints.",
+                "operationId": "translationDelete",
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "path",
+                        "description": "The locale code to uninstall, for example `de-DE`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The translation files and metadata entry were removed."
+                    }
+                }
+            }
+        }
+    }
+}

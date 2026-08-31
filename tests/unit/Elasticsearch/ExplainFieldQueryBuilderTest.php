@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch;
 
+use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -17,13 +18,13 @@ use Shopware\Elasticsearch\ResolvedField;
 /**
  * @internal
  */
-#[CoversClass(ExplainFieldQueryBuilder::class)]
 #[Package('inventory')]
+#[CoversClass(ExplainFieldQueryBuilder::class)]
 class ExplainFieldQueryBuilderTest extends TestCase
 {
     public function testGetDecorated(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $builder = new ExplainFieldQueryBuilder($inner);
 
         static::assertSame($inner, $builder->getDecorated());
@@ -32,7 +33,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
     public function testDelegatesWithoutExplainMode(): void
     {
         $expected = new TermQuery('name', 'foo');
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn($expected);
 
         $builder = new ExplainFieldQueryBuilder($inner);
@@ -49,7 +50,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
 
     public function testAddsExplainMetadata(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn(new TermQuery('name', 'foo'));
 
         $builder = new ExplainFieldQueryBuilder($inner);
@@ -76,7 +77,7 @@ class ExplainFieldQueryBuilderTest extends TestCase
         $innerQuery = new TermQuery('tags.name', 'foo');
         $nestedQuery = new NestedQuery('tags', $innerQuery);
 
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn($nestedQuery);
 
         $builder = new ExplainFieldQueryBuilder($inner);
@@ -97,9 +98,33 @@ class ExplainFieldQueryBuilderTest extends TestCase
         static::assertTrue($array['nested']['inner_hits']['explain']);
     }
 
+    public function testDisMaxQueryIsReturnedUnchangedInExplainMode(): void
+    {
+        // A text field produces a DisMax whose individual clauses are already named by
+        // FieldQueryBuilder, so the decorator must return it untouched rather than add a
+        // second, field-level _name on top.
+        $disMax = new DisMaxQuery();
+        $disMax->addQuery(new TermQuery('name.search', 'foo'));
+
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
+        $inner->method('build')->willReturn($disMax);
+
+        $builder = new ExplainFieldQueryBuilder($inner);
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, false);
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, 'foo', $config, $context);
+
+        static::assertSame($disMax, $query);
+        static::assertArrayNotHasKey('_name', $query->toArray()['dis_max']);
+    }
+
     public function testReturnsNullWhenInnerReturnsNull(): void
     {
-        $inner = $this->createMock(AbstractFieldQueryBuilder::class);
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn(null);
 
         $builder = new ExplainFieldQueryBuilder($inner);

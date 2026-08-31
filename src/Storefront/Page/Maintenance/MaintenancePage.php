@@ -6,7 +6,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('framework')]
+#[Package('discovery')]
 class MaintenancePage extends Page
 {
     protected ?CmsPageEntity $cmsPage = null;

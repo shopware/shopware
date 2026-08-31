@@ -43,9 +43,8 @@ class ProductListingLoader
     final public const STATE_SKIP_ADD_GROUPING = 'skipAddGrouping';
 
     /**
-     * Field set loaded in listings when `core.listing.partialDataLoading` is enabled. Covers the
-     * data required by the default storefront product boxes. Nested association fields (e.g.
-     * `prices.ruleId`) must be listed explicitly — a bare association name only loads primary keys.
+     * @deprecated tag:v6.8.0 - Will be removed. Reduced listing loading now uses Criteria::excludeFields()
+     *             to drop heavy columns instead of allow-listing fields.
      *
      * @var list<string>
      */
@@ -98,6 +97,18 @@ class ProductListingLoader
     ];
 
     /**
+     * Heavy, off-page columns dropped from listings via {@see Criteria::excludeFields()} when
+     * `core.listing.partialDataLoading` is enabled.
+     *
+     * @var list<string>
+     */
+    final public const PARTIAL_LISTING_EXCLUDED_FIELDS = [
+        'description',
+        'keywords',
+        'customSearchKeywords',
+    ];
+
+    /**
      * @internal
      *
      * @param SalesChannelRepository<ProductCollection> $productRepository
@@ -132,10 +143,10 @@ class ProductListingLoader
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-        $partialDataLoading = $this->systemConfigService->get('core.listing.partialDataLoading', $context->getSalesChannelId());
+        $partialDataLoading = $this->systemConfigService->getBool('core.listing.partialDataLoading', $context->getSalesChannelId());
 
-        if ($criteria->getFields() === [] && (bool) $partialDataLoading) {
-            $criteria->addFields(self::PARTIAL_LISTING_FIELDS);
+        if ($criteria->getFields() === [] && $criteria->getExcludedFields() === [] && $partialDataLoading) {
+            $criteria->excludeFields(self::PARTIAL_LISTING_EXCLUDED_FIELDS);
         }
 
         $clone = clone $criteria;
@@ -321,11 +332,11 @@ class ProductListingLoader
             }
 
             // current id was mapped to another variant
-            if (!$productSearchResult->has($mapping[$id])) {
+            if (!$productSearchResult->getEntities()->has($mapping[$id])) {
                 continue;
             }
 
-            $product = $productSearchResult->get($mapping[$id]);
+            $product = $productSearchResult->getEntities()->get($mapping[$id]);
 
             // get access to the data of the search result
             $product->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));

@@ -20,6 +20,19 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(OpenAiProductExportValidator::class)]
 class OpenAiProductExportValidatorTest extends TestCase
 {
+    public function testValidateIsInertUnderV68(): void
+    {
+        // the validator stays wired into the container under the flag, so it must neither throw the
+        // class deprecation nor validate anything — the validation moves to SwagAgenticCommerce
+        $entity = $this->createProductExportEntity();
+
+        $errors = new ErrorCollection();
+
+        (new OpenAiProductExportValidator(new JsonlRowParser()))->validate($entity, 'not-jsonl', $errors);
+
+        static::assertCount(0, $errors);
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNothingForOtherProviders(): void
     {

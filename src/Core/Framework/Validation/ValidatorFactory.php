@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Validation;
 
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -12,8 +13,6 @@ use Symfony\Component\Validator\Validation;
 class ValidatorFactory
 {
     /**
-     * @deprecated tag:v6.8.0 reason:new-optional-parameter - Parameter $allowExtraFields will be added
-     *
      * @template TClassToCreate of object
      *
      * @param array<string, mixed> $data
@@ -21,6 +20,7 @@ class ValidatorFactory
      *
      * @return TClassToCreate
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'allowExtraFields', parameterType: 'bool', defaultValue: false)]
     public static function create(array $data, string $class /* , bool $allowExtraFields = false */): object
     {
         $allowExtraFields = \func_num_args() > 2 && \func_get_arg(2);

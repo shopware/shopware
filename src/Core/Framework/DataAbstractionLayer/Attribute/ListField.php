@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Attribute;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field as DalField;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class ListField extends Field

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
@@ -19,9 +20,7 @@ class CustomerVatIdentification extends Constraint
         self::VAT_ID_FORMAT_NOT_CORRECT => 'VAT_ID_FORMAT_NOT_CORRECT',
     ];
 
-    /**
-     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getMessage() instead.')]
     public string $message = 'The format of vatId {{ vatId }} is not correct.';
 
     protected string $countryId;

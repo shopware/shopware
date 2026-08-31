@@ -630,6 +630,28 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(multiSelect.attributes().value).toBe('pdf');
     });
 
+    it('should exclude zugferd and app-provided document types from documentCriteria', async () => {
+        const wrapper = await createWrapper({}, ['document.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.documentCriteria.filters).toContainEqual({
+            type: 'not',
+            operator: 'OR',
+            queries: [
+                {
+                    type: 'prefix',
+                    field: 'technicalName',
+                    value: 'zugferd_',
+                },
+                {
+                    type: 'equals',
+                    field: 'technicalName',
+                    value: 'app_provided',
+                },
+            ],
+        });
+    });
+
     it.each([
         { name: 'no company form', config: { displayCompanyAddress: false, displayReturnAddress: false } },
         { name: 'return address active', config: { displayCompanyAddress: false, displayReturnAddress: true } },

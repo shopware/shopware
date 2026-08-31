@@ -46,15 +46,6 @@ public function modifyFields(FieldCollection $collection): void
 
 Installing or updating an app no longer overwrites existing payment method name and description translations. Manifest texts are only applied to languages without a translation.
 
-## API
-
-### Store API context token response header is restricted on cacheable reads
-
-Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
-### Dedicated error code for invalid child line item quantity
-
-`CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
-
 ### New event to register product listing sortings at runtime
 
 `Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent` is dispatched while the product listing, search and suggest criteria are built, before the requested sorting is resolved. Add a `ProductSortingEntity` to `$event->getSortings()` to make it selectable and applicable at runtime:
@@ -70,6 +61,15 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
     $event->getSortings()->add($mySorting);
 }
 ```
+
+## API
+
+### Store API context token response header is restricted on cacheable reads
+
+Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
+### Dedicated error code for invalid child line item quantity
+
+`CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
 
 ## Administration
 
@@ -186,23 +186,6 @@ Both page components declare `container-type: inline-size`. This creates a new c
 The main menu and the search bar no longer color their icons by the `color` of the registered module. Users who prefer the previous look can switch the icons back to their module color with the "Module colors" setting in their profile settings (Profile settings > User interface). It defaults to "Neutral" and is stored per user in the `core.userModuleIconColors` user configuration.
 
 The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
-### New event to register product listing sortings at runtime
-
-`Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent` is dispatched while the product listing, search and suggest criteria are built, before the requested sorting is resolved. Add a `ProductSortingEntity` to `$event->getSortings()` to make it selectable and applicable at runtime:
-
-```php
-public static function getSubscribedEvents(): array
-{
-    return [ProductListingCollectSortingEvent::class => 'addSorting'];
-}
-
-public function addSorting(ProductListingCollectSortingEvent $event): void
-{
-    $event->getSortings()->add($mySorting);
-}
-```
-
-Runtime sortings added to the `sortings` criteria extension from `ProductListingCriteriaEvent`, `ProductSearchCriteriaEvent` or `ProductSuggestCriteriaEvent` were never applied, because those events are dispatched after the sorting has already been resolved. Use the new event instead.
 
 ### Bulk operations in the My Extensions listing
 

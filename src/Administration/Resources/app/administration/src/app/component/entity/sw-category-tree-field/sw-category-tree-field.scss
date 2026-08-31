@@ -96,10 +96,6 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
     box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 10%);
     background-color: var(--color-elevation-surface-raised);
 
-    // mt-floating-ui positions via JS (left/top). To show dropdown above the field instead of below,
-    // pass :floating-ui-options="{ placement: 'top-start' }" on mt-floating-ui. The component also
-    // uses flip() middleware, so it will auto-flip above when there is not enough space below.
-
     .sw-tree {
         border-width: 0;
     }

@@ -205,7 +205,8 @@
       },
       "asyncCompilation": {
         "started": "Die Änderungen werden im Hintergrund kompiliert. Sie werden nach ca. 1 Minute sichtbar. Du erhältst eine Benachrichtigung, sobald die Kompilierung abgeschlossen ist.",
-        "completed": "Die Theme-Kompilierung wurde abgeschlossen."
+        "completed": "Die Theme-Kompilierung wurde abgeschlossen.",
+        "error": "Die Theme-Kompilierung im Hintergrund ist fehlgeschlagen. Das Theme wurde nicht geändert."
       }
     },
     "themeModal": {

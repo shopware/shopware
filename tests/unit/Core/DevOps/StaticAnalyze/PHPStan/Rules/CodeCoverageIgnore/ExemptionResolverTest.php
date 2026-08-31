@@ -7,7 +7,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 use PHPStan\Reflection\ReflectionProvider;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -18,10 +18,12 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ExemptionResolver::class)]
+#[CoversNothing]
 class ExemptionResolverTest extends TestCase
 {
     private const EXISTING_TEST = 'Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookHealthServiceTest';
+
+    private const EXISTING_DEVOPS_TEST = 'Shopware\Tests\DevOps\Core\Installer\InstallerKernelTest';
 
     /**
      * @param array<string, string> $useMap
@@ -34,7 +36,7 @@ class ExemptionResolverTest extends TestCase
         // only asks hasClass(), and the end-to-end path runs in the devops rule test
         $reflectionProvider = static::createStub(ReflectionProvider::class);
         $reflectionProvider->method('hasClass')
-            ->willReturnCallback(static fn (string $class): bool => $class === self::EXISTING_TEST);
+            ->willReturnCallback(static fn (string $class): bool => \in_array($class, [self::EXISTING_TEST, self::EXISTING_DEVOPS_TEST], true));
 
         $resolver = new ExemptionResolver($reflectionProvider);
 
@@ -56,6 +58,18 @@ class ExemptionResolverTest extends TestCase
             '/** @see \\Shopware\\Tests\\Integration\\Core\\Framework\\Webhook\\Service\\WebhookHealthServiceTest */',
             [],
             true,
+        ];
+
+        yield 'FQCN to existing devops test exempts' => [
+            '/** @see \\Shopware\\Tests\\DevOps\\Core\\Installer\\InstallerKernelTest */',
+            [],
+            true,
+        ];
+
+        yield 'FQCN to non-existent devops test does not exempt' => [
+            '/** @see \\Shopware\\Tests\\DevOps\\Definitely\\Not\\A\\RealTest */',
+            [],
+            false,
         ];
 
         yield 'FQCN to non-existent integration test does not exempt' => [

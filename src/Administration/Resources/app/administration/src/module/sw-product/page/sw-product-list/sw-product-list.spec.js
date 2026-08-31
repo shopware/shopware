@@ -604,6 +604,10 @@ describe('module/sw-product/page/sw-product-list', () => {
             term: 'foo',
         });
         await wrapper.vm.$nextTick();
+        // Setting `term` triggers the listing mixin's search watcher, which runs its own getList.
+        // Let that settle against the real service before installing the counting mocks, so the
+        // assertion only counts the explicit getList below (otherwise the watcher's call leaks in).
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });

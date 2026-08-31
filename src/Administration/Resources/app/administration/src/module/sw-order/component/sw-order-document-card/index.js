@@ -71,6 +71,7 @@ export default {
             cardLoading: false,
             documents: new EntityCollection(null, null, null, new Criteria(1, 25), [], 0),
             documentTypes: null,
+            supportedDocumentTypes: {},
             showModal: false,
             currentDocumentType: null,
             documentNumber: null,
@@ -141,6 +142,9 @@ export default {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
+
             return criteria;
         },
 
@@ -182,8 +186,8 @@ export default {
                     allowResize: false,
                 },
                 {
-                    property: 'documentType.name',
-                    dataIndex: 'documentType.name',
+                    property: this.feature.isActive('DOCUMENT_GENERATION_REWORK') ? 'typeName' : 'documentType.name',
+                    dataIndex: this.feature.isActive('DOCUMENT_GENERATION_REWORK') ? 'typeName' : 'documentType.name',
                     label: 'sw-order.documentCard.labelType',
                     allowResize: false,
                 },
@@ -297,7 +301,33 @@ export default {
                 this.cardLoading = false;
             });
 
+            if (Shopware.Feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                this.documentV2Service
+                    .getAvailableDocumentTypes()
+                    .then((supportedDocumentTypes) => {
+                        this.supportedDocumentTypes = supportedDocumentTypes;
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: this.$t('sw-order.documentCard.error.loadDocumentTypes'),
+                        });
+                    });
+            }
+
             this.documentService.setListener(this.convertStoreEventToVueEvent);
+        },
+
+        documentTypeLabel(document) {
+            const technicalName = document.typeName;
+
+            if (!technicalName) {
+                return document.documentType?.name ?? '';
+            }
+
+            return this.documentV2Service.getDocumentTypeLabel(
+                technicalName,
+                this.supportedDocumentTypes[technicalName]?.label,
+            );
         },
 
         convertStoreEventToVueEvent({ action, payload }) {
@@ -479,7 +509,7 @@ export default {
 
         downloadDocumentArchive(documentId) {
             return this.documentV2ApiService
-                .getDocumentArchive(documentId)
+                .getDocumentArchive([documentId])
                 .then((documentFileResponse) => {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(documentFileResponse.file);
@@ -549,9 +579,13 @@ export default {
                         params.deliveryDate,
                         referencedDocumentId,
                     );
-                } catch (_) {
+                } catch (err) {
                     this.createNotificationError({
-                        message: this.$t('sw-order.documentCard.error.createDocument'),
+                        message:
+                            this.documentV2Service.getErrorTranslation(
+                                err.response?.data?.errors?.[0]?.code ?? '',
+                                err.response?.data?.errors?.[0]?.meta.parameters ?? [],
+                            ) ?? this.$t('sw-order.documentCard.error.createDocument'),
                     });
 
                     this.isLoadingDocument = false;
@@ -645,9 +679,13 @@ export default {
                     params.documentMediaFileId,
                     file,
                 );
-            } catch {
+            } catch (err) {
                 this.createNotificationError({
-                    message: this.$t('sw-order.documentCard.error.uploadDocument'),
+                    message:
+                        this.documentV2Service.getErrorTranslation(
+                            err.response?.data?.errors?.[0]?.code ?? '',
+                            err.response?.data?.errors?.[0]?.meta.parameters ?? [],
+                        ) ?? this.$t('sw-order.documentCard.error.uploadDocument'),
                 });
 
                 this.isLoadingDocument = false;
@@ -700,9 +738,23 @@ export default {
                         link.dispatchEvent(new MouseEvent('click'));
                         link.remove();
                     })
-                    .catch(() => {
+                    .catch(async (err) => {
+                        let message;
+
+                        try {
+                            const errorData = await err.response?.data?.text();
+                            const errorJson = JSON.parse(errorData);
+                            message =
+                                this.documentV2Service.getErrorTranslation(
+                                    errorJson.errors?.[0]?.code ?? '',
+                                    errorJson.errors?.[0]?.meta.parameters ?? [],
+                                ) ?? this.$t('sw-order.documentCard.error.loadDocumentPreview');
+                        } catch {
+                            message = this.$t('sw-order.documentCard.error.loadDocumentPreview');
+                        }
+
                         this.createNotificationError({
-                            message: this.$t('sw-order.documentCard.error.loadDocumentPreview'),
+                            message: message,
                         });
                     })
                     .finally(() => {

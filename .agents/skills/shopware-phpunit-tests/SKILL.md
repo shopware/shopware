@@ -52,14 +52,15 @@ Tests should read like executable examples.
 - If a class is intentionally covered only by integration tests, mark it with `@codeCoverageIgnore` on its own docblock line and add a separate `@see \Shopware\Tests\Integration\…\DedicatedIntegrationTest` line. Use the fully qualified class name with a leading `\`; do not import a test class solely for the annotation. The referenced class must be a dedicated integration test for that production class; incidental coverage from an unrelated test is not sufficient. Extract or add a focused test class before adding the annotation.
 - Every new class should either have focused unit-test coverage or be explicitly marked with `@codeCoverageIgnore` and an integration-test `@see` when unit coverage does not make sense.
 - Simple struct-style classes with only public properties do not need unit tests; mark them with `@codeCoverageIgnore` instead.
+- `@codeCoverageIgnore` is for pass-through code only. A PHPStan rule (`CodeCoverageIgnoreEvaluationRule`) fails on annotated methods that branch, throw, mutate a value (`unset`, `+=`, `.=`, `++`, a second write to a local) call `$this->…()`/`self::…()` for its effect (access guards, hooks), call a method on a parameter for its effect (`$criteria->addFilter(...)`; entity extensions adding fields are exempt), or configure the parent constructor with a literal or a parameter default the parent does not share. Write a unit test for such a class instead, or point a `@see` at a dedicated integration or devops test.
 - Do not add `#[CoversClass]`, `#[CoversFunction]`, or `#[CoversNothing]` to integration tests. Shopware's PHPStan rule allows those attributes only on unit and migration tests.
 - Declare exactly one `#[CoversClass]` per test file: the covered class decides which domain owns the test. When a second class needs tests, create a second test file. A Danger rule fails new test files covering more than one class.
 
 ## Meta-information of test classes
 
 - Give every test class a `#[Package('…')]` attribute (import `Shopware\Core\Framework\Log\Package`) so failing CI jobs — especially the nightlies — can be routed to the owning domain team. A Danger rule fails PRs that add test classes without it.
-- In unit and migration tests, copy the value from the `#[CoversClass]` target's `#[Package]`.
-- Integration tests carry no `#[CoversClass]`; use the dominant `#[Package]` value of the `src/` directory the test path mirrors (e.g. `tests/integration/Core/Checkout/Cart/…` → `src/Core/Checkout/Cart`).
+- In unit and migration tests, copy the value from the `#[CoversClass]` target's `#[Package]`. A PHPStan rule (`TestPackageMatchRule`) fails on mismatches; `fundamentals@<area>` counts as equal to `<area>`.
+- Integration tests carry no `#[CoversClass]`; use a `#[Package]` value that occurs in the `src/` directory the test path mirrors (e.g. `tests/integration/Core/Checkout/Cart/…` → `src/Core/Checkout/Cart`). The same PHPStan rule fails when the value matches none of the packages found there.
 - When a change moves the covered class to another package, update the test's attribute in the same change so the two stay in sync.
 - Every test class needs to be marked as internal with `@internal` PHPDoc class annotation.
 

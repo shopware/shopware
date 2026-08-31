@@ -45,6 +45,8 @@ class StateMachineHistoryEntity extends Entity
 
     protected ?string $internalComment = null;
 
+    protected ?string $sourceType = null;
+
     public function getTransitionActionName(): string
     {
         return $this->transitionActionName;
@@ -193,5 +195,15 @@ class StateMachineHistoryEntity extends Entity
     public function setInternalComment(?string $internalComment): void
     {
         $this->internalComment = $internalComment;
+    }
+
+    public function getSourceType(): ?string
+    {
+        return $this->sourceType;
+    }
+
+    public function setSourceType(?string $sourceType): void
+    {
+        $this->sourceType = $sourceType;
     }
 }

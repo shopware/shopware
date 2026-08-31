@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -62,12 +63,12 @@ class DocumentDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
-            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new StringField('type_name', 'typeName'))->addFlags(new ApiAware())->setDescription('Technical name of the document type.'),
             (new FkField('referenced_document_id', 'referencedDocumentId', self::class))->addFlags(new ApiAware()),
 
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new FkField('document_media_file_id', 'documentMediaFileId', MediaDefinition::class))->addFlags(new ApiAware()),
-            (new FkField('document_a11y_media_file_id', 'documentA11yMediaFileId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('document_media_file_id', 'documentMediaFileId', MediaDefinition::class))->addFlags(new ApiAware(), new Deprecated('v6.7.14.0', 'v6.9.0.0', 'documentFiles')),
+            (new FkField('document_a11y_media_file_id', 'documentA11yMediaFileId', MediaDefinition::class))->addFlags(new ApiAware(), new Deprecated('v6.7.14.0', 'v6.9.0.0', 'documentFiles')),
             (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new ApiAware(), new Required()),
 
             (new JsonField('config', 'config', [], []))->addFlags(new ApiAware(), new Required()),
@@ -77,13 +78,15 @@ class DocumentDefinition extends EntityDefinition
             (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new CustomFields())->addFlags(new ApiAware()),
 
-            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('referencedDocument', 'referenced_document_id', self::class, 'id', false))->addFlags(new ApiAware()),
             (new OneToManyAssociationField('dependentDocuments', self::class, 'referenced_document_id'))->addFlags(new ApiAware()),
-            (new ManyToOneAssociationField('documentMediaFile', 'document_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            (new ManyToOneAssociationField('documentA11yMediaFile', 'document_a11y_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('documentMediaFile', 'document_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Deprecated('v6.7.14.0', 'v6.9.0.0', 'documentFiles')),
+            (new ManyToOneAssociationField('documentA11yMediaFile', 'document_a11y_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Deprecated('v6.7.14.0', 'v6.9.0.0', 'documentFiles')),
             new OneToManyAssociationField('documentFiles', DocumentFileDefinition::class, 'document_id'),
+
+            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware(), new Required(), new Deprecated('v6.7.14.0', 'v6.9.0.0', 'typeName')),
+            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING), new Deprecated('v6.7.14.0', 'v6.9.0.0', 'typeName')),
         ]);
     }
 }

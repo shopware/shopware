@@ -10,6 +10,7 @@ describe('src/app/init/sidebar.init', () => {
     beforeEach(() => {
         // Reset the sidebar store
         Shopware.Store.get('sidebar').sidebars = [];
+        Shopware.Store.get('sidebar').closingSidebar = null;
 
         Shopware.Store.get('extensions').extensionsState = {};
         Shopware.Store.get('extensions').addExtension({
@@ -62,10 +63,17 @@ describe('src/app/init/sidebar.init', () => {
         // Open the sidebar
         Shopware.Store.get('sidebar').sidebars[0].active = true;
 
+        jest.useFakeTimers();
+
         // Close the sidebar
         await ui.sidebar.close({
             locationId: 'test-sidebar',
         });
+
+        // The close plays the closing animation before deactivating
+        expect(Shopware.Store.get('sidebar').closingSidebar).toBe('test-sidebar');
+        jest.advanceTimersByTime(400);
+        jest.useRealTimers();
 
         // Check that sidebar is not active
         expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(false);

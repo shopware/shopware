@@ -802,6 +802,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ...wrapper.vm.variantsGenerator,
                 saveVariants: () => Promise.resolve(),
                 saveVariantRestrictions: () => Promise.resolve(),
+                saveVariantListingConfig: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -844,6 +845,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 generateVariants: () => Promise.resolve(),
                 saveVariants: () => Promise.resolve(),
                 saveVariantRestrictions: () => Promise.resolve(),
+                saveVariantListingConfig: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -1194,6 +1196,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
         const saveMock = jest.fn().mockReturnValueOnce(Promise.resolve({}));
         const saveVariantRestrictionsMock = jest.fn(() => Promise.resolve());
+        const saveVariantListingConfigMock = jest.fn(() => Promise.resolve());
 
         await wrapper.setData({
             productRepository: {
@@ -1214,6 +1217,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             variantsGenerator: {
                 saveVariants: () => Promise.resolve(),
                 saveVariantRestrictions: saveVariantRestrictionsMock,
+                saveVariantListingConfig: saveVariantListingConfigMock,
                 saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
@@ -1225,6 +1229,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         // and swProductDetailLoadAll() reloads fresh data from server
         expect(saveMock).not.toHaveBeenCalled();
         expect(saveVariantRestrictionsMock).toHaveBeenCalledTimes(1);
+        expect(saveVariantListingConfigMock).toHaveBeenCalledTimes(1);
         // The event should still be emitted
         expect(wrapper.emitted('variations-finish-generate')).toHaveLength(1);
     });

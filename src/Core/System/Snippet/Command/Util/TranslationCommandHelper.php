@@ -12,10 +12,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('discovery')]
 class TranslationCommandHelper
 {
-    private const PROGRESS_BAR_NAME = 'install-translations-format';
-
-    private const PROGRESS_BAR_FORMAT = '%current%/%max% -- Fetching translations for locale: %message%';
-
     public static function handleSavingMetadataCLIOutput(callable $saveCallback, OutputInterface $output): void
     {
         $output->writeln('Saving translation metadata...');
@@ -29,13 +25,22 @@ class TranslationCommandHelper
     }
 
     /**
+     * @param string $action what is being done per locale, for example "Installing translations"
+     */
+    public static function createProgressBar(OutputInterface $output, int $max, string $action): ProgressBar
+    {
+        $progressBar = new ProgressBar($output, $max);
+        $progressBar->setFormat(\sprintf('%%current%%/%%max%% -- %s for locale: %%message%%', $action));
+
+        return $progressBar;
+    }
+
+    /**
      * @param list<string> $locales
      */
-    public static function executeLoadWithProgressBar(array $locales, OutputInterface $output, callable $loadCallback): void
+    public static function executeLoadWithProgressBar(array $locales, OutputInterface $output, string $action, callable $loadCallback): void
     {
-        ProgressBar::setFormatDefinition(self::PROGRESS_BAR_NAME, self::PROGRESS_BAR_FORMAT);
-        $progressBar = new ProgressBar($output, \count($locales));
-        $progressBar->setFormat(self::PROGRESS_BAR_NAME);
+        $progressBar = self::createProgressBar($output, \count($locales), $action);
 
         foreach ($locales as $locale) {
             $progressBar->setMessage($locale);
@@ -65,6 +70,42 @@ class TranslationCommandHelper
         $output->writeln(\sprintf(
             'The following locales are already up to date and will be skipped: %s',
             implode(', ', $localesDiff)
+        ));
+    }
+
+    /**
+     * @param non-empty-array<int, string> $locales
+     */
+    public static function printLocalesInstalledFromExistingFiles(OutputInterface $output, array $locales): void
+    {
+        $output->writeln(\sprintf(
+            'The following locales are installed from their existing translation files, without downloading: %s',
+            implode(', ', $locales)
+        ));
+    }
+
+    /**
+     * @param non-empty-array<int, string> $locales
+     */
+    public static function printUnavailableLocales(OutputInterface $output, array $locales): void
+    {
+        $output->writeln(\sprintf(
+            '<comment>No translations are available for the following locales, they will not be installed: %s</comment>',
+            implode(', ', $locales)
+        ));
+    }
+
+    /**
+     * Unlike printUnavailableLocales() this says nothing about what the repository offers: in offline mode the
+     * repository is never contacted, only the filesystem is.
+     *
+     * @param non-empty-array<int, string> $locales
+     */
+    public static function printLocalesWithoutFiles(OutputInterface $output, array $locales): void
+    {
+        $output->writeln(\sprintf(
+            '<comment>No translation files are present for the following locales, they will not be installed: %s</comment>',
+            implode(', ', $locales)
         ));
     }
 }

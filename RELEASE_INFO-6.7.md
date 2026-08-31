@@ -46,6 +46,22 @@ public function modifyFields(FieldCollection $collection): void
 
 Installing or updating an app no longer overwrites existing payment method name and description translations. Manifest texts are only applied to languages without a translation.
 
+### New event to register product listing sortings at runtime
+
+`Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent` is dispatched while the product listing, search and suggest criteria are built, before the requested sorting is resolved. Add a `ProductSortingEntity` to `$event->getSortings()` to make it selectable and applicable at runtime:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [ProductListingCollectSortingEvent::class => 'addSorting'];
+}
+
+public function addSorting(ProductListingCollectSortingEvent $event): void
+{
+    $event->getSortings()->add($mySorting);
+}
+```
+
 ## API
 
 ### Store API context token response header is restricted on cacheable reads
@@ -195,6 +211,16 @@ With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic el
 ### Clear message when adding a second code of the same promotion
 
 Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
+
+### Essential characteristics render select, entity and price custom fields
+
+Custom fields of the types `select`, `entity` and `price` are now rendered when they are part of a product's essential characteristics. Their line item payload gained an optional `display` key next to the untouched `content`:
+
+```
+lineItem.payload.features[].value = { id, type, content, display }
+```
+
+`display` holds a list of resolved option or entity labels for `select` and `entity`, and the price of the current currency and tax state as a float for `price`. It is only present on line items built after the update, so templates overriding `component/product/feature/types/feature-custom-field.html.twig` must treat it as optional. A characteristic that cannot be resolved is dropped from the payload, and `component/product/feature/item.html.twig` no longer emits an empty list item for a characteristic its template renders nothing for.
 
 # 6.7.14.0
 

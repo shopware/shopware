@@ -27,9 +27,11 @@ use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -409,6 +411,7 @@ class DocumentPersisterTest extends TestCase
             $documentFileRepository,
             $documentTypeRepository,
             static::createStub(MediaService::class),
+            $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             $eventDispatcher,
         );
@@ -484,7 +487,7 @@ class DocumentPersisterTest extends TestCase
         yield 'document type not found' => [
             'documentSearch' => null,
             'documentTypeId' => '',
-            'exception' => DocumentV2Exception::documentTypeNotFound(self::DOCUMENT_TYPE),
+            'exception' => DocumentV2Exception::invalidDocumentType(self::DOCUMENT_TYPE),
         ];
     }
 
@@ -555,6 +558,7 @@ class DocumentPersisterTest extends TestCase
             $documentFileRepository,
             $documentTypeRepository,
             $mediaService,
+            $this->createEmptyDocumentTypeRegistry(),
             static::createStub(FileNameProvider::class),
             static::createStub(EventDispatcherInterface::class),
         );
@@ -633,12 +637,17 @@ class DocumentPersisterTest extends TestCase
             $fileNameProvider->method('provide')->willReturnArgument(0);
         }
 
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+        $documentTypeRegistry = new DocumentTypeRegistry([], $storage);
+
         return [
             new DocumentPersister(
                 $documentRepository,
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                $documentTypeRegistry,
                 $fileNameProvider,
                 $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
             ),
@@ -671,5 +680,13 @@ class DocumentPersisterTest extends TestCase
             documentComment: null,
             legacyConfig: $legacyConfig,
         );
+    }
+
+    private function createEmptyDocumentTypeRegistry(): DocumentTypeRegistry
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+
+        return new DocumentTypeRegistry([], $storage);
     }
 }

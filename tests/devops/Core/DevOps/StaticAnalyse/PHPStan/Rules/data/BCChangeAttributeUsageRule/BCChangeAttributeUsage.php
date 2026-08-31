@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
@@ -18,6 +19,9 @@ use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\DirectHierarchyMethodTrait;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\NewHierarchyParent;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\OldHierarchyParent;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[BecomesFinal(version: 'v6.8.0')]
@@ -325,4 +329,45 @@ class ValidPropertyUsage
 {
     #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
     public string $becomesProtected;
+}
+
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Changes parent.', newParentClass: NewHierarchyParent::class)]
+class InvalidHierarchyChange extends OldHierarchyParent
+{
+    public function overriddenWithoutDeprecation(): void
+    {
+        parent::overriddenWithoutDeprecation();
+    }
+}
+
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Changes parent.', newParentClass: NewHierarchyParent::class)]
+class ValidHierarchyChange extends OldHierarchyParent
+{
+    use DirectHierarchyMethodTrait;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function ancestorMethod(): void
+    {
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function inheritedMethod(): void
+    {
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function overriddenWithoutDeprecation(): void
+    {
+        parent::overriddenWithoutDeprecation();
+    }
+
+    public function providedByProtectedNewParent(): void
+    {
+    }
 }

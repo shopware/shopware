@@ -133,7 +133,7 @@ final readonly class DocumentResolver
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('orderId', $orderId))
-            ->addFilter(new EqualsFilter('documentType.technicalName', $documentTypeTechnicalName))
+            ->addFilter(new EqualsFilter('typeName', $documentTypeTechnicalName))
             ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING))
             ->setLimit(1);
         $criteria->setTitle('send-mail::latest-document-by-type');

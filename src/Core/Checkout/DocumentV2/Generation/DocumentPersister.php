@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
@@ -14,6 +15,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -52,6 +54,7 @@ final readonly class DocumentPersister
         private EntityRepository $documentFileRepository,
         private EntityRepository $documentTypeRepository,
         private MediaService $mediaService,
+        private DocumentTypeRegistry $documentTypeRegistry,
         private FileNameProvider $fileNameProvider,
         private EventDispatcherInterface $eventDispatcher,
     ) {
@@ -305,12 +308,25 @@ final readonly class DocumentPersister
             ->addFilter(new EqualsFilter('technicalName', $documentType))
             ->setLimit(1);
 
-        $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
+        $id = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
 
-        if ($documentTypeId === null) {
-            throw DocumentV2Exception::documentTypeNotFound($documentType);
+        if ($id !== null) {
+            return $id;
         }
 
-        return $documentTypeId;
+        if (!$this->documentTypeRegistry->supports($documentType)) {
+            throw DocumentV2Exception::invalidDocumentType($documentType);
+        }
+
+        $sentinelId = $this->documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', DocumentType::APP_PROVIDED->value))->setLimit(1),
+            $context,
+        )->firstId();
+
+        if ($sentinelId === null) {
+            throw DocumentV2Exception::invalidDocumentType($documentType);
+        }
+
+        return $sentinelId;
     }
 }

@@ -317,7 +317,7 @@ class CartItemAddRouteTest extends TestCase
                     'items' => [
                         [
                             'type' => 'promotion',
-                            'referencedId' => $code,
+                            'referencedId' => " \t{$code}\n",
                         ],
                     ],
                 ]
@@ -331,6 +331,14 @@ class CartItemAddRouteTest extends TestCase
         static::assertSame(790, $response['price']['totalPrice']);
         static::assertCount(2, $response['lineItems']);
         static::assertSame('Test', $response['lineItems'][0]['label']);
+
+        $promotionLineItems = array_values(array_filter(
+            $response['lineItems'],
+            static fn (array $lineItem): bool => $lineItem['type'] === LineItem::PROMOTION_LINE_ITEM_TYPE
+        ));
+
+        static::assertCount(1, $promotionLineItems);
+        static::assertSame($code, $promotionLineItems[0]['referencedId']);
     }
 
     private function createTestData(): void

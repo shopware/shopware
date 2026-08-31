@@ -126,6 +126,40 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
+    afterEach(() => {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    });
+
+    it('should select the displayed order for app action buttons', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
+            wrapper.vm.orderId,
+        ]);
+    });
+
+    it('should deselect the order for app action buttons when leaving the detail page while editing', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({ hasOrderDeepEdit: true });
+
+        const next = jest.fn();
+        wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm, {}, {}, next);
+
+        // The leave page warning takes over, so the navigation is not continued yet
+        expect(next).not.toHaveBeenCalled();
+        expect(wrapper.vm.isDisplayingLeavePageWarning).toBe(true);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
+            wrapper.vm.orderId,
+        ]);
+
+        wrapper.unmount();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
+    });
+
     it('should remove version id when beforeunload event is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
@@ -612,6 +646,40 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         expect(createNewVersionIdMock).toHaveBeenCalled();
         expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
+    });
+
+    it('should prefer the server translated message when handling cart errors', async () => {
+        wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.handleCartErrors({
+            data: {
+                errors: {
+                    'promotion-not-found': {
+                        level: 20,
+                        message: 'Promotion with code SUMMER not found!',
+                        messageKey: 'promotion-not-found',
+                        translatedMessage: 'Gutscheincode "SUMMER" existiert nicht.',
+                    },
+                    'custom-plugin-error': {
+                        level: 20,
+                        message: 'Something went wrong',
+                        messageKey: 'custom-plugin-error',
+                        translatedMessage: 'checkout.custom-plugin-error',
+                    },
+                },
+            },
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenNthCalledWith(1, {
+            message: 'Gutscheincode "SUMMER" existiert nicht.',
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenNthCalledWith(2, {
+            message: 'Something went wrong',
+        });
     });
 
     it('should ask for saving confirmation before continuing', async () => {

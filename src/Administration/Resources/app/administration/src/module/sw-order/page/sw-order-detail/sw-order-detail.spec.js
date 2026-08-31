@@ -71,6 +71,7 @@ async function createWrapper(order = {}) {
                         search: () => Promise.resolve([]),
                         hasChanges: () => false,
                         deleteVersion: () => Promise.resolve([]),
+                        deleteVersionWithKeepalive: () => Promise.resolve(),
                         createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
                         get: () => Promise.resolve(order),
                         save: () => Promise.resolve({}),
@@ -87,27 +88,63 @@ async function createWrapper(order = {}) {
 
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
+    let originalAuthToken;
+
+    beforeEach(() => {
+        originalAuthToken = Shopware.Context.api.authToken;
+    });
+
+    afterEach(() => {
+        if (wrapper) {
+            window.removeEventListener('pagehide', wrapper.vm.onPageHide);
+        }
+
+        Shopware.State.commit('context/setApiAuthToken', originalAuthToken);
+    });
 
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should remove version id when beforeunload event is triggered', async () => {
+    it('should remove version id with a keepalive request when pagehide is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
 
         const oldVersionContext = wrapper.vm.versionContext;
+        const refreshedAuthToken = {
+            access: 'refreshed-access-token',
+            expiry: Date.now() + 60000,
+            refresh: 'refresh-token',
+        };
+        Shopware.State.commit('context/setApiAuthToken', refreshedAuthToken);
 
-        window.dispatchEvent(new Event('beforeunload'));
+        window.dispatchEvent(new Event('pagehide'));
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).toHaveBeenCalledWith(
             wrapper.vm.orderId,
             oldVersionContext.versionId,
-            oldVersionContext,
+            {
+                ...oldVersionContext,
+                authToken: refreshedAuthToken,
+            },
         );
+        expect(wrapper.vm.orderRepository.deleteVersion).not.toHaveBeenCalled();
         expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
         expect(wrapper.vm.hasNewVersionId).toBe(false);
+    });
+
+    it('should keep the version when the page is stored in the back-forward cache', async () => {
+        wrapper = await createWrapper();
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
+
+        const pageHideEvent = new Event('pagehide');
+        Object.defineProperty(pageHideEvent, 'persisted', { value: true });
+        window.dispatchEvent(pageHideEvent);
+
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
+        expect(wrapper.vm.hasNewVersionId).toBe(true);
     });
 
     it('should not contain manual label', async () => {

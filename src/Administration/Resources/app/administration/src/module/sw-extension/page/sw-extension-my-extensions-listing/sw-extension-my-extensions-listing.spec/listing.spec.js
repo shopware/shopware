@@ -1,126 +1,17 @@
-import { mount, config } from '@vue/test-utils';
-import { createRouter, createWebHashHistory } from 'vue-router';
-import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
-import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
-
-const routes = [
-    {
-        name: 'sw.extension.my-extensions.listing.app',
-        path: '/sw/extension/my-extensions/listing/app',
-        query: {},
-        component: {},
-    },
-    {
-        name: 'sw.extension.my-extensions.listing.theme',
-        path: '/sw/extension/my-extensions/listing/theme',
-        query: {},
-        component: {},
-    },
-];
-
-const shopwareService = new ShopwareService({}, {}, {}, {});
-shopwareService.updateExtensionData = jest.fn();
-
-async function createWrapper(query = {}) {
-    delete config.global.mocks.$router;
-    delete config.global.mocks.$route;
-
-    const router = createRouter({
-        routes,
-        history: createWebHashHistory(),
-    });
-
-    await router.push({ ...routes[0], query });
-    await router.isReady();
-
-    return mount(
-        await wrapTestComponent('sw-extension-my-extensions-listing', {
-            sync: true,
-        }),
-        {
-            global: {
-                plugins: [router],
-                stubs: {
-                    'router-link': true,
-                    'sw-self-maintained-extension-card': {
-                        template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
-                        props: ['extension'],
-                    },
-                    'sw-meteor-card': true,
-                    'sw-pagination': await wrapTestComponent('sw-pagination', {
-                        sync: true,
-                    }),
-                    'sw-field': true,
-                    'sw-extension-my-extensions-listing-controls': await wrapTestComponent(
-                        'sw-extension-my-extensions-listing-controls',
-                        { sync: true },
-                    ),
-
-                    'sw-base-field': await wrapTestComponent('sw-base-field', {
-                        sync: true,
-                    }),
-                    'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
-                    'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
-                    'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-                    'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
-                    'sw-skeleton': true,
-                    'sw-external-link': true,
-                    'sw-inheritance-switch': true,
-                    'sw-ai-copilot-badge': true,
-                    'sw-help-text': true,
-                    'sw-loader': true,
-                    'sw-extension-component-section': true,
-                },
-                provide: {
-                    repositoryFactory: {
-                        create: () => {
-                            return {};
-                        },
-                    },
-                    shopwareExtensionService: shopwareService,
-                },
-            },
-            attachTo: document.body,
-        },
-    );
-}
-
 /**
  * @sw-package checkout
  */
+
+import {
+    createWrapper,
+    routes,
+    selectMtSelectOptionByText,
+    setupListingHooks,
+    shopwareService,
+} from './sw-extension-my-extensions-listing.fixtures';
+
 describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () => {
-    beforeAll(() => {
-        Shopware.Store.get('shopwareExtensions').setMyExtensions([{ name: 'Test', installedAt: null }]);
-
-        if (Shopware.Store.get('context')) {
-            Shopware.Store.unregister('context');
-        }
-
-        Shopware.Store.register({
-            id: 'context',
-            state: () => ({
-                app: {
-                    config: {
-                        settings: {
-                            appUrlReachable: true,
-                        },
-                    },
-                },
-                api: {
-                    assetsPath: '/',
-                },
-            }),
-        });
-    });
-
-    beforeEach(async () => {
-        Shopware.Store.get('shopwareExtensions').setMyExtensions([
-            {
-                name: 'Test',
-                installedAt: null,
-            },
-        ]);
-    });
+    setupListingHooks();
 
     it('runtime management disabled should be there', async () => {
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
@@ -231,7 +122,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('should apply the sorting option from the route after loading', async () => {
-        const wrapper = await createWrapper({ sorting: 'name-asc' });
+        const wrapper = await createWrapper({ query: { sorting: 'name-asc' } });
         const extensions = [
             'Zeta',
             'Alpha',
@@ -293,7 +184,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should search the extensions', async () => {
         const wrapper = await createWrapper();
 
-        // load 60 extensions
+        // load 40 extensions
         const extensions = Array(40)
             .fill()
             .map((_, i) => {

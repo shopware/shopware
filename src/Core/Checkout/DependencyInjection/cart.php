@@ -116,6 +116,7 @@ use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
 use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -532,6 +533,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('custom_field.repository'),
             service(LanguageLocaleCodeProvider::class),
+            service(DefinitionInstanceRegistry::class),
         ]);
 
     $services->set(TransactionProcessor::class);

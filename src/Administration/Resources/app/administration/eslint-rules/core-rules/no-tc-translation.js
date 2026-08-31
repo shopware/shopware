@@ -2,8 +2,11 @@
  * @sw-package framework
  */
 
+// eslint-plugin-vue 10 ships as ESM under dist/ (utils sit on the module's
+// `default` export); older layouts exported them directly from lib/.
 // eslint-disable-next-line import/no-extraneous-dependencies
-const utils = require('eslint-plugin-vue/lib/utils');
+const utilsModule = require('eslint-plugin-vue/dist/utils');
+const utils = utilsModule.default ?? utilsModule;
 
 function reportTc(context, node, isProperty) {
     const target = isProperty ? node.callee.property : node.callee;

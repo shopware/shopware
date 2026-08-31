@@ -427,18 +427,18 @@ class ApplicationBootstrapper {
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
      */
-    createApplicationRoot(): Promise<ApplicationBootstrapper> {
+    async createApplicationRoot(): Promise<ApplicationBootstrapper> {
         const initContainer = this.getContainer('init');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const router = initContainer.router.getRouterInstance();
 
         // We're in a test environment, we're not needing an application root
         if (Shopware.Context.app.environment === 'testing') {
-            return Promise.resolve(this);
+            return this;
         }
 
         if (!this.view) {
-            return Promise.reject(new Error('The ViewAdapter was not defined in the application.'));
+            throw new Error('The ViewAdapter was not defined in the application.');
         }
 
         this.view.init(
@@ -452,23 +452,30 @@ class ApplicationBootstrapper {
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
 
         const loginService = this.getContainer('service').loginService;
-        if (
-            firstRunWizard &&
-            loginService.isLoggedIn() &&
+        if (firstRunWizard && loginService.isLoggedIn()) {
+            // Wait for the router to resolve its initial navigation before deciding whether the
+            // user needs to be redirected into the wizard. Directly after `view.init` the router
+            // still reports the START location (an empty route name), so a reload that lands on a
+            // deeper wizard step - e.g. the PayPal credentials step after activating the plugin -
+            // would otherwise be pushed back to the wizard start and the wizard would appear to
+            // restart. See issue #6210.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            !router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard')
-        ) {
+            await router.isReady().catch(() => {});
+
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            router.push({
-                name: 'sw.first.run.wizard.index',
-            });
+            if (!router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard')) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                router.push({
+                    name: 'sw.first.run.wizard.index',
+                });
+            }
         }
 
         if (typeof this._resolveViewInitialized === 'function') {
             this._resolveViewInitialized();
         }
 
-        return Promise.resolve(this);
+        return this;
     }
 
     _resolveViewInitialized: undefined | ((arg0?: unknown) => void);

@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
+                ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
                 ->append($this->createTranslationSection())
             ->end();
@@ -1700,6 +1701,31 @@ class Configuration implements ConfigurationInterface
                     ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createAppSystemSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('app_system');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
+                ->arrayNode('allowed_private_ip_addresses')
+                    ->performNoDeepMerging()
+                    ->defaultValue([])
+                    ->scalarPrototype()
+                        ->cannotBeEmpty()
+                        ->validate()
+                            ->ifTrue(static fn (string $value): bool => filter_var($value, \FILTER_VALIDATE_IP) === false)
+                            ->thenInvalid('"%s" is not a valid IP address.')
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 

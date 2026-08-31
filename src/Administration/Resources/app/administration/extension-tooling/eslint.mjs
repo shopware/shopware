@@ -12,7 +12,8 @@ import pluginVue from 'eslint-plugin-vue';
 import tseslint from 'typescript-eslint';
 import swDeprecationRules from 'eslint-plugin-sw-deprecation-rules';
 import swPluginRules from 'eslint-plugin-plugin-rules';
-import { legacyTwigConfig, defaultTwigFiles } from './legacy-twig.mjs';
+import swCoreRules from 'eslint-plugin-sw-core-rules';
+import { legacyTwigConfig, defaultTwigFiles, resolveVueParser } from './legacy-twig.mjs';
 
 const javascriptFilePatterns = [
     '**/*.js',
@@ -51,8 +52,7 @@ const NO_ADMIN_INTERNALS_RULE = [
     },
 ];
 const typedRules = Object.assign({}, ...tseslint.configs.recommendedTypeChecked.map((config) => config.rules ?? {}));
-const vueParserSetup = pluginVue.configs['flat/recommended'].find((config) => config.name === 'vue/base/setup-for-vue');
-const vueParser = vueParserSetup.languageOptions.parser;
+const vueParser = resolveVueParser();
 
 /**
  * Creates the shared flat config for Administration extensions.
@@ -190,6 +190,31 @@ export function shopwareAdminExtension(options = {}) {
             },
         },
         {
+            name: 'shopware/admin-extension/native-setup',
+            files: scope(vueFilePatterns),
+            languageOptions: {
+                // Compile-time macros the Shopware setup transform removes: they
+                // are never real runtime values, so they are declared globals to
+                // keep no-undef from flagging them.
+                globals: {
+                    swDefinePublic: 'readonly',
+                    swDefineOverride: 'readonly',
+                    useSwPreviousState: 'readonly',
+                    useSwProps: 'readonly',
+                    useSwContext: 'readonly',
+                },
+            },
+            plugins: {
+                'sw-core-rules': swCoreRules,
+            },
+            rules: {
+                // Native-setup correctness guards. vue/no-dupe-keys — the third
+                // native-setup guard — is already error via vue/essential.
+                'sw-core-rules/valid-shopware-setup': 'error',
+                'sw-core-rules/native-setup-filename': 'error',
+            },
+        },
+        {
             name: 'shopware/admin-extension/runtime-contract',
             files: scope([
                 ...javascriptFilePatterns,
@@ -233,6 +258,44 @@ export function shopwareAdminExtension(options = {}) {
                 'sw-deprecation-rules/no-deprecated-component-usage': templateDeprecationSeverity,
             },
         },
+        // TypeScript's project service cannot type-check `.vue` SFCs — it does
+        // not run the Vue language plugin — so on a `.vue` it resolves the
+        // script to `any`. That makes every type-aware rule useless there: the
+        // `no-unsafe-*` family floods correct components with false positives,
+        // and `@typescript-eslint/no-deprecated` cannot resolve a symbol to read
+        // its `@deprecated` tag in the first place. They cannot be kept on
+        // selectively either — with the type program off (needed to stop the
+        // flood) any surviving type-aware rule throws "requires type
+        // information". `vue-tsc` is the real type-checker for `.vue` (the check
+        // runs it separately); the AST-based template rules (e.g.
+        // sw-deprecation-rules for deprecated components) stay on via the blocks
+        // above. Same reasoning as the spec-files block; placed last so it
+        // overrides the type-aware rules the earlier `.vue` blocks turned on.
+        {
+            ...tseslint.configs.disableTypeChecked,
+            name: 'shopware/admin-extension/vue-untyped',
+            files: scope(vueFilePatterns),
+        },
+        {
+            // The parser does not link `{{ }}` template interpolations back to
+            // the `<script setup>` bindings they read (directive and attribute
+            // usage is linked; interpolation is not — not even with
+            // vue/script-setup-uses-vars), so no-unused-vars false-positives on
+            // any binding used only in an interpolation — most of them. Nothing
+            // separates that from a genuinely unused binding, so the rule is off
+            // for `.vue`. This does drop unused-binding coverage there: the
+            // editor (Volar) still greys unused setup bindings, but the tooling's
+            // own check does not flag them, and vue-tsc cannot stand in because
+            // the injected host type surface forbids enabling its
+            // `noUnusedLocals`. Restoring it properly needs the same SFC type
+            // support the type-aware rules await.
+            name: 'shopware/admin-extension/vue-template-usage',
+            files: scope(vueFilePatterns),
+            rules: {
+                'no-unused-vars': 'off',
+                '@typescript-eslint/no-unused-vars': 'off',
+            },
+        },
         ...(specFiles === 'typed' ? [] : [specFilesConfig]),
     ];
 
@@ -243,6 +306,6 @@ export function shopwareAdminExtension(options = {}) {
     return config;
 }
 
-export { legacyTwigConfig, pluginVue, swDeprecationRules, swPluginRules, tseslint };
+export { legacyTwigConfig, pluginVue, swCoreRules, swDeprecationRules, swPluginRules, tseslint };
 
 export default shopwareAdminExtension;

@@ -2094,7 +2094,7 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 ## Footer collapse headlines and columns now use semantic elements
 
-In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements. 
+In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.
 
 - Collapse section headlines: `<div role="heading">` became `<h2>`.
 - Footer columns wrapper: `<div role="list">` became `<ul>` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).

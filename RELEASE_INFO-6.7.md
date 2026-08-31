@@ -46,6 +46,22 @@ public function modifyFields(FieldCollection $collection): void
 
 Installing or updating an app no longer overwrites existing payment method name and description translations. Manifest texts are only applied to languages without a translation.
 
+### New event to register product listing sortings at runtime
+
+`Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent` is dispatched while the product listing, search and suggest criteria are built, before the requested sorting is resolved. Add a `ProductSortingEntity` to `$event->getSortings()` to make it selectable and applicable at runtime:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [ProductListingCollectSortingEvent::class => 'addSorting'];
+}
+
+public function addSorting(ProductListingCollectSortingEvent $event): void
+{
+    $event->getSortings()->add($mySorting);
+}
+```
+
 ## API
 
 ### Store API context token response header is restricted on cacheable reads

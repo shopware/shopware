@@ -106,7 +106,8 @@ async function createWrapper(sequence = {}) {
 }
 
 describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
-    it('should show validation if document multiple type field is empty', async () => {
+    // @deprecated tag:v6.8.0 - The legacy multi-document configuration will be removed with the rework.
+    it.deprecated('v6.8.0.0')('should show validation if document multiple type field is empty', async () => {
         const wrapper = await createWrapper();
 
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
@@ -125,7 +126,8 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
         expect(documentTypeSelect.classes()).not.toContain('has--error');
     });
 
-    it('should emit process-finish when document multiple type is selected', async () => {
+    // @deprecated tag:v6.8.0 - The legacy multi-document configuration will be removed with the rework.
+    it.deprecated('v6.8.0.0')('should emit process-finish when document multiple type is selected', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             documentTypesSelected: [
@@ -156,25 +158,29 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
         ]);
     });
 
-    it('should not preselect a document type when switching back from a v2 config and require an explicit choice before saving', async () => {
-        const wrapper = await createWrapper({
-            config: {
-                documentType: 'invoice',
-                fileFormats: ['pdf'],
-            },
-        });
+    // @deprecated tag:v6.8.0 - The legacy multi-document configuration will be removed with the rework.
+    it.deprecated('v6.8.0.0')(
+        'should not preselect a document type when switching back from a v2 config and require an explicit choice before saving',
+        async () => {
+            const wrapper = await createWrapper({
+                config: {
+                    documentType: 'invoice',
+                    fileFormats: ['pdf'],
+                },
+            });
 
-        expect(wrapper.vm.documentTypesSelected).toEqual([]);
+            expect(wrapper.vm.documentTypesSelected).toEqual([]);
 
-        const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
-        await saveButton.trigger('click');
-        await flushPromises();
+            const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
+            await saveButton.trigger('click');
+            await flushPromises();
 
-        expect(wrapper.emitted()['process-finish']).toBeUndefined();
+            expect(wrapper.emitted()['process-finish']).toBeUndefined();
 
-        const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
-        expect(documentTypeSelect.classes()).toContain('has--error');
-    });
+            const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
+            expect(documentTypeSelect.classes()).toContain('has--error');
+        },
+    );
 
     describe('document generation rework', () => {
         afterEach(() => {

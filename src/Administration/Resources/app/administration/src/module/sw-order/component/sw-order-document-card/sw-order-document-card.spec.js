@@ -1531,24 +1531,27 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.find(expectedSelector).exists()).toBe(true);
     });
 
-    it('renders the resolved document type label in the grid type column', async () => {
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+    it.activeFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+        'renders the resolved document type label in the grid type column',
+        async () => {
+            wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        await wrapper.setData({
-            supportedDocumentTypes: { swag_warranty: { formats: ['pdf'], label: { 'en-GB': 'Warranty' } } },
-            documents: getCollection('document', [
-                documentFixture,
-                {
-                    ...documentFixture,
-                    id: 'document-app',
-                    documentType: { id: '2', name: 'App document', technicalName: 'app_provided' },
-                    typeName: 'swag_warranty',
-                },
-            ]),
-        });
-        await flushPromises();
+            await wrapper.setData({
+                supportedDocumentTypes: { swag_warranty: { formats: ['pdf'], label: { 'en-GB': 'Warranty' } } },
+                documents: getCollection('document', [
+                    documentFixture,
+                    {
+                        ...documentFixture,
+                        id: 'document-app',
+                        documentType: { id: '2', name: 'App document', technicalName: 'app_provided' },
+                        typeName: 'swag_warranty',
+                    },
+                ]),
+            });
+            await flushPromises();
 
-        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--documentType-name').text()).toBe('Invoice');
-        expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--documentType-name').text()).toBe('Warranty');
-    });
+            expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--typeName').text()).toBe('Invoice');
+            expect(wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--typeName').text()).toBe('Warranty');
+        },
+    );
 });

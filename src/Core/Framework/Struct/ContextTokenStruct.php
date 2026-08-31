@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class ContextTokenStruct extends Struct
 {

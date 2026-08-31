@@ -4,9 +4,6 @@ namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 abstract class Struct implements \JsonSerializable, ExtendableInterface, AssignArrayInterface
 {

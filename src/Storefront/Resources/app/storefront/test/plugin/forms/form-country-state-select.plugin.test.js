@@ -900,6 +900,42 @@ describe('Form country state select plugin', () => {
         expect(validateFieldSpy).toHaveBeenCalledWith(zipcodeField);
     });
 
+    it('should not validate a prefilled zipcode on page load, so server-rendered feedback survives', async () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-3">
+                    <label class="form-label" for="addressZipcode">Zip code</label>
+                    <input type="text" name="address[zipcode]" id="addressZipcode" data-input-name="zipcodeInput"
+                           class="form-control is-invalid" aria-describedby="addressZipcodeFeedback" value="12345">
+                    <div id="addressZipcodeFeedback" class="invalid-feedback">We do not ship to this postal code.</div>
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="1" data-zipcode-pattern="\\d{5}" data-check-zipcode-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
+
+        createPlugin();
+        await new Promise(process.nextTick);
+
+        const zipcodeField = document.querySelector('#addressZipcode');
+
+        expect(zipcodeField.getAttribute('pattern')).toBe('\\d{5}');
+        expect(validateFieldSpy).not.toHaveBeenCalled();
+        expect(zipcodeField.classList.contains('is-invalid')).toBe(true);
+        expect(document.querySelector('#addressZipcodeFeedback').innerHTML).toBe('We do not ship to this postal code.');
+    });
+
     it('should mark an invalid zipcode as invalid even while another required field is still empty', () => {
         template = `
             <form id="registerForm" action="/register" method="post">

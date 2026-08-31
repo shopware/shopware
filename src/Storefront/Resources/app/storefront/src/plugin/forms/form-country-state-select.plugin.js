@@ -109,6 +109,7 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
         this._updateZipcodePattern(zipcodeInputs, zipcodePattern, checkZipcodePattern);
+        this._revalidateZipcodeFields(zipcodeInputs);
 
         if (vatIdInput) {
             this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
@@ -197,7 +198,23 @@ export default class CountryStateSelectPlugin extends Plugin {
             } else {
                 input.removeAttribute('pattern');
             }
+        });
+    }
 
+    /**
+     * Re-validates zip code fields that already hold a value, so a pending error is resolved
+     * against the pattern of the newly selected country. Only call this on user interaction:
+     * on page load it would reset feedback rendered by the server.
+     *
+     * @param {NodeList} inputs
+     * @private
+     */
+    _revalidateZipcodeFields(inputs) {
+        if (!inputs) {
+            return;
+        }
+
+        inputs.forEach((input) => {
             if (input.value.trim().length > 0) {
                 window.formValidation.validateField(input);
             }

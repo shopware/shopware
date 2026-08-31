@@ -164,6 +164,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
      */
     private function createContext(string $token, SalesChannelContextServiceParameters $parameters, array &$session): SalesChannelContext
     {
+        // A stored selection can become unavailable after a sales channel configuration change. Explicit request options must still fail.
         $recoveredOptions = [];
         while (true) {
             try {

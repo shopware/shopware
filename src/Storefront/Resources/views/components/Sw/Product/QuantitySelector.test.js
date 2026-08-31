@@ -1,5 +1,6 @@
-import 'src/component-system/component';
-import ProductQuantitySelector from '../../../../views/components/Sw/Product/QuantitySelector';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import 'shopware';
+import ProductQuantitySelector from './QuantitySelector';
 
 function createSelector({ value = 1, min = 1, max = 10, step = 1, purchaseLimitUrl = null } = {}) {
     const form = document.createElement('form');
@@ -21,22 +22,30 @@ function createSelector({ value = 1, min = 1, max = 10, step = 1, purchaseLimitU
     };
 }
 
-const flushPromises = () => new Promise(process.nextTick);
+function createComponent(element, options = {}) {
+    const component = new ProductQuantitySelector(element, options);
+    component.init();
+
+    return component;
+}
+
+const flushPromises = () => Promise.resolve().then(() => Promise.resolve());
 
 describe('Sw:Product:QuantitySelector', () => {
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
+        vi.unstubAllGlobals();
         document.body.innerHTML = '';
     });
 
-    test.each([
+    it.each([
         ['increases', 'stepUp', 2],
         ['decreases', 'stepDown', 1],
     ])('%s with native input stepping', (_, method, expected) => {
         const { element, input } = createSelector({ value: method === 'stepDown' ? 2 : 1 });
-        const change = jest.fn();
+        const change = vi.fn();
         input.addEventListener('change', change);
-        const component = new ProductQuantitySelector(element);
+        const component = createComponent(element);
 
         element.querySelector(`.${method === 'stepUp' ? 'sw-product-quantity-selector__button--increase' : 'sw-product-quantity-selector__button--decrease'}`).click();
 
@@ -45,9 +54,9 @@ describe('Sw:Product:QuantitySelector', () => {
         component.destroy();
     });
 
-    test('does not step beyond native bounds', () => {
+    it('does not step beyond native bounds', () => {
         const { element, input } = createSelector({ value: 10, max: 10 });
-        const component = new ProductQuantitySelector(element);
+        const component = createComponent(element);
 
         element.querySelector('.sw-product-quantity-selector__button--increase').click();
 
@@ -55,9 +64,9 @@ describe('Sw:Product:QuantitySelector', () => {
         component.destroy();
     });
 
-    test('updates the unit and live region after a typed quantity change', () => {
+    it('updates the unit and live region after a typed quantity change', () => {
         const { element, input } = createSelector();
-        const component = new ProductQuantitySelector(element);
+        const component = createComponent(element);
 
         input.value = '2';
         input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -67,13 +76,13 @@ describe('Sw:Product:QuantitySelector', () => {
         component.destroy();
     });
 
-    test('fetches closeout limits only once, adjusts the quantity, and dispatches stock adjusted', async () => {
+    it('fetches closeout limits only once, adjusts the quantity, and dispatches stock adjusted', async () => {
         const { element, form, input } = createSelector({ value: 7, purchaseLimitUrl: '/limit' });
-        const eventSpy = jest.fn();
+        const eventSpy = vi.fn();
         form.addEventListener('QuantitySelector/StockAdjusted', eventSpy);
-        global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 6 }) });
-        const fetchMock = global.fetch;
-        const component = new ProductQuantitySelector(element);
+        const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ minPurchase: 2, purchaseSteps: 2, maxPurchase: 6 }) });
+        vi.stubGlobal('fetch', fetchMock);
+        const component = createComponent(element, { purchaseLimitUrl: '/limit' });
 
         input.focus();
         await flushPromises();
@@ -87,12 +96,12 @@ describe('Sw:Product:QuantitySelector', () => {
         component.destroy();
     });
 
-    test('disables controls and dispatches out of stock when no quantity is available', async () => {
+    it('disables controls and dispatches out of stock when no quantity is available', async () => {
         const { element, form, input } = createSelector({ purchaseLimitUrl: '/limit' });
-        const eventSpy = jest.fn();
+        const eventSpy = vi.fn();
         form.addEventListener('QuantitySelector/OutOfStock', eventSpy);
-        global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 0 }) });
-        const component = new ProductQuantitySelector(element);
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 0 }) }));
+        const component = createComponent(element, { purchaseLimitUrl: '/limit' });
 
         input.focus();
         await flushPromises();

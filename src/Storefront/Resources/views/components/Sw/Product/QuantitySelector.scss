@@ -1,22 +1,20 @@
 .sw-product-quantity-selector {
-    --sw-product-quantity-selector-border-color: var(--bs-border-color);
     --sw-product-quantity-selector-control-height: 2.5rem;
+    width: 100%;
 }
 
 .sw-product-quantity-selector__button {
-    --bs-btn-border-color: var(--sw-product-quantity-selector-border-color);
-    --bs-btn-hover-border-color: var(--sw-product-quantity-selector-border-color);
-    --bs-btn-active-border-color: var(--sw-product-quantity-selector-border-color);
-    --bs-btn-disabled-border-color: var(--sw-product-quantity-selector-border-color);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: var(--sw-product-quantity-selector-control-height);
-    line-height: 1;
-}
-
-.sw-product-quantity-selector__button > .icon > svg {
-    top: 0;
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-bg: var(--bs-body-bg);
+    --bs-btn-border-color: var(--bs-border-color);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-hover-bg: var(--bs-gray-200);
+    --bs-btn-hover-border-color: var(--bs-border-color);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-bg: var(--bs-gray-200);
+    --bs-btn-active-border-color: var(--bs-border-color);
+    --bs-btn-disabled-bg: var(--bs-gray-200);
+    --bs-btn-disabled-border-color: var(--bs-border-color);
 }
 
 .sw-product-quantity-selector__button--increase {

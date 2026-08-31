@@ -28,7 +28,7 @@
     {% set purchaseLimitUrl = product.isCloseout ? path('frontend.product.purchase-limit', { productId: product.id }) : null %}
 
     {% set quantitySelectorCVA = cva({
-        base: 'sw-product-quantity-selector input-group',
+        base: 'sw-product-quantity-selector',
     }) %}
 
     {% set attributeDefaults = {
@@ -37,57 +37,73 @@
         'data-component-options': { purchaseLimitUrl: purchaseLimitUrl }|json_encode,
     } %}
 
-    <div {{ attributes.defaults(attributeDefaults) }}>
-        {% block decrease_button %}
-            <button {{ attributes.nested('decrease-button').defaults({
-                type: 'button',
-                class: 'btn btn-outline-light sw-product-quantity-selector__button sw-product-quantity-selector__button--decrease',
-                'aria-label': decreaseLabel,
-                disabled: disabled,
-            }) }}>
-                {% sw_icon 'minus' style {size: 'xs'} %}
-            </button>
+    <fieldset {{ attributes.defaults(attributeDefaults) }}>
+        {% block legend %}
+            <legend {{ attributes.nested('legend').defaults({ class: 'visually-hidden' }) }}>
+                {{ 'component.product.quantitySelect.legend'|trans|striptags }}
+            </legend>
         {% endblock %}
 
-        {% block quantity_input %}
-            <label {{ attributes.nested('quantity-label').defaults({ class: 'visually-hidden', for: inputId }) }}>
-                {{ quantityLabel }}
-            </label>
-            <input {{ attributes.nested('quantity-input').defaults({
-                id: inputId,
-                type: 'number',
-                name: inputName,
-                class: 'form-control sw-product-quantity-selector__input',
-                min: product.minPurchase,
-                max: product.calculatedMaxPurchase,
-                step: product.purchaseSteps,
-                value: value,
-                disabled: disabled,
-            }) }}>
-        {% endblock %}
-
-        {% block increase_button %}
-            <button {{ attributes.nested('increase-button').defaults({
-                type: 'button',
-                class: 'btn btn-outline-light sw-product-quantity-selector__button sw-product-quantity-selector__button--increase',
-                'aria-label': increaseLabel,
-                disabled: disabled,
-            }) }}>
-                {% sw_icon 'plus' style {size: 'xs'} %}
-            </button>
-        {% endblock %}
-
-        {% if product.translated.packUnit %}
-            {% block unit_label %}
-                <span {{ attributes.nested('unit').defaults({
-                    class: 'input-group-text sw-product-quantity-selector__unit',
-                    'data-unit-singular': product.translated.packUnit,
-                    'data-unit-plural': product.translated.packUnitPlural,
-                }) }}>
-                    {{ value > 1 and product.translated.packUnitPlural ? product.translated.packUnitPlural : product.translated.packUnit }}
-                </span>
+        <div {{ attributes.nested('input-group').defaults({ class: 'input-group' }) }}>
+            {% block decrease_button %}
+                <twig:Sw:Button
+                    variant="secondary"
+                    :outline="true"
+                    :iconOnly="true"
+                    {{ ...attributes.nested('decrease-button').defaults({
+                        class: 'sw-product-quantity-selector__button sw-product-quantity-selector__button--decrease',
+                        'aria-label': decreaseLabel,
+                        disabled: disabled,
+                    }) }}
+                >
+                    <twig:Sw:Icon name="minus" size="xs" />
+                </twig:Sw:Button>
             {% endblock %}
-        {% endif %}
+
+            {% block quantity_input %}
+                <label {{ attributes.nested('quantity-label').defaults({ class: 'visually-hidden', for: inputId }) }}>
+                    {{ quantityLabel }}
+                </label>
+                <input {{ attributes.nested('quantity-input').defaults({
+                    id: inputId,
+                    type: 'number',
+                    name: inputName,
+                    class: 'form-control sw-product-quantity-selector__input',
+                    min: product.minPurchase,
+                    max: product.calculatedMaxPurchase,
+                    step: product.purchaseSteps,
+                    value: value,
+                    disabled: disabled,
+                }) }}>
+            {% endblock %}
+
+            {% block increase_button %}
+                <twig:Sw:Button
+                    variant="light"
+                    :outline="true"
+                    :iconOnly="true"
+                    {{ ...attributes.nested('increase-button').defaults({
+                        class: 'sw-product-quantity-selector__button sw-product-quantity-selector__button--increase',
+                        'aria-label': increaseLabel,
+                        disabled: disabled,
+                    }) }}
+                >
+                    <twig:Sw:Icon name="plus" size="xs" />
+                </twig:Sw:Button>
+            {% endblock %}
+
+            {% if product.translated.packUnit %}
+                {% block unit_label %}
+                    <span {{ attributes.nested('unit').defaults({
+                        class: 'input-group-text sw-product-quantity-selector__unit',
+                        'data-unit-singular': product.translated.packUnit,
+                        'data-unit-plural': product.translated.packUnitPlural,
+                    }) }}>
+                        {{ value > 1 and product.translated.packUnitPlural ? product.translated.packUnitPlural : product.translated.packUnit }}
+                    </span>
+                {% endblock %}
+            {% endif %}
+        </div>
 
         {% block live_region %}
             <div {{ attributes.nested('live-region').defaults({
@@ -98,5 +114,5 @@
                 'data-aria-live-product-name': product.translated.name,
             }) }}></div>
         {% endblock %}
-    </div>
+    </fieldset>
 {% endif %}

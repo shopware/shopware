@@ -95,16 +95,21 @@ class ProductListingComponentTest extends TestCase
         static::assertStringContainsString('42', $html);
     }
 
-    public function testHidesTheSortingActionsWhenTurnedOff(): void
+    /**
+     * One toggle off per render: turning both off at once would still pass if the layout switch were guarded
+     * by `showSorting`.
+     */
+    public function testEachActionToggleHidesOnlyItsOwnControl(): void
     {
-        $html = $this->render([
-            'listing' => $this->listing(42),
-            'showSorting' => false,
-            'showLayoutSwitch' => false,
-        ]);
+        $withoutSorting = $this->render(['listing' => $this->listing(42), 'showSorting' => false]);
 
-        static::assertStringNotContainsString('data-component="Sw:Product:Sorting"', $html);
-        static::assertStringNotContainsString('data-component="Sw:Product:LayoutSwitch"', $html);
+        static::assertStringNotContainsString('data-component="Sw:Product:Sorting"', $withoutSorting);
+        static::assertStringContainsString('data-component="Sw:Product:LayoutSwitch"', $withoutSorting);
+
+        $withoutLayoutSwitch = $this->render(['listing' => $this->listing(42), 'showLayoutSwitch' => false]);
+
+        static::assertStringContainsString('data-component="Sw:Product:Sorting"', $withoutLayoutSwitch);
+        static::assertStringNotContainsString('data-component="Sw:Product:LayoutSwitch"', $withoutLayoutSwitch);
     }
 
     private function requestStack(): RequestStack

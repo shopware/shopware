@@ -19,12 +19,12 @@
     gap: 0.5rem;
 }
 
-.sw-filter-panel.is--collapse {
+.sw-filter-panel.is--vertical {
     flex-direction: column;
     align-items: stretch;
 }
 
-.is--collapse .sw-filter-panel__filter {
+.is--vertical .sw-filter-panel__filter {
     flex-direction: column;
     align-items: stretch;
     flex-grow: 1;

@@ -32,15 +32,15 @@ properties:
   displayType:
     type: string
     title: "Display Type"
-    description: "How the filters are arranged. `inline` lays them out as a row of buttons opening floating menus; `stacked` gives each its own full-width row that expands in place."
+    description: "How the filters are arranged. `inline` lays them out as a row of buttons opening floating menus; `vertical` gives each its own full-width row that expands in place."
     default: "inline"
     enum:
       - "inline"
-      - "stacked"
+      - "vertical"
     adminUI:
       component: "select"
       panel: "filter"
-      helpText: "Use stacked when the panel sits in a narrow column, so the filters sit one below another and expand in place instead of opening floating menus."
+      helpText: "Use vertical when the panel sits in a narrow column, so the filters sit one below another and expand in place instead of opening floating menus."
 
   visibleFilterCount:
     type: integer
@@ -94,7 +94,7 @@ properties:
   propertyWhitelist:
     type: string
     title: "Filterable Properties"
-    description: "Comma-separated property_group ids the property filters are restricted to. Empty offers every filterable group of the matching products."
+    description: "Comma-separated property_group ids whose filters the panel offers. Empty offers every filterable group of the matching products."
     required: false
     adminUI:
       component: "entity-multi-id-select"

@@ -25,8 +25,8 @@
     base: 'sw-filter-panel container',
     variants: {
         displayType: {
-            inline: 'is--dropdown',
-            stacked: 'is--collapse',
+            inline: 'is--inline',
+            vertical: 'is--vertical',
         },
     },
 }) %}
@@ -38,6 +38,10 @@
 } %}
 
 {% set filterAggregations = productListing.aggregations ?? null %}
+
+{% set whitelistIds = propertyWhitelist
+    ? propertyWhitelist|split(',')|map(id => id|trim|lower)|filter(id => id != '')
+    : [] %}
 
 {% set manufacturerAggregation = null %}
 {% set priceAggregation = null %}
@@ -106,17 +110,19 @@
 {% set propertiesFilter %}
     {% if showPropertyFilter and propertiesAggregation is not null and propertiesAggregation.entities|length > 0 %}
         {% for property in propertiesAggregation.entities %}
-            <twig:Sw:Filter:Item
-                :filterName="property.translated.name"
-                :displayType="displayType"
-            >
-                <twig:Sw:Filter:Type:MultiSelectFilter
-                    name="properties"
-                    :displayName="property.translated.name"
-                    :displayType="property.displayType"
-                    :options="property.options">
-                </twig:Sw:Filter:Type:MultiSelectFilter>
-            </twig:Sw:Filter:Item>
+            {% if whitelistIds is empty or property.id|lower in whitelistIds %}
+                <twig:Sw:Filter:Item
+                    :filterName="property.translated.name"
+                    :displayType="displayType"
+                >
+                    <twig:Sw:Filter:Type:MultiSelectFilter
+                        name="properties"
+                        :displayName="property.translated.name"
+                        :displayType="property.displayType"
+                        :options="property.options">
+                    </twig:Sw:Filter:Type:MultiSelectFilter>
+                </twig:Sw:Filter:Item>
+            {% endif %}
         {% endfor %}
     {% endif %}
 {% endset %}

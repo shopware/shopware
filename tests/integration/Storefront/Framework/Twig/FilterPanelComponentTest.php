@@ -9,6 +9,9 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -64,35 +67,30 @@ class FilterPanelComponentTest extends TestCase
     public function testNavigationIdFollowsThePageInsteadOfBeingConfigured(): void
     {
         static::assertSame('{{categoryId}}', $this->properties()['navigationId']->toSchema()['default']);
-    }
 
-    /**
-     * A required primitive with a default is reported unresolved until a write seeds it, so the
-     * placeholder-carrying property must stay optional.
-     */
-    public function testNavigationIdIsNotRequired(): void
-    {
+        // A required primitive with a default is reported unresolved until a write seeds it, so the
+        // placeholder-carrying property has to stay optional.
         static::assertFalse($this->properties()['navigationId']->required());
     }
 
     /**
-     * The value names the arrangement while the CSS class keeps naming the Bootstrap mechanism it turns
-     * on, so the mapping between the two is worth pinning.
+     * The class mirrors the value while the Bootstrap mechanism each one turns on stays an implementation
+     * detail of the markup, so the mapping between the three is worth pinning.
      */
     public function testDisplayTypeReachesTheFilterItems(): void
     {
         $aggregations = $this->manufacturerAggregation('Shopware AG');
 
         $inline = $this->render(['productListing' => $this->listing($aggregations), 'displayType' => 'inline']);
-        $stacked = $this->render(['productListing' => $this->listing($aggregations), 'displayType' => 'stacked']);
+        $vertical = $this->render(['productListing' => $this->listing($aggregations), 'displayType' => 'vertical']);
 
-        static::assertStringContainsString('is--dropdown', $inline);
+        static::assertStringContainsString('is--inline', $inline);
         static::assertStringContainsString('data-bs-toggle="dropdown"', $inline);
         static::assertStringNotContainsString('data-bs-target="#filter-item-', $inline);
 
-        static::assertStringContainsString('is--collapse', $stacked);
-        static::assertStringContainsString('data-bs-toggle="collapse"', $stacked);
-        static::assertStringContainsString('data-bs-target="#filter-item-', $stacked);
+        static::assertStringContainsString('is--vertical', $vertical);
+        static::assertStringContainsString('data-bs-toggle="collapse"', $vertical);
+        static::assertStringContainsString('data-bs-target="#filter-item-', $vertical);
     }
 
     public function testRendersFiltersFromTheAggregations(): void
@@ -104,20 +102,10 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * The panel owns the summary, so a panel in a sidebar column takes its chips along instead of leaving them
-     * stranded next to the product grid.
-     */
-    public function testRendersTheActiveFiltersSummary(): void
-    {
-        $html = $this->render(['productListing' => $this->listing($this->manufacturerAggregation('Shopware AG'))]);
-
-        static::assertStringContainsString('data-component="Sw:Filter:ActiveFilters"', $html);
-    }
-
-    /**
-     * The summary has to be a descendant, not a second root: Sw:Grid:Container lays its children out as
-     * grid items, so a second root element would claim the next cell and push the neighbouring element
-     * onto a new row.
+     * The panel owns the summary, so a panel in one grid column takes its chips along instead of leaving them
+     * stranded next to the product grid. It has to be a descendant, not a second root: Sw:Grid:Container lays
+     * its children out as grid items, so a second root element would claim the next cell and push the
+     * neighbouring element onto a new row.
      */
     public function testRendersTheSummaryInsideItsSingleRootElement(): void
     {
@@ -192,6 +180,57 @@ class FilterPanelComponentTest extends TestCase
 
         static::assertStringNotContainsString('name="manufacturer"', $html);
         static::assertStringContainsString('name="shipping-free"', $html);
+    }
+
+    /**
+     * The whitelist restricts which property groups get a control, like the legacy element's own whitelist.
+     * It never filtered products there either, so a link carrying an excluded option still narrows the listing.
+     */
+    public function testThePropertyWhitelistOffersOnlyTheListedGroups(): void
+    {
+        $colour = $this->propertyGroup('Colour');
+        $size = $this->propertyGroup('Size');
+
+        $html = $this->render([
+            'productListing' => $this->listing(new AggregationResultCollection([
+                new EntityResult('properties', new PropertyGroupCollection([$colour, $size])),
+            ])),
+            'propertyWhitelist' => ' ' . strtoupper($colour->getId()) . ' ,',
+        ]);
+
+        static::assertStringContainsString('Colour', $html);
+        static::assertStringNotContainsString('Size', $html);
+    }
+
+    /**
+     * An empty whitelist is the documented "offer every filterable group" case, so it must not be read as
+     * "offer none".
+     */
+    public function testAnEmptyPropertyWhitelistOffersEveryGroup(): void
+    {
+        $html = $this->render([
+            'productListing' => $this->listing(new AggregationResultCollection([
+                new EntityResult('properties', new PropertyGroupCollection([
+                    $this->propertyGroup('Colour'),
+                    $this->propertyGroup('Size'),
+                ])),
+            ])),
+            'propertyWhitelist' => '',
+        ]);
+
+        static::assertStringContainsString('Colour', $html);
+        static::assertStringContainsString('Size', $html);
+    }
+
+    private function propertyGroup(string $name): PropertyGroupEntity
+    {
+        $group = new PropertyGroupEntity();
+        $group->setId(Uuid::randomHex());
+        $group->setTranslated(['name' => $name]);
+        $group->setDisplayType('text');
+        $group->setOptions(new PropertyGroupOptionCollection());
+
+        return $group;
     }
 
     /**

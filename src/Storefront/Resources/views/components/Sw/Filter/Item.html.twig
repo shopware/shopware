@@ -14,8 +14,8 @@
     base: 'sw-filter-item',
     variants: {
         displayType: {
-            inline: 'is--dropdown',
-            stacked: 'is--collapse',
+            inline: 'is--inline',
+            vertical: 'is--vertical',
         },
     },
 }) %}
@@ -40,7 +40,7 @@
     'data-bs-auto-close': 'outside',
 } %}
 
-{% if displayType == 'stacked' %}
+{% if displayType == 'vertical' %}
     {% set buttonAttributes = buttonAttributes|merge({ 'data-bs-target': '#' ~ filterItemId }) %}
 {% endif %}
 

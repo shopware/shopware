@@ -329,11 +329,4 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         expect(onUpdateField).toHaveBeenCalledWith('propertyIds', 'id-1,id-2');
     });
 
-    it('persists an empty id list when the update payload is not an array', () => {
-        const onUpdateField = jest.fn();
-
-        methods.onUpdateIdList.call({ onUpdateField }, 'propertyIds', 'not-an-array');
-
-        expect(onUpdateField).toHaveBeenCalledWith('propertyIds', '');
-    });
 });

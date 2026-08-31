@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
@@ -49,5 +50,6 @@ class ProductConfiguratorDataLoaderTest extends TestCase
         $result = $loader->load($element, $requirement, $context, new Request());
 
         static::assertSame($groups, $result->data);
+        static::assertSame([EntityCacheKeyGenerator::buildProductTag('parent-id')], $result->getCacheTags());
     }
 }

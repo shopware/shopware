@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -82,6 +83,6 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        return ContentDataLoaderResult::cachedExternally($groups);
+        return ContentDataLoaderResult::cached($groups, EntityCacheKeyGenerator::buildProductTag($product->getParentId()));
     }
 }

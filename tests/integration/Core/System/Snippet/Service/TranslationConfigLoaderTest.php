@@ -20,6 +20,10 @@ class TranslationConfigLoaderTest extends TestCase
     public function testContainerExposesTranslationConfigParameterWithDefaults(): void
     {
         static::assertSame([
+            'use_local_filesystem' => false,
+            'scheduled_task' => [
+                'enabled' => true,
+            ],
             'repository_url' => null,
             'metadata_url' => null,
             'community_translations_url' => null,

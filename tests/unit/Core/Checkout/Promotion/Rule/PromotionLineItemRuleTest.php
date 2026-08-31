@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(PromotionLineItemRule::class)]
 class PromotionLineItemRuleTest extends TestCase
 {

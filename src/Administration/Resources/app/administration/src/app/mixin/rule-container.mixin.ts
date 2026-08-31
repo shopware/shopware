@@ -6,6 +6,8 @@ import { defineComponent } from 'vue';
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-rule-container`; change both together.
  */
 export default Shopware.Mixin.register(
     'ruleContainer',

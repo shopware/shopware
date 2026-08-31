@@ -331,6 +331,7 @@
       "labelShowHistoryModal": "Show status history",
       "labelLastEditedBy": "Last edited by",
       "labelSystemUser": "System",
+      "labelCustomer": "Customer",
       "labelSelectStatePlaceholder": "Select a status...",
       "labelInternalComment": "Internal comment",
       "labelSelectStateButton": "Update status",
@@ -365,7 +366,10 @@
       "labelAttach": "Attach",
       "labelAmount": "Order value",
       "labelOpenDocument": "Open document",
+      "labelOpenFormat": "Open {format}",
       "labelDownloadPdf": "Download document",
+      "labelDownloadFormat": "Download {format}",
+      "labelDownloadAllFormats": "Download all formats",
       "labelPrintDocument": "Print document",
       "labelSendDocument": "Send document",
       "labelMarkAsSent": "Mark as sent",
@@ -375,8 +379,18 @@
       "messageEmptyTitle": "No documents created yet",
       "messageNoDocumentFound": "No documents found",
       "messageEmptySubline": "Manage documents here.",
+      "notificationDeleteErrorMessage": "The document could not be deleted.",
       "error": {
-        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Document number {number} has already been allocated."
+        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Document number {number} has already been allocated.",
+        "createDocument": "Failed to create the document.",
+        "downloadDocument": "Failed to download the document.",
+        "downloadDocumentArchive": "Failed to download the document archive.",
+        "loadSendingDocument": "Failed to load the document to send.",
+        "uploadDocument": "Failed to upload the document.",
+        "attachMediaToDocumentUpload": "Failed to attach selected media to the document.",
+        "loadDocumentPreview": "Failed to load the document preview.",
+        "openDocument": "Failed to open the selected document.",
+        "loadDocumentTypes": "Failed to load available document types."
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Duplicate document number. A consecutive number has automatically been drawn from the respective number range."
@@ -403,7 +417,7 @@
       "promotionsField": {
         "labelPromotions": "Promotions with code",
         "placeholderPromotions": "Enter promotion code ...",
-        "automaticPromotion":  "automatically applied",
+        "automaticPromotion": "automatically applied",
         "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
         "automaticPromotions": {
           "title": "Update promotions",
@@ -429,6 +443,7 @@
       "labelDocumentStornoNumber": "Cancellation number",
       "labelInvoiceNumber": "Invoice",
       "selectInvoiceNumber": "Select invoice",
+      "errorInvoiceMissingCreditItem": "The selected invoice has no credit item.",
       "labelDeliveryNoteNumber": "Delivery note number",
       "labelDocumentComment": "Comment",
       "labelCreateDownload": "Create and download",
@@ -459,6 +474,7 @@
       "modalTitle": "Status history",
       "labelSystemUser": "System",
       "labelIntegration": "Integration",
+      "labelCustomer": "Customer",
       "column": {
         "createdAt": "Date",
         "entity": "Changed",
@@ -623,6 +639,50 @@
       "messageEmptySubline": "Edit your filters to find results."
     },
     "components": {
+      "createDocumentModal": {
+        "title": "Generate document",
+        "openButtonLabel": "Generate new document",
+        "labelDocumentType": "Document type",
+        "placeholderDocumentType": "Select a document type...",
+        "labelFileFormats": "File formats",
+        "placeholderFileFormats": "Select file formats...",
+        "generate": "Generate",
+        "generateAndDownload": "Generate and download",
+        "generateAndSend": "Generate and send",
+        "placeholderComment": "Write a comment...",
+        "emptyStateTitle": "Document type missing",
+        "emptyStateDescription": "Select a document type to configure the document",
+        "fileFormats": {
+          "pdf": "PDF",
+          "html": "HTML",
+          "zugferdEmbeddedPdf": "ZUGFeRD embedded PDF",
+          "zugferdXml": "ZUGFeRD XML"
+        },
+        "documentTypes": {
+          "invoice": "Invoice",
+          "creditNote": "Credit note",
+          "cancellationInvoice": "Cancellation invoice",
+          "deliveryNote": "Delivery note"
+        },
+        "error": {
+          "loadDocumentTypes": "Failed to load available document types.",
+          "loadSupportedDocumentFileFormats": "Failed to load available file formats per document type.",
+          "loadDocumentNumber": "Failed to load a document number.",
+          "loadUploadedDocument": "Failed to load uploaded document."
+        }
+      },
+      "uploadDocumentModal": {
+        "title": "Upload document",
+        "labelFileFormat": "File format",
+        "placeholderFileFormat": "Select a file format...",
+        "helpTextFileFormat": "Select the format of the file you want to upload.",
+        "labelDocumentUpload": "Document upload",
+        "buttonUploadFile": "Upload file",
+        "openAction": "Upload document",
+        "upload": "Upload",
+        "uploadAndDownload": "Upload and download",
+        "uploadAndSend": "Upload and send"
+      },
       "selectDocumentTypeModal": {
         "title": "Create document",
         "primaryAction": "Create document",

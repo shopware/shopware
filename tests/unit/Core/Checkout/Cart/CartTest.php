@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Content\Product\Cart\ProductNotFoundError;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -122,5 +123,24 @@ class CartTest extends TestCase
         static::assertSame('test', $cart->getErrorHash());
 
         static::assertArrayHasKey('errorHash', $cart->jsonSerialize());
+    }
+
+    public function testCloningACartWithErrorsSharesTheErrorInstances(): void
+    {
+        $cart = new Cart('test');
+        $cart->add(new LineItem('line-item', 'test'));
+
+        $error = new ProductNotFoundError('product-id');
+        $cart->addErrors($error);
+
+        $clonedCart = clone $cart;
+
+        static::assertNotSame($cart->getLineItems(), $clonedCart->getLineItems());
+        static::assertNotSame($cart->getLineItems()->first(), $clonedCart->getLineItems()->first());
+
+        static::assertNotSame($cart->getErrors(), $clonedCart->getErrors());
+        static::assertSame($error, $clonedCart->getErrors()->first());
+        static::assertCount(1, $cart->getErrors());
+        static::assertSame($error, $cart->getErrors()->first());
     }
 }

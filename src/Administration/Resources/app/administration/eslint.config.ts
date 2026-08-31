@@ -205,10 +205,14 @@ export default [
             'eslint.config.ts',
             'jest.config.js',
             'jest.config.ts',
-            'test/e2e/**/*',
             'scripts/**/*',
             '!scripts/extensionTooling/',
             '!scripts/extensionTooling/**/*',
+            '!scripts/codemods/',
+            '!scripts/codemods/sfc-migration/',
+            '!scripts/codemods/sfc-migration/**/*',
+            // Codemod inputs are intentionally old-style Options API components.
+            'scripts/codemods/sfc-migration/__fixtures__/**/*',
             // Declaration-only type surface; admin-types imports the gitignored
             // generated entity schema, and spec-types references jest, so both
             // must stay outside the admin's own typed-lint program.
@@ -283,8 +287,6 @@ export default [
                 ...globals.jest,
                 Shopware: true,
                 VueJS: true,
-                Cypress: true,
-                cy: true,
                 autoStub: true,
                 flushPromises: true,
                 wrapTestComponent: true,
@@ -610,6 +612,18 @@ export default [
             'vue/no-multi-spaces': 'off',
         },
     },
+    {
+        // Mouse handlers have focus and keydown counterparts these rules do not recognise
+        files: [
+            'src/app/**/sw-admin-menu/sw-admin-menu.html.twig',
+            'src/app/**/sw-admin-menu-item/sw-admin-menu-item.html.twig',
+        ],
+        rules: {
+            'vuejs-accessibility/click-events-have-key-events': 'off',
+            'vuejs-accessibility/mouse-events-have-key-events': 'off',
+            'vuejs-accessibility/no-static-element-interactions': 'off',
+        },
+    },
 
     // Test files
     {
@@ -634,9 +648,38 @@ export default [
         rules: {
             ...jestPlugin.configs['flat/recommended'].rules,
             'sw-test-rules/await-async-functions': 'error',
+            'sw-test-rules/stabilize-feature-flag': [
+                'error',
+                {
+                    // Handcrafted list of stabilized (shipped) feature flags; each is auto-removed from
+                    // it.activeFeatureFlags activations. Add a flag here once its major has shipped.
+                    stabilizedFlags: [
+                        'v6.5.0.0',
+                        'v6.6.0.0',
+                        'v6.7.0.0',
+                    ],
+                },
+            ],
             'max-len': 0,
             'sw-deprecation-rules/private-feature-declarations': 0,
-            'jest/expect-expect': 'error',
+            'jest/expect-expect': [
+                'error',
+                {
+                    assertFunctionNames: [
+                        'expect',
+                        'expect*',
+                    ],
+                },
+            ],
+            'jest/no-standalone-expect': [
+                'error',
+                {
+                    additionalTestBlockFunctions: [
+                        'it.activeFeatureFlags',
+                        'it.deprecated',
+                    ],
+                },
+            ],
             'jest/no-duplicate-hooks': 'error',
             'jest/no-test-return-statement': 'error',
             'jest/prefer-hooks-in-order': 'error',
@@ -740,12 +783,20 @@ export default [
         files: [
             'extension-tooling/**/*.mjs',
             'scripts/extensionTooling/**/*.ts',
+            'scripts/codemods/sfc-migration/**/*.ts',
         ],
         rules: {
             'filename-rules/match': 'off',
             'import/extensions': 'off',
             'no-console': 'off',
             'sw-deprecation-rules/private-feature-declarations': 'off',
+        },
+    },
+    {
+        files: ['scripts/codemods/sfc-migration/**/*.ts'],
+        rules: {
+            // The codemod emits and documents TODO(sfc-migration) markers by design.
+            'no-warning-comments': 'off',
         },
     },
 

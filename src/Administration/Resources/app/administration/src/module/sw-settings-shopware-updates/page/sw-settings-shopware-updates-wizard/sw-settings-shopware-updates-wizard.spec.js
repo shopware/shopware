@@ -83,7 +83,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                                     title: 'sw-settings.general.mainMenuItemGeneral',
                                     color: '#9AA8B5',
                                     icon: 'default-action-settings',
-                                    favicon: 'icon-module-settings.png',
+                                    favicon: 'icon-module-settings.svg',
                                     routes: {
                                         index: {
                                             path: '/sw/settings/index',

@@ -5,7 +5,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import {
-  ISSUE_MARKER,
   buildIssuePayload,
   groupByDomain,
   jestAppRoot,
@@ -123,37 +122,23 @@ describe('groupByDomain / buildIssuePayload', () => {
     assert.equal(groups[0].label, 'needs manual routing');
   });
 
-  it('builds a parent payload with marker, title, and per-domain overview', () => {
+  it('builds one flat issue per group with its own marker and capped test list', () => {
     const tests = Array.from({ length: 45 }, (_, index) =>
       failedTest('Shopware\\Tests\\Integration\\Core\\FooTest', `testCase${String(index).padStart(2, '0')}`)
     );
     const payload = buildIssuePayload('[nightly] Nightly Major PHPUnit failures', groupByDomain(tests, '/nonexistent'), 'https://example.invalid/run/1');
 
-    assert.equal(payload.parent.issueTitle, '[nightly] Nightly Major PHPUnit failures');
-    assert.equal(payload.parent.issueMarker, ISSUE_MARKER);
-    assert.ok(payload.parent.issueBody.startsWith(ISSUE_MARKER));
-    assert.ok(payload.parent.issueBody.includes('Failing tests: 45'));
-    assert.ok(payload.parent.issueBody.includes('- **needs manual routing**: 45 failing tests'));
-    assert.ok(!payload.parent.issueBody.includes('—'));
-    assert.ok(payload.parent.commentBody.startsWith(ISSUE_MARKER));
-  });
-
-  it('builds one domain payload per group with its own marker and capped test list', () => {
-    const tests = Array.from({ length: 45 }, (_, index) =>
-      failedTest('Shopware\\Tests\\Integration\\Core\\FooTest', `testCase${String(index).padStart(2, '0')}`)
-    );
-    const payload = buildIssuePayload('[nightly] Nightly Major PHPUnit failures', groupByDomain(tests, '/nonexistent'), 'https://example.invalid/run/1');
-
-    assert.equal(payload.domains.length, 1);
-    const domain = payload.domains[0];
-    assert.equal(domain.issueTitle, '[nightly] Nightly Major PHPUnit failures: needs manual routing');
-    assert.equal(domain.issueMarker, '<!-- nightly-phpunit-failures:needs-manual-routing -->');
-    assert.equal(domain.label, null);
-    assert.ok(domain.issueBody.includes('`Integration\\Core\\FooTest::testCase00`: boom'));
-    assert.ok(domain.issueBody.includes('…and 5 more'));
-    assert.ok(!domain.issueBody.includes('testCase44'));
-    assert.ok(!domain.issueBody.includes('—'));
-    assert.ok(domain.commentBody.startsWith(domain.issueMarker));
+    assert.equal(payload.issues.length, 1);
+    const issue = payload.issues[0];
+    assert.equal(issue.issueTitle, '[nightly] Nightly Major PHPUnit failures: needs manual routing');
+    assert.equal(issue.issueMarker, '<!-- nightly-phpunit-failures:needs-manual-routing -->');
+    assert.equal(issue.label, null);
+    assert.ok(issue.issueBody.includes('`Integration\\Core\\FooTest::testCase00`: boom'));
+    assert.ok(issue.issueBody.includes('…and 5 more'));
+    assert.ok(!issue.issueBody.includes('testCase44'));
+    assert.ok(!issue.issueBody.includes('—'));
+    assert.ok(issue.issueBody.includes('deep-triage pass'));
+    assert.ok(issue.commentBody.startsWith(issue.issueMarker));
   });
 
   it('carries the domain label for routable groups', () => {
@@ -164,17 +149,21 @@ describe('groupByDomain / buildIssuePayload', () => {
     };
     const payload = buildIssuePayload('[nightly] Nightly PHPUnit failures', [group], 'https://example.invalid/run/1');
 
-    assert.equal(payload.domains[0].label, 'domain/checkout');
-    assert.equal(payload.domains[0].issueTitle, '[nightly] Nightly PHPUnit failures: domain/checkout');
-    assert.equal(payload.domains[0].issueMarker, '<!-- nightly-phpunit-failures:domain/checkout -->');
-    assert.ok(payload.parent.issueBody.includes('- **domain/checkout**: 1 failing test (package keys: checkout)'));
+    assert.equal(payload.issues[0].label, 'domain/checkout');
+    assert.equal(payload.issues[0].issueTitle, '[nightly] Nightly PHPUnit failures: domain/checkout');
+    assert.equal(payload.issues[0].issueMarker, '<!-- nightly-phpunit-failures:domain/checkout -->');
   });
 
-  it('reports a missing-junit hint when no failures were parsed', () => {
+  it('falls back to a single no-reports issue when no failures were parsed', () => {
     const payload = buildIssuePayload('[nightly] Nightly PHPUnit failures', [], 'https://example.invalid/run/1');
 
-    assert.ok(payload.parent.issueBody.includes('No junit reports were produced'));
-    assert.equal(payload.domains.length, 0);
+    assert.equal(payload.issues.length, 1);
+    const issue = payload.issues[0];
+    assert.equal(issue.issueTitle, '[nightly] Nightly PHPUnit failures: no test reports');
+    assert.equal(issue.issueMarker, '<!-- nightly-phpunit-failures:no-reports -->');
+    assert.equal(issue.label, null);
+    assert.ok(issue.issueBody.includes('No junit reports were produced'));
+    assert.ok(issue.commentBody.startsWith(issue.issueMarker));
   });
 });
 const JEST_JUNIT_FIXTURE = `<?xml version="1.0" encoding="UTF-8"?>

@@ -11,6 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @deprecated tag:v6.9.0 reason:remove-entity - Will be removed. Use `document.type_name` instead.
+ */
 #[Package('after-sales')]
 class DocumentTypeEntity extends Entity
 {

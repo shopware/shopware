@@ -13,6 +13,15 @@
                 "responses": {
                     "200": {
                         "description": "Returns the current context.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains sw-context-token value",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -156,7 +165,7 @@
                 "operationId": "contextGateway",
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "$ref": "#/components/responses/GatewayContextTokenResponse"
                     },
                     "400": {
                         "description": "App server communication error"
@@ -210,7 +219,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "$ref": "#/components/responses/GatewayContextTokenResponse"
                     },
                     "400": {
                         "description": "App server communication error"

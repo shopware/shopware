@@ -36,11 +36,8 @@ interface DomainIssue extends IssueContent {
 }
 
 interface IssuePayload {
-  parent: IssueContent;
-  domains: DomainIssue[];
+  issues: DomainIssue[];
 }
-
-export const ISSUE_MARKER = '<!-- nightly-phpunit-failures -->';
 
 const MAX_TESTS_PER_DOMAIN = 40;
 const UNROUTED_LABEL = 'needs manual routing';
@@ -278,37 +275,29 @@ function formatTest(test: FailedTest): string {
   return `- \`${shortClass}::${test.testName}\`${message}`;
 }
 
-function testCount(count: number): string {
-  return count === 1 ? '1 failing test' : `${count} failing tests`;
-}
-
 const TRIAGE_NOTE =
-  'Grouping uses the test files\' `#[Package]` markers only. Root-cause clustering, routing overrides, ' +
-  'and re-routing between the domain sub-issues are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.';
+  'Grouping uses the test files\' `#[Package]`/`@sw-package` markers only. Root-cause clustering, routing overrides, ' +
+  'and re-routing between the per-domain issues are the deep-triage pass, see `.agents/skills/nightly-triage/SKILL.md`.';
 
-function buildParentLines(groups: DomainGroup[], runUrl: string): string[] {
-  const totalCount = groups.reduce((sum, group) => sum + group.tests.length, 0);
-  const lines = [`Run: ${runUrl}`, `Failing tests: ${totalCount}`];
+// A run can fail without producing any junit report (infrastructure failure,
+// a shard dying before reporting). That still needs an issue — a run that
+// reports nothing must not look like a run without failures.
+function buildNoReportsIssue(issueTitle: string, runUrl: string): DomainIssue {
+  const marker = '<!-- nightly-phpunit-failures:no-reports -->';
+  const title = `${issueTitle}: no test reports`;
+  const lines = [
+    `Run: ${runUrl}`,
+    '',
+    'No junit reports were produced: the failure is outside the reported test suites (PHPUnit and Jest), or a job died before reporting. Check the run logs.',
+  ];
 
-  if (groups.length === 0) {
-    lines.push('');
-    lines.push(
-      'No junit reports were produced: the failure is outside the reported test suites (PHPUnit and Jest), or a job died before reporting. Check the run logs.'
-    );
-    return lines;
-  }
-
-  lines.push('');
-  for (const group of groups) {
-    const packageKeys = group.packageKeys.size > 0 ? [...group.packageKeys].sort().join(', ') : 'none resolved';
-    lines.push(`- **${group.label}**: ${testCount(group.tests.length)} (package keys: ${packageKeys})`);
-  }
-  lines.push('');
-  lines.push('Per-domain details live in the sub-issues.');
-  lines.push('');
-  lines.push(TRIAGE_NOTE);
-
-  return lines;
+  return {
+    issueTitle: title,
+    issueMarker: marker,
+    label: null,
+    issueBody: [marker, `# ${title}`, '', 'Latest failure:', '', ...lines].join('\n').trimEnd(),
+    commentBody: [marker, '## Scheduled test failure update', '', ...lines].join('\n').trimEnd(),
+  };
 }
 
 function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
@@ -325,26 +314,11 @@ function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
 }
 
 export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], runUrl: string): IssuePayload {
-  const parentLines = buildParentLines(groups, runUrl);
-  const parent: IssueContent = {
-    issueTitle,
-    issueMarker: ISSUE_MARKER,
-    issueBody: [
-      ISSUE_MARKER,
-      `# ${issueTitle}`,
-      '',
-      'This issue tracks failing scheduled test runs (PHPUnit and Jest): one sub-issue per owning domain, new failures are added as comments.',
-      '',
-      'Latest failure:',
-      '',
-      ...parentLines,
-    ]
-      .join('\n')
-      .trimEnd(),
-    commentBody: [ISSUE_MARKER, '## Scheduled test failure update', '', ...parentLines].join('\n').trimEnd(),
-  };
+  if (groups.length === 0) {
+    return { issues: [buildNoReportsIssue(issueTitle, runUrl)] };
+  }
 
-  const domains = groups.map((group): DomainIssue => {
+  const issues = groups.map((group): DomainIssue => {
     const slug = group.label === UNROUTED_LABEL ? 'needs-manual-routing' : group.label;
     const marker = `<!-- nightly-phpunit-failures:${slug} -->`;
     const title = `${issueTitle}: ${group.label}`;
@@ -360,6 +334,8 @@ export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], run
         '',
         'Failing scheduled tests grouped to this domain, PHPUnit by its `#[Package]` markers, Jest by its `@sw-package` markers. New failures are added as comments.',
         '',
+        TRIAGE_NOTE,
+        '',
         'Latest failure:',
         '',
         ...lines,
@@ -370,7 +346,7 @@ export function buildIssuePayload(issueTitle: string, groups: DomainGroup[], run
     };
   });
 
-  return { parent, domains };
+  return { issues };
 }
 
 function collectXmlFiles(directory: string): string[] {

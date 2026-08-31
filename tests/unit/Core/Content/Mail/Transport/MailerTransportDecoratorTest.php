@@ -116,8 +116,8 @@ class MailerTransportDecoratorTest extends TestCase
                 $mailAttachmentsConfig->getOrderId()
             )
             ->willReturn([
-                ['id' => 'foo', 'content' => 'foo', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
-                ['id' => 'bar', 'content' => 'bar', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
+                ['id' => 'foo', 'documentId' => 'foo', 'content' => 'foo', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
+                ['id' => 'bar', 'documentId' => 'bar', 'content' => 'bar', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
             ]);
 
         $documentRepository = $this->createMock(EntityRepository::class);
@@ -145,5 +145,52 @@ class MailerTransportDecoratorTest extends TestCase
         static::assertSame('bar', $attachments[1]->getBody());
 
         static::assertSame([], $mailAttachmentsConfig->getExtension()->getDocumentIds());
+    }
+
+    public function testMailerTransportDecoratorMarksDocumentV2AttachmentsWithDistinctFileIdsAsSent(): void
+    {
+        $documentId = Uuid::randomHex();
+        $pdfFileId = Uuid::randomHex();
+        $htmlFileId = Uuid::randomHex();
+
+        $mail = new Mail();
+        $envelope = static::createStub(Envelope::class);
+        $mailAttachmentsConfig = new MailAttachmentsConfig(
+            Context::createDefaultContext(),
+            new MailTemplateEntity(),
+            new MailSendSubscriberConfig(false, [$documentId]),
+            [],
+            Uuid::randomHex()
+        );
+
+        $mail->setMailAttachmentsConfig($mailAttachmentsConfig);
+
+        $this->decorated->expects($this->once())->method('send')->with($mail, $envelope);
+
+        $attachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
+        $attachmentsBuilder
+            ->expects($this->once())
+            ->method('buildAttachments')
+            ->willReturn([
+                ['id' => $pdfFileId, 'documentId' => $documentId, 'content' => 'pdf', 'fileName' => 'invoice.pdf', 'mimeType' => 'application/pdf'],
+                ['id' => $htmlFileId, 'documentId' => $documentId, 'content' => 'html', 'fileName' => 'invoice.html', 'mimeType' => 'text/html'],
+            ]);
+
+        $documentRepository = $this->createMock(EntityRepository::class);
+        $documentRepository
+            ->expects($this->once())
+            ->method('update')
+            ->with([
+                ['id' => $documentId, 'sent' => true],
+            ], Context::createDefaultContext());
+
+        $decorator = new MailerTransportDecorator(
+            $this->decorated,
+            $attachmentsBuilder,
+            $this->filesystem,
+            $documentRepository
+        );
+
+        $decorator->send($mail, $envelope);
     }
 }

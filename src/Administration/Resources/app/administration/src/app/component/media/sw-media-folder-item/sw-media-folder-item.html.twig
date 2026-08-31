@@ -9,38 +9,33 @@
     {% block sw_media_folder_item_preview %}
     <template #preview="{ item }">
         {% block sw_media_folder_parent_icon%}
-        <img
+        <sw-media-folder-thumbnail
             v-if="isParent"
-            :src="assetFilter('/administration/administration/static/img/media/folder--back.svg')"
+            variant="back"
             class="sw-media-folder-item__folder-thumbnails"
-            alt="Folder back"
-        >
+        />
         {% endblock %}
 
         {% block sw_media_folder_default_icon%}
         <span
             v-else-if="!!item.defaultFolderId"
         >
-            <img
-                :src="assetFilter('/administration/administration/static/img/media/' + iconName + '.svg')"
-                class="sw-media-folder-item__folder-thumbnails"
-                :alt="iconName"
-            >
+            <sw-media-folder-thumbnail class="sw-media-folder-item__folder-thumbnails" />
             <mt-icon
                 v-if="iconConfig.name"
                 class="sw-media-folder-item__folder-thumbnails is--inner"
-                v-bind="iconConfig"
+                :name="iconConfig.name"
+                color="var(--color-icon-secondary-default)"
+                size="12cqw"
             />
         </span>
         {% endblock %}
 
         {% block sw_media_folder_folder_icon%}
-        <img
+        <sw-media-folder-thumbnail
             v-else
-            :src="assetFilter('/administration/administration/static/img/media/folder-thumbnail--large.svg')"
             class="sw-media-folder-item__folder-thumbnails"
-            alt="Folder thumbnail"
-        >
+        />
         {% endblock %}
     </template>
     {% endblock %}

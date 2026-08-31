@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Sso\SsoService;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\UserCollection;
@@ -46,6 +48,7 @@ class UserController extends AbstractController
         private readonly EntityRepository $keyRepository,
         private readonly UserDefinition $userDefinition,
         private readonly SsoService $ssoService,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -95,13 +98,16 @@ class UserController extends AbstractController
             throw ApiException::userNotLoggedIn();
         }
 
-        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
+        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
         if (array_diff(array_keys($request->request->all()), $allowedChanges) !== []) {
             throw ApiException::missingPrivileges(['user:update']);
         }
 
-        return $this->upsertUser($userId, $request, $context, $responseFactory);
+        return $context->scope(
+            Context::SYSTEM_SCOPE,
+            fn (Context $context): Response => $this->upsertUser($userId, $request, $context, $responseFactory),
+        );
     }
 
     #[Route(
@@ -212,10 +218,13 @@ class UserController extends AbstractController
         $this->validateScope($request);
 
         $data = $request->request->all();
-        if (!isset($data['id'])) {
-            $data['id'] = null;
-        }
-        $data['id'] = $userId ?: $data['id'];
+        $admin = $data['admin'] ?? null;
+        $changesAdmin = isset($data['admin']);
+        unset($data['admin']);
+
+        $entityId = $userId ?? $data['id'] ?? Uuid::randomHex();
+        \assert(\is_string($entityId));
+        $data['id'] = $entityId;
 
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
@@ -229,16 +238,19 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isTryingToChangeAdmin = isset($data['admin']);
-
-        if (!$source->isAdmin() && $isTryingToChangeAdmin) {
+        if (!$source->isAdmin() && $changesAdmin) {
             throw new PermissionDeniedException();
         }
 
-        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));
-        $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
-        $entityId = array_last($eventIds);
-        \assert(\is_string($entityId), 'There should be a user ID, as it just was written');
+        $this->connection->transactional(function () use ($data, $context, $changesAdmin, $admin, $entityId): void {
+            $this->userRepository->upsert([$data], $context);
+
+            if ($changesAdmin) {
+                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($entityId, $admin): void {
+                    $this->userRepository->update([['id' => $entityId, 'admin' => $admin]], $context);
+                });
+            }
+        });
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
     }

@@ -153,43 +153,30 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringNotContainsString('Title', $tester->getDisplay());
     }
 
-    public function testDetailViewRendersToolWithoutRequiredSchemaKey(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function malformedRequiredSchemaProvider(): iterable
     {
-        $registry = new Registry();
-        $registry->registerTool(
-            new Tool(
-                'my-tool',
-                null,
-                // @phpstan-ignore argument.type (the SDK's SchemaGenerator omits the 'required' key when no parameter is required, contrary to the ToolInputSchema type alias)
-                ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]],
-                'Does things',
-                null,
-            ),
-            'Acme\\MyTool',
-        );
+        yield 'required key omitted, as the SDK SchemaGenerator does when no parameter is required' => [
+            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']]],
+        ];
 
-        $tester = new CommandTester($this->makeCommand($registry));
-        $tester->execute(['name' => 'my-tool']);
-
-        static::assertSame(0, $tester->getStatusCode());
-
-        $output = $tester->getDisplay();
-        static::assertStringContainsString('limit', $output);
-        static::assertStringContainsString('optional', $output);
+        yield 'required value is not an array, as unvalidated third-party registrations may carry' => [
+            ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']], 'required' => 'invalid'],
+        ];
     }
 
-    public function testDetailViewRendersToolWithNonArrayRequiredSchemaValue(): void
+    /**
+     * @param array<string, mixed> $inputSchema
+     */
+    #[DataProvider('malformedRequiredSchemaProvider')]
+    public function testDetailViewRendersToolWithMalformedRequiredSchema(array $inputSchema): void
     {
         $registry = new Registry();
         $registry->registerTool(
-            new Tool(
-                'my-tool',
-                null,
-                // @phpstan-ignore argument.type (third-party registrations are not bound by the ToolInputSchema type alias at runtime)
-                ['type' => 'object', 'properties' => ['limit' => ['type' => 'integer']], 'required' => 'invalid'],
-                'Does things',
-                null,
-            ),
+            // @phpstan-ignore argument.type (malformed schemas are not bound by the ToolInputSchema type alias at runtime)
+            new Tool('my-tool', null, $inputSchema, 'Does things', null),
             'Acme\\MyTool',
         );
 

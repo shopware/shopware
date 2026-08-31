@@ -73,6 +73,18 @@ Store API responses no longer echo the request `sw-context-token` header on cach
 
 ## Administration
 
+### Select dropdowns stay anchored to their field while scrolling
+
+`sw-select-result-list`, `sw-multi-tag-select` and `sw-category-tree-field` render their dropdown with `mt-floating-ui` instead of `sw-popover-deprecated`. An open dropdown now follows its input while the page scrolls, instead of staying where it was when it opened.
+
+The dropdown is still teleported to `<body>`, but the element around it changed. Extensions have to be adjusted:
+
+- `.sw-popover__wrapper` around a select result list is replaced by `.mt-floating-ui__content`. Update styles and end-to-end selectors that matched the old wrapper.
+- Classes passed via `popover-classes` on `sw-select-result-list` land on `.mt-floating-ui__content`. Descendant selectors such as `.my-popover .sw-select-result-list__content` keep working; selectors that expected the class on an element *around* the content do not.
+- The `--placement-bottom-outside` modifier class is gone. `mt-floating-ui` flips the dropdown itself and marks the resolved side with `.mt-floating-ui--top` / `.mt-floating-ui--bottom`. Pass `:floating-ui-options="{ placement: 'top-start' }"` to force a placement above the field.
+- The dropdown's stacking context comes from `.mt-floating-ui__content` (`z-index: 1070`); the popover's `z-index` prop is gone.
+- `sw-multi-tag-select` renders its "add data" / "enter valid data" hint as a `sw-select-result` inside `sw-select-result-list`. The Twig blocks `sw_multi_tag_select_validation_valid` and `sw_multi_tag_select_validation_invalid` still exist, but their content is now a `<template>` inside a result item.
+
 ### Shipping prices can be linked to the tax rate
 
 The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.

@@ -80,7 +80,7 @@ class CartLoadRouteTest extends TestCase
         $calculator->expects($this->never())->method('calculate');
         $calculator
             ->expects($this->once())
-            ->method('finalize')
+            ->method('markCalculated')
             ->with($resolvedCart, $salesChannelContext)
             ->willReturn($resolvedCart);
 
@@ -114,7 +114,7 @@ class CartLoadRouteTest extends TestCase
 
         $calculatedCart = new Cart('other-token');
         $calculator = $this->createMock(CartCalculator::class);
-        $calculator->expects($this->never())->method('finalize');
+        $calculator->expects($this->never())->method('markCalculated');
         $calculator
             ->expects($this->once())
             ->method('calculate')

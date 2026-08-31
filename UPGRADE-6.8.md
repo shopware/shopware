@@ -273,18 +273,18 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## `AbstractCartLoadRoute::load()` requires the cart
+## `AbstractCartLoadRoute::load()` takes the cart
 
-`Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute::load()` takes the cart to respond with as a third, required parameter. Decorations had to add it to their `load()` declaration and forward it to the decorated route:
+`Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute::load()` takes the cart to respond with as an optional third parameter. Call sites are unaffected, but decorations had to add the parameter to their own `load()` declaration and forward it, otherwise the declaration is no longer compatible:
 
 ```php
-public function load(Request $request, SalesChannelContext $context, Cart $cart): CartResponse
+public function load(Request $request, SalesChannelContext $context, ?Cart $cart = null): CartResponse
 {
     return $this->getDecorated()->load($request, $context, $cart);
 }
 ```
 
-Callers had to pass a cart as well. In a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request; elsewhere, read it from `CartService::getCart()`. The route no longer reads a cart from the cart storage on its own, so a caller that used to rely on that has to load the cart before calling the route.
+A decoration that drops the parameter still works but gives up the optimization behind it, because the route then reads and calculates a cart the request already holds. Pass a cart wherever you have one: in a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request, elsewhere read it from `CartService::getCart()`.
 
 ## XML configuration is no longer supported
 

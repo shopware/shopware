@@ -29,15 +29,16 @@ class CartCalculator
                 ->loadByCart($context, $cart, new CartBehavior($context->getPermissions()))
                 ->getCart();
 
-            return $this->finalize($cart, $context);
+            return $this->markCalculated($cart, $context);
         });
     }
 
     /**
-     * Applies the state a cart carries once it went through a full calculation. Only call this for a cart
-     * that was calculated through the CartRuleLoader already, otherwise use `calculate()`.
+     * Applies the state a cart carries once it went through a full calculation: the context hash and the
+     * reset modification flags. Only call this for a cart that the CartRuleLoader processed already,
+     * otherwise use `calculate()`.
      */
-    public function finalize(Cart $cart, SalesChannelContext $context): Cart
+    public function markCalculated(Cart $cart, SalesChannelContext $context): Cart
     {
         $cart->setHash($this->cartContextHasher->generate($cart, $context));
 

@@ -47,8 +47,10 @@ class CartLoadRoute extends AbstractCartLoadRoute
         $token = RequestParamHelper::get($request, 'token', $context->getToken());
         $taxed = RequestParamHelper::get($request, 'taxed', false);
 
+        // the resolved cart only went through the CartRuleLoader, so it still carries the hash of its last
+        // persist, which no longer describes the cart once anything behind it changed (a reduced stock, say)
         $cart = $cart !== null && $cart->getToken() === $token
-            ? $this->cartCalculator->finalize($cart, $context)
+            ? $this->cartCalculator->markCalculated($cart, $context)
             : $this->loadAndCalculate($token, $context);
 
         if ($taxed) {

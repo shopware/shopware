@@ -96,7 +96,7 @@ class CartCalculatorTest extends TestCase
         static::assertSame(self::EXPECTED_HASH, $calculatedCart->getHash());
     }
 
-    public function testFinalizeStampsAnAlreadyCalculatedCart(): void
+    public function testMarkCalculatedStampsAnAlreadyCalculatedCart(): void
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('19d144ffe15f4772860d59fca7f207c1');
@@ -119,12 +119,12 @@ class CartCalculatorTest extends TestCase
             new CartMetricsInstrumentor(static::createStub(Meter::class), new SalesChannelTypeResolver()),
         );
 
-        $finalizedCart = $calculator->finalize($this->getCart(), $context);
+        $markedCart = $calculator->markCalculated($this->getCart(), $context);
 
-        static::assertSame(self::EXPECTED_HASH, $finalizedCart->getHash());
-        static::assertFalse($finalizedCart->isModified());
+        static::assertSame(self::EXPECTED_HASH, $markedCart->getHash());
+        static::assertFalse($markedCart->isModified());
 
-        foreach ($finalizedCart->getLineItems() as $lineItem) {
+        foreach ($markedCart->getLineItems() as $lineItem) {
             static::assertFalse($lineItem->isModified());
         }
     }

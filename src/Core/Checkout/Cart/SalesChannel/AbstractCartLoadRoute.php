@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,10 +16,10 @@ abstract class AbstractCartLoadRoute
 {
     abstract public function getDecorated(): AbstractCartLoadRoute;
 
-    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'cart', parameterType: Cart::class, description: 'The cart to respond with, so the route no longer reads and calculates a cart that the caller already holds.')]
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'cart', parameterType: '?' . Cart::class, defaultValue: null, description: 'The cart to respond with, so the route does not read and calculate a cart that the caller already holds. Stays optional because the route still reads from the cart storage when the request asks for another token.')]
     abstract public function load(
         Request $request,
         SalesChannelContext $context,
-        /* , Cart $cart */
+        /* , ?Cart $cart = null */
     ): CartResponse;
 }

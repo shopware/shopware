@@ -113,7 +113,7 @@ class CheckoutController extends StorefrontController
     {
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        // @phpstan-ignore arguments.count (cart is hidden on AbstractCartLoadRoute::load() via NewRequiredParameter to avoid a BC break for decorators; CartLoadRoute reads this 3rd argument for real)
+        // @phpstan-ignore arguments.count (cart is hidden on AbstractCartLoadRoute::load() via NewOptionalParameter to avoid a BC break for decorators; CartLoadRoute reads this 3rd argument for real)
         return $this->cartLoadRoute->load($request, $context, $cart);
     }
 

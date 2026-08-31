@@ -74,7 +74,7 @@ Store API responses no longer echo the request `sw-context-token` header on cach
 
 `Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute::load()` takes the cart as an optional third argument for this, filled by the `CartValueResolver` like on the other cart routes. Calling the route without a cart, or with a `token` that differs from the passed cart, still reads from the cart storage.
 
-`AbstractCartLoadRoute::load()` is unchanged for now, so decorations keep working, but the parameter becomes required there in 6.8. Add it to your `load()` declaration and forward it to the decorated route before you upgrade, and start passing a cart at your own call sites — PHP accepts the extra argument on a decoration that does not declare it yet.
+`AbstractCartLoadRoute::load()` is unchanged for now, so decorations keep working, but the parameter is added there in 6.8. Add it to your own `load()` declaration and forward it to the decorated route before you upgrade. Until you do, the route reads and calculates the cart again behind your decoration, because the resolver has no parameter to fill.
 
 ### Dedicated error code for invalid child line item quantity
 

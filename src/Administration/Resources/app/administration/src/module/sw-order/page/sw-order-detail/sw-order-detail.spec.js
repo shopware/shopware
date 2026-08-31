@@ -193,7 +193,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await wrapper.vm.createNewVersionId();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
 
-        await wrapper.vm.beforeDestroyComponent();
+        wrapper.vm.beforeDestroyComponent();
 
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
     });
@@ -207,7 +207,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             type: 'billing',
         });
 
-        await wrapper.vm.beforeDestroyComponent();
+        wrapper.vm.beforeDestroyComponent();
 
         expect(Shopware.State.get('swOrderDetail').orderAddressIds).toEqual([]);
     });

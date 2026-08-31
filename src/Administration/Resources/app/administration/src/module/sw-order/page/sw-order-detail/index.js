@@ -237,10 +237,10 @@ export default {
                 return;
             }
 
-            this.beforeDestroyComponent(true).catch(() => {});
+            this.beforeDestroyComponent(true);
         },
 
-        async beforeDestroyComponent(useKeepalive = false) {
+        beforeDestroyComponent(useKeepalive = false) {
             State.commit('swOrderDetail/setOrderAddressIds', null);
 
             if (this.hasNewVersionId) {
@@ -255,7 +255,7 @@ export default {
                         authToken: Shopware.Context.api.authToken ?? oldVersionContext.authToken,
                     };
 
-                    await this.orderRepository.deleteVersionWithKeepalive(
+                    this.orderRepository.deleteVersionWithKeepalive(
                         this.orderId,
                         oldVersionContext.versionId,
                         keepaliveContext,
@@ -264,7 +264,7 @@ export default {
                     return;
                 }
 
-                await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
+                this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
             }
         },
 

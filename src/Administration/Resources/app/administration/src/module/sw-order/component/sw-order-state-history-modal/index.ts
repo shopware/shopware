@@ -208,17 +208,17 @@ export default Component.wrapComponentConfig({
         buildStateHistory(allEntries: EntityCollection<'state_machine_history'>): StateMachineHistoryData[] {
             const states = {
                 order:
-                    allEntries.filter((entry) => {
+                    allEntries.find((entry) => {
                         return entry.entityName === 'order';
-                    })[0]?.fromStateMachineState ?? this.order.stateMachineState,
+                    })?.fromStateMachineState ?? this.order.stateMachineState,
                 order_transaction:
-                    allEntries.filter((entry) => {
+                    allEntries.find((entry) => {
                         return entry.entityName === 'order_transaction';
-                    })[0]?.fromStateMachineState ?? this.order.transactions?.last()?.stateMachineState,
+                    })?.fromStateMachineState ?? this.order.transactions?.last()?.stateMachineState,
                 order_delivery:
-                    allEntries.filter((entry) => {
+                    allEntries.find((entry) => {
                         return entry.entityName === 'order_delivery';
-                    })[0]?.fromStateMachineState ?? this.order.deliveries?.first()?.stateMachineState,
+                    })?.fromStateMachineState ?? this.order.deliveries?.first()?.stateMachineState,
             };
 
             const entries = [] as Array<StateMachineHistoryData>;

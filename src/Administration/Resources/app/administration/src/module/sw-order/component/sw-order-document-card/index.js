@@ -75,6 +75,7 @@ export default {
             cardLoading: false,
             documents: new EntityCollection(null, null, null, new Criteria(1, 25), [], 0),
             documentTypes: null,
+            supportedDocumentTypes: {},
             // @deprecated tag:v6.9.0 - showModal will be removed.
             showModal: false,
             currentDocumentType: null,
@@ -148,6 +149,9 @@ export default {
         documentTypeCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
 
             return criteria;
         },
@@ -305,8 +309,41 @@ export default {
                 this.cardLoading = false;
             });
 
+            if (Shopware.Feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                this.documentV2Service
+                    .getAvailableDocumentTypes()
+                    .then((supportedDocumentTypes) => {
+                        this.supportedDocumentTypes = supportedDocumentTypes;
+                    })
+                    .catch(() => {
+                        this.createNotificationError({
+                            message: this.$t('sw-order.documentCard.error.loadDocumentTypes'),
+                        });
+                    });
+            }
+
             // @deprecated tag:v6.9.0 - Removed with document generation v1.
             this.documentService.setListener(this.convertStoreEventToVueEvent);
+        },
+
+        /**
+         * @deprecated tag:v6.9.0 - The `app_provided` sentinel guard is removed with `document_type_id`.
+         */
+        documentTypeLabel(document) {
+            if (document.documentType?.technicalName !== 'app_provided') {
+                return document.documentType?.name ?? '';
+            }
+
+            const technicalName = document.typeName;
+
+            if (!technicalName) {
+                return document.documentType?.name ?? '';
+            }
+
+            return this.documentV2Service.getDocumentTypeLabel(
+                technicalName,
+                this.supportedDocumentTypes[technicalName]?.label,
+            );
         },
 
         /**

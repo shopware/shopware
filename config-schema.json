@@ -137,6 +137,9 @@
                 },
                 "webhook": {
                     "$ref": "#/definitions/webhook"
+                },
+                "app_system": {
+                    "$ref": "#/definitions/app_system"
                 }
             },
             "title": "Shopware"
@@ -315,6 +318,25 @@
                 }
             },
             "title": "Webhook"
+        },
+        "app_system": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allow_unencrypted_traffic": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "allowed_private_ip_addresses": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": []
+                }
+            },
+            "title": "App system"
         },
         "twig": {
             "type": "object",
@@ -544,6 +566,9 @@
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "cart_add_line_item_from": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "import_export_file_download": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "mcp": {

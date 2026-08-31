@@ -88,7 +88,12 @@ export default {
         },
 
         documentTypeCriteria() {
-            return new Criteria(1, 100).addSorting(Criteria.sort('name', 'ASC'));
+            return (
+                new Criteria(1, 100)
+                    .addSorting(Criteria.sort('name', 'ASC'))
+                    /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+                    .addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]))
+            );
         },
 
         documentCriteria() {

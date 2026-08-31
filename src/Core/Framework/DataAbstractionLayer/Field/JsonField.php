@@ -36,6 +36,19 @@ class JsonField extends Field implements StorageAware
     }
 
     /**
+     * Adds a nested field to the JSON property mapping.
+     *
+     * Use this from {@see \Shopware\Core\Framework\DataAbstractionLayer\EntityExtension::modifyFields()} to extend an existing JSON schema,
+     * for example to add another entity key to a structured map such as `hitCount`.
+     */
+    public function addPropertyMapping(Field $field): static
+    {
+        $this->propertyMapping[] = $field;
+
+        return $this;
+    }
+
+    /**
      * @return array<mixed>|null
      */
     public function getDefault(): ?array

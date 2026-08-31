@@ -5,11 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Authorization\Policy;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\Policy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Webhook;
 
@@ -25,7 +25,7 @@ class PolicyRegistryTest extends TestCase
         $registry = new PolicyRegistry([new StubPolicy(['foo.event'], permits: false)]);
 
         static::assertTrue($registry->permitsDelivery(new StubHookable('bar.event'), $this->createWebhook()));
-        static::assertTrue($registry->permitsSubscription('bar.event', static::createStub(Manifest::class)));
+        static::assertTrue($registry->permitsSubscription('bar.event', Subscriber::user()));
     }
 
     public function testASinglePolicyCanVeto(): void
@@ -33,7 +33,7 @@ class PolicyRegistryTest extends TestCase
         $registry = new PolicyRegistry([new StubPolicy(['foo.event'], permits: false)]);
 
         static::assertFalse($registry->permitsDelivery(new StubHookable(), $this->createWebhook()));
-        static::assertFalse($registry->permitsSubscription('foo.event', static::createStub(Manifest::class)));
+        static::assertFalse($registry->permitsSubscription('foo.event', Subscriber::user()));
     }
 
     public function testEveryPolicyMustPermit(): void
@@ -44,7 +44,7 @@ class PolicyRegistryTest extends TestCase
         ]);
 
         static::assertFalse($registry->permitsDelivery(new StubHookable(), $this->createWebhook()));
-        static::assertFalse($registry->permitsSubscription('foo.event', static::createStub(Manifest::class)));
+        static::assertFalse($registry->permitsSubscription('foo.event', Subscriber::user()));
     }
 
     public function testAllPermittingMeansPermitted(): void
@@ -71,7 +71,7 @@ class PolicyRegistryTest extends TestCase
 
         $registry = new PolicyRegistry([$policy]);
         $registry->permitsDelivery(new StubHookable('bar.event'), $this->createWebhook());
-        $registry->permitsSubscription('bar.event', static::createStub(Manifest::class));
+        $registry->permitsSubscription('bar.event', Subscriber::user());
 
         static::assertSame(0, $policy->permitCalls);
     }
@@ -117,7 +117,7 @@ class StubPolicy implements Policy
         return \in_array($eventName, $this->eventNames, true);
     }
 
-    public function permitsSubscription(string $eventName, ?Manifest $manifest): bool
+    public function permitsSubscription(string $eventName, Subscriber $subscriber): bool
     {
         ++$this->permitCalls;
 

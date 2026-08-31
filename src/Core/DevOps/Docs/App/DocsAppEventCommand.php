@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -108,7 +109,7 @@ class DocsAppEventCommand extends Command
 
         foreach ($businessEvents as $event) {
             // Events no policy permits for a generic subscriber never deliver; don't document them.
-            if (!$this->policies->permitsSubscription($event->getName(), null)) {
+            if (!$this->policies->permitsSubscription($event->getName(), Subscriber::none())) {
                 continue;
             }
 
@@ -142,7 +143,7 @@ class DocsAppEventCommand extends Command
     {
         foreach ($this->hookableEventDescribers as $describer) {
             foreach ($describer->describe() as $eventDescription) {
-                if (!$this->policies->permitsSubscription($eventDescription->eventName, null)) {
+                if (!$this->policies->permitsSubscription($eventDescription->eventName, Subscriber::none())) {
                     continue;
                 }
 

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Policy;
 
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Webhook;
 
@@ -22,10 +22,7 @@ interface Policy
 {
     public function handles(string $eventName): bool;
 
-    /**
-     * @param Manifest|null $manifest the subscribing app's manifest, or null for a webhook created through the API
-     */
-    public function permitsSubscription(string $eventName, ?Manifest $manifest): bool;
+    public function permitsSubscription(string $eventName, Subscriber $subscriber): bool;
 
     public function permitsDelivery(Hookable $event, Webhook $webhook): bool;
 }

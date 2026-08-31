@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Validation\Error\WebhookNotPermittedError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 
 /**
@@ -50,7 +51,7 @@ class HookableValidator extends AbstractManifestValidator
                 continue;
             }
 
-            if (!$this->policies->permitsSubscription($webhook->getEvent(), $manifest)) {
+            if (!$this->policies->permitsSubscription($webhook->getEvent(), Subscriber::app($manifest))) {
                 $notPermitted[] = $webhook->getName() . ': ' . $webhook->getEvent();
 
                 continue;

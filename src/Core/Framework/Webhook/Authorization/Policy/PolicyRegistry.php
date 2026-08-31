@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Webhook\Authorization\Policy;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Webhook;
 
@@ -24,10 +24,10 @@ class PolicyRegistry
     ) {
     }
 
-    public function permitsSubscription(string $eventName, ?Manifest $manifest): bool
+    public function permitsSubscription(string $eventName, Subscriber $subscriber): bool
     {
         foreach ($this->policiesFor($eventName) as $policy) {
-            if (!$policy->permitsSubscription($eventName, $manifest)) {
+            if (!$policy->permitsSubscription($eventName, $subscriber)) {
                 return false;
             }
         }

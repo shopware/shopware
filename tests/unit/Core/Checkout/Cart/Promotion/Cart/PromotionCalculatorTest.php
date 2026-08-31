@@ -36,9 +36,11 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
+use Shopware\Core\Test\Stub\Rule\TrueRule;
 
 /**
  * @internal
@@ -374,12 +376,62 @@ class PromotionCalculatorTest extends TestCase
 
     public function testSpecificProductsErrorWhenNoPackagesAndProductRestricted(): void
     {
+        $cart = $this->getCartWithProduct();
+
+        $this->getCalculatorWithoutPackages()->calculate(
+            new LineItemCollection([$this->getProductRestrictedDiscountItem(new FalseRule())]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible-specific-products', $error->getMessageKey());
+    }
+
+    public function testNoSpecificProductsErrorWhenRestrictedProductIsInCart(): void
+    {
+        $cart = $this->getCartWithProduct();
+
+        $this->getCalculatorWithoutPackages()->calculate(
+            new LineItemCollection([$this->getProductRestrictedDiscountItem(new TrueRule())]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertCount(0, $cart->getErrors());
+    }
+
+    public function testNoSpecificProductsErrorWithoutDiscountableProducts(): void
+    {
+        $cart = new Cart('promotion-test');
+        $cart->add(new LineItem($this->ids->get('bundle'), LineItem::CONTAINER_LINE_ITEM));
+        $cart->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $this->getCalculatorWithoutPackages()->calculate(
+            new LineItemCollection([$this->getProductRestrictedDiscountItem(new FalseRule())]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertCount(0, $cart->getErrors());
+    }
+
+    private function getCalculatorWithoutPackages(): PromotionCalculator
+    {
         $cartPackager = static::createStub(DiscountPackager::class);
         $cartPackager
             ->method('getMatchingItems')
             ->willReturn(new DiscountPackageCollection([]));
 
-        $calculator = new PromotionCalculator(
+        return new PromotionCalculator(
             static::createStub(AmountCalculator::class),
             static::createStub(AbsolutePriceCalculator::class),
             static::createStub(LineItemGroupBuilder::class),
@@ -393,8 +445,11 @@ class PromotionCalculatorTest extends TestCase
             static::createStub(DiscountPackager::class),
             static::createStub(DiscountPackager::class)
         );
+    }
 
-        $discountItem = $this->getDiscountItem('promotion')
+    private function getProductRestrictedDiscountItem(Rule $productFilter): LineItem
+    {
+        return $this->getDiscountItem('promotion')
             ->setPayloadValue('code', 'PROMO10')
             ->setPayloadValue('filter', [
                 'considerAdvancedRules' => true,
@@ -402,24 +457,21 @@ class PromotionCalculatorTest extends TestCase
                 'applierKey' => 'ALL',
                 'usageKey' => null,
                 'pickerKey' => null,
-            ]);
+            ])
+            ->setPriceDefinition(new AbsolutePriceDefinition(-10.0, $productFilter));
+    }
 
-        $context = static::createStub(SalesChannelContext::class);
+    private function getCartWithProduct(): Cart
+    {
+        $product = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $product->setLabel('Product');
+        $product->setPriceDefinition(new AbsolutePriceDefinition(50.0));
+
         $cart = new Cart('promotion-test');
+        $cart->add($product);
         $cart->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
 
-        $calculator->calculate(
-            new LineItemCollection([$discountItem]),
-            $cart,
-            $cart,
-            $context,
-            new CartBehavior()
-        );
-
-        static::assertCount(1, $cart->getErrors());
-        $error = $cart->getErrors()->first();
-        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
-        static::assertSame('promotion-not-eligible-specific-products', $error->getMessageKey());
+        return $cart;
     }
 
     private function getDiscountItem(string $promotionId): LineItem

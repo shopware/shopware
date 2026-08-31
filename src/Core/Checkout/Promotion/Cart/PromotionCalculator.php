@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -281,7 +282,7 @@ class PromotionCalculator
         // check if no result is found,
         // then this would mean -> no discount
         if ($packages->count() <= 0) {
-            if ($discount->isConsiderAdvancedRules() && !$this->isAutomaticDiscount($item)) {
+            if (!$this->isAutomaticDiscount($item) && $this->isRestrictedToMissingProducts($discount, $calculatedCart, $context)) {
                 $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel(), 'specific-products'));
             }
 
@@ -316,7 +317,7 @@ class PromotionCalculator
         if ($discount->getScope() !== PromotionDiscountEntity::SCOPE_SETGROUP) {
             $packages = $this->advancedRules->filter($discount, $packages, $context);
 
-            if ($packages->count() === 0 && $discount->isConsiderAdvancedRules() && !$this->isAutomaticDiscount($item)) {
+            if ($packages->count() === 0 && !$this->isAutomaticDiscount($item) && $this->isRestrictedToMissingProducts($discount, $calculatedCart, $context)) {
                 $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel(), 'specific-products'));
 
                 return new DiscountCalculatorResult(
@@ -469,6 +470,34 @@ class PromotionCalculator
         }
 
         return new DiscountPackageCollection($validPackages);
+    }
+
+    private function isRestrictedToMissingProducts(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): bool
+    {
+        if (!$discount->isConsiderAdvancedRules()) {
+            return false;
+        }
+
+        $priceDefinition = $discount->getPriceDefinition();
+        $filter = $priceDefinition instanceof FilterableInterface ? $priceDefinition->getFilter() : null;
+
+        if ($filter === null) {
+            return false;
+        }
+
+        $products = $cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        if ($products->count() === 0) {
+            return false;
+        }
+
+        foreach ($products as $product) {
+            if ($filter->match(new LineItemScope($product, $context))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function isAutomaticDiscount(LineItem $discountItem): bool

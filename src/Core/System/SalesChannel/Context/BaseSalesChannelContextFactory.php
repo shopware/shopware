@@ -90,7 +90,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         $criteria = new Criteria([$salesChannelId]);
         $criteria->setTitle('base-context-factory::sales-channel');
         if (!Feature::isActive('v6.8.0.0')) {
-            $criteria->addAssociation('currency');
             $criteria->getAssociation('languages')
                 ->addFilter(new EqualsFilter('id', $context->getLanguageId()))
                 ->addAssociation('translationCode')
@@ -119,20 +118,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
 
         $currency = $availableCurrencies->get($currencyId);
         if ($currency === null) {
-            if (!Feature::isActive('v6.8.0.0') && $currencyId === $salesChannel->getCurrencyId() && $salesChannel->getCurrency() !== null) {
-                $currency = $salesChannel->getCurrency();
-
-                Feature::triggerDeprecationOrThrow(
-                    'v6.8.0.0',
-                    \sprintf(
-                        'The default sales channel currency must also be in the list of available currencies in the sales channel, with 6.8.0.0 this will be enforced. Sales channel id: %s. Currency id: %s.',
-                        $salesChannel->getId(),
-                        $currencyId
-                    )
-                );
-            } else {
-                throw SalesChannelException::currencyNotFound($currencyId);
-            }
+            throw SalesChannelException::currencyNotFound($currencyId);
         }
 
         // load not logged in customer with default shop configuration or with provided checkout scopes

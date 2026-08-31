@@ -67,6 +67,11 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
 ### Store API context token response header is restricted on cacheable reads
 
 Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
+
+### Sales channel file routes require read access
+
+The list, detail and preview routes under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}` now require `sales_channel_file:read`. Clients with that privilege receive previews using the saved template overrides; supplying unsaved `templateOverrides` additionally requires `sales_channel_file:update`.
+
 ### Dedicated error code for invalid child line item quantity
 
 `CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
@@ -270,10 +275,6 @@ Thirteen admin checkout endpoints that previously only required authentication n
 * `POST /api/_action/order/{orderId}/convert-to-cart/` requires `order:read`.
 
 Administration users are not affected: `order:update` and `order_address:update` are part of the "Orders editor" permission that already gates every one of these actions in the order detail page, `order:read` is part of "Orders viewer", and the order creator role depends on both. Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
-
-### Sales channel file previews require read access
-
-`POST /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/preview` now requires `sales_channel_file:read`. Clients with that privilege receive previews using the saved template overrides; supplying unsaved `templateOverrides` additionally requires `sales_channel_file:update`.
 
 ### User uniqueness validation endpoints now require user read access
 

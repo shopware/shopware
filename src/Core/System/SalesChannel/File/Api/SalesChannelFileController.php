@@ -32,7 +32,7 @@ class SalesChannelFileController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}', name: 'api.action.sales_channel_file.list', methods: ['GET'])]
+    #[Route(path: '/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}', name: 'api.action.sales_channel_file.list', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['sales_channel_file:read']], methods: ['GET'])]
     public function list(string $fileFamily, string $salesChannelId, Context $context): JsonResponse
     {
         $this->requestPathResolver->validateFileFamily($fileFamily);
@@ -42,7 +42,7 @@ class SalesChannelFileController extends AbstractController
 
     // The public file name supports subfolders like `.well-known/ucp.json`; keeping it
     // as a query parameter avoids a greedy wildcard path segment for an arbitrary file path.
-    #[Route(path: '/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail', name: 'api.action.sales_channel_file.detail', methods: ['GET'])]
+    #[Route(path: '/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail', name: 'api.action.sales_channel_file.detail', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['sales_channel_file:read']], methods: ['GET'])]
     public function detail(string $fileFamily, string $salesChannelId, Request $request, Context $context): JsonResponse
     {
         $fileName = $request->query->get('fileName');

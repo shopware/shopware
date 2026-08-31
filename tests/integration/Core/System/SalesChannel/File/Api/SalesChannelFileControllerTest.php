@@ -168,6 +168,22 @@ class SalesChannelFileControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
+    public function testItRequiresSalesChannelFileReadAccessForLists(): void
+    {
+        $browser = $this->getBrowser(true, [], []);
+        $browser->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+    }
+
+    public function testItRequiresSalesChannelFileReadAccessForDetails(): void
+    {
+        $browser = $this->getBrowser(true, [], []);
+        $browser->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/detail?fileName=llms.txt');
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+    }
+
     public function testItRejectsInvalidPreviewPath(): void
     {
         $this->getBrowser()->jsonRequest('POST', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/preview', [

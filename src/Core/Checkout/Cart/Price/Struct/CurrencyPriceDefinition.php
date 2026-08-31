@@ -10,9 +10,6 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class CurrencyPriceDefinition extends Struct implements PriceDefinitionInterface, FilterableInterface
 {

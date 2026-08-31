@@ -119,6 +119,11 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             [],
         ];
 
+        yield '@see pointing to existing devops test exempts the class' => [
+            ['SeeDevOpsTestClass.php'],
+            [],
+        ];
+
         yield '@see short-form resolved via use statement also exempts' => [
             ['SeeShortFormIntegrationTestClass.php'],
             [],
@@ -175,6 +180,61 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             [],
         ];
 
+        yield 'discarded call on a parameter fails' => [
+            ['ParameterMutationClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'ParameterMutationClass is annotated @codeCoverageIgnore but method processCriteria() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
+        yield 'entity extension adding fields to the passed collection passes' => [
+            ['SchemaExtensionClass.php'],
+            [],
+        ];
+
+        yield 'named constructor initialising a fresh local passes' => [
+            ['NamedConstructorClass.php'],
+            [],
+        ];
+
+        yield 'literal handed to the parent constructor fails' => [
+            ['ParentChainConstructorParent.php', 'ParentLiteralConfigClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'ParentLiteralConfigClass is annotated @codeCoverageIgnore but method __construct() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
+        yield 'constructor default equal to the parent default passes' => [
+            ['DefaultingConstructorParent.php', 'ChildSameDefaultClass.php'],
+            [],
+        ];
+
+        yield 'constructor default differing from the parent default fails' => [
+            ['DefaultingConstructorParent.php', 'ChildDefaultOverrideClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'ChildDefaultOverrideClass is annotated @codeCoverageIgnore but method __construct() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
+        yield 'method-level ignore on a constructor default override fails' => [
+            ['DefaultingConstructorParent.php', 'MethodLevelDefaultOverrideClass.php'],
+            [[
+                'Method ' . self::FQCN_PREFIX . 'MethodLevelDefaultOverrideClass::__construct() is annotated @codeCoverageIgnore but contains logic. Remove the annotation, extract the logic to a covered method, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
+        yield 'constructor default the parent does not have fails' => [
+            ['DefaultingConstructorParent.php', 'ChildIntroducesDefaultClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'ChildIntroducesDefaultClass is annotated @codeCoverageIgnore but method __construct() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
         yield 'array offset assignment ($this->arr[$k] = $v) is not logic' => [
             ['ArraySetterClass.php'],
             [],
@@ -188,6 +248,49 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
         yield 'static configuration construction with json_encode and self:: dispatch is not logic' => [
             ['ConfigConstructionClass.php'],
             [],
+        ];
+
+        yield 'single write to a local and destructuring into fresh locals are not logic' => [
+            ['SingleLocalWriteClass.php'],
+            [],
+        ];
+
+        yield 'unset on a value fails' => [
+            ['UnsetMutationClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'UnsetMutationClass is annotated @codeCoverageIgnore but method strip() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                15,
+            ]],
+        ];
+
+        yield 'compound assignment fails' => [
+            ['CompoundAssignClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'CompoundAssignClass is annotated @codeCoverageIgnore but method merge() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                16,
+            ]],
+        ];
+
+        yield 'getter running an access guard on $this fails' => [
+            ['GuardedGetterClass.php'],
+            [
+                [
+                    'Class ' . self::FQCN_PREFIX . 'GuardedGetterClass is annotated @codeCoverageIgnore but method getPassword() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                    12,
+                ],
+                [
+                    'Class ' . self::FQCN_PREFIX . 'GuardedGetterClass is annotated @codeCoverageIgnore but method checkIfPropertyAccessIsAllowed() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                    19,
+                ],
+            ],
+        ];
+
+        yield 'second write to a local fails' => [
+            ['LocalReassignClass.php'],
+            [[
+                'Class ' . self::FQCN_PREFIX . 'LocalReassignClass is annotated @codeCoverageIgnore but method build() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+                13,
+            ]],
         ];
     }
 

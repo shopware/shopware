@@ -40,7 +40,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(AvailableContextResolver::class)]
 class AvailableContextResolverTest extends TestCase
 {
-    #[TestDox('returns the bound source root-ambient context for a top-level element, or empty when the source exposes none (header/footer)')]
+    #[TestDox('returns the bound source root-ambient context for a top-level element')]
     public function testTopLevelReceivesRootAmbient(): void
     {
         $root = new StoredElement('root-1', 'Sw:Block');
@@ -48,6 +48,13 @@ class AvailableContextResolverTest extends TestCase
         $rootContext = $this->rootAmbientProductContext();
 
         static::assertSame($rootContext, $this->resolver()->resolve('root-1', [$root], $rootContext));
+    }
+
+    #[TestDox('returns nothing for a top-level element whose source exposes no root-ambient context (header/footer)')]
+    public function testTopLevelWithoutRootAmbientReceivesNothing(): void
+    {
+        $root = new StoredElement('root-1', 'Sw:Block');
+
         static::assertSame([], $this->resolver()->resolve('root-1', [$root], []));
     }
 
@@ -114,7 +121,7 @@ class AvailableContextResolverTest extends TestCase
         static::assertSame([], $this->resolver()->resolve('child-1', [$root], $rootContext));
     }
 
-    #[TestDox('exposes a backed ancestor provider to its direct child but not past a non-redistributing intermediate')]
+    #[TestDox('does not expose a backed ancestor provider past a non-redistributing intermediate')]
     public function testProviderContextStopsAtNonRedistributingIntermediate(): void
     {
         $grandchild = new StoredElement('grandchild-1', 'Sw:Block');
@@ -131,10 +138,7 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
-        $resolver = $this->resolver();
-
-        static::assertSame(['product'], $this->keys($resolver->resolve('child-1', [$root], [])));
-        static::assertSame([], $resolver->resolve('grandchild-1', [$root], []));
+        static::assertSame([], $this->resolver()->resolve('grandchild-1', [$root], []));
     }
 
     #[TestDox('re-exposes incoming root-ambient context through a redistributing intermediate with the inflowing type')]
@@ -257,9 +261,11 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('returns an empty set for an unknown element id')]
     public function testUnknownElementYieldsEmpty(): void
     {
+        // Non-empty root-ambient context so the top-level early return (which yields $rootContext)
+        // cannot produce the same [] as the not-found return under test.
         $root = new StoredElement('root-1', 'Sw:Block');
 
-        static::assertSame([], $this->resolver()->resolve('missing', [$root], []));
+        static::assertSame([], $this->resolver()->resolve('missing', [$root], $this->rootAmbientProductContext()));
     }
 
     #[TestDox('rejects a top-level target whose own provider set collides on a child-facing key')]
@@ -274,13 +280,7 @@ class AvailableContextResolverTest extends TestCase
             [],
             [],
             [],
-            new ContextDefinitions(
-                [
-                    'product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
-                    'category' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
-                ],
-                [],
-            ),
+            $this->collidingProviderDefinitions(),
         );
 
         try {
@@ -304,13 +304,7 @@ class AvailableContextResolverTest extends TestCase
             [],
             [],
             ['content' => [$child]],
-            new ContextDefinitions(
-                [
-                    'product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
-                    'category' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
-                ],
-                [],
-            ),
+            $this->collidingProviderDefinitions(),
         );
 
         try {
@@ -319,16 +313,6 @@ class AvailableContextResolverTest extends TestCase
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
         }
-    }
-
-    /**
-     * @param list<ProvidedContext> $available
-     *
-     * @return list<string>
-     */
-    private function keys(array $available): array
-    {
-        return array_map(static fn (ProvidedContext $provided): string => $provided->contextKey, $available);
     }
 
     /**
@@ -343,6 +327,17 @@ class AvailableContextResolverTest extends TestCase
             providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
             distribution: DistributionStrategy::Broadcast,
         )];
+    }
+
+    private function collidingProviderDefinitions(): ContextDefinitions
+    {
+        return new ContextDefinitions(
+            [
+                'product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
+                'category' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::aliased('item')),
+            ],
+            [],
+        );
     }
 
     private function resolver(): AvailableContextResolver

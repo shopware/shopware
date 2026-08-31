@@ -32,7 +32,86 @@ class ProviderDeliveryKeyResolverTest extends TestCase
         $this->resolver = new ProviderDeliveryKeyResolver();
     }
 
-    #[DataProvider('collisionAxisProvider')]
+    #[TestDox('returns every child-facing key of a clean element mapped to the producer delivering under it')]
+    public function testReturnsTheChildFacingKeyMapOfACleanElement(): void
+    {
+        $element = StoredElementBuilder::create('section', 'element-id')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withProvider('brand', BroadcastDistributionConfig::aliased('manufacturer'))
+            ->withConsumer('category', ContextType::Single, redistribute: true, consumerAlias: 'section')
+            ->withConsumer('review', ContextType::Single)
+            ->build();
+
+        static::assertSame(
+            ['product' => 'product', 'manufacturer' => 'brand', 'section' => 'category'],
+            $this->resolver->resolve($element->contextDefinitions, $element->id)
+        );
+    }
+
+    /**
+     * The index order is load-bearing beyond the map: it decides which of two colliding producers is reported
+     * as `first`, which the authored-provider-versus-derived-provider collision axis below pins.
+     */
+    #[TestDox('indexes authored providers before the providers derived from redistribute consumers')]
+    public function testIndexesAuthoredProvidersBeforeDerivedOnes(): void
+    {
+        $element = StoredElementBuilder::create('section', 'element-id')
+            ->withConsumer('category', ContextType::Single, redistribute: true, consumerAlias: 'section')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->build();
+
+        static::assertSame(
+            ['product', 'section'],
+            array_keys($this->resolver->resolve($element->contextDefinitions, $element->id))
+        );
+    }
+
+    #[DataProvider('derivesChildKeyProvider')]
+    #[TestDox('derives the child-facing key of a redistribute consumer from its consumer alias, falling back to its context key')]
+    public function testDerivesTheChildFacingKeyFromTheConsumerAliasOrTheContextKey(?string $consumerAlias, string $expected): void
+    {
+        $consumer = new ContextConsumer(ContextType::Single, false, true, $consumerAlias);
+
+        static::assertSame($expected, $this->resolver->derivedChildKey($consumer, 'product'));
+    }
+
+    /**
+     * @return iterable<string, array{?string, string}>
+     */
+    public static function derivesChildKeyProvider(): iterable
+    {
+        yield 'an alias names the child-facing key' => ['item', 'item'];
+        yield 'without an alias the context key is the child-facing key' => [null, 'product'];
+    }
+
+    /**
+     * ContextDefinitions carries no runtime key guard, and PHP coerces a numeric-string array key to int, so
+     * an int-keyed definition map is constructible in memory (the decode path rejects it separately, in
+     * StoredElementCodec). The keys are cast on the way into the string-typed collision exception, so this
+     * path throws a ContentSystemException rather than a TypeError.
+     */
+    #[TestDox('reports a collision between numerically keyed producers with stringified payload values')]
+    public function testReportsACollisionBetweenNumericallyKeyedProducers(): void
+    {
+        $element = StoredElementBuilder::create('section', 'element-id')
+            ->withProvider('5', BroadcastDistributionConfig::aliased('item'))
+            ->withConsumer('7', ContextType::Single, redistribute: true, consumerAlias: 'item')
+            ->build();
+
+        // Fixture guard: the keys really arrived as int. Without it this test goes vacuous the day a key
+        // guard lands on ContextDefinitions and the numeric strings survive as strings.
+        static::assertSame([5], array_keys($element->contextDefinitions->getAllProviders()));
+        static::assertSame([7], array_keys($element->contextDefinitions->getAllConsumers()));
+
+        try {
+            $this->resolver->resolve($element->contextDefinitions, $element->id);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            $this->assertProviderDeliveryCollision($exception, 'item', '5', '7', 'element-id');
+        }
+    }
+
+    #[DataProvider('rejectsCollidingChildFacingKeysProvider')]
     #[TestDox('rejects two child-facing key producers of one element that deliver under the same key')]
     public function testRejectsCollidingChildFacingKeys(ContextDefinitions $definitions, string $childKey, string $first, string $second): void
     {
@@ -47,7 +126,7 @@ class ProviderDeliveryKeyResolverTest extends TestCase
     /**
      * @return iterable<string, array{ContextDefinitions, string, string, string}>
      */
-    public static function collisionAxisProvider(): iterable
+    public static function rejectsCollidingChildFacingKeysProvider(): iterable
     {
         // Two authored providers: distinct provider map keys, equal child-facing keys via their aliases.
         yield 'two authored providers sharing a consumer alias' => [
@@ -83,85 +162,6 @@ class ProviderDeliveryKeyResolverTest extends TestCase
             'product',
             'category',
         ];
-    }
-
-    #[TestDox('returns every child-facing key of a clean element mapped to the producer delivering under it')]
-    public function testReturnsTheChildFacingKeyMapOfACleanElement(): void
-    {
-        $element = StoredElementBuilder::create('section', 'element-id')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withProvider('brand', BroadcastDistributionConfig::aliased('manufacturer'))
-            ->withConsumer('category', ContextType::Single, redistribute: true, consumerAlias: 'section')
-            ->withConsumer('review', ContextType::Single)
-            ->build();
-
-        static::assertSame(
-            ['product' => 'product', 'manufacturer' => 'brand', 'section' => 'category'],
-            $this->resolver->resolve($element->contextDefinitions, $element->id)
-        );
-    }
-
-    /**
-     * The index order is load-bearing beyond the map: it decides which of two colliding producers is reported
-     * as `first`, which the authored-provider-versus-derived-provider collision axis above pins.
-     */
-    #[TestDox('indexes authored providers before the providers derived from redistribute consumers')]
-    public function testIndexesAuthoredProvidersBeforeDerivedOnes(): void
-    {
-        $element = StoredElementBuilder::create('section', 'element-id')
-            ->withConsumer('category', ContextType::Single, redistribute: true, consumerAlias: 'section')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->build();
-
-        static::assertSame(
-            ['product', 'section'],
-            array_keys($this->resolver->resolve($element->contextDefinitions, $element->id))
-        );
-    }
-
-    #[DataProvider('derivedChildKeyProvider')]
-    #[TestDox('derives the child-facing key of a redistribute consumer from its consumer alias, falling back to its context key')]
-    public function testDerivedChildKey(?string $consumerAlias, string $expected): void
-    {
-        $consumer = new ContextConsumer(ContextType::Single, false, true, $consumerAlias);
-
-        static::assertSame($expected, $this->resolver->derivedChildKey($consumer, 'product'));
-    }
-
-    /**
-     * @return iterable<string, array{?string, string}>
-     */
-    public static function derivedChildKeyProvider(): iterable
-    {
-        yield 'an alias names the child-facing key' => ['item', 'item'];
-        yield 'without an alias the context key is the child-facing key' => [null, 'product'];
-    }
-
-    /**
-     * ContextDefinitions carries no runtime key guard, and PHP coerces a numeric-string array key to int, so
-     * an int-keyed definition map is constructible in memory (the decode path rejects it separately, in
-     * StoredElementCodec). The keys are cast on the way into the string-typed collision exception, so this
-     * path throws a ContentSystemException rather than a TypeError.
-     */
-    #[TestDox('reports a collision between numerically keyed producers with stringified payload values')]
-    public function testReportsACollisionBetweenNumericallyKeyedProducers(): void
-    {
-        $element = StoredElementBuilder::create('section', 'element-id')
-            ->withProvider('5', BroadcastDistributionConfig::aliased('item'))
-            ->withConsumer('7', ContextType::Single, redistribute: true, consumerAlias: 'item')
-            ->build();
-
-        // Fixture guard: the keys really arrived as int. Without it this test goes vacuous the day a key
-        // guard lands on ContextDefinitions and the numeric strings survive as strings.
-        static::assertSame([5], array_keys($element->contextDefinitions->getAllProviders()));
-        static::assertSame([7], array_keys($element->contextDefinitions->getAllConsumers()));
-
-        try {
-            $this->resolver->resolve($element->contextDefinitions, $element->id);
-            static::fail('Expected a provider delivery collision.');
-        } catch (ContentSystemException $exception) {
-            $this->assertProviderDeliveryCollision($exception, 'item', '5', '7', 'element-id');
-        }
     }
 
     /**

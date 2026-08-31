@@ -44,7 +44,7 @@ class WiringPlannerTest extends TestCase
      * is wire-visible. A derivation that always carried an alias would rename nothing yet still change the
      * body of every plain redistribution.
      */
-    #[DataProvider('derivedProviderWireShapeProvider')]
+    #[DataProvider('serializesItsConsumerAliasProvider')]
     #[TestDox('serializes a derived redistribute provider carrying an alias only where the key is renamed')]
     public function testDerivedRedistributeProviderSerializesItsConsumerAlias(?string $consumerAlias, ?string $expectedSerializedAlias): void
     {
@@ -74,13 +74,29 @@ class WiringPlannerTest extends TestCase
         );
     }
 
-    /**
-     * @return iterable<string, array{?string, ?string}>
-     */
-    public static function derivedProviderWireShapeProvider(): iterable
+    #[TestDox('validates a subtree the partial prune is about to discard')]
+    public function testRedistributeExpansionValidatesASubtreeThePartialRenderDiscards(): void
     {
-        yield 'no alias keeps the plain config' => [null, null];
-        yield 'alias is carried through' => ['product', 'product'];
+        $target = StoredElementBuilder::create('text', 'target-id')->build();
+        $discarded = StoredElementBuilder::create('text', 'discarded-id')
+            ->withConsumer('product.manufacturer', ContextType::Single, redistribute: true)
+            ->build();
+        $forest = [
+            StoredElementBuilder::create('section', 'root-id')
+                ->withSlot('default', [$target, $discarded])
+                ->build(),
+        ];
+
+        $pruned = (new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()))
+            ->pruneToTarget($forest, 'target-id');
+
+        // Fixture guard: the real pruner keeps only the target. The target has no consumers, so it is
+        // its own data root and the root wrapper is pruned away with the discarded sibling.
+        static::assertSame([$target], $pruned);
+
+        $this->expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.manufacturer'));
+
+        $this->planner()->plan($forest, $pruned);
     }
 
     #[TestDox('rejects a redistributing consumer whose context key is a dotted path')]
@@ -127,90 +143,84 @@ class WiringPlannerTest extends TestCase
         $this->planner()->plan($layout->elements, $layout->elements);
     }
 
-    #[TestDox('rejects two authored providers that deliver under the same child-facing key via their shared consumer alias')]
-    public function testRejectsAuthoredProvidersSharingAConsumerAlias(): void
+    /**
+     * The collision rule itself belongs to ProviderDeliveryKeyResolver and is pinned there per axis. What the
+     * planner adds is that every element of the forest is routed through the resolver, nested ones included,
+     * each carrying its own id into the exception. The expected element id per row is what pins that.
+     */
+    #[DataProvider('collidesOnAChildFacingKeyProvider')]
+    #[TestDox('rejects a child-facing key collision on any element of the forest and names that element')]
+    public function testRejectsAProviderDeliveryCollisionNamingTheOffendingElement(StoredElement $root, string $expectedElementId): void
+    {
+        $layout = $this->createSingleRootLayout($root);
+
+        try {
+            $this->planner()->plan($layout->elements, $layout->elements);
+            static::fail('Expected a provider delivery collision.');
+        } catch (ContentSystemException $exception) {
+            $this->assertProviderDeliveryCollision($exception, 'item', 'product', 'category', $expectedElementId);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{?string, ?string}>
+     */
+    public static function serializesItsConsumerAliasProvider(): iterable
+    {
+        yield 'no alias keeps the plain config' => [null, null];
+        yield 'alias is carried through' => ['product', 'product'];
+    }
+
+    /**
+     * @return iterable<string, array{StoredElement, string}>
+     */
+    public static function collidesOnAChildFacingKeyProvider(): iterable
     {
         // Collision axis: distinct provider map keys, equal child-facing keys — each provider's broadcast
         // config renames what children match on, so the distributor would deliver both to the same child.
-        $layout = $this->createSingleRootLayout(
+        yield 'two authored providers sharing a consumer alias' => [
             StoredElementBuilder::create('section', 'root-id')
                 ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
                 ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
-                ->build()
-        );
+                ->build(),
+            'root-id',
+        ];
 
-        try {
-            $this->planner()->plan($layout->elements, $layout->elements);
-            static::fail('Expected a provider delivery collision.');
-        } catch (ContentSystemException $exception) {
-            $this->assertProviderDeliveryCollision($exception, 'item', 'product', 'category');
-        }
-    }
-
-    #[TestDox('rejects an authored provider and a redistribute consumer that deliver under the same child-facing key')]
-    public function testRejectsAuthoredProviderCollidingWithADerivedProvider(): void
-    {
         // Collision axis: the authored provider's alias and the redistribute consumer's derived child-facing
         // key are equal, while the derived provider's own map key ('category') would not collide.
-        $layout = $this->createSingleRootLayout(
+        yield 'an authored provider and a derived provider' => [
             StoredElementBuilder::create('section', 'root-id')
                 ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
                 ->withConsumer('category', ContextType::Single, redistribute: true, consumerAlias: 'item')
-                ->build()
-        );
+                ->build(),
+            'root-id',
+        ];
 
-        try {
-            $this->planner()->plan($layout->elements, $layout->elements);
-            static::fail('Expected a provider delivery collision.');
-        } catch (ContentSystemException $exception) {
-            $this->assertProviderDeliveryCollision($exception, 'item', 'product', 'category');
-        }
-    }
-
-    #[TestDox('rejects two redistribute consumers whose derived child-facing keys collide via their shared consumer alias')]
-    public function testRejectsDerivedProvidersSharingAConsumerAlias(): void
-    {
         // Collision axis: the two consumers write different properties (propertyAlias), so a check judged on
         // the derived provider map key would pass; the corrected formula (consumerAlias ?? contextKey) makes
         // both deliver under 'item' and the layout is rejected.
-        $layout = $this->createSingleRootLayout(
+        yield 'two derived providers sharing a consumer alias' => [
             StoredElementBuilder::create('section', 'root-id')
                 ->withConsumer('product', ContextType::Single, redistribute: true, consumerAlias: 'item', propertyAlias: 'productName')
                 ->withConsumer('category', ContextType::Single, redistribute: true, consumerAlias: 'item', propertyAlias: 'categoryName')
-                ->build()
-        );
-
-        try {
-            $this->planner()->plan($layout->elements, $layout->elements);
-            static::fail('Expected a provider delivery collision.');
-        } catch (ContentSystemException $exception) {
-            $this->assertProviderDeliveryCollision($exception, 'item', 'product', 'category');
-        }
-    }
-
-    #[TestDox('validates a subtree the partial prune is about to discard')]
-    public function testRedistributeExpansionValidatesASubtreeThePartialRenderDiscards(): void
-    {
-        $target = StoredElementBuilder::create('text', 'target-id')->build();
-        $discarded = StoredElementBuilder::create('text', 'discarded-id')
-            ->withConsumer('product.manufacturer', ContextType::Single, redistribute: true)
-            ->build();
-        $forest = [
-            StoredElementBuilder::create('section', 'root-id')
-                ->withSlot('default', [$target, $discarded])
                 ->build(),
+            'root-id',
         ];
 
-        $pruned = (new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()))
-            ->pruneToTarget($forest, 'target-id');
-
-        // Fixture guard: the real pruner keeps only the target. The target has no consumers, so it is
-        // its own data root and the root wrapper is pruned away with the discarded sibling.
-        static::assertSame([$target], $pruned);
-
-        $this->expectExceptionObject(ContentSystemException::redistributeWithDottedPath('product.manufacturer'));
-
-        $this->planner()->plan($forest, $pruned);
+        // Nesting axis: the clean root is not the offender. The validation descends into the slot and the
+        // nested element's own id reaches the exception, so a planner that stopped at the roots or handed
+        // the resolver anything but the element it is judging fails here.
+        yield 'a nested element whose two authored providers share a consumer alias' => [
+            StoredElementBuilder::create('section', 'root-id')
+                ->withSlot('default', [
+                    StoredElementBuilder::create('section', 'nested-id')
+                        ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
+                        ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
+                        ->build(),
+                ])
+                ->build(),
+            'nested-id',
+        ];
     }
 
     /**
@@ -218,12 +228,18 @@ class WiringPlannerTest extends TestCase
      * leaves getCode() at 0, so the error code this file's other tests' pattern relies on via the object
      * comparison is not what distinguishes one ContentSystemException from another.
      */
-    private function assertProviderDeliveryCollision(ContentSystemException $exception, string $childKey, string $first, string $second): void
-    {
+    private function assertProviderDeliveryCollision(
+        ContentSystemException $exception,
+        string $childKey,
+        string $first,
+        string $second,
+        string $elementId
+    ): void {
         static::assertSame(ContentSystemException::PROVIDER_DELIVERY_COLLISION, $exception->getErrorCode());
         static::assertSame($childKey, $exception->getParameter('childKey'));
         static::assertSame($first, $exception->getParameter('first'));
         static::assertSame($second, $exception->getParameter('second'));
+        static::assertSame($elementId, $exception->getParameter('elementId'));
     }
 
     private function planner(): WiringPlanner

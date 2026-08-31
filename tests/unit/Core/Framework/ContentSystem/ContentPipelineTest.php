@@ -83,81 +83,7 @@ class ContentPipelineTest extends TestCase
         $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
     }
 
-    #[TestDox('dispatches preparation and rendered-tree finalization lifecycle events in order in FULL mode')]
-    public function testLoadDispatchesLifecycleEventsInFullMode(): void
-    {
-        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
-
-        $dispatchedEvents = [];
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            function (object $event) use (&$dispatchedEvents) {
-                $dispatchedEvents[] = $event::class;
-
-                return $event;
-            }
-        );
-
-        $pipeline = $this->createPipeline();
-        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
-
-        $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
-
-        static::assertSame([ContentTreePreparationEvent::class, RenderedTreeFinalizationEvent::class], $dispatchedEvents);
-    }
-
-    #[DataProvider('renderingModeProvider')]
-    #[TestDox('dispatches the rendered-tree finalization event in either rendering mode')]
-    public function testLoadDispatchesTheFinalizationEventInBothModes(RenderingMode $mode): void
-    {
-        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
-
-        $dispatchedEvents = [];
-        $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            function (object $event) use (&$dispatchedEvents) {
-                $dispatchedEvents[] = $event::class;
-
-                return $event;
-            }
-        );
-
-        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
-
-        $this->createPipeline()->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
-
-        static::assertContains(RenderedTreeFinalizationEvent::class, $dispatchedEvents);
-    }
-
-    #[TestDox('distributes provider context into consumer children in FULL mode')]
-    public function testLoadHydratesElementsInFullMode(): void
-    {
-        $consumer = StoredElementBuilder::create('text', 'consumer-id')
-            ->withConsumer('product', ContextType::Single)
-            ->build();
-        $provider = StoredElementBuilder::create('section', 'provider-id')
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withProperty('product', 'product-payload')
-            ->withSlot('default', [$consumer])
-            ->build();
-        $layout = RenderableLayout::create(
-            LayoutReference::create($this->ids->get('layout'), 'Context Layout', '1.0'),
-            [$provider]
-        );
-
-        // Fixture guard: only a consumer that is still unfilled makes the hydration branch observable.
-        static::assertArrayHasKey('product', $consumer->contextDefinitions->getAllConsumers());
-        static::assertNull($consumer->property('product'));
-
-        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
-
-        $pipeline = $this->createPipeline();
-        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
-
-        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
-
-        static::assertSame('product-payload', $this->renderedElement($result->tree, 'consumer-id')->properties['product']);
-    }
-
-    #[DataProvider('renderingModeProvider')]
+    #[DataProvider('supportsRenderingModeProvider')]
     #[TestDox('returns the rendered forest beside the layout reference triple in either rendering mode')]
     public function testLoadReturnsTheRenderedForestAndTheLayoutReference(RenderingMode $mode): void
     {
@@ -178,11 +104,20 @@ class ContentPipelineTest extends TestCase
         static::assertSame('1.0', $result->reference->version);
     }
 
-    #[DataProvider('renderingModeProvider')]
+    /**
+     * @param array<string, array<string, mixed>> $expectedResolvedAssignments
+     * @param list<string> $expectedIndexedValues
+     */
+    #[DataProvider('indexesRenderedPropertiesProvider')]
     #[TestDox('builds a value index when the format asks for one and none when it does not')]
-    public function testLoadCollectsAValueIndexOnlyWhenAsked(RenderingMode $mode): void
-    {
-        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout'), 'My Layout'));
+    public function testLoadCollectsAValueIndexOnlyWhenAsked(
+        RenderingMode $mode,
+        array $expectedResolvedAssignments,
+        array $expectedIndexedValues,
+    ): void {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('text', 'root-id')->withProperty('title', 'authored-title')->build()
+        );
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
 
@@ -192,14 +127,29 @@ class ContentPipelineTest extends TestCase
         $requested = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, true, Generator::generateSalesChannelContext());
         $notRequested = $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
 
-        // The flag is a format question, so it decides alone. SKELETON with collection asked for is a pair no
-        // shipped route produces, and it yields an EMPTY index rather than a throw: a mode that resolves no
-        // data has nothing to index, and a mode branch here is exactly what the pipeline does not have.
-        static::assertNotNull($requested->index);
+        // The flag is a format question, so it decides alone: the index exists in either mode when it is asked
+        // for, and never when it is not. What the index HOLDS is the mode's business, and that is what the two
+        // rows discriminate, because SKELETON mints no property at all and so has nothing to index.
+        $index = $requested->index;
+        static::assertNotNull($index);
+
+        // Refs are response-local, so the assignment map is read through the ref rather than asserted on it.
+        // Resolving each one also ties the two halves together: an assignment map that lost its property keys
+        // while the data map kept the value would satisfy either half read on its own.
+        $resolved = [];
+        foreach ($index->assignments() as $elementId => $refs) {
+            foreach ($refs as $key => $ref) {
+                $resolved[$elementId][$key] = $index->value($ref);
+            }
+        }
+
+        static::assertSame($expectedResolvedAssignments, $resolved);
+        // The data map holds nothing beyond what the assignments point at, so no orphan ref is served.
+        static::assertSame($expectedIndexedValues, array_values($index->data()));
         static::assertNull($notRequested->index);
     }
 
-    #[DataProvider('renderingModeProvider')]
+    #[DataProvider('supportsRenderingModeProvider')]
     #[TestDox('renders the forest a preparation subscriber put back instead of the loaded layout')]
     public function testLoadRendersTreeReplacedDuringPreparation(RenderingMode $mode): void
     {
@@ -230,17 +180,6 @@ class ContentPipelineTest extends TestCase
         $elements = $result->tree;
         static::assertCount(1, $elements);
         static::assertSame('injected-id', $elements[0]->id);
-    }
-
-    /**
-     * @return array<string, array{RenderingMode}>
-     */
-    public static function renderingModeProvider(): array
-    {
-        return [
-            'SKELETON mode' => [RenderingMode::SKELETON],
-            'FULL mode' => [RenderingMode::FULL],
-        ];
     }
 
     #[TestDox('exposes the layout roots to preparation subscribers, before the virtual-root wrap')]
@@ -516,7 +455,7 @@ class ContentPipelineTest extends TestCase
      * that always carried the alias would deliver nothing in the un-aliased case; one that never carried it
      * would deliver nothing in the aliased case.
      */
-    #[DataProvider('derivedProviderKeyProvider')]
+    #[DataProvider('derivesProviderKeyOnlyWhereAliasedProvider')]
     #[TestDox('derives a redistribute provider that renames the key for children only where an alias was declared')]
     public function testDerivedRedistributeProviderRenamesTheKeyOnlyWhereAliased(?string $consumerAlias, string $expectedDeliveredKey): void
     {
@@ -555,15 +494,6 @@ class ContentPipelineTest extends TestCase
 
         static::assertArrayHasKey($expectedDeliveredKey, $grandchild->properties);
         static::assertSame('product-payload', $grandchild->properties[$expectedDeliveredKey]);
-    }
-
-    /**
-     * @return iterable<string, array{?string, string}>
-     */
-    public static function derivedProviderKeyProvider(): iterable
-    {
-        yield 'no alias keeps the redistributed key' => [null, 'featuredProduct'];
-        yield 'alias renames the key for children' => ['product', 'product'];
     }
 
     #[TestDox('exposes the unpruned layout tree to preparation subscribers, before the partial prune')]
@@ -670,13 +600,20 @@ class ContentPipelineTest extends TestCase
     #[TestDox('hands finalization subscribers the rendered element model')]
     public function testFinalizationSubscribersSeeTheRenderedModel(): void
     {
-        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('text', 'root-id')->withProperty('title', 'authored-title')->build()
+        );
 
         $observed = null;
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             static function (object $event) use (&$observed) {
                 if ($event instanceof RenderedTreeFinalizationEvent) {
-                    $observed = $event->tree();
+                    $projected = [];
+                    foreach ($event->tree() as $element) {
+                        $projected[] = [$element::class, $element->id, $element->component, $element->properties];
+                    }
+
+                    $observed = $projected;
                 }
 
                 return $event;
@@ -692,9 +629,14 @@ class ContentPipelineTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        static::assertIsArray($observed);
-        static::assertCount(1, $observed);
-        static::assertContainsOnlyInstancesOf(RenderedElement::class, $observed);
+        // `tree()` declares a bare `array` return, so only the annotation says what is inside it: the element
+        // class is carried in the projection because nothing at runtime guarantees it. `properties` beside it
+        // is the rendered model's raw unwrapped value, which a StoredElement holds only wrapped and behind
+        // `property()`, and the id separates the layout root from a virtual-root wrapper or another branch.
+        static::assertSame(
+            [[RenderedElement::class, 'root-id', 'text', ['title' => 'authored-title']]],
+            $observed
+        );
     }
 
     #[TestDox('serves the forest a finalization subscriber put back instead of the rendered one')]
@@ -960,7 +902,93 @@ class ContentPipelineTest extends TestCase
         static::assertSame('text', $result->tree[0]->component);
     }
 
-    #[DataProvider('renderingModeProvider')]
+    #[DataProvider('supportsRenderingModeProvider')]
+    #[TestDox('dispatches preparation and rendered-tree finalization lifecycle events in order in either rendering mode')]
+    public function testLoadDispatchesLifecycleEventsInBothModes(RenderingMode $mode): void
+    {
+        $layout = RenderableLayout::fromEntity($this->createLayoutEntity($this->ids->get('layout')));
+
+        $dispatchedEvents = [];
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            function (object $event) use (&$dispatchedEvents) {
+                $dispatchedEvents[] = $event::class;
+
+                return $event;
+            }
+        );
+
+        $pipeline = $this->createPipeline();
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+
+        $pipeline->load($layout, $specification, new RenderingCacheContext(), $mode, false, Generator::generateSalesChannelContext());
+
+        static::assertSame([ContentTreePreparationEvent::class, RenderedTreeFinalizationEvent::class], $dispatchedEvents);
+    }
+
+    #[TestDox('distributes provider context into consumer children in FULL mode')]
+    public function testLoadHydratesElementsInFullMode(): void
+    {
+        $consumer = StoredElementBuilder::create('text', 'consumer-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        $provider = StoredElementBuilder::create('section', 'provider-id')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withProperty('product', 'product-payload')
+            ->withSlot('default', [$consumer])
+            ->build();
+        $layout = RenderableLayout::create(
+            LayoutReference::create($this->ids->get('layout'), 'Context Layout', '1.0'),
+            [$provider]
+        );
+
+        // Fixture guard: only a consumer that is still unfilled makes the hydration branch observable.
+        static::assertArrayHasKey('product', $consumer->contextDefinitions->getAllConsumers());
+        static::assertNull($consumer->property('product'));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $pipeline = $this->createPipeline();
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request());
+
+        $result = $pipeline->load($layout, $specification, new RenderingCacheContext(), RenderingMode::FULL, false, Generator::generateSalesChannelContext());
+
+        static::assertSame('product-payload', $this->renderedElement($result->tree, 'consumer-id')->properties['product']);
+    }
+
+    #[TestDox('serves an empty forest when a preparation subscriber replaces the tree with none')]
+    public function testLoadServesAnEmptyForestWhenPreparationLeavesNoElements(): void
+    {
+        $layout = $this->createSingleRootLayout(StoredElementBuilder::create('text', 'root-id')->build());
+
+        // Fixture guard: the loaded layout is not already empty, so an empty result can only come from the
+        // forest the subscriber handed back.
+        static::assertSame(['root-id'], $this->collectStoredIds($layout->elements));
+
+        $this->eventDispatcher->method('dispatch')->willReturnCallback(
+            static function (object $event) {
+                if ($event instanceof ContentTreePreparationEvent) {
+                    $event->replaceTree([]);
+                }
+
+                return $event;
+            }
+        );
+
+        $result = $this->createPipeline()->load(
+            $layout,
+            new RenderingSpecification([], PlaceholderValues::from([]), new Request()),
+            new RenderingCacheContext(),
+            RenderingMode::FULL,
+            false,
+            Generator::generateSalesChannelContext()
+        );
+
+        // What this discriminates: the virtual-root unwrap's early return on an inert scaffolding. Without it
+        // the unwrap reads element zero of this empty forest and the render dies on an undefined offset.
+        static::assertSame([], $result->tree);
+    }
+
+    #[DataProvider('supportsRenderingModeProvider')]
     #[TestDox('rejects a stored forest that repeats an element id across two roots, in either rendering mode')]
     public function testLoadRejectsARepeatedStoredElementId(RenderingMode $mode): void
     {
@@ -1045,7 +1073,7 @@ class ContentPipelineTest extends TestCase
         $this->assertLoadFailsWithDuplicateId($layout, $specification, RenderingMode::FULL, 'twin-id');
     }
 
-    #[DataProvider('renderingModeProvider')]
+    #[DataProvider('supportsRenderingModeProvider')]
     #[TestDox('rejects a repeated element id a finalization subscriber put into the forest, in either rendering mode')]
     public function testLoadRejectsARepeatedElementIdIntroducedDuringFinalization(RenderingMode $mode): void
     {
@@ -1117,6 +1145,99 @@ class ContentPipelineTest extends TestCase
             RenderingMode::FULL,
             'twin-id'
         );
+    }
+
+    /**
+     * The wrapper element is minted during rendering and never reaches a stored tree, so the write gate can
+     * never see this collision: a layout authored under the reserved id passes every write and then fails
+     * every render that wraps. This test is what pins the duplicate check to a position AFTER the wrap.
+     */
+    #[TestDox('rejects a stored element authored under the reserved virtual-root id')]
+    public function testLoadRejectsAStoredElementAuthoredUnderTheReservedVirtualRootId(): void
+    {
+        $layout = $this->createSingleRootLayout(
+            StoredElementBuilder::create('section', VirtualRootWrapper::VIRTUAL_ROOT_ID)->build()
+        );
+        $specification = new RenderingSpecification(
+            [new DataRequirement('language', 'language', new LanguageLoaderConfig())],
+            PlaceholderValues::from([]),
+            new Request()
+        );
+
+        // Fixture guard: without a page-level data requirement the pipeline never wraps, nothing mints a
+        // second element under the reserved id, and there is no collision to reject.
+        static::assertTrue((new VirtualRootWrapper())->requiresWrapping($specification, $layout->elements));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $this->assertLoadFailsWithDuplicateId(
+            $layout,
+            $specification,
+            RenderingMode::FULL,
+            VirtualRootWrapper::VIRTUAL_ROOT_ID
+        );
+    }
+
+    #[TestDox('rejects a partial render whose target element is in no root of the layout')]
+    public function testLoadRejectsAPartialRenderWhoseTargetIsInNoRoot(): void
+    {
+        $layout = $this->createPartialRenderLayout();
+        $specification = new RenderingSpecification([], PlaceholderValues::from([]), new Request(), 'absent-id');
+
+        // Fixture guard: the target really is in no root, so the prune leaves an empty forest and the extract
+        // is the step that has to report it.
+        static::assertNotContains('absent-id', $this->collectStoredIds($layout->elements));
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        try {
+            $this->createPipeline()->load(
+                $layout,
+                $specification,
+                new RenderingCacheContext(),
+                RenderingMode::FULL,
+                false,
+                Generator::generateSalesChannelContext()
+            );
+            static::fail('Expected ContentSystemException was not thrown.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::ELEMENT_NOT_FOUND, $exception->getErrorCode());
+            static::assertStringContainsString(
+                'Element with ID "absent-id" not found in layout',
+                $exception->getMessage()
+            );
+        }
+    }
+
+    /**
+     * @return iterable<string, array{RenderingMode}>
+     */
+    public static function supportsRenderingModeProvider(): iterable
+    {
+        yield 'SKELETON mode' => [RenderingMode::SKELETON];
+        yield 'FULL mode' => [RenderingMode::FULL];
+    }
+
+    /**
+     * @return iterable<string, array{RenderingMode, array<string, array<string, mixed>>, list<string>}>
+     */
+    public static function indexesRenderedPropertiesProvider(): iterable
+    {
+        yield 'SKELETON mode indexes nothing, because it mints no property' => [RenderingMode::SKELETON, [], []];
+        yield 'FULL mode indexes the rendered property of the root' => [
+            RenderingMode::FULL,
+            ['root-id' => ['title' => 'authored-title']],
+            ['authored-title'],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{?string, string}>
+     */
+    public static function derivesProviderKeyOnlyWhereAliasedProvider(): iterable
+    {
+        yield 'no alias keeps the redistributed key' => [null, 'featuredProduct'];
+        yield 'alias renames the key for children' => ['product', 'product'];
     }
 
     private function createPipeline(): ContentPipeline

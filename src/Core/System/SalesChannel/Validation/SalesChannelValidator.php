@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Validation;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -83,7 +82,6 @@ class SalesChannelValidator implements EventSubscriberInterface
             deleteValidationCode: self::DELETE_VALIDATION_CODE,
             updateValidationMessage: self::UPDATE_VALIDATION_MESSAGE,
             updateValidationCode: self::UPDATE_VALIDATION_CODE,
-            validateSalesChannelType: true,
         );
 
         $this->validateMapping(
@@ -100,7 +98,6 @@ class SalesChannelValidator implements EventSubscriberInterface
             deleteValidationCode: self::CURRENCY_DELETE_VALIDATION_CODE,
             updateValidationMessage: self::CURRENCY_UPDATE_VALIDATION_MESSAGE,
             updateValidationCode: self::CURRENCY_UPDATE_VALIDATION_CODE,
-            validateSalesChannelType: false,
         );
     }
 
@@ -118,9 +115,8 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $deleteValidationCode,
         string $updateValidationMessage,
         string $updateValidationCode,
-        bool $validateSalesChannelType,
     ): void {
-        $mapping = $this->extractMapping($event, $defaultField, $mappingEntity, $mappingField, $validateSalesChannelType);
+        $mapping = $this->extractMapping($event, $defaultField, $mappingEntity, $mappingField);
         if ($mapping->count() === 0) {
             return;
         }
@@ -141,12 +137,12 @@ class SalesChannelValidator implements EventSubscriberInterface
         );
     }
 
-    private function extractMapping(PreWriteValidationEvent $event, string $defaultField, string $mappingEntity, string $mappingField, bool $validateSalesChannelType): Mapping
+    private function extractMapping(PreWriteValidationEvent $event, string $defaultField, string $mappingEntity, string $mappingField): Mapping
     {
         $mapping = new Mapping();
         foreach ($event->getCommands() as $command) {
             if ($command->getEntityName() === SalesChannelDefinition::ENTITY_NAME) {
-                $this->handleSalesChannelMapping($mapping, $command, $defaultField, $validateSalesChannelType);
+                $this->handleSalesChannelMapping($mapping, $command, $defaultField);
 
                 continue;
             }
@@ -159,7 +155,7 @@ class SalesChannelValidator implements EventSubscriberInterface
         return $mapping;
     }
 
-    private function handleSalesChannelMapping(Mapping $mapping, WriteCommand $command, string $defaultField, bool $validateSalesChannelType): void
+    private function handleSalesChannelMapping(Mapping $mapping, WriteCommand $command, string $defaultField): void
     {
         if (!isset($command->getPayload()[$defaultField])) {
             return;
@@ -178,22 +174,12 @@ class SalesChannelValidator implements EventSubscriberInterface
             return;
         }
 
-        if (!$command instanceof InsertCommand || ($validateSalesChannelType && !$this->isSupportedSalesChannelType($command))) {
+        if (!$command instanceof InsertCommand) {
             return;
         }
 
         $salesChannelData->newDefault = Uuid::fromBytesToHex($command->getPayload()[$defaultField]);
         $salesChannelData->inserts = [];
-    }
-
-    private function isSupportedSalesChannelType(WriteCommand $command): bool
-    {
-        $typeId = Uuid::fromBytesToHex($command->getPayload()['type_id']);
-
-        return $typeId === Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-            || $typeId === Defaults::SALES_CHANNEL_TYPE_API
-            || $typeId === Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON
-            || $typeId === Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE;
     }
 
     private function handleSalesChannelMappingCommand(Mapping $mapping, WriteCommand $command, string $mappingField): void

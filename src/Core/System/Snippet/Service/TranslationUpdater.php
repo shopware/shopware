@@ -86,18 +86,19 @@ readonly class TranslationUpdater
         bool $activate = true,
         ?callable $onLocale = null,
     ): TranslationUpdateResult {
-        $onLocale ??= static function (): void {
-        };
-
         foreach ($plan->localesToDownload as $locale) {
-            $onLocale($locale);
+            if ($onLocale !== null) {
+                $onLocale($locale);
+            }
 
             $this->translationLoader->download($locale);
             $this->translationLoader->link($locale, $context, $activate);
         }
 
         foreach ($plan->localesToLink as $locale) {
-            $onLocale($locale);
+            if ($onLocale !== null) {
+                $onLocale($locale);
+            }
 
             $this->translationLoader->link($locale, $context, $activate);
         }

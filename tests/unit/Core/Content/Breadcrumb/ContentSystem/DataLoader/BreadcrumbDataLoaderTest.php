@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Breadcrumb\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -12,13 +11,11 @@ use Shopware\Core\Content\Breadcrumb\ContentSystem\DataLoader\BreadcrumbLoaderCo
 use Shopware\Core\Content\Breadcrumb\SalesChannel\AbstractBreadcrumbRoute;
 use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRouteResponse;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -32,9 +29,23 @@ class BreadcrumbDataLoaderTest extends TestCase
 
     private BreadcrumbDataLoader $loader;
 
+    private ?Request $capturedRequest = null;
+
     protected function setUp(): void
     {
+        $this->capturedRequest = null;
+
+        $response = new BreadcrumbRouteResponse(new BreadcrumbCollection());
+
         $this->breadcrumbRoute = static::createStub(AbstractBreadcrumbRoute::class);
+        $this->breadcrumbRoute
+            ->method('load')
+            ->willReturnCallback(function (Request $request) use ($response): BreadcrumbRouteResponse {
+                $this->capturedRequest = $request;
+
+                return $response;
+            });
+
         $this->loader = new BreadcrumbDataLoader($this->breadcrumbRoute);
     }
 
@@ -58,25 +69,19 @@ class BreadcrumbDataLoaderTest extends TestCase
     #[TestDox('returns breadcrumb collection as data and marks result as cache-aware with no tags')]
     public function testLoadReturnsCachedExternallyResultWithBreadcrumbData(): void
     {
-        $entityId = Uuid::randomHex();
-
-        $config = new BreadcrumbLoaderConfig();
-        $requirement = new DataRequirement('breadcrumb', 'breadcrumb', $config);
-        $element = ContentElementBuilder::create('breadcrumb')
-            ->withProperty('entityId', $entityId)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-        $request = new Request();
-
         $breadcrumbCollection = new BreadcrumbCollection();
-        $response = static::createStub(BreadcrumbRouteResponse::class);
-        $response->method('getBreadcrumbCollection')->willReturn($breadcrumbCollection);
+        $response = new BreadcrumbRouteResponse($breadcrumbCollection);
 
-        $this->breadcrumbRoute
-            ->method('load')
-            ->willReturn($response);
+        $breadcrumbRoute = static::createStub(AbstractBreadcrumbRoute::class);
+        $breadcrumbRoute->method('load')->willReturn($response);
 
-        $result = $this->loader->load($element, $requirement, $context, $request);
+        $loader = new BreadcrumbDataLoader($breadcrumbRoute);
+        $result = $loader->load(
+            self::inputs('product-alice'),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
         static::assertSame($breadcrumbCollection, $result->data);
         static::assertTrue($result->isCacheAware());
@@ -86,199 +91,107 @@ class BreadcrumbDataLoaderTest extends TestCase
     #[TestDox('sets entity ID on cloned request attributes and type on query params')]
     public function testLoadSetsIdAndTypeOnClonedRequest(): void
     {
-        $entityId = Uuid::randomHex();
+        $this->loader->load(
+            self::inputs('product-alice', type: 'category'),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
-        $config = new BreadcrumbLoaderConfig(type: 'category');
-        $requirement = new DataRequirement('breadcrumb', 'breadcrumb', $config);
-        $element = ContentElementBuilder::create('breadcrumb')
-            ->withProperty('entityId', $entityId)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-        $request = new Request();
-
-        $breadcrumbCollection = new BreadcrumbCollection();
-        $response = static::createStub(BreadcrumbRouteResponse::class);
-        $response->method('getBreadcrumbCollection')->willReturn($breadcrumbCollection);
-
-        $capturedRequest = null;
-        $this->breadcrumbRoute
-            ->method('load')
-            ->willReturnCallback(static function (Request $req) use (&$capturedRequest, $response): BreadcrumbRouteResponse {
-                $capturedRequest = $req;
-
-                return $response;
-            });
-
-        $this->loader->load($element, $requirement, $context, $request);
-
-        static::assertInstanceOf(Request::class, $capturedRequest);
-        static::assertSame($entityId, $capturedRequest->attributes->get('id'));
-        static::assertSame('category', $capturedRequest->query->get('type'));
+        static::assertInstanceOf(Request::class, $this->capturedRequest);
+        static::assertSame('product-alice', $this->capturedRequest->attributes->get('id'));
+        static::assertSame('category', $this->capturedRequest->query->get('type'));
     }
 
     #[TestDox('lowercases entity ID before passing it to the breadcrumb route')]
     public function testLoadCallsBreadcrumbRouteWithLowercasedEntityId(): void
     {
-        $entityId = Uuid::randomHex();
-        $upperCaseId = strtoupper($entityId);
+        $this->loader->load(
+            self::inputs('PRODUCT-ALICE'),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
-        $config = new BreadcrumbLoaderConfig();
-        $requirement = new DataRequirement('breadcrumb', 'breadcrumb', $config);
-        $element = ContentElementBuilder::create('breadcrumb')
-            ->withProperty('entityId', $upperCaseId)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $breadcrumbCollection = new BreadcrumbCollection();
-        $response = static::createStub(BreadcrumbRouteResponse::class);
-        $response->method('getBreadcrumbCollection')->willReturn($breadcrumbCollection);
-
-        $capturedRequest = null;
-        $this->breadcrumbRoute
-            ->method('load')
-            ->willReturnCallback(static function (Request $req) use (&$capturedRequest, $response): BreadcrumbRouteResponse {
-                $capturedRequest = $req;
-
-                return $response;
-            });
-
-        $this->loader->load($element, $requirement, $context, new Request());
-
-        static::assertInstanceOf(Request::class, $capturedRequest);
-        static::assertSame($entityId, $capturedRequest->attributes->get('id'));
+        static::assertInstanceOf(Request::class, $this->capturedRequest);
+        static::assertSame('product-alice', $this->capturedRequest->attributes->get('id'));
     }
 
-    #[TestDox('reads entity ID from custom property name when configured')]
-    public function testLoadUsesCustomPropertyNameFromConfig(): void
+    #[TestDox('reads entity ID from the element property the config names')]
+    public function testLoadReadsEntityIdFromCustomProperty(): void
     {
-        $entityId = Uuid::randomHex();
+        $inputs = $this->resolve(
+            new BreadcrumbLoaderConfig(property: 'categoryId'),
+            ['categoryId' => 'category-alice'],
+        );
 
-        $config = new BreadcrumbLoaderConfig(property: 'categoryId');
-        $requirement = new DataRequirement('breadcrumb', 'breadcrumb', $config);
-        $element = ContentElementBuilder::create('breadcrumb')
-            ->withProperty('categoryId', $entityId)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
+        $this->loader->load(
+            $inputs,
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
-        $breadcrumbCollection = new BreadcrumbCollection();
-        $response = static::createStub(BreadcrumbRouteResponse::class);
-        $response->method('getBreadcrumbCollection')->willReturn($breadcrumbCollection);
-
-        $capturedRequest = null;
-        $this->breadcrumbRoute
-            ->method('load')
-            ->willReturnCallback(static function (Request $req) use (&$capturedRequest, $response): BreadcrumbRouteResponse {
-                $capturedRequest = $req;
-
-                return $response;
-            });
-
-        $this->loader->load($element, $requirement, $context, new Request());
-
-        static::assertInstanceOf(Request::class, $capturedRequest);
-        static::assertSame($entityId, $capturedRequest->attributes->get('id'));
+        static::assertInstanceOf(Request::class, $this->capturedRequest);
+        static::assertSame('category-alice', $this->capturedRequest->attributes->get('id'));
     }
 
-    #[TestDox('sets referrerCategoryId on cloned request when referrerCategoryProperty is configured')]
+    #[TestDox('resolves an unset property to the declared entityId default')]
+    public function testUnsetPropertyResolvesToDeclaredEntityIdDefault(): void
+    {
+        $inputs = $this->resolve(new BreadcrumbLoaderConfig(), ['entityId' => 'product-alice']);
+
+        $this->loader->load(
+            $inputs,
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertInstanceOf(Request::class, $this->capturedRequest);
+        static::assertSame('product-alice', $this->capturedRequest->attributes->get('id'));
+    }
+
+    #[TestDox('sets lowercased referrerCategoryId on cloned request when the referrer input is resolved')]
     public function testLoadSetsReferrerCategoryIdOnRequest(): void
     {
-        $entityId = Uuid::randomHex();
-        $referrerCategoryId = Uuid::randomHex();
+        $this->loader->load(
+            self::inputs('product-alice', referrerCategoryProperty: 'CATEGORY-BOB'),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
-        $config = new BreadcrumbLoaderConfig(referrerCategoryProperty: 'referrerCategory');
-        $requirement = new DataRequirement('breadcrumb', 'breadcrumb', $config);
-        $element = ContentElementBuilder::create('breadcrumb')
-            ->withProperty('entityId', $entityId)
-            ->withProperty('referrerCategory', $referrerCategoryId)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $breadcrumbCollection = new BreadcrumbCollection();
-        $response = static::createStub(BreadcrumbRouteResponse::class);
-        $response->method('getBreadcrumbCollection')->willReturn($breadcrumbCollection);
-
-        $capturedRequest = null;
-        $this->breadcrumbRoute
-            ->method('load')
-            ->willReturnCallback(static function (Request $req) use (&$capturedRequest, $response): BreadcrumbRouteResponse {
-                $capturedRequest = $req;
-
-                return $response;
-            });
-
-        $this->loader->load($element, $requirement, $context, new Request());
-
-        static::assertInstanceOf(Request::class, $capturedRequest);
-        static::assertSame($referrerCategoryId, $capturedRequest->query->get('referrerCategoryId'));
+        static::assertInstanceOf(Request::class, $this->capturedRequest);
+        static::assertSame('category-bob', $this->capturedRequest->query->get('referrerCategoryId'));
     }
 
-    #[TestDox('does not set referrerCategoryId when referrerCategoryProperty value is not a string')]
-    public function testLoadDoesNotSetReferrerCategoryIdWhenValueIsNotString(): void
+    #[TestDox('does not set referrerCategoryId when the referrer input is unresolved')]
+    public function testLoadDoesNotSetReferrerCategoryIdWhenReferrerInputIsUnresolved(): void
     {
-        $entityId = Uuid::randomHex();
+        $this->loader->load(
+            self::inputs('product-alice'),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
 
-        $config = new BreadcrumbLoaderConfig(referrerCategoryProperty: 'referrerCategory');
-        $requirement = new DataRequirement('breadcrumb', 'breadcrumb', $config);
-        $element = ContentElementBuilder::create('breadcrumb')
-            ->withProperty('entityId', $entityId)
-            ->withProperty('referrerCategory', 42)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $breadcrumbCollection = new BreadcrumbCollection();
-        $response = static::createStub(BreadcrumbRouteResponse::class);
-        $response->method('getBreadcrumbCollection')->willReturn($breadcrumbCollection);
-
-        $capturedRequest = null;
-        $this->breadcrumbRoute
-            ->method('load')
-            ->willReturnCallback(static function (Request $req) use (&$capturedRequest, $response): BreadcrumbRouteResponse {
-                $capturedRequest = $req;
-
-                return $response;
-            });
-
-        $this->loader->load($element, $requirement, $context, new Request());
-
-        static::assertInstanceOf(Request::class, $capturedRequest);
-        static::assertFalse($capturedRequest->query->has('referrerCategoryId'));
+        static::assertInstanceOf(Request::class, $this->capturedRequest);
+        static::assertFalse($this->capturedRequest->query->has('referrerCategoryId'));
     }
 
-    #[TestDox('returns notFound result when config is not a BreadcrumbLoaderConfig instance')]
-    public function testLoadReturnsNotFoundWhenConfigIsWrongType(): void
+    #[TestDox('returns notFound result when the entity ID input is unresolved')]
+    public function testLoadReturnsNotFoundWhenEntityIdInputIsUnresolved(): void
     {
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('breadcrumb', 'breadcrumb', $wrongConfig);
-        $element = ContentElementBuilder::create('breadcrumb')->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
-        $breadcrumbRoute->expects($this->never())->method('load');
-        $loader = new BreadcrumbDataLoader($breadcrumbRoute);
-
-        $result = $loader->load($element, $requirement, $context, new Request());
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[DataProvider('guardsInvalidEntityIdProvider')]
-    #[TestDox('returns notFound result when entityId is invalid: $_dataName')]
-    public function testLoadReturnsNotFoundWhenEntityIdPropertyIsInvalid(ContentElement $element): void
-    {
-        $config = new BreadcrumbLoaderConfig();
-        $context = Generator::generateSalesChannelContext();
-
         $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
         $breadcrumbRoute->expects($this->never())->method('load');
         $loader = new BreadcrumbDataLoader($breadcrumbRoute);
 
         $result = $loader->load(
-            $element,
-            new DataRequirement('breadcrumb', 'breadcrumb', $config),
-            $context,
-            new Request()
+            self::inputs(null),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
         );
 
         static::assertNull($result->data);
@@ -287,15 +200,27 @@ class BreadcrumbDataLoaderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ContentElement}>
+     * @param array<string, mixed> $properties
      */
-    public static function guardsInvalidEntityIdProvider(): iterable
+    private function resolve(BreadcrumbLoaderConfig $config, array $properties): LoaderInputs
     {
-        yield 'non-string value triggers guard' => [
-            ContentElementBuilder::create('breadcrumb')->withProperty('entityId', 42)->build(),
-        ];
-        yield 'missing property triggers guard' => [
-            ContentElementBuilder::create('breadcrumb')->build(),
-        ];
+        return (new LoaderInputResolver())->resolve($this->loader->configSpecification(), $config, $properties);
+    }
+
+    private static function inputs(
+        ?string $property,
+        string $type = 'product',
+        ?string $referrerCategoryProperty = null,
+    ): LoaderInputs {
+        return new LoaderInputs([
+            'property' => $property,
+            'type' => $type,
+            'referrerCategoryProperty' => $referrerCategoryProperty,
+        ]);
+    }
+
+    private static function requirement(): DataRequirement
+    {
+        return new DataRequirement('breadcrumb', 'breadcrumb', new BreadcrumbLoaderConfig());
     }
 }

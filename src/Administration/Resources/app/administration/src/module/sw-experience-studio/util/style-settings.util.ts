@@ -1,6 +1,5 @@
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
-import { isBoxSpacingStyleOption, normalizeBoxSpacingStyleValueForWrite } from './box-spacing.util';
 import { getPropertyControlType, isPropertyVisible } from './element-settings.util';
 
 /**
@@ -50,43 +49,6 @@ export function isBreakpointMapValue(value: unknown): value is Record<string, un
  * @private
  * @sw-package discovery
  */
-export function wrapBreakpointAwareStyleValue(value: unknown): Record<string, unknown> {
-    return Object.fromEntries(
-        STYLE_BREAKPOINTS.map((breakpoint) => [
-            breakpoint,
-            value,
-        ]),
-    );
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function isUnsetScalarStyleValue(value: unknown, option: ContentSystemStyleOptionSpecification): boolean {
-    if (value === null || value === undefined || value === '') {
-        return true;
-    }
-
-    if (option.default !== null && option.default !== undefined) {
-        return value === option.default;
-    }
-
-    if (
-        (option.type === 'integer' || option.type === 'number') &&
-        option.range?.min !== undefined &&
-        value === option.range.min
-    ) {
-        return true;
-    }
-
-    return false;
-}
-
-/**
- * @private
- * @sw-package discovery
- */
 export function isViewportSpecificBreakpointMap(
     value: unknown,
     breakpoints: readonly string[] = STYLE_BREAKPOINTS,
@@ -110,148 +72,6 @@ export function isViewportSpecificBreakpointMap(
     const firstValue = definedEntries[0];
 
     return !definedEntries.every((entry) => entry === firstValue);
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function expandBreakpointMapForWrite(
-    value: Record<string, unknown>,
-    option: ContentSystemStyleOptionSpecification,
-): Record<string, unknown> {
-    if (option.default === null || option.default === undefined) {
-        return value;
-    }
-
-    if (!isViewportSpecificBreakpointMap(value)) {
-        return value;
-    }
-
-    return Object.fromEntries(
-        STYLE_BREAKPOINTS.map((breakpoint) => {
-            const entryValue = value[breakpoint];
-
-            if (entryValue !== undefined && entryValue !== null && entryValue !== '') {
-                return [
-                    breakpoint,
-                    entryValue,
-                ];
-            }
-
-            return [
-                breakpoint,
-                option.default,
-            ];
-        }),
-    );
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function isEmptyStyleValueForWrite(
-    value: unknown,
-    option: ContentSystemStyleOptionSpecification | undefined,
-): boolean {
-    if (value === null || value === undefined) {
-        return true;
-    }
-
-    if (value === '') {
-        return true;
-    }
-
-    if (!option) {
-        return false;
-    }
-
-    if (isBreakpointMapValue(value)) {
-        const normalizedValue =
-            option.default !== null && option.default !== undefined ? expandBreakpointMapForWrite(value, option) : value;
-        const entries = Object.entries(normalizedValue).filter(
-            ([
-                ,
-                entryValue,
-            ]) => entryValue !== null && entryValue !== undefined && entryValue !== '',
-        );
-
-        if (entries.length === 0) {
-            return true;
-        }
-
-        return entries.every(
-            ([
-                ,
-                entryValue,
-            ]) => isUnsetScalarStyleValue(entryValue, option),
-        );
-    }
-
-    return isUnsetScalarStyleValue(value, option);
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function normalizeStyleValueForWrite(
-    key: string,
-    value: unknown,
-    option: ContentSystemStyleOptionSpecification | undefined,
-): unknown {
-    const resolvedValue = isBoxSpacingStyleOption(option) ? normalizeBoxSpacingStyleValueForWrite(value) : value;
-
-    if (isEmptyStyleValueForWrite(resolvedValue, option)) {
-        return undefined;
-    }
-
-    if (!option?.breakpointAware) {
-        return resolvedValue;
-    }
-
-    if (isBreakpointMapValue(resolvedValue)) {
-        if (option.default !== null && option.default !== undefined) {
-            return expandBreakpointMapForWrite(resolvedValue, option);
-        }
-
-        return resolvedValue;
-    }
-
-    return wrapBreakpointAwareStyleValue(resolvedValue);
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function normalizeElementStyleForWrite(
-    style: Record<string, unknown>,
-    styleOptions: Record<string, ContentSystemStyleOptionSpecification>,
-): Record<string, unknown> | undefined {
-    const normalized = Object.entries(style).reduce<Record<string, unknown>>(
-        (
-            accumulator,
-            [
-                key,
-                value,
-            ],
-        ) => {
-            const normalizedValue = normalizeStyleValueForWrite(key, value, styleOptions[key]);
-
-            if (normalizedValue === undefined) {
-                return accumulator;
-            }
-
-            accumulator[key] = normalizedValue;
-
-            return accumulator;
-        },
-        {},
-    );
-
-    return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
 /**

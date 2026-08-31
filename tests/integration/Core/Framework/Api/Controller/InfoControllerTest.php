@@ -662,6 +662,52 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"bindingSpecifications":{}', $content);
     }
 
+    public function testContentSystemElementTypesStorageSchema(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('types', $data);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            static::assertArrayHasKey('storageSchema', $type);
+            $typesByName[$type['name']] = $type;
+        }
+
+        // content/text.yaml declares `text` as a translatable string with a default and no `required`, so the
+        // property tier publishes it as a non-required string carrying its default. The default itself is a
+        // long editorial paragraph, so only its presence and type are pinned.
+        static::assertArrayHasKey('Sw:Content:Text', $typesByName);
+        $text = $typesByName['Sw:Content:Text']['storageSchema']['text'];
+        static::assertSame('property', $text['kind']);
+        static::assertSame('string', $text['type']);
+        static::assertFalse($text['required']);
+        static::assertArrayHasKey('default', $text);
+        static::assertIsString($text['default']);
+
+        // media/image.yaml declares `media` with `resolvedBy: mediaId`, so the storage key is derived from the
+        // synthesized `core:Sw:Media:Image` specification's `resolves.media.config.property`, and its type is
+        // the entity loader's `referencedType` for that config key.
+        static::assertArrayHasKey('Sw:Media:Image', $typesByName);
+        static::assertSame(
+            ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => true],
+            $typesByName['Sw:Media:Image']['storageSchema']['mediaId'],
+        );
+
+        // The declared FQCN property is filled by the pipeline, never stored, so it contributes no entry.
+        static::assertArrayNotHasKey('media', $typesByName['Sw:Media:Image']['storageSchema']);
+    }
+
     public function testFetchMessageStats(): void
     {
         $statsService = $this->getContainer()->get(StatsService::class);

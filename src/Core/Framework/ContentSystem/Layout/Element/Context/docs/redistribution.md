@@ -21,7 +21,7 @@ The `redistribute` flag on an `acceptsContext` entry, which lets a container pas
 
 Both produce identical results. The container automatically passes data to all children.
 
-The broadcast provider that `redistribute: true` stands for is generated at runtime from `ContextConsumer::$redistribute` by `RedistributeExpansionSubscriber`; it is never persisted with the layout.
+See [../AGENTS.md](../AGENTS.md#constraints) for where each rule above is enforced.
 
 ## Consumer Alias with Redistribution
 

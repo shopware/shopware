@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -49,26 +49,20 @@ class PaymentMethodDataLoader extends AbstractContentDataLoader
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
-
         $criteria = new Criteria();
-        $onlyAvailable = true;
 
-        if ($config instanceof PaymentMethodLoaderConfig) {
-            foreach ($config->associations as $association) {
-                $criteria->addAssociation($association);
-            }
-            $onlyAvailable = $config->onlyAvailable;
+        foreach ($inputs->stringList('associations') as $association) {
+            $criteria->addAssociation($association);
         }
 
         // Clone request to set onlyAvailable parameter
         $clonedRequest = clone $request;
-        $clonedRequest->query->set('onlyAvailable', $onlyAvailable);
+        $clonedRequest->query->set('onlyAvailable', $inputs->bool('onlyAvailable'));
 
         $response = $this->paymentMethodRoute->load($clonedRequest, $context, $criteria);
 

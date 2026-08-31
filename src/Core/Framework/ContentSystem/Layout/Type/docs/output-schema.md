@@ -17,7 +17,7 @@ The property key is the connecting identifier across all systems:
 - Type spec: `properties.product` — "this element has a property called `product`"
 - Element storage: `dataRequirements.product` — "load `product` via this data loader"
 - Element storage: `acceptsContext.product` — "receive `product` from a parent"
-- Hydrator: `$element->setProperty('product', $data)` — "store loaded data under key `product`"
+- Render step: `RenderedElementFactory` writes the resolved loader value onto the rendered element under key `product`
 - API output: `properties.product` — serialized SalesChannelProductEntity
 
 The type spec declares WHAT properties exist and their types. The element instance declares HOW each non-primitive property gets its value (via `dataRequirements` or `acceptsContext`). These are different concerns with different structures, connected by the shared property key.

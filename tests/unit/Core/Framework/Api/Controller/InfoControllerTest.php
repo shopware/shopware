@@ -21,12 +21,14 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -41,6 +43,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -288,42 +291,34 @@ class InfoControllerTest extends TestCase
         static::assertSame([], $typesByName['Sw:Alert']['bindingSpecifications']);
     }
 
-    #[TestDox('encodes the folded per-type binding specification set as a JSON object when the type has none')]
-    public function testContentSystemElementTypesEncodesEmptyBindingSpecificationsAsObject(): void
+    #[TestDox('folds the resolved storage schema into each element type entry, keyed by stored key')]
+    public function testContentSystemElementTypesFoldsInStorageSchema(): void
     {
-        $spec = $this->alertTypeSpecification();
+        $textSpec = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+            ->primitive('text', 'string', default: '<p>Lorem ipsum</p>')
+            ->build();
+        $alertSpec = $this->alertTypeSpecification();
 
         $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Content:Text' => $textSpec, 'Sw:Alert' => $alertSpec]);
 
         $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
         $response = $controller->getContentSystemElementTypes();
 
         $content = $response->getContent();
         static::assertIsString($content);
-        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
-        static::assertStringContainsString('"bindingSpecifications":{}', $content);
-    }
 
-    #[TestDox('preserves floating-point precision in message stats response')]
-    public function testMessageStatsPreservesFloatingPointPrecision(): void
-    {
-        $this->statsService->method('getStats')->willReturn(
-            new MessageStatsResponseEntity(
-                true,
-                new MessageStatsEntity(1, new \DateTime('2024-01-15 10:00:00'), 1.00, new MessageTypeStatsCollection())
-            )
-        );
-        $content = $this->createController()->messageStats()->getContent();
-        static::assertIsString($content);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            $typesByName[$type['name']] = $type;
+        }
 
-        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-        static::assertIsArray($data);
-        static::assertArrayHasKey('stats', $data);
-        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
-
-        // Check that the floating point precision is preserved for zero-padded decimal values
-        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
+        static::assertSame([
+            'text' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => '<p>Lorem ipsum</p>'],
+        ], $typesByName['Sw:Content:Text']['storageSchema']);
+        // A type that stores nothing carries an empty map, not the Text entry's storage schema.
+        static::assertSame([], $typesByName['Sw:Alert']['storageSchema']);
     }
 
     #[DisabledFeatures(['WEBHOOKS_REWORK'])]
@@ -386,19 +381,59 @@ class InfoControllerTest extends TestCase
         static::assertTrue($data['adminWorker']['enableQueueStatsWorker']);
     }
 
-    #[TestDox('returns disabled message stats when stats service is not enabled')]
-    public function testMessageStatsReturnsDisabledWhenNotEnabled(): void
+    #[TestDox('preserves floating-point precision in message stats response')]
+    public function testMessageStatsPreservesFloatingPointPrecision(): void
     {
         $this->statsService->method('getStats')->willReturn(
-            new MessageStatsResponseEntity(enabled: false)
+            new MessageStatsResponseEntity(
+                true,
+                new MessageStatsEntity(1, new \DateTime('2024-01-15 10:00:00'), 1.00, new MessageTypeStatsCollection())
+            )
         );
-
         $content = $this->createController()->messageStats()->getContent();
         static::assertIsString($content);
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['enabled']);
-        static::assertNull($data['stats']);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('stats', $data);
+        static::assertArrayHasKey('averageTimeInQueue', $data['stats']);
+
+        // Check that the floating point precision is preserved for zero-padded decimal values
+        static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
+    }
+
+    #[TestDox('encodes the folded per-type binding specification set as a JSON object when the type has none')]
+    public function testContentSystemElementTypesEncodesEmptyBindingSpecificationsAsObject(): void
+    {
+        $spec = $this->alertTypeSpecification();
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"bindingSpecifications":{}', $content);
+    }
+
+    #[TestDox('encodes the folded per-type storage schema as a JSON object when the type stores nothing')]
+    public function testContentSystemElementTypesEncodesEmptyStorageSchemaAsObject(): void
+    {
+        $spec = $this->alertTypeSpecification();
+
+        $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $elementTypeRegistry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $elementTypeRegistry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        // Assert the raw encoding: json_decode would erase the {} vs [] distinction
+        static::assertStringContainsString('"storageSchema":{}', $content);
     }
 
     #[TestDox('encodes the folded empty style option set as a JSON object on the element types response')]
@@ -447,13 +482,19 @@ class InfoControllerTest extends TestCase
         static::assertStringContainsString('"styleOptions":{}', $content);
     }
 
-    /**
-     * @return iterable<string, array{string|null, string|null}>
-     */
-    public static function returnsFirstMigrationDateProvider(): iterable
+    #[TestDox('returns disabled message stats when stats service is not enabled')]
+    public function testMessageStatsReturnsDisabledWhenNotEnabled(): void
     {
-        yield 'null when migration info returns null' => [null, null];
-        yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(enabled: false)
+        );
+
+        $content = $this->createController()->messageStats()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['enabled']);
+        static::assertNull($data['stats']);
     }
 
     #[DataProvider('aclProtectedRouteProvider')]
@@ -465,6 +506,15 @@ class InfoControllerTest extends TestCase
 
         static::assertNotNull($route, \sprintf('Route "%s" is not defined on %s', $routeName, InfoController::class));
         static::assertSame(['message_queue_stats:read'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+    }
+
+    /**
+     * @return iterable<string, array{string|null, string|null}>
+     */
+    public static function returnsFirstMigrationDateProvider(): iterable
+    {
+        yield 'null when migration info returns null' => [null, null];
+        yield 'date string from migration info' => ['2020-01-01T00:00:00.123+00:00', '2020-01-01T00:00:00.123+00:00'];
     }
 
     public static function aclProtectedRouteProvider(): \Generator
@@ -528,6 +578,7 @@ class InfoControllerTest extends TestCase
         ?AbstractContentSystemStyleOptionRegistry $styleOptionRegistry = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
         ?AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry = null,
+        ?StoredSchemaResolver $storedSchemaResolver = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -563,6 +614,10 @@ class InfoControllerTest extends TestCase
             $styleOptionRegistry ?? static::createStub(AbstractContentSystemStyleOptionRegistry::class),
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
             $bindingSpecificationRegistry ?? static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            $storedSchemaResolver ?? new StoredSchemaResolver(
+                static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+                static::createStub(DataLoaderProvider::class),
+            ),
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
         );

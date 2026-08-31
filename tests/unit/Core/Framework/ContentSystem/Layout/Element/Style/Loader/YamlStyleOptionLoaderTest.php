@@ -180,6 +180,30 @@ class YamlStyleOptionLoaderTest extends TestCase
         $loader->load();
     }
 
+    #[TestDox('fails batch validation when a declaration carries an unknown kind, naming the option path')]
+    public function testFailsValidationForUnknownKind(): void
+    {
+        file_put_contents($this->tempDir . '/bad-kind.yaml', "type: string\nkind: inline-spacing\n");
+
+        $loader = $this->createLoader([new StyleOptionSourceDirectory('core', $this->tempDir)]);
+
+        $this->expectException(ContentSystemException::class);
+        $this->expectExceptionMessageMatches('/options\[bad-kind\]\.kind/');
+
+        $loader->load();
+    }
+
+    #[TestDox('loads a declaration whose kind is box-spacing')]
+    public function testLoadsBoxSpacingKind(): void
+    {
+        file_put_contents($this->tempDir . '/padding.yaml', "type: string\nkind: box-spacing\n");
+
+        $options = $this->createLoader([new StyleOptionSourceDirectory('core', $this->tempDir)])->load();
+
+        static::assertCount(1, $options);
+        static::assertSame('box-spacing', $options[0]->kind());
+    }
+
     /**
      * @param list<StyleOptionSourceDirectory> $directories
      */

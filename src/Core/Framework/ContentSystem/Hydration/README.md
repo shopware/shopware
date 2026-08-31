@@ -1,19 +1,8 @@
 # Hydration
 
-Loads data and resolves context for content elements in two mandatory phases.
-
-## Key Class
-
-- `ContentElementHydrator` - Entry point, orchestrates loading + context resolution
-
-## Two-Phase Process
-
-1. **Data Loading**: Depth-first traversal, fetches data per element's `DataRequirement`. Each loader returns `ContentDataLoaderResult` with cache info. Data stored in element property by requirement key. See DataLoader/.
-2. **Context Resolution**: Separate pass after ALL data loaded. Distributes context from providers to direct children. See DataContext/.
-
-Data loading MUST complete before context resolution because providers may expose loaded data as context. `hydrate()` returns a `Generator<ContentElement>`.
+The data-loading half of the render step: the loaders that fetch an element's required data live in DataLoader/, and the context-path utilities that remain live in DataContext/. The render step itself — data resolution, context delivery, and the minting of the rendered tree — lives in [Rendering/](../Rendering/README.md).
 
 ## Subdirectories
 
 - **[DataLoader/](DataLoader/README.md)** - Data fetching (`AbstractContentDataLoader` implementations)
-- **[DataContext/](DataContext/README.md)** - Context distribution (`DataContextResolver`)
+- **[DataContext/](DataContext/README.md)** - Context path resolution (`ContextPathResolver`, `ContextType`)

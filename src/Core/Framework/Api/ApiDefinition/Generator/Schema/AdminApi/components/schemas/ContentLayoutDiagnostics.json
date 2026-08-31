@@ -43,6 +43,8 @@
                             "duplicate_element_id",
                             "invalid_config",
                             "mismatched_reference_type",
+                            "mismatched_property_type",
+                            "unknown_style_option",
                             "orphaned_provider",
                             "unresolved_required",
                             "ambiguous_required",
@@ -50,7 +52,7 @@
                             "unresolved_optional",
                             "unfilled_required_input"
                         ],
-                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `mismatched_reference_type`, `orphaned_provider`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`, `unfilled_required_input`) describe resolvability against a bound source. `mismatched_reference_type` flags a stored reference wiring whose resolved produced type is not assignable to the property's declared FQCN. `unfilled_required_input` flags a required reference whose stored wiring references an element property that holds no value."
+                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `mismatched_reference_type`, `mismatched_property_type`, `unknown_style_option`, `orphaned_provider`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`, `unfilled_required_input`) describe resolvability against a bound source. `mismatched_reference_type` flags a stored reference wiring whose resolved produced type is not assignable to the property's declared FQCN. `mismatched_property_type` flags a stored property value that disagrees with the primitive type its element type declares for that key; `key` carries the property name. `unknown_style_option` flags an element `style` entry naming an option the style option registry does not know; `key` carries the option name. `unfilled_required_input` flags a required reference whose stored wiring references an element property that holds no value."
                     },
                     "scope": {
                         "type": "string",

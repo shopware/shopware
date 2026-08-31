@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -43,33 +43,27 @@ class ProductListingDataLoader extends AbstractContentDataLoader
     public function configSpecification(): LoaderConfigSpecification
     {
         return new LoaderConfigSpecification([
-            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: null),
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'navigationId'),
             new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
+            new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'associations', referencedType: 'list<string>', mergesInto: 'associations'),
         ]);
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
+        $navigationId = $inputs->stringOrNull('property');
 
-        if (!$config instanceof ProductListingLoaderConfig) {
-            return ContentDataLoaderResult::notFound();
-        }
-
-        $propertyName = $config->property ?? 'navigationId';
-        $navigationId = $element->getProperty($propertyName);
-
-        if (!\is_string($navigationId)) {
+        if ($navigationId === null) {
             return ContentDataLoaderResult::notFound();
         }
 
         $navigationId = u($navigationId)->lower()->toString();
 
-        $criteria = $this->buildCriteria($element, $config);
+        $criteria = $this->buildCriteria($inputs);
 
         $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
         $result = $response->getResult();
@@ -79,23 +73,14 @@ class ProductListingDataLoader extends AbstractContentDataLoader
     }
 
     /**
-     * Element properties can override requirement config associations.
+     * The `associationOverride` reference is already folded into `associations` by the input resolver.
      */
-    private function buildCriteria(ContentElement $element, ProductListingLoaderConfig $config): Criteria
+    private function buildCriteria(LoaderInputs $inputs): Criteria
     {
         $criteria = new Criteria();
 
-        foreach ($config->associations as $association) {
+        foreach ($inputs->stringList('associations') as $association) {
             $criteria->addAssociation($association);
-        }
-
-        $elementAssociations = $element->getProperty('associations');
-        if (\is_array($elementAssociations)) {
-            foreach ($elementAssociations as $association) {
-                if (\is_string($association)) {
-                    $criteria->addAssociation($association);
-                }
-            }
         }
 
         return $criteria;

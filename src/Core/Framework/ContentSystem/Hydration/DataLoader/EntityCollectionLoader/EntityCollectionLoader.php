@@ -11,8 +11,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecific
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -102,49 +102,34 @@ class EntityCollectionLoader extends AbstractContentDataLoader
     {
         return new LoaderConfigSpecification([
             new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
-            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true, referencedType: 'list<string>'),
             new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
         ]);
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
+        $entityName = $inputs->string('entity');
 
-        if (!$config instanceof EntityLoaderConfig) {
+        if (!$this->definitionRegistry->has($entityName)) {
             return ContentDataLoaderResult::notFound();
         }
 
-        if (!$this->definitionRegistry->has($config->entity)) {
-            return ContentDataLoaderResult::notFound();
+        $entityIds = $inputs->stringListOrNull('property');
+
+        if ($entityIds === null || $entityIds === []) {
+            return $this->emptyCollectionResult($entityName);
         }
 
-        $propertyName = $config->property ?? $config->entity . 'Ids';
-        $entityIds = $element->getProperty($propertyName);
+        $entityIds = \array_map(static fn (string $entityId) => u($entityId)->lower()->toString(), $entityIds);
 
-        if ($entityIds === null) {
-            return $this->emptyCollectionResult($config->entity);
-        }
+        $entities = $this->loadEntities($entityName, $entityIds, $inputs->stringList('associations'), $context);
 
-        if (!\is_array($entityIds)) {
-            return ContentDataLoaderResult::notFound();
-        }
-
-        $entityIds = \array_filter($entityIds, static fn ($id) => \is_string($id));
-        $entityIds = \array_map(static fn ($entityId) => u($entityId)->lower()->toString(), $entityIds);
-        $entityIds = \array_values($entityIds);
-
-        if ($entityIds === []) {
-            return $this->emptyCollectionResult($config->entity);
-        }
-
-        $entities = $this->loadEntities($config->entity, $entityIds, $config->associations, $context);
-
-        $definition = $this->definitionRegistry->getByEntityName($config->entity);
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
         $tags = [];
 
         foreach ($entities as $entity) {
@@ -199,9 +184,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $criteria = new Criteria($entityIds);
 
         foreach ($associations as $association) {
-            if (\is_string($association)) {
-                $criteria->addAssociation($association);
-            }
+            $criteria->addAssociation($association);
         }
 
         try {

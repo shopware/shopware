@@ -2,15 +2,23 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Struct;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Visitor\PropertiesExtractionVisitor;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Layout metadata with fully hydrated element trees.
+ * The layout's identity triple beside the finished rendered forest, for the consumers that read a page rather
+ * than a response body: the Storefront Twig components, and the `Struct` every {@see RenderResult}-carrying
+ * route response has to hand its parent.
+ *
+ * A direct `Struct` subclass and never a `Collection` one: the SEO resolver branches on the `Collection`
+ * family, so widening the base class would change what runs over a served page.
+ *
+ * It is not what any response body is encoded from. The full, decomposed and data encoders read the
+ * {@see RenderResult} itself, so the wire shape does not pass through this class.
+ *
+ * @internal
  *
  * @final
  */
@@ -18,52 +26,28 @@ use Shopware\Core\Framework\Struct\Struct;
 class ContentPage extends Struct
 {
     /**
-     * @param iterable<ContentElement> $elements
+     * @param list<RenderedElement> $elements
      */
-    public function __construct(
-        public string $layoutId,
-        public iterable $elements,
-        public string $layoutName,
-        public ?string $layoutVersion,
+    private function __construct(
+        public string $id,
+        public array $elements,
+        public string $name,
+        public ?string $version,
     ) {
     }
 
-    public function getContentDecomposedPage(
-        DataLoaderConfigSerializerProvider $configSerializerProvider,
-        ConfigCanonicalizer $configCanonicalizer
-    ): ContentDecomposedPage {
-        $visitor = new PropertiesExtractionVisitor($configSerializerProvider, $configCanonicalizer);
-
-        foreach ($this->elements as $element) {
-            $clone = clone $element;
-            $clone->traverse($visitor);
-        }
-
-        return new ContentDecomposedPage(
-            ContentSkeletonElement::fromElements($this->elements),
-            $visitor->getData(),
-            $visitor->getAssignments(),
-            $this->layoutId,
-            $this->layoutName,
-            $this->layoutVersion
-        );
-    }
-
-    public function getContentSkeletonPage(): ContentSkeletonPage
+    /**
+     * The only way to build one: a page is a view onto a finished render, so both halves come from the same
+     * result rather than from two arguments a caller could pair wrongly.
+     */
+    public static function fromRenderResult(RenderResult $result): self
     {
-        return new ContentSkeletonPage(
-            $this->layoutId,
-            ContentSkeletonElement::fromElements($this->elements),
-            $this->layoutName,
-            $this->layoutVersion
+        return new self(
+            $result->reference->id,
+            $result->tree,
+            $result->reference->name,
+            $result->reference->version,
         );
-    }
-
-    public function getContentDataPage(
-        DataLoaderConfigSerializerProvider $configSerializerProvider,
-        ConfigCanonicalizer $configCanonicalizer
-    ): ContentDataPage {
-        return $this->getContentDecomposedPage($configSerializerProvider, $configCanonicalizer)->getContentDataPage();
     }
 
     /**

@@ -24,10 +24,10 @@ properties:
   activeId:
     type: string
     title: "Active category ID"
-    description: "Category ID highlighted as the current page. Resolved per request from the layout's category root, so it needs no editorial input. Also read by the navigation data loader via its activeProperty config."
+    description: "Category ID highlighted as the current page. On a layout rooted on a category the `{{categoryId}}` placeholder resolves per request, so it needs no editorial input. On any other root the placeholder stays literal and the navigation data loader highlights the navigation root instead. Read by that loader via its activeProperty config."
     default: "{{categoryId}}"
     adminUI:
-      helpText: "Filled automatically from the page you are on — leave this as it is."
+      helpText: "Filled automatically on a category page — leave this as it is."
 
   displayType:
     type: string

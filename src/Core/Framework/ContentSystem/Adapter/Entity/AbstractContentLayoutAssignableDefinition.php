@@ -20,6 +20,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * Shared field definitions and metadata derivation for content layout assignments.
+ *
+ * @internal
  */
 #[Package('framework')]
 abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinition

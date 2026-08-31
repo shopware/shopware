@@ -59,12 +59,17 @@ final class WeatherLoader extends AbstractContentDataLoader
     public static function getRequirementType(): string
     { return 'weather'; /* Must match serializer's getSource() */ }
 
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    public function configSpecification(): LoaderConfigSpecification
     {
-        $config = $requirement->config;
-        \assert($config instanceof WeatherLoaderConfig);
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('location', ConfigKeyKind::Literal, 'string', required: true),
+            new ConfigKeySpecification('units', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: 'metric'),
+        ]);
+    }
 
-        $weather = $this->weatherClient->fetch($config->location);
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        $weather = $this->weatherClient->fetch($inputs->string('location'), $inputs->string('units'));
         if ($weather === null) {
             return ContentDataLoaderResult::notFound();
         }
@@ -73,6 +78,8 @@ final class WeatherLoader extends AbstractContentDataLoader
     }
 }
 ```
+
+`load()` never reads the config or the element itself. `LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call: every declared key is already present, dereferenced, and type-checked, and reading a key the loader did not declare throws. Declare the fallback in `configSpecification()` — an in-body `??` would drift from what the schema advertises.
 
 **Service registration:**
 

@@ -3,17 +3,20 @@
 namespace Shopware\Core\Framework\ContentSystem\Resolution;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]
@@ -33,17 +36,17 @@ class ElementResolver
     /**
      * @return list<PropertyResolution>
      */
-    public function resolve(ContentElement|string $element, ResolutionContext $context): array
+    public function resolve(StoredElement|string $element, ResolutionContext $context): array
     {
-        $type = \is_string($element) ? $element : $element->getComponent();
+        $type = \is_string($element) ? $element : $element->component;
 
         if (!$this->registry->has($type)) {
             return [];
         }
 
-        // A string $element carries no stored wiring by design: only a ContentElement instance has
+        // A string $element carries no stored wiring by design: only a StoredElement instance has
         // dataRequirements, so a type-name-only resolve never produces a Stored candidate.
-        $storedRequirements = $element instanceof ContentElement ? $element->getDataRequirements() : [];
+        $storedRequirements = $element instanceof StoredElement ? $element->dataRequirements : [];
 
         $resolutions = [];
 

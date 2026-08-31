@@ -16,8 +16,6 @@ use Shopware\Core\Framework\Log\Package;
  * component with a required primitive carrying a type default (used to prove the write-boundary default seeding).
  * Wired only in the test environment via the content_system.type_loader tag in services_test.php.
  *
- * @internal
- *
  * @final
  */
 #[Package('framework')]

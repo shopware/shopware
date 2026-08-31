@@ -12,7 +12,7 @@ The DI tags a plugin registers its content system services under, and the classe
 | `content_system.config_serializer`    | `getSource()`          | None                                           |
 | `content_system.section_resolver`     | `section` attribute    | `section` (required, e.g. `main` / `header` / `footer`) |
 
-Full DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`
+Framework-owned DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`. Domain sources register in their owning module's DI instead: `content_system.entity_specification_source` is tagged in `src/Core/Content/DependencyInjection/product.php`, `category.php` and `landing_page.php`, and `content_system.specification_source` is tagged in `src/Storefront/DependencyInjection/content-system.php` for the header and footer sections.
 
 ## Type Reference
 
@@ -33,32 +33,31 @@ Key types extension developers encounter when working with the ContentSystem:
 |---------------------------|----------------------------------------------------------------------------------------|
 | `ContentDataLoaderResult` | Loader return value with cache info                                                    |
 | `LoaderTypeCapability`    | One type a loader can produce: `producedType`, `configTemplate`, `genericParameters`; returned by `producibleTypes()` (construct directly when overriding it) |
-| `SpecificationData`       | Return type of `resolveSpecificationData()` (bundles data requirements + placeholders) |
-| `PlaceholderValues`       | Immutable placeholder map, created via `PlaceholderValues::from(array $values)`        |
-| `RenderingSpecification`  | Data requirements, placeholders, request, target element, cache tags                   |
-| `ResolvedContentLayout`   | Resolver output: layout ID plus the `RenderingSpecification`                           |
-| `LayoutReference`         | Immutable layout identity: `id`, `name`, `version`                                     |
-| `RenderableLayout`        | Loaded layout handed to the pipeline: a `LayoutReference` plus its element list        |
+| `SpecificationData`       | Return type of `resolveSpecificationData()`                                            |
+| `PlaceholderValues`       | Created via `PlaceholderValues::from(array $values)`                                   |
+
+The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are described in [README.md](../README.md#key-classes).
 
 ### Enums
 
 | Enum             | Values                     | Purpose                         |
 |------------------|----------------------------|---------------------------------|
-| `RenderingMode`  | `FULL`, `SKELETON`         | Controls whether hydration runs |
+| `RenderingMode`  | `FULL`, `SKELETON`         | Controls whether data and context are resolved |
 | `ContentSection` | `MAIN`, `HEADER`, `FOOTER` | Identifies content section      |
 
 ### Event Classes
 
 | Class                      | Purpose                     |
 |----------------------------|-----------------------------|
-| `PreContentHydrationEvent` | Dispatched before hydration |
-| `PostHydrationEvent`       | Dispatched after hydration  |
+| `ContentTreePreparationEvent` | Dispatched over the stored tree before every preparation step |
+| `RenderedTreeFinalizationEvent` | Dispatched after the render step and the finishing steps, over the rendered forest |
 
 ### Layout / Response
 
 | Class                    | Purpose                                         |
 |--------------------------|-------------------------------------------------|
-| `ContentElement`         | Tree node: properties, slots, data requirements |
+| `StoredElement`          | Stored tree node: properties, slots, data requirements, context wiring |
+| `RenderedElement`        | Rendered tree node: `id`, `component`, flat properties, slots, style |
 | `RenderingCacheContext`  | Cache tag collection + disable flag             |
 | `ContentSystemException` | Exception class with error codes                |
 

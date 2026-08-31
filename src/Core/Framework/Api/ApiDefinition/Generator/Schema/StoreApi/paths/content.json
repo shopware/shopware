@@ -6,7 +6,7 @@
             "get": {
                 "tags": ["Content"],
                 "summary": "Fetch rendered content layout",
-                "description": "Loads and renders content with full element trees. Supports product/{productId}, category/{categoryId}, and landing-page/{landingPageId} path patterns.",
+                "description": "Loads and renders content with full element trees. Supports product/{productId}, category/{categoryId}, and landing-page/{landingPageId} path patterns. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
                 "operationId": "readContent",
                 "parameters": [
                     {
@@ -50,7 +50,7 @@
             "get": {
                 "tags": ["Content"],
                 "summary": "Fetch rendered content layout (decomposed format)",
-                "description": "Loads and renders content with decomposed format: skeletons + deduplicated data + assignments. Optimized for bandwidth efficiency.",
+                "description": "Loads and renders content with decomposed format: skeletons + deduplicated data + assignments. Optimized for bandwidth efficiency. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
                 "operationId": "readContentDecomposed",
                 "parameters": [
                     {
@@ -94,7 +94,7 @@
             "get": {
                 "tags": ["Content"],
                 "summary": "Fetch content layout skeleton (without hydration)",
-                "description": "Returns layout structure without hydrated data. Useful for layout preview, client-side hydration, or structure inspection. Runs pre-hydration events but skips data loading.",
+                "description": "Returns layout structure without hydrated data. Useful for layout preview, client-side hydration, or structure inspection. Runs the preparation and finalization events but skips data loading. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
                 "operationId": "readContentSkeleton",
                 "parameters": [
                     {
@@ -138,7 +138,7 @@
             "get": {
                 "tags": ["Content"],
                 "summary": "Fetch content data only (without skeleton)",
-                "description": "Returns only the hydrated data and element-to-property assignments. Useful when client already has the skeleton and only needs refreshed data.",
+                "description": "Returns only the hydrated data and element-to-property assignments. Useful when client already has the skeleton and only needs refreshed data. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
                 "operationId": "readContentData",
                 "parameters": [
                     {

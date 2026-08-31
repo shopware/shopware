@@ -9,10 +9,10 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpeci
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoader;
 use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoaderConfig;
 
@@ -125,14 +125,12 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
     /**
      * @param array<string, mixed> $properties
      */
-    private function wiredImage(array $properties): ContentElement
+    private function wiredImage(array $properties): StoredElement
     {
-        return new ContentElement(
-            'el-1',
-            'Sw:Media:Image',
-            ['media' => new DataRequirement('media', TestMultiReferenceGatingLoader::SOURCE, new TestMultiReferenceGatingLoaderConfig('media', 'maxImageWidth', 'height', 'fetchpriority'))],
-            $properties,
-        );
+        return StoredElementBuilder::create('Sw:Media:Image', 'el-1')
+            ->withDataRequirement('media', TestMultiReferenceGatingLoader::SOURCE, new TestMultiReferenceGatingLoaderConfig('media', 'maxImageWidth', 'height', 'fetchpriority'))
+            ->withProperties($properties)
+            ->build();
     }
 
     private function canonicalizer(): BindingSpecificationCanonicalizer

@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * The declared config contract of one data loader: the in-memory specification of its config keys.
  * The wire schema is generated elsewhere.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class LoaderConfigSpecification

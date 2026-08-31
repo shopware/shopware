@@ -182,6 +182,7 @@ const missingTests = [
     'src/core/service/api/user-recovery.api.service.ts',
     'src/core/service/api/user-validation.api.service.js',
     'src/core/service/api/user.api.service.js',
+    'src/core/service/content-element.types.ts',
     'src/core/service/customer-group-registration-listener.service.js',
     'src/core/service/shopware-updates-listener.service.js',
     'src/core/service/utils/debug.utils.ts',

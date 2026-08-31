@@ -17,11 +17,17 @@ class DependencyInjectionException extends HttpException
     public const MISSING_ASSIGNABLE_DEFINITION = 'FRAMEWORK__MISSING_ASSIGNABLE_DEFINITION';
     public const ROOT_SOURCE_NAMESPACE_COLLISION = 'FRAMEWORK__ROOT_SOURCE_NAMESPACE_COLLISION';
     public const DATA_LOADER_RESERVED_SOURCE = 'FRAMEWORK__DATA_LOADER_RESERVED_SOURCE';
+    public const DATA_LOADER_DUPLICATE_SOURCE = 'FRAMEWORK__DATA_LOADER_DUPLICATE_SOURCE';
     public const DATA_LOADER_CONFIG_KEY_DUPLICATE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_DUPLICATE';
     public const DATA_LOADER_CONFIG_KEY_INVALID_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_TYPE';
     public const DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_UNKNOWN_TYPE';
     public const DATA_LOADER_CONFIG_KEY_DEFAULT_MISMATCH = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_DEFAULT_MISMATCH';
     public const DATA_LOADER_RESERVED_CONFIG_KEY = 'FRAMEWORK__DATA_LOADER_RESERVED_CONFIG_KEY';
+    public const DATA_LOADER_CONFIG_KEY_UNKNOWN_REFERENCED_TYPE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_UNKNOWN_REFERENCED_TYPE';
+    public const DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED';
+    public const DATA_LOADER_CONFIG_KEY_INVALID_MERGE = 'FRAMEWORK__DATA_LOADER_CONFIG_KEY_INVALID_MERGE';
+    public const DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER = 'FRAMEWORK__DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER';
+    public const DATA_LOADER_CLASS_IS_ABSTRACT = 'FRAMEWORK__DATA_LOADER_CLASS_IS_ABSTRACT';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
@@ -92,6 +98,20 @@ class DependencyInjectionException extends HttpException
         );
     }
 
+    public static function dataLoaderDuplicateSource(string $loaderClass, string $existingLoaderClass, string $source): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_DUPLICATE_SOURCE,
+            \sprintf(
+                'Data loader "%s" declares the source "%s", which data loader "%s" already declares. A source must resolve to exactly one loader; decorate the registered loader instead of registering a second one under the same source.',
+                $loaderClass,
+                $source,
+                $existingLoaderClass
+            )
+        );
+    }
+
     public static function dataLoaderConfigKeyDuplicate(string $loaderClass, string $key): self
     {
         return new self(
@@ -137,6 +157,47 @@ class DependencyInjectionException extends HttpException
         );
     }
 
+    /**
+     * @param list<string> $referencedTypes
+     */
+    public static function dataLoaderConfigKeyUnknownReferencedType(string $loaderClass, string $key, string $referencedType, array $referencedTypes): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CONFIG_KEY_UNKNOWN_REFERENCED_TYPE,
+            \sprintf(
+                'Config key "%s" of data loader "%s" declares the unknown referenced type "%s". Declarable referenced types: "%s".',
+                $key,
+                $loaderClass,
+                $referencedType,
+                implode('", "', $referencedTypes)
+            )
+        );
+    }
+
+    public static function dataLoaderConfigKeyReferencedTypeMisplaced(string $loaderClass, string $key, string $kind): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CONFIG_KEY_REFERENCED_TYPE_MISPLACED,
+            \sprintf(
+                'Config key "%s" of data loader "%s" has kind "%s" and must therefore leave the referenced type at its "string" default: only a propertyReference key dereferences a stored value.',
+                $key,
+                $loaderClass,
+                $kind
+            )
+        );
+    }
+
+    public static function dataLoaderConfigKeyInvalidMerge(string $loaderClass, string $key, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CONFIG_KEY_INVALID_MERGE,
+            \sprintf('Config key "%s" of data loader "%s" declares an invalid merge: %s.', $key, $loaderClass, $reason)
+        );
+    }
+
     public static function dataLoaderReservedConfigKey(string $loaderClass, string $key): self
     {
         return new self(
@@ -146,6 +207,33 @@ class DependencyInjectionException extends HttpException
                 'Data loader "%s" declares the reserved config key "%s". The names "loader" and "config" are reserved and cannot name a config key.',
                 $loaderClass,
                 $key
+            )
+        );
+    }
+
+    public static function dataLoaderSourceWithoutConfigSerializer(string $loaderClass, string $source): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_SOURCE_WITHOUT_CONFIG_SERIALIZER,
+            \sprintf(
+                'Data loader "%s" declares the source "%s", but no service tagged "content_system.config_serializer" returns "%s" from getSource(). Register the loader\'s config serializer under that tag.',
+                $loaderClass,
+                $source,
+                $source
+            )
+        );
+    }
+
+    public static function dataLoaderClassIsAbstract(string $service, string $loaderClass): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATA_LOADER_CLASS_IS_ABSTRACT,
+            \sprintf(
+                'Service "%s" is tagged as "content_system.data_loader" but its class "%s" is abstract. Tag a concrete loader: an abstract class cannot answer the introspection contract.',
+                $service,
+                $loaderClass
             )
         );
     }

@@ -7,13 +7,14 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Re-derives each element's {@see ContentElement::getAttributedSpecifications()} at the DAL write boundary.
+ * Re-derives each element's {@see StoredElement::$attributedSpecifications} at the DAL write boundary.
  * A dropped attribution (diverged wiring, missing specification, or missing binding) is never an error.
  *
  * Honesty comparison correctness depends on every config serializer honoring its round-trip contract
@@ -21,9 +22,9 @@ use Shopware\Core\Framework\Log\Package;
  * `decode($x)->jsonSerialize()`. A serializer that normalizes or coerces values on decode, or whose
  * `encode` diverges from `jsonSerialize`, would silently drop an attribution that is in fact still honest.
  *
- * Only a {@see ContentSystemException} whose code is a client defect
- * ({@see ContentSystemException::isClientDefect()}) is caught and treated as "not honest"; every other
- * exception, including a registry-build failure, propagates.
+ * Nothing here converts this exception into "not honest" — it is intercepted only to attach the element id
+ * before re-throwing. What {@see StoredElementListFieldSerializer::normalize()} does with a wiring the
+ * comparison cannot even encode is documented in `docs/write-boundary.md`.
  *
  * @internal
  *
@@ -47,9 +48,9 @@ class AttributionReconciler
     }
 
     /**
-     * @param list<mixed> $forest
+     * @param list<StoredElement> $forest
      *
-     * @return list<mixed>
+     * @return list<StoredElement>
      */
     public function reconcile(array $forest): array
     {
@@ -57,65 +58,41 @@ class AttributionReconciler
 
         $reconciled = [];
 
-        foreach ($forest as $node) {
-            $reconciled[] = $this->reconcileNode($node);
+        foreach ($forest as $element) {
+            $reconciled[] = $this->reconcileElement($element);
         }
 
         return $reconciled;
     }
 
-    private function reconcileNode(mixed $node): mixed
+    private function reconcileElement(StoredElement $element): StoredElement
     {
-        if ($node instanceof ContentElement) {
-            return $this->reconcileElement($node);
-        }
-
-        if (\is_array($node)) {
-            return $this->reconcileArray($node);
-        }
-
-        return $node;
-    }
-
-    private function reconcileElement(ContentElement $element): ContentElement
-    {
-        if ($element->getSlots() === [] && $element->getAttributedSpecifications() === []) {
+        if ($element->slots === [] && $element->attributedSpecifications === []) {
             return $element;
         }
 
         $slots = [];
-        foreach ($element->getSlots() as $name => $slotContent) {
-            $children = [];
-            foreach ($slotContent as $child) {
-                $children[] = $this->reconcileElement($child);
-            }
-            $slots[$name] = new SlotContent($children);
+        foreach ($element->slots as $name => $children) {
+            $slots[$name] = array_map($this->reconcileElement(...), $children);
         }
 
-        return new ContentElement(
-            $element->getId(),
-            $element->getComponent(),
-            $element->getDataRequirements(),
-            $element->getProperties(),
-            $slots,
-            $element->getContextDefinitions(),
-            $element->getStyle(),
-            $this->reconcileElementAttributions($element),
-        );
+        return $element
+            ->withSlots($slots)
+            ->withAttributedSpecifications($this->reconcileElementAttributions($element));
     }
 
     /**
      * @return array<string, string>
      */
-    private function reconcileElementAttributions(ContentElement $element): array
+    private function reconcileElementAttributions(StoredElement $element): array
     {
-        $attributions = $element->getAttributedSpecifications();
+        $attributions = $element->attributedSpecifications;
 
         if ($attributions === []) {
             return [];
         }
 
-        $dataRequirements = $element->getDataRequirements();
+        $dataRequirements = $element->dataRequirements;
         $filtered = [];
 
         foreach ($attributions as $key => $specificationId) {
@@ -125,149 +102,67 @@ class AttributionReconciler
                 continue;
             }
 
-            if ($this->isHonestForElement($specificationId, $key, $requirement)) {
+            try {
+                $honest = $this->isHonestForElement($specificationId, $key, $requirement);
+            } catch (ContentSystemException $exception) {
+                throw $this->withElementId($exception, $element->id);
+            }
+
+            if ($honest) {
                 $filtered[$key] = $specificationId;
             }
         }
 
         return $filtered;
+    }
+
+    /**
+     * Re-throws a CONFIG_SERIALIZER_NOT_REGISTERED fault carrying the element whose wiring named the
+     * unregistered source, so the caller can see which element to fix. The caught exception's own "source"
+     * parameter is read back rather than re-derived, since the fault can originate from either the element's
+     * own requirement source ({@see isHonestForElement}) or the specification's binding source
+     * ({@see specWiring}). Every other ContentSystemException is returned unchanged.
+     */
+    private function withElementId(ContentSystemException $exception, string $elementId): ContentSystemException
+    {
+        if ($exception->getErrorCode() !== ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED) {
+            return $exception;
+        }
+
+        $source = $exception->getParameter('source');
+        if (!\is_string($source)) {
+            return $exception;
+        }
+
+        return ContentSystemException::configSerializerNotRegistered($source, $elementId);
     }
 
     private function isHonestForElement(string $specificationId, string $key, DataRequirement $requirement): bool
     {
-        try {
-            $specWiring = $this->specWiring($specificationId, $key);
+        $specWiring = $this->specWiring($specificationId, $key);
 
-            if ($specWiring === null) {
-                return false;
-            }
-
-            $elementEncoded = $this->configCanonicalizer->canonicalize(
-                $this->configSerializerProvider->encode($requirement->source, $requirement->config)
-            );
-
-            return $specWiring['source'] === $requirement->source && $specWiring['encoded'] === $elementEncoded;
-        } catch (ContentSystemException $exception) {
-            if (!ContentSystemException::isClientDefect($exception)) {
-                throw $exception;
-            }
-
-            return false;
-        }
-    }
-
-    /**
-     * @param array<array-key, mixed> $node
-     *
-     * @return array<array-key, mixed>
-     */
-    private function reconcileArray(array $node): array
-    {
-        $slots = $node['slots'] ?? null;
-
-        if (\is_array($slots)) {
-            $node['slots'] = array_map($this->reconcileSlotChildren(...), $slots);
-        }
-
-        $attributions = $node['attributedSpecifications'] ?? null;
-
-        if (!\is_array($attributions) || $attributions === []) {
-            return $node;
-        }
-
-        $dataRequirements = $node['dataRequirements'] ?? [];
-        $dataRequirements = \is_array($dataRequirements) ? $dataRequirements : [];
-
-        $filtered = $this->reconcileRawAttributions($attributions, $dataRequirements);
-
-        if ($filtered === []) {
-            unset($node['attributedSpecifications']);
-
-            return $node;
-        }
-
-        $node['attributedSpecifications'] = $filtered;
-
-        return $node;
-    }
-
-    private function reconcileSlotChildren(mixed $children): mixed
-    {
-        if (!\is_array($children)) {
-            return $children;
-        }
-
-        return array_map($this->reconcileNode(...), $children);
-    }
-
-    /**
-     * @param array<array-key, mixed> $attributions
-     * @param array<array-key, mixed> $dataRequirements
-     *
-     * @return array<string, string>
-     */
-    private function reconcileRawAttributions(array $attributions, array $dataRequirements): array
-    {
-        $filtered = [];
-
-        foreach ($attributions as $key => $specificationId) {
-            if (!\is_string($key) || !\is_string($specificationId)) {
-                continue;
-            }
-
-            $requirementEntry = $dataRequirements[$key] ?? null;
-
-            if (!\is_array($requirementEntry)) {
-                continue;
-            }
-
-            if ($this->isHonestForRaw($specificationId, $key, $requirementEntry)) {
-                $filtered[$key] = $specificationId;
-            }
-        }
-
-        return $filtered;
-    }
-
-    /**
-     * @param array<array-key, mixed> $requirementEntry
-     */
-    private function isHonestForRaw(string $specificationId, string $key, array $requirementEntry): bool
-    {
-        $elementSource = $requirementEntry['source'] ?? null;
-
-        if (!\is_string($elementSource)) {
+        if ($specWiring === null) {
             return false;
         }
 
-        $elementConfigData = $requirementEntry['config'] ?? [];
-        $elementConfigData = \is_array($elementConfigData) ? $elementConfigData : [];
+        $elementEncoded = $this->configCanonicalizer->canonicalize(
+            $this->configSerializerProvider->encode($requirement->source, $requirement->config)
+        );
 
-        try {
-            $specWiring = $this->specWiring($specificationId, $key);
-
-            if ($specWiring === null) {
-                return false;
-            }
-
-            $elementConfigObject = $this->configSerializerProvider->decode($elementSource, $elementConfigData);
-            $elementEncoded = $this->configCanonicalizer->canonicalize(
-                $this->configSerializerProvider->encode($elementSource, $elementConfigObject)
-            );
-
-            return $specWiring['source'] === $elementSource && $specWiring['encoded'] === $elementEncoded;
-        } catch (ContentSystemException $exception) {
-            if (!ContentSystemException::isClientDefect($exception)) {
-                throw $exception;
-            }
-
-            return false;
-        }
+        return $specWiring['source'] === $requirement->source && $specWiring['encoded'] === $elementEncoded;
     }
 
     /**
      * The specification side of the honesty comparison: the binding's source plus its canonicalized encoded
      * config, or null when the specification or its binding for $key no longer exists.
+     *
+     * Null is an answer, not a missing collaborator: an attribution names a specification the registry
+     * assembles at runtime from element-type directories and active app rows, and no write gate checks that
+     * name — {@see StoredElementCodec} decodes an
+     * `attributedSpecifications` entry on its shape alone. An uninstalled plugin, a deactivated app, a
+     * specification that dropped the key in a new version, or a caller who simply sent an unknown id all
+     * leave a live attribution with nothing behind it, and "nothing claims this wiring" is exactly the
+     * comparison's negative result.
      *
      * @return array{source: string, encoded: array<int|string, mixed>}|null
      */

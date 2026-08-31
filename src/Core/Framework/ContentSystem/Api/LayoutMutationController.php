@@ -5,7 +5,8 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
@@ -32,6 +33,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 /**
  * The stateless draft-tree counterpart to {@see ContentLayoutMutationController}.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]
@@ -46,7 +49,7 @@ class LayoutMutationController
         private readonly MutationPipeline $pipeline,
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly RootSourceRegistry $rootSourceRegistry,
-        private readonly ContentElementFieldSerializer $elementSerializer,
+        private readonly StoredElementCodec $elementCodec,
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         private readonly BindingApplicator $bindingApplicator,
     ) {
@@ -150,10 +153,10 @@ class LayoutMutationController
      */
     private function respond(LayoutMutation $mutation, array $layout, ?string $rootSource, Context $context): JsonResponse
     {
-        $tree = $this->decoder->decode($layout);
+        $tree = new StoredTree($this->decoder->decode($layout));
         $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);
         $result = $this->pipeline->run($mutation, $tree, $rootContext);
 
-        return new JsonResponse(MutationResponse::fromResult($result, $this->elementSerializer));
+        return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
     }
 }

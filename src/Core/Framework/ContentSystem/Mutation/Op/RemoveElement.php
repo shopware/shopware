@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
@@ -20,12 +21,12 @@ final class RemoveElement extends AbstractLayoutMutation
     ) {
     }
 
-    public function apply(array $tree): array
+    public function apply(StoredTree $tree): StoredTree
     {
-        if ($this->findNode($tree, $this->elementId) === null) {
+        if ($tree->find($this->elementId) === null) {
             throw ContentSystemException::mutationTargetNotFound($this->elementId);
         }
 
-        return $this->removeSubtree($tree, $this->elementId);
+        return $tree->remove($this->elementId);
     }
 }

@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Extracts target element with descendants from hydrated content (post-hydration operation).
+ * Extracts target element with descendants from a rendered tree (post-render operation).
  *
  * @internal
  *
@@ -16,30 +16,21 @@ use Shopware\Core\Framework\Log\Package;
 class SubTreeExtractor
 {
     /**
-     * @return ContentElement|null Cloned sub-tree or null if element not found
+     * The found instance itself comes back, not a copy: {@see RenderedElement} is `final readonly`, so the
+     * caller cannot mutate what the rest of the tree still points at.
      */
-    public function extract(ContentElement $root, string $targetId): ?ContentElement
+    public function extract(RenderedElement $root, string $targetId): ?RenderedElement
     {
-        $target = $this->findElement($root, $targetId);
-
-        if ($target === null) {
-            return null;
-        }
-
-        // PHP's __clone creates deep copy including all descendants for Struct objects
-        return clone $target;
-    }
-
-    private function findElement(ContentElement $root, string $targetId): ?ContentElement
-    {
-        if ($root->getId() === $targetId) {
+        if ($root->id === $targetId) {
             return $root;
         }
 
-        foreach ($root->allSlotElements() as $child) {
-            $found = $this->findElement($child, $targetId);
-            if ($found !== null) {
-                return $found;
+        foreach ($root->slots as $children) {
+            foreach ($children as $child) {
+                $found = $this->extract($child, $targetId);
+                if ($found !== null) {
+                    return $found;
+                }
             }
         }
 

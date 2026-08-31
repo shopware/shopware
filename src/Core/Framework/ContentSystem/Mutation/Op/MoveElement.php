@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
@@ -24,7 +25,7 @@ final class MoveElement extends AbstractLayoutMutation
     ) {
     }
 
-    public function apply(array $tree): array
+    public function apply(StoredTree $tree): StoredTree
     {
         $location = $this->locate($tree, $this->elementId);
 
@@ -39,7 +40,7 @@ final class MoveElement extends AbstractLayoutMutation
                 throw ContentSystemException::mutationCycle($this->elementId);
             }
 
-            if ($this->findNode($tree, $this->newParentId) === null) {
+            if ($tree->find($this->newParentId) === null) {
                 throw ContentSystemException::mutationTargetNotFound($this->newParentId);
             }
         }
@@ -49,7 +50,7 @@ final class MoveElement extends AbstractLayoutMutation
         $this->affected = $this->newParentId === $oldParentId ? [] : $this->subtreeIds($node);
 
         if ($this->newParentId === null) {
-            return $this->insertAtRoot($this->removeSubtree($tree, $this->elementId), $this->index, [$node]);
+            return $tree->remove($this->elementId)->insertAtRoot($this->index, [$node]);
         }
 
         $slot = $this->newSlot;
@@ -62,6 +63,6 @@ final class MoveElement extends AbstractLayoutMutation
             throw ContentSystemException::mutationSlotRequired();
         }
 
-        return $this->insertIntoSlot($this->removeSubtree($tree, $this->elementId), $this->newParentId, $slot, $this->index, [$node]);
+        return $tree->remove($this->elementId)->insertIntoSlot($this->newParentId, $slot, $this->index, [$node]);
     }
 }

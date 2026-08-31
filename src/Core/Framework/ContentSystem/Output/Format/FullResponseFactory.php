@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Format;
 
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
@@ -24,8 +24,13 @@ class FullResponseFactory extends AbstractResponseFactory
         return RenderingMode::FULL;
     }
 
-    public function createResponse(ContentPage $contentPage): AbstractContentRouteResponse
+    public function collectsValueIndex(): bool
     {
-        return new ContentRouteResponse($contentPage);
+        return false;
+    }
+
+    public function createResponse(RenderResult $result): AbstractContentRouteResponse
+    {
+        return new ContentRouteResponse($result);
     }
 }

@@ -8,27 +8,27 @@
                 "type": "object",
                 "description": "Layout metadata with element trees before hydration.",
                 "properties": {
-                    "layoutId": {
+                    "id": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
-                    "layoutName": {
+                    "name": {
                         "type": "string"
                     },
-                    "layoutVersion": {
+                    "version": {
                         "type": ["string", "null"]
                     },
                     "elements": {
                         "type": "array",
-                        "description": "Pre-hydration element trees without loaded data",
-                        "items": { "$ref": "#/components/schemas/ContentElement" }
+                        "description": "Pre-hydration element trees without loaded data. Skeleton nodes carry no `properties` at all: the skeleton is a function of structure alone.",
+                        "items": { "$ref": "#/components/schemas/ContentSkeletonElement" }
                     },
                     "apiAlias": {
                         "type": "string",
                         "enum": ["content_skeleton_page"]
                     }
                 },
-                "required": ["apiAlias", "layoutId", "layoutName", "elements"]
+                "required": ["apiAlias", "id", "name", "version", "elements"]
             }
         }
     }

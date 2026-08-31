@@ -75,10 +75,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isCompletable(): boolean {
-            return this.trimmedName.length > 0
-                && typeof this.selectedType === 'string'
-                && this.selectedType.length > 0
-                && !this.isLoadingTypes;
+            return (
+                this.trimmedName.length > 0 &&
+                typeof this.selectedType === 'string' &&
+                this.selectedType.length > 0 &&
+                !this.isLoadingTypes
+            );
         },
     },
 

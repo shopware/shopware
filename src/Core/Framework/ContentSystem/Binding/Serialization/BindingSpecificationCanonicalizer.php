@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Binding\Serialization;
 use Shopware\Core\Framework\ContentSystem\Binding\ResolvedByLoaderBranch;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\Dto\BindingSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpec
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
@@ -270,8 +272,8 @@ final class BindingSpecificationCanonicalizer
     }
 
     /**
-     * The tier-A closed classification: a property FQCN subclassing {@see \Shopware\Core\Framework\DataAbstractionLayer\Entity}
-     * or {@see \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection} resolves to its built-in
+     * The tier-A closed classification: a property FQCN subclassing {@see Entity}
+     * or {@see EntityCollection} resolves to its built-in
      * resolvedBy loader directly; no loader search runs, and installing an extension loader cannot change
      * or invalidate the result.
      *
@@ -439,7 +441,7 @@ final class BindingSpecificationCanonicalizer
     /**
      * The declared reference FQCN for a type's property, or null when the key is not a declared property or the
      * property is not a single-FQCN reference (primitive, union, or `object`). Mirrors the derivation
-     * {@see \Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics} uses.
+     * {@see LayoutDiagnostics} uses.
      */
     private function declaredReferenceFqcn(ContentSystemElementTypeSpecification $type, string $key): ?string
     {

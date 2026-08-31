@@ -14,7 +14,7 @@ graph LR
     A["2 · Assemble<br/>draft layout JSON"]
     M["2b · Mutate (server-side assemble)<br/>POST .../layout/{op}"]
     D["3 · Diagnose<br/>POST .../layout/diagnose"]
-    P["4 · Preview<br/>POST .../preview/entity"]
+    P["4 · Preview<br/>POST .../preview/entity/url"]
     R[("5 · Persist<br/>via DAL")]
 
     E1 -- "placeable<br/>components" --> A
@@ -25,7 +25,7 @@ graph LR
     M -- "edited layout (next draft)" --> A
     M -- "edited layout<br/>+ diagnostics" --> P
     D -- "resolutions<br/>+ diagnostics" --> P
-    P -- "hydrated<br/>ContentPage" --> R
+    P -- "openable<br/>preview URL" --> R
 
     classDef api fill:#e3f2fd,stroke:#1565c0,stroke-width:1px,color:#0d47a1
     classDef step fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
@@ -35,4 +35,4 @@ graph LR
     class R oos
 ```
 
-Mutate (step 2b), diagnose (step 3), and preview (step 4) are all write-free and may run repeatedly while editing. Mutate is the assemble step done server-side: it applies one structural edit and returns the edited layout already carrying its diagnostics, so a caller that edits through it does not also call diagnose. Diagnose checks a draft tree without hydrating real entity data; preview is the only write-free step that renders against real data. Persistence (step 5) is handled through the DAL and is not part of the Admin API endpoint contract.
+Mutate (step 2b), diagnose (step 3), and preview (step 4) are all write-free and may run repeatedly while editing. Mutate is the assemble step done server-side: it applies one structural edit and returns the edited layout already carrying its diagnostics, so a caller that edits through it does not also call diagnose. Diagnose checks a draft tree without hydrating real entity data; preview is the only write-free step that renders against real data — it renders the draft to admit it, discards that page, and returns a short-lived URL that renders it again when opened. Persistence (step 5) is handled through the DAL and is not part of the Admin API endpoint contract.

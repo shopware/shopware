@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\Log\Package;
 
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class RenderableLayout
 {
     /**
-     * @param list<ContentElement> $elements
+     * @param list<StoredElement> $elements
      */
     private function __construct(
         public LayoutReference $reference,
@@ -19,7 +19,7 @@ final readonly class RenderableLayout
     }
 
     /**
-     * @param list<ContentElement> $elements
+     * @param list<StoredElement> $elements
      */
     public static function create(LayoutReference $reference, array $elements): self
     {
@@ -28,6 +28,9 @@ final readonly class RenderableLayout
 
     public static function fromEntity(ContentLayoutEntity $entity): self
     {
-        return self::create(LayoutReference::fromEntity($entity), $entity->getLayout());
+        return self::create(
+            LayoutReference::fromEntity($entity),
+            $entity->getLayout()
+        );
     }
 }

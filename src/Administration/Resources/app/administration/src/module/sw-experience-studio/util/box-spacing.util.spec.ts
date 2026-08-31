@@ -65,39 +65,56 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
     });
 
     it('serializes unitless side values with px on save', () => {
-        expect(serializeBoxSpacing({
-            top: '30',
-            right: '40',
-            bottom: '30',
-            left: '40',
-        }, { explicit: true })).toBe('30px 40px 30px 40px');
+        expect(
+            serializeBoxSpacing(
+                {
+                    top: '30',
+                    right: '40',
+                    bottom: '30',
+                    left: '40',
+                },
+                { explicit: true },
+            ),
+        ).toBe('30px 40px 30px 40px');
     });
 
     it('serializes uniform sides to a single value when shorthand is allowed', () => {
-        expect(serializeBoxSpacing({
-            top: '5%',
-            right: '5%',
-            bottom: '5%',
-            left: '5%',
-        })).toBe('5%');
+        expect(
+            serializeBoxSpacing({
+                top: '5%',
+                right: '5%',
+                bottom: '5%',
+                left: '5%',
+            }),
+        ).toBe('5%');
     });
 
     it('serializes uniform sides as explicit four-value CSS when requested', () => {
-        expect(serializeBoxSpacing({
-            top: '30px',
-            right: '30px',
-            bottom: '30px',
-            left: '30px',
-        }, { explicit: true })).toBe('30px 30px 30px 30px');
+        expect(
+            serializeBoxSpacing(
+                {
+                    top: '30px',
+                    right: '30px',
+                    bottom: '30px',
+                    left: '30px',
+                },
+                { explicit: true },
+            ),
+        ).toBe('30px 30px 30px 30px');
     });
 
     it('serializes vertical and horizontal pairs when linked', () => {
-        expect(serializeBoxSpacing({
-            top: '8px',
-            right: '16px',
-            bottom: '8px',
-            left: '16px',
-        }, { linked: true })).toBe('8px 16px');
+        expect(
+            serializeBoxSpacing(
+                {
+                    top: '8px',
+                    right: '16px',
+                    bottom: '8px',
+                    left: '16px',
+                },
+                { linked: true },
+            ),
+        ).toBe('8px 16px');
     });
 
     it('collapses equivalent four-value shorthand when horizontal sides match and linked', () => {
@@ -105,30 +122,42 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
     });
 
     it('returns empty string when all sides are empty', () => {
-        expect(serializeBoxSpacing({
-            top: '',
-            right: '',
-            bottom: '',
-            left: '',
-        })).toBe('');
+        expect(
+            serializeBoxSpacing({
+                top: '',
+                right: '',
+                bottom: '',
+                left: '',
+            }),
+        ).toBe('');
     });
 
     it('serializes unlinked sides as explicit four-value CSS', () => {
-        expect(serializeBoxSpacing({
-            top: '20px',
-            right: '40px',
-            bottom: '20px',
-            left: '40px',
-        }, { linked: false })).toBe('20px 40px 20px 40px');
+        expect(
+            serializeBoxSpacing(
+                {
+                    top: '20px',
+                    right: '40px',
+                    bottom: '20px',
+                    left: '40px',
+                },
+                { linked: false },
+            ),
+        ).toBe('20px 40px 20px 40px');
     });
 
     it('replaces empty sides with zero when serializing', () => {
-        expect(serializeBoxSpacing({
-            top: '20px',
-            right: '',
-            bottom: '20px',
-            left: '',
-        }, { linked: false })).toBe('20px 0 20px 0');
+        expect(
+            serializeBoxSpacing(
+                {
+                    top: '20px',
+                    right: '',
+                    bottom: '20px',
+                    left: '',
+                },
+                { linked: false },
+            ),
+        ).toBe('20px 0 20px 0');
     });
 
     it('round-trips unlinked sides without collapsing to shorthand', () => {
@@ -157,12 +186,17 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
     });
 
     it('keeps linked shorthand optimization when requested', () => {
-        expect(serializeBoxSpacing({
-            top: '8px',
-            right: '16px',
-            bottom: '8px',
-            left: '16px',
-        }, { linked: true })).toBe('8px 16px');
+        expect(
+            serializeBoxSpacing(
+                {
+                    top: '8px',
+                    right: '16px',
+                    bottom: '8px',
+                    left: '16px',
+                },
+                { linked: true },
+            ),
+        ).toBe('8px 16px');
     });
 
     it('normalizes legacy numeric values to explicit four-value CSS strings', () => {

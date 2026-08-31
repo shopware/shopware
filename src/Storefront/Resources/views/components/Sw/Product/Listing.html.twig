@@ -16,7 +16,7 @@
     'data-component': 'Sw:Product:Listing',
 } %}
 
-{% set layout = app.request.get('layout') %}
+{% set listingLayout = app.request.get('listingLayout') %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
     {% block filters %}
@@ -39,12 +39,12 @@
             <twig:Slot name="product-grid">
                 <twig:Sw:Grid:Container
                     class="sw-product-listing__grid"
-                    :columns="layout == 'horizontal' ? '1' : { xs: '1', sm: '2', md: '3', lg: '4', xl: '4' }"
+                    :columns="listingLayout == 'horizontal' ? '1' : { xs: '1', sm: '2', md: '3', lg: '4', xl: '4' }"
                     gap="16">
                     {% for product in listing.elements %}
                         <twig:Sw:Product:Card
                             :product="product"
-                            :layout="layout ? layout : 'default'"
+                            :layout="listingLayout ? listingLayout : 'default'"
                         />
                     {% endfor %}
                 </twig:Sw:Grid:Container>

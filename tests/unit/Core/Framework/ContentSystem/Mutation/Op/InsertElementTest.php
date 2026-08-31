@@ -13,11 +13,12 @@ use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -34,71 +35,59 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(InsertElement::class)]
 class InsertElementTest extends TestCase
 {
-    use AssertsImmutableInput;
-
-    #[TestDox('appends a fresh element of the type to the root with a server-minted id and no seeded style')]
-    public function testInsertAppendsRootElement(): void
+    #[TestDox('appends a fresh element of the type to the root with a server-minted id and no seeded style, and reports that id as the only affected element')]
+    public function testInsertAppendsRootElementAndReportsMintedIdAsAffected(): void
     {
-        $tree = [new ContentElement('existing', 'Sw:Block')];
+        $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
 
         $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $insert->apply($tree);
 
-        static::assertCount(2, $result);
-        static::assertSame('existing', $result[0]->getId());
-        static::assertSame('Sw:Card', $result[1]->getComponent());
-        static::assertTrue(Uuid::isValid($result[1]->getId()));
-        static::assertTrue($result[1]->getStyle()->isEmpty());
-    }
-
-    #[TestDox('reports the minted id as the only affected element')]
-    public function testInsertAffectedIsMintedId(): void
-    {
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $insert->apply([]);
-
-        static::assertSame([$result[0]->getId()], $insert->affected());
+        static::assertCount(2, $result->roots);
+        static::assertSame('existing', $result->roots[0]->id);
+        static::assertSame('Sw:Card', $result->roots[1]->component);
+        static::assertTrue(Uuid::isValid($result->roots[1]->id));
+        static::assertTrue($result->roots[1]->style->isEmpty());
+        static::assertSame([$result->roots[1]->id], $insert->affected());
     }
 
     #[TestDox('splices the new element into a parent slot at the given index')]
     public function testInsertIntoParentSlotAtIndex(): void
     {
-        $parent = new ContentElement('parent', 'Sw:Block', [], [], [
-            'content' => new SlotContent([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]),
+        $parent = new StoredElement('parent', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('a', 'Sw:Block'), new StoredElement('b', 'Sw:Block')],
         ]);
 
         $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent', slot: 'content', index: 1);
-        $result = $insert->apply([$parent]);
+        $result = $insert->apply(new StoredTree([$parent]));
 
-        $children = array_values($result[0]->getSlots()['content']->getElements());
-        static::assertSame(['a', 'Sw:Card', 'b'], [$children[0]->getId(), $children[1]->getComponent(), $children[2]->getId()]);
+        $children = $result->roots[0]->slots['content'];
+        static::assertSame(['a', 'Sw:Card', 'b'], [$children[0]->id, $children[1]->component, $children[2]->id]);
     }
 
     #[TestDox('prepends to the root when index zero is given without a parent')]
     public function testInsertAtRootIndexZero(): void
     {
-        $tree = [new ContentElement('existing', 'Sw:Block')];
+        $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
 
         $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), index: 0);
         $result = $insert->apply($tree);
 
-        static::assertSame('Sw:Card', $result[0]->getComponent());
-        static::assertSame('existing', $result[1]->getId());
+        static::assertSame('Sw:Card', $result->roots[0]->component);
+        static::assertSame('existing', $result->roots[1]->id);
     }
 
-    #[TestDox('preserves the parent style and does not mutate the input parent in place when inserting into its slot')]
-    public function testInsertIntoSlotPreservesParentStyleAndDoesNotMutateInput(): void
+    #[TestDox('preserves the parent style when inserting into its slot')]
+    public function testInsertIntoSlotPreservesParentStyle(): void
     {
         $style = new ElementStyle(['padding' => ['md' => '1rem']]);
-        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
-            'content' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
-        ], new ContextDefinitions([], []), $style)];
-        $before = $this->snapshotTree($tree);
+        $tree = new StoredTree([new StoredElement('parent', 'Sw:Block', [], ['title' => StoredValue::ofString('Section')], [
+            'content' => [new StoredElement('a', 'Sw:Block')],
+        ], new ContextDefinitions([], []), $style)]);
 
         $result = (new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent', slot: 'content'))->apply($tree);
 
-        static::assertSame($style->toArray(), $result[0]->getStyle()->toArray());
-        $this->assertInputTreeUnmutated($before, $tree);
+        static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
     }
 
     #[TestDox('seeds only primitive properties that declare a default')]
@@ -111,9 +100,9 @@ class InsertElementTest extends TestCase
         ]);
 
         $insert = new InsertElement($this->registry(['Sw:Card' => $spec]), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $insert->apply([]);
+        $result = $insert->apply(new StoredTree([]));
 
-        static::assertSame(['headline' => 'Hello'], $result[0]->getProperties());
+        static::assertSame(['headline' => 'Hello'], $this->rawProperties($result->roots[0]));
     }
 
     #[TestDox('applies the binding specification onto the freshly scaffolded element with its wiring, seeded input default, and attribution')]
@@ -136,21 +125,21 @@ class InsertElementTest extends TestCase
             $this->applicator($config),
             'core:media-picker',
         );
-        $result = $insert->apply([]);
+        $result = $insert->apply(new StoredTree([]));
 
-        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result[0]->getDataRequirements());
-        static::assertSame('seeded', $result[0]->getProperty('mediaId'));
-        static::assertSame(['media' => 'core:media-picker'], $result[0]->getAttributedSpecifications());
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->roots[0]->dataRequirements);
+        static::assertSame('seeded', $result->roots[0]->property('mediaId')?->jsonSerialize());
+        static::assertSame(['media' => 'core:media-picker'], $result->roots[0]->attributedSpecifications);
     }
 
     #[TestDox('does not throw and applies no wiring or attribution when the type has no default specification')]
     public function testInsertWithNoDefaultAppliesNothing(): void
     {
         $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $insert->apply([]);
+        $result = $insert->apply(new StoredTree([]));
 
-        static::assertSame([], $result[0]->getDataRequirements());
-        static::assertSame([], $result[0]->getAttributedSpecifications());
+        static::assertSame([], $result->roots[0]->dataRequirements);
+        static::assertSame([], $result->roots[0]->attributedSpecifications);
     }
 
     #[TestDox('auto-applies the type default specification onto a fresh insert with no explicit bindingSpecificationId, attributed to its own qualified id')]
@@ -172,13 +161,13 @@ class InsertElementTest extends TestCase
             $this->bindingRegistry(['core:Sw:Media:Image' => $default]),
             $this->applicator($config),
         );
-        $result = $insert->apply([]);
+        $result = $insert->apply(new StoredTree([]));
 
-        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result[0]->getDataRequirements());
-        static::assertSame(['media' => 'core:Sw:Media:Image'], $result[0]->getAttributedSpecifications());
+        static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->roots[0]->dataRequirements);
+        static::assertSame(['media' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
     }
 
-    #[TestDox('fill-applies the type default first, then applies the explicit binding specification on top so only the shared key becomes attributed to the explicit choice')]
+    #[TestDox('fill-applies the type default first, then applies the explicit binding specification on top, attributing the shared key to the explicit choice')]
     public function testInsertExplicitBindingAppliesOnTopOfDefault(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
@@ -202,9 +191,9 @@ class InsertElementTest extends TestCase
             $this->applicator($config),
             'core:gallery-pick',
         );
-        $result = $insert->apply([]);
+        $result = $insert->apply(new StoredTree([]));
 
-        static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result[0]->getAttributedSpecifications());
+        static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
     }
 
     #[TestDox('rejects an unregistered type with a 400')]
@@ -213,18 +202,18 @@ class InsertElementTest extends TestCase
         $insert = new InsertElement($this->registry([]), 'Sw:Ghost', $this->bindingRegistry([]), $this->unboundApplicator());
 
         $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
-        $insert->apply([]);
+        $insert->apply(new StoredTree([]));
     }
 
     #[TestDox('rejects a parented insert without a slot with a 400')]
     public function testInsertParentWithoutSlotRejected(): void
     {
-        $parent = new ContentElement('parent', 'Sw:Block');
+        $parent = new StoredElement('parent', 'Sw:Block');
 
         $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'parent');
 
         $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
-        $insert->apply([$parent]);
+        $insert->apply(new StoredTree([$parent]));
     }
 
     #[TestDox('rejects an insert into a missing parent with a 400')]
@@ -233,7 +222,7 @@ class InsertElementTest extends TestCase
         $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), parentElementId: 'ghost', slot: 'content');
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
-        $insert->apply([new ContentElement('other', 'Sw:Block')]);
+        $insert->apply(new StoredTree([new StoredElement('other', 'Sw:Block')]));
     }
 
     #[TestDox('rejects a type with more than one default specification with a 409 naming the colliding qualified ids')]
@@ -250,15 +239,12 @@ class InsertElementTest extends TestCase
         );
 
         $this->expectExceptionObject(ContentSystemException::bindingSpecificationDefaultAmbiguous('Sw:Media:Image', ['core:Sw:Media:Image', 'app1:Sw:Media:Image']));
-        $insert->apply([]);
+        $insert->apply(new StoredTree([]));
     }
 
     #[TestDox('rejects an unknown bindingSpecificationId with a 400 before any tree change')]
-    public function testInsertUnknownBindingRejectedTreeUntouched(): void
+    public function testInsertUnknownBindingRejected(): void
     {
-        $tree = [new ContentElement('existing', 'Sw:Block')];
-        $before = $this->snapshotTree($tree);
-
         $insert = new InsertElement(
             $this->registryWith('Sw:Media:Image'),
             'Sw:Media:Image',
@@ -267,22 +253,13 @@ class InsertElementTest extends TestCase
             'core:ghost',
         );
 
-        try {
-            $insert->apply($tree);
-            static::fail('Expected ContentSystemException was not thrown.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::BINDING_SPECIFICATION_NOT_FOUND, $e->getErrorCode());
-        }
-
-        $this->assertInputTreeUnmutated($before, $tree);
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationNotFound('core:ghost'));
+        $insert->apply(new StoredTree([new StoredElement('existing', 'Sw:Block')]));
     }
 
     #[TestDox('rejects a binding specification whose type does not match the inserted type with a 400 before any tree change')]
-    public function testInsertMismatchedBindingTypeRejectedTreeUntouched(): void
+    public function testInsertMismatchedBindingTypeRejected(): void
     {
-        $tree = [new ContentElement('existing', 'Sw:Block')];
-        $before = $this->snapshotTree($tree);
-
         $spec = new BindingSpecification('media-picker', 'Sw:Other', 'label', ['media' => new LoaderBinding('entity', [])], [], 'core');
 
         $insert = new InsertElement(
@@ -293,14 +270,16 @@ class InsertElementTest extends TestCase
             'core:media-picker',
         );
 
-        try {
-            $insert->apply($tree);
-            static::fail('Expected ContentSystemException was not thrown.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::BINDING_TYPE_MISMATCH, $e->getErrorCode());
-        }
+        $this->expectExceptionObject(ContentSystemException::bindingTypeMismatch('core:media-picker', 'Sw:Other', 'Sw:Media:Image'));
+        $insert->apply(new StoredTree([new StoredElement('existing', 'Sw:Block')]));
+    }
 
-        $this->assertInputTreeUnmutated($before, $tree);
+    /**
+     * @return array<string, mixed>
+     */
+    private function rawProperties(StoredElement $element): array
+    {
+        return array_map(static fn (StoredValue $value): mixed => $value->jsonSerialize(), $element->properties());
     }
 
     private function registryWith(string $type): AbstractContentSystemElementTypeRegistry

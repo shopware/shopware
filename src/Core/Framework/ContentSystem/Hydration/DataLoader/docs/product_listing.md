@@ -24,6 +24,7 @@ Loads product listings for a navigation/category. Filters, sorting, and paginati
 Config fields:
 - `property` (optional) - Property on this element containing the navigation/category ID. Defaults to `"navigationId"` if not specified.
 - `associations` (optional) - List of associations to load with the products
+- `associationOverride` (optional) - Names an element property holding a `list<string>` of further associations. `LoaderInputResolver` merges that list into `associations` before `load()` runs, so the loader reads the merged list under the `associations` key alone. Defaults to the property name `"associations"`
 
 After loading, access via element's `listing` property (the requirement key).
 

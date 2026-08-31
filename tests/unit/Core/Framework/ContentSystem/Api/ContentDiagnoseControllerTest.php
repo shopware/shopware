@@ -13,17 +13,32 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
+use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
+use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -43,7 +58,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning($analysis),
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
         );
 
         $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
@@ -61,7 +75,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning($analysis),
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
         );
 
         $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
@@ -72,22 +85,32 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame(ViolationCode::DuplicateElementId->value, $body['diagnostics']['violations'][0]['code']);
     }
 
-    #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
-    public function testDiagnoseMapsDecodeClientDefect(): void
+    #[TestDox('returns 200 with an embedded invalid_config violation for a draft element whose providers collide on a child-facing key')]
+    public function testDiagnoseEmbedsProviderDeliveryCollision(): void
     {
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('decodeElement')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
-
+        // The real diagnostics kernel runs here (not a stub): without the collision embedding in
+        // LayoutDiagnostics::analyze(), the context walk's providerDeliveryCollision would propagate raw
+        // and this request would fail instead of returning the violation in the 200 body.
         $controller = $this->controller(
-            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            serializer: $serializer,
+            diagnostics: $this->realDiagnostics(),
         );
 
-        $response = $controller->diagnose(new ContentDiagnoseRequest([['id' => 'el-1', 'component' => 'Sw:Block']]), Context::createDefaultContext());
+        $response = $controller->diagnose(new ContentDiagnoseRequest([[
+            'id' => 'el-1',
+            'component' => 'Sw:Block',
+            'providesContext' => [
+                'product' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 'item'],
+                'category' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 'item'],
+            ],
+        ]]), Context::createDefaultContext());
 
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $body = $this->decode($response);
         static::assertFalse($body['diagnostics']['wellFormed']);
-        static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
+        static::assertContains(
+            ViolationCode::InvalidConfig->value,
+            array_column($body['diagnostics']['violations'], 'code'),
+        );
     }
 
     #[TestDox('threads the root source context resolved from the registry into the diagnostics analysis')]
@@ -95,7 +118,7 @@ class ContentDiagnoseControllerTest extends TestCase
     {
         $rootContext = [new ProvidedContext(
             contextKey: 'product',
-            fqcn: ContentElement::class,
+            fqcn: StoredElement::class,
             contextType: ContextType::Single,
             providerElementId: null,
             distribution: DistributionStrategy::Broadcast,
@@ -116,7 +139,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $diagnostics,
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
             rootSourceRegistry: $registry,
         );
 
@@ -126,6 +148,28 @@ class ContentDiagnoseControllerTest extends TestCase
         );
 
         static::assertSame($rootContext, $threadedRootContext);
+    }
+
+    #[TestDox('maps a per-element decode client-defect to an invalid_config diagnostic without failing the request')]
+    public function testDiagnoseMapsDecodeClientDefect(): void
+    {
+        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $configProvider->method('decode')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
+
+        $controller = $this->controller(
+            diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
+            configProvider: $configProvider,
+        );
+
+        $response = $controller->diagnose(new ContentDiagnoseRequest([[
+            'id' => 'el-1',
+            'component' => 'Sw:Block',
+            'dataRequirements' => ['product' => ['source' => 'entity', 'config' => ['entity' => 'prodct']]],
+        ]]), Context::createDefaultContext());
+
+        $body = $this->decode($response);
+        static::assertFalse($body['diagnostics']['wellFormed']);
+        static::assertSame(ViolationCode::InvalidConfig->value, $body['diagnostics']['violations'][0]['code']);
     }
 
     #[TestDox('threads a null root context into the analysis when the registry resolves no bound source')]
@@ -146,7 +190,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $diagnostics,
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
             rootSourceRegistry: $registry,
         );
 
@@ -165,7 +208,6 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            serializer: $this->serializerDecoding(new ContentElement('el-1', 'Sw:Block')),
             rootSourceRegistry: $registry,
         );
 
@@ -185,7 +227,6 @@ class ContentDiagnoseControllerTest extends TestCase
     {
         $controller = $this->controller(
             diagnostics: $this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), [])),
-            serializer: static::createStub(ContentElementFieldSerializer::class),
         );
 
         try {
@@ -198,13 +239,21 @@ class ContentDiagnoseControllerTest extends TestCase
 
     private function controller(
         LayoutDiagnostics $diagnostics,
-        ContentElementFieldSerializer $serializer,
+        ?DataLoaderConfigSerializerProvider $configProvider = null,
         ?RootSourceRegistry $rootSourceRegistry = null,
     ): ContentDiagnoseController {
+        $decoder = new DraftLayoutDecoder(
+            new StoredElementCodec($configProvider ?? static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new StoredTreeStyleNormalizer(
+                new ElementStyleNormalizer(static::createStub(AbstractContentSystemStyleOptionRegistry::class), new BoxSpacingNormalizer())
+            ),
+            new ViolationConstraintMapper(),
+        );
+
         return new ContentDiagnoseController(
-            new DraftLayoutDecoder($serializer),
-            $diagnostics,
+            $decoder,
             $rootSourceRegistry ?? static::createStub(RootSourceRegistry::class),
+            $diagnostics,
         );
     }
 
@@ -216,12 +265,35 @@ class ContentDiagnoseControllerTest extends TestCase
         return $diagnostics;
     }
 
-    private function serializerDecoding(ContentElement $element): ContentElementFieldSerializer
+    /**
+     * A real diagnostics kernel over an empty loader map, so an analyze() call exercises the actual
+     * context walk (and its collision embedding) rather than a stub.
+     */
+    private function realDiagnostics(): LayoutDiagnostics
     {
-        $serializer = static::createStub(ContentElementFieldSerializer::class);
-        $serializer->method('decodeElement')->willReturn($element);
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => $name === 'Sw:Block');
+        $registry->method('get')->willReturn(ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')->build());
 
-        return $serializer;
+        $mapResolver = static::createStub(AbstractContentSystemDataLoaderMapResolver::class);
+        $mapResolver->method('resolve')->willReturn(new ContentSystemDataLoaderMap([], []));
+
+        $elementResolver = new ElementResolver(
+            $registry,
+            $mapResolver,
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            static::createStub(DataLoaderProvider::class),
+        );
+
+        return new LayoutDiagnostics(
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver()),
+            $elementResolver,
+            $registry,
+            new RootContextMapper(static::createStub(DataLoaderProvider::class)),
+            $mapResolver,
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            static::createStub(AbstractContentSystemStyleOptionRegistry::class),
+        );
     }
 
     /**

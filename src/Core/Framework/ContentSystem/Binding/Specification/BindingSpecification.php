@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Immutable artifact authored in YAML, representing one element type's pre-validated data wiring.
  *
- * @internal
- *
  * @phpstan-type BindingSpecificationSchema = array{
  *     id: string,
  *     type: string,

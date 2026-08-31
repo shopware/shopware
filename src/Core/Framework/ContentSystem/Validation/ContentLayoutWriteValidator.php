@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -23,6 +22,11 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * The per-step rationale — why membership is gated before resolvability, and why the edit path re-checks the
  * committed source — is inline in validateCommand().
  *
+ * The tree is not decoded here. The layout field serializer decoded it, admitted it through the write boundary
+ * and left it on the write `Context` ({@see LayoutWriteContext}), so this gate judges the tree that is about to
+ * be stored rather than a second decode of the same column. Reading the memo consumes it, on the skip path as
+ * well as the checking path, so a write that reaches this subscriber leaves nothing behind.
+ *
  * @internal
  *
  * @final
@@ -33,7 +37,6 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     public function __construct(
         private readonly LayoutGate $gate,
         private readonly ViolationConstraintMapper $violationMapper,
-        private readonly LayoutTreeDecoder $treeDecoder,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutRootSourceReader $rootSourceReader,
     ) {
@@ -50,8 +53,12 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     public function preValidate(PreWriteValidationEvent $event): void
     {
         $context = $event->getContext();
+        $extension = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
+        $memo = $extension instanceof LayoutWriteContext ? $extension : null;
 
         if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
+            $this->drain($memo, $event->getCommands());
+
             return;
         }
 
@@ -60,11 +67,11 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $this->validateCommand($event, $command, $context);
+            $this->validateCommand($event, $command, $context, $memo);
         }
     }
 
-    private function validateCommand(PreWriteValidationEvent $event, WriteCommand $command, Context $context): void
+    private function validateCommand(PreWriteValidationEvent $event, WriteCommand $command, Context $context, ?LayoutWriteContext $memo): void
     {
         $touchesLayout = $command->hasField(ContentLayoutDefinition::LAYOUT_FIELD);
         $setsRootSource = $command->hasField(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
@@ -77,11 +84,11 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         $violations = new ConstraintViolationList();
 
         // Step 1: well-formedness on the decoded tree (only when the write touches the layout column).
-        $tree = $touchesLayout ? $this->decodeTree($payload[ContentLayoutDefinition::LAYOUT_FIELD] ?? null, $violations) : null;
+        $tree = $touchesLayout ? $this->consume($memo, $command) : null;
 
         if ($tree !== null) {
             $violations->addAll($this->violationMapper->toConstraintViolationList(
-                $this->gate->wellFormedness($tree)->intrinsicErrors()
+                $this->gate->wellFormedness($tree->roots)->intrinsicErrors()
             ));
         }
 
@@ -123,7 +130,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
                     return;
                 }
 
-                $report = $this->gate->resolvability($tree, $this->rootSourceRegistry->resolve($rootSource, $context));
+                $report = $this->gate->resolvability($tree->roots, $this->rootSourceRegistry->resolve($rootSource, $context));
                 $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
             }
         }
@@ -132,22 +139,52 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     }
 
     /**
-     * @return list<ContentElement>|null null when the tree could not be decoded (an invalid_config violation was recorded)
+     * The tree this command's layout payload decoded to, taken out of the memo. Every command that writes the
+     * layout column put one there — the serializer memoizes before this event can fire, and a payload it could
+     * not decode aborted the write before any command existed. So an absent entry is a broken write path, not
+     * an input the gate could rule on: re-decoding the column instead would silently gate a tree other than the
+     * one the boundary produced, which is precisely the guarantee this gate exists to hold.
      */
-    private function decodeTree(mixed $value, ConstraintViolationList $violations): ?array
+    private function consume(?LayoutWriteContext $memo, WriteCommand $command): StoredTree
     {
-        try {
-            return $this->treeDecoder->decode($value);
-        } catch (ContentSystemException $exception) {
-            if (!ContentSystemException::isClientDefect($exception)) {
-                throw $exception;
+        $id = $command->getDecodedPrimaryKey()['id'] ?? null;
+        $tree = $memo === null || $id === null ? null : $memo->consume($command->getEntityName(), $id);
+
+        if ($tree === null) {
+            throw ContentSystemException::layoutWriteMemoMissing($command->getEntityName(), $command->getPath());
+        }
+
+        return $tree;
+    }
+
+    /**
+     * Consumes the memo entries of this event's layout commands without gating them, for the skip-state path.
+     * The state suppresses the checks; it does not make the write's memoized trees somebody else's to clear.
+     *
+     * @param list<WriteCommand> $commands
+     */
+    private function drain(?LayoutWriteContext $memo, array $commands): void
+    {
+        if ($memo === null) {
+            return;
+        }
+
+        foreach ($commands as $command) {
+            if ($command->getEntityName() !== ContentLayoutDefinition::ENTITY_NAME) {
+                continue;
             }
 
-            $violations->addAll($this->violationMapper->toConstraintViolationList([
-                new Violation(ViolationCode::InvalidConfig, '', null, $exception->getMessage()),
-            ]));
+            if (!$command->hasField(ContentLayoutDefinition::LAYOUT_FIELD)) {
+                continue;
+            }
 
-            return null;
+            $id = $command->getDecodedPrimaryKey()['id'] ?? null;
+
+            if ($id === null) {
+                continue;
+            }
+
+            $memo->consume($command->getEntityName(), $id);
         }
     }
 

@@ -6,5 +6,5 @@
 
 - Multi-root layouts: context is tree-scoped, not layout-scoped
 - Element IDs unique across all roots (partial rendering searches all)
-- Placeholders (`{{key}}`) resolved in single pass — no recursive resolution
+- Placeholders (`{{key}}`) resolved in single pass on the stored tree, in FULL mode only (`Scaffolding/StoredTreePreparer`) — no recursive resolution, and no descent into a list or map property value
 - Field/ serializers are infrastructure — only interact in EntityDefinition classes

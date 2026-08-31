@@ -11,7 +11,8 @@ use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\RenderedElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -31,50 +32,52 @@ class PartialRendererTest extends TestCase
         );
     }
 
-    #[TestDox('prunes to target element, catching exceptions for roots where target is not found')]
-    public function testPruneToTargetCatchesExceptionsAndContinues(): void
+    #[TestDox('prunes to the target element, skipping the roots that do not contain it')]
+    public function testPruneToTargetSkipsRootsWithoutTheTarget(): void
     {
-        $root1 = ContentElementBuilder::create('section', 'r1')->build();
+        $root1 = StoredElementBuilder::create('section', 'r1')
+            ->withSlot('default', [StoredElementBuilder::create('text', 'bystander')->build()])
+            ->build();
 
-        $target = ContentElementBuilder::create('text', 'target')->build();
-        $root2 = ContentElementBuilder::create('section', 'r2')
+        $target = StoredElementBuilder::create('text', 'target')->build();
+        $root2 = StoredElementBuilder::create('section', 'r2')
             ->withSlot('default', [$target])
             ->build();
 
         $result = $this->renderer->pruneToTarget([$root1, $root2], 'target');
 
         static::assertCount(1, $result);
-        static::assertSame('target', $result[0]->getId());
+        static::assertSame('target', $result[0]->id);
+    }
+
+    #[TestDox('extracts target from first element containing it')]
+    public function testExtractTargetReturnsFirstMatch(): void
+    {
+        $target = RenderedElementBuilder::create('text', 'target')->build();
+        $root1 = RenderedElementBuilder::create('section', 'r1')
+            ->withSlot('default', [$target])
+            ->build();
+        $root2 = RenderedElementBuilder::create('section', 'r2')->build();
+
+        $result = $this->renderer->extractTarget([$root1, $root2], 'target');
+
+        static::assertSame('target', $result->id);
     }
 
     #[TestDox('returns empty array when target not found in any root during pruning')]
     public function testPruneToTargetReturnsEmptyWhenNotFoundInAnyRoot(): void
     {
-        $root = ContentElementBuilder::create('section', 'r1')->build();
+        $root = StoredElementBuilder::create('section', 'r1')->build();
 
         $result = $this->renderer->pruneToTarget([$root], 'nonexistent');
 
         static::assertSame([], $result);
     }
 
-    #[TestDox('extracts target from first element containing it')]
-    public function testExtractTargetReturnsFirstMatch(): void
-    {
-        $target = ContentElementBuilder::create('text', 'target')->build();
-        $root1 = ContentElementBuilder::create('section', 'r1')
-            ->withSlot('default', [$target])
-            ->build();
-        $root2 = ContentElementBuilder::create('section', 'r2')->build();
-
-        $result = $this->renderer->extractTarget([$root1, $root2], 'target');
-
-        static::assertSame('target', $result->getId());
-    }
-
     #[TestDox('throws when target element not found in any root during extraction')]
     public function testExtractTargetThrowsWhenNotFound(): void
     {
-        $root = ContentElementBuilder::create('section', 'r1')->build();
+        $root = RenderedElementBuilder::create('section', 'r1')->build();
 
         $this->expectExceptionObject(ContentSystemException::elementNotFound('missing-id'));
 

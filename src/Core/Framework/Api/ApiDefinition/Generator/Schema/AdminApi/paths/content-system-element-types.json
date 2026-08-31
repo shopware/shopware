@@ -26,7 +26,7 @@
                                             "type": "array",
                                             "items": {
                                                 "type": "object",
-                                                "required": ["name", "label", "description", "source", "icon", "category", "copilot", "properties", "slots", "bindingSpecifications"],
+                                                "required": ["name", "label", "description", "source", "icon", "category", "copilot", "properties", "slots", "bindingSpecifications", "storageSchema"],
                                                 "properties": {
                                                     "name": {
                                                         "type": "string",
@@ -204,6 +204,33 @@
                                                                             }
                                                                         }
                                                                     }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "storageSchema": {
+                                                        "type": "object",
+                                                        "description": "Map of stored key to its storage-schema entry: what an element of this type STORES, as opposed to `properties`, which is the hydrated output schema. Encodes as `{}` when the type stores nothing.",
+                                                        "additionalProperties": {
+                                                            "type": "object",
+                                                            "required": ["kind", "type", "required"],
+                                                            "properties": {
+                                                                "kind": {
+                                                                    "type": "string",
+                                                                    "enum": ["property", "resolvedByStorage", "config"],
+                                                                    "description": "Where the entry comes from. `property`: a primitive property declared by the type, stored under its own key. `resolvedByStorage`: the storage key a `resolvedBy` reference property resolves through, contributed by the type's synthesized default binding specification. `config`: a stored key named by any other propertyReference config key of a binding specification's loader wiring."
+                                                                },
+                                                                "type": {
+                                                                    "type": "string",
+                                                                    "description": "The type of the stored value: a primitive type name (`string`, `integer`, `number`, `boolean`) on a `property` entry, `string` or `list<string>` on a `resolvedByStorage` or `config` entry."
+                                                                },
+                                                                "required": {
+                                                                    "type": "boolean",
+                                                                    "description": "Whether a value must be stored under this key."
+                                                                },
+                                                                "default": {
+                                                                    "type": ["string", "integer", "number", "boolean"],
+                                                                    "description": "The default stored value. Present only on a `property` entry whose property declares a default, and never on a `resolvedByStorage` or `config` entry, because a config key's default is a reference token (a property name) rather than a stored value."
                                                                 }
                                                             }
                                                         }

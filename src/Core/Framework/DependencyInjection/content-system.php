@@ -38,16 +38,8 @@ use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PostHydration\PartialRenderingExtractionSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PostHydration\VirtualRootCleanupSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\PartialRenderingPreparationSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\PlaceholderResolutionSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\RedistributeExpansionSubscriber;
-use Shopware\Core\Framework\ContentSystem\Event\Listener\PreHydration\VirtualRootPreparationSubscriber;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
-use Shopware\Core\Framework\ContentSystem\Hydration\ContentElementHydrator;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\DataContextResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
@@ -55,7 +47,15 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionL
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\BoxSpacingNormalizer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\DatabaseStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\CachedContentSystemStyleOptionRegistry;
@@ -64,15 +64,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextConsumersFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContextProvidersFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\DataRequirementsFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementStyleFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -80,16 +77,32 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDecomposedPageEncoder;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentPageEncoder;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentResponseEncodingListener;
+use Shopware\Core\Framework\ContentSystem\Output\Encoder\ResolvedValueIndexEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DataResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\DecomposedResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\FullResponseFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Format\SkeletonResponseFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\Output\SubTreeExtractor;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
+use Shopware\Core\Framework\ContentSystem\Rendering\ElementDataResolver;
+use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElementFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedTreeFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoader;
@@ -99,9 +112,9 @@ use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWrit
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutTreeDecoder;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -122,6 +135,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Scaffolding Services
     $services->set(VirtualRootWrapper::class);
+    $services->set(StoredTreePreparer::class)
+        ->args([
+            service(VirtualRootWrapper::class),
+            service(PartialRenderer::class),
+        ]);
 
     // Output Services
     $services->set(PartialRenderer::class)
@@ -131,101 +149,42 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SubTreeExtractor::class),
         ]);
 
-    // Event Listeners (Hydration Pipeline)
-    // Pre-Hydration Listeners
-    $services->set(VirtualRootPreparationSubscriber::class)
-        ->args([
-            service(VirtualRootWrapper::class),
-        ])
-        ->tag('kernel.event_listener');
-
-    $services->set(PlaceholderResolutionSubscriber::class)
-        ->tag('kernel.event_listener');
-
-    $services->set(RedistributeExpansionSubscriber::class)
-        ->tag('kernel.event_listener');
-
-    $services->set(PartialRenderingPreparationSubscriber::class)
-        ->args([
-            service(PartialRenderer::class),
-        ])
-        ->tag('kernel.event_listener');
-
-    // Post-Hydration Listeners
-    $services->set(VirtualRootCleanupSubscriber::class)
-        ->args([
-            service(VirtualRootWrapper::class),
-        ])
-        ->tag('kernel.event_listener');
-
-    $services->set(PartialRenderingExtractionSubscriber::class)
-        ->args([
-            service(PartialRenderer::class),
-        ])
-        ->tag('kernel.event_listener');
-
     // Field Serializers
-    $services->set(DataRequirementsFieldSerializer::class)
+    $services->set(StoredElementListFieldSerializer::class)
         ->args([
             service(ValidatorInterface::class),
             service(DefinitionInstanceRegistry::class),
+            service(StoredTreeCodec::class),
+            service(ViolationConstraintMapper::class),
+            service(LayoutWriteBoundary::class),
+            service(StoredTreeConstraints::class),
+        ])
+        ->tag('shopware.field_serializer');
+
+    // Both directions of the stored forest's wire shape
+    $services->set(StoredElementCodec::class)
+        ->args([
             service(DataLoaderConfigSerializerProvider::class),
-        ])
-        ->tag('shopware.field_serializer');
+        ]);
 
-    $services->set(ContextProvidersFieldSerializer::class)
+    $services->set(StoredTreeCodec::class)
         ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-        ])
-        ->tag('shopware.field_serializer');
+            service(StoredElementCodec::class),
+        ]);
 
-    $services->set(ContextConsumersFieldSerializer::class)
+    // The write-time constraint descriptor over that same wire shape
+    $services->set(StoredTreeConstraints::class)
         ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-        ])
-        ->tag('shopware.field_serializer');
-
-    $services->set(ElementSlotsFieldSerializer::class)
-        ->lazy()
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-            service(ContentElementFieldSerializer::class),
-        ])
-        ->tag('shopware.field_serializer');
-
-    $services->set(ElementStyleFieldSerializer::class)
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
             service(ContentSystemStyleOptionRegistry::class),
             service(StyleOptionConstraintDeriver::class),
-        ])
-        ->tag('shopware.field_serializer');
+        ]);
 
-    $services->set(ContentElementFieldSerializer::class)
+    // The descriptor's one element-type-aware rule: a stored property value agrees with its declared type
+    $services->set(PropertyTypeConformanceValidator::class)
         ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-            service(DataRequirementsFieldSerializer::class),
-            service(ContextProvidersFieldSerializer::class),
-            service(ContextConsumersFieldSerializer::class),
-            service(ElementSlotsFieldSerializer::class),
-            service(ElementStyleFieldSerializer::class),
+            service(ContentSystemElementTypeRegistry::class),
         ])
-        ->tag('shopware.field_serializer');
-
-    $services->set(ContentElementListFieldSerializer::class)
-        ->args([
-            service(ValidatorInterface::class),
-            service(DefinitionInstanceRegistry::class),
-            service(ContentElementFieldSerializer::class),
-            service(LayoutDefaultSeeder::class),
-            service(AttributionReconciler::class),
-        ])
-        ->tag('shopware.field_serializer');
+        ->tag('validator.constraint_validator');
 
     // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
     $services->set(PrimitiveDefaultProvider::class);
@@ -234,6 +193,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContentSystemElementTypeRegistry::class),
             service(PrimitiveDefaultProvider::class),
+        ]);
+
+    // The forest-wide style pass, shared by the write boundary and the draft decode so the two cannot drift
+    $services->set(StoredTreeStyleNormalizer::class)
+        ->args([
+            service(ElementStyleNormalizer::class),
+        ]);
+
+    // The single admission point for a layout write: seed type defaults, normalize style, reconcile attribution
+    $services->set(LayoutWriteBoundary::class)
+        ->args([
+            service(LayoutDefaultSeeder::class),
+            service(StoredTreeStyleNormalizer::class),
+            service(AttributionReconciler::class),
         ]);
 
     // Content Data Loaders
@@ -278,12 +251,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Config canonicalization for structural comparison (dedup hash, attribution reconciliation)
     $services->set(ConfigCanonicalizer::class);
 
-    // Data Context Resolution
-    $services->set(DataContextResolver::class)
-        ->args([
-            service(ContextPathResolver::class),
-        ]);
-
     // Context Path Resolver
     $services->set(ContextPathResolver::class);
 
@@ -305,14 +272,66 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_listener');
 
     // Hydration Services
-    $services->set(ContentElementHydrator::class)
+    $services->set(LoaderInputResolver::class);
+
+    // Render Layers (stored forest -> rendered forest)
+    $services->set(RenderedElementFactory::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+        ]);
+
+    $services->set(ElementDataResolver::class)
         ->args([
             service(DataLoaderProvider::class),
-            service(DataContextResolver::class),
+            service(LoaderInputResolver::class),
+            service(LoaderValueIdentityFactory::class),
+        ]);
+
+    $services->set(ValueFingerprinter::class);
+
+    $services->set(LoaderValueIdentityFactory::class)
+        ->args([
+            service(DataLoaderConfigSerializerProvider::class),
+            service(ConfigCanonicalizer::class),
+            service(ValueFingerprinter::class),
+        ]);
+
+    $services->set(ResolvedValueIndexFactory::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(ValueFingerprinter::class),
+        ]);
+
+    $services->set(ContextDistributor::class)
+        ->args([
+            service(ContextPathResolver::class),
+        ]);
+
+    $services->set(ContextDeliveryResolver::class)
+        ->args([
+            service(ContextDistributor::class),
+        ]);
+
+    $services->set(RenderedTreeFactory::class)
+        ->args([
+            service(RenderedElementFactory::class),
+        ]);
+
+    $services->set(ElementLowering::class)
+        ->args([
+            service(ElementDataResolver::class),
+            service(ContextDeliveryResolver::class),
+            service(RenderedTreeFactory::class),
+        ]);
+
+    $services->set(WiringPlanner::class)
+        ->args([
+            service(ProviderDeliveryKeyResolver::class),
         ]);
 
     // Layout Context Utilities
     $services->set(ContextDependencyAnalyzer::class);
+    $services->set(ProviderDeliveryKeyResolver::class);
 
     // Output Services (Post-Hydration Processing)
     $services->set(ElementTreePruner::class);
@@ -338,8 +357,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentPipeline::class)
         ->public()
         ->args([
-            service(ContentElementHydrator::class),
             service('event_dispatcher'),
+            service(StoredTreePreparer::class),
+            service(WiringPlanner::class),
+            service(ElementLowering::class),
+            service(VirtualRootWrapper::class),
+            service(PartialRenderer::class),
+            service(ResolvedValueIndexFactory::class),
         ]);
 
     // Rendering Specification Factory
@@ -361,18 +385,40 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('content_system.output_format', ['format' => 'skeleton']);
 
     $services->set(DataResponseFactory::class)
-        ->args([
-            service(DataLoaderConfigSerializerProvider::class),
-            service(ConfigCanonicalizer::class),
-        ])
         ->tag('content_system.output_format', ['format' => 'data']);
 
     $services->set(DecomposedResponseFactory::class)
-        ->args([
-            service(DataLoaderConfigSerializerProvider::class),
-            service(ConfigCanonicalizer::class),
-        ])
         ->tag('content_system.output_format', ['format' => 'decomposed']);
+
+    // Response Encoding (module-owned wire shape)
+    $services->set(ContentPageEncoder::class)
+        ->args([
+            service(StructEncoder::class),
+        ]);
+
+    // The two index-reading formats (decomposed, data) share this encoding of the resolved value index
+    $services->set(ResolvedValueIndexEncoder::class)
+        ->args([
+            service(StructEncoder::class),
+        ]);
+
+    $services->set(ContentDecomposedPageEncoder::class)
+        ->args([
+            service(ResolvedValueIndexEncoder::class),
+        ]);
+
+    $services->set(ContentDataPageEncoder::class)
+        ->args([
+            service(ResolvedValueIndexEncoder::class),
+        ]);
+
+    $services->set(ContentResponseEncodingListener::class)
+        ->args([
+            service(ContentPageEncoder::class),
+            service(ContentDecomposedPageEncoder::class),
+            service(ContentDataPageEncoder::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     // Schema Services
     $services->set(ContentSystemDataLoaderMapResolver::class)
@@ -466,6 +512,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('cache.system'),
         ]);
 
+    $services->set(BoxSpacingNormalizer::class);
+
+    $services->set(ElementStyleNormalizer::class)
+        ->args([
+            service(ContentSystemStyleOptionRegistry::class),
+            service(BoxSpacingNormalizer::class),
+        ]);
+
     // Binding Specification System
     $services->set(BindingSpecificationSerializer::class);
 
@@ -535,6 +589,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
         ]);
 
+    // What an element type stores (as opposed to its hydrated properties): the storageSchema introspection fold
+    $services->set(StoredSchemaResolver::class)
+        ->args([
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service(DataLoaderProvider::class),
+        ]);
+
     // Root-source authority: the valid set of root sources (entity types + sections + none) and their resolution
     $services->set(NoneSpecificationSource::class);
 
@@ -558,6 +619,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContentSystemElementTypeRegistry::class),
             service(ElementResolver::class),
+            service(ProviderDeliveryKeyResolver::class),
         ]);
 
     $services->set(ElementResolver::class)
@@ -581,6 +643,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RootContextMapper::class),
             service(ContentSystemDataLoaderMapResolver::class),
             service(DataLoaderConfigSerializerProvider::class),
+            service(ContentSystemStyleOptionRegistry::class),
         ]);
 
     $services->set(LayoutGate::class)
@@ -589,12 +652,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(ViolationConstraintMapper::class);
-
-    $services->set(LayoutTreeDecoder::class)
-        ->args([
-            service(ContentLayoutDefinition::class),
-            service(ContentElementListFieldSerializer::class),
-        ]);
 
     // Shared read of a layout's immutable root source (in-flight write batch first, then committed row)
     $services->set(LayoutRootSourceReader::class)
@@ -607,7 +664,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(LayoutGate::class),
             service(ViolationConstraintMapper::class),
-            service(LayoutTreeDecoder::class),
             service(RootSourceRegistry::class),
             service(LayoutRootSourceReader::class),
         ])
@@ -623,7 +679,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Shared draft-layout decode (structural gate) for the preview, diagnose and mutation routes
     $services->set(DraftLayoutDecoder::class)
         ->args([
-            service(ContentElementFieldSerializer::class),
+            service(StoredElementCodec::class),
+            service(StoredTreeStyleNormalizer::class),
+            service(ViolationConstraintMapper::class),
         ]);
 
     // Remaps the serializer's ExtraAttributesException to a content-system 400 for the strict-mapped admin routes
@@ -641,8 +699,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(DraftLayoutDecoder::class),
-            service(LayoutDiagnostics::class),
             service(RootSourceRegistry::class),
+            service(LayoutDiagnostics::class),
         ]);
 
     $services->set(ContentPreviewPageBuilder::class)
@@ -664,7 +722,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(ContentPreviewPageBuilder::class),
-            service(FullResponseFactory::class),
             service(ContentPreviewPayloadStore::class),
         ]);
 
@@ -682,7 +739,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MutationPipeline::class),
             service(ContentSystemElementTypeRegistry::class),
             service(RootSourceRegistry::class),
-            service(ContentElementFieldSerializer::class),
+            service(StoredElementCodec::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
         ]);
@@ -692,7 +749,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('lock.factory'),
             service('content_layout.repository'),
-            service(ContentElementFieldSerializer::class),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
         ]);
@@ -703,7 +759,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(PersistedLayoutMutator::class),
             service(ContentSystemElementTypeRegistry::class),
-            service(ContentElementFieldSerializer::class),
+            service(StoredElementCodec::class),
             service(DraftLayoutDecoder::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),

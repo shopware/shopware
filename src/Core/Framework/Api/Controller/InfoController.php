@@ -22,6 +22,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\Abstract
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -49,6 +50,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @phpstan-import-type StyleOptionSchema from StyleOptionSpecification
  * @phpstan-import-type BindingSpecificationSchema from BindingSpecification
+ * @phpstan-import-type StoredSchemaEntry from StoredSchemaResolver
  */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -76,6 +78,7 @@ class InfoController extends AbstractController
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry,
+        private readonly StoredSchemaResolver $storedSchemaResolver,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
     ) {
@@ -303,12 +306,18 @@ class InfoController extends AbstractController
      * bindingSpecifications are folded into each type entry (mirrors the styleOptions precedent), keyed by
      * source-qualified id. Cast to an object so a type with none serializes {} (the OpenAPI type: object), not [].
      *
-     * @return array<string, mixed> the type's ElementTypeSchema plus the folded bindingSpecifications object
+     * storageSchema is folded in the same way, keyed by stored key: what an element of this type stores, as
+     * opposed to the spec's own properties, which is the hydrated output schema. Cast to an object so a type
+     * that stores nothing serializes {} (the OpenAPI type: object), not [].
+     *
+     * @return array<string, mixed> the type's ElementTypeSchema plus the folded bindingSpecifications and
+     *                              storageSchema objects
      */
     private function elementTypeSchema(ContentSystemElementTypeSpecification $def): array
     {
         $schema = $def->toSchema();
         $schema['bindingSpecifications'] = (object) $this->bindingSpecificationSchemasForType($def->name());
+        $schema['storageSchema'] = (object) $this->storedSchemaResolver->resolve($def);
 
         return $schema;
     }

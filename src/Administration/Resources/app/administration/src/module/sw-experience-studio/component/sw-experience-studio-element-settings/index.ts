@@ -1,4 +1,4 @@
-import type { ContentElementNode } from '../../types/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
@@ -31,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: null,
         },
         selectedElement: {
-            type: Object,
+            type: Object as PropType<ContentElementNode | null>,
             required: false,
             default: null,
         },
@@ -110,9 +110,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         elementPropertyValues(): Record<string, unknown> {
-            const selectedElement = this.selectedElement as ContentElementNode | null;
             const typeSpecification = this.selectedElementType as ContentSystemElementTypeSpecification | null;
-            const properties = selectedElement?.properties ?? {};
+            const properties = this.selectedElement?.properties ?? {};
             const values = { ...properties };
 
             if (!typeSpecification) {
@@ -131,14 +130,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         elementStyleValues(): Record<string, unknown> {
-            const selectedElement = this.selectedElement as ContentElementNode | null;
-
-            return selectedElement?.style ?? {};
+            return this.selectedElement?.style ?? {};
         },
 
         elementFields(): SettingsFieldDefinition[] {
             const typeSpecification = this.selectedElementType as ContentSystemElementTypeSpecification | null;
-            const selectedElement = this.selectedElement as ContentElementNode | null;
+            const selectedElement = this.selectedElement;
 
             if (!typeSpecification) {
                 return [];
@@ -235,7 +232,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onUpdateElementField(payload: { key: string; value: unknown }): void {
-            const selectedElement = this.selectedElement as ContentElementNode | null;
+            const selectedElement = this.selectedElement;
 
             if (!selectedElement || !this.allowEdit) {
                 return;
@@ -255,7 +252,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onUpdateLayoutField(payload: { key: string; value: unknown }): void {
-            const selectedElement = this.selectedElement as ContentElementNode | null;
+            const selectedElement = this.selectedElement;
 
             if (!selectedElement || !this.allowEdit) {
                 return;

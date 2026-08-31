@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
@@ -25,7 +26,7 @@ final class BindElement extends AbstractLayoutMutation
     ) {
     }
 
-    public function apply(array $tree): array
+    public function apply(StoredTree $tree): StoredTree
     {
         $specification = $this->registry->get($this->bindingSpecificationId);
 
@@ -33,21 +34,21 @@ final class BindElement extends AbstractLayoutMutation
             throw ContentSystemException::bindingSpecificationNotFound($this->bindingSpecificationId);
         }
 
-        $node = $this->findNode($tree, $this->elementId);
+        $node = $tree->find($this->elementId);
 
         if ($node === null) {
             throw ContentSystemException::mutationTargetNotFound($this->elementId);
         }
 
-        if ($specification->type() !== $node->getComponent()) {
-            throw ContentSystemException::bindingTypeMismatch($this->bindingSpecificationId, $specification->type(), $node->getComponent());
+        if ($specification->type() !== $node->component) {
+            throw ContentSystemException::bindingTypeMismatch($this->bindingSpecificationId, $specification->type(), $node->component);
         }
 
         $replacement = $this->applicator->apply($node, $specification, $this->bindingSpecificationId);
 
-        $result = $this->replaceNode($tree, $this->elementId, $replacement);
+        $result = $tree->replace($this->elementId, $replacement);
 
-        $this->affected = [$replacement->getId()];
+        $this->affected = [$replacement->id];
 
         return $result;
     }

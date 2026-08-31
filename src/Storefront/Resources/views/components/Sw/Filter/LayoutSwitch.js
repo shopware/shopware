@@ -1,7 +1,7 @@
 export default class LayoutSwitch extends ShopwareComponent {
 
     static options = {
-        paramName: 'layout',
+        paramName: 'listingLayout',
     };
 
     init() {

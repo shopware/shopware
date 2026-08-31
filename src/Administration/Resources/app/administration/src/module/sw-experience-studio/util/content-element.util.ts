@@ -1,7 +1,5 @@
-import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import type { ContentSystemPropertyResolution } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
-import type { ContentElementNode } from '../types/content-element.types';
-import { normalizeElementStyleForWrite } from './style-settings.util';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -19,7 +17,10 @@ export function applyResolvedContextConsumers(
     layout: ContentElementNode[],
     resolutions: Record<string, ContentSystemPropertyResolution[]>,
 ): void {
-    for (const [elementId, propertyResolutions] of Object.entries(resolutions)) {
+    for (const [
+        elementId,
+        propertyResolutions,
+    ] of Object.entries(resolutions)) {
         const location = findElementLocation(layout, elementId);
         const node = location?.elements[location.index];
 
@@ -70,10 +71,7 @@ export interface ElementLocation {
  * @private
  * @sw-package discovery
  */
-export function findElementLocation(
-    layout: ContentElementNode[],
-    elementId: string,
-): ElementLocation | null {
+export function findElementLocation(layout: ContentElementNode[], elementId: string): ElementLocation | null {
     const rootIndex = layout.findIndex((element) => element.id === elementId);
 
     if (rootIndex !== -1) {
@@ -92,40 +90,6 @@ export function findElementLocation(
     }
 
     return null;
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function sanitizeContentElementForWrite(
-    element: ContentElementNode,
-    styleOptions?: Record<string, ContentSystemStyleOptionSpecification>,
-): ContentElementNode {
-    const sanitized: ContentElementNode = {
-        id: element.id,
-        component: element.component,
-    };
-
-    copyWritableContentElementFields(
-        element,
-        sanitized,
-        (slotElements) => slotElements.map((slotElement) => sanitizeContentElementForWrite(slotElement, styleOptions)),
-        styleOptions,
-    );
-
-    return sanitized;
-}
-
-/**
- * @private
- * @sw-package discovery
- */
-export function sanitizeContentElementLayoutForWrite(
-    layout: ContentElementNode[],
-    styleOptions?: Record<string, ContentSystemStyleOptionSpecification>,
-): ContentElementNode[] {
-    return layout.map((element) => sanitizeContentElementForWrite(element, styleOptions));
 }
 
 /**
@@ -183,7 +147,10 @@ export function updateElementStyleInLayout(
         ...cloneDeep(style),
     };
 
-    for (const [key, value] of Object.entries(style)) {
+    for (const [
+        key,
+        value,
+    ] of Object.entries(style)) {
         if (value === null || value === undefined) {
             delete element.style[key];
         }
@@ -196,52 +163,7 @@ export function updateElementStyleInLayout(
     return true;
 }
 
-function copyWritableContentElementFields(
-    source: ContentElementNode,
-    target: ContentElementNode,
-    mapSlotElements: (slotElements: ContentElementNode[]) => ContentElementNode[],
-    styleOptions?: Record<string, ContentSystemStyleOptionSpecification>,
-): void {
-    if (source.properties !== undefined) {
-        target.properties = cloneDeep(source.properties);
-    }
-
-    if (source.style !== undefined) {
-        const style = cloneDeep(source.style);
-        const normalizedStyle = styleOptions
-            ? normalizeElementStyleForWrite(style, styleOptions)
-            : style;
-
-        if (normalizedStyle !== undefined) {
-            target.style = normalizedStyle;
-        }
-    }
-
-    if (source.dataRequirements !== undefined) {
-        target.dataRequirements = cloneDeep(source.dataRequirements);
-    }
-
-    if (source.providesContext !== undefined) {
-        target.providesContext = cloneDeep(source.providesContext);
-    }
-
-    if (source.acceptsContext !== undefined) {
-        target.acceptsContext = cloneDeep(source.acceptsContext);
-    }
-
-    if (source.slots) {
-        target.slots = {};
-
-        for (const [slotName, slotElements] of Object.entries(source.slots)) {
-            target.slots[slotName] = mapSlotElements(slotElements);
-        }
-    }
-}
-
-function findElementLocationInElement(
-    parent: ContentElementNode,
-    elementId: string,
-): ElementLocation | null {
+function findElementLocationInElement(parent: ContentElementNode, elementId: string): ElementLocation | null {
     const slots = parent.slots ?? {};
 
     for (const slotElements of Object.values(slots)) {

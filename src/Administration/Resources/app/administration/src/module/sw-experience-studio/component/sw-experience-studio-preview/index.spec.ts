@@ -1,3 +1,4 @@
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import previewComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-preview', () => {
@@ -23,9 +24,13 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
     it('triggers a reload when suspend flag switches off', () => {
         const debouncedLoadPreview = jest.fn();
 
-        watchers.suspendAutoReload.call({
-            debouncedLoadPreview,
-        }, false, true);
+        watchers.suspendAutoReload.call(
+            {
+                debouncedLoadPreview,
+            },
+            false,
+            true,
+        );
 
         expect(debouncedLoadPreview).toHaveBeenCalledTimes(1);
     });
@@ -37,16 +42,22 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
             origin: 'https://storefront.local',
         } as MessageEvent;
 
-        const trusted = methods.isTrustedPreviewMessage.call({
-            getActiveFrameElement: () => ({ contentWindow: frameWindow }),
-            getActiveFrameOrigin: () => 'https://storefront.local',
-        }, event);
+        const trusted = methods.isTrustedPreviewMessage.call(
+            {
+                getActiveFrameElement: () => ({ contentWindow: frameWindow }),
+                getActiveFrameOrigin: () => 'https://storefront.local',
+            },
+            event,
+        );
         expect(trusted).toBe(true);
 
-        const untrusted = methods.isTrustedPreviewMessage.call({
-            getActiveFrameElement: () => ({ contentWindow: frameWindow }),
-            getActiveFrameOrigin: () => 'https://other.local',
-        }, event);
+        const untrusted = methods.isTrustedPreviewMessage.call(
+            {
+                getActiveFrameElement: () => ({ contentWindow: frameWindow }),
+                getActiveFrameOrigin: () => 'https://other.local',
+            },
+            event,
+        );
         expect(untrusted).toBe(false);
     });
 
@@ -103,6 +114,54 @@ describe('module/sw-experience-studio/component/sw-experience-studio-preview', (
         expect(result).toEqual({
             top: 99,
             left: 12,
+        });
+    });
+
+    it('carries attributed specification values into the preview request body', async () => {
+        const requestBodies: { layout: ContentElementNode[] }[] = [];
+        const previewEntityUrl = jest.fn((payload: { layout: ContentElementNode[] }) => {
+            requestBodies.push(payload);
+
+            return Promise.resolve('https://storefront.local/preview');
+        });
+
+        // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+        Shopware.Service().register('contentSystemPreviewService', () => ({
+            previewEntityUrl,
+        }));
+
+        const element: ContentElementNode = {
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            attributedSpecifications: {
+                'Sw:Content:Text': 'SwagBlog',
+                headline: 'SwagPromotion',
+            },
+        };
+
+        const vm = {
+            layout: {
+                layout: [element],
+            },
+            salesChannelId: 'sales-channel-1',
+            entityType: 'product',
+            entityId: 'product-1',
+            latestRequestId: 0,
+            isPreviewLoading: false,
+            previewLoadError: null as string | null,
+            pendingScrollPosition: null,
+            hasAnyPreviewFrame: false,
+            resetPreviewFrames: jest.fn(),
+            requestActiveFrameScrollPosition: jest.fn().mockResolvedValue(null),
+            assignLoadingFrame: jest.fn(),
+        };
+
+        await methods.loadPreview.call(vm);
+
+        expect(requestBodies).toHaveLength(1);
+        expect(requestBodies[0].layout[0].attributedSpecifications).toEqual({
+            'Sw:Content:Text': 'SwagBlog',
+            headline: 'SwagPromotion',
         });
     });
 });

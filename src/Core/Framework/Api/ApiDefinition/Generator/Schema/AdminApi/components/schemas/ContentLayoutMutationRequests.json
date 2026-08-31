@@ -13,7 +13,7 @@
                         "type": "array",
                         "description": "The current draft element tree the edit is applied to. Defaults to an empty tree.",
                         "items": {
-                            "$ref": "#/components/schemas/ContentElement"
+                            "$ref": "#/components/schemas/StoredContentElement"
                         },
                         "default": []
                     },
@@ -245,7 +245,7 @@
                         "properties": {
                             "element": {
                                 "allOf": [
-                                    { "$ref": "#/components/schemas/ContentElement" }
+                                    { "$ref": "#/components/schemas/StoredContentElement" }
                                 ],
                                 "description": "The element subtree to splice in (for example an `orphaned` subtree from an earlier edit, or a copy). Every id in it is re-minted server-side; the placed ids are returned in `affectedElementIds`."
                             },
@@ -501,7 +501,7 @@
                         "properties": {
                             "element": {
                                 "allOf": [
-                                    { "$ref": "#/components/schemas/ContentElement" }
+                                    { "$ref": "#/components/schemas/StoredContentElement" }
                                 ],
                                 "description": "The element subtree to splice in (for example an `orphaned` subtree from an earlier edit, or a copy). Every id in it is re-minted server-side; the placed ids are returned in `affectedElementIds`."
                             },
@@ -560,7 +560,7 @@
                         "type": "array",
                         "description": "The draft element tree to render. Must be non-empty.",
                         "items": {
-                            "$ref": "#/components/schemas/ContentElement"
+                            "$ref": "#/components/schemas/StoredContentElement"
                         },
                         "minItems": 1
                     },
@@ -606,8 +606,9 @@
                     },
                     "queryParameters": {
                         "type": "object",
-                        "description": "Optional values forwarded as the render request's query parameters; defaults to none. `elementId` selects a single element for partial preview.",
+                        "description": "Optional values forwarded as the render request's query parameters; defaults to none. `elementId` selects a single element for partial preview. A member name PHP casts to an integer (`0`, `12`, `-3`) is rejected with 400: the stored envelope is a string-keyed map and cannot carry an integer key.",
                         "additionalProperties": true,
+                        "propertyNames": { "pattern": "^(?!-?(0|[1-9][0-9]*)$).+$" },
                         "example": { "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40" }
                     }
                 }
@@ -621,7 +622,7 @@
                         "type": "array",
                         "description": "The draft element tree to diagnose. Defaults to an empty tree.",
                         "items": {
-                            "$ref": "#/components/schemas/ContentElement"
+                            "$ref": "#/components/schemas/StoredContentElement"
                         },
                         "default": []
                     },

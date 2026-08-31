@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
@@ -327,6 +328,17 @@ class BCChangeAttributeUsageRule implements Rule
                 continue;
             }
 
+            $methodNode = $methodNodes[$methodName] ?? null;
+            if ($methodNode !== null && !$this->isDeprecatedMethodNode($methodNode) && $this->callsParent($methodNode)) {
+                $errors[] = $this->error($line, \sprintf(
+                    'ClassHierarchyChange on "%s": non-deprecated method "%s()" must not call parent:: because its parent hierarchy will change.',
+                    $this->shortClassName($class->getName()),
+                    $parentMethod->getName()
+                ));
+
+                continue;
+            }
+
             if ($this->isDeclaredByClass($class, $methodNodes, $methodName)) {
                 continue;
             }
@@ -359,6 +371,21 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return false;
+    }
+
+    private function callsParent(ClassMethod $method): bool
+    {
+        return (new NodeFinder())->findFirst(
+            $method,
+            static fn (Node $node): bool => $node instanceof StaticCall
+                && $node->class instanceof Name
+                && \strtolower($node->class->toString()) === 'parent'
+        ) !== null;
+    }
+
+    private function isDeprecatedMethodNode(ClassMethod $method): bool
+    {
+        return \str_contains($method->getDocComment()?->getText() ?? '', '@deprecated');
     }
 
     private function isInHierarchy(ClassReflection $class, string $possibleDescendant): bool

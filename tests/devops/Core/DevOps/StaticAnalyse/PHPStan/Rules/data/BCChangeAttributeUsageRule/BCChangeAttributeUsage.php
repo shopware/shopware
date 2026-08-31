@@ -337,6 +337,7 @@ class InvalidHierarchyChange extends OldHierarchyParent
 {
     public function overriddenWithoutDeprecation(): void
     {
+        parent::overriddenWithoutDeprecation();
     }
 }
 
@@ -364,6 +365,7 @@ class ValidHierarchyChange extends OldHierarchyParent
      */
     public function overriddenWithoutDeprecation(): void
     {
+        parent::overriddenWithoutDeprecation();
     }
 
     public function providedByProtectedNewParent(): void

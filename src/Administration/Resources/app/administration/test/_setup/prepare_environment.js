@@ -312,10 +312,10 @@ config.global.stubs = {
     'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
-    // Unit specs assert their component's popup content through its Vue wrapper. Meteor teleports
-    // the real floating UI content to document.body, which makes that content intentionally
-    // invisible to the wrapper. Keep the component contract while rendering it inline for unit
-    // tests; dedicated Meteor specs can still mount the real component when needed.
+    // Unit specs assert their component's popup content through its Vue wrapper, while other
+    // specs assert the same content through document.body. Meteor teleports the real content,
+    // which makes it invisible to the wrapper. Render both test representations so either
+    // public interaction style remains available without suppressing deprecation warnings.
     'mt-floating-ui': {
         name: 'mt-floating-ui',
         inheritAttrs: false,
@@ -331,12 +331,17 @@ config.global.stubs = {
             },
         },
         template: `
-            <div class="mt-floating-ui" :class="$attrs.popoverClass ?? $attrs['popover-class']">
+            <div v-bind="$attrs" class="mt-floating-ui" :class="$attrs.popoverClass ?? $attrs['popover-class']">
                 <slot name="trigger" />
                 <div v-if="isOpened" class="mt-floating-ui__content">
                     <slot />
                 </div>
             </div>
+            <teleport to="body">
+                <div v-if="isOpened" class="mt-floating-ui__content">
+                    <slot />
+                </div>
+            </teleport>
         `,
     },
     'mt-icon': MtIcon,

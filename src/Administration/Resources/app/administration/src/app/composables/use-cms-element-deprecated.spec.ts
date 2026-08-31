@@ -93,6 +93,24 @@ describe('src/app/composables/use-cms-element-deprecated', () => {
         expect(element.config.headline.value).toBe('translated');
     });
 
+    it('clones the translated value it falls back to', () => {
+        const translatedHeadline = { source: 'static', value: 'translated' };
+        const element = slot({
+            translated: { config: { headline: translatedHeadline } } as RuntimeSlot['translated'],
+        });
+        elementRegistry.text = {
+            defaultConfig: { headline: { source: 'static', value: 'default headline' } },
+        };
+        const { initBaseConfig } = useCmsElementDeprecated({ element: () => element });
+
+        initBaseConfig();
+
+        expect(element.config.headline).toEqual(translatedHeadline);
+
+        // Cloned, so editing the element never writes back into the base config of the CMS layout.
+        expect(element.config.headline).not.toBe(translatedHeadline);
+    });
+
     it('has no base config to write for an element without a type', () => {
         const element = slot({ type: undefined });
         const { initBaseConfig } = useCmsElementDeprecated({ element: () => element });

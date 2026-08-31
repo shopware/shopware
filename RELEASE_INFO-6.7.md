@@ -62,6 +62,19 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
 }
 ```
 
+### `PromotionCartInformationTrait` helper methods deprecated
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` are deprecated and will be removed in Shopware 6.8, call `$cart->addErrors()` directly instead:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new PromotionNotFoundError($code));
+$cart->addErrors(new PromotionNotEligibleError($name));
+```
 ### Installing translations from files that are already present
 
 `translation:install` accepts a new `--offline` option. It creates the languages and snippet sets for translation files that are already on the filesystem, without contacting the translation repository at all — not even for the metadata lookup that normally runs first.

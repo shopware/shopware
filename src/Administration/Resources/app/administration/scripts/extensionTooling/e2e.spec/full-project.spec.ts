@@ -259,7 +259,7 @@ describe('scripts/extensionTooling e2e', () => {
                 "const shownOnly = ref('hi');",
                 'const unusedBinding = ref(0);',
                 '',
-                '/** @deprecated use fresh instead */',
+                '/** @deprecated tag:v6.8.0 - use fresh instead */',
                 'function stale(): number {',
                 '    return 1;',
                 '}',

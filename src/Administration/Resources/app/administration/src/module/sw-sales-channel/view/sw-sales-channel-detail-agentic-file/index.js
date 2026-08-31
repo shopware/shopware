@@ -18,6 +18,7 @@ export default {
     template,
 
     inject: [
+        'acl',
         'salesChannelFileApiService',
         'repositoryFactory',
     ],

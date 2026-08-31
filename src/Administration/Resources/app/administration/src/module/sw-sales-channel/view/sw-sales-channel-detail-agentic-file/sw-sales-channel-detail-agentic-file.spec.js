@@ -225,6 +225,9 @@ async function createWrapper(options = {}) {
                 },
             },
             provide: {
+                acl: {
+                    can: (permission) => global.activeAclRoles.includes(permission),
+                },
                 salesChannelFileApiService,
                 repositoryFactory: {
                     create: () => ({
@@ -243,9 +246,6 @@ async function createWrapper(options = {}) {
                     },
                 },
                 $te: (key) => key.includes('["llms-txt"]') || key.includes('["agents-md"]'),
-                acl: {
-                    can: (permission) => global.activeAclRoles.includes(permission),
-                },
             },
         },
         props: {

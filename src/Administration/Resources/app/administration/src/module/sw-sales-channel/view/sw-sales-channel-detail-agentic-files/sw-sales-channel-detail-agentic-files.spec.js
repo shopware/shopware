@@ -148,6 +148,9 @@ async function createWrapper(options = {}) {
                     },
                 },
                 provide: {
+                    acl: {
+                        can: (permission) => global.activeAclRoles.includes(permission),
+                    },
                     salesChannelFileApiService,
                     repositoryFactory: {
                         create: () => ({
@@ -165,9 +168,6 @@ async function createWrapper(options = {}) {
                     },
                     $t: (key) => mergedTranslations[key] ?? key,
                     $te: (key) => Object.hasOwn(mergedTranslations, key),
-                    acl: {
-                        can: (permission) => global.activeAclRoles.includes(permission),
-                    },
                 },
             },
             props: {

@@ -77,6 +77,7 @@
     "length": null,
     "releaseDate": null,
     "categoryTree": null,
+    "streamIds": null,
     "optionIds": null,
     "propertyIds": null,
     "name": "with-layout",
@@ -403,6 +404,7 @@
                       "length": null,
                       "releaseDate": null,
                       "categoryTree": null,
+                      "streamIds": null,
                       "optionIds": null,
                       "propertyIds": null,
                       "name": "with-layout",
@@ -561,6 +563,7 @@
                         }
                       ],
                       "canonicalProduct": null,
+                      "streams": null,
                       "translated": {
                         "metaDescription": null,
                         "name": "with-layout",
@@ -741,6 +744,7 @@
                       "length": null,
                       "releaseDate": null,
                       "categoryTree": null,
+                      "streamIds": null,
                       "optionIds": null,
                       "propertyIds": null,
                       "name": "with-layout",
@@ -899,6 +903,7 @@
                         }
                       ],
                       "canonicalProduct": null,
+                      "streams": null,
                       "translated": {
                         "metaDescription": null,
                         "name": "with-layout",
@@ -1049,6 +1054,7 @@
                             "length": null,
                             "releaseDate": null,
                             "categoryTree": null,
+                            "streamIds": null,
                             "optionIds": null,
                             "propertyIds": null,
                             "name": "product",
@@ -1086,6 +1092,7 @@
                             "seoUrls": null,
                             "crossSellings": null,
                             "canonicalProduct": null,
+                            "streams": null,
                             "translated": {
                               "metaDescription": null,
                               "name": "product",
@@ -1195,6 +1202,7 @@
       }
     ],
     "canonicalProduct": null,
+    "streams": null,
     "translated": {
       "metaDescription": null,
       "name": "with-layout",

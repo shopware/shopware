@@ -841,17 +841,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     // @deprecated tag:v6.8.0 - The legacy document generation flow will be removed with the rework.
-    it.deprecated('v6.8.0.0')('should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-        await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
+    it.deprecated('v6.8.0.0')(
+        'should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK',
+        async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+            await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
 
-        setInvoiceFileFormats([]);
-        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
-        await wrapper.vm.$nextTick();
+            setInvoiceFileFormats([]);
+            Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
+            await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
-    });
+            expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+        },
+    );
 
     it('should get latest order status correctly', async () => {
         wrapper = await createWrapper();

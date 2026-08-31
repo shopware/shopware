@@ -321,7 +321,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             wrapper.vm.onPageChange({ page: 2, limit: 3 });
             await flushPromises();
 
-            const columns = wrapper.vm.dataSource.map((entry) => ({
+            const columns = wrapper.vm.stateHistory.map((entry) => ({
                 entity: entry.entity,
                 order: entry.order.technicalName,
                 transaction: entry.transaction.technicalName,
@@ -345,7 +345,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             wrapper.vm.onPageChange({ page: 2, limit: 3 });
             await flushPromises();
 
-            const transactionStates = wrapper.vm.dataSource
+            const transactionStates = wrapper.vm.stateHistory
                 .filter((entry) => entry.referencedId === 't2')
                 .map((entry) => entry.transaction.technicalName);
 
@@ -360,20 +360,43 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             await flushPromises();
 
             // 4 transitions + the prepended start state + the initial state built for `t2`.
+            expect(wrapper.vm.dataSource).toHaveLength(6);
+
+            // @deprecated tag:v6.8.0 - `total` is kept in sync until it is removed.
             expect(wrapper.vm.total).toBe(6);
-            expect(wrapper.vm.stateHistory).toHaveLength(6);
+        });
+
+        it('should keep dataSource writable so extensions can still replace the rows', async () => {
+            const wrapper = await createWrapper({ limit: 3 }, order, history);
+            await flushPromises();
+
+            wrapper.vm.dataSource = [
+                ...wrapper.vm.dataSource,
+                {
+                    ...wrapper.vm.dataSource[0],
+                    referencedId: 'injected-by-an-extension',
+                },
+            ];
+            await flushPromises();
+
+            wrapper.vm.onPageChange({ page: 3, limit: 3 });
+            await flushPromises();
+
+            expect(wrapper.vm.stateHistory.map((entry) => entry.referencedId)).toEqual([
+                'injected-by-an-extension',
+            ]);
         });
 
         it('should prepend the start state only to the first page', async () => {
             const wrapper = await createWrapper({ limit: 3 }, order, history);
             await flushPromises();
 
-            expect(wrapper.vm.dataSource[0].order.technicalName).toBe('order-open');
+            expect(wrapper.vm.stateHistory[0].order.technicalName).toBe('order-open');
 
             wrapper.vm.onPageChange({ page: 2, limit: 3 });
             await flushPromises();
 
-            expect(wrapper.vm.dataSource.map((entry) => entry.order.technicalName)).not.toContain('order-open');
+            expect(wrapper.vm.stateHistory.map((entry) => entry.order.technicalName)).not.toContain('order-open');
         });
 
         it('should append the trailing transaction row once, not on every page', async () => {
@@ -383,7 +406,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             const wrapper = await createWrapper({ limit: 2 }, order, historyWithoutSecondTransaction);
             await flushPromises();
 
-            const trailingRows = wrapper.vm.stateHistory.filter((entry) => entry.referencedId === 't2');
+            const trailingRows = wrapper.vm.dataSource.filter((entry) => entry.referencedId === 't2');
             expect(trailingRows).toHaveLength(1);
         });
     });

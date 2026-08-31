@@ -61,15 +61,18 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-        stateHistory: StateMachineHistoryData[];
+        dataSource: StateMachineHistoryData[];
         limit: number;
         page: number;
+        total: number;
         steps: number[];
     } {
         return {
-            stateHistory: [],
+            dataSource: [],
             limit: 10,
             page: 1,
+            /** @deprecated tag:v6.8.0 - Will be removed, use `dataSource.length` instead. */
+            total: 0,
             steps: [
                 5,
                 10,
@@ -83,14 +86,10 @@ export default Component.wrapComponentConfig({
             return this.repositoryFactory.create('state_machine_history');
         },
 
-        dataSource(): StateMachineHistoryData[] {
+        stateHistory(): StateMachineHistoryData[] {
             const start = (this.page - 1) * this.limit;
 
-            return this.stateHistory.slice(start, start + this.limit);
-        },
-
-        total(): number {
-            return this.stateHistory.length;
+            return this.dataSource.slice(start, start + this.limit);
         },
 
         stateMachineHistoryCriteria(): CriteriaType {
@@ -207,25 +206,27 @@ export default Component.wrapComponentConfig({
 
         getStateHistoryEntries(): Promise<EntityCollection<'state_machine_history'>> {
             return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria).then((fetchedEntries) => {
-                this.stateHistory = this.buildStateHistory(fetchedEntries);
+                this.dataSource = this.buildStateHistory(fetchedEntries);
+                // @deprecated tag:v6.8.0 - Kept in sync only so `total` stays usable until it is removed.
+                this.total = this.dataSource.length;
                 return Promise.resolve(fetchedEntries);
             });
         },
 
         buildStateHistory(allEntries: EntityCollection<'state_machine_history'>): StateMachineHistoryData[] {
+            const initialStates = new Map<string, Entity<'state_machine_state'> | undefined>();
+
+            allEntries.forEach((entry) => {
+                if (!initialStates.has(entry.entityName)) {
+                    initialStates.set(entry.entityName, entry.fromStateMachineState);
+                }
+            });
+
             const states = {
-                order:
-                    allEntries.find((entry) => {
-                        return entry.entityName === 'order';
-                    })?.fromStateMachineState ?? this.order.stateMachineState,
+                order: initialStates.get('order') ?? this.order.stateMachineState,
                 order_transaction:
-                    allEntries.find((entry) => {
-                        return entry.entityName === 'order_transaction';
-                    })?.fromStateMachineState ?? this.order.transactions?.last()?.stateMachineState,
-                order_delivery:
-                    allEntries.find((entry) => {
-                        return entry.entityName === 'order_delivery';
-                    })?.fromStateMachineState ?? this.order.deliveries?.first()?.stateMachineState,
+                    initialStates.get('order_transaction') ?? this.order.transactions?.last()?.stateMachineState,
+                order_delivery: initialStates.get('order_delivery') ?? this.order.deliveries?.first()?.stateMachineState,
             };
 
             const entries = [] as Array<StateMachineHistoryData>;

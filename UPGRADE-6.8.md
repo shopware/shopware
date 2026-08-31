@@ -1172,6 +1172,11 @@ The method must raise the stored increment state to at least the given value wit
 
 # Administration
 
+## Deprecated `total` in `sw-order-state-history-modal`
+
+The `total` data property of `sw-order-state-history-modal` is deprecated and will be removed. Use
+`dataSource.length` instead, which now counts every built row.
+
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
 The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.

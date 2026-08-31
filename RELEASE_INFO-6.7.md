@@ -200,6 +200,12 @@ The listing reloads once after the batch finishes rather than after every indivi
 
 ## Storefront
 
+### Passive privacy notices without a checkbox
+
+Storefront privacy notices now use passive wording when `core.loginRegistration.requireDataProtectionCheckbox` is disabled. Contact and newsletter forms use the privacy-only snippet keys `contact.privacyNoticeTextModal` and `contact.privacyNoticeInformation`, while forms that include the terms of service use `general.privacyNoticeTextModal` and `general.privacyNoticeInformation`. Themes and custom snippet sets can override the new `*.privacyNoticeInformation` keys to adjust the non-blocking notice.
+
+The regular registration action now uses `account.registerSubmit`, while the checkout registration and guest-order authentication use `checkout.registerSubmit`.
+
 ### Semantic footer markup
 
 With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic elements.

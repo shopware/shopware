@@ -41,6 +41,7 @@
     "showCategory": "Show %category%",
     "required": "*",
     "privacyTitle": "Privacy",
+    "privacyNoticeText": "I have acknowledged the <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a> and have read and agree to the <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "privacyNoticeTextModal": "I have acknowledged the %privacyModalTagOpen%privacy policy%privacyModalTagClose% and have read and agree to the %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
     "privacyNoticeTextPage": "I have acknowledged the <a href=\"%privacyUrl%\">privacy policy</a> and have read and agree to the <a href=\"%tosUrl%\">general terms and conditions</a>.",
     "privacyNoticeInformation": "Please note our %privacyModalTagOpen%privacy policy%privacyModalTagClose% and %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
@@ -619,8 +620,10 @@
     "info": "We look forward to hearing from you.",
     "subjectLabel": "Subject",
     "commentLabel": "Comment",
+    "privacyNoticeText": "I have read and acknowledge the <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
     "privacyNoticeTextModal": "I have read and acknowledge the %privacyModalTagOpen%privacy policy%privacyModalTagClose%.",
     "privacyNoticeTextPage": "I have read and acknowledge the <a href=\"%privacyUrl%\" title=\"Privacy policy\">privacy policy</a>.",
+    "privacyNoticeInformation": "Please note our %privacyModalTagOpen%privacy policy%privacyModalTagClose%.",
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },

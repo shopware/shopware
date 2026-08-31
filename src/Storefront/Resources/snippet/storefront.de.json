@@ -41,6 +41,7 @@
     "showCategory": "%category% anzeigen",
     "required": "*",
     "privacyTitle": "Datenschutz",
+    "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyNoticeTextModal": "Ich habe die %privacyModalTagOpen%Datenschutzbestimmungen%privacyModalTagClose% zur Kenntnis genommen und meine %tosModalTagOpen%gesetzlichen Gewährleistungsrechte%tosModalTagClose% zur Kenntnis genommen und bin mit ihnen einverstanden.",
     "privacyNoticeTextPage": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyNoticeInformation": "Bitte beachten Sie unsere %privacyModalTagOpen%Datenschutzbestimmungen%privacyModalTagClose% und %tosModalTagOpen%AGB%tosModalTagClose%.",
@@ -619,8 +620,10 @@
     "info": "Wir freuen uns auf Ihre Kontaktaufnahme.",
     "subjectLabel": "Betreff",
     "commentLabel": "Kommentar",
+    "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
     "privacyNoticeTextModal": "Ich habe die %privacyModalTagOpen%Datenschutzbestimmungen%privacyModalTagClose% zur Kenntnis genommen und erkenne diese an.",
     "privacyNoticeTextPage": "Ich habe die <a href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
+    "privacyNoticeInformation": "Bitte beachten Sie unsere %privacyModalTagOpen%Datenschutzbestimmungen%privacyModalTagClose%.",
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
   },

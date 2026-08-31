@@ -129,7 +129,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
                 continue;
             }
 
-            if (LogicDetector::methodContainsLogic($method, $inThrowableContext, $declaresSchema)) {
+            if (LogicDetector::methodContainsLogic($method, $inThrowableContext, $declaresSchema) || $this->redefinesAParentDefault($className, $method, $inThrowableContext)) {
                 $errors[] = Errors::methodLevel($className, $methodName, $method->getStartLine());
             }
         }

@@ -219,6 +219,14 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             ]],
         ];
 
+        yield 'method-level ignore on a constructor default override fails' => [
+            ['DefaultingConstructorParent.php', 'MethodLevelDefaultOverrideClass.php'],
+            [[
+                'Method ' . self::FQCN_PREFIX . 'MethodLevelDefaultOverrideClass::__construct() is annotated @codeCoverageIgnore but contains logic. Remove the annotation, extract the logic to a covered method, or add a @see pointing to an existing integration test that exercises it.',
+                10,
+            ]],
+        ];
+
         yield 'constructor default the parent does not have fails' => [
             ['DefaultingConstructorParent.php', 'ChildIntroducesDefaultClass.php'],
             [[

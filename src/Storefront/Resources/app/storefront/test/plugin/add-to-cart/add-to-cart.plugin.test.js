@@ -297,4 +297,60 @@ describe('AddToCartPlugin tests', () => {
 
         expect(document.querySelector('.quantity-stock-adjusted-alert')).toBeNull();
     });
+
+    test('should disable the buy button until the offcanvas is opened', () => {
+        window.openOffcanvasAfterAddToCart = '1';
+
+        let openOffCanvasCallback;
+        window.PluginManager.getPluginInstances = jest.fn(() => [{
+            openOffCanvas: (url, data, callback) => {
+                openOffCanvasCallback = callback;
+            },
+        }]);
+
+        const button = document.querySelector('button');
+        button.click();
+
+        expect(button.disabled).toBe(true);
+
+        openOffCanvasCallback();
+
+        expect(button.disabled).toBe(false);
+    });
+
+    test('should ignore a second click while the add to cart request is running', () => {
+        window.openOffcanvasAfterAddToCart = '1';
+
+        const openOffCanvas = jest.fn();
+        window.PluginManager.getPluginInstances = jest.fn(() => [{ openOffCanvas }]);
+
+        const button = document.querySelector('button');
+        button.click();
+        button.click();
+
+        expect(openOffCanvas).toHaveBeenCalledTimes(1);
+    });
+
+    test('should enable the buy button again when adding to cart without offcanvas', async () => {
+        window.openOffcanvasAfterAddToCart = '0';
+
+        const button = document.querySelector('button');
+        button.click();
+
+        expect(button.disabled).toBe(true);
+
+        await Promise.resolve();
+
+        expect(button.disabled).toBe(false);
+    });
+
+    test('should enable the buy button again when no offcanvas cart is present', () => {
+        window.openOffcanvasAfterAddToCart = '1';
+        window.PluginManager.getPluginInstances = jest.fn(() => []);
+
+        const button = document.querySelector('button');
+        button.click();
+
+        expect(button.disabled).toBe(false);
+    });
 });

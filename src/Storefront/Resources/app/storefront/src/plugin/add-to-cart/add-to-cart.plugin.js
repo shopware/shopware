@@ -4,6 +4,7 @@
 
 import Plugin from 'src/plugin-system/plugin.class';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
+import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 
 /**
  * @package checkout
@@ -21,6 +22,11 @@ export default class AddToCartPlugin extends Plugin {
         stockAdjustedText: null,
         outOfStockText: null,
         buyButtonSelector: 'button[type="submit"].btn-buy',
+
+        /**
+         * @type {'before' | 'after' | 'inner'} loadingIndicatorPosition
+         */
+        loadingIndicatorPosition: 'inner',
     };
 
     init() {
@@ -29,6 +35,8 @@ export default class AddToCartPlugin extends Plugin {
         if (!this._form) {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
+
+        this._buyButtonLoader = null;
 
         this._prepareFormRedirect();
 
@@ -91,6 +99,8 @@ export default class AddToCartPlugin extends Plugin {
         const requestUrl = this._form.getAttribute('action');
         const formData = FormSerializeUtil.serialize(this._form);
 
+        this._createLoadingIndicator();
+
         this.$emitter.publish('beforeFormSubmit', formData);
 
         if (this._shouldOpenOffcanvas()) {
@@ -126,6 +136,8 @@ export default class AddToCartPlugin extends Plugin {
             if (!response.ok) {
                 throw new Error('Add to cart failed');
             }
+
+            this._removeLoadingIndicator();
 
             // Update the cart widget to show the new item count
             window.PluginManager.getPluginInstances('CartWidget')?.forEach((instance) => {
@@ -178,9 +190,16 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCarts(requestUrl, formData) {
         const offCanvasCartInstances = window.PluginManager.getPluginInstances('OffCanvasCart');
+        let opened = false;
+
         offCanvasCartInstances.forEach((instance) => {
+            opened = true;
             this._openOffCanvasCart(instance, requestUrl, formData);
         });
+
+        if (!opened) {
+            this._removeLoadingIndicator();
+        }
     }
 
     /**
@@ -192,8 +211,40 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCart(instance, requestUrl, formData) {
         instance.openOffCanvas(requestUrl, formData, () => {
+            this._removeLoadingIndicator();
             this.$emitter.publish('openOffCanvasCart');
         });
+    }
+
+    /**
+     * Shows a loading indicator inside the buy button, which disables the button
+     * until the running request is through.
+     *
+     * @private
+     */
+    _createLoadingIndicator() {
+        const buyButton = this._form.querySelector(this.options.buyButtonSelector);
+
+        if (!buyButton) {
+            return;
+        }
+
+        this._buyButtonLoader = new ButtonLoadingIndicator(buyButton, this.options.loadingIndicatorPosition);
+        this._buyButtonLoader.create();
+    }
+
+    /**
+     * Removes the loading indicator from the buy button and enables it again.
+     *
+     * @private
+     */
+    _removeLoadingIndicator() {
+        if (!this._buyButtonLoader) {
+            return;
+        }
+
+        this._buyButtonLoader.remove();
+        this._buyButtonLoader = null;
     }
 
     /**

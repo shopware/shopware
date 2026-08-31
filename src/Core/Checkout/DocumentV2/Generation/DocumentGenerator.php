@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\DocumentV2\Compatibility\LegacyDocumentEventBridge;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
@@ -42,7 +41,6 @@ final readonly class DocumentGenerator
         private DocumentDependencyResolver $dependencyResolver,
         private ReferencedDocumentResolver $referencedDocumentResolver,
         private EntityRepository $orderRepository,
-        private LegacyDocumentEventBridge $legacyEventBridge,
     ) {
     }
 
@@ -153,15 +151,6 @@ final readonly class DocumentGenerator
         );
 
         $order = $this->loadOrder($criteria, $generationRequest->orderId, $orderVersionContext);
-
-        // @deprecated tag:v6.9.0 - Compatibility bridge for document generation v1
-        $this->legacyEventBridge->dispatchOrderEvents(
-            $order,
-            $generationRequest,
-            $orderVersionId,
-            $preview,
-            $languageAwareContext,
-        );
 
         $documentNumber = $generationRequest->documentNumber ?? $this->documentNumberGenerator->generate(
             $generationRequest,

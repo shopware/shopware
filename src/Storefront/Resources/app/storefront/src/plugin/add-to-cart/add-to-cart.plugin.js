@@ -133,11 +133,11 @@ export default class AddToCartPlugin extends Plugin {
             method: 'POST',
             body: formData,
         }).then((response) => {
+            this._removeLoadingIndicator();
+
             if (!response.ok) {
                 throw new Error('Add to cart failed');
             }
-
-            this._removeLoadingIndicator();
 
             // Update the cart widget to show the new item count
             window.PluginManager.getPluginInstances('CartWidget')?.forEach((instance) => {
@@ -190,16 +190,16 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCarts(requestUrl, formData) {
         const offCanvasCartInstances = window.PluginManager.getPluginInstances('OffCanvasCart');
-        let opened = false;
+
+        if (!offCanvasCartInstances.length) {
+            this._removeLoadingIndicator();
+
+            return;
+        }
 
         offCanvasCartInstances.forEach((instance) => {
-            opened = true;
             this._openOffCanvasCart(instance, requestUrl, formData);
         });
-
-        if (!opened) {
-            this._removeLoadingIndicator();
-        }
     }
 
     /**

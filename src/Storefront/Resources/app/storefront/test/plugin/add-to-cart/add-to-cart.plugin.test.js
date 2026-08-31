@@ -344,6 +344,21 @@ describe('AddToCartPlugin tests', () => {
         expect(button.disabled).toBe(false);
     });
 
+    test('should enable the buy button again when the add to cart request fails', async () => {
+        window.openOffcanvasAfterAddToCart = '0';
+        global.fetch = jest.fn(() => Promise.resolve({ ok: false }));
+
+        const neverOpeningOffCanvas = { openOffCanvas: jest.fn() };
+        window.PluginManager.getPluginInstances = jest.fn(() => [neverOpeningOffCanvas]);
+
+        const button = document.querySelector('button');
+        button.click();
+
+        await Promise.resolve();
+
+        expect(button.disabled).toBe(false);
+    });
+
     test('should enable the buy button again when no offcanvas cart is present', () => {
         window.openOffcanvasAfterAddToCart = '1';
         window.PluginManager.getPluginInstances = jest.fn(() => []);

@@ -814,8 +814,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDetailReadinessCheck::class)
         ->args([
             service(SalesChannelDomainUtil::class),
-            service(Connection::class),
             service(SalesChannelDomainProvider::class),
+            service('sales_channel.product.repository'),
+            service(SalesChannelContextFactory::class),
         ])
         ->tag('shopware.system_check');
 

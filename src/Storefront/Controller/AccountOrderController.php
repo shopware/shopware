@@ -86,13 +86,6 @@ class AccountOrderController extends StorefrontController
         ],
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
-    #[Route(
-        path: '/account/order',
-        name: 'frontend.account.order.page',
-        options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
-        methods: [Request::METHOD_GET, Request::METHOD_POST]
-    )]
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->orderPageLoader->load($request, $context);
@@ -200,12 +193,6 @@ class AccountOrderController extends StorefrontController
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
             PlatformRequest::ATTRIBUTE_NO_STORE => true,
         ],
-        methods: [Request::METHOD_GET]
-    )]
-    #[Route(
-        path: '/account/order/edit/{orderId}',
-        name: 'frontend.account.edit-order.page',
-        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
         methods: [Request::METHOD_GET]
     )]
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response

@@ -25,7 +25,8 @@ readonly class TranslationUpdater
      * it is actually installed are two different questions: files are only fetched when the repository has something
      * newer or when they are missing locally, while the language and snippet set are ensured either way.
      *
-     * @param list<string> $locales
+     * @param list<string> $locales the same locales the metadata was fetched for, so that only requested locales
+     *                              can be flagged as requiring an update
      */
     public function planInstall(array $locales, MetadataCollection $metadata): TranslationInstallPlan
     {

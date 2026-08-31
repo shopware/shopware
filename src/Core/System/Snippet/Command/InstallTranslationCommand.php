@@ -71,7 +71,9 @@ class InstallTranslationCommand extends Command
             TranslationCommandHelper::printUnavailableLocales($output, $plan->unavailableLocales);
         }
 
-        if ($metadata->getLocalesRequiringUpdate() === []) {
+        // Not "nothing requires an update": a locale whose metadata is current still gets fetched when its files
+        // are missing, and saying nothing was downloaded would then be wrong.
+        if ($plan->localesToDownload === []) {
             TranslationCommandHelper::printNoTranslationsToUpdate($output);
         }
 
@@ -79,6 +81,47 @@ class InstallTranslationCommand extends Command
             TranslationCommandHelper::printLocalesInstalledFromExistingFiles($output, $plan->localesToLink);
         }
 
+        $this->installWithProgressBar($plan, $activate, $output);
+
+        if ($metadata->getLocalesRequiringUpdate() !== []) {
+            TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataStore->save($metadata), $output);
+        }
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * The metadata store is deliberately left untouched here. Reading it would contact the
+     * translation repository, which is the one thing this mode promises not to do, and writing
+     * it would make a later run believe every locale is current and skip creating the
+     * languages it is being asked for.
+     *
+     * Locales named with --locales are a contract and are installed as a unit: if one of them has no files the
+     * command fails and installs none of them, so an incomplete provisioning step leaves no half-installed state
+     * behind. --all instead means "everything that is provisioned", because a locale the repository never offered
+     * must not make the command unusable for all the others.
+     *
+     * @param list<string> $locales
+     */
+    private function installOffline(array $locales, bool $activate, bool $allRequested, OutputInterface $output): int
+    {
+        $plan = $this->translationUpdater->planOfflineInstall($locales);
+
+        if ($this->offlineInstallMustFail($plan, $allRequested)) {
+            throw SnippetException::translationsUnavailable($plan->unavailableLocales);
+        }
+
+        if ($plan->unavailableLocales !== []) {
+            TranslationCommandHelper::printLocalesWithoutFiles($output, $plan->unavailableLocales);
+        }
+
+        $this->installWithProgressBar($plan, $activate, $output);
+
+        return self::SUCCESS;
+    }
+
+    private function installWithProgressBar(TranslationInstallPlan $plan, bool $activate, OutputInterface $output): void
+    {
         $progressBar = TranslationCommandHelper::createProgressBar(
             $output,
             \count($plan->localesToDownload) + \count($plan->localesToLink),
@@ -97,59 +140,6 @@ class InstallTranslationCommand extends Command
 
         $progressBar->finish();
         $output->write(\PHP_EOL);
-
-        if ($metadata->getLocalesRequiringUpdate() !== []) {
-            TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataStore->save($metadata), $output);
-        }
-
-        return self::SUCCESS;
-    }
-
-    /**
-     * The metadata store is deliberately left untouched here. Reading it would contact the
-     * translation repository, which is the one thing this mode promises not to do, and writing
-     * it would make a later run believe every locale is current and skip creating the
-     * languages it is being asked for.
-     *
-     * Locales named with --locales are a contract and are installed as a unit: if one of them has no files the
-     * command fails and installs none of them, so an incomplete provisioning step leaves no half-installed state
-     * behind. --all instead means "everything that is provisioned", because a locale the repository never offered
-     * must not make the command unusable for the other forty.
-     *
-     * @param list<string> $locales
-     */
-    private function installOffline(array $locales, bool $activate, bool $allRequested, OutputInterface $output): int
-    {
-        $plan = $this->translationUpdater->planOfflineInstall($locales);
-
-        if ($this->offlineInstallMustFail($plan, $allRequested)) {
-            throw SnippetException::translationsUnavailable($plan->unavailableLocales);
-        }
-
-        if ($plan->unavailableLocales !== []) {
-            TranslationCommandHelper::printLocalesWithoutFiles($output, $plan->unavailableLocales);
-        }
-
-        $progressBar = TranslationCommandHelper::createProgressBar(
-            $output,
-            \count($plan->localesToLink),
-            'Installing translations',
-        );
-
-        $this->translationUpdater->install(
-            $plan,
-            Context::createCLIContext(),
-            $activate,
-            static function (string $locale) use ($progressBar): void {
-                $progressBar->setMessage($locale);
-                $progressBar->advance();
-            },
-        );
-
-        $progressBar->finish();
-        $output->write(\PHP_EOL);
-
-        return self::SUCCESS;
     }
 
     private function offlineInstallMustFail(TranslationInstallPlan $plan, bool $allRequested): bool

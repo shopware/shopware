@@ -240,7 +240,10 @@ class InstallTranslationCommandTest extends TestCase
         $tester->execute(['--locales' => 'es-ES']);
         $tester->assertCommandIsSuccessful();
 
-        static::assertStringNotContainsString('installed from their existing translation files', $tester->getDisplay());
+        $output = $tester->getDisplay();
+        static::assertStringNotContainsString('installed from their existing translation files', $output);
+        // the files are fetched, so claiming everything is up to date would be wrong
+        static::assertStringNotContainsString('All translations are already up to date.', $output);
     }
 
     public function testOfflineInstallCreatesLanguagesWithoutTouchingTheMetadata(): void

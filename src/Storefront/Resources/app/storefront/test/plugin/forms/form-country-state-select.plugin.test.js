@@ -737,6 +737,42 @@ describe('Form country state select plugin', () => {
         expect(validateFieldSpy).not.toHaveBeenCalled();
     });
 
+    it('should not validate a prefilled vatId on page load, so server-rendered feedback survives', async () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name is-invalid"
+                           aria-describedby="vatIdsFeedback" value="DE123456789">
+                    <div id="vatIdsFeedback" class="invalid-feedback">This VAT ID is already in use.</div>
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="1" data-state-required="0"
+                            data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
+
+        createPlugin();
+        await new Promise(process.nextTick);
+
+        const vatIdField = document.querySelector('#vatIds');
+
+        expect(vatIdField.getAttribute('pattern')).toBe('DE[0-9]{9}');
+        expect(validateFieldSpy).not.toHaveBeenCalled();
+        expect(vatIdField.classList.contains('is-invalid')).toBe(true);
+        expect(document.querySelector('#vatIdsFeedback').innerHTML).toBe('This VAT ID is already in use.');
+    });
+
     it('should set pattern attribute via form field toggle change when country has checkVatIdPattern enabled', async () => {
         template = `
             <form id="registerForm" class="register-shipping" action="/register" method="post">
@@ -765,5 +801,216 @@ describe('Form country state select plugin', () => {
 
         const vatIdField = document.querySelector('#vatIds');
         expect(vatIdField.getAttribute('pattern')).toBe('DE[0-9]{9}');
+    });
+    it('should set the zipcode pattern on init when the country has postal code validation enabled', async () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-3">
+                    <label class="form-label" for="addressZipcode">Zip code</label>
+                    <input type="text" name="address[zipcode]" id="addressZipcode" data-input-name="zipcodeInput">
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="1" data-zipcode-pattern="\\d{5}" data-check-zipcode-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        await new Promise(process.nextTick);
+
+        expect(document.querySelector('#addressZipcode').getAttribute('pattern')).toBe('\\d{5}');
+    });
+
+    it('should not set the zipcode pattern when postal code validation is disabled', async () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-3">
+                    <label class="form-label" for="addressZipcode">Zip code</label>
+                    <input type="text" name="address[zipcode]" id="addressZipcode" data-input-name="zipcodeInput">
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="1" data-zipcode-pattern="\\d{5}" data-check-zipcode-pattern="">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        await new Promise(process.nextTick);
+
+        expect(document.querySelector('#addressZipcode').hasAttribute('pattern')).toBe(false);
+    });
+
+    it('should swap the zipcode pattern when switching country and drop it again when the next country has none', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-3">
+                    <label class="form-label" for="addressZipcode">Zip code</label>
+                    <input type="text" name="address[zipcode]" id="addressZipcode" data-input-name="zipcodeInput">
+                </div>
+
+                <select class="country-select" data-initial-country-id="">
+                    <option disabled="disabled" value="" selected="selected">Select country...</option>
+                    <option value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="1" data-zipcode-pattern="\\d{5}" data-check-zipcode-pattern="1">Germany</option>
+                    <option value="NL" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="1" data-zipcode-pattern="\\d{4}\\s?[a-zA-Z]{2}" data-check-zipcode-pattern="1">Netherlands</option>
+                    <option value="IE" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="0" data-zipcode-pattern="" data-check-zipcode-pattern="">Ireland</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const zipcodeField = document.querySelector('#addressZipcode');
+        const countrySelect = document.querySelector('.country-select');
+
+        countrySelect.value = 'DE';
+        countrySelect.dispatchEvent(new Event('change'));
+        expect(zipcodeField.getAttribute('pattern')).toBe('\\d{5}');
+
+        countrySelect.value = 'NL';
+        countrySelect.dispatchEvent(new Event('change'));
+        expect(zipcodeField.getAttribute('pattern')).toBe('\\d{4}\\s?[a-zA-Z]{2}');
+
+        countrySelect.value = 'IE';
+        countrySelect.dispatchEvent(new Event('change'));
+        expect(zipcodeField.hasAttribute('pattern')).toBe(false);
+    });
+
+    it('should re-validate an already filled zipcode when the country changes', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-3">
+                    <label class="form-label" for="addressZipcode">Zip code</label>
+                    <input type="text" name="address[zipcode]" id="addressZipcode" data-input-name="zipcodeInput">
+                </div>
+
+                <select class="country-select" data-initial-country-id="">
+                    <option disabled="disabled" value="" selected="selected">Select country...</option>
+                    <option value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="1" data-zipcode-pattern="\\d{5}" data-check-zipcode-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const zipcodeField = document.querySelector('#addressZipcode');
+        const countrySelect = document.querySelector('.country-select');
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
+
+        countrySelect.value = 'DE';
+        countrySelect.dispatchEvent(new Event('change'));
+        expect(validateFieldSpy).not.toHaveBeenCalled();
+
+        zipcodeField.value = 'asdasd';
+        countrySelect.dispatchEvent(new Event('change'));
+
+        expect(validateFieldSpy).toHaveBeenCalledWith(zipcodeField);
+    });
+
+    it('should not validate a prefilled zipcode on page load, so server-rendered feedback survives', async () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-3">
+                    <label class="form-label" for="addressZipcode">Zip code</label>
+                    <input type="text" name="address[zipcode]" id="addressZipcode" data-input-name="zipcodeInput"
+                           class="form-control is-invalid" aria-describedby="addressZipcodeFeedback" value="12345">
+                    <div id="addressZipcodeFeedback" class="invalid-feedback">We do not ship to this postal code.</div>
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="1" data-zipcode-pattern="\\d{5}" data-check-zipcode-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
+
+        createPlugin();
+        await new Promise(process.nextTick);
+
+        const zipcodeField = document.querySelector('#addressZipcode');
+
+        expect(zipcodeField.getAttribute('pattern')).toBe('\\d{5}');
+        expect(validateFieldSpy).not.toHaveBeenCalled();
+        expect(zipcodeField.classList.contains('is-invalid')).toBe(true);
+        expect(document.querySelector('#addressZipcodeFeedback').innerHTML).toBe('We do not ship to this postal code.');
+    });
+
+    it('should mark an invalid zipcode as invalid even while another required field is still empty', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-3">
+                    <label class="form-label" for="addressCity">City</label>
+                    <input type="text" name="address[city]" id="addressCity" required="required">
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label class="form-label" for="addressZipcode">Zip code</label>
+                    <input type="text" name="address[zipcode]" id="addressZipcode" data-input-name="zipcodeInput">
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="0" data-state-required="0"
+                            data-zipcode-required="1" data-zipcode-pattern="\\d{5}" data-check-zipcode-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+        createPlugin();
+
+        const form = document.querySelector('#registerForm');
+        const zipcodeField = document.querySelector('#addressZipcode');
+        zipcodeField.value = 'asdasd';
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        form.querySelectorAll('input').forEach((field) => {
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+        });
+
+        const invalidFields = window.formValidation.validateForm(form);
+
+        expect(invalidFields).toContain(zipcodeField);
+        expect(invalidFields).toContain(document.querySelector('#addressCity'));
     });
 });

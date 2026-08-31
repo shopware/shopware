@@ -560,6 +560,8 @@ export default {
         onLeaveModalConfirm() {
             this.isDisplayingLeavePageWarning = false;
 
+            Store.get('swOrderDetail').editing = false;
+
             this.$nextTick(() => {
                 this.nextRoute();
             });

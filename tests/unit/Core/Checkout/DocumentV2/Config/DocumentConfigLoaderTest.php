@@ -381,6 +381,7 @@ class DocumentConfigLoaderTest extends TestCase
             $countryRepo,
             $this->createMediaRepository(),
             $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
         );
 
         $bundle = $loader->load(

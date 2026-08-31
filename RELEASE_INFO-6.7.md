@@ -205,11 +205,11 @@ The listing reloads once after the batch finishes rather than after every indivi
 
 The empty states of the product detail tabs "Advanced pricing" and "Cross Selling" now render `mt-empty-state` instead of custom markup with an illustration. The headline, description, icon and the link to the parent product are `mt-empty-state` props.
 
-The Twig blocks of `sw-product-detail-context-prices.html.twig` and `sw-product-detail-cross-selling.html.twig` that wrapped the image, icon and description texts still exist with their previous render conditions, but are empty and deprecated for removal in v6.9.0.
+The Twig blocks of `sw-product-detail-context-prices.html.twig` and `sw-product-detail-cross-selling.html.twig` that wrapped the image, icon and description texts still exist with their previous render conditions, but are empty and deprecated for removal in v6.8.0.
 
 `sw_product_detail_cross_selling_empty_state_icon` and `sw_product_detail_cross_selling_empty_state_actions` no longer wrap a `<template #icon>` / `<template #actions>`; overrides that reproduced these slot wrappers must drop them. The add button lives in `sw_product_detail_cross_selling_empty_state_actions_add` inside the `button` slot of `mt-empty-state`.
 
-The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
+The `assetFilter` computed of both components is deprecated for removal in v6.8.0; use `Shopware.Filter.getByName('asset')` instead.
 
 The classes `.sw-product-detail-context-prices__parent-prices-link` and `.sw-product-detail-cross-selling__parent-cross-sellings-link` no longer exist; the parent link is rendered as `.mt-empty-state__link`.
 

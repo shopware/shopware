@@ -45,10 +45,11 @@ export default {
     },
 
     computed: {
-        /** @deprecated tag:v6.9.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },

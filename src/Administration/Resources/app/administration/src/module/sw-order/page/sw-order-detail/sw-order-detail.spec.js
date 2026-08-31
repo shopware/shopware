@@ -648,6 +648,40 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(Shopware.Store.get('swOrderDetail').isLoading).toBe(false);
     });
 
+    it('should prefer the server translated message when handling cart errors', async () => {
+        wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.handleCartErrors({
+            data: {
+                errors: {
+                    'promotion-not-found': {
+                        level: 20,
+                        message: 'Promotion with code SUMMER not found!',
+                        messageKey: 'promotion-not-found',
+                        translatedMessage: 'Gutscheincode "SUMMER" existiert nicht.',
+                    },
+                    'custom-plugin-error': {
+                        level: 20,
+                        message: 'Something went wrong',
+                        messageKey: 'custom-plugin-error',
+                        translatedMessage: 'checkout.custom-plugin-error',
+                    },
+                },
+            },
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenNthCalledWith(1, {
+            message: 'Gutscheincode "SUMMER" existiert nicht.',
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenNthCalledWith(2, {
+            message: 'Something went wrong',
+        });
+    });
+
     it('should ask for saving confirmation before continuing', async () => {
         wrapper = await createWrapper();
         const onSaveEditsSpy = jest.fn();

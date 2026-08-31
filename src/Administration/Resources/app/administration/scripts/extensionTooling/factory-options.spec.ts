@@ -16,6 +16,7 @@ import { pathToFileURL } from 'url';
 interface BlockSummary {
     name?: string;
     rules?: Record<string, string>;
+    globals?: string[];
 }
 
 const factoryUrl = pathToFileURL(path.resolve(__dirname, '../../extension-tooling/eslint.mjs')).href;
@@ -42,6 +43,7 @@ const summarize = (config) =>
                   Object.entries(block.rules).map(([rule, entry]) => [rule, Array.isArray(entry) ? entry[0] : entry]),
               )
             : undefined,
+        globals: block.languageOptions?.globals ? Object.keys(block.languageOptions.globals) : undefined,
     }));
 const result = Object.fromEntries(
     Object.entries(variants).map(([key, options]) => [
@@ -95,6 +97,46 @@ describe('extension-tooling eslint factory host options', () => {
                 'sw-deprecation-rules/no-deprecated-components',
             ),
         ).toBe('error');
+    });
+
+    it('bakes native-setup support into every extension config by default', () => {
+        const nativeSetup = variants.defaults.find((block) => block.name === 'shopware/admin-extension/native-setup');
+
+        expect(nativeSetup).toBeDefined();
+        expect(nativeSetup?.rules?.['sw-core-rules/valid-shopware-setup']).toBe('error');
+        expect(nativeSetup?.rules?.['sw-core-rules/native-setup-filename']).toBe('error');
+        expect(nativeSetup?.globals).toEqual(
+            expect.arrayContaining([
+                'swDefinePublic',
+                'swDefineOverride',
+                'useSwPreviousState',
+                'useSwProps',
+                'useSwContext',
+            ]),
+        );
+    });
+
+    it('disables the type-aware rules on .vue files (vue-tsc type-checks them instead)', () => {
+        const blocks = variants.defaults;
+
+        // The project service cannot type SFCs, so the type-aware rules would
+        // only ever fire false positives on .vue; a dedicated last block turns
+        // them off there while leaving them on for .ts.
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-untyped', '@typescript-eslint/no-unsafe-assignment')).toBe(
+            'off',
+        );
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-untyped', '@typescript-eslint/no-unsafe-call')).toBe(
+            'off',
+        );
+    });
+
+    it('disables no-unused-vars on .vue (the parser misses interpolation usage; vue-tsc covers it)', () => {
+        const blocks = variants.defaults;
+
+        expect(ruleSeverity(blocks, 'shopware/admin-extension/vue-template-usage', 'no-unused-vars')).toBe('off');
+        expect(
+            ruleSeverity(blocks, 'shopware/admin-extension/vue-template-usage', '@typescript-eslint/no-unused-vars'),
+        ).toBe('off');
     });
 
     it("omits the spec-files block entirely for specFiles: 'typed'", () => {

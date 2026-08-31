@@ -56,11 +56,9 @@ async function createWrapper(sequence = {}) {
                     },
                     documentV2Service: {
                         getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
-                        getDocumentTypeSnippet: (technicalName) =>
+                        getDocumentTypeLabel: (technicalName) =>
                             `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
-                    },
-                    documentV2ApiService: {
-                        getAvailableTypes: () => Promise.resolve({ documentTypes: supportedDocumentTypesMock }),
+                        getAvailableDocumentTypes: () => Promise.resolve(supportedDocumentTypesMock),
                     },
                 },
                 data() {
@@ -235,7 +233,9 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             expect(wrapper.vm.supportedDocumentTypes).toEqual(supportedDocumentTypesMock);
 
             wrapper.vm.createNotificationError = jest.fn();
-            wrapper.vm.documentV2ApiService.getAvailableTypes = jest.fn(() => Promise.reject(new Error('Network error')));
+            wrapper.vm.documentV2Service.getAvailableDocumentTypes = jest.fn(() =>
+                Promise.reject(new Error('Network error')),
+            );
 
             await wrapper.vm.loadSupportedDocumentTypes();
 

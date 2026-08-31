@@ -118,25 +118,20 @@ const documentBaseConfigSalesChannelsRepositoryMock = {
     },
 };
 
-const documentV2ApiServiceMock = {
-    getAvailableTypes: jest.fn(() =>
+const documentV2ServiceMock = {
+    getFileFormatSnippet: jest.fn((format) => `sw-order.components.createDocumentModal.fileFormats.${format}`),
+    getAvailableDocumentTypes: jest.fn(() =>
         Promise.resolve({
-            documentTypes: {
-                invoice: {
-                    formats: [
-                        'html',
-                        'pdf',
-                        'zugferd_xml',
-                        'zugferd_embedded_pdf',
-                    ],
-                },
+            invoice: {
+                formats: [
+                    'html',
+                    'pdf',
+                    'zugferd_xml',
+                    'zugferd_embedded_pdf',
+                ],
             },
         }),
     ),
-};
-
-const documentV2ServiceMock = {
-    getFileFormatSnippet: jest.fn((format) => `sw-order.components.createDocumentModal.fileFormats.${format}`),
 };
 
 const repositoryMockFactory = (entity) => {
@@ -241,7 +236,6 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                         getCustomFieldSets: () => Promise.resolve([]),
                     },
                     documentV2Service: documentV2ServiceMock,
-                    documentV2ApiService: documentV2ApiServiceMock,
                 },
             },
             ...customOptions,
@@ -254,7 +248,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
         documentBaseConfigRepositoryMock.save.mockReset();
         documentBaseConfigRepositoryMock.save.mockResolvedValue();
-        documentV2ApiServiceMock.getAvailableTypes.mockClear();
+        documentV2ServiceMock.getAvailableDocumentTypes.mockClear();
         localStorage.removeItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY);
     });
 
@@ -675,6 +669,28 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(multiSelect.attributes().value).toBe('pdf');
     });
 
+    it('should exclude zugferd and app-provided document types from documentCriteria', async () => {
+        const wrapper = await createWrapper({}, ['document.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.documentCriteria.filters).toContainEqual({
+            type: 'not',
+            operator: 'OR',
+            queries: [
+                {
+                    type: 'prefix',
+                    field: 'technicalName',
+                    value: 'zugferd_',
+                },
+                {
+                    type: 'equals',
+                    field: 'technicalName',
+                    value: 'app_provided',
+                },
+            ],
+        });
+    });
+
     it.each([
         { name: 'no company form', config: { displayCompanyAddress: false, displayReturnAddress: false } },
         { name: 'return address active', config: { displayCompanyAddress: false, displayReturnAddress: true } },
@@ -718,7 +734,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__field_file_name_infix').exists()).toBe(false);
-        expect(documentV2ApiServiceMock.getAvailableTypes).not.toHaveBeenCalled();
+        expect(documentV2ServiceMock.getAvailableDocumentTypes).not.toHaveBeenCalled();
     });
 
     it('should render a filename infix field per supported format when DOCUMENT_GENERATION_REWORK is active', async () => {
@@ -731,7 +747,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
         await flushPromises();
 
-        expect(documentV2ApiServiceMock.getAvailableTypes).toHaveBeenCalledTimes(1);
+        expect(documentV2ServiceMock.getAvailableDocumentTypes).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.supportedFormats).toEqual([
             'html',
             'pdf',

@@ -110,6 +110,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemValidator;
 use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
@@ -186,7 +187,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(CartLocker::class)
         ->args([
-            service('lock.factory'),
+            service(LockManager::class),
         ]);
 
     $services->set(CartSerializationCleaner::class)

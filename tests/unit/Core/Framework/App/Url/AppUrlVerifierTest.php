@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
@@ -38,7 +39,7 @@ class AppUrlVerifierTest extends TestCase
 
         $shopId = ShopId::v2('shop-id');
 
-        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, new LockManager($lockFactory), static::createStub(LoggerInterface::class), $clock);
         static::assertTrue($verifier->verify($shopId));
     }
 
@@ -49,7 +50,7 @@ class AppUrlVerifierTest extends TestCase
         $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
         $lockFactory = new LockFactory(new InMemoryStore());
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($lockFactory), static::createStub(LoggerInterface::class), $clock);
 
         $shopId = ShopId::v2('shop-id');
         $result = $verifier->verify($shopId);
@@ -69,7 +70,7 @@ class AppUrlVerifierTest extends TestCase
         $lockFactory = static::createStub(LockFactory::class);
         $lockFactory->method('createLock')->willReturn($lock);
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($lockFactory), static::createStub(LoggerInterface::class), $clock);
 
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
         static::assertTrue($verifier->verify($shopId));
@@ -88,7 +89,7 @@ class AppUrlVerifierTest extends TestCase
         $lockFactory = static::createStub(LockFactory::class);
         $lockFactory->method('createLock')->willReturn($lock);
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($lockFactory), static::createStub(LoggerInterface::class), $clock);
 
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
         static::assertTrue($verifier->verify($shopId));
@@ -106,7 +107,7 @@ class AppUrlVerifierTest extends TestCase
         $clock = new MockClock();
         $locks = new LockFactory(new InMemoryStore());
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient($responseFactory), $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient($responseFactory), new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => $url]);
 
         $result = $verifier->verify($shopId);
@@ -212,7 +213,7 @@ class AppUrlVerifierTest extends TestCase
             )
         );
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
         foreach ($steps as $step) {
@@ -276,7 +277,7 @@ class AppUrlVerifierTest extends TestCase
 
         $http = new MockHttpClient(new MockResponse('server error', ['http_code' => 500]));
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
         $result = $verifier->verify($shopId);
@@ -303,7 +304,7 @@ class AppUrlVerifierTest extends TestCase
             new MockResponse('server error', ['http_code' => 500]),
         ]);
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
         $verifier->verify($shopId);
@@ -329,7 +330,7 @@ class AppUrlVerifierTest extends TestCase
             new MockResponse('', ['http_code' => 204]),
         ]);
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
         $result = $verifier->verify($shopId);
@@ -364,7 +365,7 @@ class AppUrlVerifierTest extends TestCase
         $cache->save($item);
 
         $http = new MockHttpClient(new MockResponse('server error', ['http_code' => 500]));
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
         $result = $verifier->verify($shopId);
@@ -407,7 +408,7 @@ class AppUrlVerifierTest extends TestCase
         $cache->save($item);
 
         $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
         $state = $verifier->getCurrentState();
@@ -428,7 +429,7 @@ class AppUrlVerifierTest extends TestCase
         $locks = new LockFactory(new InMemoryStore());
 
         $http = new MockHttpClient();
-        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
         static::assertTrue($verifier->forceVerify($shop));
@@ -442,7 +443,7 @@ class AppUrlVerifierTest extends TestCase
         $locks = new LockFactory(new InMemoryStore());
 
         $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
-        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, new LockManager($locks), static::createStub(LoggerInterface::class), $clock);
         $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
         $result = $verifier->forceVerify($shop, true);
@@ -455,7 +456,7 @@ class AppUrlVerifierTest extends TestCase
     public function testGetCurrentStateReturnsNullWhenCacheEmpty(): void
     {
         $cache = new ArrayAdapter();
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockManager(new LockFactory(new InMemoryStore())), static::createStub(LoggerInterface::class), new MockClock());
 
         static::assertNull($verifier->getCurrentState());
     }
@@ -463,7 +464,7 @@ class AppUrlVerifierTest extends TestCase
     public function testGetCurrentState(): void
     {
         $cache = new ArrayAdapter();
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockManager(new LockFactory(new InMemoryStore())), static::createStub(LoggerInterface::class), new MockClock());
 
         $state = new VerificationState(
             VerificationStatus::SOFT_FAIL,
@@ -482,7 +483,7 @@ class AppUrlVerifierTest extends TestCase
     #[DataProvider('completeVerificationProvider')]
     public function testCompleteVerification(ArrayAdapter $cache, string $runId, string $token, bool $expectedResult): void
     {
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockManager(new LockFactory(new InMemoryStore())), static::createStub(LoggerInterface::class), new MockClock());
 
         $result = $verifier->completeVerification($runId, $token);
 
@@ -556,7 +557,7 @@ class AppUrlVerifierTest extends TestCase
             );
 
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, $logger, $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($locks), $logger, $clock);
 
         $result = $verifier->verify($shopId);
         static::assertFalse($result);
@@ -578,7 +579,7 @@ class AppUrlVerifierTest extends TestCase
             );
 
         $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, $logger, $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, new LockManager($locks), $logger, $clock);
 
         $result = $verifier->verify($shopId);
         static::assertTrue($result);

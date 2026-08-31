@@ -4,6 +4,7 @@ namespace Shopware\Core\System\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
@@ -18,7 +19,6 @@ use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\Lock\LockFactory;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
@@ -52,7 +52,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(Connection::class),
-            service(LockFactory::class),
+            service(LockManager::class),
             service(SchemaUpdater::class),
         ]);
 

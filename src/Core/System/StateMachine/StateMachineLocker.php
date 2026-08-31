@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -21,7 +21,7 @@ class StateMachineLocker implements ResetInterface
      */
     private array $acquiredLocks = [];
 
-    public function __construct(private readonly LockFactory $lockFactory)
+    public function __construct(private readonly LockManager $lockManager)
     {
     }
 
@@ -38,11 +38,12 @@ class StateMachineLocker implements ResetInterface
             return $closure();
         }
 
-        $lock = $this->lockFactory->createLock($lockKey, self::LOCK_TTL);
-
-        if (!$lock->acquire(true)) {
-            throw StateMachineException::stateMachineTransitionLocked($transition->getEntityName(), $transition->getEntityId());
-        }
+        $lock = $this->lockManager->acquireOrThrow(
+            $lockKey,
+            fn (): never => throw StateMachineException::stateMachineTransitionLocked($transition->getEntityName(), $transition->getEntityId()),
+            ttl: self::LOCK_TTL,
+            blocking: true,
+        );
 
         $this->acquiredLocks[$lockKey] = true;
 

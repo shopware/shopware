@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
@@ -14,7 +14,7 @@ class CartLocker
 {
     private const LOCK_TTL = 5;
 
-    public function __construct(private readonly LockFactory $lockFactory)
+    public function __construct(private readonly LockManager $lockManager)
     {
     }
 
@@ -33,11 +33,11 @@ class CartLocker
         }
 
         $lockKey = $this->getLockKey($context->getToken());
-        $lock = $this->lockFactory->createLock($lockKey, self::LOCK_TTL);
-
-        if (!$lock->acquire()) {
-            throw CartException::cartLocked($context->getToken());
-        }
+        $lock = $this->lockManager->acquireOrThrow(
+            $lockKey,
+            fn (): never => throw CartException::cartLocked($context->getToken()),
+            ttl: self::LOCK_TTL,
+        );
 
         try {
             $context->setCartLock($lock);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\NumberRange\ValueGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -39,7 +40,7 @@ class IncrementRedisStorageTest extends TestCase
 
         $this->storage = new IncrementRedisStorage(
             $this->redisMock,
-            $this->lockFactoryMock,
+            new LockManager($this->lockFactoryMock),
             $repository,
         );
     }
@@ -247,7 +248,7 @@ class IncrementRedisStorageTest extends TestCase
 
         $this->storage = new IncrementRedisStorage(
             $this->redisMock,
-            $this->lockFactoryMock,
+            new LockManager($this->lockFactoryMock),
             $repository,
         );
 

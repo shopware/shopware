@@ -7,13 +7,13 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -42,7 +42,7 @@ class CacheClearer
         private readonly bool $reverseHttpCacheEnabled,
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
-        private readonly LockFactory $lockFactory,
+        private readonly LockManager $lockManager,
     ) {
     }
 
@@ -179,18 +179,13 @@ class CacheClearer
      */
     private function lock(\Closure $closure, string $key, int $timeToLive, string $operation): void
     {
-        $lock = $this->lockFactory->createLock('cache-clearer::' . $key, $timeToLive);
-
-        // Non-blocking lock acquisition
-        if (!$lock->acquire(false)) {
-            throw AdapterException::cacheCleanerLocked($operation, $key);
-        }
-
-        try {
-            $closure();
-        } finally {
-            $lock->release();
-        }
+        $this->lockManager->executeLocked(
+            'cache-clearer::' . $key,
+            $closure,
+            fn (): never => throw AdapterException::cacheCleanerLocked($operation, $key),
+            ttl: $timeToLive,
+            blocking: false,
+        );
     }
 
     private function lockKeyForDir(string $dir): string

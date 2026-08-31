@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
@@ -16,7 +17,6 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMemoryLimitListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
@@ -43,7 +43,7 @@ class ConsumeMessagesController extends AbstractController
         private readonly string $defaultTransportName,
         private readonly string $memoryLimit,
         private readonly int $pollInterval,
-        private readonly LockFactory $lockFactory
+        private readonly LockManager $lockManager
     ) {
     }
 
@@ -56,11 +56,10 @@ class ConsumeMessagesController extends AbstractController
             throw MessageQueueException::validReceiverNameNotProvided();
         }
 
-        $consumerLock = $this->lockFactory->createLock('message_queue_consume_' . $receiverName);
-
-        if (!$consumerLock->acquire()) {
-            throw MessageQueueException::workerIsLocked($receiverName);
-        }
+        $consumerLock = $this->lockManager->acquireOrThrow(
+            'message_queue_consume_' . $receiverName,
+            fn (): never => throw MessageQueueException::workerIsLocked($receiverName),
+        );
 
         $receiver = $this->receiverLocator->get($receiverName);
 

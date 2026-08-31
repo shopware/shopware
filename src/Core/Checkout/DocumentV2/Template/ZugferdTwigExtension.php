@@ -17,7 +17,7 @@ use Twig\TwigFilter;
  * the entities emitted (`&amp; &lt; &gt; &quot; &#039;`) are all valid XML and produce the same
  * canonical form as the strict XML 1.0 escaper after a DOM round-trip in {@see XmlFormatter}.
  *
- * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
+ * @internal
  */
 #[Package('after-sales')]
 final class ZugferdTwigExtension extends AbstractExtension

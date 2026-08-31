@@ -28,6 +28,8 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 
 /**
  * @final
+ *
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 readonly class DocumentGenerator

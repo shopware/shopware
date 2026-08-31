@@ -73,9 +73,17 @@ final class DocumentV2Controller extends AbstractController
         $documentTypes = [];
 
         foreach ($this->documentTypeRegistry->getTechnicalNames() as $documentType) {
-            $documentTypes[$documentType] = [
+            $entry = [
                 'formats' => $this->documentTypeRegistry->getSupportedFormats($documentType),
             ];
+
+            $label = $this->documentTypeRegistry->getAppLabel($documentType);
+
+            if ($label !== []) {
+                $entry['label'] = $label;
+            }
+
+            $documentTypes[$documentType] = $entry;
         }
 
         return new JsonResponse([

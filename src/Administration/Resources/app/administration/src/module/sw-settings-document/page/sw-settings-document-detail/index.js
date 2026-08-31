@@ -365,7 +365,6 @@ export default {
         'feature',
         'customFieldDataProviderService',
         'documentV2Service',
-        'documentV2ApiService',
     ],
 
     mixins: [
@@ -482,7 +481,14 @@ export default {
 
         documentCriteria() {
             // We don't want to select ZUGFeRD as a type. "invoice" configuration is used instead (NEXT-40492)
-            return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.prefix('technicalName', 'zugferd_')]));
+            // "app_provided" is an internal technical row shared by all app-provided DocumentV2 documents and must not be selectable
+            return new Criteria(1, 25).addFilter(
+                Criteria.not('OR', [
+                    Criteria.prefix('technicalName', 'zugferd_'),
+                    /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+                    Criteria.equals('technicalName', 'app_provided'),
+                ]),
+            );
         },
 
         tooltipSave() {
@@ -631,9 +637,7 @@ export default {
         },
 
         async loadAvailableDocumentTypes() {
-            const response = await this.documentV2ApiService.getAvailableTypes();
-
-            this.availableDocumentTypes = response.documentTypes;
+            this.availableDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
         },
 
         async onChangeType(documentType) {

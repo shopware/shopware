@@ -116,6 +116,35 @@ class DefinitionValidatorTest extends TestCase
 
         // When table doesn't exist in the schema, validatePrimaryKeyConsistency skips validation
         static::assertEmpty($primaryKeyViolations, 'Expected no primary key violations when table does not exist, but got: ' . implode(', ', $primaryKeyViolations));
+
+        static::assertContains(
+            'Table "definition_validator_test" referenced by definition but not found in schema',
+            $definitionViolations
+        );
+    }
+
+    public function testMissingEntityNameConstantIsReportedWithoutFatalError(): void
+    {
+        $definition = new class extends EntityDefinition {
+            public function getEntityName(): string
+            {
+                return 'definition_validator_test';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([]);
+            }
+        };
+
+        $validator = $this->createValidatorWithTable($definition, ['id']);
+
+        $violations = $validator->validate();
+
+        static::assertContains(
+            \sprintf('ENTITY_NAME constant Missing in %s', $definition->getClass()),
+            $violations[$definition->getClass()] ?? []
+        );
     }
 
     public function testPrimaryKeyValidationSkipsNonStorageAwareFields(): void

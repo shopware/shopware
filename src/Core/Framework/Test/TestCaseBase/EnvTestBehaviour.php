@@ -16,17 +16,14 @@ trait EnvTestBehaviour
     /**
      * A null value removes the variable for the duration of the test.
      *
-     * Services the container has already built keep the value they were injected with; boot a
-     * fresh kernel when the test needs those rebuilt.
+     * Only code that reads the environment at runtime sees the change. A booted container keeps
+     * the values it resolved before, in its services and in its parameters alike, so boot a fresh
+     * kernel when the test needs the container to pick the change up.
      *
      * @param array<string, string|int|bool|null> $envVars
      */
     public function setEnvVars(array $envVars): void
     {
-        if ($envVars === []) {
-            return;
-        }
-
         foreach ($envVars as $envVar => $value) {
             if (!\array_key_exists($envVar, $this->originalEnvVars)) {
                 $this->originalEnvVars[$envVar] = $_SERVER[$envVar] ?? null;
@@ -34,8 +31,6 @@ trait EnvTestBehaviour
 
             $this->applyEnvVar($envVar, $value);
         }
-
-        KernelLifecycleManager::resetContainerEnvCache();
     }
 
     /**

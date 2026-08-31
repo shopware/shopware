@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Kernel;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -178,19 +177,6 @@ class KernelLifecycleManager
         }
 
         return $class;
-    }
-
-    /**
-     * Drops the container's cache of resolved `env()` values, so services built after this call
-     * see env vars that were changed at runtime. Does nothing while no kernel is booted.
-     */
-    public static function resetContainerEnvCache(): void
-    {
-        $container = static::$kernel?->getContainer();
-
-        if ($container instanceof Container) {
-            $container->resetEnvCache();
-        }
     }
 
     /**

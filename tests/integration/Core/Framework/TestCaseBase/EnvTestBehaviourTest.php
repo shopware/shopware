@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Framework\TestCaseBase;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
@@ -16,26 +18,17 @@ class EnvTestBehaviourTest extends TestCase
     use EnvTestBehaviour;
     use KernelTestBehaviour;
 
-    private const REDIRECTED_APP_URL = 'https://env-test-behaviour.test';
-
-    public function testTheContainerResolvesAChangedEnvVarAgain(): void
+    public function testResettingDropsAContainerThatResolvedTheChangedEnvVar(): void
     {
-        $this->setEnvVars(['APP_URL' => self::REDIRECTED_APP_URL]);
+        $appUrl = (string) EnvironmentHelper::getVariable('APP_URL');
 
-        static::assertSame(self::REDIRECTED_APP_URL, static::getContainer()->getParameter('APP_URL'));
-    }
+        $this->setEnvVars(['APP_URL' => 'https://env-test-behaviour.test']);
+        KernelLifecycleManager::bootKernel();
 
-    public function testResettingDropsTheContainerThatSawTheChangedEnvVar(): void
-    {
-        $appUrl = static::getContainer()->getParameter('APP_URL');
-        $container = static::getContainer();
-
-        $this->setEnvVars(['APP_URL' => self::REDIRECTED_APP_URL]);
-        static::getContainer()->getParameter('APP_URL');
+        static::assertSame('https://env-test-behaviour.test', static::getContainer()->getParameter('APP_URL'));
 
         $this->resetEnvVars();
 
-        static::assertNotSame($container, static::getContainer());
         static::assertSame($appUrl, static::getContainer()->getParameter('APP_URL'));
     }
 }

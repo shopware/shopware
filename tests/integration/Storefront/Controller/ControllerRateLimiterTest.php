@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -66,6 +67,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ControllerRateLimiterTest extends TestCase
 {
     use ClockSensitiveTrait;
@@ -191,7 +193,7 @@ class ControllerRateLimiterTest extends TestCase
 
         $errorContent = $crawler->filterXPath('//div[@class="flashbags container"]//div[@class="alert-content-container"]')->text();
 
-        static::assertStringContainsString($this->translator->trans('account.loginThrottled', ['%seconds%' => 5]), $errorContent);
+        static::assertStringContainsString($this->translator->trans('account.loginThrottled', ['%seconds%' => 5], 'messages', 'en-GB'), $errorContent);
     }
 
     public function testAuthControllerLoginShowsRateLimit(): void
@@ -272,7 +274,6 @@ class ControllerRateLimiterTest extends TestCase
         static::mockTime($now);
 
         $newsletterRequestRoute = $this->createMock(AbstractNewsletterSubscribeRoute::class);
-        $newsletterRequestRoute->method('subscribe')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
         $newsletterRequestRoute->method('subscribeWithResponse')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
 
         $controller = new FormController(
@@ -307,7 +308,7 @@ class ControllerRateLimiterTest extends TestCase
         static::mockTime($now);
 
         $newsletterRequestRoute = $this->createMock(NewsletterUnsubscribeRoute::class);
-        $newsletterRequestRoute->method('unsubscribe')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
+        $newsletterRequestRoute->method('unsubscribeWithResponse')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
 
         $controller = new FormController(
             static::getContainer()->get(ContactFormRoute::class),

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\FormCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\HtmlCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\TextCmsElementResolver;
@@ -19,7 +20,9 @@ use Shopware\Core\Content\Cms\Extension\CmsSlotsDataEnrichExtension;
 use Shopware\Core\Content\Cms\Extension\CmsSlotsDataResolveExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -44,12 +47,12 @@ class CmsSlotsDataResolverTest extends TestCase
 
     private TextCmsElementResolver&MockObject $textResolver;
 
-    private DefinitionInstanceRegistry&MockObject $registry;
+    private DefinitionInstanceRegistry&Stub $registry;
 
     /**
-     * @var SalesChannelRepository<SalesChannelProductCollection>&MockObject
+     * @var SalesChannelRepository<SalesChannelProductCollection>&Stub
      */
-    private SalesChannelRepository&MockObject $productRepository;
+    private SalesChannelRepository&Stub $productRepository;
 
     private EventDispatcher&Stub $dispatcher;
 
@@ -60,8 +63,8 @@ class CmsSlotsDataResolverTest extends TestCase
         $this->formResolver = $this->createMock(FormCmsElementResolver::class);
         $this->htmlResolver = $this->createMock(HtmlCmsElementResolver::class);
         $this->textResolver = $this->createMock(TextCmsElementResolver::class);
-        $this->registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $this->productRepository = $this->createMock(SalesChannelRepository::class);
+        $this->registry = static::createStub(DefinitionInstanceRegistry::class);
+        $this->productRepository = static::createStub(SalesChannelRepository::class);
         $this->dispatcher = static::createStub(EventDispatcher::class);
         $this->extensions = new ExtensionDispatcher($this->dispatcher);
     }
@@ -127,6 +130,8 @@ class CmsSlotsDataResolverTest extends TestCase
 
         $this->formResolver->method('getType')->willReturn('form');
         $this->formResolver->expects($this->once())->method('enrich');
+        $this->htmlResolver->expects($this->never())->method('enrich');
+        $this->textResolver->expects($this->never())->method('enrich');
 
         $criteria = new Criteria(['id-1', 'id-2']);
         $criteriaCollection = new CriteriaCollection();
@@ -181,6 +186,66 @@ class CmsSlotsDataResolverTest extends TestCase
             });
 
         $this->getCmsSlotsDataResolver()->resolve($slots, $resolverContext);
+    }
+
+    public function testResolveFiltersMergedDirectReadsPerSlot(): void
+    {
+        $slots = new CmsSlotCollection([
+            (new CmsSlotEntity())->assign([
+                'id' => 'slot-1',
+                'slot' => 'left',
+                'type' => 'form',
+            ]),
+        ]);
+
+        $collection = new CriteriaCollection();
+        $collection->add('criteria-1', ProductDefinition::class, new Criteria(['id-1']));
+
+        $this->formResolver->method('getType')->willReturn('form');
+        $this->formResolver->method('collect')->willReturn($collection);
+        $this->htmlResolver->expects($this->never())->method('enrich');
+        $this->textResolver->expects($this->never())->method('enrich');
+
+        $context = Generator::generateSalesChannelContext();
+        $resolverContext = new ResolverContext($context, new Request());
+
+        $wanted = (new SalesChannelProductEntity())->assign(['id' => 'id-1']);
+        $other = (new SalesChannelProductEntity())->assign(['id' => 'id-2']);
+        $wanted->internalSetEntityData('product', new FieldVisibility([]));
+        $other->internalSetEntityData('product', new FieldVisibility([]));
+
+        // the merged direct read fetches the ids of all slots at once, each slot only gets its own ids back
+        $this->productRepository->method('search')->willReturn(new EntitySearchResult(
+            'product',
+            2,
+            new SalesChannelProductCollection([$wanted, $other]),
+            null,
+            new Criteria(['id-1', 'id-2']),
+            $context->getContext(),
+        ));
+
+        $this->formResolver->expects($this->once())->method('enrich')
+            ->willReturnCallback(static function (CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $data) use ($wanted): void {
+                $filtered = $data->get('criteria-1');
+
+                static::assertInstanceOf(EntitySearchResult::class, $filtered);
+                static::assertSame(1, $filtered->getTotal());
+                static::assertInstanceOf(SalesChannelProductCollection::class, $filtered->getEntities());
+                static::assertSame(['id-1' => $wanted], $filtered->getEntities()->getElements());
+            });
+
+        $productDefinition = new ProductDefinition();
+        $productDefinition->compile($this->registry);
+        $this->registry->method('get')->willReturn($productDefinition);
+
+        $resolver = new CmsSlotsDataResolver(
+            [$this->formResolver, $this->htmlResolver, $this->textResolver],
+            ['product' => $this->productRepository],
+            $this->registry,
+            $this->extensions,
+        );
+
+        $resolver->resolve($slots, $resolverContext);
     }
 
     private function getCmsSlotsDataResolver(): CmsSlotsDataResolver

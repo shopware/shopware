@@ -604,7 +604,7 @@ class AppUrlVerifierTest extends TestCase
     }
 
     /**
-     * @param array{status: VerificationStatus, tries: int, return: bool, httpCalls: int} $step
+     * @param array{sleep: int, status: VerificationStatus, tries: int, httpCalls: int, return: bool} $step
      */
     private function assertStep(?VerificationState $state, array $step, bool $return, int $numHttpCalls): void
     {

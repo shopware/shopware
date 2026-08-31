@@ -48,6 +48,9 @@ XML));
         static::assertSame('second.action', $actions->getActions()[1]->getMeta()->getName());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

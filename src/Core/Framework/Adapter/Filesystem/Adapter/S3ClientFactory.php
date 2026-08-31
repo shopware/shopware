@@ -8,7 +8,20 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * @phpstan-type S3Config array{bucket: string, region: string, root: string, credentials?: array{key: string, secret: string}, endpoint?: string, options?: array<mixed>, use_path_style_endpoint?: bool, visibility?: string, url?: string}
+ * @phpstan-type S3Config array{
+ *     bucket: string,
+ *     region: string,
+ *     root: string,
+ *     credentials?: array{
+ *         key: string,
+ *         secret: string
+ *     }|null,
+ *     endpoint?: string,
+ *     options?: array<mixed>,
+ *     use_path_style_endpoint?: bool,
+ *     visibility?: string,
+ *     url?: string
+ * }
  *
  * @internal
  */

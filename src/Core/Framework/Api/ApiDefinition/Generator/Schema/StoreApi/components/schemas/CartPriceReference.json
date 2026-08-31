@@ -72,9 +72,6 @@
                     "hasRange",
                     "regulationPrice",
                     "listPrice",
-                    "calculatedTaxes",
-                    "totalPrice",
-                    "quantity",
                     "unitName"
                 ]
             }

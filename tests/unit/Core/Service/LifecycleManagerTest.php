@@ -72,6 +72,17 @@ class LifecycleManagerTest extends TestCase
         $this->serviceInstaller->expects($this->once())
             ->method('scheduleInstall');
 
+        $this->privileges->expects($this->never())
+            ->method('acceptAllForApps');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->client->expects($this->never())
+            ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
+
         $manager = $this->createManager($this->createAppRepository());
 
         $manager->enable();
@@ -91,11 +102,35 @@ class LifecycleManagerTest extends TestCase
             ->method('set')
             ->with(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED, true);
 
+        $this->privileges->expects($this->never())
+            ->method('acceptAllForApps');
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+        $this->client->expects($this->never())
+            ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
+
         $this->createManager($this->createAppRepository())->disable($this->context);
     }
 
     public function testSyncStateServiceNotFound(): void
     {
+        $this->privileges->expects($this->never())
+            ->method('acceptAllForApps');
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->client->expects($this->never())
+            ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
+
         $manager = $this->createManager($this->createAppRepository());
 
         $this->expectExceptionObject(ServiceException::serviceNotInstalled('NonExistentService'));
@@ -122,6 +157,16 @@ class LifecycleManagerTest extends TestCase
 
         $this->privileges->expects($this->never())
             ->method('revokeAllForApps');
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->client->expects($this->never())
+            ->method('getAll');
 
         $manager = $this->createManager($this->createAppRepository($services));
 
@@ -148,6 +193,17 @@ class LifecycleManagerTest extends TestCase
             ->method('revokeAllForApps')
             ->with([$serviceId], $this->context);
 
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->client->expects($this->never())
+            ->method('getAll');
+
         $manager = $this->createManager($this->createAppRepository($services));
 
         $manager->syncState($serviceName, $this->context);
@@ -171,6 +227,17 @@ class LifecycleManagerTest extends TestCase
             ->method('revokeAllForApps')
             ->with(['id-2'], $this->context);
 
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->client->expects($this->never())
+            ->method('getAll');
+
         $manager = $this->createManager($this->createAppRepository($services));
 
         $manager->reevaluateRequirement('service_consent', $this->context);
@@ -190,6 +257,16 @@ class LifecycleManagerTest extends TestCase
 
         $this->privileges->expects($this->never())
             ->method('revokeAllForApps');
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->client->expects($this->never())
+            ->method('getAll');
 
         $manager = $this->createManager($this->createAppRepository($services));
 
@@ -204,7 +281,6 @@ class LifecycleManagerTest extends TestCase
             $this->createServiceEntity('service3', 'OrphanedService'),
         ]);
 
-        $this->client = $this->createMock(Client::class);
         $this->client->expects($this->once())
             ->method('getAll')
             ->willReturn([
@@ -215,6 +291,17 @@ class LifecycleManagerTest extends TestCase
         $this->serviceLifecycle->expects($this->once())
             ->method('uninstall')
             ->with('OrphanedService', $this->context);
+
+        $this->privileges->expects($this->never())
+            ->method('acceptAllForApps');
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = $this->createManager($this->createAppRepository($services));
 
@@ -234,6 +321,14 @@ class LifecycleManagerTest extends TestCase
             ->method('uninstall');
         $this->client->expects($this->never())
             ->method('getAll');
+        $this->privileges->expects($this->never())
+            ->method('acceptAllForApps');
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = $this->createManager($this->createAppRepository());
 
@@ -244,6 +339,18 @@ class LifecycleManagerTest extends TestCase
     {
         $this->serviceInstaller->expects($this->never())
             ->method('reconcile');
+        $this->privileges->expects($this->never())
+            ->method('acceptAllForApps');
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->client->expects($this->never())
+            ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
 
         $manager = $this->createManager($this->createAppRepository(), enabled: 'false');
 
@@ -256,6 +363,22 @@ class LifecycleManagerTest extends TestCase
     #[DataProvider('enabledProvider')]
     public function testEnabled(string $envEnabled, string $appEnv, array $systemConfig, bool $expectedEnabled): void
     {
+        // the manager below is built from fresh stubs; the shared mocks must stay untouched
+        $this->privileges->expects($this->never())
+            ->method('acceptAllForApps');
+        $this->systemConfigService->expects($this->never())
+            ->method('set');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
+        $this->serviceInstaller->expects($this->never())
+            ->method('reconcile');
+        $this->permissionsService->expects($this->never())
+            ->method('revoke');
+        $this->client->expects($this->never())
+            ->method('getAll');
+        $this->serviceConsentRequirement->expects($this->never())
+            ->method('isSatisfied');
+
         $manager = new LifecycleManager(
             $envEnabled,
             $appEnv,
@@ -352,7 +475,6 @@ class LifecycleManagerTest extends TestCase
      */
     private function createAppRepository(AppCollection $apps = new AppCollection()): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([
             $apps,
         ]);

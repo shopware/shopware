@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { computed } from 'vue';
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import template from './sw-system-config.html.twig';
@@ -30,6 +31,13 @@ export default {
     template,
 
     inject: ['systemConfigApiService'],
+
+    /** @public */
+    provide() {
+        return {
+            swSystemConfigCurrentSalesChannelId: computed(() => this.currentSalesChannelId),
+        };
+    },
 
     emits: [
         'loading-changed',
@@ -120,7 +128,7 @@ export default {
 
     methods: {
         getFieldError(fieldName) {
-            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.salesChannelId, fieldName);
+            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.currentSalesChannelId, fieldName);
         },
 
         async createdComponent() {
@@ -434,6 +442,7 @@ export default {
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;
             bind.config = { ...(element.config || {}) };
+            bind.error = this.getFieldError(element.name);
 
             // Inheritance bindings
             bind.inheritedValue = this.getInheritedValue(element);

@@ -109,6 +109,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'limitedRedemptions' => true,
             'hasPersonaRestriction' => false,
             'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => true,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -166,6 +167,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'limitedRedemptions' => true,
             'hasPersonaRestriction' => false,
             'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -222,6 +224,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'limitedRedemptions' => false,
             'hasPersonaRestriction' => false,
             'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -328,6 +331,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'limitedRedemptions' => false,
             'hasPersonaRestriction' => false,
             'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Notification\NotificationCollection;
 use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,7 +20,6 @@ class NotificationTest extends TestCase
 {
     public function testDelegatesNewServicesInstalledToNotificationService(): void
     {
-        /** @var StaticEntityRepository<NotificationCollection> $repo */
         $repo = new StaticEntityRepository([], new NotificationDefinition());
 
         $notification = new Notification(new NotificationService($repo));

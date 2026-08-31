@@ -84,6 +84,43 @@ class TranslationUpdaterTest extends TestCase
         static::assertSame(['de-DE'], $result->updated);
     }
 
+    public function testUpdateInstalledRestrictsRefreshToGivenLocales(): void
+    {
+        $installed = $this->metadataCollection(['de-DE' => false, 'es-ES' => false]);
+        $updated = $this->metadataCollection(['de-DE' => true, 'es-ES' => false]);
+
+        $loader = $this->createMock(AbstractTranslationLoader::class);
+        $loader->expects($this->once())->method('load')->with('de-DE');
+
+        $store = $this->createMock(TranslationMetadataStore::class);
+        $store->method('getLocalMetadata')->willReturn($installed);
+        $store->expects($this->once())->method('getUpdatedLocalMetadata')->with(['de-DE'])->willReturn($updated);
+        $store->expects($this->once())->method('save')->with($updated);
+
+        $result = (new TranslationUpdater($loader, $store))->updateInstalled(Context::createCLIContext(), ['de-DE']);
+
+        static::assertSame(['de-DE'], $result->updated);
+        static::assertSame(['es-ES'], $result->skipped);
+    }
+
+    public function testUpdateInstalledDoesNothingWhenGivenLocalesAreNotInstalled(): void
+    {
+        $installed = $this->metadataCollection(['de-DE' => false]);
+
+        $loader = $this->createMock(AbstractTranslationLoader::class);
+        $loader->expects($this->never())->method('load');
+
+        $store = $this->createMock(TranslationMetadataStore::class);
+        $store->method('getLocalMetadata')->willReturn($installed);
+        $store->expects($this->never())->method('getUpdatedLocalMetadata');
+        $store->expects($this->never())->method('save');
+
+        $result = (new TranslationUpdater($loader, $store))->updateInstalled(Context::createCLIContext(), ['fr-FR']);
+
+        static::assertSame([], $result->updated);
+        static::assertSame([], $result->skipped);
+    }
+
     public function testUpdateInstalledDoesNothingWhenNoLocaleInstalled(): void
     {
         $loader = $this->createMock(AbstractTranslationLoader::class);

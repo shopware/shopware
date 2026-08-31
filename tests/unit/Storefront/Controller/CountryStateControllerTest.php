@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\CountryStateController;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('fundamentals@discovery')]
 #[CoversClass(CountryStateController::class)]
 class CountryStateControllerTest extends TestCase
 {

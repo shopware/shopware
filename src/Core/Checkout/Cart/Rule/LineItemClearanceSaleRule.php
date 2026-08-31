@@ -68,6 +68,10 @@ class LineItemClearanceSaleRule extends Rule
      */
     private function matchesClearanceSaleCondition(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         return (bool) $lineItem->getPayloadValue('isCloseout') === $this->clearanceSale;
     }
 }

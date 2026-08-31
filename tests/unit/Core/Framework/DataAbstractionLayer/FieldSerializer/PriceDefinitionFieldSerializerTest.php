@@ -37,6 +37,8 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -80,6 +82,41 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new KeyValuePair('test', $definition, true),
             new WriteParameterBag(static::createStub(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
         ));
+    }
+
+    /**
+     * The serializer pre-processes the payload before `JsonFieldSerializer::encode()` validates it. A scalar
+     * used to reach that pre-processing and abort the request with a PHP `Error` instead of a violation.
+     */
+    #[DataProvider('nonArrayValueProvider')]
+    public function testEncodeRejectsNonArrayValue(mixed $value): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/test', $value),
+            ])
+        ));
+
+        iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $value, false),
+            new WriteParameterBag(
+                static::createStub(CurrencyDefinition::class),
+                WriteContext::createFromContext(Context::createDefaultContext()),
+                '',
+                new WriteCommandQueue()
+            )
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonArrayValueProvider(): iterable
+    {
+        yield 'number, where PHP reads the offset as an array index' => [12.5];
+        yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
     }
 
     public function testEncodeDecodeWithEmptyOperatorCondition(): void

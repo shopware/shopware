@@ -58,7 +58,7 @@ class ProductPricingHookTest extends TestCase
 
     public function testGetSalesChannelContext(): void
     {
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $productPricingHook = new ProductPricingHook([], $salesChannelContext);
 
         static::assertSame($salesChannelContext, $productPricingHook->getSalesChannelContext());

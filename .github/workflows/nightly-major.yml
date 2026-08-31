@@ -19,8 +19,22 @@ jobs:
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       profile: nightly
+      currents: false
       major: only
   integration-major:
     uses: ./.github/workflows/integration-major.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+
+  # turn a red major matrix into a domain-grouped tracking issue, aggregated from
+  # the junit-phpunit-* artifacts integration-major.yml uploads on scheduled failures
+  report-phpunit-failures:
+    if: always() && github.event_name == 'schedule' && needs.integration-major.result == 'failure'
+    needs:
+      - integration-major
+    uses: ./.github/workflows/report-phpunit-failures.yml
+    permissions:
+      contents: read
+      issues: write
+    with:
+      report-title: "[nightly] Nightly Major test failures"

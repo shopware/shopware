@@ -21,12 +21,13 @@ jobs:
   markdown-only-changes:
     permissions:
       contents: read
+      pull-requests: read
     runs-on: ubuntu-24.04
     outputs:
       docs_only: ${{ steps.check.outputs.docs_only }}
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: check
         uses: ./.github/actions/markdown-only-changes
 
@@ -38,7 +39,7 @@ jobs:
     name: "PHP lint"
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -63,13 +64,17 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
-      - name: Cache CS Fixer
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      # per-run key + prefix restore, like the PHPStan and Rector result caches: a static
+      # key is never re-saved once it exists, so the stored cache goes stale against
+      # php-cs-fixer's internal signature (PHP/fixer version, rules) and the run silently
+      # pays a full scan despite a cache hit
+      - name: "Restore result cache"
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./var/cache/cs_fixer
-          key: ${{ runner.os }}-cs-fixer-${{ hashFiles('composer.json') }}
+          key: "cs-fixer-result-cache-${{ github.run_id }}"
           restore-keys: |
-            ${{ runner.os }}-cs-fixer-
+            cs-fixer-result-cache-
 
       - name: Lint composer.json files
         run: bin/console sync:composer:version --dry-run
@@ -79,6 +84,13 @@ jobs:
 
       - name: Code Style
         run: composer run cs
+
+      - name: "Save result cache"
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        if: always()
+        with:
+          path: ./var/cache/cs_fixer
+          key: "cs-fixer-result-cache-${{ github.run_id }}"
 
       - name: Lint Snippets
         run: bin/console translation:validate
@@ -136,7 +148,7 @@ jobs:
           keep-composer-tools: "true"
 
       - name: "Restore result cache"
-        uses: actions/cache/restore@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: var/cache/rector
           key: "rector-result-cache-${{ github.run_id }}"
@@ -147,7 +159,7 @@ jobs:
         run: composer rector
 
       - name: "Save result cache"
-        uses: actions/cache/save@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
         with:
           path: var/cache/rector
@@ -161,7 +173,7 @@ jobs:
     name: "BC check"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: "0"
           fetch-tags: "1"
@@ -179,6 +191,8 @@ jobs:
           set -e
           git remote add bc-checker-upstream https://github.com/shopware/platform.git
           git fetch bc-checker-upstream
+      - name: Unblock the BC baseline install
+        run: composer config --global --json policy.advisories.ignore-id '["PKSA-p9gd-j6gr-6f9t"]'
       - name: BC Checker lastest tag
         if: github.event_name != 'pull_request'
         run: composer run bc-check
@@ -203,6 +217,7 @@ jobs:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          env: prod
           install: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
@@ -219,7 +234,7 @@ jobs:
         run: |
           echo "PATH=${{ env.NPM_CONFIG_PREFIX }}/bin:$PATH" >> "$GITHUB_ENV"
           curl localhost:8000/
-          npm i -g @redocly/cli@2.19.0 @shopware/api-gen
+          npm i -g @redocly/cli@2.46.1 @shopware/api-gen
           STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
           export STOREFRONT_ID
           OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 shopware -se "SELECT access_key FROM sales_channel WHERE id = UNHEX(\"${STOREFRONT_ID}\")";)
@@ -245,18 +260,28 @@ jobs:
           schema-file: "./api-types/storeApiSchema.json"
           project: "shopware/store-api"
 
+      - name: Check Store API schema migration report
+        run: bin/console framework:store-api:schema-migration-report --scope=core --fail-on-mismatch --pretty -
+
       - name: Generate StoreAPI schema
         run: |
           api-gen generate --apiType=store
 
       - name: Lint OpenApi StoreAPI schema
         run: |
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/storeApiSchema.json
+          set -euo pipefail
+          redocly lint ./api-types/storeApiSchema.json
+          redocly lint --format json ./api-types/storeApiSchema.json > redocly-store-api-lint.json 2> /dev/null
+          warnings=$(jq '.totals.warnings' redocly-store-api-lint.json)
+          if [ "$warnings" -ne 0 ]; then
+            echo "Store API Redocly warnings are treated as errors in CI." >&2
+            echo "Redocly reported $warnings Store API warning(s)." >&2
+            exit 1
+          fi
 
-      - name: Generate & Lint OpenApi API schema
+      - name: Generate OpenApi API schema
         run: |
           api-gen loadSchema --apiType=admin && api-gen generate --apiType=admin
-          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
       - name: Upload OpenApi AdminAPI schema
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -323,7 +348,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
@@ -333,18 +358,30 @@ jobs:
         if: ${{ matrix.suite == 'unit' }}
         run: composer install -d vendor-bin/danger-php --no-interaction
       - name: Run PHPUnit with coverage
+        id: phpunit
         uses: ./.github/actions/phpunit-run
         with:
           test-testsuite: ${{ matrix.suite }}
           coverage: "true"
       - name: Upload coverage and test results to Codecov
         uses: ./.github/actions/phpunit-upload
-        # !cancelled(): junit test results must upload even when the run failed
-        if: ${{ !cancelled() }}
+        # !cancelled(): junit test results must upload even when the run failed.
+        # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
+        # failed), because then checkout never ran either and this local action cannot resolve.
+        if: ${{ !cancelled() && steps.phpunit.conclusion != 'skipped' }}
         with:
           coverage: "true"
           coverage-flags: phpunit-${{ matrix.suite }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-${{ matrix.suite }}
+          path: junit.xml
+          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
 
   license-check:
     needs:
@@ -372,7 +409,7 @@ jobs:
     name: "composer audit"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2

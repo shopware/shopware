@@ -99,7 +99,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array{type: 'customer'|'admin'|'custom'} $recipients
+     * @param array{type: 'customer'|'admin'|'custom', data?: array<string, string>} $recipients
      * @param list<string>|array{}|array{data: array<string, string>} $documentTypeIds
      */
     #[DataProvider('sendMailProvider')]
@@ -260,7 +260,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{0: array{type: 'customer'|'admin'|'custom'}, 1?: list<string>|array{}|array{data: array<string, string>}, 2?: bool}>
+     * @return \Generator<string, array{0: array{type: 'customer'|'admin'|'custom', data?: array<string, string>}, 1?: list<string>|array{}|array{data: array<string, string>}, 2?: bool}>
      */
     public static function sendMailProvider(): \Generator
     {
@@ -755,6 +755,7 @@ class SendMailActionTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
+        /** @var list<array{id: string, technical_name: string}> $documentTypes */
         $documentTypes = $this->connection->fetchAllAssociative(
             'SELECT HEX(`id`) AS `id`, `technical_name` FROM document_type WHERE `technical_name` IN (:type1, :type2);',
             [
@@ -795,29 +796,37 @@ class SendMailActionTest extends TestCase
 
         $sequencesConfig = $this->createFlowSequencesConfig($mailTemplateId, $documentTypes);
 
+        $transportDecorator = new MailerTransportDecorator(
+            $this->createMock(TransportInterface::class),
+            static::getContainer()->get(MailAttachmentsBuilder::class),
+            static::getContainer()->get('shopware.filesystem.public'),
+            $this->documentRepository
+        );
+
+        $logger = static::getContainer()->get('logger');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $mailTemplateTypeRepository = static::getContainer()->get('mail_template_type.repository');
+        $translator = static::getContainer()->get(Translator::class);
+        $languageLocaleCodeProvider = static::getContainer()->get(LanguageLocaleCodeProvider::class);
+        $jsonEntityEncoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $definitionInstanceRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
+
         foreach ($sequencesConfig as $config) {
             $flow->setConfig($config);
-
-            $transportDecorator = new MailerTransportDecorator(
-                $this->createMock(TransportInterface::class),
-                static::getContainer()->get(MailAttachmentsBuilder::class),
-                static::getContainer()->get('shopware.filesystem.public'),
-                $this->documentRepository
-            );
 
             $mailService = new TestEmailService(static::getContainer()->get(MailFactory::class), $transportDecorator);
 
             $sendMailAction = new SendMailAction(
                 $mailService,
                 $this->mailTemplateRepository,
-                static::getContainer()->get('logger'),
-                static::getContainer()->get('event_dispatcher'),
-                static::getContainer()->get('mail_template_type.repository'),
-                static::getContainer()->get(Translator::class),
+                $logger,
+                $eventDispatcher,
+                $mailTemplateTypeRepository,
+                $translator,
                 $this->connection,
-                static::getContainer()->get(LanguageLocaleCodeProvider::class),
-                static::getContainer()->get(JsonEntityEncoder::class),
-                static::getContainer()->get(DefinitionInstanceRegistry::class),
+                $languageLocaleCodeProvider,
+                $jsonEntityEncoder,
+                $definitionInstanceRegistry,
                 true
             );
 
@@ -832,9 +841,11 @@ class SendMailActionTest extends TestCase
                 $documentInfos = $this->getMatchingDocument($sequenzDocumentTypeId, $documentTypes);
                 static::assertNotEmpty($documentInfos);
 
+                static::assertArrayHasKey('filename', $documentInfos);
                 $found = $this->isDocumentPartOfAttachments($attachments, $documentInfos['filename']);
                 static::assertTrue($found, 'Attachment not found for document type: ' . $documentInfos['technical_name']);
 
+                static::assertArrayHasKey('documentId', $documentInfos);
                 $markedAsSent = $this->isDocumentMarkedAsSent($documentInfos['documentId'], $context);
                 static::assertTrue($markedAsSent, 'Successfully sent document with id ' . $documentInfos['documentId'] . ' was not marked as sent.');
             }
@@ -1201,9 +1212,9 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array<array<string, string>> $documentTypes
+     * @param list<array{id: string, technical_name: string, documentId?: string, filename?: string}> $documentTypes
      *
-     * @return array{id: string, technical_name: string, documentId: string, filename: string}|array{}
+     * @return array{id: string, technical_name: string, documentId?: string, filename?: string}|array{}
      */
     private function getMatchingDocument(string $sequenzDocumentTypeId, array $documentTypes): array
     {
@@ -1298,6 +1309,11 @@ class TestEmailService extends MailService
     {
         $this->data = $data;
         ++$this->calls;
+
+        TestCase::assertArrayHasKey('subject', $data);
+        TestCase::assertIsString($data['subject']);
+        TestCase::assertArrayHasKey('recipients', $data);
+        TestCase::assertIsArray($data['recipients']);
 
         if ($this->mailFactory && $this->decorator) {
             $mail = $this->mailFactory->create(

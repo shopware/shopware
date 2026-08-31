@@ -22,8 +22,6 @@ class DocumentV2Exception extends HttpException
 
     public const MISSING_FORMATS = 'DOCUMENT_V2__MISSING_FORMATS';
 
-    public const LIVE_VERSION_NOT_ALLOWED = 'DOCUMENT_V2__LIVE_VERSION_NOT_ALLOWED';
-
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
@@ -41,8 +39,6 @@ class DocumentV2Exception extends HttpException
     public const DOCUMENT_NUMBER_ALREADY_EXISTS = 'DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS';
 
     public const DOCUMENT_TYPE_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_TYPE_NOT_FOUND';
-
-    public const DUPLICATE_RENDERER = 'DOCUMENT_V2__DUPLICATE_RENDERER';
 
     public const DUPLICATE_PROVIDER_KEY = 'DOCUMENT_V2__DUPLICATE_PROVIDER_KEY';
 
@@ -76,6 +72,8 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_ARCHIVE_UNAVAILABLE = 'DOCUMENT_V2__ARCHIVE_UNAVAILABLE';
 
+    public const DOCUMENT_ARCHIVE_LIMIT_EXCEEDED = 'DOCUMENT_V2__ARCHIVE_LIMIT_EXCEEDED';
+
     public const DOCUMENT_ARCHIVE_FAILED = 'DOCUMENT_V2__ARCHIVE_FAILED';
 
     public const EMBED_FAILED = 'DOCUMENT_V2__EMBED_FAILED';
@@ -83,6 +81,23 @@ class DocumentV2Exception extends HttpException
     public const REFERENCED_INVOICE_NOT_FOUND = 'DOCUMENT_V2__REFERENCED_INVOICE_NOT_FOUND';
 
     public const REFERENCED_INVOICE_NUMBER_MISSING = 'DOCUMENT_V2__REFERENCED_INVOICE_NUMBER_MISSING';
+
+    public const REFERENCED_ORDER_VERSION_NOT_FOUND = 'DOCUMENT_V2__REFERENCED_ORDER_VERSION_NOT_FOUND';
+
+    public const REFERENCED_DOCUMENT_NOT_SUPPORTED = 'DOCUMENT_V2__REFERENCED_DOCUMENT_NOT_SUPPORTED';
+
+    public const NO_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_CREDIT_LINE_ITEMS';
+
+    public const NO_UNPROCESSED_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_LINE_ITEMS';
+
+    public const DOCUMENT_TYPE_ALREADY_REGISTERED = 'DOCUMENT_V2__DOCUMENT_TYPE_ALREADY_REGISTERED';
+
+    public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'DOCUMENT_V2__DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
+
+    /**
+     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     */
+    public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -123,15 +138,6 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function liveVersionNotAllowed(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::LIVE_VERSION_NOT_ALLOWED,
-            'Live version of document is not allowed for document generation.',
-        );
-    }
-
     public static function orderNotFound(string $orderId): self
     {
         return new self(
@@ -152,12 +158,16 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function rendererNotFound(string $format, string $documentType): self
+    public static function rendererNotFound(string $format, ?string $documentType = null): self
     {
+        $message = $documentType === null
+            ? 'Renderer for format "{{ format }}" not found.'
+            : 'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.';
+
         return new self(
             Response::HTTP_NOT_FOUND,
             self::RENDERER_NOT_FOUND,
-            'Renderer for format "{{ format }}" and document type "{{ documentType }}" not found.',
+            $message,
             ['format' => $format, 'documentType' => $documentType],
         );
     }
@@ -179,6 +189,39 @@ class DocumentV2Exception extends HttpException
             self::INVALID_DOCUMENT_TYPE,
             'Invalid document type "{{ documentType }}". A document type must only contain lowercase letters, digits and underscores.',
             ['documentType' => $documentType],
+        );
+    }
+
+    public static function documentTypeAlreadyRegistered(string $identifier, string $owningApp): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_ALREADY_REGISTERED,
+            'The document type "{{ identifier }}" is already registered by app "{{ owningApp }}".',
+            ['identifier' => $identifier, 'owningApp' => $owningApp],
+        );
+    }
+
+    public static function documentTypeShadowsCoreType(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_SHADOWS_CORE_TYPE,
+            'The document type "{{ identifier }}" shadows a core document type and cannot be registered by an app.',
+            ['identifier' => $identifier],
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     */
+    public static function documentTypeReservedIdentifier(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_RESERVED_IDENTIFIER,
+            'The document type "{{ identifier }}" is a reserved technical name and cannot be registered by an app.',
+            ['identifier' => $identifier],
         );
     }
 
@@ -212,13 +255,26 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function documentArchiveUnavailable(string $documentId): self
+    /**
+     * @param list<string> $documentIds
+     */
+    public static function documentArchiveUnavailable(array $documentIds): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
             self::DOCUMENT_ARCHIVE_UNAVAILABLE,
-            'Document with id "{{ documentId }}" has no generated files to archive.',
-            ['documentId' => $documentId],
+            'None of the requested documents have generated files to archive: "{{ documentIds }}".',
+            ['documentIds' => implode(', ', $documentIds)],
+        );
+    }
+
+    public static function documentArchiveLimitExceeded(int $requested, int $limit): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_ARCHIVE_LIMIT_EXCEEDED,
+            'Cannot archive {{ requested }} documents at once, the limit is {{ limit }}.',
+            ['requested' => $requested, 'limit' => $limit],
         );
     }
 
@@ -282,16 +338,6 @@ class DocumentV2Exception extends HttpException
             self::DOCUMENT_TYPE_NOT_FOUND,
             'Document type "{{ documentType }}" not found.',
             ['documentType' => $documentType],
-        );
-    }
-
-    public static function duplicateRenderer(string $format, string $documentType): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::DUPLICATE_RENDERER,
-            'Duplicate renderer for format "{{ format }}" and document type "{{ documentType }}".',
-            ['format' => $format, 'documentType' => $documentType],
         );
     }
 
@@ -386,6 +432,26 @@ class DocumentV2Exception extends HttpException
         );
     }
 
+    public static function referencedOrderVersionNotFound(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_ORDER_VERSION_NOT_FOUND,
+            'Cannot resolve the order snapshot captured by the referenced document for order "{{ orderId }}".',
+            ['orderId' => $orderId],
+        );
+    }
+
+    public static function referencedDocumentNotSupported(string $documentType, string $referencedDocumentId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REFERENCED_DOCUMENT_NOT_SUPPORTED,
+            'Document type "{{ documentType }}" does not support a referenced document, but referenced document id "{{ referencedDocumentId }}" was supplied.',
+            ['documentType' => $documentType, 'referencedDocumentId' => $referencedDocumentId],
+        );
+    }
+
     public static function missingDeliveryDate(string $documentType): self
     {
         return new self(
@@ -441,6 +507,26 @@ class DocumentV2Exception extends HttpException
             'Failed to embed the XML into the PDF: {{ reason }}.',
             ['reason' => $previous->getMessage()],
             $previous,
+        );
+    }
+
+    public static function noCreditLineItems(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_CREDIT_LINE_ITEMS,
+            'Cannot generate credit note because order "{{ orderId }}" has no credit line items.',
+            ['orderId' => $orderId],
+        );
+    }
+
+    public static function noUnprocessedCreditLineItems(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::NO_UNPROCESSED_CREDIT_LINE_ITEMS,
+            'Cannot generate credit note because every credit line item of order "{{ orderId }}" is already invoiced or credited.',
+            ['orderId' => $orderId],
         );
     }
 }

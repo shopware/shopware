@@ -4,11 +4,16 @@ namespace Shopware\Tests\Unit\Core\System\StateMachine;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -17,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -73,6 +79,7 @@ class StateMachineRegistryTest extends TestCase
                     'transitionActionName' => 'paid',
                     'userId' => 'user-id',
                     'integrationId' => 'integration-id',
+                    'sourceType' => 'admin-api',
                     'referencedId' => $transition->getEntityId(),
                     'referencedVersionId' => $context->getVersionId(),
                     'internalComment' => 'internal comment',
@@ -91,6 +98,87 @@ class StateMachineRegistryTest extends TestCase
         static::assertCount(3, $dispatcher->events);
     }
 
+    #[DataProvider('transitionSourceProvider')]
+    public function testTransitionRecordsWhereTheStateChangeCameFrom(
+        Context $context,
+        ?string $expectedUserId,
+        ?string $expectedIntegrationId,
+        ?string $expectedSourceType
+    ): void {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $toPlace),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $fromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class)
+        );
+
+        $fixture->historyRepository->expects($this->once())
+            ->method('create')
+            ->with(
+                [[
+                    'stateMachineId' => $toPlace->getStateMachineId(),
+                    'entityName' => 'order_transaction',
+                    'fromStateId' => $fromPlace->getId(),
+                    'toStateId' => $toPlace->getId(),
+                    'transitionActionName' => 'paid',
+                    'userId' => $expectedUserId,
+                    'integrationId' => $expectedIntegrationId,
+                    'sourceType' => $expectedSourceType,
+                    'referencedId' => $transition->getEntityId(),
+                    'referencedVersionId' => $context->getVersionId(),
+                    'internalComment' => null,
+                ]],
+                $context
+            );
+
+        $fixture->registry->transition($transition, $context);
+    }
+
+    public static function transitionSourceProvider(): \Generator
+    {
+        yield 'store-api request has no admin actor and is recorded as sales channel source' => [
+            new Context(new SalesChannelApiSource('sales-channel-id')),
+            null,
+            null,
+            'sales-channel',
+        ];
+
+        yield 'internal transition without a request is recorded as system source' => [
+            new Context(new SystemSource()),
+            null,
+            null,
+            'system',
+        ];
+
+        yield 'admin user acting in a sales channel context stays the admin actor' => [
+            new Context(new AdminSalesChannelApiSource('sales-channel-id', new Context(new AdminApiSource('user-id')))),
+            'user-id',
+            null,
+            'admin-api',
+        ];
+
+        yield 'custom context source contributes its own type' => [
+            new Context(new StateMachineRegistryTestContextSource()),
+            null,
+            null,
+            'custom-source',
+        ];
+
+        yield 'context source without a public type is recorded without source' => [
+            new Context(new StateMachineRegistryTestTypelessContextSource()),
+            null,
+            null,
+            null,
+        ];
+    }
+
     public function testTransitionDoesNotUpdateStateWhenHistoryWriteFails(): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
@@ -107,7 +195,8 @@ class StateMachineRegistryTest extends TestCase
 
         // The history entry is written first inside the transaction; if it fails, the state must not be
         // updated, so no entity-written events are dispatched for a state change that never commits.
-        $fixture->historyRepository->method('create')
+        $fixture->historyRepository->expects($this->once())
+            ->method('create')
             ->willThrowException(new \RuntimeException('history write failed'));
 
         $fixture->entityRepository->expects($this->never())
@@ -347,11 +436,12 @@ class StateMachineRegistryTest extends TestCase
             });
 
         $entityRepository->method('search')
-            ->willReturnCallback(fn (Criteria $criteria, Context $context): EntitySearchResult => $this->createSearchResult(
-                'order_transaction',
-                new EntityCollection([new ArrayEntity(['id' => $criteria->getIds()[0], 'stateId' => $fromPlace->getId()])]),
-                $context
-            ));
+            ->willReturnCallback(function (Criteria $criteria, Context $context) use ($fromPlace): EntitySearchResult {
+                $entity = new ArrayEntity(['id' => $criteria->getIds()[0], 'stateId' => $fromPlace->getId()]);
+                $entity->internalSetEntityData('order_transaction', new FieldVisibility([]));
+
+                return $this->createSearchResult('order_transaction', new EntityCollection([$entity]), $context);
+            });
 
         $definitionRegistry->method('getByEntityName')
             ->willReturnMap([['order_transaction', $definition]]);
@@ -487,6 +577,22 @@ class StateMachineRegistryFixture
         public readonly EntityRepository&MockObject $historyRepository,
     ) {
     }
+}
+
+/**
+ * @internal
+ */
+class StateMachineRegistryTestContextSource implements ContextSource
+{
+    public string $type = 'custom-source';
+}
+
+/**
+ * @internal
+ */
+class StateMachineRegistryTestTypelessContextSource implements ContextSource
+{
+    protected string $type = 'not-readable-from-outside';
 }
 
 /**

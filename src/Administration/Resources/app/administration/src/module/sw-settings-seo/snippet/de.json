@@ -24,12 +24,18 @@
       "textUrlPreviewNotPossible": "Für dieses Template kann keine Vorschau erstellt werden.",
       "textUrlNoEntitiesForPreview": "Keine {entity} vorhanden.",
       "textUrlPreviewEmptyTemplate": "Das Template ist leer, es werden keine SEO-URLs für {entity} erstellt.",
-      "textInfoMessageBoxEmptyProperties": "Achte bei der Verwendung von Variablen darauf, dass in den entsprechenden Feldern der Entitäten (Produkte, Landingpages oder Kategorien) auch Daten hinterlegt sind. Wenn Variablen auf leere Felder verweisen, wird für die zugehörigen Entitäten keine SEO-URL erstellt."
+      "textInfoMessageBoxEmptyProperties": "Achte bei der Verwendung von Variablen darauf, dass in den entsprechenden Feldern der Entitäten (Produkte, Landingpages oder Kategorien) auch Daten hinterlegt sind. Wenn Variablen auf leere Felder verweisen, wird für die zugehörigen Entitäten keine SEO-URL erstellt.",
+      "headlineExternalStorefrontRequired": "Domain als externes Storefront erforderlich",
+      "textExternalStorefrontRequired": "Für Headless-Verkaufskanäle werden SEO-URLs nur für Domains generiert, die als externes Storefront markiert sind. Füge dem Verkaufskanal eine solche Domain hinzu, um SEO-URLs zu aktivieren.",
+      "linkExternalStorefrontDomain": "Verkaufskanal-Einstellungen öffnen"
     },
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite",
       "frontend-navigation-page": "Kategorieseite",
-      "frontend-landing-page": "Landingpage"
+      "frontend-landing-page": "Landingpage",
+      "store-api-product-detail": "Produktdetailseite",
+      "store-api-category-detail": "Kategorieseite",
+      "store-api-landing-page-detail": "Landingpage"
     }
   },
   "sw-seo-url": {
@@ -37,7 +43,7 @@
     "labelSalesChannelSelect": "Verkaufskanal",
     "labelSeoPathInfo": "SEO-Pfad",
     "textEmptySeoUrls": "Es sind noch keine SEO-URLs vorhanden.",
-    "textSeoUrlsDisallowedForHeadless": "Für Headless-Verkaufskanäle ist die Angabe von SEO-URLs nicht möglich.",
+    "textSeoUrlsNotSupported": "Für diesen Verkaufskanaltyp ist die Angabe von SEO-URLs nicht möglich.",
     "errorInvalidCharacters": "Der SEO-Pfad enthält Zeichen, die in URLs nicht erlaubt sind (zum Beispiel #, \\ oder ein einzelnes %).",
     "labelMainCategory": "Hauptkategorie",
     "placeholderMainCategory": "Hauptkategorie wählen ..."

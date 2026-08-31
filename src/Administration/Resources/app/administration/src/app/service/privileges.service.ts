@@ -44,6 +44,7 @@ export default class PrivilegesService {
         'log_entry:create', // for sw-error-boundary
         'currency:read', // for global currency formatting and custom fields
         'country:read', // for globally reused country selectors
+        'scheduled_task:read', // for the admin worker run interval
     ];
 
     /**

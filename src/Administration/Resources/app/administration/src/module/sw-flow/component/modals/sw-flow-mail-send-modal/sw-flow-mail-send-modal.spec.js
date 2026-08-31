@@ -68,6 +68,21 @@ function mockMailTemplateData() {
     ];
 }
 
+function mockDocumentTypeData() {
+    return [
+        {
+            id: 'document-type-invoice',
+            technicalName: 'invoice',
+            translated: { name: 'Invoice' },
+        },
+        {
+            id: 'document-type-credit-note',
+            technicalName: 'credit_note',
+            translated: { name: 'Credit note' },
+        },
+    ];
+}
+
 const pinia = createPinia();
 
 async function createWrapper(sequence = {}) {
@@ -144,10 +159,13 @@ async function createWrapper(sequence = {}) {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => {
+                    create: (entity) => {
                         return {
                             create: () => Promise.resolve(),
-                            search: () => Promise.resolve(mockMailTemplateData()),
+                            search: () =>
+                                Promise.resolve(
+                                    entity === 'document_type' ? mockDocumentTypeData() : mockMailTemplateData(),
+                                ),
                             get: () => Promise.resolve(),
                         };
                     },
@@ -161,6 +179,21 @@ async function createWrapper(sequence = {}) {
 
                         return Promise.resolve(true);
                     },
+                },
+                documentV2Service: {
+                    getFileFormatSnippet: (format) => `sw-order.components.createDocumentModal.fileFormats.${format}`,
+                    getDocumentTypeLabel: (technicalName) =>
+                        `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
+                    getAvailableDocumentTypes: () =>
+                        Promise.resolve({
+                            invoice: {
+                                formats: [
+                                    'pdf',
+                                    'zugferd_xml',
+                                ],
+                            },
+                            credit_note: { formats: ['pdf'] },
+                        }),
                 },
             },
         },
@@ -653,5 +686,188 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(wrapper.vm.showCreateMailTemplateModal).toBeTruthy();
         wrapper.vm.onCloseCreateMailTemplateModal();
         expect(wrapper.vm.showCreateMailTemplateModal).toBeFalsy();
+    });
+
+    describe('document generation rework', () => {
+        const sequenceWithDocumentTypeFixture = {
+            ...sequenceFixture,
+            config: {
+                ...sequenceFixture.config,
+                documentType: 'invoice',
+                fileFormats: ['pdf'],
+            },
+        };
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        async function selectMailTemplate(wrapper) {
+            await wrapper.find('.sw-flow-mail-send-modal__mail-template-select .sw-select__selection').trigger('click');
+            await flushPromises();
+            await wrapper.findAll('.sw-select-result').at(1).trigger('click');
+            await flushPromises();
+        }
+
+        async function selectMtOption(select, value) {
+            await select.find('.mt-select__selection').trigger('click');
+            await flushPromises();
+            await select.find(`.mt-select-option--${value}`).trigger('click');
+            await flushPromises();
+        }
+
+        it('should show the legacy multi-select and hide the single type and file formats selects when the feature is inactive', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag !== 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper(sequenceFixture);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-flow-mail-send-modal__document-types').exists()).toBe(true);
+            expect(wrapper.find('.sw-flow-mail-send-modal__document-type-select').exists()).toBe(false);
+            expect(wrapper.find('.sw-flow-mail-send-modal__file-formats-select').exists()).toBe(false);
+        });
+
+        it('should show the single type and file formats selects with the loaded options when the feature is active', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper(sequenceFixture);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-flow-mail-send-modal__document-types').exists()).toBe(false);
+
+            const documentTypeSelect = wrapper.find('.sw-flow-mail-send-modal__document-type-select');
+            const fileFormatsSelect = wrapper.find('.sw-flow-mail-send-modal__file-formats-select');
+            expect(documentTypeSelect.exists()).toBe(true);
+            expect(fileFormatsSelect.exists()).toBe(true);
+
+            await documentTypeSelect.find('.mt-select__selection').trigger('click');
+            await flushPromises();
+
+            expect(documentTypeSelect.find('.mt-select-option--invoice').exists()).toBe(true);
+            expect(documentTypeSelect.find('.mt-select-option--credit_note').exists()).toBe(true);
+        });
+
+        it('should reset the selected file formats when the document type changes', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper(sequenceFixture);
+            await flushPromises();
+
+            const documentTypeSelect = wrapper.find('.sw-flow-mail-send-modal__document-type-select');
+            const fileFormatsSelect = wrapper.find('.sw-flow-mail-send-modal__file-formats-select');
+
+            await selectMtOption(documentTypeSelect, 'invoice');
+            await selectMtOption(fileFormatsSelect, 'pdf');
+
+            await fileFormatsSelect.find('.mt-select__selection').trigger('click');
+            await flushPromises();
+            expect(fileFormatsSelect.find('.mt-select-option--zugferd_xml').exists()).toBe(true);
+
+            await selectMtOption(documentTypeSelect, 'credit_note');
+
+            await fileFormatsSelect.find('.mt-select__selection').trigger('click');
+            await flushPromises();
+            expect(fileFormatsSelect.find('.mt-select-option--zugferd_xml').exists()).toBe(false);
+            expect(fileFormatsSelect.find('.mt-select-option--pdf').exists()).toBe(true);
+        });
+
+        it('should not require a document type to be selected', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper(sequenceFixture);
+            await flushPromises();
+
+            await selectMailTemplate(wrapper);
+
+            await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.find('.sw-flow-mail-send-modal__file-formats-select').classes()).not.toContain('has--error');
+            expect(wrapper.emitted()['process-finish']).toBeTruthy();
+
+            const [emittedSequence] = wrapper.emitted()['process-finish'][0];
+            expect(emittedSequence.config.documentType).toBeNull();
+            expect(emittedSequence.config.fileFormats).toEqual([]);
+        });
+
+        it('should show a validation error and not emit process-finish when a document type is selected without file formats', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper(sequenceFixture);
+            await flushPromises();
+
+            await selectMtOption(wrapper.find('.sw-flow-mail-send-modal__document-type-select'), 'invoice');
+
+            await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.find('.sw-flow-mail-send-modal__file-formats-select').classes()).toContain('has--error');
+            expect(wrapper.emitted()['process-finish']).toBeUndefined();
+        });
+
+        it('should emit process-finish with the selected document type and file formats', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper(sequenceFixture);
+            await flushPromises();
+
+            await selectMailTemplate(wrapper);
+
+            const documentTypeSelect = wrapper.find('.sw-flow-mail-send-modal__document-type-select');
+            const fileFormatsSelect = wrapper.find('.sw-flow-mail-send-modal__file-formats-select');
+
+            await selectMtOption(documentTypeSelect, 'invoice');
+            await selectMtOption(fileFormatsSelect, 'pdf');
+            await selectMtOption(fileFormatsSelect, 'zugferd_xml');
+
+            await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
+            await flushPromises();
+
+            const [emittedSequence] = wrapper.emitted()['process-finish'][0];
+
+            expect(emittedSequence.config.documentType).toBe('invoice');
+            expect(emittedSequence.config.fileFormats).toEqual(
+                expect.arrayContaining([
+                    'pdf',
+                    'zugferd_xml',
+                ]),
+            );
+            expect(emittedSequence.config).not.toHaveProperty('documentTypeIds');
+        });
+
+        it('should pre-select the document type and file formats from an existing sequence', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper(sequenceWithDocumentTypeFixture);
+            await flushPromises();
+
+            await selectMailTemplate(wrapper);
+
+            await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
+            await flushPromises();
+
+            const [emittedSequence] = wrapper.emitted()['process-finish'][0];
+
+            expect(emittedSequence.config.documentType).toBe('invoice');
+            expect(emittedSequence.config.fileFormats).toEqual(['pdf']);
+        });
+
+        it('should not include documentType or fileFormats in the config when the feature is inactive', async () => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag !== 'DOCUMENT_GENERATION_REWORK');
+
+            const wrapper = await createWrapper(sequenceFixture);
+            await flushPromises();
+
+            await selectMailTemplate(wrapper);
+
+            await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
+            await flushPromises();
+
+            const [emittedSequence] = wrapper.emitted()['process-finish'][0];
+
+            expect(emittedSequence.config).not.toHaveProperty('documentType');
+            expect(emittedSequence.config).not.toHaveProperty('fileFormats');
+            expect(emittedSequence.config.documentTypeIds).toEqual([]);
+        });
     });
 });

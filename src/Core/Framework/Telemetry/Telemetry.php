@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Telemetry;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Instrumentation\DurationMetric;
+use Shopware\Core\Framework\Telemetry\Instrumentation\ElapsedTimer;
 use Shopware\Core\Framework\Telemetry\Instrumentation\Span;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
@@ -70,14 +71,14 @@ class Telemetry
             Profiler::start($span->name, $span->category, $span->tags);
         }
 
-        $start = $metric !== null ? hrtime(true) : null;
+        $timer = $metric !== null ? ElapsedTimer::start() : null;
         $durationMs = null;
 
         try {
             return $callback();
         } finally {
-            if ($start !== null) {
-                $durationMs = (hrtime(true) - $start) / 1_000_000;
+            if ($timer !== null) {
+                $durationMs = $timer->getElapsedMs();
             }
 
             if ($span !== null) {

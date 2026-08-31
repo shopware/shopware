@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
@@ -47,21 +48,36 @@ class UpdateTranslationsTaskHandlerTest extends TestCase
 
     public function testRunMakesNoRemoteRequestWhenNothingInstalled(): void
     {
+        // Languages are auto-update-enabled by default, but none of them is linked here, so the task stays offline.
         // The #[After] hook of TranslationClientBehaviour asserts the mock queue is empty, proving no request happened.
         $this->handler()->run();
 
         static::assertCount(0, $this->getTranslationRequestHandler());
     }
 
-    public function testRunRefreshesInstalledLocale(): void
+    public function testRunRefreshesInstalledLocaleWhenFlaggedForAutoUpdate(): void
     {
         $this->installLocale();
+        // auto-update is enabled by default; make the expectation explicit
+        $this->setLanguageAutoUpdate(self::PSEUDO_LOCALE, true);
 
         $this->appendTranslationResponse($this->metadataResponse('2025-06-01T00:00:00+00:00'));
         $this->appendTranslationFileResponses();
 
         $this->handler()->run();
 
+        static::assertSame(1, $this->countBaseSnippetSets(self::PSEUDO_LOCALE));
+    }
+
+    public function testRunSkipsInstalledLocaleWhenAutoUpdateDisabled(): void
+    {
+        $this->installLocale();
+        $this->setLanguageAutoUpdate(self::PSEUDO_LOCALE, false);
+
+        // The locale is installed but its language opted out of auto-update, so the task must not hit the remote.
+        $this->handler()->run();
+
+        static::assertCount(0, $this->getTranslationRequestHandler());
         static::assertSame(1, $this->countBaseSnippetSets(self::PSEUDO_LOCALE));
     }
 
@@ -84,6 +100,20 @@ class UpdateTranslationsTaskHandlerTest extends TestCase
         static::assertInstanceOf(TranslationUpdater::class, $updater);
 
         $updater->update($store->getUpdatedLocalMetadata([self::PSEUDO_LOCALE]), Context::createCLIContext());
+    }
+
+    private function setLanguageAutoUpdate(string $localeCode, bool $enabled): void
+    {
+        /** @var EntityRepository<LanguageCollection> $repository */
+        $repository = static::getContainer()->get('language.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('locale.code', $localeCode));
+
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertIsString($id);
+
+        $repository->update([['id' => $id, 'translationAutoUpdate' => $enabled]], Context::createDefaultContext());
     }
 
     private function metadataResponse(string $updatedAt = '2025-01-01T00:00:00+00:00'): Response

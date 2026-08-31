@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -27,6 +28,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
+#[Package('framework')]
 #[Group('cache')]
 class HttpCacheIntegrationTest extends TestCase
 {

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Test\PHPUnit\CompletionGuard\CompletionGuard;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -52,6 +53,9 @@ class TestBootstrapper
         }
 
         $classLoader = $this->classLoader ?? require $this->getProjectDir() . '/vendor/autoload.php';
+
+        // registered before anything below can fail, so a broken bootstrap can never disarm the guard
+        CompletionGuard::register();
 
         if ($this->loadEnvFile) {
             $this->loadEnvFile();

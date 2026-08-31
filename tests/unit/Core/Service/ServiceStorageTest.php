@@ -24,8 +24,7 @@ class ServiceStorageTest extends TestCase
     public function testFindByName(): void
     {
         $app = AppFixture::createAppEntity(name: 'MyService');
-        /** @var StaticEntityRepository<AppCollection> $repository */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(AppCollection::class, [
             static function (Criteria $criteria) use ($app): array {
                 self::assertServiceFilter($criteria);
 
@@ -43,8 +42,7 @@ class ServiceStorageTest extends TestCase
     public function testFindByIntegrationId(): void
     {
         $app = AppFixture::createAppEntity();
-        /** @var StaticEntityRepository<AppCollection> $repository */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(AppCollection::class, [
             static function (Criteria $criteria) use ($app): array {
                 self::assertServiceFilter($criteria);
 
@@ -61,8 +59,7 @@ class ServiceStorageTest extends TestCase
     public function testFindByNameAndIntegrationId(): void
     {
         $app = AppFixture::createAppEntity(name: 'MyService');
-        /** @var StaticEntityRepository<AppCollection> $repository */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(AppCollection::class, [
             static function (Criteria $criteria) use ($app): array {
                 self::assertServiceFilter($criteria);
 
@@ -80,8 +77,7 @@ class ServiceStorageTest extends TestCase
     public function testFindAll(): void
     {
         $app = AppFixture::createAppEntity();
-        /** @var StaticEntityRepository<AppCollection> $repository */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(AppCollection::class, [
             static function (Criteria $criteria) use ($app): array {
                 self::assertServiceFilter($criteria);
 

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
@@ -235,6 +237,7 @@ class EntityRepositoryTest extends TestCase
     {
         $product = new PartialEntity();
         $product->setUniqueIdentifier('test');
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $reader = static::createStub(EntityReaderInterface::class);
         $reader
@@ -247,8 +250,11 @@ class EntityRepositoryTest extends TestCase
             $event = $inner;
         });
 
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('product');
+
         $repo = new EntityRepository(
-            static::createStub(EntityDefinition::class),
+            $definition,
             $reader,
             static::createStub(VersionManager::class),
             static::createStub(EntitySearcherInterface::class),
@@ -657,5 +663,128 @@ class EntityRepositoryTest extends TestCase
 
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $event);
         static::assertSame(['new-id'], $event->getPrimaryKeys('product'));
+    }
+
+    public function testSearchIdsIsRoutedThroughTheInstrumentor(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        $repo->searchIds(new Criteria(), Context::createDefaultContext());
+
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH_IDS], $operations);
+    }
+
+    public function testAggregateIsRoutedThroughTheInstrumentor(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        $repo->aggregate(new Criteria(), Context::createDefaultContext());
+
+        static::assertSame([DalSearchInstrumentor::OPERATION_AGGREGATE], $operations);
+    }
+
+    public function testReadOnlySearchIsRoutedThroughTheInstrumentor(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        // an empty criteria needs no id lookup, so only the outer search operation is measured
+        $repo->search(new Criteria(), Context::createDefaultContext());
+
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
+    }
+
+    public function testSearchWithIdLookupDoesNotEmitANestedSearchIds(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm('foo');
+        $repo->search($criteria, Context::createDefaultContext());
+
+        // the id lookup runs through the private _searchIds(); the outer search is the only measured operation,
+        // so its duration is not double-counted by a nested searchIds sample
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
+    }
+
+    public function testSearchWithAggregationsDoesNotEmitANestedAggregate(): void
+    {
+        $operations = [];
+        $repo = new EntityRepository(
+            new ProductDefinition(),
+            static::createStub(EntityReaderInterface::class),
+            static::createStub(VersionManager::class),
+            static::createStub(EntitySearcherInterface::class),
+            static::createStub(EntityAggregatorInterface::class),
+            new EventDispatcher(),
+            static::createStub(EntityLoadedEventFactory::class),
+            $this->recordingInstrumentor($operations),
+        );
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new TermsAggregation('agg', 'id'));
+        $repo->search($criteria, Context::createDefaultContext());
+
+        // the aggregate is a nested sub-operation (profiled, not metered); only the outer search is measured
+        static::assertSame([DalSearchInstrumentor::OPERATION_SEARCH], $operations);
+    }
+
+    /**
+     * An instrumentor mock that records each measured operation and transparently runs the wrapped
+     * callback, so tests can assert the repository delegates to it.
+     *
+     * @param list<string> $operations
+     */
+    private function recordingInstrumentor(array &$operations): DalSearchInstrumentor
+    {
+        $instrumentor = static::createStub(DalSearchInstrumentor::class);
+        $instrumentor->method('measure')->willReturnCallback(
+            function (string $operation, EntityDefinition $definition, Criteria $criteria, \Closure $callback) use (&$operations): mixed {
+                $operations[] = $operation;
+
+                return $callback();
+            }
+        );
+
+        return $instrumentor;
     }
 }

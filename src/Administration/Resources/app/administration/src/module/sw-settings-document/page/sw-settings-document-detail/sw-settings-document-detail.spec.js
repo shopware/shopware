@@ -69,6 +69,16 @@ const documentBaseConfigRepositoryMock = {
             });
         }
 
+        if (id === 'documentConfigWithFormats') {
+            return Promise.resolve({
+                id: id,
+                documentTypeId: 'documentTypeId1',
+                config: {},
+                documentType: { id: 'documentTypeId1', technicalName: 'invoice' },
+                filenameInfixes: null,
+            });
+        }
+
         return Promise.resolve({
             id: id,
             documentTypeId: 'documentTypeId',
@@ -79,6 +89,8 @@ const documentBaseConfigRepositoryMock = {
             },
         });
     },
+
+    save: jest.fn(),
 };
 
 const salesChannelRepositoryMock = {
@@ -104,6 +116,22 @@ const documentBaseConfigSalesChannelsRepositoryMock = {
     search: () => {
         return Promise.resolve([]);
     },
+};
+
+const documentV2ServiceMock = {
+    getFileFormatSnippet: jest.fn((format) => `sw-order.components.createDocumentModal.fileFormats.${format}`),
+    getAvailableDocumentTypes: jest.fn(() =>
+        Promise.resolve({
+            invoice: {
+                formats: [
+                    'html',
+                    'pdf',
+                    'zugferd_xml',
+                    'zugferd_embedded_pdf',
+                ],
+            },
+        }),
+    ),
 };
 
 const repositoryMockFactory = (entity) => {
@@ -148,7 +176,29 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     'sw-entity-single-select': true,
                     'sw-card-view': true,
                     'sw-container': true,
-                    'sw-form-field-renderer': true,
+                    'sw-form-field-renderer': {
+                        template: `
+                            <div :id="name">
+                                <span
+                                    v-if="error"
+                                    class="sw-form-field-renderer__error"
+                                >
+                                    {{ error.detail }}
+                                </span>
+                            </div>
+                        `,
+                        props: {
+                            name: {
+                                type: String,
+                                required: true,
+                            },
+                            error: {
+                                type: Object,
+                                required: false,
+                                default: null,
+                            },
+                        },
+                    },
                     'mt-checkbox': MtCheckbox,
                     'mt-banner': true,
                     'sw-media-compact-upload-v2': {
@@ -167,6 +217,10 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     'sw-select-result': true,
                     'sw-highlight-text': true,
                     'sw-custom-field-set-renderer': true,
+                    'sw-help-text': {
+                        template: '<span class="sw-help-text"></span>',
+                        props: ['text'],
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -181,6 +235,7 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     customFieldDataProviderService: {
                         getCustomFieldSets: () => Promise.resolve([]),
                     },
+                    documentV2Service: documentV2ServiceMock,
                 },
             },
             ...customOptions,
@@ -191,6 +246,9 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
 describe('src/module/sw-settings-document/page/sw-settings-document-detail', () => {
     beforeEach(async () => {
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
+        documentBaseConfigRepositoryMock.save.mockReset();
+        documentBaseConfigRepositoryMock.save.mockResolvedValue();
+        documentV2ServiceMock.getAvailableDocumentTypes.mockClear();
         localStorage.removeItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY);
     });
 
@@ -359,6 +417,60 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         const paymentDueDateField = wrapper.vm.generalFormFields.find((field) => field.name === 'paymentDueDate');
         expect(paymentDueDateField.config.helpText).toBe('sw-settings-document.detail.helpTextPaymentDueDate');
+    });
+
+    it('should include fileTypes in the general form fields when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.generalFormFields.map((field) => field.name)).toContain('fileTypes');
+    });
+
+    it('should exclude fileTypes from the general form fields when DOCUMENT_GENERATION_REWORK is active', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.generalFormFields.map((field) => field.name)).not.toContain('fileTypes');
+    });
+
+    it('should show errors on payment due date field if value is not valid', async () => {
+        documentBaseConfigRepositoryMock.save.mockRejectedValueOnce({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE',
+                        },
+                    ],
+                },
+            },
+        });
+
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithDocumentType' },
+            },
+            ['document.editor'],
+        );
+        await flushPromises();
+
+        expect(wrapper.find('#paymentDueDate .sw-form-field-renderer__error').exists()).toBe(false);
+
+        await wrapper.get('.sw-settings-document-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(documentBaseConfigRepositoryMock.save).toHaveBeenCalledTimes(1);
+        expect(wrapper.get('#paymentDueDate .sw-form-field-renderer__error').text()).toBe(
+            'sw-settings-document.errors.invalidDueDateFormat',
+        );
     });
 
     it('should render the company settings layout without feature flag', async () => {
@@ -557,6 +669,28 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(multiSelect.attributes().value).toBe('pdf');
     });
 
+    it('should exclude zugferd and app-provided document types from documentCriteria', async () => {
+        const wrapper = await createWrapper({}, ['document.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.documentCriteria.filters).toContainEqual({
+            type: 'not',
+            operator: 'OR',
+            queries: [
+                {
+                    type: 'prefix',
+                    field: 'technicalName',
+                    value: 'zugferd_',
+                },
+                {
+                    type: 'equals',
+                    field: 'technicalName',
+                    value: 'app_provided',
+                },
+            ],
+        });
+    });
+
     it.each([
         { name: 'no company form', config: { displayCompanyAddress: false, displayReturnAddress: false } },
         { name: 'return address active', config: { displayCompanyAddress: false, displayReturnAddress: true } },
@@ -577,5 +711,80 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.find('.sw-settings-document-detail__company_card_form').exists()).toBe(
             config.displayCompanyAddress || config.displayReturnAddress,
         );
+    });
+
+    it('should render the filename settings card with the prefix and suffix fields', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        const filenameCard = wrapper.find('.sw-settings-document-detail__filename_card');
+
+        expect(filenameCard.exists()).toBe(true);
+        expect(filenameCard.attributes()['position-identifier']).toBe('sw-settings-document-detail-filename');
+        expect(wrapper.find('.sw-settings-document-detail__field_file_name_prefix').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-document-detail__field_file_name_suffix').exists()).toBe(true);
+    });
+
+    it('should not render filename infix fields when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithFormats' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__field_file_name_infix').exists()).toBe(false);
+        expect(documentV2ServiceMock.getAvailableDocumentTypes).not.toHaveBeenCalled();
+    });
+
+    it('should render a filename infix field per supported format when DOCUMENT_GENERATION_REWORK is active', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithFormats' },
+            },
+            [],
+            true,
+        );
+        await flushPromises();
+
+        expect(documentV2ServiceMock.getAvailableDocumentTypes).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.supportedFormats).toEqual([
+            'html',
+            'pdf',
+            'zugferd_xml',
+            'zugferd_embedded_pdf',
+        ]);
+
+        const infixFields = wrapper.findAll('.sw-settings-document-detail__field_file_name_infix');
+
+        expect(infixFields).toHaveLength(4);
+
+        expect(wrapper.find('.sw-settings-document-detail__filename_pattern').text()).toContain(
+            'sw-settings-document.detail.filenamePattern',
+        );
+
+        const infixHeadline = wrapper.find('.sw-settings-document-detail__filename_infix_headline');
+
+        expect(infixHeadline.text()).toContain('sw-settings-document.detail.filenameInfixHeadline');
+        expect(infixHeadline.find('.sw-help-text').exists()).toBe(true);
+    });
+
+    it('should not render the filename infix headline or fields for a new document without a selected document type', async () => {
+        const wrapper = await createWrapper({}, [], true);
+        await flushPromises();
+
+        expect(wrapper.vm.supportedFormats).toEqual([]);
+        expect(wrapper.find('.sw-settings-document-detail__filename_infix_headline').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__field_file_name_infix').exists()).toBe(false);
+    });
+
+    it('should not render the filename pattern or infix headline when DOCUMENT_GENERATION_REWORK is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithFormats' },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-document-detail__filename_pattern').exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-document-detail__filename_infix_headline').exists()).toBe(false);
     });
 });

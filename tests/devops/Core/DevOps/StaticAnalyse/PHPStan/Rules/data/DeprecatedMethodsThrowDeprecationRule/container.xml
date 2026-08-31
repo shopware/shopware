@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<container>
+    <services>
+        <service id="Shopware\Core\DevOps\MyFakeNamespace\DeprecatedClass" class="Shopware\Core\DevOps\MyFakeNamespace\DeprecatedClass"/>
+    </services>
+</container>

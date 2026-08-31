@@ -11,7 +11,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Classes extending the annotated class, and call sites type-hinting or `instanceof`-checking
  * against one of its current ancestors, must adjust before the change happens if they rely on a
- * part of the hierarchy that goes away. The required `$description` states what will change.
+ * part of the hierarchy that goes away. The required `$description` states what will change;
+ * `$newParentClass` identifies the replacement parent class when there is one.
  */
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_CLASS)]
@@ -20,6 +21,10 @@ final class ClassHierarchyChange implements CallSiteCompatibilityChange, Extende
     public function __construct(
         public readonly string $version,
         public readonly string $description,
+        /**
+         * @var class-string|null
+         */
+        public readonly ?string $newParentClass = null,
     ) {
     }
 }

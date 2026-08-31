@@ -138,8 +138,7 @@ class StoreLoginCommandTest extends TestCase
      */
     private function createUserRepository(array $userIds): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<UserCollection> $repository */
-        $repository = new StaticEntityRepository([$userIds]);
+        $repository = StaticEntityRepository::of(UserCollection::class, [$userIds]);
 
         return $repository;
     }

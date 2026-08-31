@@ -34,5 +34,9 @@ class ShopwareContextPromptTest extends TestCase
         $content = $result[0]['content'];
         static::assertStringContainsString('Shopware', $content);
         static::assertStringContainsString('entity', $content);
+        static::assertStringContainsString('shopware-tool-search', $content);
+        static::assertStringContainsString('shopware-toolsets-list', $content);
+        static::assertStringContainsString('shopware-toolset-enable', $content);
+        static::assertStringContainsString('allowlist and ACL permissions remain the security boundary', $content);
     }
 }

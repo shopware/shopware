@@ -1,6 +1,7 @@
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import '../../store/order-detail.store';
+import { getCartErrorMessage } from '../../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -129,6 +130,35 @@ export default {
             return this.isOrderEditing && this.$route.name === 'sw.order.detail.documents';
         },
 
+        orderDetailTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const documentsTab = createRouteTab('sw-order.detail.tabDocuments', 'sw.order.detail.documents');
+
+            if (this.isOrderEditing) {
+                documentsTab.badge = 'warning';
+            }
+
+            return [
+                createRouteTab('sw-order.detail.tabGeneral', 'sw.order.detail.general'),
+                createRouteTab('sw-order.detail.tabDetails', 'sw.order.detail.details'),
+                documentsTab,
+            ];
+        },
+
         isOrderEditing() {
             return this.orderChanges || this.hasOrderDeepEdit || this.orderAddressIds?.length > 0;
         },
@@ -228,6 +258,10 @@ export default {
     },
 
     beforeUnmount() {
+        // Deselecting happens here and not in `beforeRouteLeave`, because leaving while editing
+        // is confirmed through the leave page warning, which resumes the navigation on its own.
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+
         this.beforeDestroyComponent();
     },
 
@@ -235,10 +269,11 @@ export default {
         if (this.isOrderEditing) {
             this.nextRoute = next;
             this.isDisplayingLeavePageWarning = true;
-        } else {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
-            next();
+
+            return;
         }
+
+        next();
     },
 
     created() {
@@ -596,8 +631,10 @@ export default {
                 return;
             }
 
-            Object.values(response.data.errors).forEach(({ level, message }) => {
-                switch (level) {
+            Object.values(response.data.errors).forEach((error) => {
+                const message = getCartErrorMessage(error);
+
+                switch (error.level) {
                     case 0: {
                         this.createNotificationInfo({ message });
                         break;

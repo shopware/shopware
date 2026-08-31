@@ -87,8 +87,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
 
         $client = new Client(['handler' => $handlerStack]);
 
-        /** @var StaticEntityRepository<ProductCollection> $productRepo */
-        $productRepo = new StaticEntityRepository([
+        $productRepo = StaticEntityRepository::of(ProductCollection::class, [
             [(new ProductEntity())->assign(['id' => 'plugin-id'])],
         ]);
         $example = new ResolveListingExample($client, $productRepo);
@@ -119,7 +118,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
         );
 
         static::assertInstanceOf(EntitySearchResult::class, $result);
-        static::assertSame(['plugin-id'], array_values($result->getIds()));
+        static::assertSame(['plugin-id'], array_values($result->getEntities()->getIds()));
         static::assertIsArray($history);
         static::assertCount(1, $history);
 

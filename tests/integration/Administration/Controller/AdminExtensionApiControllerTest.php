@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdminExtensionApiController;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -56,6 +58,50 @@ class AdminExtensionApiControllerTest extends TestCase
             $this->appRepository,
             $container->get(QuerySigner::class)
         );
+    }
+
+    public function testRunActionExecutesWhenUserHasMatchingAppPrivilege(): void
+    {
+        $this->appRepository->create([
+            [
+                'name' => self::EXISTING_APP_NAME,
+                'path' => \sprintf('custom/apps/%s', self::EXISTING_APP_NAME),
+                'active' => true,
+                'configurable' => false,
+                'version' => '0.0.1',
+                'label' => 'PHPUnit',
+                'appSecret' => 'PHPUnit',
+                'integration' => [
+                    'label' => 'PHPUnit',
+                    'accessKey' => 'foo',
+                    'secretAccessKey' => 'bar',
+                ],
+                'aclRole' => [
+                    'name' => self::EXISTING_APP_NAME,
+                    'privileges' => [],
+                ],
+                'allowedHosts' => ['example.com'],
+            ],
+        ], $this->context);
+
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions(['app.' . self::EXISTING_APP_NAME]);
+        $context = Context::createDefaultContext($source);
+
+        $this->executor->expects($this->once())->method('execute')->willReturn(new Response());
+
+        $response = $this->adminExtensionApiController->runAction(
+            new RequestDataBag([
+                'appName' => self::EXISTING_APP_NAME,
+                'url' => 'https://example.com',
+                'entity' => 'customer',
+                'action' => 'PHPUnit',
+                'ids' => [],
+            ]),
+            $context,
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     /**
@@ -160,6 +206,7 @@ class AdminExtensionApiControllerTest extends TestCase
                     'name' => self::EXISTING_APP_NAME,
                     'privileges' => [],
                 ],
+                'allowedHosts' => ['app.infra'],
             ],
         ], $this->context);
 

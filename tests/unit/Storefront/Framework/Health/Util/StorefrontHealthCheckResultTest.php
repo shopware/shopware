@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontHealthCheckResult::class)]
 class StorefrontHealthCheckResultTest extends TestCase
 {

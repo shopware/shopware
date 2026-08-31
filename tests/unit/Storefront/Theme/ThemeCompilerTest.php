@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -47,6 +48,7 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
@@ -176,43 +178,30 @@ class ThemeCompilerTest extends TestCase
         );
     }
 
-    public function testFormatVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
-    {
-        $formatVariables = new \ReflectionMethod(ThemeCompiler::class, 'formatVariables');
-
-        $variables = [
-            'sw-color-brand-primary' => '#008490',
-            'sw-color-brand-secondary' => '#526e7f',
-            'sw-border-color' => '#bcc1c7',
-        ];
-
-        $actual = $formatVariables->invoke($this->getThemeCompiler(), $variables);
-
-        $expected = [
-            '$sw-color-brand-primary: #008490;',
-            '$sw-color-brand-secondary: #526e7f;',
-            '$sw-border-color: #bcc1c7;',
-        ];
-
-        static::assertSame($expected, $actual);
-    }
-
     /**
      * @param array<string, mixed> $config
      */
     #[DataProvider('configForDumpVariables')]
     public function testDumpVariables(array $config, string $expected): void
     {
-        $dumpVariables = new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables');
+        $themeConfig = new StorefrontPluginConfiguration('test');
+        $themeConfig->setThemeConfig($config);
 
-        $actual = $dumpVariables->invoke($this->getThemeCompiler(), $config, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
+        $this->getThemeCompiler()->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'themeId',
+            $themeConfig,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
 
-        static::assertSame($expected, $actual);
+        static::assertSame($expected, $this->tempFilesystem->read('theme-variables.scss'));
+        static::assertSame($expected, $this->tempFilesystem->read('theme-variables/themeId.scss'));
     }
 
     public static function configForDumpVariables(): \Generator
     {
-        // The resulting color values will be #ffffff00 because the scsscompiler is just a mock and the fallback will replace the real values
         yield 'finds config fields and returns string with scss variables' => [
             [
                 'fields' => [
@@ -250,6 +239,11 @@ class ThemeCompilerTest extends TestCase
                         'name' => 'sw-custom-header',
                         'type' => 'switch',
                         'value' => true,
+                    ],
+                    'sw-text-field' => [
+                        'name' => 'sw-text-field',
+                        'type' => 'text',
+                        'value' => '2px solid #000',
                     ],
                     'sw-custom-textarea' => [
                         'name' => 'sw-custom-textarea',
@@ -312,6 +306,7 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-footer: 1;
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
+\$sw-text-field: 2px solid #000;
 \$sw-custom-textarea: '123';
 \$sw-custom-url: 'https://www.shopware.com';
 \$sw-custom-media: '456';

@@ -3,13 +3,12 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-final - Will be final in v6.8.0
- */
 #[Package('framework')]
+#[BecomesFinal(version: 'v6.8.0')]
 class TemplateScopeDetector
 {
     public const SCOPES_ATTRIBUTE = '_templateScopes';

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\MaintenanceController;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MaintenanceController::class)]
 class MaintenanceControllerTest extends TestCase
 {

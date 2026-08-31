@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MenuOffcanvasPageletLoader::class)]
 class MenuOffcanvasPageletLoaderTest extends TestCase
 {

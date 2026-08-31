@@ -25,9 +25,11 @@ use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -68,7 +70,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
         $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_OPT_IN);
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -106,6 +107,52 @@ class NewsletterSubscribeRouteTest extends TestCase
         static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, $response->getStatus());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with NewsletterSubscribeRoute::subscribe().
+     *
+     * The deprecated method has to keep answering with the old response object. Extensions written
+     * before v6.7 declare NoContentResponse as their own return type, so handing them the new
+     * response object is a TypeError inside their code.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedSubscribeKeepsReturningTheOldResponse(): void
+    {
+        $this->salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $requestData = new RequestDataBag();
+        $requestData->add([
+            'email' => 'test@example.com',
+            'option' => 'direct',
+        ]);
+
+        $newsletterRecipientEntity = new NewsletterRecipientEntity();
+        $newsletterRecipientEntity->setId(Uuid::randomHex());
+        $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_DIRECT);
+        $newsletterRecipientEntity->setEmail('test@example.com');
+
+        $entityRepository = new StaticEntityRepository([
+            [$newsletterRecipientEntity->getId()],
+            new NewsletterRecipientCollection([$newsletterRecipientEntity]),
+            new NewsletterRecipientCollection([$newsletterRecipientEntity]),
+        ]);
+
+        $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
+            $entityRepository,
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            new StaticSystemConfigService([TestDefaults::SALES_CHANNEL => ['core.newsletter.doubleOptIn' => false]]),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+        );
+
+        $response = $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+
+        static::assertInstanceOf(NoContentResponse::class, $response);
+        static::assertSame(204, $response->getStatusCode());
+    }
+
     public function testSubscribeWithDOIDisabled(): void
     {
         $this->salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
@@ -123,7 +170,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
         $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_DIRECT);
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -176,7 +222,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -255,7 +300,6 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
-        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),

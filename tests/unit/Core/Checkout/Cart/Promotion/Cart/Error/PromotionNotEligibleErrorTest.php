@@ -45,6 +45,26 @@ class PromotionNotEligibleErrorTest extends TestCase
         static::assertSame('promotion-not-eligible', $error->getId());
     }
 
+    public function testReasonProducesReasonSpecificMessageKey(): void
+    {
+        $error = new PromotionNotEligibleError('my-promo', 'some-reason');
+
+        static::assertSame('promotion-not-eligible-some-reason', $error->getMessageKey());
+        static::assertSame('promotion-not-eligible', $error->getId());
+        static::assertFalse($error->isPersistent());
+    }
+
+    public function testAlreadyRedeemedReasonIsPersistent(): void
+    {
+        $error = new PromotionNotEligibleError('TESTCODE', 'already-redeemed', [], true);
+
+        static::assertSame('promotion-not-eligible-already-redeemed', $error->getMessageKey());
+        static::assertSame('promotion-not-eligible', $error->getId());
+        static::assertSame(['name' => 'TESTCODE'], $error->getParameters());
+        // must be persistent so a code removed by the collector survives cart recalculation
+        static::assertTrue($error->isPersistent());
+    }
+
     public function testWithRuleIds(): void
     {
         $error = new PromotionNotEligibleError('my-promo', null, ['rule-id-1', 'rule-id-2']);

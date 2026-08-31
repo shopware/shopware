@@ -46,6 +46,8 @@ class PromotionItemBuilder
      */
     public function buildPlaceholderItem(string $code): LineItem
     {
+        $code = mb_trim($code);
+
         // void duplicate codes with other items
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;
@@ -259,6 +261,8 @@ class PromotionItemBuilder
         $payload['limitedRedemptions'] = $promotion->getMaxRedemptionsGlobal()
             || $promotion->getMaxRedemptionsPerCustomer()
             || $promotion->isUseIndividualCodes();
+        $payload['hasGlobalRedemptionLimit'] = $promotion->getMaxRedemptionsGlobal() !== null
+            && $promotion->getMaxRedemptionsGlobal() > 0;
 
         // If all combinations are prevented the exclusions dont matter
         // otherwise sets a list of excluded promotion ids

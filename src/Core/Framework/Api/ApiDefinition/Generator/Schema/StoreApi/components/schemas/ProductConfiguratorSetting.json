@@ -1,0 +1,71 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductConfiguratorSetting": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "productId",
+                    "optionId"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "versionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productId": {
+                        "description": "Unique identity of product.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "mediaId": {
+                        "description": "Unique identity of media.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "optionId": {
+                        "description": "Unique identity of option.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "position": {
+                        "description": "The order of the tabs of your defined product configuration settings in the storefront by entering numerical values like 1,2,3, etc.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "media": {
+                        "$ref": "#/components/schemas/Media"
+                    },
+                    "option": {
+                        "$ref": "#/components/schemas/PropertyGroupOption"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

@@ -47,7 +47,7 @@ class ConsumeMessagesController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', methods: ['POST'])]
+    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:queue:process']], methods: ['POST'])]
     public function consumeMessages(Request $request): JsonResponse
     {
         $receiverName = RequestParamHelper::get($request, 'receiver');

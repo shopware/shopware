@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Page\Checkout;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 class FinishPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

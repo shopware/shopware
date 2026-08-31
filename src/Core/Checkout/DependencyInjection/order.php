@@ -37,12 +37,15 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
+use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -220,4 +223,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    // Telemetry: order placed metrics
+    $services->set(OrderMetricsSubscriber::class)
+        ->args([
+            service(Meter::class),
+            service(SalesChannelTypeResolver::class),
+        ])
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.telemetry.subscriber');
 };

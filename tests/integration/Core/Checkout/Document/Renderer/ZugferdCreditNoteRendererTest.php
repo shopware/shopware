@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -89,6 +90,8 @@ class ZugferdCreditNoteRendererTest extends TestCase
         $this->renderer = static::getContainer()->get(ZugferdCreditNoteRenderer::class);
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
+
+        $this->upsertDocumentSellerAddress(CreditNoteRenderer::TYPE);
     }
 
     public function testDocumentSnapshot(): void
@@ -120,11 +123,9 @@ class ZugferdCreditNoteRendererTest extends TestCase
         $content = $renderedDocument->getContent();
         static::assertIsString($content);
 
-        // The renderer emits the delivery event from the primary order delivery under v6.8, so the
-        // ZUGFeRD output differs from the pre 6.8 document.
         $snapshot = Feature::isActive('v6.8.0.0')
             ? 'zugferd_credit_note_document_default_v6_8'
-            : 'zugferd_credit_note_document_default';
+            : 'zugferd_credit_note_document_default_v6_7';
 
         $this->assertSnapshot($snapshot, [
             [

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -29,14 +28,13 @@ class Checkout extends Bundle
 
         $locator = new FileLocator(self::DEPENDENCY_LOCATION);
 
-        $loader = new XmlFileLoader($container, $locator);
         $phpLoader = new PhpFileLoader($container, $locator);
         $phpLoader->load('cart.php');
         $phpLoader->load('customer.php');
-        $loader->load('document.xml');
+        $phpLoader->load('document.php');
         $phpLoader->load('order.php');
         $phpLoader->load('payment.php');
-        $loader->load('rule.xml');
+        $phpLoader->load('rule.php');
         $phpLoader->load('promotion.php');
         $phpLoader->load('shipping.php');
 

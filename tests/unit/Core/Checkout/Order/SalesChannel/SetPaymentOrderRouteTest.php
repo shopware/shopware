@@ -105,7 +105,6 @@ class SetPaymentOrderRouteTest extends TestCase
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
 
         $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
@@ -148,7 +147,6 @@ class SetPaymentOrderRouteTest extends TestCase
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
 
         $paymentMethod = new PaymentMethodEntity();
@@ -198,7 +196,6 @@ class SetPaymentOrderRouteTest extends TestCase
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
 
         $paymentMethod = new PaymentMethodEntity();
@@ -272,7 +269,6 @@ class SetPaymentOrderRouteTest extends TestCase
         $order->setTransactions(new OrderTransactionCollection([$transactionState, $transactionStateLast]));
         $order->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE));
 
-        /** @var StaticEntityRepository<OrderCollection> $staticRepository */
         $staticRepository = new StaticEntityRepository([new OrderCollection([$order])], new OrderDefinition());
 
         $response = new CheckoutGatewayRouteResponse(

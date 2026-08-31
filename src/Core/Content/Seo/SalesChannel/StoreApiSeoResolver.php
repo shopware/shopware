@@ -123,7 +123,10 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         }
 
         foreach ($struct->getVars() as $item) {
-            if ($item instanceof Collection || \is_array($item)) {
+            /** @deprecated tag:v6.8.0 - Fold the EntitySearchResult branch into the Struct one once it no longer extends Collection. */
+            if ($item instanceof EntitySearchResult) {
+                $this->findStruct($data, $item);
+            } elseif ($item instanceof Collection || \is_array($item)) {
                 foreach ($item as $collectionItem) {
                     if ($collectionItem instanceof Struct) {
                         $this->findStruct($data, $collectionItem);

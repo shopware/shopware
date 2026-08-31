@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -20,6 +21,7 @@ use Shopware\Storefront\Theme\ThemeService;
 /**
  * @internal
  */
+#[Package('discovery')]
 class UpdateSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

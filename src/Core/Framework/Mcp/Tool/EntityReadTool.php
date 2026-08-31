@@ -3,12 +3,14 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
     description: 'Read a single Shopware entity by its UUID. Use when you already have an entity ID. For searching by other fields, use shopware-entity-search instead. Returns {success, data: {id, ...fields}, _meta: {}}. Pass criteria JSON to include associations or select fields.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]
+#[McpToolGroup('entity')]
 #[McpToolRequires(entityParam: 'entity', operations: ['read'])]
 class EntityReadTool extends McpToolResponse
 {
@@ -35,6 +38,7 @@ class EntityReadTool extends McpToolResponse
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly McpContextProvider $contextProvider,
         private readonly JsonEntityEncoder $encoder,
+        private readonly AclCriteriaValidator $criteriaValidator,
     ) {
     }
 
@@ -64,6 +68,13 @@ class EntityReadTool extends McpToolResponse
             $definition,
             $context,
         );
+
+        // Criteria can reference associated entities that require their own read privileges
+        // (same association ACL model as the Admin API).
+        $missing = $this->criteriaValidator->validate($entity, $criteriaObj, $context);
+        if ($missing !== []) {
+            return $this->missingPrivilegesError($missing);
+        }
 
         $this->applyDefaultIncludes($definition, $criteriaObj);
 

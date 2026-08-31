@@ -216,6 +216,10 @@ export default {
             }
 
             return this.globalCustomFieldRepository.syncDeleted(toBeDeletedCustomFields, Shopware.Context.api).then(() => {
+                Shopware.Service('cacheService').invalidateCaches({
+                    cacheKey: ['custom-field-sets'],
+                });
+
                 this.deleteButtonDisabled = true;
                 this.deleteCustomField = null;
 

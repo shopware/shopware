@@ -7,12 +7,22 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
+const userConfigServiceMock = {
+    search: jest.fn(),
+    upsert: jest.fn(),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
+
 describe('app/service/filter.service.js', () => {
     let filterService;
     let filterData;
-    let userConfigRepository;
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
+        userConfigServiceMock.search.mockReset();
+        userConfigServiceMock.upsert.mockReset();
+
         const router = createRouter({
             history: createWebHashHistory(),
             routes: [
@@ -58,30 +68,31 @@ describe('app/service/filter.service.js', () => {
         ]);
 
         Shopware.Store.get('session').setCurrentUser({
-            currentUser: {
-                id: '123',
-            },
+            id: '123',
         });
 
-        userConfigRepository = {
-            create: () =>
-                Promise.resolve({
+        userConfigServiceMock.search.mockImplementation(() =>
+            Promise.resolve({
+                data: filterData.length
+                    ? {
+                          [filterData.first().key]: filterData.first().value,
+                      }
+                    : {},
+            }),
+        );
+        userConfigServiceMock.upsert.mockImplementation((values) => {
+            filterData = new EntityCollection(null, null, null, new Criteria(1, 25), [
+                {
                     key: 'test',
                     userId: '123',
-                }),
-            search: () => Promise.resolve(filterData),
-            save: (entity) => {
-                filterData = new EntityCollection(null, null, null, new Criteria(1, 25), [
-                    entity,
-                ]);
+                    value: values.test,
+                },
+            ]);
 
-                return Promise.resolve();
-            },
-        };
-
-        filterService = new FilterService({
-            userConfigRepository,
+            return Promise.resolve();
         });
+
+        filterService = new FilterService();
     });
 
     it('getStoredFilters when there is no data from url, no data from database', async () => {
@@ -115,6 +126,14 @@ describe('app/service/filter.service.js', () => {
 
         const query = JSON.parse(decodeURIComponent(Shopware.Application.view.router.currentRoute.value.query.test));
         expect(query).toEqual(filterResult);
+    });
+
+    it('reuses cached stored filters for the same store key', async () => {
+        await filterService.getStoredFilters('test');
+        await filterService.getStoredFilters('test');
+
+        expect(userConfigServiceMock.search).toHaveBeenCalledTimes(1);
+        expect(userConfigServiceMock.search).toHaveBeenCalledWith(['test']);
     });
 
     it('getStoredFilters when there is no data from database, has data from url', async () => {
@@ -227,13 +246,7 @@ describe('app/service/filter.service.js', () => {
             resolveSave = resolve;
         });
 
-        userConfigRepository.save = jest.fn((entity) => {
-            filterData = new EntityCollection(null, null, null, new Criteria(1, 25), [
-                entity,
-            ]);
-
-            return savePromise;
-        });
+        userConfigServiceMock.upsert.mockReturnValueOnce(savePromise);
 
         const saveFiltersPromise = filterService.saveFilters('test', filters);
         let resolved = false;
@@ -267,9 +280,7 @@ describe('app/service/filter.service.js', () => {
             },
         };
 
-        userConfigRepository.save = jest.fn(() => {
-            return Promise.reject(new Error('Save failed'));
-        });
+        userConfigServiceMock.upsert.mockRejectedValueOnce(new Error('Save failed'));
 
         await expect(filterService.saveFilters('test', filters)).resolves.toEqual(filters);
     });

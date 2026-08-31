@@ -300,7 +300,7 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{random: string, rawConfig: array<string, string|bool>, expectedUrl: string}>
+     * @return iterable<string, array{random: string, rawConfig: array<string, string|bool>, expectedUrl: string, addLoginPrompt?: bool}>
      */
     public static function createRedirectUrlTestDataProvider(): iterable
     {

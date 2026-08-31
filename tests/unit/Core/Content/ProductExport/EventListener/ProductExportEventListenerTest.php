@@ -46,6 +46,8 @@ class ProductExportEventListenerTest extends TestCase
                 return ($first['id'] ?? null) === $id
                     && \array_key_exists('generatedAt', $first)
                     && $first['generatedAt'] === null
+                    && \array_key_exists('nextGenerationAt', $first)
+                    && $first['nextGenerationAt'] === null
                     && \array_key_exists('isRunning', $first)
                     && $first['isRunning'] === false;
             }), $context);
@@ -107,10 +109,49 @@ class ProductExportEventListenerTest extends TestCase
         $listener->afterWrite($event);
     }
 
+    public function testAfterWriteStopsWhenTheExportNoLongerExists(): void
+    {
+        $id = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $productExportRepository = $this->createMock(EntityRepository::class);
+        $productExportRepository->expects($this->once())->method('update');
+        $productExportRepository
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'product_export',
+                0,
+                new ProductExportCollection(),
+                null,
+                new Criteria([$id]),
+                $context
+            ));
+
+        $fileHandler = $this->createMock(ProductExportFileHandlerInterface::class);
+        $fileHandler->expects($this->never())->method('getFilePath');
+
+        $fs = $this->createMock(FilesystemOperator::class);
+        $fs->expects($this->never())->method('fileExists');
+
+        $listener = new ProductExportEventListener($productExportRepository, $fileHandler, $fs);
+
+        $writeResult = new EntityWriteResult(['id' => $id], ['interval' => 300], 'product_export', EntityWriteResult::OPERATION_UPDATE);
+        $listener->afterWrite(new EntityWrittenEvent('product_export', [$writeResult], $context));
+    }
+
+    public function testSubscribesToTheProductExportWrittenEvent(): void
+    {
+        static::assertSame(['product_export.written' => 'afterWrite'], ProductExportEventListener::getSubscribedEvents());
+    }
+
     public static function skipPayloadProvider(): \Generator
     {
         yield 'explicit generatedAt update' => [[
             'generatedAt' => new \DateTime(),
+        ]];
+
+        yield 'explicit nextGenerationAt update' => [[
+            'nextGenerationAt' => new \DateTime(),
         ]];
 
         yield 'explicit isRunning update' => [[

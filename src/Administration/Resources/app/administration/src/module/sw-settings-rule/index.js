@@ -1,4 +1,5 @@
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -41,17 +42,17 @@ Module.register('sw-settings-rule', {
     name: 'settings-rule',
     title: 'sw-settings-rule.general.mainMenuItemGeneral',
     description: 'sw-settings-rule.general.descriptionTextModule',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--color-red-300)',
+    icon: 'regular-rule',
+    favicon: 'icon-module-settings.svg',
     entity: 'rule',
+    defaultSearchConfiguration,
 
     routes: {
         index: {
             component: 'sw-settings-rule-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
                 privilege: 'rule.viewer',
             },
         },
@@ -113,6 +114,28 @@ Module.register('sw-settings-rule', {
             },
         },
     },
+
+    // The child entry must stay first here, so the main menu active state is working correctly for rule builders
+    // sub routes (children of `sw.settings.index`). Settings menu entry would be active otherwise.
+    navigation: [
+        {
+            id: 'sw-settings-rule',
+            label: 'sw-settings-rule.general.mainMenuItemGeneral',
+            path: 'sw.settings.rule.index',
+            icon: 'regular-rule',
+            color: 'var(--color-red-300)',
+            parent: 'sw-automation',
+            privilege: 'rule.viewer',
+            position: 10,
+        },
+        {
+            id: 'sw-automation',
+            label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
+            icon: 'regular-rule',
+            color: 'var(--color-red-300)',
+            position: 70,
+        },
+    ],
 
     settingsItem: {
         group: 'automation',

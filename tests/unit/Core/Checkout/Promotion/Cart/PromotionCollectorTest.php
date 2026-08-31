@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -114,6 +115,7 @@ class PromotionCollectorTest extends TestCase
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
         static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+        $this->assertAlreadyRedeemedError($cart);
     }
 
     public function testPromotionWithInvalidOrderCountPerCustomerCount(): void
@@ -126,6 +128,75 @@ class PromotionCollectorTest extends TestCase
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
 
         static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+        $this->assertAlreadyRedeemedError($cart);
+    }
+
+    public function testUnknownPromotionCodeAddsNotFoundError(): void
+    {
+        $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex());
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $cartExtension = new CartExtension();
+        $cartExtension->addCode('unknown-code');
+        $cart->addExtension(CartExtension::KEY, $cartExtension);
+
+        // gateway finds no promotion for the code (global, individual and automatic lookups)
+        $this->gateway->method('get')->willReturn(new PromotionCollection());
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+        static::assertTrue($cart->getErrors()->has('promotion-not-found'));
+        static::assertFalse($cart->getErrors()->has('promotion-not-eligible'));
+    }
+
+    public function testSecondCodeOfSamePromotionIsRejectedWithNotice(): void
+    {
+        $codeFirst = 'individual-code-1';
+        $codeSecond = 'individual-code-2';
+        $discountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $product = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex());
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems(new LineItemCollection([$product]));
+
+        $cartExtension = new CartExtension();
+        $cartExtension->addCode($codeFirst);
+        $cartExtension->addCode($codeSecond);
+        $cart->addExtension(CartExtension::KEY, $cartExtension);
+
+        // both codes resolve to the same promotion (global lookup returns it, so no individual lookup);
+        // the final call is the automatic-promotion lookup which returns nothing
+        $promotion = $this->createPromotion($promotionId, $codeFirst, [$discountId]);
+        $this->gateway->method('get')->willReturn(
+            new PromotionCollection([$promotion]),
+            new PromotionCollection([$promotion]),
+            new PromotionCollection(),
+        );
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        /** @var LineItemCollection $promotions */
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
+        static::assertCount(1, $promotions, 'The promotion must only be applied once');
+
+        // the redundant code is dropped so it does not linger in the cart
+        static::assertSame([$codeFirst], $cartExtension->getCodes());
+
+        // the customer is informed why the second code was not applied
+        $error = $cart->getErrors()->get('promotion-not-eligible');
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible-already-added', $error->getMessageKey());
+        static::assertTrue($error->isPersistent());
     }
 
     public function testPromotionWithoutDiscount(): void
@@ -274,6 +345,17 @@ class PromotionCollectorTest extends TestCase
         static::assertSame($promotionId, $promotionLast->getPayloadValue('promotionId'));
         static::assertSame($discountId2, $promotionLast->getPayloadValue('discountId'));
         static::assertNull($promotionLast->getExtension(OrderConverter::ORIGINAL_ID));
+    }
+
+    private function assertAlreadyRedeemedError(Cart $cart): void
+    {
+        static::assertFalse($cart->getErrors()->has('promotion-not-found'));
+
+        $error = $cart->getErrors()->get('promotion-not-eligible');
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible-already-redeemed', $error->getMessageKey());
+        // must be persistent, otherwise the Processor drops it and the customer sees nothing
+        static::assertTrue($error->isPersistent());
     }
 
     private function createPromotionCollector(?Connection $connection = null): PromotionCollector

@@ -107,6 +107,88 @@ class AdminElasticsearchEntitySearcherTest extends TestCase
         });
     }
 
+    public function testFallsBackWhenPaginationExceedsMaxResultWindow(): void
+    {
+        $decorated = $this->createMock(EntitySearcherInterface::class);
+        $registry = static::createStub(AdminSearchRegistry::class);
+        $helper = static::createStub(AdminElasticsearchHelper::class);
+        $searcher = $this->createMock(AdminSearcher::class);
+
+        $criteria = (new Criteria())->setTerm('search');
+        $criteria->setLimit(25);
+        $criteria->setOffset(500_000);
+        $context = new Context(new AdminApiSource('test', Uuid::randomHex()));
+        $definition = $this->createDefinition();
+
+        $helper->method('isEnabled')->willReturn(true);
+        $registry->method('hasIndexer')->willReturn(true);
+        $registry->method('getIndexer')->willReturn($this->createIndexer());
+
+        $expected = new IdSearchResult(0, [], $criteria, $context);
+
+        $decorated->expects($this->once())
+            ->method('search')
+            ->with($definition, $criteria, $context)
+            ->willReturn($expected);
+
+        $searcher->expects($this->never())->method('searchIds');
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], static function () use ($decorated, $registry, $helper, $searcher, $definition, $criteria, $context, $expected): void {
+            $entitySearcher = new AdminElasticsearchEntitySearcher(
+                $decorated,
+                $registry,
+                $helper,
+                $searcher,
+                500_000,
+            );
+
+            $result = $entitySearcher->search($definition, $criteria, $context);
+
+            static::assertSame($expected, $result);
+        });
+    }
+
+    public function testUsesAdminSearchWhenPaginationWithinMaxResultWindow(): void
+    {
+        $decorated = $this->createMock(EntitySearcherInterface::class);
+        $registry = static::createStub(AdminSearchRegistry::class);
+        $helper = static::createStub(AdminElasticsearchHelper::class);
+        $searcher = $this->createMock(AdminSearcher::class);
+
+        $criteria = (new Criteria())->setTerm('search');
+        $criteria->setLimit(25);
+        $criteria->setOffset(499_000);
+        $context = new Context(new AdminApiSource('test', Uuid::randomHex()));
+        $definition = $this->createDefinition();
+
+        $helper->method('isEnabled')->willReturn(true);
+        $registry->method('hasIndexer')->willReturn(true);
+        $registry->method('getIndexer')->willReturn($this->createIndexer());
+
+        $expected = new IdSearchResult(1, ['abc' => ['primaryKey' => 'abc', 'data' => ['id' => 'abc']]], $criteria, $context);
+
+        $searcher->expects($this->once())
+            ->method('searchIds')
+            ->with($definition->getEntityName(), $criteria, $context)
+            ->willReturn($expected);
+
+        $decorated->expects($this->never())->method('search');
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], static function () use ($decorated, $registry, $helper, $searcher, $definition, $criteria, $context, $expected): void {
+            $entitySearcher = new AdminElasticsearchEntitySearcher(
+                $decorated,
+                $registry,
+                $helper,
+                $searcher,
+                500_000,
+            );
+
+            $result = $entitySearcher->search($definition, $criteria, $context);
+
+            static::assertSame($expected, $result);
+        });
+    }
+
     private function createDefinition(): EntityDefinition
     {
         return new class extends EntityDefinition {

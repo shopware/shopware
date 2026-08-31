@@ -17,7 +17,6 @@ test(
         StorefrontCheckoutFinish,
         StorefrontAccountOrder,
         Login,
-        AddProductToCart,
         ProceedFromProductToCheckout,
         ConfirmTermsAndConditions,
         ConfirmImmediateAccessToDigitalProduct,
@@ -32,7 +31,9 @@ test(
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(digitalProduct));
 
-        await ShopCustomer.attemptsTo(AddProductToCart(digitalProduct));
+        await ShopCustomer.presses(StorefrontProductDetail.addToCartButton);
+        await ShopCustomer.expects(StorefrontProductDetail.offCanvasCartTitle).toBeVisible();
+        await ShopCustomer.expects(StorefrontProductDetail.offCanvasCart.getByText(digitalProduct.name)).toBeVisible();
         await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());

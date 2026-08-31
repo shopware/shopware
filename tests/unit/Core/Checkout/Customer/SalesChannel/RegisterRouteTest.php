@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
+use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -129,8 +130,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );
@@ -192,8 +193,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );
@@ -255,8 +256,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -381,8 +382,7 @@ class RegisterRouteTest extends TestCase
         $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
-        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
-        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
+        $salutationRepository = StaticEntityRepository::of(SalutationCollection::class, [[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -435,8 +435,7 @@ class RegisterRouteTest extends TestCase
         $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
-        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
-        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
+        $salutationRepository = StaticEntityRepository::of(SalutationCollection::class, [[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -497,8 +496,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -560,8 +559,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -622,8 +621,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -719,6 +718,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(EntityRepository::class),
             $definitionFactory,
             $doubleOptInService,
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -743,8 +743,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -830,6 +830,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(EntityRepository::class),
             $definitionFactory,
             $doubleOptInService,
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -855,8 +856,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
         );
@@ -936,6 +937,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(EntityRepository::class),
             $definitionFactory,
             static::createStub(DoubleOptInService::class),
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
         );
 
@@ -1209,6 +1211,69 @@ class RegisterRouteTest extends TestCase
         );
     }
 
+    public function testUpdatesNewsletterSalesChannelIdsBeforeCustomerIsLoaded(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $result = new EntitySearchResult(
+            CustomerDefinition::ENTITY_NAME,
+            1,
+            new CustomerCollection([$customerEntity]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $createdCustomerId = null;
+        $calls = [];
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) use (&$createdCustomerId, &$calls) {
+                $calls[] = 'create';
+                $createdCustomerId = $create[0]['id'];
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+        $customerRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static function () use (&$calls, $result) {
+                static::assertSame(['create', 'update'], $calls);
+
+                return $result;
+            });
+
+        $customerNewsletterSalesChannelsUpdater = $this->createMock(CustomerNewsletterSalesChannelsUpdater::class);
+        $customerNewsletterSalesChannelsUpdater
+            ->expects($this->once())
+            ->method('update')
+            ->willReturnCallback(static function (array $ids, bool $reverseUpdate) use (&$createdCustomerId, &$calls): void {
+                $calls[] = 'update';
+
+                static::assertNotNull($createdCustomerId);
+                static::assertSame([$createdCustomerId], $ids);
+                static::assertTrue($reverseUpdate);
+            });
+
+        $registerRoute = $this->createRegisterRoute(
+            customerRepository: $customerRepository,
+            customerNewsletterSalesChannelsUpdater: $customerNewsletterSalesChannelsUpdater
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData()),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
     /**
      * @return StaticEntityRepository<CustomerCollection>
      */
@@ -1219,8 +1284,8 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $repository */
-        $repository = new StaticEntityRepository(
+        $repository = StaticEntityRepository::of(
+            CustomerCollection::class,
             [new CustomerCollection([$customerEntity])],
             new CustomerDefinition()
         );
@@ -1241,7 +1306,8 @@ class RegisterRouteTest extends TestCase
         ?StaticSystemConfigService $systemConfigService = null,
         EntityRepository|StaticEntityRepository|null $customerRepository = null,
         ?DataValidationFactoryInterface $accountValidationFactory = null,
-        ?DataValidationFactoryInterface $passwordValidationFactory = null
+        ?DataValidationFactoryInterface $passwordValidationFactory = null,
+        ?CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater = null
     ): RegisterRoute {
         $dataValidator ??= static::createStub(DataValidator::class);
         $eventDispatcher ??= new EventDispatcher();
@@ -1257,6 +1323,7 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
         $customerRepository ??= $this->createCustomerRepository();
+        $customerNewsletterSalesChannelsUpdater ??= static::createStub(CustomerNewsletterSalesChannelsUpdater::class);
 
         $doubleOptInService = static::createStub(DoubleOptInService::class);
         $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
@@ -1277,6 +1344,7 @@ class RegisterRouteTest extends TestCase
             $salutationRepository,
             static::createStub(DataValidationFactoryInterface::class),
             $doubleOptInService,
+            $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),
         );
     }

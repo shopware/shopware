@@ -97,7 +97,7 @@ class Migration1763377570CreatePasswordChangeMailTemplate extends MigrationStep
                 [
                     'mail_template_type_id' => $templateTypeId,
                     'language_id' => $germanLanguageId,
-                    'name' => 'Kunden-Password geändert',
+                    'name' => 'Kunden-Passwort geändert',
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
@@ -164,7 +164,7 @@ class Migration1763377570CreatePasswordChangeMailTemplate extends MigrationStep
             $connection->insert(
                 'mail_template_translation',
                 [
-                    'subject' => 'Kunden-Password geändert',
+                    'subject' => 'Kunden-Passwort geändert',
                     'sender_name' => '{{ salesChannel.name }}',
                     'content_html' => '',
                     'content_plain' => '',

@@ -86,7 +86,7 @@ class FeatureFlagRegistry
             throw FeatureException::featureNotRegistered($feature);
         }
 
-        if (!\array_key_exists('toggleable', $registeredFlags[$feature]) || (bool) $registeredFlags[$feature]['toggleable'] === false) {
+        if (!\array_key_exists('toggleable', $registeredFlags[$feature]) || !$registeredFlags[$feature]['toggleable']) {
             throw FeatureException::featureCannotBeToggled($feature);
         }
 

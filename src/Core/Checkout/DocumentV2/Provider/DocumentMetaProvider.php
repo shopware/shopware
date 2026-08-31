@@ -4,9 +4,8 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
-use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -37,10 +36,10 @@ final readonly class DocumentMetaProvider extends AbstractDocumentDataProvider
     }
 
     public function provideRenderingData(
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): DocumentMetaRenderData {
+        $generationRequest = $input->generationRequest;
         $documentNumber = $generationRequest->documentNumber;
 
         if ($documentNumber === null) {
@@ -49,7 +48,7 @@ final readonly class DocumentMetaProvider extends AbstractDocumentDataProvider
 
         $bundle = $this->documentConfigLoader->load(
             $generationRequest->documentType,
-            $order->getSalesChannelId(),
+            $input->order->getSalesChannelId(),
             $context,
         );
 

@@ -153,8 +153,8 @@ class GetDataAndSendRequestResolverTest extends TestCase
             ],
         ]);
 
-        $this->mailTemplateService->method('loadTemplate')->willReturn($mailTemplate);
-        $this->mailPayloadFactory->method('make')->willReturn($mailPayload);
+        $this->mailTemplateService->expects($this->once())->method('loadTemplate')->willReturn($mailTemplate);
+        $this->mailPayloadFactory->expects($this->once())->method('make')->willReturn($mailPayload);
 
         $result = $this->resolveRequest($request);
 

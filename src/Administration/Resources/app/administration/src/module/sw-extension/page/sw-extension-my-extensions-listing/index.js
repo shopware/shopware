@@ -8,12 +8,27 @@ import './sw-extension-my-extensions-listing.scss';
 export default {
     template,
 
-    inject: ['shopwareExtensionService'],
+    inject: [
+        'shopwareExtensionService',
+        'extensionStoreActionService',
+        'cacheApiService',
+        'acl',
+    ],
+
+    mixins: ['sw-extension-error'],
 
     data() {
         return {
             filterByActiveState: false,
-            sortingOption: 'updated-at',
+            selectedNames: [],
+            isBulkRunning: false,
+            bulkProcessingNames: [],
+            bulkConsent: null,
+            showBulkConsentModal: false,
+            showBulkUninstallModal: false,
+            bulkUninstallItems: [],
+            showBulkDeactivationModal: false,
+            bulkDeactivationItems: [],
         };
     },
 
@@ -23,6 +38,11 @@ export default {
         },
 
         isLoading() {
+            // Prevents extension listing loading skeleton over the whole grid mid-batch
+            if (this.isBulkRunning) {
+                return false;
+            }
+
             const state = Shopware.Store.get('shopwareExtensions');
 
             return state.myExtensions.loading;
@@ -106,6 +126,24 @@ export default {
             },
         },
 
+        sortingOption: {
+            get() {
+                const sorting = this.$route.query.sorting;
+
+                return [
+                    'updated-at',
+                    'name-asc',
+                    'name-desc',
+                ].includes(sorting)
+                    ? sorting
+                    : 'updated-at';
+            },
+
+            set(newSorting) {
+                this.updateRouteQuery({ sorting: newSorting });
+            },
+        },
+
         skeletonVariant() {
             if (this.isThemeRoute) {
                 return 'extension-themes';
@@ -121,12 +159,100 @@ export default {
         extensionManagementDisabled() {
             return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
+
+        selectedExtensions() {
+            return this.myExtensions.filter((extension) => this.selectedNames.includes(extension.name));
+        },
+
+        hasSelection() {
+            return this.selectedExtensions.length > 0;
+        },
+
+        canManage() {
+            return !this.extensionManagementDisabled && this.acl.can('system.plugin_maintain');
+        },
+
+        applicableCounts() {
+            const actions = [
+                'install',
+                'activate',
+                'deactivate',
+                'update',
+                'uninstall',
+            ];
+
+            return actions.reduce((counts, action) => {
+                counts[action] = this.canManage
+                    ? this.selectedExtensions.filter((extension) => this.actionApplies(action, extension)).length
+                    : 0;
+
+                return counts;
+            }, {});
+        },
+
+        bulkConsentCount() {
+            return this.bulkConsent?.items.length ?? 0;
+        },
+
+        bulkConsentTitle() {
+            const key = this.bulkConsent?.action === 'update' ? 'updateTitle' : 'installTitle';
+
+            return this.$t(
+                `sw-extension.my-extensions.bulk.consent.${key}`,
+                { count: this.bulkConsentCount },
+                this.bulkConsentCount,
+            );
+        },
+
+        bulkConsentDescription() {
+            const key = this.bulkConsent?.action === 'update' ? 'updateDescription' : 'installDescription';
+
+            return this.$t(`sw-extension.my-extensions.bulk.consent.${key}`);
+        },
+
+        bulkConsentActionLabel() {
+            const key = this.bulkConsent?.action === 'update' ? 'updateAction' : 'installAction';
+
+            return this.$t(`sw-extension.my-extensions.bulk.consent.${key}`);
+        },
+
+        bulkConsentExtensionLabel() {
+            return this.$t(
+                'sw-extension.my-extensions.bulk.consent.extensionLabel',
+                { count: this.bulkConsentCount },
+                this.bulkConsentCount,
+            );
+        },
+
+        rentedBulkDeactivationItems() {
+            return this.bulkDeactivationItems.filter((extension) => this.isRentedExtension(extension));
+        },
     },
 
     watch: {
         '$route.name'() {
             this.updateList();
             this.filterByActiveState = false;
+            this.clearSelection();
+        },
+
+        // Never act on extensions that are no longer shown.
+        '$route.query.term'() {
+            this.clearSelection();
+        },
+
+        '$route.query.page'() {
+            this.clearSelection();
+        },
+
+        // Decreasing the page size could hide a selected extension, so drop the selected extensions
+        '$route.query.limit'() {
+            this.clearSelection();
+        },
+
+        // Sorting reorders the page and can put a selected extension out of view.
+        sortingOption() {
+            this.clearSelection();
         },
     },
 
@@ -161,6 +287,7 @@ export default {
             const limit = query.limit || this.$route.query.limit;
             const page = query.page || this.$route.query.page;
             const term = query.term || this.$route.query.term;
+            const sorting = query.sorting || this.$route.query.sorting;
 
             // Create new route
             const route = {
@@ -170,6 +297,7 @@ export default {
                     limit: limit || 25,
                     page: page || 1,
                     term: term || undefined,
+                    sorting: sorting || 'updated-at',
                 },
             };
 
@@ -250,12 +378,369 @@ export default {
 
         changeActiveState(value) {
             this.filterByActiveState = value;
+            this.clearSelection();
         },
 
         filterExtensionsByActiveState(extensions) {
             return extensions.filter((extension) => {
                 return extension.active;
             });
+        },
+
+        isSelected(extension) {
+            return this.selectedNames.includes(extension.name);
+        },
+
+        onSelectChange(extension, checked) {
+            if (checked) {
+                if (!this.selectedNames.includes(extension.name)) {
+                    this.selectedNames = [
+                        ...this.selectedNames,
+                        extension.name,
+                    ];
+                }
+                return;
+            }
+
+            this.selectedNames = this.selectedNames.filter((name) => name !== extension.name);
+        },
+
+        selectAllVisible() {
+            this.selectedNames = this.extensionListPaginated.map((extension) => extension.name);
+        },
+
+        clearSelection() {
+            this.selectedNames = [];
+        },
+
+        isRentedExtension(extension) {
+            return extension.storeLicense?.variant === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
+        },
+
+        actionApplies(action, extension) {
+            const installed = extension.installedAt !== null;
+
+            switch (action) {
+                case 'install':
+                    return !installed;
+                case 'activate':
+                    return installed && !extension.active;
+                case 'deactivate':
+                    return installed && extension.active && extension.allowDisable;
+                case 'update':
+                    return (
+                        installed &&
+                        extension.allowUpdate &&
+                        !!extension.latestVersion &&
+                        extension.latestVersion !== extension.version
+                    );
+                case 'uninstall':
+                    return installed;
+                default:
+                    return false;
+            }
+        },
+
+        async runBulkAction(action) {
+            const items = this.selectedExtensions.filter((extension) => this.actionApplies(action, extension));
+
+            if (!this.canManage || this.isBulkRunning || items.length === 0) {
+                return;
+            }
+
+            this.isBulkRunning = true;
+
+            try {
+                // Each action mirrors its single extension flow:
+                //  - install: gate on permissions up front: no permissions -> install and activate immediately.
+                //  - update: attempt the update first: only items the backend rejects for new privileges open a aggregated consent modal.
+                //  - uninstall: always confirm first with a data removal choice.
+                //  - deactivate: batches containing rented extensions confirm first that subscription fees continue.
+                //  - activate: no consent, just run directly.
+                switch (action) {
+                    case 'install':
+                        await this.startBulkInstall(items);
+                        return;
+                    case 'update':
+                        await this.startBulkUpdate(items);
+                        return;
+                    case 'uninstall':
+                        this.bulkUninstallItems = items;
+                        this.showBulkUninstallModal = true;
+                        return;
+                    case 'deactivate': {
+                        if (items.some((extension) => this.isRentedExtension(extension))) {
+                            this.bulkDeactivationItems = items;
+                            this.showBulkDeactivationModal = true;
+                            return;
+                        }
+
+                        const results = await this.applyBulk(action, items);
+                        await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
+                        return;
+                    }
+                    default: {
+                        const results = await this.applyBulk(action, items);
+                        await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
+                    }
+                }
+            } catch (e) {
+                this.showExtensionErrors(e);
+                this.isBulkRunning = false;
+            }
+        },
+
+        /**
+         * @returns {Promise<{ status: 'success' | 'failed' | 'requiresConsent', extension, deltas? }>}
+         */
+        async runExtensionAction(action, extension, options = {}) {
+            this.markBulkProcessing(extension.name);
+
+            try {
+                switch (action) {
+                    case 'install':
+                        if (extension.source === 'store') {
+                            await this.extensionStoreActionService.downloadExtension(extension.name);
+                        }
+                        // Mirror the single card: an extension without permissions is installed AND activated
+                        if (Object.keys(extension.permissions || {}).length > 0) {
+                            await this.shopwareExtensionService.installExtension(extension.name, extension.type);
+                        } else {
+                            await this.shopwareExtensionService.installAndActivateExtension(extension.name, extension.type);
+                        }
+                        break;
+                    case 'activate':
+                        await this.shopwareExtensionService.activateExtension(extension.name, extension.type);
+                        break;
+                    case 'deactivate':
+                        await this.shopwareExtensionService.deactivateExtension(extension.name, extension.type);
+                        break;
+                    case 'update':
+                        if (extension.updateSource === 'store') {
+                            await this.extensionStoreActionService.downloadExtension(extension.name);
+                        }
+                        if (extension.installedAt) {
+                            await this.shopwareExtensionService.updateExtension(
+                                extension.name,
+                                extension.type,
+                                options.allowNewPermissions ?? false,
+                            );
+                        }
+                        break;
+                    case 'uninstall':
+                        await this.shopwareExtensionService.uninstallExtension(
+                            extension.name,
+                            extension.type,
+                            options.removeData ?? false,
+                        );
+                        break;
+                    default:
+                        break;
+                }
+
+                return { status: 'success', extension };
+            } catch (e) {
+                const error = e.response?.data?.errors?.[0];
+
+                // An update that needs new privileges is not a failure, it needs consent before it can apply.
+                if (error?.code === 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION') {
+                    return { status: 'requiresConsent', extension, deltas: error.meta.parameters.deltas };
+                }
+
+                this.showExtensionErrors(e);
+
+                return { status: 'failed', extension };
+            } finally {
+                this.unmarkBulkProcessing(extension.name);
+            }
+        },
+
+        markBulkProcessing(name) {
+            if (!this.bulkProcessingNames.includes(name)) {
+                this.bulkProcessingNames = [
+                    ...this.bulkProcessingNames,
+                    name,
+                ];
+            }
+        },
+
+        unmarkBulkProcessing(name) {
+            this.bulkProcessingNames = this.bulkProcessingNames.filter((processing) => processing !== name);
+        },
+
+        async applyBulk(action, items, options = {}) {
+            const results = [];
+
+            for (let i = 0; i < items.length; i += 1) {
+                results.push(await this.runExtensionAction(action, items[i], options));
+            }
+
+            return results;
+        },
+
+        // At least one item of a batch actually applied a change.
+        hasAppliedChanges(results) {
+            return results.some((result) => result.status === 'success');
+        },
+
+        // Shared tail for every bulk flow: clear selection and release the lock.
+        // When nothing changed (every item failed) the page is left as it is.
+        async finalizeBulkRun({ reload = true } = {}) {
+            this.clearSelection();
+            this.bulkProcessingNames = [];
+
+            if (reload) {
+                await this.cacheApiService.clear();
+                this._reloadPage();
+            }
+
+            this.isBulkRunning = false;
+        },
+
+        // Aggregate permissions and domains across the given items into the shape sw-extension-permissions-modal.
+        aggregateConsent(items) {
+            const permissions = {};
+            const seen = new Set();
+            const domains = new Set();
+
+            items.forEach((item) => {
+                Object.entries(item.permissions || {}).forEach(
+                    ([
+                        category,
+                        perms,
+                    ]) => {
+                        (perms || []).forEach((perm) => {
+                            const key = `${category}|${perm.entity}|${perm.operation}`;
+                            if (seen.has(key)) {
+                                return;
+                            }
+                            seen.add(key);
+
+                            if (!permissions[category]) {
+                                permissions[category] = [];
+                            }
+                            permissions[category].push(perm);
+                        });
+                    },
+                );
+
+                (item.domains || []).forEach((domain) => domains.add(domain));
+            });
+
+            return { permissions, domains: [...domains] };
+        },
+
+        async startBulkInstall(items) {
+            const { permissions, domains } = this.aggregateConsent(items);
+
+            if (Object.keys(permissions).length === 0) {
+                const results = await this.applyBulk('install', items);
+                await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
+                return;
+            }
+
+            this.bulkConsent = { action: 'install', items, permissions, domains };
+            this.showBulkConsentModal = true;
+        },
+
+        async startBulkUpdate(items) {
+            const results = await this.applyBulk('update', items);
+            const deltaItems = results.filter((result) => result.status === 'requiresConsent');
+
+            if (deltaItems.length === 0) {
+                await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
+                return;
+            }
+
+            const consentItems = deltaItems.map((deltaItem) => ({
+                name: deltaItem.extension.name,
+                type: deltaItem.extension.type,
+                permissions: deltaItem.deltas.permissions,
+                domains: deltaItem.deltas.domains,
+            }));
+            const { permissions, domains } = this.aggregateConsent(consentItems);
+
+            this.bulkConsent = {
+                action: 'update',
+                items: deltaItems.map((deltaItem) => deltaItem.extension),
+                permissions,
+                domains,
+                changesApplied: results.some((result) => result.status === 'success'),
+            };
+            this.showBulkConsentModal = true;
+        },
+
+        async onBulkConsentAccept() {
+            this.showBulkConsentModal = false;
+            const consent = this.bulkConsent;
+            this.bulkConsent = null;
+
+            let results;
+            if (consent.action === 'install') {
+                results = await this.applyBulk('install', consent.items);
+            } else {
+                // Re-run only the consent required updates, now permitting the new privileges.
+                results = await this.applyBulk('update', consent.items, { allowNewPermissions: true });
+            }
+
+            // Clean updates already applied during the preflight also count as changes that need the reload.
+            const reload = (consent.changesApplied ?? false) || this.hasAppliedChanges(results);
+            await this.finalizeBulkRun({ reload });
+        },
+
+        async onBulkConsentCancel() {
+            const changesApplied = this.bulkConsent?.changesApplied ?? false;
+
+            this.showBulkConsentModal = false;
+            this.bulkConsent = null;
+
+            if (changesApplied) {
+                await this.finalizeBulkRun({ reload: true });
+                return;
+            }
+
+            this.isBulkRunning = false;
+        },
+
+        async confirmBulkUninstall(removeData) {
+            // Mirror the single uninstall modal: close it immediately, then run the uninstalls.
+            this.showBulkUninstallModal = false;
+
+            const items = this.bulkUninstallItems;
+            this.bulkUninstallItems = [];
+
+            const results = await this.applyBulk('uninstall', items, { removeData });
+
+            await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
+        },
+
+        cancelBulkUninstall() {
+            this.showBulkUninstallModal = false;
+            this.bulkUninstallItems = [];
+            this.isBulkRunning = false;
+        },
+
+        async confirmBulkDeactivation() {
+            // Mirror the single deactivation modal: close it immediately, then run the deactivations.
+            this.showBulkDeactivationModal = false;
+
+            const items = this.bulkDeactivationItems;
+            this.bulkDeactivationItems = [];
+
+            const results = await this.applyBulk('deactivate', items);
+
+            await this.finalizeBulkRun({ reload: this.hasAppliedChanges(results) });
+        },
+
+        cancelBulkDeactivation() {
+            this.showBulkDeactivationModal = false;
+            this.bulkDeactivationItems = [];
+            this.isBulkRunning = false;
+        },
+
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
         },
     },
 };

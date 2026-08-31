@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch;
 
+use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -95,6 +96,30 @@ class ExplainFieldQueryBuilderTest extends TestCase
         static::assertArrayHasKey('_name', $array['nested']);
         static::assertFalse($array['nested']['inner_hits']['_source']);
         static::assertTrue($array['nested']['inner_hits']['explain']);
+    }
+
+    public function testDisMaxQueryIsReturnedUnchangedInExplainMode(): void
+    {
+        // A text field produces a DisMax whose individual clauses are already named by
+        // FieldQueryBuilder, so the decorator must return it untouched rather than add a
+        // second, field-level _name on top.
+        $disMax = new DisMaxQuery();
+        $disMax->addQuery(new TermQuery('name.search', 'foo'));
+
+        $inner = static::createStub(AbstractFieldQueryBuilder::class);
+        $inner->method('build')->willReturn($disMax);
+
+        $builder = new ExplainFieldQueryBuilder($inner);
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, false);
+
+        $context = Context::createDefaultContext();
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
+
+        $query = $builder->build($field, 'foo', $config, $context);
+
+        static::assertSame($disMax, $query);
+        static::assertArrayNotHasKey('_name', $query->toArray()['dis_max']);
     }
 
     public function testReturnsNullWhenInnerReturnsNull(): void

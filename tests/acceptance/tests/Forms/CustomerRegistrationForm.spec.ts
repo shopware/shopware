@@ -18,8 +18,6 @@ test.describe('Customer Registration Form', () => {
                 },
             },
         });
-
-        await TestDataService.clearCaches();
     });
 
     test(

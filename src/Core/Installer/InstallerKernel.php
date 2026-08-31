@@ -104,7 +104,7 @@ class InstallerKernel extends HttpKernel
 
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
-        $routes->import(__DIR__ . '/Resources/config/routes.xml');
+        $routes->import(__DIR__ . '/Resources/config/routes.php');
     }
 
     protected function resolveComposerVersion(): string

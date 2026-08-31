@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
@@ -63,7 +64,7 @@ class EntitySearchToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -111,7 +112,7 @@ class EntitySearchToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', '{"limit": 10, "page": 2}');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -167,7 +168,7 @@ class EntitySearchToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', '{}', 5, 2, 'shirt');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -212,7 +213,7 @@ class EntitySearchToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         ($tool)('product');
     }
 
@@ -254,7 +255,7 @@ class EntitySearchToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         ($tool)('product', '{"limit": 50}');
     }
 
@@ -293,7 +294,7 @@ class EntitySearchToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         ($tool)('product');
 
         static::assertIsArray($capturedPayload);
@@ -335,7 +336,7 @@ class EntitySearchToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         ($tool)('product', '{"total-count-mode": 0}');
 
         static::assertIsArray($capturedPayload);
@@ -356,6 +357,7 @@ class EntitySearchToolTest extends TestCase
             static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
             static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
         $output = ($tool)('product', 'not-json');
 
@@ -379,7 +381,7 @@ class EntitySearchToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(JsonEntityEncoder::class));
+        $tool = new EntitySearchTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(JsonEntityEncoder::class), static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -387,6 +389,43 @@ class EntitySearchToolTest extends TestCase
         static::assertFalse($data['success']);
         static::assertArrayHasKey('error', $data);
         static::assertStringContainsString('product:read', $data['error']);
+    }
+
+    public function testDeniesAccessWhenCriteriaRequiresMissingAssociationPrivilege(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['order:read']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('search');
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn($repository);
+
+        $criteria = new Criteria();
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willReturn($criteria);
+
+        $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
+        $criteriaValidator->expects($this->once())
+            ->method('validate')
+            ->with('order', static::identicalTo($criteria), $context)
+            ->willReturn(['order_customer:read']);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, static::createStub(JsonEntityEncoder::class), $criteriaValidator);
+        $output = ($tool)('order', '{"associations": {"orderCustomer": {}}}');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege:', $data['error']);
+        static::assertStringContainsString('order_customer:read', $data['error']);
     }
 
     public function testUnknownEntityReturnsError(): void
@@ -403,6 +442,7 @@ class EntitySearchToolTest extends TestCase
             static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
             static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
         $output = ($tool)('unknown_entity');
 

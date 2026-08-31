@@ -52,8 +52,6 @@ class AccountOrderController extends StorefrontController
 {
     /**
      * @internal
-     *
-     * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
      */
     public function __construct(
         private readonly AccountOrderPageLoader $orderPageLoader,
@@ -63,6 +61,9 @@ class AccountOrderController extends StorefrontController
         private readonly AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
         private readonly AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute,
         private readonly EventDispatcherInterface $eventDispatcher,
+        /**
+         * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
+         */
         private readonly AccountOrderDetailPageLoader $orderDetailPageLoader,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly SalesChannelContextServiceInterface $contextService,

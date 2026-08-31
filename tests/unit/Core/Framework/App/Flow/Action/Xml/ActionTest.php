@@ -83,6 +83,9 @@ class ActionTest extends TestCase
 XML));
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

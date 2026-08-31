@@ -36,7 +36,7 @@ jobs:
           scope: shopware
           identity: ShopwareBackport
 
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
@@ -185,7 +185,7 @@ jobs:
           identity: ShopwareBackport
 
       - name: Backporting
-        uses: kiegroup/git-backporting@0e567a8311137583de0d6f08a4cbcc39255eb33d # main
+        uses: kiegroup/git-backporting@2d651f7b8d88f89656c888eaa4779796db946b5b # main
         with:
           auth: ${{ github.event.act && secrets.GITHUB_TOKEN || steps.sts-shopware-backport.outputs.token }}
           target-branch: ${{ matrix.target-branch }}

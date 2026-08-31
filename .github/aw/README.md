@@ -19,16 +19,20 @@ the checklist for adding a new skill), see
 │   ├── sw-bugfixer.lock.yml # compiled — `gh aw compile` regenerates it
 │   ├── sw-triage.md         # gh aw SOURCE (edit this)
 │   ├── sw-triage.lock.yml   # compiled — `gh aw compile` regenerates it
+│   ├── sw-nightly.md        # gh aw SOURCE (edit this)
+│   ├── sw-nightly.lock.yml  # compiled — `gh aw compile` regenerates it
 │   ├── sw-review.md         # gh aw SOURCE (edit this)
 │   └── sw-review.lock.yml   # compiled — `gh aw compile` regenerates it
 └── aw/
     ├── README.md            # this file
     ├── sw-bugfixer-policy.md   # gh-aw-mode policy, runtime-imported by the workflow
     ├── sw-triage-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
+    ├── sw-nightly-policy.md    # gh-aw-mode policy, runtime-imported by the workflow
     ├── sw-review-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
     ├── shared/
     │   ├── sw-bugfixer-policy.md # shared rubric, runtime-imported by the gh-aw fragment
     │   ├── sw-triage-policy.md   # AND referenced by the interactive skill (single source)
+    │   ├── sw-nightly-policy.md  # shared nightly-triage rubric (both surfaces)
     │   └── sw-review-policy.md   # shared review rubric (both surfaces)
     ├── actions-lock.json    # SHA pins for every action gh aw injects
     └── logs/                # gh aw run snapshots (gitignored — personal scratch)
@@ -40,6 +44,7 @@ the checklist for adding a new skill), see
 |---|---|---|---|
 | `sw-bugfixer` | `qi/sw-bugfixer` issue label, `workflow_dispatch`, `/sw-bugfixer ...` on PRs | `claude` / Opus tier | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
 | `sw-triage` | `workflow_dispatch` (input: `issue_number`), `/sw-triage` issue comment, `qi/sw-triage` issue label | `claude` / Sonnet tier | `triage-output.json` via `upload-artifact` |
+| `sw-nightly` | `workflow_dispatch` (input: `issue_number`), `/sw-nightly` issue comment, `qi/sw-nightly` issue label | `claude` / Sonnet tier | `nightly-triage-output.json` via `upload-artifact` |
 | `sw-review` | `qi/sw-review` PR label, `workflow_dispatch` (input: `pr_number`), `/sw-review` on PRs | `claude` / Sonnet tier (security & architecture personas → Opus tier) | inline findings via `create-pull-request-review-comment` + summary via `submit-pull-request-review` |
 
 The concrete model version for each workflow lives in its own `engine.model` frontmatter (`.github/workflows/<name>.md`) — the single source of truth. This table and the notes below intentionally name tiers, not versioned IDs, so they don't drift when a model is bumped.
@@ -119,6 +124,7 @@ GitHub Actions only exposes `workflow_dispatch` for workflows that have run at l
 `gh aw` does **not** enforce user-defined output schemas — the `upload-artifact` safe-output just stores the file. We run our own post-processing:
 
 - `.github/workflows/process-sw-triage-result.yml` triggers on every triage `workflow_run` completion, downloads the staging artifact, and runs `.github/bin/js/validate-sw-triage-output.ts` against the `triage-output.json` payload before applying deterministic issue updates.
+- `.github/workflows/process-sw-nightly-result.yml` does the same for `sw-nightly`: it validates `nightly-triage-output.json` with `.github/bin/js/validate-sw-nightly-output.ts`, then posts the cluster analysis (with re-route suggestions for confirmed root causes whose owner differs from the issue's labels) as a comment on the nightly tracking issue. `sw-nightly` triages the auto-filed nightly PHPUnit tracking issues produced by `report-phpunit-failures.yml`; it is the unattended twin of the interactive `nightly-triage` skill.
 - The validator enforces the field-level limits the agent had only as prompt hints (`reasoning` ≤ 2000 chars, `evidence_quotes[]` ≤ 500 chars × ≤ 5 entries) and scans for accidental or prompt-injection-induced secret leakage (GitHub PATs, Anthropic keys, long base64 blocks). It is TypeScript, run via Node's native type-stripping, no dependencies.
 - The `TriageOutput` shape and field rules live in `.agents/skills/sw-triage/assets/examples.md`; the validator is the machine-readable enforcement of those rules.
 

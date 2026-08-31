@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -75,9 +76,7 @@ class StorefrontFrameworkException extends HttpException
         return new SalesChannelMappingException($url);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return only self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function mediaValidatorMissing(string $type): self|MediaValidatorMissingException
     {
         if (!Feature::isActive('v6.8.0.0')) {

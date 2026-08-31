@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -202,9 +203,8 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @param array<mixed>|bool|float|int|string|null $value
-     *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function set(string $key, $value, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
@@ -219,9 +219,8 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @param array<string, array<mixed>|bool|float|int|string|null> $values
-     *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function setMultiple(array $values, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
@@ -352,9 +351,7 @@ class SystemConfigService implements ResetInterface
         $this->dispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
-     */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function delete(string $key, ?string $salesChannel = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below

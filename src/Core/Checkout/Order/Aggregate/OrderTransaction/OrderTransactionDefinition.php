@@ -25,6 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderTransactionDefinition extends EntityDefinition
 {

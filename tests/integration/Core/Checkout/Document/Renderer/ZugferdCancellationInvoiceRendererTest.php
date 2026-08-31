@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -67,6 +68,8 @@ class ZugferdCancellationInvoiceRendererTest extends TestCase
 
         $this->renderer = static::getContainer()->get(ZugferdCancellationInvoiceRenderer::class);
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+
+        $this->upsertDocumentSellerAddress(StornoRenderer::TYPE);
     }
 
     public function testDocumentSnapshot(): void

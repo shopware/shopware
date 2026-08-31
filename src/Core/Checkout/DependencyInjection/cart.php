@@ -85,6 +85,7 @@ use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustmentCalculator;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderRegistry;
+use Shopware\Core\Checkout\Cart\Telemetry\CartMetricsInstrumentor;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Checkout\Cart\Validator;
 use Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecutor;
@@ -112,14 +113,18 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
+use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -211,6 +216,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CartRuleLoader::class),
             service(CartContextHasher::class),
+            service(CartMetricsInstrumentor::class),
+        ]);
+
+    // Telemetry: cart calculation metrics collaborator
+    $services->set(CartMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(SalesChannelTypeResolver::class),
         ]);
 
     $services->set(CartFactory::class)
@@ -354,6 +367,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TaxAdjustment::class),
             service(TaxProviderRegistry::class),
             service(TaxProviderPayloadService::class),
+            service(AppCapability::class),
         ]);
 
     $services->set(TaxProviderRegistry::class)
@@ -375,6 +389,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.tax.adjustment_calculator'),
             service(CashRounding::class),
+            service(TransactionProcessor::class),
         ]);
 
     // Checkout gateway
@@ -518,6 +533,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('custom_field.repository'),
             service(LanguageLocaleCodeProvider::class),
+            service(DefinitionInstanceRegistry::class),
         ]);
 
     $services->set(TransactionProcessor::class);

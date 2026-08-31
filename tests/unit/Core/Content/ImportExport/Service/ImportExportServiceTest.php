@@ -6,7 +6,6 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -69,13 +68,11 @@ class ImportExportServiceTest extends TestCase
         $profile->setSourceEntity(ProductDefinition::ENTITY_NAME);
         $profile->setFileType('text/csv');
 
-        /** @var StaticEntityRepository<ImportExportLogCollection> $logRepo */
         $logRepo = new StaticEntityRepository([], new ImportExportLogDefinition());
 
         /** @var StaticEntityRepository<UserCollection> */
         $userRepo = new StaticEntityRepository([], new UserDefinition());
 
-        /** @var StaticEntityRepository<EntityCollection<ImportExportProfileEntity>> $profileRepo */
         $profileRepo = new StaticEntityRepository([new EntityCollection([$profile])], new ImportExportProfileDefinition());
 
         return new ImportExportService(

@@ -970,7 +970,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
         ]);
 
-        $connection = $this->getConnectionWithProductData('PRODUCT-123', 'PARENT-456');
+        $connection = $this->getConnectionWithProductData('PARENT-456');
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
@@ -1006,7 +1006,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
             Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
         ]);
 
-        $connection = $this->getConnectionWithProductData('PRODUCT-123', null);
+        $connection = $this->getConnectionWithProductData(null);
         $definition = new ElasticsearchProductDefinition(
             $definition,
             $connection,
@@ -1043,7 +1043,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ]);
 
         $connection = $this->getConnectionWithProductData(
-            productNumber: 'PRODUCT-123',
             parentProductNumber: 'PARENT-456',
             name: 'Child Product',
             parentName: 'Parent Product'
@@ -1171,7 +1170,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
     }
 
     private function getConnectionWithProductData(
-        string $productNumber,
         ?string $parentProductNumber,
         string $name = 'Test Product',
         ?string $parentName = null
@@ -1180,8 +1178,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $baseProductData = [
             'id' => $this->ids->get('product-1'),
-            'parentId' => $parentProductNumber ?? null,
-            'productNumber' => $productNumber,
+            'parentId' => $parentProductNumber,
+            'productNumber' => 'PRODUCT-123',
             'parentProductNumber' => $parentProductNumber,
             'autoIncrement' => 1,
             'ean' => '',

@@ -145,103 +145,118 @@
             {% endblock %}
 
             {% block sw_product_detail_content_tabs %}
-            <sw-tabs
-                v-if="productId"
-                class="sw-product-detail-page__tabs"
-                position-identifier="sw-product-detail"
-            >
-                {% block sw_product_detail_content_tabs_general %}
-                <sw-tabs-item
-                    class="sw-product-detail__tab-general"
-                    :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
-                    :has-error="swProductDetailBaseError"
-                    :title="$t('sw-product.detail.tabGeneral')"
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_product_detail_content_mt_tabs %}
+                <mt-tabs
+                    v-if="productId"
+                    class="sw-product-detail-page__tabs"
+                    position-identifier="sw-product-detail"
+                    :default-item="$route.name"
+                    :items="productDetailTabs"
+                    :small="true"
+                />
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                <sw-tabs
+                    v-if="productId"
+                    class="sw-product-detail-page__tabs"
+                    position-identifier="sw-product-detail"
                 >
-                    {{ $t('sw-product.detail.tabGeneral') }}
-                </sw-tabs-item>
+                {% block sw_product_detail_content_tabs_general %}
+                    <sw-tabs-item
+                        class="sw-product-detail__tab-general"
+                        :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
+                        :has-error="swProductDetailBaseError"
+                        :title="$t('sw-product.detail.tabGeneral')"
+                    >
+                        {{ $t('sw-product.detail.tabGeneral') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs_specifications %}
-                <sw-tabs-item
-                    class="sw-product-detail__tab-specifications"
-                    :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
-                    :title="$t('sw-product.detail.tabSpecifications')"
-                >
-                    {{ $t('sw-product.detail.tabSpecifications') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        class="sw-product-detail__tab-specifications"
+                        :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
+                        :title="$t('sw-product.detail.tabSpecifications')"
+                    >
+                        {{ $t('sw-product.detail.tabSpecifications') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs_advanced_prices %}
-                <sw-tabs-item
-                    v-show="showModeSetting"
-                    class="sw-product-detail__tab-advanced-prices"
-                    :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                    :title="$t('sw-product.detail.tabAdvancedPrices')"
-                >
-                    {{ $t('sw-product.detail.tabAdvancedPrices') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        v-show="showModeSetting"
+                        class="sw-product-detail__tab-advanced-prices"
+                        :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
+                        :title="$t('sw-product.detail.tabAdvancedPrices')"
+                    >
+                        {{ $t('sw-product.detail.tabAdvancedPrices') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs_advanced_variants %}
-                <sw-tabs-item
-                    v-show="!isChild && showModeSetting"
-                    class="sw-product-detail__tab-variants"
-                    :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
-                    :title="$t('sw-product.detail.tabVariation')"
-                >
-                    {{ $t('sw-product.detail.tabVariation') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        v-show="!isChild && showModeSetting"
+                        class="sw-product-detail__tab-variants"
+                        :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
+                        :title="$t('sw-product.detail.tabVariation')"
+                    >
+                        {{ $t('sw-product.detail.tabVariation') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs_layout %}
-                <sw-tabs-item
-                    v-show="!isChild && showModeSetting"
-                    class="sw-product-detail__tab-layout"
-                    :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
-                    :title="$t('sw-product.detail.tabLayout')"
-                >
-                    {{ $t('sw-product.detail.tabLayout') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        v-show="showModeSetting"
+                        class="sw-product-detail__tab-layout"
+                        :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
+                        :title="$t('sw-product.detail.tabLayout')"
+                    >
+                        {{ $t('sw-product.detail.tabLayout') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs_seo %}
-                <sw-tabs-item
-                    v-show="showModeSetting"
-                    class="sw-product-detail__tab-seo"
-                    :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
-                    :title="$t('sw-product.detail.tabSeo')"
-                >
-                    {{ $t('sw-product.detail.tabSeo') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        v-show="showModeSetting"
+                        class="sw-product-detail__tab-seo"
+                        :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
+                        :title="$t('sw-product.detail.tabSeo')"
+                    >
+                        {{ $t('sw-product.detail.tabSeo') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs_cross_selling %}
-                <sw-tabs-item
-                    v-show="showModeSetting"
-                    class="sw-product-detail__tab-cross-selling"
-                    :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
-                    :has-error="swProductDetailCrossSellingError"
-                    :title="$t('sw-product.detail.tabCrossSelling')"
-                >
-                    {{ $t('sw-product.detail.tabCrossSelling') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        v-show="showModeSetting"
+                        class="sw-product-detail__tab-cross-selling"
+                        :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
+                        :has-error="swProductDetailCrossSellingError"
+                        :title="$t('sw-product.detail.tabCrossSelling')"
+                    >
+                        {{ $t('sw-product.detail.tabCrossSelling') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs_reviews %}
-                <sw-tabs-item
-                    v-show="showModeSetting"
-                    class="sw-product-detail__tab-reviews"
-                    :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
-                    :title="$t('sw-product.detail.tabReviews')"
-                >
-                    {{ $t('sw-product.detail.tabReviews') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        v-show="showModeSetting"
+                        class="sw-product-detail__tab-reviews"
+                        :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
+                        :title="$t('sw-product.detail.tabReviews')"
+                    >
+                        {{ $t('sw-product.detail.tabReviews') }}
+                    </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_product_detail_content_tabs_additional %}
                 {% endblock %}
 
-            </sw-tabs>
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             <sw-extension-component-section

@@ -15,12 +15,12 @@ class ScssPhpCompiler extends AbstractScssCompiler
     private Compiler $compiler;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array{cacheDir?: string, prefix?: string, forceRefresh?: string, checkImportResolutions?: bool}|null
      */
     private readonly ?array $cacheOptions;
 
     /**
-     * @param array<string, mixed>|null $cacheOptions
+     * @param array{cacheDir?: string, prefix?: string, forceRefresh?: string, checkImportResolutions?: bool}|null $cacheOptions
      */
     public function __construct(?array $cacheOptions = null)
     {

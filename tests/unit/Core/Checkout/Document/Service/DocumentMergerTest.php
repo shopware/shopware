@@ -145,7 +145,6 @@ class DocumentMergerTest extends TestCase
 
         $fpdi->method('Output')->willReturn(self::PDF_CONTENT);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',
@@ -347,7 +346,6 @@ class DocumentMergerTest extends TestCase
         $firstDocument = $this->createDocument(true);
         $secondDocument = $this->createDocument(false, false);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',

@@ -32,9 +32,12 @@ class SystemTest extends TestCase
 
         static::assertTrue($container->has('shopware.translation.mock_handler'), 'services_test.php');
 
-        // the client must be wired to the mock handler instead of the argument-less
-        // real client from snippet.xml (see issue #18067)
-        static::assertNotSame([], $container->getDefinition('shopware.translation.client')->getArguments());
+        // the client must be wired to the mock handler instead of the
+        // real client from snippet.php (see issue #18067)
+        $arguments = $container->getDefinition('shopware.translation.client')->getArguments();
+        static::assertArrayHasKey(0, $arguments);
+        static::assertIsArray($arguments[0]);
+        static::assertArrayHasKey('handler', $arguments[0]);
     }
 
     #[TestDox('build keeps the real translation client outside the test environment')]
@@ -43,8 +46,16 @@ class SystemTest extends TestCase
         $container = $this->buildContainer('prod');
 
         static::assertFalse($container->has('shopware.translation.mock_handler'), 'services_test.php');
-        static::assertTrue($container->has('shopware.translation.client'), 'snippet.xml');
-        static::assertSame([], $container->getDefinition('shopware.translation.client')->getArguments());
+        static::assertTrue($container->has('shopware.translation.client'), 'snippet.php');
+        static::assertSame(
+            [
+                [
+                    'timeout' => 30,
+                    'connect_timeout' => 5,
+                ],
+            ],
+            $container->getDefinition('shopware.translation.client')->getArguments()
+        );
     }
 
     public function testBoot(): void

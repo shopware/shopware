@@ -32,7 +32,7 @@ class MakerCommandTest extends TestCase
         $scaffoldingWriter->expects($this->once())
             ->method('write')
             ->with(static::callback(static function (StubCollection $stubCollection) {
-                $stub = $stubCollection->get('src/Resources/config/services.xml');
+                $stub = $stubCollection->get('src/Resources/config/services.php');
 
                 return $stub !== null && str_contains($stub->getContent() ?? '', 'Dummy content');
             }), static::callback(static function (PluginScaffoldConfiguration $configuration) {
@@ -46,8 +46,10 @@ class MakerCommandTest extends TestCase
             ->willReturn($this->getPluginEntity());
 
         $generator = new DummyScaffoldingGenerator();
+        $otherGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $otherGenerator->expects($this->never())->method('generateStubs');
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator, $otherGenerator]), $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
@@ -184,6 +186,6 @@ class DummyScaffoldingGenerator implements ScaffoldingGenerator
             return;
         }
 
-        $stubCollection->append('src/Resources/config/services.xml', 'Dummy content');
+        $stubCollection->append('src/Resources/config/services.php', 'Dummy content');
     }
 }

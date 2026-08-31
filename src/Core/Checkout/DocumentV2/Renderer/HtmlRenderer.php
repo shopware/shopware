@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
@@ -43,15 +42,6 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
     public function getFileExtension(): string
     {
         return self::FORMAT->fileExtension();
-    }
-
-    public function getDocumentTypes(): array
-    {
-        return [
-            DocumentType::INVOICE->value,
-            DocumentType::CANCELLATION_INVOICE->value,
-            DocumentType::DELIVERY_NOTE->value,
-        ];
     }
 
     public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult

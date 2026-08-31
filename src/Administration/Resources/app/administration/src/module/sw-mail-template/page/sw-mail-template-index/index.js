@@ -10,7 +10,10 @@ const { Mixin, Feature } = Shopware;
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         /**
@@ -38,6 +41,23 @@ export default {
             }
 
             return 'mail_template';
+        },
+
+        mailTemplateTabs() {
+            const createRouteTab = (label, routeName) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-mail-template.list.tabMailTemplates', 'sw.mail.template.index.templates'),
+                createRouteTab('sw-mail-template.list.tabHeaderFooter', 'sw.mail.template.index.header_footer'),
+            ];
         },
     },
 

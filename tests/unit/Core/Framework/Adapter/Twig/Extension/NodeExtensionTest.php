@@ -36,7 +36,7 @@ class NodeExtensionTest extends TestCase
 
     public function testGetFinder(): void
     {
-        $finder = $this->createMock(TemplateFinder::class);
+        $finder = static::createStub(TemplateFinder::class);
         $extension = new NodeExtension(
             $finder,
             static::createStub(TemplateScopeDetector::class),

@@ -15,17 +15,23 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\CoreStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApiRouteDefaultsFilter;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationReporter;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiSchemaMigrationScopeProviderInterface;
 use Shopware\Core\Framework\Api\Command\CreateIntegrationCommand;
 use Shopware\Core\Framework\Api\Command\DumpClassSchemaCommand;
 use Shopware\Core\Framework\Api\Command\DumpSchemaCommand;
+use Shopware\Core\Framework\Api\Command\StoreApiSchemaMigrationReportCommand;
 use Shopware\Core\Framework\Api\Context\ContextValueResolver;
 use Shopware\Core\Framework\Api\Controller\AccessKeyController;
 use Shopware\Core\Framework\Api\Controller\ApiController;
@@ -188,6 +194,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(StoreApiSchemaMigrationReportCommand::class)
+        ->args([
+            service(StoreApiSchemaMigrationReporter::class),
+            service(SalesChannelDefinitionInstanceRegistry::class),
+        ])
+        ->tag('console.command');
+
     $services->set(JsonApiDecoder::class)
         ->tag('serializer.encoder');
 
@@ -238,6 +251,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.shopware_version'),
         ]);
 
+    $services->set(OpenApiRouteDefaultsFilter::class)
+        ->args([
+            service('router'),
+        ]);
+
     $services->set(BundleSchemaPathCollection::class)
         ->args([
             service('kernel.bundles'),
@@ -250,6 +268,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OpenApiDefinitionSchemaBuilder::class),
             param('kernel.bundles_metadata'),
             service(BundleSchemaPathCollection::class),
+            service(OpenApiRouteDefaultsFilter::class),
         ]);
 
     $services->set(StoreApiGenerator::class)
@@ -258,6 +277,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OpenApiDefinitionSchemaBuilder::class),
             param('kernel.bundles_metadata'),
             service(BundleSchemaPathCollection::class),
+            service(OpenApiRouteDefaultsFilter::class),
+        ]);
+
+    $services->set(CoreStoreApiSchemaMigrationScopeProvider::class)
+        ->tag(StoreApiSchemaMigrationScopeProviderInterface::SERVICE_TAG);
+
+    $services->set(AllStoreApiSchemaMigrationScopeProvider::class)
+        ->args([
+            service(BundleSchemaPathCollection::class),
+        ])
+        ->tag(StoreApiSchemaMigrationScopeProviderInterface::SERVICE_TAG);
+
+    $services->set(StoreApiSchemaMigrationReporter::class)
+        ->args([
+            service(OpenApiDefinitionSchemaBuilder::class),
+            tagged_iterator(StoreApiSchemaMigrationScopeProviderInterface::SERVICE_TAG),
         ]);
 
     $services->set(EntitySchemaGenerator::class);
@@ -423,6 +458,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('user_access_key.repository'),
             service(UserDefinition::class),
             service(SsoService::class),
+            service(Connection::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -430,6 +466,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('integration.repository'),
+            service(Connection::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

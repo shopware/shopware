@@ -102,6 +102,16 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
+        $parentAndChildIdsToBeChunked = \array_diff(\array_unique(\array_filter(\array_merge(
+            $this->getParentIds($ids),
+            $this->getChildrenIds($ids)
+        ))), $ids);
+
+        if (\count($parentAndChildIdsToBeChunked) + \count($ids) < self::UPDATE_IDS_CHUNK_SIZE) {
+            $ids = array_unique(array_merge($ids, $parentAndChildIdsToBeChunked));
+            $parentAndChildIdsToBeChunked = [];
+        }
+
         Profiler::trace('product:indexer:inheritance', function () use ($ids, $event): void {
             $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $event->getContext());
         });
@@ -110,11 +120,6 @@ class ProductIndexer extends EntityIndexer
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
             $this->stockStorage->index(array_values($stocks), $event->getContext());
         });
-
-        $parentAndChildIdsToBeChunked = \array_unique(\array_filter(\array_merge(
-            $this->getParentIds($ids),
-            $this->getChildrenIds($ids)
-        )));
 
         foreach (\array_chunk($parentAndChildIdsToBeChunked, self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
             $child = new ProductIndexingMessage($chunk, null, $event->getContext());
@@ -131,12 +136,18 @@ class ProductIndexer extends EntityIndexer
             $message = new ProductIndexingMessage($chunk, null, $event->getContext());
             $message->setIndexer($this->getName());
             $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
+            EntityIndexerRegistry::addSkips($message, $event->getContext());
+
+            if ($event->isCloned()) {
+                $message->addSkip(self::CHILD_COUNT_UPDATER);
+            }
 
             $this->messageBus->dispatch($message);
         }
 
         $message = new ProductIndexingMessage($idsForReturnedMessage, null, $event->getContext());
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
+        EntityIndexerRegistry::addSkips($message, $event->getContext());
 
         if ($event->isCloned()) {
             $message->addSkip(self::CHILD_COUNT_UPDATER);

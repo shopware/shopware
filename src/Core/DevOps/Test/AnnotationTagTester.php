@@ -25,6 +25,11 @@ class AnnotationTagTester
      */
     private const MANIFEST_VERSION_SCHEMA = '(\d+\.\d+)';
 
+    /**
+     * short names of all BC-change attributes, see Shopware\Core\Framework\Deprecation\BCChange
+     */
+    private const BC_CHANGE_ATTRIBUTES = 'ReturnTypeNarrowing|ReturnTypeWidening|ParameterTypeNarrowing|ParameterTypeWidening|PropertyTypeNarrowing|PropertyTypeWidening|ExceptionChange|NewOptionalParameter|NewRequiredParameter|ParameterDefaultValueChange|ParameterNameChange|ParameterRemoval|BecomesAbstract|BecomesInternal|BecomesFinal|BecomesReadonly|ClassHierarchyChange|VisibilityChange';
+
     public function __construct(
         private readonly string $shopwareVersion,
         private readonly string $manifestVersion
@@ -82,6 +87,22 @@ class AnnotationTagTester
         $matches = [];
         if (preg_match_all($annotationPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL)) {
             $this->validateMatches($matches, $this->validateExperimentalVersion(...));
+        }
+    }
+
+    /**
+     * Validates the version argument of BC-change attribute usages, e.g.
+     * `#[ReturnTypeNarrowing(version: 'v6.8.0', ...)]`. Fails when the version is
+     * malformed or already released, so stale attributes are cleaned up at majors.
+     */
+    public function validateBCChangeAttributeVersions(string $content): void
+    {
+        $pattern = \sprintf('/#\[(?:%s)\(\s*(?:version:\s*)?\'([^\']*)\'/', self::BC_CHANGE_ATTRIBUTES);
+        $matches = [];
+        if (preg_match_all($pattern, $content, $matches, \PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $this->validateAgainstPlatformVersion($match[1]);
+            }
         }
     }
 

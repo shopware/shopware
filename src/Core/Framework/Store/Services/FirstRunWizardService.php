@@ -417,7 +417,7 @@ class FirstRunWizardService
     }
 
     /**
-     * @param array{shopSecret?: string} $accessTokenData
+     * @param array{shopSecret?: string, firstRunWizardUserToken?: array{token: string, expirationDate: string}, shopUserToken?: array{token: string, expirationDate: string}} $accessTokenData
      * @param array{token: string, expirationDate: string} $userTokenData
      */
     private function createAccessTokenStruct(array $accessTokenData, array $userTokenData): AccessTokenStruct

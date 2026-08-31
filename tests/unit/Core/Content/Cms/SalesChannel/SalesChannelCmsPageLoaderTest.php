@@ -34,7 +34,6 @@ class SalesChannelCmsPageLoaderTest extends TestCase
     {
         $cmsPages = $this->getCmsPagesWithTestData();
 
-        /** @var StaticEntityRepository<CmsPageCollection> $cmsPageRepository */
         $cmsPageRepository = new StaticEntityRepository([$cmsPages], new CmsPageDefinition());
 
         $loader = new SalesChannelCmsPageLoader(
@@ -60,7 +59,6 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $cmsPages = $this->getCmsPagesWithTestData();
         $cmsPages->remove('page-2');
 
-        /** @var StaticEntityRepository<CmsPageCollection> $cmsPageRepository */
         $cmsPageRepository = new StaticEntityRepository([$cmsPages], new CmsPageDefinition());
 
         $loader = new SalesChannelCmsPageLoader(

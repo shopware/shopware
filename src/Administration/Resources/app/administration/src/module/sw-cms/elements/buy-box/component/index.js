@@ -67,12 +67,6 @@ export default {
         },
     },
 
-    watch: {
-        pageType(newPageType) {
-            this.element.locked = newPageType === 'product_detail';
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -81,8 +75,6 @@ export default {
         createdComponent() {
             this.initElementConfig('buy-box');
             this.initElementData('buy-box');
-
-            this.element.locked = this.isProductPageType;
         },
     },
 };

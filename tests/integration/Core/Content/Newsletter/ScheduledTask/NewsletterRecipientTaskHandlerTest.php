@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Newsletter\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
@@ -17,7 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Symfony\Component\Clock\NativeClock;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -27,15 +29,32 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testGetExpiredNewsletterRecipientCriteria(): void
+    public function testRunSearchesForExpiredNewsletterRecipients(): void
     {
-        $taskHandler = $this->getTaskHandler();
-        $method = new \ReflectionMethod(NewsletterRecipientTaskHandler::class, 'getExpiredNewsletterRecipientCriteria');
+        $clock = new MockClock();
+        $capturedCriteria = null;
 
-        /** @var Criteria $criteria */
-        $criteria = $method->invoke($taskHandler);
+        $recipientRepository = StaticEntityRepository::of(NewsletterRecipientCollection::class, [
+            static function (Criteria $criteria) use (&$capturedCriteria): array {
+                $capturedCriteria = $criteria;
 
-        $filters = $criteria->getFilters();
+                return [];
+            },
+        ]);
+
+        $taskHandler = new NewsletterRecipientTaskHandler(
+            static::getContainer()->get('scheduled_task.repository'),
+            static::createStub(LoggerInterface::class),
+            $recipientRepository,
+            $clock
+        );
+
+        $taskHandler->run();
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        $expiredBefore = $clock->now()->modify('-30 days')->format(\DATE_ATOM);
+
+        $filters = $capturedCriteria->getFilters();
 
         $orFilter = array_shift($filters);
         static::assertInstanceOf(OrFilter::class, $orFilter);
@@ -55,7 +74,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $notSetRecipientCreatedAtFilter = array_shift($notSetRecipientFilters);
         static::assertInstanceOf(RangeFilter::class, $notSetRecipientCreatedAtFilter);
         static::assertSame('createdAt', $notSetRecipientCreatedAtFilter->getField());
-        static::assertNotEmpty($notSetRecipientCreatedAtFilter->getParameter(RangeFilter::LTE));
+        static::assertSame($expiredBefore, $notSetRecipientCreatedAtFilter->getParameter(RangeFilter::LTE));
 
         $optOutRecipientFilter = array_shift($orFilters);
         static::assertInstanceOf(AndFilter::class, $optOutRecipientFilter);
@@ -70,14 +89,21 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         $optOutRecipientUpdatedAtFilter = array_shift($optOutRecipientFilters);
         static::assertInstanceOf(RangeFilter::class, $optOutRecipientUpdatedAtFilter);
         static::assertSame('updatedAt', $optOutRecipientUpdatedAtFilter->getField());
-        static::assertNotEmpty($optOutRecipientUpdatedAtFilter->getParameter(RangeFilter::LTE));
+        static::assertSame($expiredBefore, $optOutRecipientUpdatedAtFilter->getParameter(RangeFilter::LTE));
+
+        static::assertSame(999, $capturedCriteria->getLimit());
     }
 
     public function testRun(): void
     {
-        $this->installTestData();
+        // pin the handler clock to the fixture timestamp: the 30-day fixture sits on the
+        // handler's LTE cutoff and only survives through its sub-second precision, so with
+        // a real clock the outcome flips whenever fixture install and task run straddle a
+        // second boundary
+        $now = new \DateTimeImmutable('2026-01-15 10:00:00.500');
+        $this->installTestData($now);
 
-        $taskHandler = $this->getTaskHandler();
+        $taskHandler = $this->getTaskHandler(new MockClock($now));
         $taskHandler->run();
 
         /** @var EntityRepository<NewsletterRecipientCollection> */
@@ -109,7 +135,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         }
     }
 
-    private function installTestData(): void
+    private function installTestData(\DateTimeImmutable $now): void
     {
         $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
         static::assertIsString($salutationSql);
@@ -117,17 +143,17 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
         static::assertIsString($recipientSql);
-        $recipientSql = str_replace(':now', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
+        $recipientSql = str_replace(':now', $now->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
         static::getContainer()->get(Connection::class)->executeStatement($recipientSql);
     }
 
-    private function getTaskHandler(): NewsletterRecipientTaskHandler
+    private function getTaskHandler(ClockInterface $clock): NewsletterRecipientTaskHandler
     {
         return new NewsletterRecipientTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
             static::getContainer()->get('newsletter_recipient.repository'),
-            new NativeClock()
+            $clock
         );
     }
 }

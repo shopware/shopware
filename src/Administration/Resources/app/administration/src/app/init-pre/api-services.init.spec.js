@@ -3,8 +3,28 @@
  */
 import initializeApiServices from 'src/app/init-pre/api-services.init';
 
+function removeServiceProvider(serviceName) {
+    const container = Shopware.Application.$container;
+    const serviceContainer = container.nested.service;
+
+    delete container.providerMap[`service.${serviceName}`];
+    delete container.originalProviders[`service.${serviceName}`];
+    delete serviceContainer.providerMap[serviceName];
+    delete serviceContainer.originalProviders[serviceName];
+    delete serviceContainer.container[serviceName];
+}
+
+function registerUserConfigServiceMock() {
+    Shopware.Service().register('userConfigService', () => ({
+        search: jest.fn(() => Promise.resolve({ data: {} })),
+        upsert: jest.fn(() => Promise.resolve()),
+    }));
+}
+
 describe('src/app/init-pre/api-services.init.ts', () => {
     beforeEach(() => {
+        removeServiceProvider('userConfigService');
+
         Shopware._private.ApiServices = jest.fn(() => {
             const services = [];
             const serviceNames = [
@@ -80,6 +100,11 @@ describe('src/app/init-pre/api-services.init.ts', () => {
 
             return services;
         });
+    });
+
+    afterEach(() => {
+        removeServiceProvider('userConfigService');
+        registerUserConfigServiceMock();
     });
 
     it('should initialize the api services', async () => {

@@ -223,7 +223,6 @@ class PaymentRecurringProcessorTest extends TestCase
         $entity->setId('foo');
         $entity->setPaymentMethodId('bar');
 
-        /** @var StaticEntityRepository<OrderTransactionCollection> $repository */
         $repository = new StaticEntityRepository([
             new OrderTransactionCollection($returnEntity ? [$entity] : []),
         ]);

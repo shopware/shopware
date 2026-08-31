@@ -43,15 +43,28 @@ readonly class TranslationUpdater
     }
 
     /**
-     * Refreshes all currently installed translations against the latest remote metadata.
+     * Refreshes currently installed translations against the latest remote metadata.
      * Shops without any installed translation are a no-op and do not trigger a remote request.
+     * The scheduled task restricts this to locales of languages with `translationAutoUpdate` enabled.
+     *
+     * @param list<string>|null $locales Restrict to these (installed) locales; null refreshes all installed translations.
      */
-    public function updateInstalled(Context $context): TranslationUpdateResult
+    public function updateInstalled(Context $context, ?array $locales = null): TranslationUpdateResult
     {
-        if ($this->metadataStore->getLocalMetadata()->getKeys() === []) {
+        $installedLocales = $this->metadataStore->getLocalMetadata()->getKeys();
+
+        if ($installedLocales === []) {
             return new TranslationUpdateResult();
         }
 
-        return $this->update($this->metadataStore->getUpdatedLocalMetadata(), $context);
+        if ($locales !== null) {
+            $locales = array_values(array_intersect($locales, $installedLocales));
+
+            if ($locales === []) {
+                return new TranslationUpdateResult();
+            }
+        }
+
+        return $this->update($this->metadataStore->getUpdatedLocalMetadata($locales), $context);
     }
 }

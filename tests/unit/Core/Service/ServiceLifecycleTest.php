@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -60,11 +62,11 @@ class ServiceLifecycleTest extends TestCase
 
     private RequirementsValidator&MockObject $requirementsValidator;
 
-    private Client&MockObject $registryClient;
+    private Client&Stub $registryClient;
 
-    private ServiceClient&MockObject $serviceClient;
+    private ServiceClient&Stub $serviceClient;
 
-    private ServiceClientFactory&MockObject $serviceClientFactory;
+    private ServiceClientFactory&Stub $serviceClientFactory;
 
     protected function setUp(): void
     {
@@ -76,9 +78,9 @@ class ServiceLifecycleTest extends TestCase
         $this->sourceResolver = $this->createMock(ServiceSourceResolver::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->requirementsValidator = $this->createMock(RequirementsValidator::class);
-        $this->registryClient = $this->createMock(Client::class);
-        $this->serviceClient = $this->createMock(ServiceClient::class);
-        $this->serviceClientFactory = $this->createMock(ServiceClientFactory::class);
+        $this->registryClient = static::createStub(Client::class);
+        $this->serviceClient = static::createStub(ServiceClient::class);
+        $this->serviceClientFactory = static::createStub(ServiceClientFactory::class);
     }
 
     public function testInstallInstallsWhenInstallationRequirementsAreMet(): void
@@ -119,6 +121,8 @@ class ServiceLifecycleTest extends TestCase
             ->method('dispatch')
             ->with(static::callback(static fn ($event) => $event instanceof ServiceInstalledEvent && $event->service === 'MyCoolService'));
 
+        $this->logger->expects($this->once())->method('debug');
+
         static::assertTrue($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
     }
 
@@ -129,6 +133,9 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appManager->expects($this->never())->method('install');
         $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
+        $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
+        $this->sourceResolver->expects($this->never())->method('filesystemForVersion');
 
         static::assertFalse($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
     }
@@ -137,11 +144,12 @@ class ServiceLifecycleTest extends TestCase
     {
         $client = static::createStub(ServiceClient::class);
         $client->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
-        $factory = $this->createMock(ServiceClientFactory::class);
+        $factory = static::createStub(ServiceClientFactory::class);
         $factory->method('newFor')->willReturn($client);
 
         $this->requirementsValidator->expects($this->never())->method('isSatisfied');
         $this->appManager->expects($this->never())->method('install');
+        $this->expectInstallMachineryIsNotUsed();
 
         static::assertFalse($this->createLifecycle($this->buildAppRepository(), $factory)->install($this->entry, Context::createDefaultContext()));
     }
@@ -176,18 +184,46 @@ class ServiceLifecycleTest extends TestCase
         static::assertFalse($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
     }
 
+    public function testInstallReturnsFalseWhenManifestCannotBeParsed(): void
+    {
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $exception = AppXmlParsingException::cannotParseFile('/app-root/manifest.xml', 'Invalid manifest');
+        $this->manifestFactory
+            ->expects($this->once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willThrowException($exception);
+
+        $this->appManager->expects($this->never())->method('install');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(\sprintf('Cannot install service "MyCoolService" because of invalid manifest: "%s"', $exception->getMessage()));
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        static::assertFalse($this->createLifecycle($this->buildAppRepository())->install($this->entry, Context::createDefaultContext()));
+    }
+
     public function testInstallUpgradesAppToService(): void
     {
         $context = Context::createDefaultContext();
         $this->fetchReturnsAppInfo();
         $this->requirementsMet(true);
         // the re-activation during the upgrade is requirement-driven, so it must succeed even for
-        // services whose state may not be changed manually
-        $this->stateChangePermitted(false);
+        // services whose state may not be changed manually (the policy may or may not be consulted)
+        $this->requirementsValidator->method('permitsStateChange')->willReturn(false);
 
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [
             static function (Criteria $criteria) use ($app) {
                 static::assertCount(2, $criteria->getFilters());
 
@@ -241,6 +277,8 @@ class ServiceLifecycleTest extends TestCase
             ->method('dispatch')
             ->with(static::callback(static fn ($event) => $event instanceof ServiceUpdatedEvent && $event->service === 'MyCoolService'));
 
+        $this->logger->expects($this->once())->method('debug');
+
         static::assertTrue($this->createLifecycle($appRepo)->install($this->entry, $context));
         static::assertSame([[['id' => $app->getId(), 'selfManaged' => true]]], $appRepo->updates);
     }
@@ -267,6 +305,9 @@ class ServiceLifecycleTest extends TestCase
             ->willReturnCallback(static function (Manifest $manifest, AppInstallParameters $options): void {
                 static::assertFalse($options->activate);
             });
+
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $this->logger->expects($this->once())->method('debug');
 
         static::assertTrue($this->createLifecycle($this->buildAppRepository())->install($entry, Context::createDefaultContext()));
     }
@@ -301,6 +342,8 @@ class ServiceLifecycleTest extends TestCase
             ->method('dispatch')
             ->with(static::callback(static fn ($event) => $event instanceof ServiceUpdatedEvent && $event->service === 'MyCoolService'));
 
+        $this->logger->expects($this->once())->method('debug');
+
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
     }
 
@@ -311,11 +354,16 @@ class ServiceLifecycleTest extends TestCase
         $this->registryReturnsEntry();
         $this->fetchReturnsAppInfo();
         $this->requirementsMet(false);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->never())->method('update');
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
-        $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', $context);
+        // update() looks the service up, then uninstall() looks it up again by name
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
+
+        $this->createLifecycle($appRepo)->update('MyCoolService', $context);
     }
 
     public function testUpdateDoesNothingWhenTheServiceCannotBeFetched(): void
@@ -325,6 +373,7 @@ class ServiceLifecycleTest extends TestCase
         $this->requirementsValidator->expects($this->never())->method('isSatisfied');
         $this->appManager->expects($this->never())->method('update');
         $this->appManager->expects($this->never())->method('uninstall');
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->createLifecycle($this->buildAppRepository())->update('MyCoolService', Context::createDefaultContext());
     }
@@ -334,11 +383,14 @@ class ServiceLifecycleTest extends TestCase
         $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '6.6.0.0-a1bcd']);
         $this->registryReturnsEntry();
         $this->fetchReturnsAppInfo();
-        $this->requirementsMet(true);
 
+        $this->requirementsValidator->expects($this->never())->method('isSatisfied');
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
         $this->appManager->expects($this->never())->method('update');
+        $this->appManager->expects($this->never())->method('uninstall');
         $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->sourceResolver->expects($this->never())->method('filesystemForVersion');
+        $this->logger->expects($this->never())->method('warning');
 
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
     }
@@ -357,6 +409,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
         $this->appManager->expects($this->never())->method('update');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
 
         $this->logger
             ->expects($this->once())
@@ -388,10 +441,43 @@ class ServiceLifecycleTest extends TestCase
             ->method('update')
             ->willThrowException(AppException::notCompatible('MyCoolService'));
 
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         $this->logger
             ->expects($this->once())
             ->method('debug')
             ->with('Cannot update service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
+    }
+
+    public function testUpdateLogsErrorWhenManifestCannotBeParsed(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '8.0.0']);
+        $this->registryReturnsEntry();
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->with($this->appInfo)
+            ->willReturn(new StaticFilesystem());
+
+        $exception = AppXmlParsingException::cannotParseFile('/app-root/manifest.xml', 'Invalid manifest');
+        $this->manifestFactory
+            ->expects($this->once())
+            ->method('createFromXmlFile')
+            ->with('/app-root/manifest.xml')
+            ->willThrowException($exception);
+
+        $this->appManager->expects($this->never())->method('update');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('warning')
+            ->with(\sprintf('Cannot update service "MyCoolService" because of invalid manifest: "%s"', $exception->getMessage()));
+
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
 
         $this->createLifecycle($this->buildAppRepository([$app]))->update('MyCoolService', Context::createDefaultContext());
     }
@@ -401,12 +487,12 @@ class ServiceLifecycleTest extends TestCase
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $context = Context::createDefaultContext();
         $this->requirementsMet(false);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
 
         // findAll() walks the installed services, then uninstall() looks the service up again by name
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [new AppCollection([$app]), new AppCollection([$app])]);
 
         $this->createLifecycle($appRepo)->reevaluateInstalled($context);
     }
@@ -415,6 +501,7 @@ class ServiceLifecycleTest extends TestCase
     {
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $this->requirementsMet(true);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->never())->method('uninstall');
 
@@ -426,6 +513,7 @@ class ServiceLifecycleTest extends TestCase
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $this->stateChangePermitted(true);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->once())->method('activate')->with($app, $context);
 
@@ -439,6 +527,7 @@ class ServiceLifecycleTest extends TestCase
         $context = new Context(new AdminApiSource(Uuid::randomHex()));
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $this->stateChangePermitted(true);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->once())
             ->method('activate')
@@ -452,6 +541,8 @@ class ServiceLifecycleTest extends TestCase
         static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
 
         $this->appManager->expects($this->never())->method('activate');
+        $this->requirementsValidator->expects($this->never())->method('permitsStateChange');
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->createLifecycle($this->buildAppRepository())->activate('MyCoolService', Context::createDefaultContext());
     }
@@ -462,6 +553,7 @@ class ServiceLifecycleTest extends TestCase
 
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $this->stateChangePermitted(false);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->never())->method('activate');
 
@@ -473,6 +565,7 @@ class ServiceLifecycleTest extends TestCase
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $this->stateChangePermitted(true);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->once())->method('deactivate')->with($app, $context);
 
@@ -484,6 +577,7 @@ class ServiceLifecycleTest extends TestCase
         $context = new Context(new AdminApiSource(Uuid::randomHex()));
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $this->stateChangePermitted(true);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->once())
             ->method('deactivate')
@@ -497,6 +591,8 @@ class ServiceLifecycleTest extends TestCase
         static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
 
         $this->appManager->expects($this->never())->method('deactivate');
+        $this->requirementsValidator->expects($this->never())->method('permitsStateChange');
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->createLifecycle($this->buildAppRepository())->deactivate('MyCoolService', Context::createDefaultContext());
     }
@@ -507,6 +603,7 @@ class ServiceLifecycleTest extends TestCase
 
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
         $this->stateChangePermitted(false);
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->never())->method('deactivate');
 
@@ -517,6 +614,8 @@ class ServiceLifecycleTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $this->requirementsValidator->expects($this->never())->method('permitsStateChange');
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
@@ -529,6 +628,8 @@ class ServiceLifecycleTest extends TestCase
     {
         $context = new Context(new AdminApiSource(Uuid::randomHex()));
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
+        $this->requirementsValidator->expects($this->never())->method('permitsStateChange');
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->once())
             ->method('uninstall')
@@ -542,6 +643,8 @@ class ServiceLifecycleTest extends TestCase
         static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
 
         $this->appManager->expects($this->never())->method('uninstall');
+        $this->requirementsValidator->expects($this->never())->method('permitsStateChange');
+        $this->expectInstallMachineryIsNotUsed();
 
         $this->createLifecycle($this->buildAppRepository())->uninstall('MyCoolService', Context::createDefaultContext());
     }
@@ -559,12 +662,24 @@ class ServiceLifecycleTest extends TestCase
 
     private function requirementsMet(bool $met): void
     {
-        $this->requirementsValidator->method('isSatisfied')->willReturn($met);
+        $this->requirementsValidator->expects($this->atLeastOnce())->method('isSatisfied')->willReturn($met);
     }
 
     private function stateChangePermitted(bool $allowed): void
     {
-        $this->requirementsValidator->method('permitsStateChange')->willReturn($allowed);
+        $this->requirementsValidator->expects($this->atLeastOnce())->method('permitsStateChange')->willReturn($allowed);
+    }
+
+    /**
+     * The scenario must bail out (or operate on state only) before any manifest is fetched,
+     * parsed, logged about, or announced via an event.
+     */
+    private function expectInstallMachineryIsNotUsed(): void
+    {
+        $this->logger->expects($this->never())->method('warning');
+        $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
+        $this->sourceResolver->expects($this->never())->method('filesystemForVersion');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
     }
 
     private function isSystemScope(): \Closure
@@ -579,8 +694,7 @@ class ServiceLifecycleTest extends TestCase
      */
     private function buildAppRepository(array $apps = []): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([
+        $appRepository = StaticEntityRepository::of(AppCollection::class, [
             new AppCollection($apps),
         ]);
 

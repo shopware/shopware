@@ -38,7 +38,6 @@ class PluginUninstallCommandTest extends TestCase
         $this->pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $this->plugins = new PluginCollection();
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = new StaticEntityRepository([
             fn (): PluginCollection => $this->plugins,
         ]);

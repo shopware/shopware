@@ -4,7 +4,6 @@ namespace Shopware\Core\Installer\Configuration;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -12,7 +11,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 /**
  * @internal
  *
- * @phpstan-import-type Shop from ShopConfigurationController
+ * @phpstan-import-type Shop from ShopConfigurationService
  */
 #[Package('framework')]
 class EnvConfigWriter
@@ -57,7 +56,7 @@ SHOPWARE_ADMIN_ES_REFRESH_INDICES=0
 ###< shopware/elasticsearch ###
 
 ###> shopware/storefront ###
-STOREFRONT_PROXY_URL=http://localhost
+PROXY_URL=http://localhost
 SHOPWARE_HTTP_CACHE_ENABLED=1
 SHOPWARE_HTTP_DEFAULT_TTL=7200
 ###< shopware/storefront ###

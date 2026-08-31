@@ -117,8 +117,9 @@ parameters:
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
 
-        - # Invalid trait usage
-            message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+        - # Exception is thrown in trait
+            message: '#Expected domain exception class Shopware\\Core\\.*, got Shopware\\Core\\Framework\\FrameworkException#'
+            identifier: shopware.domainException
             paths:
                 - src/Core/Checkout/Cart/Error/Error.php
                 - src/Core/Content/ProductExport/Error/Error.php
@@ -217,3 +218,10 @@ parameters:
         -
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
+
+        - # @deprecated tag:v6.8.0 - Should be fixed, once the parent class changes
+            message: '#Parameter .* expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>, Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> given#'
+            identifier: argument.type
+        -
+            message: '#Method .* should return Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>#'
+            identifier: return.type

@@ -40,6 +40,11 @@ class AclValidPermissionsHelper
         'media.editor',
         'user_change_me',
         'notification:create',
+        'flow:dispatch',
+        'system:app:change',
+        'increment:manage',
+        'message_queue_stats:read',
+        'system:queue:process',
     ];
 
     /**

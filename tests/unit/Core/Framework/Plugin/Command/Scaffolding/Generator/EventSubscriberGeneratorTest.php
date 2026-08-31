@@ -108,7 +108,7 @@ class EventSubscriberGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([EventSubscriberGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/Subscriber/MySubscriber.php',
             ],
         ];

@@ -8,8 +8,6 @@ use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -18,8 +16,13 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
+use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
+use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
+use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -30,6 +33,7 @@ use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @internal
@@ -121,6 +125,36 @@ class McpServerControllerTest extends TestCase
         static::assertSame('integration-id', $integrationMeta->id ?? null);
     }
 
+    public function testInitializeRegistersMcpSession(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
+        $sessionRegistry->expects($this->once())
+            ->method('register')
+            ->with(static::callback(static fn (string $sessionId): bool => $sessionId !== ''));
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController(
+            $psrRequest,
+            new HttpFoundationFactory(),
+            sessionRegistry: $sessionRegistry,
+        );
+
+        $response = $controller->handle(Request::create('/api/_mcp', 'POST', content: $body));
+
+        static::assertNotSame('', (string) $response->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID));
+    }
+
     public function testHandleDetectsStreamedResponse(): void
     {
         $psrRequest = new ServerRequest('GET', '/api/_mcp');
@@ -134,6 +168,26 @@ class McpServerControllerTest extends TestCase
             ->willReturn(new Response('', 405));
 
         $controller = $this->buildController($psrRequest, $httpFoundationFactory);
+        $response = $controller->handle(new Request());
+
+        static::assertSame(405, $response->getStatusCode());
+    }
+
+    public function testDoesNotRegisterSessionWhenResponseHasNoSessionHeader(): void
+    {
+        $sessionRegistry = $this->createMock(McpSessionRegistry::class);
+        $sessionRegistry->expects($this->never())->method('register');
+
+        $psrRequest = new ServerRequest('GET', '/api/_mcp');
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
+
+        $controller = $this->buildController(
+            $psrRequest,
+            $httpFoundationFactory,
+            sessionRegistry: $sessionRegistry,
+        );
+
         $response = $controller->handle(new Request());
 
         static::assertSame(405, $response->getStatusCode());
@@ -195,62 +249,60 @@ class McpServerControllerTest extends TestCase
         static::assertStringNotContainsString('allowlist', (string) $response->getContent());
     }
 
-    /**
-     * @return iterable<string, array{McpAllowlist, list<string>}>
-     */
-    public static function toolsListFilterProvider(): iterable
+    public function testToolSearchCallIsAllowedEvenWhenToolAllowlistIsEmpty(): void
     {
-        yield 'restricted allowlist shows only allowed tool' => [
-            new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null),
-            ['tool-a'],
-        ];
-        yield 'null tools allowlist shows all tools' => [
-            new McpAllowlist(tools: null, resources: null, prompts: null),
-            ['tool-a', 'tool-b'],
-        ];
-        yield 'empty tools allowlist hides all tools' => [
-            new McpAllowlist(tools: [], resources: null, prompts: null),
-            [],
-        ];
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['name' => 'shopware-tool-search', 'arguments' => ['query' => 'entity']],
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
+
+        $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $response = $controller->handle($sfRequest);
+
+        static::assertStringNotContainsString('allowlist', (string) $response->getContent());
     }
 
     /**
-     * @param list<string> $expectedToolNames
+     * @return iterable<string, array{string}>
      */
-    #[DataProvider('toolsListFilterProvider')]
-    public function testToolsListIsFilteredByAllowlist(McpAllowlist $allowlist, array $expectedToolNames): void
+    public static function discoveryMetaToolProvider(): iterable
     {
-        $server = Server::builder()
-            ->addTool(static fn (): string => '[]', name: 'tool-a', description: 'Tool A')
-            ->addTool(static fn (): string => '[]', name: 'tool-b', description: 'Tool B')
-            ->build();
+        yield 'toolsets-list' => [McpToolsetRegistry::LIST_TOOLSETS_TOOL];
+        yield 'toolset-enable' => [McpToolsetRegistry::ENABLE_TOOLSET_TOOL];
+    }
 
-        $sessionId = $this->initializeMcpSession($server);
-
-        $listBody = json_encode([
+    #[DataProvider('discoveryMetaToolProvider')]
+    public function testDiscoveryMetaToolCallIsAllowedEvenWhenToolAllowlistIsEmpty(string $toolName): void
+    {
+        $body = json_encode([
             'jsonrpc' => '2.0',
-            'id' => 2,
-            'method' => 'tools/list',
-            'params' => [],
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['name' => $toolName, 'arguments' => []],
         ], \JSON_THROW_ON_ERROR);
 
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
+
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn($allowlist);
+        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
 
-        $psrRequest = new ServerRequest(
-            'POST',
-            '/api/_mcp',
-            ['Content-Type' => 'application/json', 'Mcp-Session-Id' => $sessionId],
-            $listBody,
-        );
-
-        $controller = $this->buildController($psrRequest, new HttpFoundationFactory(), $allowlistProvider, server: $server);
-        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody, server: ['HTTP_MCP_SESSION_ID' => $sessionId]);
+        $controller = $this->buildController($psrRequest, $httpFoundationFactory, $allowlistProvider);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
         $response = $controller->handle($sfRequest);
 
-        $data = json_decode((string) $response->getContent(), true);
-        $toolNames = array_column($data['result']['tools'] ?? [], 'name');
-        static::assertSame($expectedToolNames, array_values($toolNames));
+        static::assertStringNotContainsString('allowlist', (string) $response->getContent());
     }
 
     /**
@@ -495,111 +547,6 @@ class McpServerControllerTest extends TestCase
         static::assertStringContainsString('no prompt name', $data['error']['message']);
     }
 
-    public function testResourcesListIsFilteredByAllowlist(): void
-    {
-        $server = Server::builder()
-            ->addResource(static fn (): string => '', uri: 'shopware://resource-a', name: 'resource-a')
-            ->addResource(static fn (): string => '', uri: 'shopware://resource-b', name: 'resource-b')
-            ->build();
-
-        $sessionId = $this->initializeMcpSession($server);
-
-        $listBody = json_encode([
-            'jsonrpc' => '2.0',
-            'id' => 2,
-            'method' => 'resources/list',
-            'params' => [],
-        ], \JSON_THROW_ON_ERROR);
-
-        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: ['shopware://resource-a'], prompts: null));
-
-        $psrRequest = new ServerRequest(
-            'POST',
-            '/api/_mcp',
-            ['Content-Type' => 'application/json', 'Mcp-Session-Id' => $sessionId],
-            $listBody,
-        );
-
-        $controller = $this->buildController($psrRequest, new HttpFoundationFactory(), $allowlistProvider, server: $server);
-        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody, server: ['HTTP_MCP_SESSION_ID' => $sessionId]);
-        $response = $controller->handle($sfRequest);
-
-        $data = json_decode((string) $response->getContent(), true);
-        $uris = array_column($data['result']['resources'] ?? [], 'uri');
-        static::assertSame(['shopware://resource-a'], array_values($uris));
-    }
-
-    public function testPromptsListIsFilteredByAllowlist(): void
-    {
-        $server = Server::builder()
-            ->addPrompt(static fn (): array => [], name: 'prompt-a', description: 'Prompt A')
-            ->addPrompt(static fn (): array => [], name: 'prompt-b', description: 'Prompt B')
-            ->build();
-
-        $sessionId = $this->initializeMcpSession($server);
-
-        $listBody = json_encode([
-            'jsonrpc' => '2.0',
-            'id' => 2,
-            'method' => 'prompts/list',
-            'params' => [],
-        ], \JSON_THROW_ON_ERROR);
-
-        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: ['prompt-a']));
-
-        $psrRequest = new ServerRequest(
-            'POST',
-            '/api/_mcp',
-            ['Content-Type' => 'application/json', 'Mcp-Session-Id' => $sessionId],
-            $listBody,
-        );
-
-        $controller = $this->buildController($psrRequest, new HttpFoundationFactory(), $allowlistProvider, server: $server);
-        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody, server: ['HTTP_MCP_SESSION_ID' => $sessionId]);
-        $response = $controller->handle($sfRequest);
-
-        $data = json_decode((string) $response->getContent(), true);
-        $names = array_column($data['result']['prompts'] ?? [], 'name');
-        static::assertSame(['prompt-a'], array_values($names));
-    }
-
-    public function testListResponseIsPassedThroughWhenBodyCannotBeParsed(): void
-    {
-        // A tools/list request without a prior initialize handshake: the MCP server answers
-        // with a JSON-RPC error body (no "result"), which McpJsonRpcResponse::fromJson() cannot
-        // parse. filterListResponse() must then return the upstream response untouched.
-        $server = Server::builder()
-            ->addTool(static fn (): string => '[]', name: 'tool-a', description: 'Tool A')
-            ->build();
-
-        $listBody = json_encode([
-            'jsonrpc' => '2.0',
-            'id' => 2,
-            'method' => 'tools/list',
-            'params' => [],
-        ], \JSON_THROW_ON_ERROR);
-
-        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
-
-        $psrRequest = new ServerRequest(
-            'POST',
-            '/api/_mcp',
-            ['Content-Type' => 'application/json'],
-            $listBody,
-        );
-
-        $controller = $this->buildController($psrRequest, new HttpFoundationFactory(), $allowlistProvider, server: $server);
-        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody);
-        $response = $controller->handle($sfRequest);
-
-        $data = json_decode((string) $response->getContent(), true);
-        static::assertIsArray($data);
-        static::assertArrayNotHasKey('result', $data, 'Unparseable upstream body must be passed through unfiltered');
-    }
-
     public function testHandleLogsRequestWhenLoggerIsProvided(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
@@ -615,15 +562,18 @@ class McpServerControllerTest extends TestCase
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
 
         $psr17 = new Psr17Factory();
+        $transportFactory = new McpHttpTransportFactory(
+            $httpMessageFactory,
+            $psr17,
+            $psr17,
+            $httpFoundationFactory,
+            static::createStub(McpAllowedHostsProvider::class),
+        );
         $controller = new McpServerController(
             Server::builder()->build(),
-            $httpMessageFactory,
-            $httpFoundationFactory,
-            $psr17,
-            $psr17,
+            $transportFactory,
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
             null,
             $logger,
             new McpAllowlistFilter(),
@@ -751,91 +701,113 @@ class McpServerControllerTest extends TestCase
         static::assertObjectNotHasProperty('_meta', $result);
     }
 
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function nullableConstructorArgProvider(): iterable
+    public function testHandleReturnsNotFoundWhenServerIsNull(): void
     {
-        yield 'server is null' => ['server'];
-        yield 'httpMessageFactory is null' => ['httpMessageFactory'];
-        yield 'httpFoundationFactory is null' => ['httpFoundationFactory'];
-        yield 'responseFactory is null' => ['responseFactory'];
-        yield 'streamFactory is null' => ['streamFactory'];
-    }
-
-    #[DataProvider('nullableConstructorArgProvider')]
-    public function testHandleReturnsNotFoundWhenAnyMcpBundleServiceIsNull(string $nullArg): void
-    {
-        $psr17 = new Psr17Factory();
-
         $controller = new McpServerController(
-            $nullArg === 'server' ? null : Server::builder()->build(),
-            $nullArg === 'httpMessageFactory' ? null : static::createStub(HttpMessageFactoryInterface::class),
-            $nullArg === 'httpFoundationFactory' ? null : static::createStub(HttpFoundationFactoryInterface::class),
-            $nullArg === 'responseFactory' ? null : $psr17,
-            $nullArg === 'streamFactory' ? null : $psr17,
+            null,
+            $this->transportFactory(),
             new McpRateLimiter(static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
         );
 
-        $response = $controller->handle(new Request());
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
+    }
 
-        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    public function testHandleReturnsNotFoundWhenTransportFactoryIsUnavailable(): void
+    {
+        // A transport factory built without the PhpMcp bundle factories reports itself unavailable.
+        $unavailable = new McpHttpTransportFactory(null, null, null, null, static::createStub(McpAllowedHostsProvider::class));
+
+        $controller = new McpServerController(
+            Server::builder()->build(),
+            $unavailable,
+            new McpRateLimiter(static::createStub(RateLimiter::class)),
+            new McpSessionIdValidator(),
+        );
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $controller->handle(new Request())->getStatusCode());
+    }
+
+    public function testFlushesPendingToolsListChangedForActiveSession(): void
+    {
+        $sessionId = Uuid::v4()->toRfc4122();
+
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->once())
+            ->method('notifySession')
+            ->with(
+                $sessionId,
+                static::callback(static fn (McpListChangedNotificationSet $set): bool => $set->tools && !$set->resources && !$set->prompts),
+            );
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+
+        $controller->handle($request);
+    }
+
+    public function testDoesNotFlushWhenNoPendingNotification(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notifySession');
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, Uuid::v4()->toRfc4122());
+
+        $controller->handle($request);
+    }
+
+    public function testDoesNotFlushWhenSessionHeaderMissing(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('notifySession');
+
+        $controller = $this->buildController(
+            new ServerRequest('POST', '/api/_mcp'),
+            new HttpFoundationFactory(),
+            listChangedNotifier: $notifier,
+        );
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->attributes->set(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE, true);
+
+        $controller->handle($request);
     }
 
     private function controllerWithRateLimiter(RateLimiter $rateLimiter): McpServerController
     {
         return new McpServerController(
             Server::builder()->build(),
-            static::createStub(HttpMessageFactoryInterface::class),
-            static::createStub(HttpFoundationFactoryInterface::class),
-            static::createStub(ResponseFactoryInterface::class),
-            static::createStub(StreamFactoryInterface::class),
+            $this->transportFactory(),
             new McpRateLimiter($rateLimiter),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
         );
     }
 
-    /**
-     * Performs the MCP initialize handshake and returns the session ID.
-     * Must use the same server instance for subsequent requests so they share the in-memory session.
-     */
-    private function initializeMcpSession(Server $server): string
+    private function transportFactory(): McpHttpTransportFactory
     {
         $psr17 = new Psr17Factory();
-        $body = json_encode([
-            'jsonrpc' => '2.0',
-            'method' => 'initialize',
-            'params' => [
-                'protocolVersion' => '2025-03-26',
-                'capabilities' => new \stdClass(),
-                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
-            ],
-            'id' => 1,
-        ], \JSON_THROW_ON_ERROR);
 
-        $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
-        $httpMessageFactory->method('createRequest')->willReturn(
-            new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body),
-        );
-
-        $controller = new McpServerController(
-            $server,
-            $httpMessageFactory,
-            new HttpFoundationFactory(),
+        return new McpHttpTransportFactory(
+            static::createStub(HttpMessageFactoryInterface::class),
             $psr17,
             $psr17,
-            new McpRateLimiter(static::createStub(RateLimiter::class)),
-            new McpSessionIdValidator(),
+            static::createStub(HttpFoundationFactoryInterface::class),
             static::createStub(McpAllowedHostsProvider::class),
-            allowlistFilter: new McpAllowlistFilter(),
         );
-
-        $response = $controller->handle(new Request());
-
-        return (string) $response->headers->get('Mcp-Session-Id');
     }
 
     private function buildController(
@@ -844,22 +816,30 @@ class McpServerControllerTest extends TestCase
         ?McpAllowlistProvider $allowlistProvider = null,
         ?RateLimiter $rateLimiter = null,
         ?Server $server = null,
+        ?McpSessionRegistry $sessionRegistry = null,
+        ?McpListChangedNotifier $listChangedNotifier = null,
     ): McpServerController {
         $psr17 = new Psr17Factory();
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
         $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
 
+        $transportFactory = new McpHttpTransportFactory(
+            $httpMessageFactory,
+            $psr17,
+            $psr17,
+            $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
+            static::createStub(McpAllowedHostsProvider::class),
+        );
+
         return new McpServerController(
             $server ?? Server::builder()->build(),
-            $httpMessageFactory,
-            $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
-            $psr17,
-            $psr17,
+            $transportFactory,
             new McpRateLimiter($rateLimiter ?? static::createStub(RateLimiter::class)),
             new McpSessionIdValidator(),
-            static::createStub(McpAllowedHostsProvider::class),
             $allowlistProvider,
             allowlistFilter: new McpAllowlistFilter(),
+            sessionRegistry: $sessionRegistry,
+            listChangedNotifier: $listChangedNotifier,
         );
     }
 }

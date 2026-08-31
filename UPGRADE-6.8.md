@@ -4,6 +4,18 @@
 
 <details>
 
+## Composition API extension system is no longer a public entry point
+
+The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
+
+The same applies to the override-component mounting hooks `Shopware.Component.registerOverrideComponent()` and `Shopware.Component.getOverrideComponents()`, which exist so a generated override component can be rendered once, hidden, at boot — that is what causes its setup body to run and register its override callback.
+
+Nothing is removed from the `Shopware.Component` global — generated component code resolves these at runtime — but they are no longer intended to be called directly, and their signatures may change without a deprecation.
+
+Write native setup SFCs instead. The build-time transform emits these calls for you: a base component (`sw-thing.vue`) keeps its `<script setup>` body and gains a generated `attachOverrides(...)` footer, and an override (`sw-thing.override.vue`) registers its callback through `overrideComponentSetup()`. Extension points are declared with `swDefinePublic({ ... })` in the base and consumed with `swDefineOverride({ ... })` in the override.
+
+See `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md` for the authoring rules.
+
 ## Locale-aware sorting for product property group options
 
 To ensure product property group options are sorted more precisely based on locale code:
@@ -44,6 +56,10 @@ shopware:
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
 
+## Minimum value constraint added to restockTime field in ProductDefinition
+
+The field `restockTime` of ProductDefinition now requires a minimum value of `0`. Writing a negative value via the API is rejected. Existing negative values are set to `NULL` by a migration, as they previously broke cart calculation for out-of-stock products.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
@@ -57,10 +73,16 @@ Use `Shopware\Core\System\SystemConfig\SystemConfigService` directly in PHP code
 
 Twig templates can continue using the `config()` helper, which is now provided by the core Twig environment.
 
-## Tax Calculation for percentage discounts / surcharges, e.g. promotions
+## Tax calculation for percentage discounts, surcharges, and split line-item quantities
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
 This prevents rounding errors when calculating taxes for percentage prices.
+
+The same applies when a line item is split into multiple quantities, for example while distributing a promotion across line items.
+The calculated taxes of the original line item are now distributed proportionally instead of recalculating the taxes for each split quantity.
+This can change cent-level rounding compared to previous versions.
+
+If an extension relies on recalculated taxes for percentage prices or split line items, review the resulting taxes for mixed tax rates, net and gross prices, promotions, and partial quantities.
 
 ## Payment: Removal of Payment Method "Debit Payment"
 
@@ -73,6 +95,61 @@ Otherwise, the payment method will be disabled.
 For user interfaces that display only one delivery & transaction, there is now a new reference in the order for a `primaryOrderDelivery` or `primaryOrderTransaction`.
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
+
+## Flow Builder executions run after the main business process
+
+Flows triggered during an HTTP request, Messenger message, or console command are now buffered and executed after the current unit of work has finished.
+For HTTP requests, buffered flows run during kernel termination; for Messenger and console execution, they run after the message or command has been handled.
+The flows still run in the same process and are not automatically dispatched to a message queue.
+
+This protects the main business process from failures and unexpected state mutations caused by flow actions, and avoids delaying it with expensive actions such as sending mail.
+Keeping execution in the same process, but after the main unit of work, also avoids the unpredictable delay of dispatching every flow through the message queue.
+The motivation, considered alternatives, and consequences are described in the [architecture decision record](adr/2025-01-31-move-flow-execution-after-business-process.md) and the [public RFC discussion](https://github.com/shopware/shopware/discussions/6750).
+
+This changes the ordering of Flow Builder actions relative to synchronous event subscribers and the initiating business operation:
+
+- Code that dispatches a `FlowEventAware` event returns before matching flows have run.
+- For HTTP requests, the response can be sent before flow side effects are completed.
+- Entity data used by flow actions is restored after the main business operation and can therefore reflect the subsequently persisted state instead of the original in-memory entity state.
+- Request-scoped state and an open transaction from the initiating operation must not be assumed to still be available to a custom flow action.
+
+If an operation must happen synchronously as part of the business transaction, implement it in a synchronous event subscriber instead of relying on a Flow Builder action.
+Review integrations that expect mail delivery, state transitions, webhooks, or custom flow actions to have completed when the initiating call returns.
+Tests that dispatch flow-aware events directly must also trigger the corresponding termination phase before asserting flow side effects.
+
+### Replace `BeforeLoadStorableFlowDataEvent`
+
+The deprecated `Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent` and its dynamic event names are removed.
+To modify the criteria used to restore entity data for mail-related flow actions, subscribe to `Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent` instead.
+This replacement lets mail preview, direct mail sending, and mail-related flow actions use the same entity data providers and criteria extension point, keeping extension-added associations consistent across those paths.
+
+The dynamic event name changes as follows:
+
+```diff
+-flow.storer.<entity-name>.criteria.event
++mail-flow.data.<entity-name>.criteria.event
+```
+
+Use the public `$criteria` and `$entityName` properties and the `getContext()` method on `MailFlowDataCriteriaEvent`.
+
+## Cart is deleted immediately after the order is created
+
+During checkout, the persisted cart is now deleted directly after the order has been created and before `CheckoutOrderPlacedCriteriaEvent` and `CheckoutOrderPlacedEvent` are dispatched.
+Subscribers to these events can no longer reload the cart by its context token.
+Deleting it at this point prevents the already-converted cart from remaining available if later order loading or an order-placed subscriber fails after the order was persisted.
+Otherwise, the cart and order lifecycle could become inconsistent.
+
+Read required information from the created order instead.
+Associations needed by `CheckoutOrderPlacedEvent` can be added through `CheckoutOrderPlacedCriteriaEvent`.
+If information exists only in the cart, persist or transfer it during order conversion or before the order is placed instead of loading the cart from an order-placed subscriber.
+
+## Cart errors created during SalesChannelContext construction are deferred
+
+Cart errors that occur while the `SalesChannelContext` is constructed are now persisted with the cart.
+They remain available until the cart is processed by the next cart-related Store API request, so temporary errors are not consumed before a client can display them.
+
+Store API clients should process the errors returned by the next cart response even if the operation that originally caused the error happened while the sales-channel context was created.
+Custom cart persisters and processors must preserve existing cart errors until that subsequent cart processing has taken place.
 
 ## Standardized CLI JSON output flag
 
@@ -97,6 +174,24 @@ The Agentic Commerce sales channel features — including product export provide
 ## Document rendering no longer falls back to the Storefront browser timezone
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
+
+## Removed document template variables
+
+The following variables in `src/Core/Framework/Resources/views/documents/includes/position_header.html.twig` have been deprecated and were removed without replacement:
+
+- `companyTaxEnabled`
+- `displayAdditionalNoteDelivery`
+- `isDeliveryCountry`
+
+Extensions that rely on these variables in document template overrides must remove their usage without replacement.
+
+The variable `displayCustomerVatIdForDelivery` in `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig` was deprecated and removed without replacement. Extensions that rely on this variable in document template overrides must remove its usage without replacement.
+
+## Shipping price matrix ranges use currency conversion
+
+Price-based shipping method price matrix ranges are now compared in the default currency. When a cart is calculated in a currency with a factor, Shopware converts the cart price back to the default currency before matching the configured `quantityStart` and `quantityEnd` range.
+
+Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
 
 </details>
 
@@ -153,19 +248,15 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 
 The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
 
-## Newsletter route methods removed and response changed
+## Newsletter route methods removed
 
-The following methods have been removed:
+`AbstractNewsletterSubscribeRoute::subscribe()`, `AbstractNewsletterConfirmRoute::confirm()` and
+`AbstractNewsletterUnsubscribeRoute::unsubscribe()` have been removed. Their replacements
+`subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` are now abstract
+and have to be implemented by every class that extends one of those routes.
 
-- `AbstractNewsletterSubscribeRoute::subscribe()`
-- `AbstractNewsletterConfirmRoute::confirm()`
-- `AbstractNewsletterUnsubscribeRoute::unsubscribe()`
-
-The following methods are now abstract and must be implemented by extensions. Their return types have been narrowed from `StoreApiResponse` to their explicit types:
-
-- `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
-- `confirmWithResponse()` returns `SuccessResponse`
-- `unsubscribeWithResponse()` returns `SuccessResponse`
+The return type is `StoreApiResponse`, so an implementation written against 6.7 needs no change. A
+leftover implementation of the removed method is harmless.
 
 ## Removed `/api/_action/mail-template/validate` route
 
@@ -182,26 +273,105 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## XML configuration is no longer supported
+
+Symfony 8 removes support for XML configuration, and loading it for Shopware bundles, plugins, and the project-level `config/` directory of an installation is removed with Shopware 6.8. This affects service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes*.xml` and XML files below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Plugins that still ship such files are no longer loaded correctly and fail with an exception; XML files in the project `config/` directory are silently no longer loaded. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
+
+Migrate service definitions to PHP format. The service ids, arguments, and tags stay exactly the same, only the notation changes:
+
+Before (`src/Resources/config/services.xml`):
+
+```xml
+<container xmlns="http://symfony.com/schema/dic/services">
+    <services>
+        <service id="Swag\Example\Service\MyService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+    </services>
+</container>
+```
+
+After (`src/Resources/config/services.php`):
+
+```php
+<?php declare(strict_types=1);
+
+use Doctrine\DBAL\Connection;
+use Swag\Example\Service\MyService;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+
+return static function (ContainerConfigurator $containerConfigurator): void {
+    $containerConfigurator->services()
+        ->set(MyService::class)
+        ->args([service(Connection::class)])
+        ->tag('kernel.event_subscriber');
+};
+```
+
+Migrate route definitions the same way, using the `RoutingConfigurator`.
+
+Before (`src/Resources/config/routes.xml`):
+
+```xml
+<routes xmlns="http://symfony.com/schema/routing">
+    <import resource="../../Storefront/Controller/**/*Controller.php" type="attribute" />
+</routes>
+```
+
+After (`src/Resources/config/routes.php`):
+
+```php
+<?php declare(strict_types=1);
+
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+return static function (RoutingConfigurator $routes): void {
+    $routes->import('../../Storefront/Controller/**/*Controller.php', 'attribute');
+};
+```
+
+XML package configuration below `Resources/config/packages/` can be migrated to YAML or PHP. YAML configuration (`services.yaml`, `routes.yaml`, package YAML files) remains supported.
+
+## `ThumbnailService::updateThumbnails()` received a new optional `$force` parameter
+
+`Shopware\Core\Content\Media\Thumbnail\ThumbnailService::updateThumbnails()` received a new optional parameter `bool $force = false` that regenerates thumbnails for all configured sizes even when a thumbnail already exists. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function updateThumbnails(MediaEntity $media, Context $context, bool $strict): int
+```
+
+After:
+
+```php
+public function updateThumbnails(MediaEntity $media, Context $context, bool $strict, bool $force = false): int
+```
+
 ## Landing page slot config must not be null
 
 `LandingPageEntity::setSlotConfig()` and `LandingPageTranslationEntity::setSlotConfig()` no longer accept `null` for their `$slotConfig` argument. Pass the slot configuration array when writing a landing page or its translation.
 
-## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer extend `EntityCollection`
+## `EntitySearchResult`, `ProductListingResult` and `ProductReviewResult` no longer expose a collection API
 
-`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. All three are standalone result wrappers now. They remain `Struct`, so extensions, states, and JSON serialization keep working.
+`EntitySearchResult` no longer extends `EntityCollection`, and `ProductListingResult` / `ProductReviewResult` no longer extend `EntitySearchResult`. The three classes remained supported result wrappers and `Struct` instances, so extensions, states, and JSON serialization kept working.
+
+Previously, a result had two mutable entity lists: the collection inherited from `EntityCollection` and its typed `entities` collection. Collection helpers could operate on a different list from `getEntities()`, so the two lists could drift apart and callers could observe different entities depending on the method they used. The result wrapper is now separate from its one authoritative `entities` collection.
 
 Changes affecting all three classes:
 
-- Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`.
+- Collection methods (`first`, `last`, `filter`, `getElements`, `slice`, `map`, `getIds`, `merge`, …) were removed from the results. Call them on `$result->getEntities()`; the `entities` property remained available in PHP and Twig as the single collection of result entities.
 - The results are no longer iterable or countable: use `foreach ($result->getEntities() as $entity)` instead of `foreach ($result as $entity)`, and `$result->getEntities()->count()` (or `getTotal()` for the overall match count) instead of `count($result)` or `$result->count()`.
 - Twig: iterate `searchResult.entities` instead of `searchResult`, and read `searchResult.entities` instead of `searchResult.elements`.
 - Parameter and return types declared as `EntityCollection` (when expecting a search result) or `EntitySearchResult` (when expecting a `ProductListingResult` / `ProductReviewResult`) no longer match — narrow them to the actual types.
 
 `EntitySearchResult`:
 
-- The wrapper is immutable: `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
-- The entity-name field is gone: `$entity`, `getEntity()`, and `setEntity()` were removed.
-- The constructor signature changed: the `$entity` parameter was removed and the remaining parameters reorder. Code that constructs results manually (test fixtures, custom decorators) must be updated.
+- The wrapper is immutable: `$entity`, `$total`, `$entities`, `$page`, `$limit`, `$criteria`, `$context`, and `$aggregations` are `readonly`; the setters `setPage()`, `setLimit()`, `setEntity()`, and `setCustomFields()` were removed.
+- The entity name remains available through `$entity` and `getEntity()`. `setEntity()` was removed; construct the result with the correct entity name instead.
 - The protected `createNew()` method was removed together with `filter()` and `slice()`, which were its only internal callers. Subclass overrides of it are no longer called.
 
 `ProductListingResult`:
@@ -465,6 +635,19 @@ Following helper methods have been removed from the `EntityDefinitionQueryHelper
 
 ## Cache improvements
 
+### Selected Store API routes now use the HTTP cache
+
+Cacheable GET Store API routes now participate in Shopware's regular HTTP cache and use the same cache policies and `sw-cache-hash` variations as the Storefront.
+This applies to routes marked with the `_httpCache` route attribute, including product, category, navigation, CMS, country, currency, language, salutation, and SEO data routes.
+The change improves response times for headless storefronts while reusing the Storefront's configurable HTTP cache infrastructure instead of reintroducing a separate Store API caching layer.
+
+This is separate from the old Store API route cache that was removed in 6.7.
+The removed configuration listed under [Removed Store-API Route caching configuration](#removed-store-api-route-caching-configuration) still has no replacement; selected Store API responses are now cached by the standard HTTP cache instead.
+
+If an extension adds context-dependent data to a cacheable Store API response, ensure every relevant variation is represented in the HTTP cache key or prevent the response from being cached.
+In particular, review data that depends on the current customer, cart, permissions, custom rules, system configuration, or external state.
+Custom Store API routes are only cached when they explicitly opt in through the `_httpCache` route attribute.
+
 ### Only rules relevant for product prices are considered in the `sw-cache-hash`
 
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
@@ -616,11 +799,11 @@ This also means that the following exceptions are not thrown anymore and were re
 * `ThemeException::themeMediaStillInUse`
 * `SalesChannelException::salesChannelDomainInUse`
 
-## Removal of `CartBehavior::isRecalculation`
+## Removal of `CartBehavior` recalculation API
 
-`CartBehavior::isRecalculation` was removed.
-Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
-Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+The `$isRecalculation` constructor parameter and `CartBehavior::isRecalculation()` were removed.
+Use the applicable granular permission from `Shopware\Core\Checkout\CheckoutPermissions` when constructing `CartBehavior` instead.
+Create new `CartBehavior` instances with the permissions from the `SalesChannelContext`.
 
 ## Removal of `NavigationRoute::buildName()`
 
@@ -681,6 +864,20 @@ Profiles are now identified and displayed only by their technical name.
 * You must pass the `confidential` parameter as the third parameter of the constructor.
 * You must pass the `name` parameter as the fourth parameter of the constructor.
 
+## OAuth concrete classes are internal
+
+The following concrete OAuth classes are internal. Do not type-hint, instantiate, or extend them; rely on the corresponding League OAuth interface instead:
+
+* `\Shopware\Core\Framework\Api\OAuth\AccessTokenRepository` → `\League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository` → `\League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\ScopeRepository` → `\League\OAuth2\Server\Repositories\ScopeRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\UserRepository` → `\League\OAuth2\Server\Repositories\UserRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\ClientRepository` → `\League\OAuth2\Server\Repositories\ClientRepositoryInterface`
+* `\Shopware\Core\Framework\Api\OAuth\Client\ApiClient` → `\League\OAuth2\Server\Entities\ClientEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\AccessToken` → `\League\OAuth2\Server\Entities\AccessTokenEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\RefreshToken` → `\League\OAuth2\Server\Entities\RefreshTokenEntityInterface`
+* `\Shopware\Core\Framework\Api\OAuth\User\User` → `\League\OAuth2\Server\Entities\UserEntityInterface`
+
 ## Removed unused `ImportExport` exceptions
 
 The following unused exceptions were removed:
@@ -729,7 +926,7 @@ From now on, price definitions must explicitly implement the
 
 ## Symfony validator is not used to validate the honeypot captcha
 
-The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `isValid` method of the honeypot captcha directly.
+The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `validate` method of the honeypot captcha directly (`isValid` is removed in 6.8, see "Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`" in the Storefront section).
 
 ## `CmsPageLoadedEvent::$result` now requires `CmsPageCollection` type
 
@@ -976,7 +1173,35 @@ The `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PA
 
 If you referenced this constant, build your own field list or switch to `Criteria::excludeFields(['description', ...])` to omit specific columns while keeping a full, typed entity.
 
+## Removed `ProductExportResult::getTotal()`
+
+`\Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument have been removed. The product export paginates by an `autoIncrement` keyset cursor and no longer computes a grand total per run. Use `hasNextBatch()` to decide whether another batch follows and `getOffset()` for the resume position.
+
+## `AbstractIncrementStorage::increaseToAtLeast()` is now abstract
+
+If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage.php`, implement `increaseToAtLeast(string $configurationId, int $value): void`.
+
+The method must raise the stored increment state to at least the given value without lowering an existing higher state.
+
+
 # Administration
+
+## Deprecated password verification members in `sw-users-permissions-user-listing`
+
+The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
+
+## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
+
+The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
+## Removed `integrationService.updateAdmin()`
+
+`Shopware.Service('integrationService').updateAdmin()` was removed. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
 
 <details>
 
@@ -1181,10 +1406,11 @@ This change addresses the security vulnerability CVE-2023-45857 present in older
 **Shopware 6.7.x:**
 - Default: axios 0.30.2
 - Opt-in to v1: `useAxiosV1: true`
+- Repository requests use axios 1.x internally so the standard data-access path is migrated before the global switch. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
 
 **Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
-- Default: axios 1.x
-- Opt-out to v0: `useAxiosV1: false`
+- Direct HTTP request default: axios 1.x
+- Direct HTTP request opt-out to v0: `useAxiosV1: false`
 
 ### Key differences between axios 0.30.2 and axios 1.x
 
@@ -1222,27 +1448,19 @@ if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
 }
 ```
 
-**Version-Specific Interceptors and Defaults:**
+**Interceptors and Defaults:**
 
-During the transition period, the HTTP client provides direct access to both axios versions' interceptors and defaults:
+The Administration HTTP client is a Shopware-owned compatibility facade. Interceptors and defaults registered through its existing public API are mirrored to both internal axios clients:
 
 ```javascript
-// Access interceptors for specific version
-httpClient.interceptorsV0 // Always axios 0.30.2 interceptors
-httpClient.interceptorsV1 // Always axios 1.x interceptors
-httpClient.interceptors   // Current default version (v1 in 6.8+)
+const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
+httpClient.defaults.headers.common['my-header'] = 'value';
 
-// Access defaults for specific version
-httpClient.defaultsV0 // Always axios 0.30.2 defaults
-httpClient.defaultsV1 // Always axios 1.x defaults
-httpClient.defaults   // Current default version (v1 in 6.8+)
-
-// Example: Add interceptor to both versions during transition
-httpClient.interceptorsV0.request.use(myRequestHandler);
-httpClient.interceptorsV1.request.use(myRequestHandler);
+// Removes the interceptor from both internal clients
+httpClient.interceptors.request.eject(interceptorId);
 ```
 
-This allows plugins to configure both axios versions simultaneously during the migration period.
+Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
 
 ### Migration guide
 
@@ -1253,7 +1471,7 @@ However, if you use request cancellation or depend on specific axios behavior:
 2. **Test your plugin** with axios v1 before the 6.8 release
 3. **Review error handling** for version-specific error codes
 
-**If you need axios 0.30.2 temporarily:**
+**If a direct HTTP request needs axios 0.30.2 temporarily:**
 ```javascript
 // Explicitly opt-out to use axios 0.30.2
 httpClient.request({
@@ -1270,6 +1488,7 @@ The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
 Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
+The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
 
 ## Removal of "sw-empty-state"
 
@@ -1284,6 +1503,384 @@ After:
 ```html
 <mt-empty-state title="short title" description="longer description"/>
 ```
+
+## Removed Administration Twig blocks from legacy `sw-tabs` branches
+
+The Administration `sw-tabs` component has been replaced by `mt-tabs`. The legacy `sw-tabs` fallback branches guarded by the `v6.8.0.0` feature flag have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
+
+The following Twig blocks have been removed:
+
+- `src/Administration/Resources/app/administration/src/app/component/form/sw-custom-field-set-renderer/sw-custom-field-set-renderer.html.twig`
+  - `sw_custom_field_set_renderer_card_tabs`
+  - `sw_custom_field_set_renderer_card_tabs_content`
+  - `sw_custom_field_set_renderer_card_form_renderer`
+- `src/Administration/Resources/app/administration/src/app/component/media/sw-media-modal-folder-settings/sw-media-modal-folder-settings.html.twig`
+  - `sw_media_modal_folder_settings_tab_item_settings`
+  - `sw_media_modal_folder_settings_tab_item_thumbnails`
+  - `sw_media_modal_folder_settings_tab_content_settings`
+  - `sw_media_modal_folder_settings_name_field`
+  - `sw_media_modal_folder_settings_default_folder`
+  - `sw_media_modal_folder_settings_tab_content_thumbnails`
+  - `sw_media_modal_folder_settings_tab_content_thumbnails_left_container`
+  - `sw_media_modal_folder_settings_inherit_settings_field`
+  - `sw_media_modal_folder_settings_generate_thumbnails_field`
+  - `sw_media_modal_folder_settings_keep_proportions_field`
+  - `sw_media_modal_folder_settings_thumbnails_quality_field`
+  - `sw_media_modal_folder_settings_tab_content_thumbnails_right_container`
+  - `sw_media_modal_folder_settings_thumbnail_list_caption`
+  - `sw_media_modal_folder_settings_thumbnail_list_container`
+  - `sw_media_modal_folder_settings_thumbnail_list`
+  - `sw_media_modal_folder_settings_thumbnail_size`
+  - `sw_media_modal_folder_settings_thumbnail_size_switch`
+  - `sw_media_modal_folder_settings_thumbnail_size_delete_button`
+- `src/Administration/Resources/app/administration/src/module/sw-category/component/sw-category-view/sw-category-view.html.twig`
+  - `sw_category_view_tabs_general`
+  - `sw_category_view_tabs_products`
+  - `sw_category_view_tabs_cms`
+  - `sw_category_view_tabs_seo`
+- `src/Administration/Resources/app/administration/src/module/sw-category/component/sw-landing-page-view/sw-landing-page-view.html.twig`
+  - `sw_landing_page_view_tabs_general`
+  - `sw_landing_page_view_tabs_cms`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/component/sw-cms-layout-assignment-modal/sw-cms-layout-assignment-modal.html.twig`
+  - `sw_cms_layout_assignment_modal_tab_categories`
+  - `sw_cms_layout_assignment_modal_tab_shop_pages`
+  - `sw_cms_layout_assignment_modal_tab_landing_pages`
+  - `sw_cms_layout_assignment_modal_landing_page_select`
+  - `sw_cms_layout_assignment_modal_landing_page_select_field`
+  - `sw_cms_layout_assignment_modal_category_select`
+  - `sw_cms_layout_assignment_modal_category_select_field`
+  - `sw_cms_layout_assignment_modal_shop_pages_select`
+  - `sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field`
+  - `sw_cms_layout_assignment_modal_shop_pages_select_field`
+  - `sw_cms_layout_assignment_modal_product_detail_pages_select`
+  - `sw_entity_many_to_many_assignment_card_select`
+  - `sw_cms_layout_assignment_modal_product_detail_pages_column_name`
+  - `sw_cms_layout_assignment_modal_product_detail_pages_column_manufacturer`
+  - `sw_cms_layout_assignment_modal_product_detail_pages_empty_state`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/buy-box/config/sw-cms-el-config-buy-box.html.twig`
+  - `sw_cms_element_buy_box_config_tab_content`
+  - `sw_cms_element_buy_box_config_tab_option`
+  - `sw_cms_element_buy_box_config_content_warning`
+  - `sw_cms_element_buy_box_config_product_select`
+  - `sw_cms_element_buy_box_config_product_variant_label`
+  - `sw_cms_element_buy_box_config_product_select_result_item`
+  - `sw_entity_single_select_base_results_list_result_label`
+  - `sw_cms_element_buy_box_config_options`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/cross-selling/config/sw-cms-el-config-cross-selling.html.twig`
+  - `sw_cms_element_cross_selling_config_tab_content`
+  - `sw_cms_element_cross_selling_config_tab_options`
+  - `sw_cms_element_cross_selling_config_content`
+  - `sw_cms_element_cross_selling_config_content_warning_text`
+  - `sw_cms_element_cross_selling_config_content_products`
+  - `sw_entity_single_select_variant_selected_item`
+  - `sw_entity_single_select_variant_result_item`
+  - `sw_entity_single_select_base_results_list_result_label`
+  - `sw_cms_element_cross_selling_config_options`
+  - `sw_cms_element_cross_selling_config_options_box_layout`
+  - `sw_cms_element_cross_selling_config_options_display_mode`
+  - `sw_cms_element_cross_selling_config_options_min_width`
+  - `sw_cms_element_cross_selling_config_options_speed`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/form/config/sw-cms-el-config-form.html.twig`
+  - `sw_cms_el_config_form_tab_content`
+  - `sw_cms_el_form_config_tab_options`
+  - `sw_cms_el_form_config_content`
+  - `sw_cms_el_form_config_content_form_type`
+  - `sw_cms_el_form_config_content_form_title`
+  - `sw_cms_el_form_config_content_form_confirmation_text`
+  - `sw_cms_el_form_config_options`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/image-gallery/config/sw-cms-el-config-image-gallery.html.twig`
+  - `sw_cms_element_image_gallery_config_tab_content`
+  - `sw_cms_element_image_gallery_config_tab_options`
+  - `sw_cms_element_image_gallery_config_content`
+  - `sw_cms_element_image_gallery_config_media_selection`
+  - `sw_cms_element_image_gallery_config_media_list_selection`
+  - `sw_cms_element_image_gallery_config_media_mapping_preview`
+  - `sw_cms_element_image_gallery_config_media_preview_list`
+  - `sw_cms_element_image_gallery_config_media_preview_item`
+  - `sw_cms_element_image_gallery_config_media_preview_info`
+  - `sw_cms_element_image_gallery_config_media_upload_listener`
+  - `sw_cms_element_image_gallery_config_media_modal`
+  - `sw_cms_element_image_gallery_config_settings`
+  - `sw_cms_element_image_gallery_config_settings_display_mode`
+  - `sw_cms_element_image_gallery_config_settings_display_mode_select`
+  - `sw_cms_element_image_gallery_config_settings_min_height`
+  - `sw_cms_element_image_gallery_config_settings_vertical_align`
+  - `sw_cms_element_image_gallery_config_settings_navigation`
+  - `sw_cms_element_image_gallery_config_settings_navigation_arrow_position`
+  - `sw_cms_element_image_gallery_config_settings_navigation_dots_position`
+  - `sw_cms_element_image_gallery_config_settings_navigation_preview_position`
+  - `sw_cms_element_image_gallery_config_settings_zoom_toggles`
+  - `sw_cms_element_image_gallery_config_settings_toggle_zoom`
+  - `sw_cms_element_image_gallery_config_settings_toggle_fullscreen`
+  - `sw_cms_element_image_gallery_config_settings_aspect_ratio_magnifier_over_gallery_toggles`
+  - `sw_cms_element_image_gallery_config_settings_toggle_keep_aspect_ratio_on_zoom`
+  - `sw_cms_element_image_gallery_config_settings_toggle_magnifier_over_gallery`
+  - `sw_cms_element_image_gallery_config_settings_use_fetch_priority_on_first_item`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/image-slider/config/sw-cms-el-config-image-slider.html.twig`
+  - `sw_cms_element_image_slider_config_tab_content`
+  - `sw_cms_element_image_slider_config_tab_options`
+  - `sw_cms_element_image_slider_config_content`
+  - `sw_cms_element_image_slider_config_media_selection`
+  - `sw_cms_element_image_slider_config_media_upload_listener`
+  - `sw_cms_element_image_slider_config_media_modal`
+  - `sw_cms_element_image_slider_config_settings`
+  - `sw_cms_element_image_slider_config_settings_display_mode`
+  - `sw_cms_element_image_gallery_config_settings_display_mode`
+  - `sw_cms_element_image_slider_config_settings_display_mode_select`
+  - `sw_cms_element_image_gallery_config_settings_display_mode_select`
+  - `sw_cms_element_image_slider_config_settings_min_height`
+  - `sw_cms_element_image_gallery_config_settings_min_height`
+  - `sw_cms_element_image_slider_config_settings_vertical_align`
+  - `sw_cms_element_image_gallery_config_settings_vertical_align`
+  - `sw_cms_element_image_slider_config_settings_navigation`
+  - `sw_cms_element_image_slider_config_settings_navigation_arrow_position`
+  - `sw_cms_element_image_slider_config_settings_navigation_dots_position`
+  - `sw_cms_element_image_slider_config_settings_speed`
+  - `sw_cms_element_image_slider_config_settings_auto_slide`
+  - `sw_cms_element_image_slider_config_settings_autoplay_timeout`
+  - `sw_cms_element_image_slider_config_settings_use_fetch_priority_on_first_item`
+  - `sw_cms_element_image_slider_config_settings_links`
+  - `sw_cms_element_image_slider_config_settings_link_url`
+  - `sw_cms_element_image_slider_config_settings_link_aria_label`
+  - `sw_cms_element_image_slider_config_settings_link_target`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-description-reviews/config/sw-cms-el-config-product-description-reviews.html.twig`
+  - `sw_cms_element_product_description_reviews_config_tab_content`
+  - `sw_cms_element_product_description_reviews_config_tab_options`
+  - `sw_cms_element_product_description_reviews_config_content`
+  - `sw_cms_element_product_description_reviews_warning`
+  - `sw_cms_element_product_description_reviews_config_product_select`
+  - `sw_entity_single_select_variant_selected_item`
+  - `sw_entity_single_select_variant_result_item`
+  - `sw_entity_single_select_base_results_list_result_label`
+  - `sw_cms_el_product_description_rating_config_options`
+  - `sw_cms_el_product_description_rating_config_options_alignment`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-listing/config/sw-cms-el-config-product-listing.html.twig`
+  - `sw_cms_element_product_listing_config_layout_select`
+  - `sw_cms_element_product_listing_config_info`
+  - `sw_cms_element_product_listing_config_show_sorting`
+  - `sw_cms_element_product_listing_config_use_default_sorting`
+  - `sw_cms_element_product_listing_config_default_sorting`
+  - `sw_cms_element_product_listing_config_available_sortings`
+  - `sw_entity_multi_select_base_results_list_result_label`
+  - `sw_cms_element_product_listing_config_sorting_grid`
+  - `sw_cms_element_product_listing_config_filter_info`
+  - `sw_cms_element_product_listing_config_filter_by_wrapper`
+  - `sw_cms_element_product_listing_config_filter_by_manufacturer`
+  - `sw_cms_element_product_listing_config_filter_by_rating`
+  - `sw_cms_element_product_listing_config_filter_by_price`
+  - `sw_cms_element_product_listing_config_filter_for_free_shipping`
+  - `sw_cms_element_product_listing_config_filter_properties_wrapper`
+  - `sw_cms_element_product_listing_config_filter_spacer`
+  - `sw_cms_element_product_listing_config_filter_properties_as_filter`
+  - `sw_cms_element_product_listing_config_filter_properties_as_filter_switch`
+  - `sw_cms_element_product_listing_config_filter_properties_as_filter_info_text`
+  - `sw_cms_element_product_listing_config_filter_property_search`
+  - `sw_cms_element_product_listing_config_filter_property_grid`
+  - `sw_cms_element_product_listing_config_filter_property_grid_columns`
+  - `sw_cms_element_product_listing_config_filter_property_grid_column_status`
+  - `sw_cms_element_product_listing_config_filter_property_grid_pagination`
+  - `sw_cms_element_product_listing_config_filter_empty_state`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-slider/config/sw-cms-el-config-product-slider.html.twig`
+  - `sw_cms_element_product_slider_config_tab_content`
+  - `sw_cms_element_product_slider_config_tab_options`
+  - `sw_cms_element_product_slider_config_content`
+  - `sw_cms_element_product_slider_config_content_title`
+  - `sw_cms_element_product_slider_config_content_product_assignment_type`
+  - `sw_cms_element_product_slider_config_content_product_stream_select`
+  - `sw_cms_element_product_slider_config_content_product_stream_performance_hint`
+  - `sw_cms_element_product_slider_config_content_product_stream_sorting`
+  - `sw_cms_element_product_slider_config_content_product_stream_limit`
+  - `sw_cms_element_product_slider_config_content_product_stream_preview_link`
+  - `sw_cms_element_product_slider_config_content_products`
+  - `sw_entity_single_select_base_results_list_result_label`
+  - `sw_cms_element_product_slider_config_settings`
+  - `sw_cms_element_product_slider_config_settings_display_mode`
+  - `sw_cms_element_product_slider_config_settings_min_width`
+  - `sw_cms_element_product_slider_config_settings_vertical_align`
+  - `sw_cms_element_product_slider_config_settings_box_layout`
+  - `sw_cms_element_product_slider_config_settings_border`
+  - `sw_cms_element_product_slider_config_settings_navigation_arrows`
+  - `sw_cms_element_product_slider_config_settings_speed`
+  - `sw_cms_element_product_slider_config_settings_rotate`
+  - `sw_cms_element_product_slider_config_settings_autoplay_timeout`
+- `src/Administration/Resources/app/administration/src/module/sw-cms/elements/text/config/sw-cms-el-config-text.html.twig`
+  - `sw_cms_el_config_text_tab_content`
+  - `sw_cms_el_text_config_tab_options`
+  - `sw_cms_el_text_config_content`
+  - `sw_cms_el_text_config_settings`
+  - `sw_cms_el_text_config_settings_vertical_align`
+- `src/Administration/Resources/app/administration/src/module/sw-customer/page/sw-customer-detail/sw-customer-detail.html.twig`
+  - `sw_customer_detail_content_tab_general`
+  - `sw_customer_detail_content_tab_addresses`
+  - `sw_customer_detail_content_tab_order`
+  - `sw_customer_detail_content_tab_after`
+- `src/Administration/Resources/app/administration/src/module/sw-flow/component/modals/sw-flow-rule-modal/sw-flow-rule-modal.html.twig`
+  - `sw_flow_rule_headers`
+  - `sw_flow_rule_modal_tab_detail`
+  - `sw_flow_rule_modal_tab_rule`
+  - `sw_flow_rule_modal_content`
+  - `sw_flow_rule_modal_tab_detail_content`
+  - `sw_flow_rule_modal_detail_name`
+  - `sw_flow_rule_modal_detail_priority`
+  - `sw_flow_rule_modal_detail_description`
+  - `sw_flow_rule_modal_detail_type`
+  - `sw_flow_rule_modal_tab_rule_content`
+  - `sw_flow_rule_modal_conditions_card`
+- `src/Administration/Resources/app/administration/src/module/sw-flow/page/sw-flow-detail/sw-flow-detail.html.twig`
+  - `sw_flow_tabs_header_general`
+  - `sw_flow_tabs_header_builder`
+  - `sw_flow_tabs_header_extension`
+- `src/Administration/Resources/app/administration/src/module/sw-flow/page/sw-flow-index/sw-flow-index.html.twig`
+  - `sw_flow_tabs_header_extension`
+- `src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-modal/sw-import-export-edit-profile-modal.html.twig`
+  - `sw_import_export_edit_profile_modal_tabs_general`
+  - `sw_import_export_edit_profile_modal_tabs_field_mappings`
+  - `sw_import_export_edit_profile_modal_tabs_field_advanced`
+  - `sw_import_export_edit_profile_modal_tabs_general_import_settings`
+  - `sw_import_export_edit_profile_modal_tabs_mappings`
+  - `sw_import_export_edit_profile_modal_tabs_mappings_text`
+  - `sw_import_export_edit_profile_modal_tabs_mappings_mapping`
+  - `sw_import_export_edit_profile_modal_tabs_advanced`
+  - `sw_import_export_edit_profile_modal_tabs_advanced_text`
+  - `sw_import_export_edit_profile_modal_tabs_advanced_identifiers`
+- `src/Administration/Resources/app/administration/src/module/sw-import-export/page/sw-import-export/sw-import-export.html.twig`
+  - `sw_import_export_tabs_import`
+  - `sw_import_export_tabs_export`
+  - `sw_import_export_tabs_profiles`
+- `src/Administration/Resources/app/administration/src/module/sw-mail-template/page/sw-mail-template-index/sw-mail-template-index.html.twig`
+  - `sw_mail_template_list_tabs_templates`
+  - `sw_mail_template_list_tabs_header_footer`
+- `src/Administration/Resources/app/administration/src/module/sw-media/component/sw-media-modal-v2/sw-media-modal-v2.html.twig`
+  - `sw_media_modal_v2_tab_items`
+  - `sw_media_modal_v2_tab_item_library`
+  - `sw_media_modal_v2_tab_item_upload`
+  - `sw_media_modal_v2_tab_content`
+  - `sw_media_modal_v2_tab_content_library`
+  - `sw_media_modal_v2_navigation_and_search`
+  - `sw_media_modal_v2_folder_breadcrumbs`
+  - `sw_media_modal_v2_search_field`
+  - `sw_media_modal_v2_media_library`
+  - `sw_media_modal_v2_tab_content_upload`
+  - `sw_media_modal_v2_upload_component`
+  - `sw_media_modal_v2_uploaded_items`
+- `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-address-modal/sw-order-address-modal.html.twig`
+  - `sw_order_address_modal_tabs`
+  - `sw_order_address_modal_tab_edit_address`
+  - `sw_order_address_modal_tab_select_address`
+  - `sw_order_address_modal_tabs_content`
+  - `sw_order_address_modal_tabs_content_edit_address`
+  - `sw_order_address_modal_tabs_content_select_address`
+- `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-create-initial-modal/sw-order-create-initial-modal.html.twig`
+  - `sw_order_create_modal_tabs_customer`
+  - `sw_order_create_modal_tabs_products`
+  - `sw_order_create_modal_tabs_options`
+  - `sw_order_create_modal_tabs_extension`
+  - `sw_order_create_modal_tabs_content`
+  - `sw_order_create_modal_tabs_content_customer`
+  - `sw_order_create_modal_tabs_content_products`
+  - `sw_order_create_modal_tabs_content_options`
+- `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-new-customer-modal/sw-order-new-customer-modal.html.twig`
+  - `sw_order_new_customer_modal_tabs_details`
+  - `sw_order_new_customer_modal_tabs_billing`
+  - `sw_order_new_customer_modal_tabs_shipping`
+  - `sw_order_new_customer_modal_content_details`
+  - `sw_order_new_customer_modal_content_details_guest`
+  - `sw_order_new_customer_modal_content_details_form`
+  - `sw_order_new_customer_modal_content_shipping`
+  - `sw_order_new_customer_modal_content_shipping_same_billing`
+  - `sw_order_new_customer_modal_content_shipping_form`
+  - `sw_order_new_customer_modal_content_billing`
+  - `sw_order_new_customer_modal_content_billing_form`
+- `src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-create/sw-order-create.html.twig`
+  - `sw_order_create_content_tabs_general`
+  - `sw_order_create_content_tabs_details`
+- `src/Administration/Resources/app/administration/src/module/sw-order/page/sw-order-detail/sw-order-detail.html.twig`
+  - `sw_order_detail_content_tabs_general`
+  - `sw_order_detail_content_tabs_details`
+  - `sw_order_detail_content_tabs_documents`
+  - `sw_order_detail_content_tabs_extension`
+- `src/Administration/Resources/app/administration/src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery/sw-product-modal-delivery.html.twig`
+  - `sw_product_modal_delivery_sidebar_tabs_items`
+- `src/Administration/Resources/app/administration/src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation/sw-product-modal-variant-generation.html.twig`
+  - `sw_product_modal_variant_generation_sidebar_tabs_items`
+  - `sw_product_modal_variant_generation_sidebar_tabs_item_options`
+  - `sw_product_modal_variant_generation_sidebar_tabs_item_prices`
+  - `sw_product_modal_variant_generation_sidebar_tabs_item_restrictions`
+- `src/Administration/Resources/app/administration/src/module/sw-product/page/sw-product-detail/sw-product-detail.html.twig`
+  - `sw_product_detail_content_tabs_general`
+  - `sw_product_detail_content_tabs_specifications`
+  - `sw_product_detail_content_tabs_advanced_prices`
+  - `sw_product_detail_content_tabs_advanced_variants`
+  - `sw_product_detail_content_tabs_layout`
+  - `sw_product_detail_content_tabs_seo`
+  - `sw_product_detail_content_tabs_cross_selling`
+  - `sw_product_detail_content_tabs_reviews`
+  - `sw_product_detail_content_tabs_additional`
+- `src/Administration/Resources/app/administration/src/module/sw-profile/page/sw-profile-index/sw-profile-index.html.twig`
+  - `sw_profile_index_tabs_item_general`
+  - `sw_profile_index_tabs_item_search_preferences`
+- `src/Administration/Resources/app/administration/src/module/sw-promotion-v2/page/sw-promotion-v2-detail/sw-promotion-v2-detail.html.twig`
+  - `sw_promotion_v2_detail_content_tabs_general`
+  - `sw_promotion_v2_detail_content_tabs_conditions`
+  - `sw_promotion_v2_detail_content_tabs_discounts`
+- `src/Administration/Resources/app/administration/src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/sw-sales-channel-products-assignment-modal.html.twig`
+  - `sw_sales_channel_products_assignment_modal_tabs_single_products`
+  - `sw_sales_channel_products_assignment_modal_tabs_categories`
+  - `sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups`
+  - `sw_sales_channel_products_assignment_modal_tab_content_single_products`
+  - `sw_sales_channel_products_assignment_modal_tab_content_categories`
+  - `sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups`
+- `src/Administration/Resources/app/administration/src/module/sw-sales-channel/page/sw-sales-channel-detail/sw-sales-channel-detail.html.twig`
+  - `sw_sales_channel_detail_content_tab_general`
+  - `sw_sales_channel_detail_content_tab_product_export_insights`
+  - `sw_sales_channel_detail_content_tab_products`
+  - `sw_sales_channel_detail_content_tab_theme`
+  - `sw_sales_channel_detail_content_tab_agentic_commerce_integration`
+  - `sw_sales_channel_detail_content_tab_export_template`
+  - `sw_sales_channel_detail_content_tab_product_comparison`
+  - `sw_sales_channel_detail_content_tab_analytics`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-country/page/sw-settings-country-detail/sw-settings-country-detail.html.twig`
+  - `sw_setting_country_tabs_setting`
+  - `sw_setting_country_tabs_state`
+  - `sw_setting_country_tabs_address_handling`
+  - `sw_setting_country_tabs_extension`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels/sw-custom-field-translated-labels.html.twig`
+  - `sw_custom_field_translated_labels_translated_tabs`
+  - `sw_custom_field_translated_labels_translated_content`
+  - `sw_custom_field_translated_labels_translated_content_field`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-logging/component/sw-settings-logging-entry-info/sw-settings-logging-entry-info.html.twig`
+  - `sw_settings_logging_entry_info_tab_items`
+  - `sw_settings_logging_entry_info_content`
+  - `sw_settings_logging_entry_info_raw_content`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-rule/page/sw-settings-rule-detail/sw-settings-rule-detail.html.twig`
+  - `sw_settings_rule_detail_tab_items`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-search/component/sw-settings-search-searchable-content/sw-settings-search-searchable-content.html.twig`
+  - `sw_settings_search_searchable_content_general_tab_title`
+  - `sw_settings_search_searchable_content_general_tab_item`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-search/page/sw-settings-search/sw-settings-search.html.twig`
+  - `sw_setting_search_tabs_general`
+  - `sw_setting_search_tabs_live_search`
+  - `sw_setting_search_tabs_after`
+- `src/Administration/Resources/app/administration/src/module/sw-settings-tag/component/sw-settings-tag-detail-modal/sw-settings-tag-detail-modal.html.twig`
+  - `sw_settings_tag_detail_modal_tabs_general`
+  - `sw_settings_tag_detail_modal_tabs_assignments`
+  - `sw_settings_tag_detail_modal_tabs_general_tab`
+  - `sw_settings_tag_detail_modal_tabs_assignments_tab`
+- `src/Storefront/Resources/app/administration/src/modules/sw-theme-manager/page/sw-theme-manager-detail/sw-theme-manager-detail.html.twig`
+  - `sw_theme_manager_detail_content_inheritance`
+  - `sw_theme_manager_detail_content_inheritance_icon`
+  - `sw_theme_manager_detail_content_inheritance_text`
+  - `sw_theme_manager_detail_content_info`
+  - `sw_theme_manager_detail_content_info_image`
+  - `sw_theme_manager_detail_content_info_content`
+  - `sw_theme_manager_detail_content_info_context_button`
+  - `sw_theme_manager_detail_context_button_option_rename`
+  - `sw_theme_manager_detail_context_button_option_create`
+  - `sw_theme_manager_detail_context_button_option_reset`
+  - `sw_theme_manager_detail_context_button_option_delete`
+  - `sw_theme_manager_detail_content_areas`
+  - `sw_theme_manager_detail_content_sections`
+  - `sw_theme_manager_detail_content_fields`
 
 ## Removal of $tc function:
 
@@ -1509,11 +2106,25 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Footer collapse headlines and columns now use semantic elements
+
+In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.
+
+- Collapse section headlines: `<div role="heading">` became `<h2>`.
+- Footer columns wrapper: `<div role="list">` became `<ul>` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column: `<div role="listitem">` became `<li>`.
+
 ## Removed `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
 `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) have been removed. Use `loadDomains()` instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL, instead of `array<string, array<string, string>>`.
 
 `loadDomains()` is now abstract. If you decorate `AbstractDomainLoader`, implement `loadDomains()` and return a `DomainCollection`. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
+## Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`
+
+`Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement the now abstract `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means valid, a non-empty one is rendered as a form error. If your `isValid()` returned `false` without violations, return a violation whose code maps to an `error.*` snippet.
+
+Throughout 6.7 the default `validate()` delegates to the deprecated pair, so a captcha extending `AbstractCaptcha` keeps working. A captcha extending a shipped captcha does not: those implement `validate()` themselves, so an override of only `isValid()`/`getViolations()` is silently ignored — migrate it now. Implement at least one of `validate()`/`isValid()`; the two defaults delegate to each other, so implementing neither recurses.
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 
@@ -2063,6 +2674,7 @@ Use `app:shop-id:change` instead of `app:url-change:resolve`
 ## Removed Store-API Route caching configuration
 
 With 6.7 the Store-API caching layer was removed, therefore the configuration for it is not needed anymore and has been removed.
+In 6.8, selected cacheable Store API GET routes use the standard HTTP cache instead; see [Cache improvements](#cache-improvements).
 Concretely this means the following configuration options are removed:
 - `shopware.cache.invalidation.product_listing_route`
 - `shopware.cache.invalidation.product_detail_route`

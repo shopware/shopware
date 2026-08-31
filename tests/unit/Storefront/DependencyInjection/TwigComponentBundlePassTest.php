@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\DependencyInjection\TwigComponentBundlePass;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -12,6 +13,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TwigComponentBundlePass::class)]
 class TwigComponentBundlePassTest extends TestCase
 {

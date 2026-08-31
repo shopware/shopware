@@ -58,6 +58,7 @@ use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTask;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
+use Shopware\Core\System\SalesChannel\Context\InvalidationRaceAwareCache;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
@@ -89,6 +90,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelExceptionHandler;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenanceIpAllowlistSyncSubscriber;
 use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelTypeValidator;
+use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Shopware\Core\System\SalesChannel\Validation\SalesChannelValidator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -276,6 +278,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->decorate(BaseSalesChannelContextFactory::class)
         ->args([
             service(CachedBaseSalesChannelContextFactory::class . '.inner'),
+            service(InvalidationRaceAwareCache::class),
+        ]);
+
+    $services->set(InvalidationRaceAwareCache::class)
+        ->args([
             service('cache.object'),
         ]);
 
@@ -284,7 +291,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(CachedSalesChannelContextFactory::class . '.inner'),
-            service('cache.object'),
+            service(InvalidationRaceAwareCache::class),
         ]);
 
     $services->set(SalesChannelContextService::class)
@@ -497,4 +504,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SalesChannelMaintenanceIpAllowlistSyncSubscriber::class)
         ->tag('kernel.event_subscriber');
+
+    // Telemetry: shared sales_channel_type label resolver (cart calculation, order placed metrics)
+    $services->set(SalesChannelTypeResolver::class);
 };

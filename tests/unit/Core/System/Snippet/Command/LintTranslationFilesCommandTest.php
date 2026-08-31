@@ -6,9 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\System\Snippet\Command\LintTranslationFilesCommand;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -92,10 +90,8 @@ class LintTranslationFilesCommandTest extends TestCase
             return $this->finder;
         });
 
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $this->tester = new CommandTester(new LintTranslationFilesCommand(

@@ -18,6 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
         'repositoryFactory',
         'systemConfigApiService',
         'acl',
+        'feature',
     ],
 
     emits: ['modal-close'],
@@ -36,12 +37,12 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             shopPageSalesChannelId: null as string | null,
-            previousCategories: [] as Entity<'category'>[],
             previousCategoryIds: [] as string[],
             previousLandingPages: [] as Entity<'landing_page'>[],
             previousLandingPageIds: [] as string[],
             showConfirmChangesModal: false,
             isLoading: false,
+            isLoadingProducts: false,
             selectedShopPages: {} as Record<string, string[] | null>,
             previousShopPages: {} as Record<string, string[] | null>,
             confirmedCategories: false,
@@ -57,14 +58,49 @@ export default Shopware.Component.wrapComponentConfig({
             hasLandingPagesWithAssignedLayouts: false,
             previousProducts: [] as Entity<'product'>[],
             previousProductIds: [] as string[],
+            removedCategoryIds: [] as string[],
             categoryIndex: 1,
             isCategoriesLoading: false,
+            activeTab: 'categories',
         };
     },
 
     computed: {
         systemConfigDomain() {
             return 'core.basicInformation';
+        },
+
+        layoutAssignmentTabs() {
+            const tabs: Array<{
+                label: string;
+                name: string;
+                disabled?: boolean;
+            }> = [];
+
+            if (this.page.type === 'page' || this.page.type === 'landingpage') {
+                tabs.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories'),
+                    name: 'categories',
+                });
+            }
+
+            if (this.page.type === 'page') {
+                tabs.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages'),
+                    name: 'shop_pages',
+                    disabled: !this.acl.can('system.system_config'),
+                });
+            }
+
+            if (this.page.type === 'landingpage') {
+                tabs.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages'),
+                    name: 'landing_pages',
+                    disabled: !this.acl.can('system.system_config'),
+                });
+            }
+
+            return tabs;
         },
 
         shopPages() {
@@ -132,10 +168,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         productCriteria() {
             const productCriteria = new Criteria(1, 5);
-            productCriteria
-                .addAssociation('options.group')
-                .addAssociation('manufacturer')
-                .addFilter(Criteria.equals('parentId', null));
+            productCriteria.addAssociation('options.group').addAssociation('manufacturer');
             return productCriteria;
         },
 
@@ -150,6 +183,18 @@ export default Shopware.Component.wrapComponentConfig({
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
+        isModalLoading() {
+            return this.isLoading || this.isLoadingProducts;
+        },
+
+        allowedCategoryTypes() {
+            return ['page'];
+        },
     },
 
     created() {
@@ -158,8 +203,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            this.previousCategories = [...this.page.categories!];
-            this.previousCategoryIds = this.page.categories!.getIds();
+            this.previousCategoryIds = [...this.page.getOrigin().categories!.getIds()];
 
             this.previousLandingPages = [...this.page.landingPages!];
             this.previousLandingPageIds = this.page.landingPages!.getIds();
@@ -167,7 +211,41 @@ export default Shopware.Component.wrapComponentConfig({
             this.previousProducts = [...this.page.products!];
             this.previousProductIds = this.page.products!.getIds();
 
+            void this.loadProductsWithInheritance();
+
             void this.loadSystemConfig();
+        },
+
+        async loadProductsWithInheritance() {
+            const products = this.page.products;
+
+            if (!products?.getIds().length) {
+                return;
+            }
+
+            const hasMissingVariantNames = [...products].some(
+                (product) => product.parentId && (!product.translated?.name || !product.variation?.length),
+            );
+
+            if (!hasMissingVariantNames) {
+                return;
+            }
+
+            this.isLoadingProducts = true;
+
+            const criteria = new Criteria(1, products.getIds().length);
+            criteria.setIds(products.getIds());
+            criteria.addAssociation('options.group');
+            criteria.addAssociation('manufacturer');
+
+            const context = {
+                ...Shopware.Context.api,
+                inheritance: true,
+            };
+
+            this.page.products = await this.productRepository
+                .search(criteria, context)
+                .finally(() => (this.isLoadingProducts = false));
         },
 
         onModalClose(saveAfterClose = false) {
@@ -413,8 +491,9 @@ export default Shopware.Component.wrapComponentConfig({
                 this.page.categories!.entity,
                 Shopware.Context.api,
                 null,
-                this.previousCategories ?? [],
+                [...this.page.getOrigin().categories!],
             );
+            this.removedCategoryIds = [];
         },
 
         discardLandingPageChanges() {
@@ -476,6 +555,32 @@ export default Shopware.Component.wrapComponentConfig({
             void this.loadSystemConfig();
         },
 
+        onCategoryAdd(category: Entity<'category'>) {
+            this.removedCategoryIds = this.removedCategoryIds.filter((id) => id !== category.id);
+        },
+
+        onCategoryRemove(category: Entity<'category'>) {
+            if (!this.removedCategoryIds.includes(category.id)) {
+                this.removedCategoryIds.push(category.id);
+            }
+
+            const originCategories = this.page.getOrigin().categories!;
+
+            if (category.cmsPageId === this.page.id && !originCategories.has(category.id)) {
+                originCategories.add(category);
+            }
+
+            const categories = this.page.categories!;
+            const removedCategoryIds = new Set(this.removedCategoryIds);
+
+            originCategories.forEach((item) => {
+                if (!removedCategoryIds.has(item.id) && !categories.has(item.id)) {
+                    categories.add(item);
+                }
+            });
+            this.previousCategoryIds = [...originCategories.getIds()];
+        },
+
         async onExtraCategories() {
             this.isCategoriesLoading = true;
             this.categoryIndex += 1;
@@ -487,7 +592,20 @@ export default Shopware.Component.wrapComponentConfig({
             const result = await this.categoryRepository.search(criteria);
 
             if (result?.length > 0) {
-                this.page.categories!.push(...result);
+                const categories = this.page.categories!;
+                const originCategories = this.page.getOrigin().categories!;
+
+                result.forEach((category) => {
+                    if (!this.removedCategoryIds.includes(category.id) && !categories.has(category.id)) {
+                        categories.add(category);
+                    }
+
+                    if (!originCategories.has(category.id)) {
+                        originCategories.add(category);
+                    }
+                });
+
+                this.previousCategoryIds = [...originCategories.getIds()];
             }
 
             this.isCategoriesLoading = false;

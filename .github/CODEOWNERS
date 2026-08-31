@@ -1,6 +1,8 @@
-# ops
-/.github/               @shopware/product-operations
-/.gitlab/               @shopware/product-operations
-
-# ctrl-alt-elite
-src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
+# Intentionally empty.
+#
+# Code ownership for this repository is maintained in the `.codeowners` file in the repository root
+# and enforced by the codeowners-plus action (see .github/workflows/codeowner.yml), which offers
+# more fine-grained control than GitHub's native CODEOWNERS format (e.g. optional, non-blocking owners).
+#
+# Please add new ownership rules to `/.codeowners` and do not re-introduce rules here, otherwise
+# ownership would be defined in two places with different semantics.

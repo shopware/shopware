@@ -145,10 +145,9 @@ class CmsFormSlotConfigResolverTest extends TestCase
         $navigationId = Uuid::randomHex();
         $landingPage = new LandingPageEntity();
         $landingPage->setId($navigationId);
-        // @phpstan-ignore argument.type (intentionally malformed fixture)
         $landingPage->setSlotConfig([$slotId => [
-            'mailReceiver' => null,
-            'confirmationText' => null,
+            'mailReceiver' => ['value' => null],
+            'confirmationText' => ['value' => null],
         ]]);
 
         $resolver = $this->createResolver(landingPageEntities: [$landingPage]);
@@ -258,14 +257,10 @@ class CmsFormSlotConfigResolverTest extends TestCase
         array $productEntities = [],
         ?SystemConfigService $systemConfigService = null,
     ): CmsFormSlotConfigResolver {
-        /** @var StaticEntityRepository<CmsSlotCollection> $cmsSlotRepository */
-        $cmsSlotRepository = new StaticEntityRepository([$slotEntities], new CmsSlotDefinition());
-        /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
-        $categoryRepository = new StaticEntityRepository([$categoryEntities], new CategoryDefinition());
-        /** @var StaticEntityRepository<LandingPageCollection> $landingPageRepository */
-        $landingPageRepository = new StaticEntityRepository([$landingPageEntities], new LandingPageDefinition());
-        /** @var StaticEntityRepository<ProductCollection> $productRepository */
-        $productRepository = new StaticEntityRepository([$productEntities], new ProductDefinition());
+        $cmsSlotRepository = StaticEntityRepository::of(CmsSlotCollection::class, [$slotEntities], new CmsSlotDefinition());
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [$categoryEntities], new CategoryDefinition());
+        $landingPageRepository = StaticEntityRepository::of(LandingPageCollection::class, [$landingPageEntities], new LandingPageDefinition());
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [$productEntities], new ProductDefinition());
 
         return new CmsFormSlotConfigResolver(
             $categoryRepository,

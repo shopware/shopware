@@ -27,8 +27,21 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/OpenApi3"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `type` query parameter is not a supported API type."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing. This endpoint can be opened up by setting `shopware.api.api_browser.auth_required` to `false`."
                     }
-                }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
             }
         }
     }

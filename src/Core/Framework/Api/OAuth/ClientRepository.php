@@ -10,16 +10,21 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * OAuth integrations should rely on {@see ClientRepositoryInterface} instead of this concrete Shopware class.
+ */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ClientRepository implements ClientRepositoryInterface
 {
     /**
-     * Bcrypt hash for a static dummy secret used to equalize timing when no client is found.
+     * Bcrypt hash for a static placeholder secret used to equalize timing when no client is found.
      */
-    private const DUMMY_CLIENT_SECRET_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
+    private const PLACEHOLDER_CLIENT_SECRET_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
 
     /**
      * @internal
@@ -41,7 +46,7 @@ class ClientRepository implements ClientRepositoryInterface
 
             if (!$values) {
                 // Prevent client enumeration via timing attacks by always running password_verify().
-                $values = ['secret_access_key' => self::DUMMY_CLIENT_SECRET_HASH];
+                $values = ['secret_access_key' => self::PLACEHOLDER_CLIENT_SECRET_HASH];
                 $clientSecret = 'invalid-secret-will-always-fail';
             }
 
@@ -75,7 +80,7 @@ class ClientRepository implements ClientRepositoryInterface
 
         if ($accessKey === null) {
             // Prevent client enumeration via timing attacks by always running password_verify().
-            password_verify('invalid-secret-will-always-fail', self::DUMMY_CLIENT_SECRET_HASH);
+            password_verify('invalid-secret-will-always-fail', self::PLACEHOLDER_CLIENT_SECRET_HASH);
 
             return null;
         }

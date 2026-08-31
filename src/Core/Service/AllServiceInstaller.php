@@ -65,8 +65,14 @@ class AllServiceInstaller
     {
         $installedServices = [];
         foreach ($this->getNewServices($existingServices, $registryServices) as $entry) {
-            if ($this->serviceLifecycle->install($entry, $context)) {
-                $installedServices[] = $entry->name;
+            try {
+                $installed = $this->serviceLifecycle->install($entry, $context);
+
+                if ($installed) {
+                    $installedServices[] = $entry->name;
+                }
+            } catch (\Throwable $e) {
+                $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
             }
         }
 

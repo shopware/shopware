@@ -29,7 +29,7 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
         'app' => 'Shopware',
         'version' => '1.0.0',
         'description' => 'Shopware MCP server providing tools for entity management, system configuration, and storefront operations.',
-        'instructions' => "This MCP server exposes Shopware e-commerce platform capabilities.\nUse entity tools to search, read, and manage shop data.\nAll operations respect the authenticated user's ACL permissions.\n",
+        'instructions' => "This MCP server exposes Shopware e-commerce platform capabilities.\nUse entity tools to search, read, and manage shop data.\nThe advertised tool list is not the full catalogue. If no advertised tool matches the requested action, call shopware-tool-search first instead of assuming the action is unsupported; use shopware-toolsets-list and shopware-toolset-enable to make a matched tool callable if your client cannot invoke it inline.\nAll operations respect the authenticated user's ACL permissions.\n",
         'client_transports' => ['http' => true],
         'http' => ['path' => '/api/_mcp'],
         'discovery' => [

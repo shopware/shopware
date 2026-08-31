@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -46,7 +47,12 @@ class ProductExportController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/product-export/validate', name: 'api.action.product_export.validate', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/product-export/validate',
+        name: 'api.action.product_export.validate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['product_export:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function validate(RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $result = $this->generateExportPreview($dataBag, $context);
@@ -75,7 +81,12 @@ class ProductExportController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/product-export/preview', name: 'api.action.product_export.preview', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/product-export/preview',
+        name: 'api.action.product_export.preview',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['product_export:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function preview(RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $result = $this->generateExportPreview($dataBag, $context);

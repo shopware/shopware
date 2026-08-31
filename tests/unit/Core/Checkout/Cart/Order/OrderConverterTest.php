@@ -602,10 +602,8 @@ class OrderConverterTest extends TestCase
                 $salesChannelContext->getContext()
             ));
 
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([new RuleCollection()]);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([new CustomerCollection([$this->getCustomer(false)])]);
 
         $converter = new OrderConverter(
@@ -880,7 +878,7 @@ class OrderConverterTest extends TestCase
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
                 new EntitySearchResult(
-                    'orderAddress',
+                    'order_address',
                     1,
                     new EntityCollection($orderAddressRepositoryResultArray),
                     null,
@@ -893,7 +891,6 @@ class OrderConverterTest extends TestCase
         $rule = new RuleEntity();
         $rule->setId('rule-id');
         $rule->setAreas([RuleAreas::PAYMENT_AREA]);
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([new RuleCollection([$rule])]);
 
         $productDownload = new ProductDownloadEntity();
@@ -909,7 +906,7 @@ class OrderConverterTest extends TestCase
             }
 
             return new EntitySearchResult(
-                'productDownload',
+                'product_download',
                 1,
                 new EntityCollection([$productDownload]),
                 null,

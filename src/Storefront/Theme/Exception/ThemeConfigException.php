@@ -49,6 +49,8 @@ class ThemeConfigException extends ShopwareHttpException
 
     public function getErrors(bool $withTrace = false): \Generator
     {
+        $errorFactory = new ErrorResponseFactory();
+
         foreach ($this->getExceptions() as $innerException) {
             if ($innerException instanceof ShopwareHttpException) {
                 yield from $innerException->getErrors($withTrace);
@@ -56,7 +58,6 @@ class ThemeConfigException extends ShopwareHttpException
                 continue;
             }
 
-            $errorFactory = new ErrorResponseFactory();
             yield from $errorFactory->getErrorsFromException($innerException, $withTrace);
         }
     }

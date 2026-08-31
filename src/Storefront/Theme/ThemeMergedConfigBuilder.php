@@ -534,9 +534,7 @@ class ThemeMergedConfigBuilder
         string $section,
         string $fieldName
     ): ?array {
-        $custom = $custom ?? null;
-
-        if ($custom && isset($custom['options']) && \is_array($custom['options'])) {
+        if (\is_array($custom) && isset($custom['options']) && \is_array($custom['options'])) {
             foreach ($custom['options'] as $optionIndex => &$option) {
                 $option['labelSnippetKey'] = $this->buildSnippetKey(
                     $themeTechnicalName,

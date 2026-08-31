@@ -149,6 +149,47 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertNotNull($cart->getErrors()->get('promotion-not-eligible'));
     }
 
+    public function testDeliveryDiscountWithZeroFixedUnitValueRestoresPriceDefinition(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        // simulate a recalculation where the copied delivery discount line item
+        // still carries a QuantityPriceDefinition that needs to be restored. A
+        // "Fixed price per unit" discount with value "0" makes shipping free.
+        $discount = $this->getDiscountItem('free-shipping')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', '0')
+            ->setPriceDefinition(new QuantityPriceDefinition(0, new TaxRuleCollection(), 1));
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$discount]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        $priceDefinition = $discount->getPriceDefinition();
+        static::assertInstanceOf(AbsolutePriceDefinition::class, $priceDefinition);
+        static::assertSame(0.0, $priceDefinition->getPrice());
+        static::assertSame(0.0, $cart->getShippingCosts()->getTotalPrice());
+    }
+
     public function testPromotionPrioritySorting(): void
     {
         $lineItems = new LineItem($this->ids->get('line-item-1'), LineItem::PRODUCT_LINE_ITEM_TYPE);

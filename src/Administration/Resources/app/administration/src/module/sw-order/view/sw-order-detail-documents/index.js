@@ -32,6 +32,8 @@ export default {
         order: () => Store.get('swOrderDetail').order,
 
         versionContext: () => Store.get('swOrderDetail').versionContext,
+
+        isEditing: () => Store.get('swOrderDetail').isEditing,
     },
 
     methods: {

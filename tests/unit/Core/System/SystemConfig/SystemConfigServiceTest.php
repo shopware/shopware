@@ -131,7 +131,7 @@ class SystemConfigServiceTest extends TestCase
         $queryBuilder->method('addOrderBy')->willReturn($queryBuilder);
         $queryBuilder->method('setParameter')->willReturn($queryBuilder);
 
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAllNumeric')->willReturn([]);
         $queryBuilder->method('executeQuery')->willReturn($result);
 

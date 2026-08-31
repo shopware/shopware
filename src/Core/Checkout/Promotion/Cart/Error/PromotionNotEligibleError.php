@@ -12,11 +12,14 @@ class PromotionNotEligibleError extends Error
 
     /**
      * @param list<string> $ruleIds Condition rule entity IDs to enable rule-specific snippet lookup
+     * @param bool $persistent Whether the error survives cart recalculation (true for once-raised
+     *                         collector errors, false for calculator errors re-evaluated each pass)
      */
     public function __construct(
         protected string $name,
         private readonly ?string $reason = null,
-        private readonly array $ruleIds = []
+        private readonly array $ruleIds = [],
+        private readonly bool $persistent = false
     ) {
         $this->message = \sprintf('Promotion %s not eligible for cart!', $this->name);
 
@@ -25,7 +28,7 @@ class PromotionNotEligibleError extends Error
 
     public function isPersistent(): bool
     {
-        return false;
+        return $this->persistent;
     }
 
     public function getId(): string

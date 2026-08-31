@@ -1,7 +1,6 @@
-import DocumentV2ApiService from 'src/core/service/api/documentV2.api.service';
-import { DocumentEvents } from 'src/core/service/api/document.api.service';
-import createLoginService from 'src/core/service/login.service';
-import createHTTPClient from 'src/core/factory/http.factory';
+import DocumentV2ApiService from './documentV2.api.service';
+import createLoginService from '../login.service';
+import createHTTPClient from '../../factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 /**
@@ -17,12 +16,12 @@ function createDocumentV2ApiService() {
     return { documentV2ApiService, clientMock };
 }
 
-describe('documentV2Service', () => {
+describe('documentV2ApiService', () => {
     it('is registered correctly', async () => {
         const { documentV2ApiService } = createDocumentV2ApiService();
 
         expect(documentV2ApiService).toBeInstanceOf(DocumentV2ApiService);
-        expect(documentV2ApiService.name).toBe('documentV2Service');
+        expect(documentV2ApiService.name).toBe('documentV2ApiService');
     });
 
     it('loads the support metadata', async () => {
@@ -39,10 +38,10 @@ describe('documentV2Service', () => {
             },
         });
 
-        const response = await documentV2ApiService.getAvailableTypes();
+        const availableDocumentTypesResponse = await documentV2ApiService.getAvailableTypes();
 
         expect(clientMock.history.get[0].url).toBe('/_action/order/document-v2/available-types');
-        expect(response.data).toEqual({
+        expect(availableDocumentTypesResponse).toEqual({
             documentTypes: {
                 invoice: {
                     formats: [
@@ -56,12 +55,8 @@ describe('documentV2Service', () => {
 
     it('creates a document with the selected formats', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
-        const listener = jest.fn();
-
-        documentV2ApiService.setListener(listener);
 
         const orderId = '4a4a687257644d52bf481b4c20e59213';
-        const orderVersionId = '4d03324edcd0490b9180df8161c9167f';
 
         clientMock.onPost('/_action/order/document-v2/create').reply(200, {
             documentId: '4d03324edcd0490b9180df8161c9167f',
@@ -72,9 +67,8 @@ describe('documentV2Service', () => {
             ],
         });
 
-        await documentV2ApiService.createDocument(
+        const createDocumentResponse = await documentV2ApiService.createDocument(
             orderId,
-            orderVersionId,
             'invoice',
             [
                 'html',
@@ -85,20 +79,14 @@ describe('documentV2Service', () => {
             '',
         );
 
-        expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/create');
-        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
-            orderId,
-            orderVersionId,
-            documentType: 'invoice',
+        expect(createDocumentResponse).toStrictEqual({
+            deepLinkCode: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
+            documentId: '4d03324edcd0490b9180df8161c9167f',
             formats: [
                 'html',
                 'zugferd_xml',
             ],
-            documentNumber: '1000',
-            documentDate: '2021-02-22T04:34:56.441Z',
-            documentComment: '',
         });
-        expect(listener).not.toHaveBeenCalled();
     });
 
     it('uploads a document from an existing media file', async () => {
@@ -116,8 +104,6 @@ describe('documentV2Service', () => {
             'invoice',
             'pdf',
             '1000',
-            '2021-02-22T04:34:56.441Z',
-            '',
             'media-id',
             null,
             'referenced-document-id',
@@ -130,10 +116,7 @@ describe('documentV2Service', () => {
             documentType: 'invoice',
             format: 'pdf',
             documentNumber: '1000',
-            documentDate: '2021-02-22T04:34:56.441Z',
-            documentComment: '',
             mediaId: 'media-id',
-            referencedDocumentId: 'referenced-document-id',
         });
     });
 
@@ -155,11 +138,8 @@ describe('documentV2Service', () => {
             'invoice',
             'pdf',
             '1000',
-            '2021-02-22T04:34:56.441Z',
-            '',
             null,
             file,
-            'referenced-document-id',
         );
 
         expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/upload');
@@ -171,10 +151,7 @@ describe('documentV2Service', () => {
             documentType: 'invoice',
             format: 'pdf',
             documentNumber: '1000',
-            documentDate: '2021-02-22T04:34:56.441Z',
-            documentComment: '',
             mediaId: null,
-            referencedDocumentId: 'referenced-document-id',
             extension: 'pdf',
             fileName: 'invoice.final',
         });
@@ -189,7 +166,6 @@ describe('documentV2Service', () => {
 
         await documentV2ApiService.previewDocument(
             '4a4a687257644d52bf481b4c20e59213',
-            '4d03324edcd0490b9180df8161c9167f',
             'invoice',
             'html',
             '1000',
@@ -204,7 +180,6 @@ describe('documentV2Service', () => {
         expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
         expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
             orderId: '4a4a687257644d52bf481b4c20e59213',
-            orderVersionId: '4d03324edcd0490b9180df8161c9167f',
             documentType: 'invoice',
             format: 'html',
             documentNumber: '1000',
@@ -215,9 +190,6 @@ describe('documentV2Service', () => {
 
     it('emits a document failed event when previewing fails', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
-        const listener = jest.fn();
-
-        documentV2ApiService.setListener(listener);
 
         const errorBody = {
             errors: [
@@ -237,24 +209,22 @@ describe('documentV2Service', () => {
             ];
         });
 
-        const response = await documentV2ApiService.previewDocument(
-            '4a4a687257644d52bf481b4c20e59213',
-            '4d03324edcd0490b9180df8161c9167f',
-            'invoice',
-            'html',
-            '1000',
-            '2021-02-22T04:34:56.441Z',
-            '',
-        );
+        let thrownError = null;
 
-        expect(response).toBeUndefined();
-        expect(listener).toHaveBeenCalledWith({
-            action: DocumentEvents.DOCUMENT_FAILED,
-            payload: {
-                code: 'DOCUMENT__UNSUPPORTED_DOCUMENT_FORMAT',
-                detail: 'Unsupported document format.',
-            },
-        });
+        try {
+            await documentV2ApiService.previewDocument(
+                '4a4a687257644d52bf481b4c20e59213',
+                'invoice',
+                'html',
+                '1000',
+                '2021-02-22T04:34:56.441Z',
+                '',
+            );
+        } catch (error) {
+            thrownError = error;
+        }
+
+        expect(thrownError).toEqual(new Error('Request failed with status code 400'));
     });
 
     it('downloads a document file', async () => {
@@ -269,14 +239,30 @@ describe('documentV2Service', () => {
         expect(clientMock.history.get[0].url).toBe(`/_action/order/document-v2/${documentId}/download/${format}`);
     });
 
-    it('downloads all document files as archive', async () => {
+    it('downloads all document files as archive for a single document', async () => {
         const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
         const documentId = '4a4a687257644d52bf481b4c20e59213';
 
-        clientMock.onGet(`/_action/order/document-v2/${documentId}/download-archive`).reply(200, '');
+        clientMock.onPost('/_action/order/document-v2/download-archive').reply(200, '');
 
-        await documentV2ApiService.getDocumentArchive(documentId);
+        await documentV2ApiService.getDocumentArchive([documentId]);
 
-        expect(clientMock.history.get[0].url).toBe(`/_action/order/document-v2/${documentId}/download-archive`);
+        expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/download-archive');
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds: [documentId] });
+    });
+
+    it('downloads all document files as archive for multiple documents', async () => {
+        const { documentV2ApiService, clientMock } = createDocumentV2ApiService();
+        const documentIds = [
+            '4a4a687257644d52bf481b4c20e59213',
+            '5b5b798368755e63c0592c5d31f6a324',
+        ];
+
+        clientMock.onPost('/_action/order/document-v2/download-archive').reply(200, '');
+
+        await documentV2ApiService.getDocumentArchive(documentIds);
+
+        expect(clientMock.history.post[0].url).toBe('/_action/order/document-v2/download-archive');
+        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ documentIds });
     });
 });

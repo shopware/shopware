@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Exception;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -94,12 +95,11 @@ class ThemeException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     *
      * @param array<string, array<int, string>> $themeSalesChannel
      * @param array<string, array<int, string>> $childThemeSalesChannel
      * @param array<string, string> $assignedSalesChannels
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function themeAssignmentException(
         string $themeName,
         array $themeSalesChannel,
@@ -168,9 +168,7 @@ class ThemeException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return only self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidThemeBundle(string $themeName): self|InvalidThemeBundleException
     {
         if (!Feature::isActive('v6.8.0.0')) {

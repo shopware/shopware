@@ -1,7 +1,7 @@
 import { test } from '@fixtures/AcceptanceTest';
 
 test(
-    'As an admin user, I want to have an overview of my assigned rules, so that I can easily see where they are used and easily assign new ones',
+    'As an admin user, I want to have an overview of my assigned rules, so that I can easily see where they are used',
     { tag: '@Rule' },
     async ({ TestDataService, ShopAdmin, AdminRuleDetail, AdminShippingDetail }) => {
         const rule = await TestDataService.createBasicRule();
@@ -21,8 +21,5 @@ test(
         await ShopAdmin.expects(AdminShippingDetail.header).toHaveText(shippingMethod.name);
         await ShopAdmin.expects(AdminShippingDetail.nameField).toHaveValue(shippingMethod.name);
         await ShopAdmin.expects(AdminShippingDetail.availabilityRuleField).toHaveText(rule.name);
-        await AdminShippingDetail.availabilityRuleField.click();
-        await AdminShippingDetail.page.waitForLoadState('domcontentloaded');
-        await ShopAdmin.expects(AdminShippingDetail.getRuleSelectionCheckmark(rule.name)).toBeVisible();
     },
 );

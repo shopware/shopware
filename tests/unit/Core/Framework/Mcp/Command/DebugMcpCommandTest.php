@@ -469,6 +469,28 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('<entity>:read', $output);
     }
 
+    public function testListShowsGroupColumn(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('shopware-entity-search', null, self::inputSchema(), 'Search entities', null),
+            'Acme\\SearchTool',
+        );
+
+        $catalog = new McpCapabilityCatalog(
+            $registry,
+            $this->stubPrivilegeProvider(),
+            toolGroups: ['shopware-entity-search' => 'catalogue'],
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry, catalog: $catalog));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Group', $output);
+        static::assertStringContainsString('catalogue', $output);
+    }
+
     public function testResourceTemplatesAreRendered(): void
     {
         $registry = new Registry();
@@ -535,10 +557,169 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('stdClass::handle', $tester->getDisplay());
     }
 
+    public function testStoreApiCapabilitiesAreListedAlongsideAdminOnesByDefault(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Admin API (/api/_mcp)', $output);
+        static::assertStringContainsString('admin-tool', $output);
+        static::assertStringContainsString('Store API (/store-api/_mcp)', $output);
+        static::assertStringContainsString('store-tool', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testSectionHeadingsNameTheirScope(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Admin API: Tools (1)', $output);
+        static::assertStringContainsString('Admin API: Prompts (0)', $output);
+        static::assertStringContainsString('Store API: Tools (1)', $output);
+        static::assertStringContainsString('Store API: Prompts (0)', $output);
+        static::assertStringContainsString('Store API: Resources (0)', $output);
+        static::assertStringContainsString('Store API: Resource Templates (0)', $output);
+    }
+
+    public function testAllowlistCountsStayOnTheAdminSectionHeading(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
+        $registry->registerTool(new Tool('tool-b', null, self::inputSchema(), null, null), 'Acme\\ToolB');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: ['tool-a'], resources: null, prompts: null));
+
+        $tester = new CommandTester($this->makeCommand($registry, $allowlistProvider, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--integration' => 'SWIA-restricted']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Admin API: Tools (1/2 allowed)', $output);
+        static::assertStringContainsString('Store API: Tools (1)', $output);
+    }
+
+    public function testScopeOptionLimitsOutputToStoreApi(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--scope' => 'store-api']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('store-tool', $output);
+        static::assertStringNotContainsString('admin-tool', $output);
+        static::assertStringNotContainsString('Admin API (/api/_mcp)', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testScopeOptionLimitsOutputToAdminApi(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $tester = new CommandTester($this->makeCommand($registry, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--scope' => 'api']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('admin-tool', $output);
+        static::assertStringNotContainsString('store-tool', $output);
+        static::assertStringNotContainsString('Store API (/store-api/_mcp)', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testUnknownScopeIsRejected(): void
+    {
+        $tester = new CommandTester($this->makeCommand(new Registry()));
+        $tester->execute(['--scope' => 'nonsense']);
+
+        static::assertSame(2, $tester->getStatusCode());
+        static::assertStringContainsString('Invalid scope "nonsense"', $tester->getDisplay());
+    }
+
+    public function testStoreApiScopeIsSkippedWhenOnlyAdminIsAvailable(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+
+        $tester = new CommandTester($this->makeCommand($registry));
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('admin-tool', $output);
+        static::assertStringNotContainsString('Store API (/store-api/_mcp)', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testDetailViewResolvesStoreApiCapabilityAndShowsItsScope(): void
+    {
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(
+            new Tool('store-tool', null, self::inputSchema(), 'Runs in the sales channel context', null),
+            'Acme\\StoreTool',
+        );
+
+        $tester = new CommandTester($this->makeCommand(new Registry(), storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['name' => 'store-tool']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('Runs in the sales channel context', $output);
+        static::assertStringContainsString('Store API (/store-api/_mcp)', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
+    public function testIntegrationAllowlistDoesNotFilterStoreApiTools(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('admin-tool', null, self::inputSchema(), null, null), 'Acme\\AdminTool');
+        $registry->registerTool(new Tool('admin-hidden', null, self::inputSchema(), null, null), 'Acme\\AdminHidden');
+
+        $storeApiRegistry = new Registry();
+        $storeApiRegistry->registerTool(new Tool('store-tool', null, self::inputSchema(), null, null), 'Acme\\StoreTool');
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forAccessKey')->willReturn(new McpAllowlist(tools: ['admin-tool'], resources: null, prompts: null));
+
+        $tester = new CommandTester($this->makeCommand($registry, $allowlistProvider, storeApiRegistry: $storeApiRegistry));
+        $tester->execute(['--integration' => 'SWIA-restricted']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('only apply to the admin scope', $output);
+        static::assertStringContainsString('admin-tool', $output);
+        static::assertStringNotContainsString('admin-hidden', $output);
+        static::assertStringContainsString('store-tool', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
     private function makeCommand(
         Registry $registry,
         ?McpAllowlistProvider $allowlistProvider = null,
         ?McpCapabilityCatalog $catalog = null,
+        ?Registry $storeApiRegistry = null,
     ): DebugMcpCommand {
         $builder = Server::builder()->setRegistry($registry);
 
@@ -549,7 +730,19 @@ class DebugMcpCommandTest extends TestCase
 
         $catalog ??= new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
 
-        return new DebugMcpCommand($builder, $registry, $allowlistProvider, $catalog);
+        if ($storeApiRegistry === null) {
+            return new DebugMcpCommand($builder, $registry, $allowlistProvider, $catalog);
+        }
+
+        return new DebugMcpCommand(
+            $builder,
+            $registry,
+            $allowlistProvider,
+            $catalog,
+            Server::builder()->setRegistry($storeApiRegistry),
+            $storeApiRegistry,
+            new McpCapabilityCatalog($storeApiRegistry, $this->stubPrivilegeProvider()),
+        );
     }
 
     private function stubPrivilegeProvider(): AppMcpPrivilegeProvider

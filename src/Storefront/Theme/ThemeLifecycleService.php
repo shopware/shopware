@@ -18,6 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,10 +28,8 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPl
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-final
- */
-#[Package('discovery')]
+#[Package('framework')]
+#[BecomesFinal(version: 'v6.8.0')]
 class ThemeLifecycleService
 {
     /**
@@ -75,9 +75,7 @@ class ThemeLifecycleService
         }
     }
 
-    /**
-     * @deprecated tag:v6.8.0 parameter $configurationCollection will be added - reason:new-optional-parameter
-     */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'configurationCollection', parameterType: '?' . StorefrontPluginConfigurationCollection::class, defaultValue: null)]
     public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context/* , ?StorefrontPluginConfigurationCollection $configurationCollection = null */): void
     {
         $themeData = [];

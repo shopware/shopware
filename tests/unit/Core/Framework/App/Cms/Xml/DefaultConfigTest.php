@@ -46,6 +46,9 @@ XML));
         static::assertSame('#000', $defaultConfig->getBackgroundColor());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

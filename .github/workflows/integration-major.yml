@@ -1,7 +1,8 @@
 name: Integration tests (major)
 
-# Nightly via workflow_call; also opt-in on a PR by adding the `major-tests` label
-# (same switch acceptance.yml uses for its major arm).
+# Nightly via workflow_call; also opt-in on a PR by adding the `major-php` or
+# `major-js` label (or `major-tests`, the umbrella label that enables every
+# major arm — acceptance.yml uses `major-acceptance` for its major arm).
 on:
   workflow_dispatch:
   workflow_call:
@@ -14,14 +15,14 @@ permissions:
 
 jobs:
   phpunit-major-matrix:
-    # On PRs the whole matrix only runs when the `major-tests` label is present; nightly (workflow_call) and manual runs are unaffected.
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    # On PRs the whole matrix only runs when the `major-php` (or umbrella `major-tests`) label is present; nightly (workflow_call) and manual runs are unaffected.
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: generate-matrix
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "" "true")
@@ -75,7 +76,7 @@ jobs:
           - "6379:6379"
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
@@ -87,16 +88,74 @@ jobs:
           test-path: ${{ matrix.test.path }}
           test-testsuite: ${{ matrix.test.testsuite }}
           # no codecov-upload step: the major run's signal is the gate, not Test Analytics
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-major-${{ strategy.job-index }}
+          path: junit.xml
+          # a shard that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
+
+  jest-admin-major:
+    name: "Jest Admin"
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    runs-on: ubuntu-24.04
+    env:
+      NODE_VERSION: 'lts/*'
+      JEST_MAX_WORKERS: 100%
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/Administration/Resources/app/administration/package-lock.json
+
+      - name: Install admin dependencies
+        run: npm --prefix src/Administration/Resources/app/administration ci
+
+      - name: Run Jest Admin with major features
+        run: composer admin:unit:major
+
+      - name: Upload Jest results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jest-admin-major-results
+          path: build/artifacts/jest/administration.junit.xml
+          if-no-files-found: error
 
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.
-    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-tests'))
+    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests'))
     needs:
       - phpunit-major
+      - jest-admin-major
     runs-on: Ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           jobs: ${{ toJSON(needs) }}
+          allowed-skips: >-
+            ${{
+              github.event_name == 'pull_request'
+              && !contains(github.event.pull_request.labels.*.name, 'major-php')
+              && !contains(github.event.pull_request.labels.*.name, 'major-tests')
+              && 'phpunit-major'
+              || github.event_name == 'pull_request'
+              && !contains(github.event.pull_request.labels.*.name, 'major-js')
+              && !contains(github.event.pull_request.labels.*.name, 'major-tests')
+              && 'jest-admin-major'
+              || ''
+            }}

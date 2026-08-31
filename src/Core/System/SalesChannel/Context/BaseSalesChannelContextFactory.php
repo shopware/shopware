@@ -37,6 +37,20 @@ use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
+ * @phpstan-import-type BaseContextOptions from ContextFactory
+ *
+ * @phpstan-type ContextOptions array{
+ *     originalContext?: Context,
+ *     version-id?: string,
+ *     languageId?: string,
+ *     currencyId?: string,
+ *     countryId?: string,
+ *     countryStateId?: string,
+ *     paymentMethodId?: string,
+ *     shippingMethodId?: string,
+ *     domainId?: string,
+ * }
+ *
  * @internal
  */
 #[Package('framework')]
@@ -70,11 +84,11 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param ContextOptions $options
      */
     public function create(string $salesChannelId, array $options = []): BaseSalesChannelContext
     {
-        $context = $this->contextFactory->getContext($salesChannelId, $options);
+        $context = $this->contextFactory->getContext($salesChannelId, $this->getBaseContextOptions($options));
 
         $criteria = new Criteria([$salesChannelId]);
         $criteria->setTitle('base-context-factory::sales-channel');
@@ -185,7 +199,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param ContextOptions $options
      */
     private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel): PaymentMethodEntity
     {
@@ -209,7 +223,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param ContextOptions $options
      */
     private function getShippingMethod(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingMethodEntity
     {
@@ -232,7 +246,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param ContextOptions $options
      */
     private function loadShippingLocation(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingLocation
     {
@@ -348,5 +362,26 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         }
 
         return $salesChannelEntity->getMeasurementUnits();
+    }
+
+    /**
+     * @param ContextOptions $options
+     *
+     * @return BaseContextOptions
+     */
+    private function getBaseContextOptions(array $options): array
+    {
+        $contextOptions = [];
+        if (\array_key_exists(SalesChannelContextService::ORIGINAL_CONTEXT, $options)) {
+            $contextOptions[SalesChannelContextService::ORIGINAL_CONTEXT] = $options[SalesChannelContextService::ORIGINAL_CONTEXT];
+        }
+        if (\array_key_exists(SalesChannelContextService::VERSION_ID, $options)) {
+            $contextOptions[SalesChannelContextService::VERSION_ID] = $options[SalesChannelContextService::VERSION_ID];
+        }
+        if (\array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
+            $contextOptions[SalesChannelContextService::LANGUAGE_ID] = $options[SalesChannelContextService::LANGUAGE_ID];
+        }
+
+        return $contextOptions;
     }
 }

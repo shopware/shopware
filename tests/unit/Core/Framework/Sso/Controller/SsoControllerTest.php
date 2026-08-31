@@ -16,7 +16,9 @@ use Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Sso\SsoUser\SsoUserService;
 use Shopware\Core\Framework\Sso\StateValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -87,9 +89,17 @@ class SsoControllerTest extends TestCase
 
         $this->setEnvVars(['APP_URL' => 'https://example.com']);
 
-        $response = $this->createController($this->createMock(LoginConfigService::class), $router)->ssoAuth($request);
+        $response = $this->createController(static::createStub(LoginConfigService::class), $router)->ssoAuth($request);
 
         static::assertSame('https://example.com/admin', $response->getTargetUrl());
+    }
+
+    public function testInviteUserRouteRequiresUserCreateAclPrivilege(): void
+    {
+        $route = (new AttributeRouteControllerLoader())->load(SsoController::class)->get('api.action.sso.invite-user');
+
+        static::assertNotNull($route);
+        static::assertSame(['user:create'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 
     private function createController(LoginConfigService $loginConfigService, RouterInterface $router): SsoController

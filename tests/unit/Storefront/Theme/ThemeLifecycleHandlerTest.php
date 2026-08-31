@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
@@ -28,6 +29,7 @@ use Shopware\Storefront\Theme\ThemeService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeLifecycleHandler::class)]
 class ThemeLifecycleHandlerTest extends TestCase
 {

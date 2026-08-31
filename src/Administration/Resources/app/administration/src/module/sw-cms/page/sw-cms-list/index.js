@@ -101,6 +101,28 @@ export default {
             );
         },
 
+        activePageTypeTab() {
+            return this.currentPageType || 'all-pages';
+        },
+
+        cmsListPageTypeTabs() {
+            return this.sortPageTypes.map((pageType) => {
+                const tab = {
+                    label: pageType.name,
+                    name: pageType.value || 'all-pages',
+                    onClick: () => {
+                        this.onSortPageType(pageType.value);
+                    },
+                };
+
+                if (pageType.disabled) {
+                    tab.disabled = pageType.disabled;
+                }
+
+                return tab;
+            });
+        },
+
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.getAssociation('categories').addSorting(Criteria.sort('name', 'ASC')).setLimit(this.associationLimit);
@@ -176,8 +198,6 @@ export default {
 
     methods: {
         async createdComponent() {
-            Shopware.Store.get('adminMenu').collapseSidebar();
-
             if (this.acl.can('user_config:read')) {
                 await this.loadGridUserSettings().catch(() => {});
             }
@@ -350,14 +370,21 @@ export default {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', 'cms_page'));
 
-            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
-                const defaultFolder = searchResult.first();
-                if (defaultFolder.folder?.id) {
-                    return defaultFolder.folder.id;
-                }
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: [
+                        'media-default-folder',
+                        'cms_page',
+                    ],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder?.id) {
+                        return defaultFolder.folder.id;
+                    }
 
-                return null;
-            });
+                    return null;
+                });
         },
 
         onChangeLanguage(languageId) {

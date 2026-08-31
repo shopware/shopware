@@ -145,7 +145,6 @@ class RuleConditionLifecycleHandlerTest extends TestCase
      */
     private function createConditionRepository(string ...$conditionIds): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
         $conditionRepository = new StaticEntityRepository([]);
         $conditionRepository->addSearch($conditionIds);
 

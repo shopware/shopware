@@ -26,7 +26,7 @@
     {%- endfor -%}
 {%- endif -%}
 {%- set hasVariantListing = productExport.includeVariants and (product.parentId or product.childCount > 0) -%}
-{%- set productUrl = seoUrl('frontend.detail.page', {'productId': product.id}) ~ '?referringSalesChannel=' ~ provider.referringSalesChannel -%}
+{%- set productUrl = entitySeoUrl('product', product.id) ~ '?referringSalesChannel=' ~ provider.referringSalesChannel -%}
 {%- if provider.affiliateCode -%}
     {%- set productUrl = productUrl ~ '&affiliateCode=' ~ provider.affiliateCode|url_encode -%}
 {%- endif -%}

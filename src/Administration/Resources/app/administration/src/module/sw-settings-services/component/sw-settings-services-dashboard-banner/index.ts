@@ -2,6 +2,7 @@ import template from './sw-settings-services-dashboard-banner.html.twig';
 import './sw-settings-services-dashboard-banner.scss';
 
 /**
+ * @deprecated tag:v6.8.0 - Will be removed, the services banner is no longer shown on the dashboard.
  * @sw-package framework
  * @private
  */
@@ -26,17 +27,9 @@ export default Shopware.Component.wrapComponentConfig({
         Shopware.Service('userConfigService')
             .search(['core.hide-services-dashboard-banner'])
             .then((response) => {
-                if (typeof response === 'undefined') {
-                    this.isHidden = false;
-                    return;
-                }
+                const config = response?.data?.['core.hide-services-dashboard-banner'] as boolean[] | undefined;
 
-                if (!response.data) {
-                    this.isHidden = false;
-                    return;
-                }
-
-                this.isHidden = (response.data['core.hide-services-dashboard-banner']?.[0] as boolean | undefined) ?? false;
+                this.isHidden = config?.[0] ?? false;
             })
             .catch(() => {
                 this.isHidden = false;

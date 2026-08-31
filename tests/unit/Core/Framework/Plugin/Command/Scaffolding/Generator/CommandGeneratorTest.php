@@ -108,7 +108,7 @@ class CommandGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([CommandGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/Command/ExampleCommand.php',
             ],
         ];

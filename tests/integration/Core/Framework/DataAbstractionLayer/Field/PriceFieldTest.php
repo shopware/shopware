@@ -18,11 +18,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\PriceFieldDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -64,6 +69,32 @@ EOF;
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');
         $this->connection->beginTransaction();
+    }
+
+    /**
+     * the array check lets null through, so a required price is still reported as blank
+     */
+    public function testRequiredPriceRejectsNullAsBlank(): void
+    {
+        $expected = (new WriteException())->add(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should not be blank.', 'This value should not be blank.', [], null, '/price', null),
+            ]),
+            '/0'
+        ));
+
+        $this->expectExceptionObject($expected);
+
+        static::getContainer()->get('product.repository')->create([
+            [
+                'id' => Uuid::randomHex(),
+                'name' => 'test',
+                'productNumber' => 'SW-1',
+                'stock' => 1,
+                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'price' => null,
+            ],
+        ], Context::createDefaultContext());
     }
 
     public function testListPriceLoading(): void
@@ -195,7 +226,7 @@ EOF;
     }
 
     /**
-     * @return iterable<string, array{0: list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}>, 1: list<string>, 2: CashRoundingConfig, 3?: string}>
+     * @return iterable<string, array{0: list<array{id: string, data: list<array{currencyId: string, gross: float, net: 1, linked: true}>}>, 1: list<string>, 2: CashRoundingConfig, 3?: string}>
      */
     public static function cashRoundingSortingProvider(): iterable
     {
@@ -241,7 +272,7 @@ EOF;
     }
 
     /**
-     * @param list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}> $records
+     * @param list<array{id: string, data: list<array{currencyId: string, gross: float, net: 1, linked: true}>}> $records
      * @param list<string> $expected
      */
     #[DataProvider('cashRoundingSortingProvider')]
@@ -306,7 +337,7 @@ EOF;
     }
 
     /**
-     * @return iterable<string, array{0: RangeFilter, 1: list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}>, 2: list<string>, 3: CashRoundingConfig, 4?: string}>
+     * @return iterable<string, array{0: RangeFilter, 1: list<array{id: string, data: list<array{currencyId: string, gross: float, net: 1, linked: true}>}>, 2: list<string>, 3: CashRoundingConfig, 4?: string}>
      */
     public static function cashRoundingFilterProvider(): iterable
     {
@@ -462,7 +493,7 @@ EOF;
     }
 
     /**
-     * @param list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}> $records
+     * @param list<array{id: string, data: list<array{currencyId: string, gross: float, net: 1, linked: true}>}> $records
      * @param list<string> $expected
      */
     #[DataProvider('cashRoundingFilterProvider')]

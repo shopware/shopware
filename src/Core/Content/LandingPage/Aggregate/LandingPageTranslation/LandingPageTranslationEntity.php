@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -111,10 +112,9 @@ class LandingPageTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @deprecated tag:v6.8.0 - $slotConfig will be mandatory in future implementation
-     *
      * @param array<string, array<string, array<string, mixed>>|null>|null $slotConfig
      */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'slotConfig', newType: 'array', description: 'The parameter becomes required and non-nullable.')]
     public function setSlotConfig(?array $slotConfig): void
     {
         if ($slotConfig === null) {

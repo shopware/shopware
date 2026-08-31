@@ -1,0 +1,106 @@
+// Mirrors the grid layout of the user detail page
+// (sw-users-permissions-user-detail), so both pages stay consistent.
+.sw-profile-index-general {
+    container: sw-profile-general / inline-size;
+
+    .sw-profile-index-general__grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+        grid-column-gap: var(--scale-size-32);
+    }
+
+    .sw-profile-index-general__information-grid {
+        grid-template-areas:
+            "FirstName ProfilePicture"
+            "LastName ProfilePicture"
+            "Username Email";
+    }
+
+    .sw-profile-index-general__user-interface-grid {
+        grid-template-areas:
+            "Language Timezone"
+            "Theme ModuleIconColors";
+    }
+
+    .sw-profile-index-general__password-grid {
+        grid-template-areas: "NewPassword NewPasswordConfirm";
+    }
+
+    .sw-profile-index-general__grid-firstName {
+        grid-area: FirstName;
+    }
+
+    .sw-profile-index-general__grid-lastName {
+        grid-area: LastName;
+    }
+
+    .sw-profile-index-general__grid-username {
+        grid-area: Username;
+    }
+
+    .sw-profile-index-general__grid-email {
+        grid-area: Email;
+    }
+
+    .sw-profile-index-general__grid-profile-picture {
+        grid-area: ProfilePicture;
+        margin-bottom: var(--scale-size-32);
+    }
+
+    .sw-profile-index-general__grid-language {
+        grid-area: Language;
+    }
+
+    .sw-profile-index-general__grid-timezone {
+        grid-area: Timezone;
+        margin-top: 0;
+    }
+
+    .sw-profile-index-general__grid-theme {
+        grid-area: Theme;
+    }
+
+    .sw-profile-index-general__grid-module-icon-colors {
+        grid-area: ModuleIconColors;
+    }
+
+    .sw-profile-index-general__grid-new-password {
+        grid-area: NewPassword;
+    }
+
+    .sw-profile-index-general__grid-new-password-confirm {
+        grid-area: NewPasswordConfirm;
+    }
+}
+
+// Stack every field to full width once the cards get too narrow for two columns.
+@container sw-profile-general (max-width: 600px) {
+    .sw-profile-index-general .sw-profile-index-general__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sw-profile-index-general .sw-profile-index-general__information-grid {
+        grid-template-areas:
+            "ProfilePicture"
+            "FirstName"
+            "LastName"
+            "Username"
+            "Email";
+    }
+
+    .sw-profile-index-general .sw-profile-index-general__user-interface-grid {
+        grid-template-areas:
+            "Language"
+            "Timezone"
+            "Theme"
+            "ModuleIconColors";
+    }
+
+    .sw-profile-index-general .sw-profile-index-general__password-grid {
+        grid-template-areas:
+            "NewPassword"
+            "NewPasswordConfirm";
+    }
+}

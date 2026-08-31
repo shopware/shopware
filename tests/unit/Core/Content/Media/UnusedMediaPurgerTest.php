@@ -60,8 +60,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -104,8 +104,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media3 = $this->createMedia($id3);
         $media4 = $this->createMedia($id4);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -162,8 +162,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media3 = $this->createMedia($id3);
         $media4 = $this->createMedia($id4);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2, $id3, $id4) {
                     $filters = $criteria->getFilters();
@@ -203,8 +203,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -248,8 +248,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -300,8 +300,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -345,8 +345,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -383,8 +383,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -444,8 +444,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -484,8 +484,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -526,8 +526,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -563,8 +563,8 @@ class UnusedMediaPurgerTest extends TestCase
 
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -603,8 +603,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
@@ -643,8 +643,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -686,8 +686,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media3 = $this->createMedia($id3);
         $media4 = $this->createMedia($id4);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -742,8 +742,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id3 = Uuid::randomHex();
         $id4 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -791,8 +791,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -840,8 +840,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -896,8 +896,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -945,8 +945,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -989,8 +989,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -1021,8 +1021,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -1086,8 +1086,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -1130,8 +1130,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -1172,8 +1172,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -1218,8 +1218,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
@@ -1262,8 +1262,8 @@ class UnusedMediaPurgerTest extends TestCase
 
         $media1 = $this->createMedia($id1);
 
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository(
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
             [
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query

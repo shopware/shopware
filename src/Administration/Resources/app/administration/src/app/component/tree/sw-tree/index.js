@@ -52,6 +52,7 @@ export default {
             startDrag: this.startDrag,
             endDrag: this.endDrag,
             moveDrag: this.moveDrag,
+            openTreeById: this.openTreeById,
             addSubElement: this.addSubElement,
             addElement: this.addElement,
             duplicateElement: this.duplicateElement,
@@ -167,6 +168,14 @@ export default {
             },
         },
 
+        allowDropIntoFolder: {
+            type: Boolean,
+            required: false,
+            default: () => {
+                return false;
+            },
+        },
+
         sortable: {
             type: Boolean,
             required: false,
@@ -218,6 +227,7 @@ export default {
         return {
             treeItems: [],
             draggedItem: null,
+            droppedIntoItem: false,
             currentTreeSearch: null,
             newElementId: null,
             contextItem: null,
@@ -230,6 +240,7 @@ export default {
             showDeleteModal: false,
             toDeleteItem: null,
             checkedElementsChildCount: 0,
+            focusInByMouse: false,
         };
     },
 
@@ -326,14 +337,37 @@ export default {
             // Focus handling
             this.$el.addEventListener('focusin', this.handleFocusIn);
             this.$el.addEventListener('keydown', this.handleKeyDown);
+
+            // Capture, because the drag directive stops the propagation of mousedown on tree items
+            this.$el.addEventListener('mousedown', this.handleMouseDown, true);
+
+            /* The button can be released anywhere, so the tree would never learn about the end of a
+             * drag out of it and would keep treating the next keyboard focus as a mouse one.
+             */
+            document.addEventListener('mouseup', this.handleMouseUp);
+            document.addEventListener('touchend', this.handleMouseUp);
         },
 
         beforeUnmountedComponent() {
             this.$el.removeEventListener('focusin', this.handleFocusIn);
             this.$el.removeEventListener('keydown', this.handleKeyDown);
+            this.$el.removeEventListener('mousedown', this.handleMouseDown, true);
+            document.removeEventListener('mouseup', this.handleMouseUp);
+            document.removeEventListener('touchend', this.handleMouseUp);
+        },
+
+        handleMouseDown() {
+            this.focusInByMouse = true;
+        },
+
+        handleMouseUp() {
+            this.focusInByMouse = false;
         },
 
         handleFocusIn(event) {
+            const byMouse = this.focusInByMouse;
+            this.focusInByMouse = false;
+
             // Check if focus in already in the tree on any tree item
             if (event.target.classList.contains('sw-tree-item') || event.target.classList.contains('sw-tree-item__toggle')) {
                 // If focus is already on a tree item, do nothing
@@ -346,18 +380,30 @@ export default {
                 return;
             }
 
-            /* Check recursively if any tree item is active, if yes, focus on it.
-             * If no tree item is active, focus on the tree item closest to the event target.
+            /* The inline naming of a tree item relies on the focus staying inside the confirm field,
+             * otherwise the submit is lost when the tree scrolls away below the cursor.
              */
+            if (event.target.closest('.sw-confirm-field')) {
+                return;
+            }
+
+            const closestTreeItem = event.target.closest('.sw-tree-item');
             const activeTreeItem = this.$el.querySelector('.sw-tree-item[aria-current="page"]');
 
-            if (activeTreeItem) {
-                activeTreeItem.focus();
-            } else {
-                const closestTreeItem = event.target.closest('.sw-tree-item') || this.$el.querySelector('.sw-tree-item');
+            /* A mouse press has to keep the focus on the item it hit, because the active item is
+             * still the previously opened one and its focus ring would stay behind on it. Keyboard
+             * focus enters the tree at the active item instead, to mark the current position.
+             */
+            const treeItem =
+                (byMouse ? closestTreeItem : null) ??
+                activeTreeItem ??
+                closestTreeItem ??
+                this.$el.querySelector('.sw-tree-item');
 
-                closestTreeItem?.focus();
-            }
+            /* Scrolling the tree while the mouse button is still down moves the clicked element away
+             * from the cursor, which swallows the click. Keyboard focus must stay visible though.
+             */
+            treeItem?.focus({ preventScroll: byMouse });
         },
 
         handleKeyDown(event) {
@@ -646,17 +692,19 @@ export default {
         startDrag(draggedComponent) {
             draggedComponent.opened = false;
             this.draggedItem = draggedComponent.item;
+            this.droppedIntoItem = false;
             this.$emit('drag-start');
         },
 
         endDrag() {
             if (!this.droppedItem) {
                 this.draggedItem = null;
+                this.droppedIntoItem = false;
                 return;
             }
 
             const oldParentId = this.draggedItem.data.parentId;
-            const newParentId = this.droppedItem.data.parentId;
+            const newParentId = this.droppedIntoItem ? this.droppedItem.id : this.droppedItem.data.parentId;
 
             // item moved into other tree, update count
             if (oldParentId !== newParentId) {
@@ -674,14 +722,14 @@ export default {
                     droppedParent.data.childCount += 1;
                 }
 
-                this.draggedItem.data.parentId = this.droppedItem.data.parentId;
+                this.draggedItem.data.parentId = newParentId;
             }
 
             const tree = this.findTreeByParentId(oldParentId);
             this.updateSorting(tree);
 
-            if (oldParentId !== this.droppedItem.parentId) {
-                const dropTree = this.findTreeByParentId(this.droppedItem.parentId);
+            if (oldParentId !== newParentId) {
+                const dropTree = this.findTreeByParentId(newParentId);
                 this.updateSorting(dropTree);
             }
 
@@ -696,13 +744,14 @@ export default {
             // reset event items
             this.draggedItem = null;
             this.droppedItem = null;
+            this.droppedIntoItem = false;
 
             this.isLoading = true;
 
             this.$emit('drag-end', eventData);
         },
 
-        moveDrag(draggedComponent, droppedComponent) {
+        moveDrag(draggedComponent, droppedComponent, dropInto = false) {
             if (!draggedComponent || !droppedComponent) {
                 return;
             }
@@ -712,18 +761,25 @@ export default {
             }
 
             const sourceTree = this.findTreeByParentId(draggedComponent.parentId);
-            const targetTree = this.findTreeByParentId(droppedComponent.parentId);
+            const targetTree = dropInto ? droppedComponent.children : this.findTreeByParentId(droppedComponent.parentId);
 
             const dragItemIdx = sourceTree.findIndex((i) => i.id === draggedComponent.id);
             const dropItemIdx = targetTree.findIndex((i) => i.id === droppedComponent.id);
 
-            if (dragItemIdx < 0 || dropItemIdx < 0) {
+            if (dragItemIdx < 0 || (!dropInto && dropItemIdx < 0)) {
                 return;
             }
 
-            droppedComponent = targetTree[dropItemIdx];
+            if (!dropInto) {
+                droppedComponent = targetTree[dropItemIdx];
+            }
 
-            if (!this.bindItemsToFolder || draggedComponent.parentId === droppedComponent.parentId) {
+            if (dropInto) {
+                droppedComponent.initialOpened = true;
+                sourceTree.splice(dragItemIdx, 1);
+                targetTree.unshift(draggedComponent);
+                draggedComponent.parentId = droppedComponent.id;
+            } else if (!this.bindItemsToFolder || draggedComponent.parentId === droppedComponent.parentId) {
                 sourceTree.splice(dragItemIdx, 1);
                 targetTree.splice(dropItemIdx, 0, draggedComponent);
 
@@ -733,6 +789,7 @@ export default {
             }
 
             this.droppedItem = droppedComponent;
+            this.droppedIntoItem = dropInto;
         },
 
         openTreeById(id = this.activeElementId) {

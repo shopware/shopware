@@ -898,7 +898,9 @@ class WebhookManagerTest extends TestCase
             }))
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testItDoesDispatchWebhookMessageQueueWithoutApp(): void
@@ -950,7 +952,9 @@ class WebhookManagerTest extends TestCase
             }))
             ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testAsyncDispatchCreatesWebhookEventLogEntry(): void
@@ -1018,7 +1022,9 @@ class WebhookManagerTest extends TestCase
                 return new Envelope($message);
             });
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testAsyncDispatchWithoutAppUsesDefaultPartitionKey(): void
@@ -1044,7 +1050,9 @@ class WebhookManagerTest extends TestCase
                 return new Envelope($message);
             });
 
-        $this->getManager($client, false)->dispatch($event);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $event): void {
+            $this->getManager($client, false)->dispatch($event);
+        });
     }
 
     public function testSyncDispatchCreatesOutboxEntriesAndDelivers(): void
@@ -1125,7 +1133,10 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        // flag-OFF terminal semantics; the pending-retry rework path is covered by testSyncPathMarksPendingRetryWhenFlagOn
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        });
 
         // Even on failure, the event log should exist and show failed status
         $eventLog = $this->connection->fetchAssociative(
@@ -1258,7 +1269,10 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        // flag-OFF terminal semantics; the pending-retry rework path is covered by testSyncPathMarksPendingRetryWhenFlagOn
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
+        });
 
         $eventLog = $this->connection->fetchAssociative(
             'SELECT delivery_status, response_status_code, response_reason_phrase FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
@@ -1586,7 +1600,6 @@ class WebhookManagerTest extends TestCase
 
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
-            static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),

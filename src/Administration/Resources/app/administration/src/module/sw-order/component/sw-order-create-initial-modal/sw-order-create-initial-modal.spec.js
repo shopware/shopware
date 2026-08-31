@@ -22,7 +22,7 @@ const cartToken = 'is-exactly-32-chars-as-required-';
 
 let stubs = {};
 
-async function createWrapper() {
+async function createWrapper({ featureActive = false } = {}) {
     stubs = {
         'sw-modal': {
             template: `
@@ -35,12 +35,47 @@ async function createWrapper() {
             template: '<div class="sw-container"><slot></slot></div>',
         },
         'sw-tabs': {
+            name: 'sw-tabs',
+            props: {
+                defaultItem: {
+                    type: String,
+                    required: false,
+                    default: undefined,
+                },
+                positionIdentifier: {
+                    type: String,
+                    required: false,
+                    default: undefined,
+                },
+            },
             data() {
                 return { active: 'customer' };
             },
             template: '<div class="sw-tabs"><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
         },
         'sw-tabs-item': true,
+        'mt-tabs': {
+            name: 'mt-tabs',
+            emits: [
+                'new-item-active',
+            ],
+            props: {
+                defaultItem: {
+                    type: String,
+                    required: false,
+                    default: undefined,
+                },
+                items: {
+                    type: Array,
+                    required: true,
+                },
+                positionIdentifier: {
+                    type: String,
+                    required: true,
+                },
+            },
+            template: '<div class="mt-tabs"></div>',
+        },
         'sw-order-customer-grid': true,
         'sw-order-line-items-grid-sales-channel': true,
         'sw-order-create-options': true,
@@ -54,6 +89,11 @@ async function createWrapper() {
         {
             global: {
                 stubs,
+                provide: {
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
+                },
             },
         },
     );
@@ -98,6 +138,15 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         });
     });
 
+    it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        const swTabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(swTabs.props('positionIdentifier')).toBe('sw-order-create-initial-modal');
+        expect(swTabs.props('defaultItem')).toBe('customer');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
     it('should disabled other tabs if customer is not selected', async () => {
         const wrapper = await createWrapper();
 
@@ -116,6 +165,88 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         tabs.forEach((tab) => {
             expect(wrapper.find(tab).attributes().disabled).toBeUndefined();
         });
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        Shopware.Store.get('swOrder').setCustomer(null);
+
+        const wrapper = await createWrapper({ featureActive: true });
+        const mtTabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-order-create-initial-modal');
+        expect(mtTabs.props('defaultItem')).toBe('customer');
+        expect(mtTabs.props('items')).toEqual([
+            {
+                label: 'sw-order.initialModal.tabCustomer',
+                name: 'customer',
+            },
+            {
+                label: 'sw-order.initialModal.tabProducts',
+                name: 'products',
+                disabled: true,
+            },
+            {
+                label: 'sw-order.initialModal.tabOptions',
+                name: 'options',
+                disabled: true,
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(wrapper.find('sw-order-customer-grid-stub').exists()).toBe(true);
+
+        Shopware.Store.get('swOrder').setCustomer({
+            id: '1234',
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(mtTabs.props('items')).toEqual([
+            {
+                label: 'sw-order.initialModal.tabCustomer',
+                name: 'customer',
+            },
+            {
+                label: 'sw-order.initialModal.tabProducts',
+                name: 'products',
+                disabled: undefined,
+            },
+            {
+                label: 'sw-order.initialModal.tabOptions',
+                name: 'options',
+                disabled: undefined,
+            },
+        ]);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        Shopware.Store.get('swOrder').setCustomer({
+            id: '1234',
+        });
+        const wrapper = await createWrapper({ featureActive: true });
+        const mtTabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(wrapper.find('sw-order-customer-grid-stub').attributes('style')).toBeUndefined();
+        expect(wrapper.findComponent('sw-order-line-items-grid-sales-channel-stub').attributes('style')).toBe(
+            'display: none;',
+        );
+        expect(wrapper.find('sw-order-create-options-stub').isVisible()).toBeFalsy();
+
+        mtTabs.vm.$emit('new-item-active', 'products');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('products');
+        expect(wrapper.find('sw-order-customer-grid-stub').isVisible()).toBeFalsy();
+        expect(wrapper.findComponent('sw-order-line-items-grid-sales-channel-stub').attributes('style')).toBeFalsy();
+        expect(wrapper.find('sw-order-create-options-stub').isVisible()).toBeFalsy();
+
+        mtTabs.vm.$emit('new-item-active', 'options');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('options');
+        expect(wrapper.find('sw-order-customer-grid-stub').isVisible()).toBeFalsy();
+        expect(wrapper.findComponent('sw-order-line-items-grid-sales-channel-stub').attributes('style')).toBe(
+            'display: none;',
+        );
+        expect(wrapper.find('sw-order-create-options-stub').exists()).toBeTruthy();
     });
 
     it('should show tab content correctly', async () => {

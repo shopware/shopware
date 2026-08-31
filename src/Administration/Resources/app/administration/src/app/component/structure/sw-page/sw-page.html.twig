@@ -8,72 +8,81 @@
         v-if="showHeadArea"
         class="sw-page__head-area"
     >
-        {% block sw_page_search_bar %}
-        <div
-            v-if="showSearchBar"
-            class="sw-page__search-bar"
-        >
-            <slot name="search-bar">
-                {% block sw_page_slot_search_bar %}
-                <sw-search-bar />
-                {% endblock %}
-            </slot>
-        </div>
-
-        {% block sw_page_top_bar_actions %}
-        <div
-            class="sw-page__top-bar-actions"
-            :style="topBarActionStyles"
-        >
-            <sw-app-topbar-button />
-            {% block sw_page_notification_center %}
-            <div class="sw-page__sidebar-container">
-                <sw-notification-center />
+        {% block sw_page_top_bar %}
+        <div class="sw-page__top-bar">
+            {% block sw_page_search_bar %}
+            <div
+                v-if="showSearchBar"
+                class="sw-page__search-bar"
+            >
+                <slot name="search-bar">
+                    {% block sw_page_slot_search_bar %}
+                    <sw-search-bar />
+                    {% endblock %}
+                </slot>
             </div>
             {% endblock %}
 
-            <div class="sw-page__sidebar-container">
-                <sw-help-center-v2 />
-            </div>
+            {% block sw_page_top_bar_actions %}
+            <div class="sw-page__top-bar-actions">
+                {% block sw_page_top_bar_app_button %}
+                <sw-app-topbar-button />
+                {% endblock %}
+                <div class="sw-page__sidebar-container">
+                    <sw-help-center-v2 />
+                </div>
 
-            <sw-app-topbar-sidebar />
+                {% block sw_page_notification_center %}
+                <div class="sw-page__sidebar-container">
+                    <sw-notification-center />
+                </div>
+                {% endblock %}
+
+                <sw-app-topbar-sidebar />
+            </div>
+            {% endblock %}
         </div>
-        {% endblock %}
         {% endblock %}
 
         {% block sw_page_smart_bar %}
-        <template v-if="showSmartBar">
+        <div
+            v-if="showSmartBar"
+            class="sw-page__smart-bar"
+        >
             {% block sw_page_smart_bar_divider %}
             <div
-                v-if="showSmartBar && showSearchBar"
+                v-if="showSearchBar"
                 class="sw-page__smart-bar-divider"
             ></div>
             {% endblock %}
 
             {% block sw_page_smart_bar_back_btn %}
-            <div
-                class="sw-page__back-btn-container"
-                :style="smartBarContentStyle"
-            >
+            <div class="sw-page__back-btn-container">
                 <slot name="smart-bar-back">
                     {% block sw_page_slot_smart_bar_back %}
                     <router-link
                         v-if="parentRoute"
-                        class="smart-bar__back-btn"
-                        :aria-label="$t('global.sw-page.backButton')"
-                        :title="$t('global.sw-page.backButton')"
+                        v-slot="{ href, navigate }"
                         :to="routerBack"
-                        :style="{ 'color': pageColor }"
+                        custom
                     >
-                        <mt-icon
-                            name="regular-chevron-left"
-                            size="16px"
-                        />
-                        <mt-icon
-                            v-if="module && module.icon"
-                            :name="module.icon"
-                            size="16px"
-                        />
+                        <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
+                        <mt-button
+                            is="a"
+                            class="smart-bar__back-btn"
+                            variant="secondary"
+                            size="default"
+                            square
+                            :href="href"
+                            :aria-label="$t('global.sw-page.backButton')"
+                            :title="$t('global.sw-page.backButton')"
+                            @click="navigate"
+                        >
+                            <mt-icon
+                                name="solid-long-arrow-left"
+                                size="12px"
+                            />
+                        </mt-button>
                     </router-link>
                     {% endblock %}
                 </slot>
@@ -81,10 +90,7 @@
             {% endblock %}
 
             {% block sw_page_smart_bar_content %}
-            <div
-                class="smart-bar__content"
-                :style="smartBarContentStyle"
-            >
+            <div class="smart-bar__content">
                 {% block sw_page_smart_bar_content_header %}
                 <div class="smart-bar__header">
                     <slot name="smart-bar-header">
@@ -118,7 +124,7 @@
                 {% endblock %}
             </div>
             {% endblock %}
-        </template>
+        </div>
         {% endblock %}
     </div>
     {% endblock %}

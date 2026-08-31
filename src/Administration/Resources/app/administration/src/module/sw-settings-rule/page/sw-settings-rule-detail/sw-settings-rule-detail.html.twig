@@ -104,24 +104,39 @@
         {% endblock %}
         <sw-card-view>
             {% block sw_settings_rule_detail_tabs %}
-            <sw-tabs
-                v-if="rule && !rule.isNew()"
-                class="sw-settings-rule-detail__tabs"
-                position-identifier="sw-settings-rule-detail"
-            >
-                {% block sw_settings_rule_detail_tab_items %}
-                <sw-tabs-item
-                    v-for="tab in tabItems"
-                    :key="tab.route.name"
-                    :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
-                    :route="tab.route"
-                    :title="tab.title"
-                    :has-error="tabHasError(tab)"
-                >
-                    {{ tab.title }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_settings_rule_detail_mt_tabs %}
+                <mt-tabs
+                    v-if="rule && !rule.isNew()"
+                    class="sw-settings-rule-detail__tabs"
+                    position-identifier="sw-settings-rule-detail"
+                    :default-item="$route.name"
+                    :items="ruleDetailTabs"
+                    :small="true"
+                />
                 {% endblock %}
-            </sw-tabs>
+            </template>
+
+            <template v-else>
+                <sw-tabs
+                    v-if="rule && !rule.isNew()"
+                    class="sw-settings-rule-detail__tabs"
+                    position-identifier="sw-settings-rule-detail"
+                >
+                    {% block sw_settings_rule_detail_tab_items %}
+                    <sw-tabs-item
+                        v-for="tab in tabItems"
+                        :key="tab.route.name"
+                        :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
+                        :route="tab.route"
+                        :title="tab.title"
+                        :has-error="tabHasError(tab)"
+                    >
+                        {{ tab.title }}
+                    </sw-tabs-item>
+                    {% endblock %}
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             {% block sw_settings_rule_detail_content_view %}

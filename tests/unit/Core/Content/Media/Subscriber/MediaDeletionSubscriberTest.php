@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -55,7 +55,7 @@ class MediaDeletionSubscriberTest extends TestCase
 
     private Filesystem $filesystemPrivate;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     /**
      * @var StaticEntityRepository<MediaThumbnailCollection>
@@ -75,7 +75,7 @@ class MediaDeletionSubscriberTest extends TestCase
         $this->filesystemPublic = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->filesystemPrivate = new Filesystem(new InMemoryFilesystemAdapter());
         $this->deleteFileHandler = new DeleteFileHandler($this->filesystemPublic, $this->filesystemPrivate);
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
         $this->thumbnailRepository = new StaticEntityRepository([]);
         $this->mediaRepository = new StaticEntityRepository([]);
     }
@@ -240,6 +240,32 @@ class MediaDeletionSubscriberTest extends TestCase
 
         static::assertEmpty($this->messageBus->getMessages());
         static::assertFalse($this->filesystemPublic->fileExists('media/image.jpg'));
+    }
+
+    public function testThumbnailDeletionSkipsFileDeleteWhenSkipStateSet(): void
+    {
+        $thumbId = $this->ids->get('thumb-1');
+        $media = new MediaEntity();
+        $media->setId($this->ids->get('media-1'));
+        $media->setPrivate(false);
+
+        $thumbnail = new MediaThumbnailEntity();
+        $thumbnail->setId($thumbId);
+        $thumbnail->setPath('thumbnail/thumbnail.jpg');
+        $thumbnail->setMedia($media);
+
+        $this->thumbnailRepository->addSearch(new MediaThumbnailCollection([$thumbnail]));
+
+        $this->filesystemPublic->write('thumbnail/thumbnail.jpg', 'content');
+
+        $context = Context::createDefaultContext();
+        $context->addState(MediaDeletionSubscriber::SKIP_FILE_DELETE);
+
+        $event = $this->createDeleteEvent(MediaThumbnailDefinition::ENTITY_NAME, $thumbId, $context);
+        $this->createMediaDeletionSubscriber()->beforeDelete($event);
+
+        static::assertEmpty($this->messageBus->getMessages());
+        static::assertTrue($this->filesystemPublic->fileExists('thumbnail/thumbnail.jpg'));
     }
 
     public function testThumbnailDeletionDispatchesDeleteMessageForPublicThumbnail(): void

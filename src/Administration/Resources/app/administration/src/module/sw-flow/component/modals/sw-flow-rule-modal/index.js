@@ -46,6 +46,7 @@ export default {
             conditions: null,
             conditionTree: null,
             deletedIds: [],
+            activeTab: 'detail',
         };
     },
 
@@ -74,6 +75,19 @@ export default {
 
         availableModuleTypes() {
             return this.ruleConditionDataProviderService.getModuleTypes((moduleType) => moduleType);
+        },
+
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-flow.modals.rule.tabDetail'),
+                    name: 'detail',
+                },
+                {
+                    label: this.$t('sw-flow.modals.rule.tabRule'),
+                    name: 'rule',
+                },
+            ];
         },
 
         moduleTypes: {
@@ -180,7 +194,7 @@ export default {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(1, 25), context).then((searchResult) => {
+                return this.conditionRepository.search(this.createConditionCriteria(1), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }
@@ -190,7 +204,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(conditions.criteria.page + 1, conditions.criteria.limit);
+            const criteria = this.createConditionCriteria(conditions.criteria.page + 1);
 
             if (conditions.entity === 'product') {
                 criteria.addAssociation('options.group');
@@ -295,6 +309,16 @@ export default {
 
         onClose() {
             this.$emit('modal-close');
+        },
+
+        createConditionCriteria(page) {
+            const criteria = new Criteria(page);
+
+            criteria.addSorting(Criteria.sort('parentId'));
+            criteria.addSorting(Criteria.sort('position'));
+            criteria.addSorting(Criteria.sort('id'));
+
+            return criteria;
         },
     },
 };

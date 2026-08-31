@@ -28,7 +28,7 @@ class IgnoredPhpstanErrorsInTouchedFiles
         $filesWithIgnoredErrors = [];
         $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.php')->getContent();
         foreach ($context->platform->pullRequest->getFiles()->map(fn (File $f) => $f->name) as $fileName) {
-            if (str_contains($phpstanBaseline, 'path: ' . $fileName)) {
+            if (str_contains($phpstanBaseline, $fileName)) {
                 $filesWithIgnoredErrors[] = $fileName;
             }
         }

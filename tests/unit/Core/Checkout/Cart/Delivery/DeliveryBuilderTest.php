@@ -270,6 +270,18 @@ class DeliveryBuilderTest extends TestCase
             DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(6, 7)),
         ];
 
+        yield 'It ignores a negative restock time if item is out of stock' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 20))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(4, 5), -5),
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(4, 5)),
+        ];
+
         yield 'It uses later restock availability if release date is before restock date' => [
             new LineItemCollection([
                 (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 20))

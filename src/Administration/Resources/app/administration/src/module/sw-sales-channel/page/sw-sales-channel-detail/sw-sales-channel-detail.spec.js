@@ -8,6 +8,7 @@ import { mount } from '@vue/test-utils';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();
+const mockCreateRepository = jest.fn();
 const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
 const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
 
@@ -33,13 +34,29 @@ const defaultSalesChannelResponse = {
 };
 
 async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
+    const hasOptionsShape =
+        typeof optionsOrLegacyArg === 'object' &&
+        optionsOrLegacyArg !== null &&
+        !Array.isArray(optionsOrLegacyArg) &&
+        [
+            'routeParams',
+            'salesChannelResponse',
+            'routeName',
+            'routerPush',
+        ].some((key) => Object.hasOwn(optionsOrLegacyArg, key));
+
     const normalizedOptions = Array.isArray(optionsOrLegacyArg)
         ? { routeParams: { id: '1a2b3c4d' } }
-        : optionsOrLegacyArg.routeParams || optionsOrLegacyArg.salesChannelResponse
+        : hasOptionsShape
           ? optionsOrLegacyArg
           : { routeParams: optionsOrLegacyArg };
 
-    const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
+    const {
+        routeParams = { id: '1a2b3c4d' },
+        salesChannelResponse = {},
+        routeName = '',
+        routerPush = jest.fn(),
+    } = normalizedOptions;
 
     mockGet.mockResolvedValue({
         ...defaultSalesChannelResponse,
@@ -72,15 +89,39 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 },
                 'sw-language-info': true,
                 'sw-tabs': {
+                    name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
+                    props: [
+                        'positionIdentifier',
+                    ],
                 },
                 'sw-tabs-item': {
+                    name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
                     props: [
                         'route',
                         'title',
                         'disabled',
                     ],
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs"></div>',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
                 },
                 'router-view': true,
                 'sw-skeleton': true,
@@ -101,13 +142,17 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        create: () => ({}),
-                        get: mockGet,
-                        search: () => Promise.resolve([]),
-                        delete: () => Promise.resolve(),
-                        save: mockSave,
-                    }),
+                    create: (...args) => {
+                        mockCreateRepository(...args);
+
+                        return {
+                            create: () => ({}),
+                            get: mockGet,
+                            search: () => Promise.resolve([]),
+                            delete: () => Promise.resolve(),
+                            save: mockSave,
+                        };
+                    },
                 },
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
@@ -121,11 +166,29 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
             mocks: {
                 $route: {
                     params: routeParams,
-                    name: '',
+                    name: routeName,
+                },
+                $router: {
+                    push: routerPush,
                 },
             },
         },
     });
+}
+
+/**
+ * Tab labels of whichever tab implementation rendered. The tests below used to read them off
+ * `wrapper.text()`, which only worked while a local feature mock kept the component on the legacy
+ * `sw-tabs` branch — the `mt-tabs` stub renders no labels at all.
+ */
+function tabLabels(wrapper) {
+    const meteorTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+    if (meteorTabs.exists()) {
+        return meteorTabs.props('items').map((item) => item.label);
+    }
+
+    return wrapper.findAll('.sw-tabs-item').map((tab) => tab.text());
 }
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
@@ -133,6 +196,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();
+        mockCreateRepository.mockClear();
         mockGetSystemConfig.mockClear();
         mockGetSystemConfigValues.mockClear();
         Shopware.Store.get('error').resetApiErrors();
@@ -236,6 +300,23 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         ]);
     });
 
+    it('should allow storefront and headless sales channels as product export source', async () => {
+        const wrapper = await createWrapper();
+
+        const filters = wrapper.vm.storefrontSalesChannelCriteria.filters;
+
+        expect(filters).toEqual([
+            {
+                type: 'equalsAny',
+                field: 'typeId',
+                value: [
+                    Shopware.Defaults.storefrontSalesChannelTypeId,
+                    Shopware.Defaults.apiSalesChannelTypeId,
+                ].join('|'),
+            },
+        ]);
+    });
+
     it('should provide agentic commerce export config accessor for child views', async () => {
         const wrapper = await createWrapper();
 
@@ -296,8 +377,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.productExport.tabInsights');
-        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(tabLabels(wrapper).join(' ')).toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.tabAnalytics');
     });
 
     it('shows storefront analytics tab for storefront channels and hides insights', async () => {
@@ -312,12 +393,12 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAnalytics');
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
-        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        const labels = tabLabels(wrapper);
 
-        const tabs = wrapper.findAll('.sw-tabs-item');
-        expect(tabs[tabs.length - 1].text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
+        expect(labels.join(' ')).toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(labels.join(' ')).toContain('sw-sales-channel.detail.tabAgenticFiles');
+        expect(labels.join(' ')).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(labels[labels.length - 1]).toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('shows agentic files tab for headless sales channels', async () => {
@@ -332,7 +413,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAgenticFiles');
+        expect(tabLabels(wrapper).join(' ')).toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('hides the insights tab for product comparison channels', async () => {
@@ -344,8 +425,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         await flushPromises();
 
-        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
-        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAgenticFiles');
+        expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(tabLabels(wrapper).join(' ')).not.toContain('sw-sales-channel.detail.tabAgenticFiles');
     });
 
     it('returns true for isProductExportChannel on product comparison and agentic channels', async () => {
@@ -382,6 +463,13 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.isProductExportChannel).toBe(false);
+    });
+
+    it('should create the sales channel repository with sync enabled', async () => {
+        await createWrapper();
+        await flushPromises();
+
+        expect(mockCreateRepository).toHaveBeenCalledWith('sales_channel', null, { useSync: true });
     });
 
     it('should save without reloading entity data when saveOnLanguageChange is called', async () => {

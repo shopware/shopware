@@ -1,6 +1,7 @@
 name: Lint Actions
-# Lints GitHub Actions workflows/actions with actionlint and checks their
-# formatting with yamlfmt. Mirrors `composer run lint:actions` locally.
+# Lints GitHub Actions workflows/actions with actionlint, checks their formatting
+# with yamlfmt, and audits them with zizmor. Mirrors `composer run lint:actions`
+# locally.
 
 on:
   pull_request:
@@ -8,7 +9,9 @@ on:
       - ".github/workflows/**"
       - ".github/actions/**"
       - ".github/actionlint.yaml"
+      - ".github/zizmor.yml"
       - ".github/bin/lint-actions.bash"
+      - ".github/bin/js/**"
       - ".yamlfmt"
   workflow_dispatch:
 
@@ -20,6 +23,8 @@ env:
   ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
   YAMLFMT_VERSION: 0.21.0
   YAMLFMT_SHA256: 1f300d9257b232bb3b541d7fb1b0e6b3c121bcbab381c86cd38cb8722be8a566
+  ZIZMOR_VERSION: 1.28.0
+  ZIZMOR_SHA256: e87b67160194884e375a46a12c57ccc904f762b53845f254fab7f17d98809c09
 
 jobs:
   lint-actions:
@@ -27,23 +32,44 @@ jobs:
     name: "Lint workflows"
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Install actionlint and yamlfmt
+      - name: Install actionlint, yamlfmt and zizmor
         run: |
+          set -euo pipefail
           tmp="$(mktemp -d)"
 
-          curl -sSfL "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" -o "$tmp/actionlint.tar.gz"
-          echo "${ACTIONLINT_SHA256}  $tmp/actionlint.tar.gz" | sha256sum --check
-          tar -xzf "$tmp/actionlint.tar.gz" -C "$tmp" actionlint
-          sudo install -m 0755 "$tmp/actionlint" /usr/local/bin/actionlint
+          # Fetching the release archives is the only part of this job that can
+          # fail for reasons unrelated to the change under test, so the fetch is
+          # retried — network and infrastructure only, per .github/AGENTS.md. The
+          # checksum sits inside the retry because a truncated download presents
+          # as a hash mismatch. There is deliberately no fallback: a linter that
+          # is not installed would let the job pass without linting.
+          install_tool() {
+            local name="$1" url="$2" sha="$3" attempt
+            for attempt in 1 2 3; do
+              if curl -sSfL "$url" -o "$tmp/$name.tar.gz" \
+                && echo "$sha  $tmp/$name.tar.gz" | sha256sum --check --quiet; then
+                tar -xzf "$tmp/$name.tar.gz" -C "$tmp" "$name"
+                sudo install -m 0755 "$tmp/$name" /usr/local/bin/"$name"
+                return 0
+              fi
+              echo "::warning::$name: download attempt $attempt failed" >&2
+              sleep $((attempt * 5))
+            done
+            echo "Error: could not install $name from $url" >&2
+            return 1
+          }
 
-          curl -sSfL "https://github.com/google/yamlfmt/releases/download/v${YAMLFMT_VERSION}/yamlfmt_${YAMLFMT_VERSION}_Linux_x86_64.tar.gz" -o "$tmp/yamlfmt.tar.gz"
-          echo "${YAMLFMT_SHA256}  $tmp/yamlfmt.tar.gz" | sha256sum --check
-          tar -xzf "$tmp/yamlfmt.tar.gz" -C "$tmp" yamlfmt
-          sudo install -m 0755 "$tmp/yamlfmt" /usr/local/bin/yamlfmt
+          install_tool actionlint "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" "${ACTIONLINT_SHA256}"
+          install_tool yamlfmt "https://github.com/google/yamlfmt/releases/download/v${YAMLFMT_VERSION}/yamlfmt_${YAMLFMT_VERSION}_Linux_x86_64.tar.gz" "${YAMLFMT_SHA256}"
+          install_tool zizmor "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz" "${ZIZMOR_SHA256}"
 
       # shellcheck (used by actionlint for `run:` scripts) is preinstalled on
       # GitHub-hosted ubuntu runners.
       - name: Lint workflows
         run: .github/bin/lint-actions.bash
+
+      # dependency-free unit tests for the automation modules under .github/bin/js
+      - name: Test automation scripts
+        run: cd .github/bin/js && node --test

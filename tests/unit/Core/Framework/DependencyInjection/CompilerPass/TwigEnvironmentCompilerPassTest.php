@@ -27,6 +27,10 @@ class TwigEnvironmentCompilerPassTest extends TestCase
         $twig = $container->getDefinition('twig');
         static::assertTrue($twig->isPublic());
         static::assertSame(TwigEnvironment::class, $twig->getClass());
+        static::assertSame(
+            [['method' => 'reset']],
+            $twig->getTag('kernel.reset'),
+        );
 
         static::assertSame(
             '/tmp/shopware-cache/twig',

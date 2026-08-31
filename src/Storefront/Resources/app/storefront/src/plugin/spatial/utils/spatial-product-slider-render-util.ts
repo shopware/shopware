@@ -74,7 +74,7 @@ export default class SpatialProductSliderRenderUtil {
      */
     private initEventListeners() {
         // remove eventual subscription
-        this.sliderPlugin?.$emitter.unsubscribe('rebuild', this.rebuildEvent.bind(this));
+        this.sliderPlugin?.$emitter.unsubscribe('rebuild');
 
         // listen to active slide changes
         this.tnsSlider?.events.on('indexChanged', this.indexChangedEvent.bind(this));

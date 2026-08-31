@@ -58,7 +58,6 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::notFound('integrationId', 'CCDD'));
 
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([new AppCollection()]);
 
         $bus = $this->createMock(MessageBusInterface::class);
@@ -432,7 +431,6 @@ class ServiceControllerTest extends TestCase
 
     public function testCategorizedPermissionsThrowsIfServiceIsNotFound(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([new AppCollection()]);
 
         $controller = $this->createController(new ServiceStorage($appRepo));

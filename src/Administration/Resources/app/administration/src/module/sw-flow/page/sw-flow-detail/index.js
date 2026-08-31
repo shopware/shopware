@@ -98,6 +98,9 @@ export default {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
+
             return criteria;
         },
 
@@ -188,6 +191,25 @@ export default {
             return !this.triggerEvents.some((event) => {
                 return event.name === this.flow.eventName;
             });
+        },
+
+        flowDetailTabs() {
+            const createRouteTab = (label, tabName) => {
+                const route = this.routeDetailTab(tabName);
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(this.routeDetailTab(tabName));
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-flow.page.tabGeneral', 'general'),
+                createRouteTab('sw-flow.page.tabFlow', 'flow'),
+            ];
         },
 
         ...mapState(

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class OverviewPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

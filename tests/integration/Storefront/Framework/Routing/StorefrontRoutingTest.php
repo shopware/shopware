@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -29,6 +30,7 @@ use Symfony\Component\Routing\RequestContext;
 /**
  * @internal
  */
+#[Package('discovery')]
 class StorefrontRoutingTest extends TestCase
 {
     use IntegrationTestBehaviour;

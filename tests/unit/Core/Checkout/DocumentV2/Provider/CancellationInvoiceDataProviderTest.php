@@ -2,9 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -15,15 +13,17 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
-use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\CancellationInvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Type\CancellationInvoiceDocumentType;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -31,7 +31,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -42,7 +42,6 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -59,20 +58,9 @@ class CancellationInvoiceDataProviderTest extends TestCase
         static::assertSame('storno', $this->createProvider()->getKey());
     }
 
-    #[DataProvider('supportsProvider')]
-    public function testSupportsOnlyCancellationInvoice(string $documentType, bool $expected): void
+    public function testSupportsCancellationInvoice(): void
     {
-        static::assertSame($expected, $this->createProvider()->supports($documentType));
-    }
-
-    /**
-     * @return \Generator<string, array{string, bool}>
-     */
-    public static function supportsProvider(): \Generator
-    {
-        yield 'cancellation invoice is supported' => [DocumentType::CANCELLATION_INVOICE->value, true];
-        yield 'other core type is not supported' => [DocumentType::INVOICE->value, false];
-        yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
+        static::assertTrue($this->createProvider()->supports(DocumentType::CANCELLATION_INVOICE->value));
     }
 
     public function testEnrichOrderCriteriaDelegatesToInvoiceProvider(): void
@@ -91,10 +79,18 @@ class CancellationInvoiceDataProviderTest extends TestCase
 
     public function testProvideRenderingDataReferencesTheInvoiceAndAppliesTheInversion(): void
     {
-        $provider = $this->createProvider(rows: [$this->invoiceRow(documentNumber: '1000')]);
-
         $order = self::createOrder();
-        $data = $provider->provideRenderingData($order, $this->buildRequest($order), Context::createDefaultContext());
+        $input = new ProviderInput(
+            $order,
+            $this->buildRequest($order),
+            new ReferencedDocument(
+                id: Uuid::randomHex(),
+                documentNumber: '1000',
+                orderVersionId: Uuid::randomHex(),
+            ),
+        );
+
+        $data = $this->createProvider()->provideRenderingData($input, Context::createDefaultContext());
 
         static::assertSame(TypeCode::CANCELLATION_INVOICE, $data->typeCode);
         static::assertSame('2000', $data->custom['stornoNumber']);
@@ -103,51 +99,9 @@ class CancellationInvoiceDataProviderTest extends TestCase
         static::assertLessThan(0, $data->monetarySummation->grandTotal);
     }
 
-    public function testResolvesInvoiceNumberFromConfigWhenColumnIsEmpty(): void
+    private function createProvider(): CancellationInvoiceDataProvider
     {
-        $provider = $this->createProvider(rows: [
-            $this->invoiceRow(documentNumber: '', config: '{"documentNumber":"1000"}'),
-        ]);
-
-        $order = self::createOrder();
-        $data = $provider->provideRenderingData($order, $this->buildRequest($order), Context::createDefaultContext());
-
-        static::assertSame('1000', $data->custom['invoiceNumber']);
-    }
-
-    public function testThrowsWhenNoReferenceInvoiceExists(): void
-    {
-        $provider = $this->createProvider(rows: []);
-
-        $order = self::createOrder();
-
-        $this->expectExceptionObject(DocumentV2Exception::referencedInvoiceNotFound($order->getId()));
-
-        $provider->provideRenderingData($order, $this->buildRequest($order), Context::createDefaultContext());
-    }
-
-    public function testThrowsWhenReferencedInvoiceHasNoNumber(): void
-    {
-        $provider = $this->createProvider(rows: [
-            $this->invoiceRow(documentNumber: '', config: '{}'),
-        ]);
-
-        $order = self::createOrder();
-
-        $this->expectExceptionObject(DocumentV2Exception::referencedInvoiceNumberMissing($order->getId()));
-
-        $provider->provideRenderingData($order, $this->buildRequest($order), Context::createDefaultContext());
-    }
-
-    /**
-     * @param list<array<string, string>> $rows
-     */
-    private function createProvider(array $rows = []): CancellationInvoiceDataProvider
-    {
-        return new CancellationInvoiceDataProvider(
-            $this->createInvoiceDataProvider(),
-            $this->createReferenceInvoiceLoader($rows),
-        );
+        return new CancellationInvoiceDataProvider($this->createInvoiceDataProvider());
     }
 
     private function createInvoiceDataProvider(): InvoiceDataProvider
@@ -156,66 +110,41 @@ class CancellationInvoiceDataProviderTest extends TestCase
         $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
         $companyCountry->setId(self::COMPANY_COUNTRY_ID);
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepository */
         $countryRepository = new StaticEntityRepository(
             [new CountryCollection([$companyCountry])],
             new CountryDefinition(),
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentConfigRepository */
         $documentConfigRepository = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([$this->createBaseConfig()])],
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository([new MediaCollection()], new MediaDefinition());
+
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+        $documentTypeRegistry = new DocumentTypeRegistry([new CancellationInvoiceDocumentType()], $storage);
 
         $configLoader = new DocumentConfigLoader(
             $documentConfigRepository,
             $countryRepository,
             $mediaRepository,
             static::createStub(SystemConfigService::class),
+            $documentTypeRegistry,
         );
 
         return new InvoiceDataProvider(
             $configLoader,
+            $documentTypeRegistry,
             static::createStub(ValidatorInterface::class),
         );
-    }
-
-    /**
-     * @param list<array<string, string>> $rows
-     */
-    private function createReferenceInvoiceLoader(array $rows): ReferenceInvoiceLoader
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('createQueryBuilder')->willReturn(new FakeQueryBuilder($connection, $rows));
-
-        return new ReferenceInvoiceLoader($connection);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function invoiceRow(string $documentNumber, string $config = '{}'): array
-    {
-        return [
-            'id' => Uuid::randomHex(),
-            'orderId' => Uuid::randomHex(),
-            'orderVersionId' => Defaults::LIVE_VERSION,
-            'versionId' => Defaults::LIVE_VERSION,
-            'deepLinkCode' => '',
-            'config' => $config,
-            'documentNumber' => $documentNumber,
-        ];
     }
 
     private function buildRequest(OrderEntity $order): DocumentGenerationRequest
     {
         return new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::CANCELLATION_INVOICE,
             [DocumentFormat::ZUGFERD_XML],
             '2000',

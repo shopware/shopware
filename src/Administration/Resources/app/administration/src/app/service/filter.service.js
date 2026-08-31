@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -12,41 +11,25 @@ const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FilterService {
-    _userConfigRepository;
-
     _storedFilters = {};
 
     _filterEntity = null;
 
-    constructor({ userConfigRepository }) {
-        this._userConfigRepository = userConfigRepository;
-    }
+    async getStoredFilters(storeKey) {
+        const queryFilterValue = this._getQueryFilterValue(storeKey);
 
-    getStoredFilters(storeKey) {
-        const criteria = this._getUserConfigCriteria(storeKey);
+        this._filterEntity = {
+            key: storeKey,
+            value: queryFilterValue
+                ? JSON.parse(decodeURIComponent(queryFilterValue)) || {}
+                : (await Shopware.Service('userConfigService').search([storeKey]))?.data?.[storeKey] || {},
+        };
 
-        return this._userConfigRepository.search(criteria, Shopware.Context.api).then((response) => {
-            if (response.length) {
-                this._filterEntity = response.first();
-            } else {
-                const currentUser = Shopware.Store.get('session').currentUser;
+        if (!queryFilterValue) {
+            await this._pushFiltersToUrl(true);
+        }
 
-                this._filterEntity = this._userConfigRepository.create(Shopware.Context.api);
-                this._filterEntity.key = storeKey;
-                this._filterEntity.userId = currentUser?.id;
-                this._filterEntity.value = {};
-            }
-
-            const queryFilterValue = this._getQueryFilterValue(storeKey);
-
-            if (queryFilterValue) {
-                this._filterEntity.value = JSON.parse(decodeURIComponent(queryFilterValue)) || {};
-            } else {
-                this._pushFiltersToUrl(true);
-            }
-
-            return Promise.resolve(this._filterEntity.value);
-        });
+        return this._filterEntity.value;
     }
 
     getStoredCriteria(storeKey) {
@@ -80,10 +63,12 @@ export default class FilterService {
 
         this._pushFiltersToUrl();
 
-        return this._userConfigRepository
-            .save(filterEntity, Shopware.Context.api)
+        return Shopware.Service('userConfigService')
+            .upsert({
+                [storeKey]: filterValues,
+            })
             .then(() => {
-                return this.getStoredFilters(storeKey);
+                return filterValues;
             })
             .catch(() => {
                 return filterEntity.value;
@@ -112,16 +97,6 @@ export default class FilterService {
         });
 
         return mergedCriteria;
-    }
-
-    _getUserConfigCriteria(storeKey) {
-        const currentUser = Shopware.Store.get('session').currentUser;
-        const criteria = new Criteria(1, 1);
-
-        criteria.addFilter(Criteria.equals('key', storeKey));
-        criteria.addFilter(Criteria.equals('userId', currentUser?.id));
-
-        return criteria;
     }
 
     async _pushFiltersToUrl(replaceRoute = false) {

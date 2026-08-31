@@ -17,7 +17,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -76,7 +77,7 @@ class QueryStringParserTest extends TestCase
     public function testParser(array $payload, Filter $expected): void
     {
         $result = QueryStringParser::fromArray(
-            $this->getDefinition(),
+            $this->getRegistry()->getByEntityName(ProductDefinition::ENTITY_NAME),
             $payload,
             new SearchRequestException()
         );
@@ -214,6 +215,10 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'contains', 'field' => 'foo', 'value' => false], false];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => 1], false];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => 0], false];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => 1.5], false];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => null], true];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => ['bar']], true];
+        yield [['type' => 'contains', 'field' => 'foo', 'value' => new \stdClass()], true];
     }
 
     /**
@@ -329,8 +334,8 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'equalsAny', 'value' => 'foo'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => '||||'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => true], false];
-        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => false], true];
-        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 0], true];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => false], false];
+        yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 0], false];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 1], false];
     }
 
@@ -392,8 +397,19 @@ class QueryStringParserTest extends TestCase
             false,
         ];
 
-        yield 'With false as bool value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => false], null, true];
-        yield 'With 0 as int value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => 0], null, true];
+        yield 'With false as bool value' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => false],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', false))),
+            false,
+        ];
+
+        yield 'With 0 as int value' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => 0],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 0))),
+            false,
+        ];
 
         yield 'With 1 as int value' => [
             ['type' => 'equalsAll', 'field' => 'foo', 'value' => 1],
@@ -450,7 +466,7 @@ class QueryStringParserTest extends TestCase
         static::assertInstanceOf(MultiFilter::class, $result);
 
         static::assertArrayHasKey('parameters', $filter);
-        $primaryOperator = $filter['parameters']['operator'];
+        $primaryOperator = mb_strtolower($filter['parameters']['operator']);
         $primaryQuery = $result->getQueries()[0];
         if ($primaryOperator === 'neq') {
             static::assertInstanceOf(NotFilter::class, $primaryQuery);
@@ -465,7 +481,9 @@ class QueryStringParserTest extends TestCase
         static::assertSame($primaryQuery->getField(), 'product.' . $filter['field']);
         static::assertSame($primaryQuery->getField(), 'product.' . $filter['field']);
 
-        static::assertContains($secondaryRangeOperator, array_keys($result->getQueries()[1]->getParameters()));
+        if ($secondaryRangeOperator !== null) {
+            static::assertContains(mb_strtolower($secondaryRangeOperator), array_keys($result->getQueries()[1]->getParameters()));
+        }
 
         $now = (new \DateTimeImmutable())->setTime(0, 0, 0);
 
@@ -507,6 +525,7 @@ class QueryStringParserTest extends TestCase
         yield 'missing parameters exception' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D'], true];
         // test days until
         yield 'time until gt' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'gt']], false, 'gt'];
+        yield 'time until GT uppercase' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'GT']], false, 'GT'];
         yield 'time until gte' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'gte']], false, 'gt'];
         yield 'time until lt' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'lt']], false, 'gt'];
         yield 'time until lte' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'lte']], false, 'gt'];
@@ -521,6 +540,69 @@ class QueryStringParserTest extends TestCase
         yield 'time since neq' => [['type' => 'since', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'neq']], false, 'lt'];
     }
 
+    public function testRelativeTimeToDateFilterWithInvalidOperator(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidFilterQuery(
+            'Parameter "parameter.operator" for until filter must be one of: lte, gte, lt, gt, eq, neq'
+        ));
+
+        try {
+            QueryStringParser::fromArray(
+                new ProductDefinition(),
+                ['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'foo']],
+                new SearchRequestException()
+            );
+        } catch (InvalidFilterQueryException $e) {
+            static::assertSame('/parameters/operator', $e->getParameters()['path']);
+
+            throw $e;
+        }
+    }
+
+    public function testRelativeTimeToDateFilterWithInvalidInterval(): void
+    {
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidFilterQuery(
+            'Parameter "value" for until filter must be a valid date interval, got "P5X".'
+        ));
+
+        try {
+            QueryStringParser::fromArray(
+                new ProductDefinition(),
+                ['type' => 'until', 'field' => 'foo', 'value' => 'P5X', 'parameters' => ['operator' => 'gt']],
+                new SearchRequestException()
+            );
+        } catch (InvalidFilterQueryException $e) {
+            static::assertSame('/value', $e->getParameters()['path']);
+
+            throw $e;
+        }
+    }
+
+    public function testRelativeTimeToDateFilterWithInvalidIntervalIsAggregatedForNestedFilters(): void
+    {
+        $exception = new SearchRequestException();
+
+        $result = QueryStringParser::fromArray(
+            new ProductDefinition(),
+            [
+                'type' => 'and',
+                'queries' => [
+                    ['type' => 'until', 'field' => 'foo', 'value' => 'foo', 'parameters' => ['operator' => 'gt']],
+                    ['type' => 'equals', 'field' => 'name', 'value' => 'bar'],
+                ],
+            ],
+            $exception
+        );
+
+        // the invalid nested filter is skipped, the valid one is still parsed
+        static::assertEquals(new AndFilter([new EqualsFilter('product.name', 'bar')]), $result);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        $errors = iterator_to_array($exception->getErrors());
+        static::assertCount(1, $errors);
+        static::assertSame('/queries/0/value', $errors[0]['source']['pointer'] ?? null);
+    }
+
     private function negateOperator(string $operator): string
     {
         return match ($operator) {
@@ -530,13 +612,6 @@ class QueryStringParserTest extends TestCase
             RangeFilter::GTE => RangeFilter::LTE,
             default => $operator,
         };
-    }
-
-    private function getDefinition(): EntityDefinition
-    {
-        $instanceRegistry = $this->getRegistry();
-
-        return $instanceRegistry->getByEntityName(ProductDefinition::ENTITY_NAME);
     }
 
     private function getRegistry(): DefinitionInstanceRegistry

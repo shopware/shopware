@@ -186,6 +186,9 @@ class RegisterController extends StorefrontController
             [
                 'redirectTo' => $redirect,
                 'errorRoute' => $errorRoute,
+                'loginError' => $request->attributes->getBoolean('loginError'),
+                'errorSnippet' => $request->attributes->get('errorSnippet'),
+                'waitTime' => $request->attributes->get('waitTime'),
                 'page' => $page,
                 'header' => $header,
                 'footer' => $footer,

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
@@ -148,7 +149,8 @@ class PromotionDeliveryCalculator
             $type = $item->getPayloadValue('discountType');
             $value = $item->getPayloadValue('value');
 
-            if (!$type || !$value) {
+            // "0" is a valid value (e.g. free shipping); skip only when unset or non-numeric
+            if ($type === null || !is_numeric($value)) {
                 continue;
             }
 
@@ -514,8 +516,9 @@ class PromotionDeliveryCalculator
         $idStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_ID, IdStruct::class);
         $versionIdStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_VERSION_ID, IdStruct::class);
 
+        // Own empty positions: never share the base delivery's order_delivery_position rows.
         $delivery = new Delivery(
-            $delivery->getPositions(),
+            new DeliveryPositionCollection(),
             $delivery->getDeliveryDate(),
             $delivery->getShippingMethod(),
             $delivery->getLocation(),

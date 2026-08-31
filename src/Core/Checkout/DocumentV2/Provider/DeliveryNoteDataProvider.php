@@ -4,9 +4,8 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DeliveryNoteRenderData;
-use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -55,10 +54,10 @@ final readonly class DeliveryNoteDataProvider extends AbstractDocumentDataProvid
     }
 
     public function provideRenderingData(
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): DeliveryNoteRenderData {
+        $generationRequest = $input->generationRequest;
         $documentNumber = $generationRequest->documentNumber;
 
         if ($documentNumber === null) {

@@ -4,9 +4,10 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\SystemInstallCompletedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Finish\SystemLocker;
@@ -24,6 +25,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -47,40 +49,26 @@ class SystemInstallCommandTest extends TestCase
         ]);
     }
 
-    /**
-     * @param array<string, mixed> $mockInputValues
-     */
-    #[DataProvider('dataProviderTestExecuteWhenInstallLockExists')]
-    public function testExecuteWhenInstallLockExists(array $mockInputValues): void
+    public function testExecuteWhenInstallLockExists(): void
     {
         touch(__DIR__ . '/install.lock');
 
         $systemInstallCmd = $this->prepareCommandInstance();
 
-        $refMethod = new \ReflectionMethod(SystemInstallCommand::class, 'execute');
-
-        $result = $refMethod->invoke($systemInstallCmd, $this->getMockInput($mockInputValues), static::createStub(OutputInterface::class));
+        $output = new BufferedOutput();
+        $result = $systemInstallCmd->run(new ArrayInput([
+            '--shop-name' => 'Storefront',
+            '--shop-email' => 'admin@gmail.com',
+            '--shop-locale' => 'de-DE',
+            '--shop-currency' => 'USD',
+            '--basic-setup' => true,
+            '--no-assign-theme' => true,
+            '--drop-database' => true,
+            '--create-database' => true,
+        ]), $output);
 
         static::assertSame(Command::FAILURE, $result);
-    }
-
-    public static function dataProviderTestExecuteWhenInstallLockExists(): \Generator
-    {
-        yield 'Data provider for test execute failure' => [
-            'mockInputValues' => [
-                'force' => false,
-                'shopName' => 'Storefront',
-                'shopEmail' => 'admin@gmail.com',
-                'shopLocale' => 'de-DE',
-                'shopCurrency' => 'USD',
-                'basicSetup' => true,
-                'shopName_1' => 'Storefront',
-                'shopLocale_1' => 'de-DE',
-                'no-assign-theme' => true,
-                'dropDatabase' => true,
-                'createDatabase' => true,
-            ],
-        ];
+        static::assertStringContainsString('install.lock already exists', $output->fetch());
     }
 
     public function testDefaultInstallFlow(): void
@@ -194,13 +182,20 @@ class SystemInstallCommandTest extends TestCase
         $connectionFactory->method('getConnection')->willReturn($connection);
         $setupDatabaseAdapterMock = static::createStub(SetupDatabaseAdapter::class);
 
+        $dispatcher = new EventDispatcher();
+        $dispatched = false;
+        $dispatcher->addListener(SystemInstallCompletedEvent::class, static function () use (&$dispatched): void {
+            $dispatched = true;
+        });
+
         $systemInstallCmd = new SystemInstallCommand(
             __DIR__,
             $setupDatabaseAdapterMock,
             $connectionFactory,
             static::createStub(CacheClearer::class),
             static::createStub(SystemLocker::class),
-            new NativeClock()
+            new NativeClock(),
+            $dispatcher
         );
 
         $application = new class extends Application {
@@ -221,6 +216,7 @@ class SystemInstallCommandTest extends TestCase
 
         static::assertSame(Command::FAILURE, $result);
         static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+        static::assertFalse($dispatched);
     }
 
     public function testHtaccessCreatedFromDistFile(): void
@@ -308,7 +304,8 @@ class SystemInstallCommandTest extends TestCase
             $connectionFactory,
             static::createStub(CacheClearer::class),
             static::createStub(SystemLocker::class),
-            new NativeClock()
+            new NativeClock(),
+            new EventDispatcher()
         );
 
         $application = new class extends Application {
@@ -365,7 +362,8 @@ class SystemInstallCommandTest extends TestCase
                 $connectionFactory,
                 static::createStub(CacheClearer::class),
                 static::createStub(SystemLocker::class),
-                new NativeClock()
+                new NativeClock(),
+                new EventDispatcher()
             )
         );
         $application->setDispatcher($dispatcher);
@@ -377,10 +375,46 @@ class SystemInstallCommandTest extends TestCase
         static::assertTrue($listener->terminateCalledForSubCommand);
     }
 
+    public function testDispatchesSystemInstallCompletedEventOnSuccess(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatched = null;
+        $dispatcher->addListener(SystemInstallCompletedEvent::class, static function (SystemInstallCompletedEvent $event) use (&$dispatched): void {
+            $dispatched = $event;
+        });
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install'], dispatcher: $dispatcher);
+
+        $result = $command->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertInstanceOf(SystemInstallCompletedEvent::class, $dispatched);
+        static::assertSame(Context::SYSTEM_SCOPE, $dispatched->getContext()->getScope());
+    }
+
+    public function testDispatchesSystemInstallCompletedEventWhenWebInstallerIsSkipped(): void
+    {
+        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+
+        $dispatcher = new EventDispatcher();
+        $dispatched = false;
+        $dispatcher->addListener(SystemInstallCompletedEvent::class, static function () use (&$dispatched): void {
+            $dispatched = true;
+        });
+
+        $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install'], dispatcher: $dispatcher);
+
+        $result = $command->run(new ArrayInput([]), new BufferedOutput());
+
+        static::assertSame(Command::SUCCESS, $result);
+        static::assertTrue($dispatched);
+        static::assertFileDoesNotExist(__DIR__ . '/install.lock');
+    }
+
     /**
      * @param array<string> $expectedCommands
      */
-    private function prepareCommandInstance(array $expectedCommands = [], string $projectDir = __DIR__): SystemInstallCommand
+    private function prepareCommandInstance(array $expectedCommands = [], string $projectDir = __DIR__, ?EventDispatcherInterface $eventDispatcher = null): SystemInstallCommand
     {
         $connection = static::createStub(Connection::class);
         $connectionFactory = static::createStub(DatabaseConnectionFactory::class);
@@ -396,7 +430,8 @@ class SystemInstallCommandTest extends TestCase
             $connectionFactory,
             static::createStub(CacheClearer::class),
             $systemLocker,
-            new NativeClock()
+            new NativeClock(),
+            $eventDispatcher ?? new EventDispatcher()
         );
 
         $application = $this->createMock(Application::class);
@@ -415,7 +450,7 @@ class SystemInstallCommandTest extends TestCase
     /**
      * @param array<string> $additionalCommands
      */
-    private function prepareCommandInstanceWithDefaultInstallCommands(array $additionalCommands = [], string $projectDir = __DIR__): SystemInstallCommand
+    private function prepareCommandInstanceWithDefaultInstallCommands(array $additionalCommands = [], string $projectDir = __DIR__, ?EventDispatcherInterface $dispatcher = null): SystemInstallCommand
     {
         $defaultCommands = [
             'database:migrate',
@@ -429,19 +464,7 @@ class SystemInstallCommandTest extends TestCase
             'cache:clear',
         ];
 
-        return $this->prepareCommandInstance(array_merge($defaultCommands, $additionalCommands), $projectDir);
-    }
-
-    /**
-     * @param array<string, mixed> $mockInputValues
-     */
-    private function getMockInput(array $mockInputValues): InputInterface
-    {
-        $input = static::createStub(InputInterface::class);
-        $input->method('getOption')
-            ->willReturnOnConsecutiveCalls(...array_values($mockInputValues));
-
-        return $input;
+        return $this->prepareCommandInstance(array_merge($defaultCommands, $additionalCommands), $projectDir, $dispatcher);
     }
 
     private function createHtaccessDist(string $content = 'Default .htaccess content'): void

@@ -26,7 +26,7 @@
       </ram:SpecifiedTradeProduct>
       <ram:SpecifiedLineTradeAgreement>
         <ram:NetPriceProductTradePrice>
-          <ram:ChargeAmount>93.46</ram:ChargeAmount>
+          <ram:ChargeAmount>93.4600</ram:ChargeAmount>
           <ram:BasisQuantity unitCode="H87">1.00</ram:BasisQuantity>
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>
@@ -57,6 +57,12 @@
             <ram:URIID>mail@example.com</ram:URIID>
           </ram:EmailURIUniversalCommunication>
         </ram:DefinedTradeContact>
+        <ram:PostalTradeAddress>
+          <ram:PostcodeCode>12345</ram:PostcodeCode>
+          <ram:LineOne>Example Street 1</ram:LineOne>
+          <ram:CityName>Example City</ram:CityName>
+          <ram:CountryID>DE</ram:CountryID>
+        </ram:PostalTradeAddress>
         <ram:URIUniversalCommunication>
           <ram:URIID schemeID="EM">mail@example.com</ram:URIID>
         </ram:URIUniversalCommunication>

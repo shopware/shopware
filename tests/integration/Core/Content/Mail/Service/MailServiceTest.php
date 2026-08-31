@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -40,10 +41,10 @@ class MailServiceTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        static::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
 
         $data = [
-            'recipients' => ['foo@bar.de'],
+            'recipients' => ['foo@bar.de' => null],
             'salesChannelId' => $salesChannelId,
             'subject' => 'test',
             'senderName' => 'test',
@@ -75,7 +76,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get('event_dispatcher'),
             $this->createMock(LoggerInterface::class),
             $this->createMock(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(MailTemplateContentBuilder::class)
+            static::getContainer()->get(MailTemplateContentBuilder::class),
+            static::getContainer()->get(MailMetricsInstrumentor::class),
         );
         $data = [
             'senderName' => 'Foo & Bar',
@@ -149,7 +151,8 @@ class MailServiceTest extends TestCase
             $this->createMock(EventDispatcher::class),
             $this->createMock(LoggerInterface::class),
             $languageLocaleProvider,
-            static::getContainer()->get(MailTemplateContentBuilder::class)
+            static::getContainer()->get(MailTemplateContentBuilder::class),
+            static::getContainer()->get(MailMetricsInstrumentor::class),
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -203,7 +206,8 @@ class MailServiceTest extends TestCase
             $eventDispatcher,
             $this->createMock(LoggerInterface::class),
             $this->createMock(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(MailTemplateContentBuilder::class)
+            static::getContainer()->get(MailTemplateContentBuilder::class),
+            static::getContainer()->get(MailMetricsInstrumentor::class),
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -244,7 +248,8 @@ class MailServiceTest extends TestCase
             $this->createMock(EventDispatcher::class),
             $this->createMock(LoggerInterface::class),
             $this->createMock(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(MailTemplateContentBuilder::class)
+            static::getContainer()->get(MailTemplateContentBuilder::class),
+            static::getContainer()->get(MailMetricsInstrumentor::class),
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -304,7 +309,8 @@ class MailServiceTest extends TestCase
             $this->createMock(EventDispatcher::class),
             $this->createMock(LoggerInterface::class),
             $this->createMock(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(MailTemplateContentBuilder::class)
+            static::getContainer()->get(MailTemplateContentBuilder::class),
+            static::getContainer()->get(MailMetricsInstrumentor::class),
         );
 
         $salesChannel = $this->createSalesChannel();

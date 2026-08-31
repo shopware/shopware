@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -186,7 +187,7 @@ class SearchController extends StorefrontController
             }
 
             if ($search === mb_strtolower(trim($value))) {
-                return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
+                return $this->redirectToRoute(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $product->getId()]);
             }
         }
 

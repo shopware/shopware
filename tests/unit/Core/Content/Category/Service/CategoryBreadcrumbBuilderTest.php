@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -16,7 +18,9 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
@@ -283,7 +287,24 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertCount(1, $firstBreadcrumb->seoUrls);
     }
 
-    public function testConvertCategoriesToBreadcrumbUrlsWithNoSeoUrls(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function breadcrumbWithoutSeoUrlDataProvider(): iterable
+    {
+        yield 'page category has a navigation fallback path' => [
+            CategoryDefinition::TYPE_PAGE,
+            'navigation/019192b9cd82711482744d7b456b6c03',
+        ];
+
+        yield 'folder category has no navigable path' => [
+            CategoryDefinition::TYPE_FOLDER,
+            '',
+        ];
+    }
+
+    #[DataProvider('breadcrumbWithoutSeoUrlDataProvider')]
+    public function testConvertCategoriesToBreadcrumbUrlsWithNoSeoUrls(string $categoryType, string $expectedPath): void
     {
         $categoryEntityOne = $this->createNewCategoryEntity(
             '019192b9cd82711482744d7b456b6c03',
@@ -297,11 +318,12 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 ],
             ]
         );
+        $categoryEntityOne->setType($categoryType);
 
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock(),
+            $this->getConnectionMock([]),
             $this->entityRouteResolver,
         );
 
@@ -314,7 +336,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertArrayHasKey('name', (array) $result[0]);
         static::assertArrayHasKey('path', (array) $result[0]);
         static::assertSame('Home sweet home', $firstBreadcrumb->name);
-        static::assertSame('navigation/1', $firstBreadcrumb->path);
+        static::assertSame($expectedPath, $firstBreadcrumb->path);
+        static::assertSame([], $firstBreadcrumb->seoUrls);
     }
 
     // write a test to cover getProductBreadcrumbUrls method
@@ -370,30 +393,31 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertNull($result);
     }
 
-    private function getConnectionMock(): Connection
+    /**
+     * @param array<int, array{categoryId: string, pathInfo: string, seoPathInfo: string}> $seoUrls
+     */
+    private function getConnectionMock(array $seoUrls = [
+        [
+            'categoryId' => '019192b9cd82711482744d7b456b6c01',
+            'pathInfo' => 'pathInfo/1',
+            'seoPathInfo' => 'seoPathInfo/1',
+        ],
+        [
+            'categoryId' => '019192b9cd82711482744d7b456b6c02',
+            'pathInfo' => 'pathInfo/1',
+            'seoPathInfo' => '',
+        ],
+        [
+            'categoryId' => '019192b9cd82711482744d7b456b6c03',
+            'pathInfo' => 'navigation/1',
+            'seoPathInfo' => '',
+        ],
+    ]): Connection
     {
         $connection = static::createStub(Connection::class);
         $queryBuilder = static::createStub(QueryBuilder::class);
         $result = static::createStub(Result::class);
-        $result->method('fetchAllAssociative')->willReturn(
-            [
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c01',
-                    'pathInfo' => 'pathInfo/1',
-                    'seoPathInfo' => 'seoPathInfo/1',
-                ],
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c02',
-                    'pathInfo' => 'pathInfo/1',
-                    'seoPathInfo' => '',
-                ],
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c03',
-                    'pathInfo' => 'navigation/1',
-                    'seoPathInfo' => '',
-                ],
-            ]
-        );
+        $result->method('fetchAllAssociative')->willReturn($seoUrls);
 
         $queryBuilder->method('select')->willReturnSelf();
         $queryBuilder->method('executeQuery')->willReturn($result);
@@ -465,6 +489,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $product->setId(Uuid::randomHex());
         $product->setStreamIds($streamIds);
         $product->setCategoryIds($categoryIds);
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         return $product;
     }
@@ -473,6 +498,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     {
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId(Uuid::randomHex());
+        $salesChannelEntity->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
         $salesChannelEntity->setNavigationCategoryId('navigationCategoryId');
         $salesChannelEntity->setServiceCategoryId('serviceCategoryId');
         $salesChannelEntity->setFooterCategoryId('footerCategoryId');

@@ -27,6 +27,7 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -47,6 +48,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductController::class)]
 class ProductControllerTest extends TestCase
 {
@@ -277,7 +279,7 @@ class ProductControllerTest extends TestCase
         $productReview->setUniqueIdentifier($ids->get('productReview'));
         $reviewResult = ProductReviewResult::fromSearchResult(
             new EntitySearchResult(
-                'review',
+                'product_review',
                 1,
                 new ProductReviewCollection([$productReview]),
                 null,

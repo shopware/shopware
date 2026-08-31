@@ -87,7 +87,7 @@ class InfoController extends AbstractController
     /**
      * @deprecated tag:v6.8.0 - Route will be removed. Use /api/_info/message-stats.json instead.
      */
-    #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
+    #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['message_queue_stats:read']], methods: ['GET'])]
     public function queue(): JsonResponse
     {
         if (Feature::isActive('v6.8.0.0')) { // avoiding polluting logs, as our code still calling this endpoint
@@ -110,7 +110,7 @@ class InfoController extends AbstractController
         ], array_values($entries)));
     }
 
-    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', methods: ['GET'])]
+    #[Route(path: '/api/_info/message-stats.json', name: 'api.info.message-stats', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['message_queue_stats:read']], methods: ['GET'])]
     public function messageStats(): JsonResponse
     {
         $response = new JsonResponse();

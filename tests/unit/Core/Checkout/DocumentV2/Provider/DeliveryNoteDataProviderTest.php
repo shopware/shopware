@@ -3,13 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\DeliveryNoteDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,20 +32,9 @@ class DeliveryNoteDataProviderTest extends TestCase
         static::assertSame('delivery_note', $this->createProvider()->getKey());
     }
 
-    #[DataProvider('supportsProvider')]
-    public function testSupportsOnlyDeliveryNote(string $documentType, bool $expected): void
+    public function testSupportsOnlyDeliveryNote(): void
     {
-        static::assertSame($expected, $this->createProvider()->supports($documentType));
-    }
-
-    /**
-     * @return \Generator<string, array{string, bool}>
-     */
-    public static function supportsProvider(): \Generator
-    {
-        yield 'delivery note is supported' => [DocumentType::DELIVERY_NOTE->value, true];
-        yield 'other core type is not supported' => [DocumentType::INVOICE->value, false];
-        yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
+        static::assertTrue($this->createProvider()->supports(DocumentType::DELIVERY_NOTE->value));
     }
 
     public function testEnrichOrderCriteria(): void
@@ -103,7 +92,6 @@ class DeliveryNoteDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::DELIVERY_NOTE,
             [DocumentFormat::PDF],
             '12345',
@@ -111,7 +99,7 @@ class DeliveryNoteDataProviderTest extends TestCase
             deliveryDate: self::DELIVERY_DATE,
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertSame('12345', $result->custom['deliveryNoteNumber']);
         static::assertSame(self::DELIVERY_DATE, $result->custom['deliveryDate']);
@@ -125,7 +113,6 @@ class DeliveryNoteDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::DELIVERY_NOTE,
             [DocumentFormat::PDF],
             documentNumber: null,
@@ -137,7 +124,7 @@ class DeliveryNoteDataProviderTest extends TestCase
             DocumentV2Exception::missingDocumentNumber(DocumentType::DELIVERY_NOTE->value),
         );
 
-        $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
     }
 
     public function testProvideRenderingDataThrowsWhenDeliveryDateMissing(): void
@@ -147,7 +134,6 @@ class DeliveryNoteDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::DELIVERY_NOTE,
             [DocumentFormat::PDF],
             '12345',
@@ -159,7 +145,7 @@ class DeliveryNoteDataProviderTest extends TestCase
             DocumentV2Exception::missingDeliveryDate(DocumentType::DELIVERY_NOTE->value),
         );
 
-        $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
     }
 
     private function createProvider(): DeliveryNoteDataProvider

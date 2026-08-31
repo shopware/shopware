@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -20,10 +21,9 @@ class NumberRangeException extends HttpException
     public const NUMBER_RANGE_NOT_FOUND = 'FRAMEWORK__NUMBER_RANGE_NOT_FOUND';
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     *
      * @param array<string> $availableStorages
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function incrementStorageNotFound(string $storage, array $availableStorages): self|IncrementStorageNotFoundException
     {
         if (!Feature::isActive('v6.8.0.0')) {

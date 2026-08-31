@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\Log\Package;
@@ -41,5 +42,26 @@ class RangeAggregationTest extends TestCase
         static::assertSame('foo', $clone->getName());
         static::assertSame('bar', $clone->getField());
         static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
+    }
+
+    #[DataProvider('buildRangeKeyDataProvider')]
+    public function testBuildRangeKey(?float $from, ?float $to, string $expectedKey): void
+    {
+        $aggregation = new RangeAggregation('test', 'test', []);
+        $aggregation->addRange($from, $to);
+
+        $ranges = $aggregation->getRanges();
+        static::assertCount(1, $ranges);
+        static::assertSame($expectedKey, $ranges[0]['key']);
+    }
+
+    /**
+     * @return \Generator<string, array{?float, ?float, string}>
+     */
+    public static function buildRangeKeyDataProvider(): \Generator
+    {
+        yield 'empty from and empty to' => [null, null, '*-*'];
+        yield 'empty from and to' => [null, 10.0, '*-10'];
+        yield 'from and empty to' => [10.0, null, '10-*'];
     }
 }

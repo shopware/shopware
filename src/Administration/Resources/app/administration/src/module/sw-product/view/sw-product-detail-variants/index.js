@@ -13,6 +13,7 @@ export default {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'acl',
     ],
@@ -61,6 +62,23 @@ export default {
 
         propertyRepository() {
             return this.repositoryFactory.create('property_group_option');
+        },
+
+        variantCardTabs() {
+            return [
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.allProducts'),
+                    name: 'all',
+                },
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.physicalProducts'),
+                    name: 'physical',
+                },
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.digitalProducts'),
+                    name: 'digital',
+                },
+            ];
         },
 
         productProperties() {

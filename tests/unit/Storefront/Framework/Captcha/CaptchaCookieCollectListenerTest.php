@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\CaptchaCookieCollectListener;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CaptchaCookieCollectListener::class)]
 class CaptchaCookieCollectListenerTest extends TestCase
 {

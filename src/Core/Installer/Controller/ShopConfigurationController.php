@@ -19,10 +19,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  *
- * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, schema: string, blueGreenDeployment: bool}
- * @phpstan-type AdminUser array{email: string, username: string, firstName: string, lastName: string, password: string}
- *
- * @phpstan-import-type SupportedLanguages from \Shopware\Core\Installer\Controller\InstallerController
+ * @phpstan-import-type SupportedLanguages from InstallerController
  */
 #[Package('framework')]
 class ShopConfigurationController extends InstallerController
@@ -47,16 +44,16 @@ class ShopConfigurationController extends InstallerController
     public function shopConfiguration(Request $request): Response
     {
         $session = $request->getSession();
-        /** @var DatabaseConnectionInformation|null $connectionInfo */
         $connectionInfo = $session->get(DatabaseConnectionInformation::class);
 
-        if (!$connectionInfo) {
+        if (!$connectionInfo instanceof DatabaseConnectionInformation) {
             return $this->redirectToRoute('installer.database-configuration');
         }
 
         $connection = $this->connectionFactory->getConnection($connectionInfo);
 
         $error = null;
+        $userLocale = $request->attributes->get('_locale');
 
         if ($request->getMethod() === 'POST') {
             $adminUser = [
@@ -65,7 +62,7 @@ class ShopConfigurationController extends InstallerController
                 'firstName' => (string) $request->request->get('config_admin_firstName'),
                 'lastName' => (string) $request->request->get('config_admin_lastName'),
                 'password' => (string) $request->request->get('config_admin_password'),
-                'locale' => $this->supportedLanguages[$request->attributes->get('_locale')]['id'],
+                'localeId' => $this->resolveLocaleId($connection, $userLocale),
             ];
 
             /** @var list<string> $availableCurrencies */
@@ -88,7 +85,7 @@ class ShopConfigurationController extends InstallerController
                     return $iso;
                 }
 
-                return isset($availableLanguages[$iso]['id']) ? $availableLanguages[$iso]['id'] : null;
+                return $availableLanguages[$iso]['id'] ?? null;
             }, $selectedLanguages);
 
             $schema = 'http';
@@ -140,15 +137,14 @@ class ShopConfigurationController extends InstallerController
         }
 
         if (!$request->request->has('config_shop_language')) {
-            $request->request->set('config_shop_language', $this->supportedLanguages[$request->attributes->get('_locale')]['id']);
+            $request->request->set('config_shop_language', $this->supportedLanguages[$userLocale]['id']);
         }
 
-        $locale = $request->attributes->get('_locale');
         /** @var array<string, array{currency: string }> $preselection */
         $preselection = $this->container->getParameter('shopware.installer.configurationPreselection');
 
         $parameters = $request->request->all();
-        $parameters['config_shop_currency'] ??= $preselection[$locale]['currency'] ?? 'EUR';
+        $parameters['config_shop_currency'] ??= $preselection[$userLocale]['currency'] ?? 'EUR';
 
         $systemDefaultLanguageOptions = $this->getSystemDefaultLanguageOptions();
 
@@ -156,7 +152,7 @@ class ShopConfigurationController extends InstallerController
             '@Installer/installer/shop-configuration.html.twig',
             [
                 'error' => $error,
-                'countryIsos' => $this->getCountryIsos($connection, $locale),
+                'countryIsos' => $this->getCountryIsos($connection, $userLocale),
                 'languageIsos' => $systemDefaultLanguageOptions,
                 'allAvailableLanguages' => $this->getAllAvailableLanguages(),
                 'currencyIsos' => $this->supportedCurrencies,
@@ -167,7 +163,7 @@ class ShopConfigurationController extends InstallerController
     }
 
     /**
-     * @return list<array{iso3: string, default: bool}>
+     * @return list<array{iso3: string, default: bool, translated: string}>
      */
     private function getCountryIsos(Connection $connection, string $currentLocale): array
     {
@@ -184,12 +180,8 @@ class ShopConfigurationController extends InstallerController
             'translated' => $this->translator->trans('shopware.installer.select_country_' . mb_strtolower($country['iso3'])),
         ], $countries);
 
-        usort(/**
-         * sorting country by translated
-         *
-         * @param array<string, string> $first
-         * @param array<string, string> $second
-         */ $countryIsos, static fn (array $first, array $second) => strcmp($first['translated'], $second['translated']));
+        /** sorting country by translated */
+        usort($countryIsos, static fn (array $first, array $second) => strcmp($first['translated'], $second['translated']));
 
         return $countryIsos;
     }
@@ -246,5 +238,12 @@ class ShopConfigurationController extends InstallerController
         ksort($systemDefaultLanguageOptions);
 
         return $systemDefaultLanguageOptions;
+    }
+
+    private function resolveLocaleId(Connection $connection, string $userLocale): string
+    {
+        $userLocale = $this->supportedLanguages[$userLocale]['id'];
+
+        return $connection->fetchOne('SELECT id FROM locale WHERE code = :locale', ['locale' => $userLocale]);
     }
 }

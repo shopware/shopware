@@ -24,7 +24,7 @@ class SmtpOauthTransportFactoryDecoratorTest extends TestCase
 
         $decorated = new EsmtpTransportFactory();
 
-        $authenticator = $this->createMock(SmtpOauthAuthenticator::class);
+        $authenticator = static::createStub(SmtpOauthAuthenticator::class);
 
         $factory = new SmtpOauthTransportFactoryDecorator($decorated, $authenticator);
 
@@ -45,7 +45,7 @@ class SmtpOauthTransportFactoryDecoratorTest extends TestCase
 
         $decorated = new EsmtpTransportFactory();
 
-        $authenticator = $this->createMock(SmtpOauthAuthenticator::class);
+        $authenticator = static::createStub(SmtpOauthAuthenticator::class);
 
         $factory = new SmtpOauthTransportFactoryDecorator($decorated, $authenticator);
 

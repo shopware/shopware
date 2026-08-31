@@ -114,9 +114,11 @@ export default {
                         return null;
                     }
 
+                    // Entity proxies may omit `id` when spread, so set it explicitly.
                     return {
-                        label: this.addressLabel(item),
                         ...item,
+                        id: item.id,
+                        label: this.addressLabel(item),
                     };
                 })
                 .filter((item) => item !== null);

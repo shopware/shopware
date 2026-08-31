@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -119,7 +120,7 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
+        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, static::createStub(AclCriteriaValidator::class));
         ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
 
         static::assertIsArray($capturedPayload);
@@ -158,7 +159,7 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
+        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, static::createStub(AclCriteriaValidator::class));
         ($tool)(
             'order',
             '[{"type":"count","name":"total","field":"id"}]',
@@ -198,7 +199,7 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider);
+        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, static::createStub(AclCriteriaValidator::class));
         ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
 
         static::assertIsArray($capturedPayload);
@@ -213,7 +214,7 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $data = json_decode(($tool)('unknown_entity', '[]'), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertFalse($data['success']);
@@ -232,7 +233,7 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '{"type":"count"}');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -253,7 +254,7 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"}]', 'not-json');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -275,7 +276,7 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', 'not-json');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -298,13 +299,50 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider);
+        $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertFalse($data['success']);
         static::assertStringContainsString('order:read', $data['error']);
+    }
+
+    public function testDeniesAccessWhenCriteriaRequiresMissingAssociationPrivilege(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['order:read']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('search');
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn($repository);
+
+        $criteria = new Criteria();
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willReturn($criteria);
+
+        $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
+        $criteriaValidator->expects($this->once())
+            ->method('validate')
+            ->with('order', static::identicalTo($criteria), $context)
+            ->willReturn(['order_customer:read']);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, $criteriaValidator);
+        $output = ($tool)('order', '[{"type":"terms","name":"emails","field":"orderCustomer.email"}]');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege:', $data['error']);
+        static::assertStringContainsString('order_customer:read', $data['error']);
     }
 
     /**
@@ -330,6 +368,6 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        return [new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider), $repository];
+        return [new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, static::createStub(AclCriteriaValidator::class)), $repository];
     }
 }

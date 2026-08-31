@@ -82,6 +82,7 @@ use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
 use Shopware\Elasticsearch\Framework\Subscriber\InvalidateExpiredCacheSubscriber;
+use Shopware\Elasticsearch\Framework\SystemInstallListener;
 use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 use Shopware\Elasticsearch\NestedFieldQueryBuilder;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
@@ -388,7 +389,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SearchConfigLoader::class),
             service(AbstractTokenQueryBuilder::class),
             service(ElasticsearchTokenizer::class),
-            param('elasticsearch.search.dismax_tie_breaker'),
         ]);
 
     $services->set(AbstractFieldQueryBuilder::class, FieldQueryBuilder::class)
@@ -396,6 +396,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('elasticsearch.analysis.filter.sw_ngram_filter.min_gram'),
             param('elasticsearch.use_language_analyzer'),
             param('elasticsearch.search.dismax_tie_breaker'),
+            param('elasticsearch.search.boost.exact'),
+            param('elasticsearch.search.boost.phrase'),
+            param('elasticsearch.search.boost.fuzzy'),
+            param('elasticsearch.search.boost.prefix'),
+            param('elasticsearch.search.boost.partial'),
         ]);
 
     $services->set(TranslatedFieldQueryBuilder::class)
@@ -558,6 +563,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AdminSearchRegistry::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(SystemInstallListener::class)
+        ->args([
+            service(ElasticsearchIndexer::class),
+        ])
+        ->tag('kernel.event_listener');
 
     $services->set(SystemUpdateListener::class)
         ->args([
@@ -793,5 +804,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AdminSearchRegistry::class),
             service(AdminElasticsearchHelper::class),
             service(AdminSearcher::class),
+            param('elasticsearch.administration.index_settings.max_result_window'),
         ]);
 };

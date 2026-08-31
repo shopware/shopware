@@ -192,15 +192,21 @@
             >
                 <template #column-templateName="{ item }">
                     <button
+                        v-if="acl.can('sales_channel.editor')"
                         type="button"
                         class="sw-sales-channel-detail-agentic-file__source sw-sales-channel-detail-agentic-file__source-button"
-                        :disabled="!acl.can('sales_channel.editor')"
                         @click="openTemplateOverrideModal(item)"
                     >
                         <span class="sw-sales-channel-detail-agentic-file__source-name">
                             {{ item.templateName }}
                         </span>
                     </button>
+                    <span
+                        v-else
+                        class="sw-sales-channel-detail-agentic-file__source sw-sales-channel-detail-agentic-file__source-name"
+                    >
+                        {{ item.templateName }}
+                    </span>
                 </template>
 
                 <template #column-role="{ item }">

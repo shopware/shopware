@@ -348,7 +348,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         await wrapper.find('.sw-sales-channel-detail-agentic-file__content-sources-toggle').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__source-button').attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__source-button').exists()).toBe(false);
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__source-name').element.tagName).toBe('SPAN');
         expect(wrapper.find('.sw-context-menu-item').attributes('disabled')).toBeDefined();
     });
 

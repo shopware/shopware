@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
+use Shopware\Core\Checkout\DocumentV2\App\DocumentAppFeatureDefinition;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
@@ -42,6 +43,8 @@ use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -72,8 +75,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('country.repository'),
             service('media.repository'),
             service(SystemConfigService::class),
+            service(DocumentTypeRegistry::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(DocumentBaseConfigSyncSubscriber::class)
         ->args([
@@ -143,10 +148,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CreditNoteDocumentType::class)
         ->tag('shopware.document_v2.type');
 
+    $services->set(DocumentAppFeatureDefinition::class)
+        ->args([
+            service(Connection::class),
+            service('number_range_type.repository'),
+            service('number_range.repository'),
+        ])
+        ->tag('shopware.app_feature.definition');
+
     $services->set(DocumentTypeRegistry::class)
         ->args([
             tagged_iterator('shopware.document_v2.type'),
-        ]);
+            service(AppFeatureStorage::class),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(DocumentTemplateRenderer::class)
         ->public()
@@ -215,6 +230,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document_file.repository'),
             service('document_type.repository'),
             service(MediaService::class),
+            service(DocumentTypeRegistry::class),
             service(FileNameProvider::class),
             service('event_dispatcher'),
         ]);
@@ -243,6 +259,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentDependencyResolver::class),
             service(ReferencedDocumentResolver::class),
             service('order.repository'),
+            service(ScriptExecutor::class),
         ]);
 
     $services->set(DocumentGenerationRequestResolver::class)

@@ -515,6 +515,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SystemConfigService::class),
             service('product_sorting.repository'),
+            service('event_dispatcher'),
         ])
         ->tag('shopware.listing.processor');
 

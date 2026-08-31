@@ -73,17 +73,6 @@ Store API responses no longer echo the request `sw-context-token` header on cach
 
 ## Administration
 
-### Order state history modal loads the full history
-
-`sw-order-state-history-modal` now loads the complete state history of an order and paginates the
-rows it builds, instead of requesting one page of `state_machine_history` at a time. Its columns are
-cumulative, so a page could not be rendered correctly without the transitions preceding it.
-
-For extensions this changes two members: `dataSource` now holds every built row rather than only the
-current page, and the rows of the visible page are exposed by the new `stateHistory` computed
-property. `dataSource` stays a writable data property, so extensions that replace or extend the rows
-keep working.
-
 ### Shipping prices can be linked to the tax rate
 
 The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.

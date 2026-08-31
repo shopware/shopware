@@ -154,8 +154,7 @@ class InstallTranslationCommandTest extends TestCase
     {
         $this->provideTranslationFile($this->provisionedLocale);
 
-        // A shop can already carry a differently named snippet set for the locale, for example from a
-        // language pack. The BASE set is created next to it, not instead of it.
+        // a shop can already carry a differently named snippet set for the locale, for example from a language pack
         $this->snippetSetRepository->create([[
             'name' => 'LanguagePack ' . $this->provisionedLocale,
             'baseFile' => 'messages.' . $this->provisionedLocale,
@@ -225,8 +224,6 @@ class InstallTranslationCommandTest extends TestCase
         try {
             $this->executeOfflineInstall([$this->unprovisionedLocale, $this->provisionedLocale]);
         } finally {
-            // Every locale is checked before the first one is linked, so the locale that does have
-            // files is not installed either and no half-installed state is left behind.
             static::assertCount(0, $this->findLanguages($this->provisionedLocale));
             static::assertCount(0, $this->findLanguages($this->unprovisionedLocale));
         }

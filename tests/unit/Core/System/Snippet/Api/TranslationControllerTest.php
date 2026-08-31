@@ -118,8 +118,7 @@ class TranslationControllerTest extends TestCase
 
     public function testInstallLinksCurrentLocaleWhoseLanguageIsMissing(): void
     {
-        // The files are current, so nothing is downloaded — but the language may have been removed since,
-        // for example by a database restore, and installing has to bring it back.
+        // the language may have been removed since the files were fetched, for example by a database restore
         $metadataStore = $this->createMock(TranslationMetadataStore::class);
         $metadataStore->method('getUpdatedLocalMetadata')->willReturn($this->metadataCollection(['fr-FR' => false]));
         $metadataStore->expects($this->never())->method('save');
@@ -142,8 +141,7 @@ class TranslationControllerTest extends TestCase
 
     public function testInstallDoesNotReportALocaleWithFilesAsUnavailable(): void
     {
-        // Offline provisioning creates no metadata entry, so the remote knows nothing about this locale.
-        // Its files are on the filesystem though, so it can be installed and must not be reported unavailable.
+        // offline provisioning leaves no metadata entry, so the remote knows nothing about this locale
         $metadataStore = static::createStub(TranslationMetadataStore::class);
         $metadataStore->method('getUpdatedLocalMetadata')->willReturn(new MetadataCollection());
 

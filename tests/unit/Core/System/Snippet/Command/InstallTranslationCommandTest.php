@@ -194,8 +194,6 @@ class InstallTranslationCommandTest extends TestCase
                 static::assertSame('es-ES', $locale);
             });
 
-        // The other two are not skipped, only their download is: their language and snippet
-        // set are ensured just the same.
         $linked = [];
         $this->translationLoader->expects($this->exactly(3))
             ->method('link')
@@ -229,8 +227,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $this->initMetadataLoader($collection);
 
-        // Metadata says the locale is current, but nothing is on the filesystem, so linking
-        // would leave a language with no translations behind it.
+        // metadata says the locale is current, but linking it would leave a language without translations
         $this->translationLoader->method('hasTranslationFiles')->willReturn(false);
 
         $this->translationLoader->expects($this->once())->method('download')->with('es-ES');
@@ -311,8 +308,6 @@ class InstallTranslationCommandTest extends TestCase
         $this->initMetadataLoader($collection);
         $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
 
-        // Nothing is re-fetched, but the language and snippet set are still ensured: a locale
-        // whose files are current may well have no language row yet.
         $this->translationLoader->expects($this->never())->method('download');
         $this->translationLoader->expects($this->once())->method('link');
 
@@ -386,8 +381,7 @@ class InstallTranslationCommandTest extends TestCase
         $this->initMetadataLoader($collection);
         $this->translationLoader->method('hasTranslationFiles')->willReturn(false);
 
-        // en-GB has neither a metadata entry nor files, so installing it would create a language
-        // without any translations behind it.
+        // en-GB has neither a metadata entry nor files, so installing it would create an empty language
         $this->translationLoader->expects($this->once())
             ->method('download')
             ->willReturnCallback(static function (string $locale): void {
@@ -492,8 +486,6 @@ class InstallTranslationCommandTest extends TestCase
         $this->translationLoader->method('hasTranslationFiles')
             ->willReturnCallback(static fn (string $locale) => $locale !== 'es-ES');
 
-        // --all means "everything that is provisioned": one locale the repository never offered must
-        // not make the command unusable for the others.
         $linked = [];
         $this->translationLoader->expects($this->exactly(2))
             ->method('link')

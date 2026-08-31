@@ -51,8 +51,8 @@ readonly class TranslationUpdater
     }
 
     /**
-     * The offline counterpart of planInstall(): nothing is downloaded and the repository is never contacted, so a
-     * locale can only be installed from the files it already carries.
+     * The offline counterpart of planInstall(): the repository is never contacted, so a locale can only be
+     * installed from the files it already carries.
      *
      * @param list<string> $locales
      */
@@ -75,8 +75,7 @@ readonly class TranslationUpdater
      * Downloading and creating are separate steps on purpose: link() refuses a locale whose download produced no file,
      * so a repository that offers nothing for a locale cannot leave a language without translations behind.
      *
-     * Persisting the metadata is left to the caller, which decides how a failing write is reported. The plan carries
-     * everything this needs, so an offline install works without a metadata collection at all.
+     * Persisting the metadata is left to the caller, which decides how a failing write is reported.
      *
      * @param callable(string): void|null $onLocale receives each locale before it is installed, for progress output
      */

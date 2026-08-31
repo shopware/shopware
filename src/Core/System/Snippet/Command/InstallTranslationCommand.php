@@ -71,8 +71,7 @@ class InstallTranslationCommand extends Command
             TranslationCommandHelper::printUnavailableLocales($output, $plan->unavailableLocales);
         }
 
-        // Not "nothing requires an update": a locale whose metadata is current still gets fetched when its files
-        // are missing, and saying nothing was downloaded would then be wrong.
+        // Not "nothing requires an update": a locale whose metadata is current is still fetched when its files are gone
         if ($plan->localesToDownload === []) {
             TranslationCommandHelper::printNoTranslationsToUpdate($output);
         }
@@ -95,11 +94,6 @@ class InstallTranslationCommand extends Command
      * translation repository, which is the one thing this mode promises not to do, and writing
      * it would make a later run believe every locale is current and skip creating the
      * languages it is being asked for.
-     *
-     * Locales named with --locales are a contract and are installed as a unit: if one of them has no files the
-     * command fails and installs none of them, so an incomplete provisioning step leaves no half-installed state
-     * behind. --all instead means "everything that is provisioned", because a locale the repository never offered
-     * must not make the command unusable for all the others.
      *
      * @param list<string> $locales
      */
@@ -148,7 +142,7 @@ class InstallTranslationCommand extends Command
             return false;
         }
 
-        // --all installs whatever is provisioned; a locale named with --locales that has no files fails the run
+        // --locales is a contract and fails as a unit; --all installs whatever is provisioned, unless nothing is
         return !$allRequested || $plan->localesToLink === [];
     }
 

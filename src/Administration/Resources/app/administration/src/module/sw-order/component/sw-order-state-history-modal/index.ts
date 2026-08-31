@@ -233,6 +233,8 @@ export default Component.wrapComponentConfig({
             allEntries.forEach((entry: Entity<'state_machine_history'>) => {
                 if (entry.entityName === 'order_transaction' && !knownTransactionIds.includes(entry.referencedId)) {
                     if (knownTransactionIds.length > 0) {
+                        const transaction = this.order.transactions?.get(entry.referencedId);
+
                         entries.push(
                             this.createEntry(
                                 {
@@ -240,7 +242,7 @@ export default Component.wrapComponentConfig({
                                     // @ts-expect-error - states exists
                                     order_transaction: entry.fromStateMachineState,
                                 },
-                                entry,
+                                transaction ?? entry,
                                 true,
                             ),
                         );

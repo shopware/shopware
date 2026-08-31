@@ -372,6 +372,126 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(lastTransactionEntry).toBeDefined();
     });
 
+    it('should date the initial state of a later transaction by its creation time, not its first transition', async () => {
+        const orderWithSecondTransaction = {
+            ...orderProp,
+            transactions: getCollection('order_transaction', [
+                {
+                    id: '2',
+                    createdAt: '2022-10-12T09:39:00.000+00:00',
+                    stateMachineState: {
+                        technicalName: 'cancelled',
+                        translated: { name: 'Cancelled' },
+                    },
+                    getEntityName: () => 'order_transaction',
+                },
+                {
+                    id: '3',
+                    createdAt: '2022-10-12T09:39:12.000+00:00',
+                    stateMachineState: {
+                        technicalName: 'authorized',
+                        translated: { name: 'Authorized' },
+                    },
+                    getEntityName: () => 'order_transaction',
+                },
+            ]),
+        };
+
+        // The second transaction has no history entry for its initial `open` state, only for the
+        // delayed transition an hour later.
+        const history = [
+            {
+                entityName: 'order_transaction',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: { name: 'Open' },
+                },
+                toStateMachineState: {
+                    technicalName: 'cancelled',
+                    translated: { name: 'Cancelled' },
+                },
+                createdAt: '2022-10-12T09:39:12.000+00:00',
+                referencedId: '2',
+            },
+            {
+                entityName: 'order_transaction',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: { name: 'Open' },
+                },
+                toStateMachineState: {
+                    technicalName: 'authorized',
+                    translated: { name: 'Authorized' },
+                },
+                user: {
+                    username: 'admin',
+                },
+                createdAt: '2022-10-12T10:39:00.000+00:00',
+                referencedId: '3',
+                internalComment: 'Authorized by the delayed flow',
+            },
+        ];
+
+        const wrapper = await createWrapper({}, orderWithSecondTransaction, history);
+        await flushPromises();
+
+        const [
+            initialState,
+        ] = wrapper.vm.dataSource.filter((entry) => entry.referencedId === '3');
+
+        expect(initialState.transaction.technicalName).toBe('open');
+        expect(initialState.createdAt).toBe('2022-10-12T09:39:12.000+00:00');
+        // The synthetic entry describes the transaction's creation, so it must not borrow the
+        // transition's metadata either.
+        expect(initialState.internalComment).toBeUndefined();
+
+        // The real transition keeps its own timestamp.
+        const transition = wrapper.vm.dataSource.at(-1);
+        expect(transition.transaction.technicalName).toBe('authorized');
+        expect(transition.createdAt).toBe('2022-10-12T10:39:00.000+00:00');
+    });
+
+    it('should fall back to the transition time when the transaction is not in the order', async () => {
+        const history = [
+            {
+                entityName: 'order_transaction',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: { name: 'Open' },
+                },
+                toStateMachineState: {
+                    technicalName: 'cancelled',
+                    translated: { name: 'Cancelled' },
+                },
+                createdAt: '2022-10-12T09:39:12.000+00:00',
+                referencedId: '2',
+            },
+            {
+                entityName: 'order_transaction',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: { name: 'Open' },
+                },
+                toStateMachineState: {
+                    technicalName: 'authorized',
+                    translated: { name: 'Authorized' },
+                },
+                createdAt: '2022-10-12T10:39:00.000+00:00',
+                referencedId: 'unknown-transaction',
+            },
+        ];
+
+        const wrapper = await createWrapper({}, orderProp, history);
+        await flushPromises();
+
+        const [
+            initialState,
+        ] = wrapper.vm.dataSource.filter((entry) => entry.referencedId === 'unknown-transaction');
+
+        expect(initialState.transaction.technicalName).toBe('open');
+        expect(initialState.createdAt).toBe('2022-10-12T10:39:00.000+00:00');
+    });
+
     it('should display username or fallback to email in user column', async () => {
         const stateHistoryWithEmailFallback = [
             {

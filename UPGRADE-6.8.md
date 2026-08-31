@@ -84,6 +84,15 @@ This can change cent-level rounding compared to previous versions.
 
 If an extension relies on recalculated taxes for percentage prices or split line items, review the resulting taxes for mixed tax rates, net and gross prices, promotions, and partial quantities.
 
+## Edit order page selects the payment method of the order
+
+`frontend.account.edit-order.change-payment-method` no longer switches the payment method of the sales channel context.
+It passes the selected method to the edit order page as the `paymentMethodId` query parameter, and the page selects the payment method of the order when that parameter is absent.
+
+Storefront templates of the edit order page that render `context.paymentMethod` have to use `page.selectedPaymentMethodId` instead, which is the payment method of the order or the one the customer selected on the page.
+
+Extensions that reacted to the context switch can listen to `Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent`, which is dispatched when the customer confirms the change and the payment method of the order really changes.
+
 ## Payment: Removal of Payment Method "Debit Payment"
 
 The payment method `DebitPayment` has been removed as it did not fulfill its purpose.

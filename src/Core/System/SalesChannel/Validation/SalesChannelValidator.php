@@ -35,6 +35,9 @@ class SalesChannelValidator implements EventSubscriberInterface
     private const DUPLICATED_ENTRY_VALIDATION_MESSAGE = 'The sales channel language "%s" for the sales channel "%s" already exists.';
     private const DUPLICATED_ENTRY_VALIDATION_CODE = 'SYSTEM__DUPLICATED_SALES_CHANNEL_LANGUAGE';
 
+    private const DUPLICATED_CURRENCY_ENTRY_VALIDATION_MESSAGE = 'The sales channel currency "%s" for the sales channel "%s" already exists.';
+    private const DUPLICATED_CURRENCY_ENTRY_VALIDATION_CODE = 'SYSTEM__DUPLICATED_SALES_CHANNEL_CURRENCY';
+
     private const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
     private const UPDATE_VALIDATION_CODE = 'SYSTEM__CANNOT_UPDATE_DEFAULT_LANGUAGE_ID';
 
@@ -72,7 +75,8 @@ class SalesChannelValidator implements EventSubscriberInterface
             mappingEntity: SalesChannelLanguageDefinition::ENTITY_NAME,
             mappingTable: 'sales_channel_language',
             mappingField: 'language_id',
-            validateDuplicates: true,
+            duplicateValidationMessage: self::DUPLICATED_ENTRY_VALIDATION_MESSAGE,
+            duplicateValidationCode: self::DUPLICATED_ENTRY_VALIDATION_CODE,
             insertValidationMessage: self::INSERT_VALIDATION_MESSAGE,
             insertValidationCode: self::INSERT_VALIDATION_CODE,
             deleteValidationMessage: self::DELETE_VALIDATION_MESSAGE,
@@ -88,7 +92,8 @@ class SalesChannelValidator implements EventSubscriberInterface
             mappingEntity: SalesChannelCurrencyDefinition::ENTITY_NAME,
             mappingTable: 'sales_channel_currency',
             mappingField: 'currency_id',
-            validateDuplicates: false,
+            duplicateValidationMessage: self::DUPLICATED_CURRENCY_ENTRY_VALIDATION_MESSAGE,
+            duplicateValidationCode: self::DUPLICATED_CURRENCY_ENTRY_VALIDATION_CODE,
             insertValidationMessage: self::CURRENCY_INSERT_VALIDATION_MESSAGE,
             insertValidationCode: self::CURRENCY_INSERT_VALIDATION_CODE,
             deleteValidationMessage: self::CURRENCY_DELETE_VALIDATION_MESSAGE,
@@ -105,7 +110,8 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $mappingEntity,
         string $mappingTable,
         string $mappingField,
-        bool $validateDuplicates,
+        string $duplicateValidationMessage,
+        string $duplicateValidationCode,
         string $insertValidationMessage,
         string $insertValidationCode,
         string $deleteValidationMessage,
@@ -130,7 +136,8 @@ class SalesChannelValidator implements EventSubscriberInterface
             deleteValidationCode: $deleteValidationCode,
             updateValidationMessage: $updateValidationMessage,
             updateValidationCode: $updateValidationCode,
-            validateDuplicates: $validateDuplicates,
+            duplicateValidationMessage: $duplicateValidationMessage,
+            duplicateValidationCode: $duplicateValidationCode,
         );
     }
 
@@ -222,7 +229,8 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $deleteValidationCode,
         string $updateValidationMessage,
         string $updateValidationCode,
-        bool $validateDuplicates,
+        string $duplicateValidationMessage,
+        string $duplicateValidationCode,
     ): void {
         $inserts = [];
         $duplicates = [];
@@ -235,12 +243,10 @@ class SalesChannelValidator implements EventSubscriberInterface
                     $inserts[$salesChannelId] = $salesChannelData->newDefault;
                 }
 
-                if ($validateDuplicates) {
-                    $duplicatedIds = $this->getDuplicates($salesChannelData);
+                $duplicatedIds = $this->getDuplicates($salesChannelData);
 
-                    if ($duplicatedIds !== []) {
-                        $duplicates[$salesChannelId] = $duplicatedIds;
-                    }
+                if ($duplicatedIds !== []) {
+                    $duplicates[$salesChannelId] = $duplicatedIds;
                 }
             }
 
@@ -254,7 +260,7 @@ class SalesChannelValidator implements EventSubscriberInterface
             }
         }
 
-        $this->writeDuplicateViolationExceptions($duplicates, $event);
+        $this->writeDuplicateViolationExceptions($duplicates, $duplicateValidationMessage, $duplicateValidationCode, $event);
         $this->writeViolationExceptions($inserts, $insertValidationMessage, $insertValidationCode, $event);
         $this->writeViolationExceptions($deletions, $deleteValidationMessage, $deleteValidationCode, $event);
         $this->writeViolationExceptions($updates, $updateValidationMessage, $updateValidationCode, $event);
@@ -315,7 +321,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     /**
      * @param array<string, list<string>> $duplicates
      */
-    private function writeDuplicateViolationExceptions(array $duplicates, PreWriteValidationEvent $event): void
+    private function writeDuplicateViolationExceptions(array $duplicates, string $messageTemplate, string $validationCode, PreWriteValidationEvent $event): void
     {
         if (!$duplicates) {
             return;
@@ -323,20 +329,20 @@ class SalesChannelValidator implements EventSubscriberInterface
 
         $violations = new ConstraintViolationList();
 
-        foreach ($duplicates as $id => $duplicateLanguages) {
-            foreach ($duplicateLanguages as $languageId) {
+        foreach ($duplicates as $id => $duplicateMappingIds) {
+            foreach ($duplicateMappingIds as $mappingId) {
                 $violations->add(new ConstraintViolation(
-                    \sprintf(self::DUPLICATED_ENTRY_VALIDATION_MESSAGE, $languageId, $id),
-                    \sprintf(self::DUPLICATED_ENTRY_VALIDATION_MESSAGE, '{{ languageId }}', '{{ salesChannelId }}'),
+                    \sprintf($messageTemplate, $mappingId, $id),
+                    \sprintf($messageTemplate, '{{ mappingId }}', '{{ salesChannelId }}'),
                     [
                         '{{ salesChannelId }}' => $id,
-                        '{{ languageId }}' => $languageId,
+                        '{{ mappingId }}' => $mappingId,
                     ],
                     null,
                     '/',
                     null,
                     null,
-                    self::DUPLICATED_ENTRY_VALIDATION_CODE
+                    $validationCode
                 ));
             }
         }

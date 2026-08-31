@@ -14,7 +14,7 @@
     'data-component-options': { url: product and (product.parentId or product.id) ? url('frontend.detail.switch', { productId: product.parentId ?? product.id }) : null }|json_encode,
 } %}
 
-{% if product is null or configuratorSettings is null %}
+{% if product is null or configuratorSettings is null or configuratorSettings.count() === 0 %}
     <div {{ attributes.defaults({ class: variantSelectionCVA.apply({}) }) }}>
         {{ 'component.product.configurator.unavailable'|trans|sw_sanitize }}
     </div>
@@ -24,7 +24,7 @@
             {% for group in configuratorSettings %}
                 {% set groupName = 'sw-product-variant-selection__group-' ~ group.id %}
                 {% set displayType = group.displayType %}
-                {% if displayType == 'select' %}
+                {% if displayType === 'select' %}
                     <div {{ attributes.nested(groupName).defaults({ class: 'sw-product-variant-selection__group mb-3' }) }}>
                         {% block select_group_heading %}
                             <label {{ attributes.nested(groupName ~ '-label').defaults({ class: 'sw-product-variant-selection__label fs-5 fw-bold', for: group.id }) }}>
@@ -56,9 +56,9 @@
                                     <div {{ attributes.nested(groupName ~ '-option-' ~ option.id).defaults({ class: 'sw-product-variant-selection__option' }) }}>
                                         {% block option_control %}
                                             <input {{ attributes.nested(groupName ~ '-input-' ~ option.id).defaults({ class: 'sw-product-variant-selection__input btn-check', type: 'radio', name: group.id, value: option.id, id: identifier, checked: isActive, disabled: not option.combinable, 'aria-labelledby': identifier ~ '-label' }) }}>
-                                            <label {{ attributes.nested(groupName ~ '-option-label-' ~ option.id).defaults({ class: 'sw-product-variant-selection__option-label btn btn-outline-secondary is--display-' ~ optionType ~ (not option.combinable ? ' is--unavailable' : ''), for: identifier, id: identifier ~ '-label' }) }}{% if optionType == 'color' and option.colorHexCode %} style="--sw-product-variant-selection-option-color: {{ option.colorHexCode }}"{% endif %}>
+                                            <label {{ attributes.nested(groupName ~ '-option-label-' ~ option.id).defaults({ class: 'sw-product-variant-selection__option-label btn btn-outline-secondary is--display-' ~ optionType ~ (not option.combinable ? ' is--unavailable' : ''), for: identifier, id: identifier ~ '-label' }) }}{% if optionType === 'color' and option.colorHexCode %} style="--sw-product-variant-selection-option-color: {{ option.colorHexCode }}"{% endif %}>
                                                 {% block media %}
-                                                    {% if optionType == 'media' and media %}
+                                                    {% if optionType === 'media' and media %}
                                                         <twig:Sw:Media
                                                             {{ ...attributes.nested(groupName ~ '-media-' ~ option.id) }}
                                                             :media="media"
@@ -71,7 +71,7 @@
                                                     {% endif %}
                                                 {% endblock %}
                                                 {% block text %}
-                                                    <span{% if (optionType == 'media' and media) or (optionType == 'color' and option.colorHexCode) %} class="visually-hidden"{% endif %}>{{ option.translated.name }}</span>
+                                                    <span{% if (optionType === 'media' and media) or (optionType === 'color' and option.colorHexCode) %} class="visually-hidden"{% endif %}>{{ option.translated.name }}</span>
                                                     {% if not option.combinable %}<span class="visually-hidden">({{ 'detail.unavailableTooltip'|trans|sw_sanitize }})</span>{% endif %}
                                                 {% endblock %}
                                             </label>

@@ -1,3 +1,5 @@
+import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
+
 export default class VariantSelection extends ShopwareComponent {
     static options = {
         focusHandlerKey: "product-variant-selection",
@@ -55,6 +57,8 @@ export default class VariantSelection extends ShopwareComponent {
             options: JSON.stringify(this.serialize()),
         });
         const url = `${this.options.url}?${query.toString()}`;
+
+        PageLoadingIndicatorUtil.create();
 
         window
             .fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })

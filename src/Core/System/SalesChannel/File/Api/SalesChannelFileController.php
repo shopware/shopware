@@ -60,8 +60,8 @@ class SalesChannelFileController extends AbstractController
         return new JsonResponse(['data' => $file]);
     }
 
-    #[Route(path: '/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/preview', name: 'api.action.sales_channel_file.preview', methods: ['POST'])]
-    public function preview(string $fileFamily, string $salesChannelId, RequestDataBag $dataBag): JsonResponse
+    #[Route(path: '/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/preview', name: 'api.action.sales_channel_file.preview', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['sales_channel_file:read']], methods: ['POST'])]
+    public function preview(string $fileFamily, string $salesChannelId, RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $fileName = $dataBag->get('fileName');
         if (!\is_string($fileName)) {
@@ -70,13 +70,16 @@ class SalesChannelFileController extends AbstractController
 
         $templatePath = $this->requestPathResolver->buildTemplatePath($fileFamily, $fileName);
 
-        $templateOverrides = $dataBag->get('templateOverrides') ?? [];
-        if ($templateOverrides instanceof RequestDataBag) {
-            $templateOverrides = $templateOverrides->all();
-        }
+        $templateOverrides = null;
+        if ($dataBag->has('templateOverrides') && $context->isAllowed('sales_channel_file:update')) {
+            $templateOverrides = $dataBag->get('templateOverrides');
+            if ($templateOverrides instanceof RequestDataBag) {
+                $templateOverrides = $templateOverrides->all();
+            }
 
-        if (!\is_array($templateOverrides)) {
-            throw SalesChannelException::invalidSalesChannelFileTemplateOverrides();
+            if (!\is_array($templateOverrides)) {
+                throw SalesChannelException::invalidSalesChannelFileTemplateOverrides();
+            }
         }
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);

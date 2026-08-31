@@ -126,6 +126,7 @@ async function createWrapper(options = {}) {
                             <textarea
                                 class="mt-textarea"
                                 :value="modelValue"
+                                :disabled="disabled"
                                 @input="$emit('update:modelValue', $event.target.value)"
                             ></textarea>
                         `,
@@ -153,6 +154,7 @@ async function createWrapper(options = {}) {
                             <textarea
                                 class="sw-code-editor"
                                 :value="value"
+                                :disabled="disabled"
                                 @input="$emit('update:value', $event.target.value)"
                             ></textarea>
                         `,
@@ -166,6 +168,7 @@ async function createWrapper(options = {}) {
                         'softWraps',
                         'setFocus',
                         'label',
+                        'disabled',
                     ],
                 },
                 'router-link': RouterLinkStub,
@@ -227,6 +230,7 @@ async function createWrapper(options = {}) {
                     create: () => ({
                         create: () => ({
                             id: 'new-sales-channel-file-id',
+                            isNew: () => true,
                         }),
                     }),
                 },
@@ -239,6 +243,9 @@ async function createWrapper(options = {}) {
                     },
                 },
                 $te: (key) => key.includes('["llms-txt"]') || key.includes('["agents-md"]'),
+                acl: {
+                    can: (permission) => global.activeAclRoles.includes(permission),
+                },
             },
         },
         props: {
@@ -253,15 +260,26 @@ async function createWrapper(options = {}) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file', () => {
+    beforeEach(() => {
+        global.activeAclRoles = ['sales_channel.editor'];
+    });
+
+    afterEach(() => {
+        global.activeAclRoles = [];
+    });
+
     it('loads the selected file and generated preview', async () => {
         const { wrapper, salesChannelFileApiService } = await createWrapper();
 
         await flushPromises();
 
         expect(salesChannelFileApiService.detail).toHaveBeenCalledWith('agentic', 'sales-channel-id', 'llms.txt');
-        expect(salesChannelFileApiService.preview).toHaveBeenCalledWith('agentic', 'sales-channel-id', 'llms.txt', {
-            Framework: 'custom llms text',
-        });
+        expect(salesChannelFileApiService.preview).toHaveBeenCalledWith(
+            'agentic',
+            'sales-channel-id',
+            'llms.txt',
+            undefined,
+        );
         expect(wrapper.vm.file).toEqual(discoveredFiles[0]);
         expect(wrapper.text()).toContain('# Demo shop');
     });
@@ -316,6 +334,22 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
                 id: 'sales-channel-id',
             },
         });
+    });
+
+    it('disables file mutations for sales channel viewers', async () => {
+        global.activeAclRoles = ['sales_channel.viewer'];
+        const { wrapper } = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__state-action').attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.mt-textarea').attributes('disabled')).toBeDefined();
+
+        await wrapper.find('.sw-sales-channel-detail-agentic-file__content-sources-toggle').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__source-button').attributes('disabled')).toBeDefined();
+        expect(wrapper.find('.sw-context-menu-item').attributes('disabled')).toBeDefined();
     });
 
     it('opens a source override modal from the source column and stages edits for the global save', async () => {
@@ -392,7 +426,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         expect(wrapper.find('.sw-sales-channel-detail-agentic-file__override-modal').exists()).toBe(false);
         expect(wrapper.vm.salesChannel.salesChannelFiles).toBeUndefined();
         expect(salesChannelFileApiService.preview).toHaveBeenCalledTimes(1);
-        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith('agentic', 'sales-channel-id', 'AGENTS.md', {});
+        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith(
+            'agentic',
+            'sales-channel-id',
+            'AGENTS.md',
+            undefined,
+        );
     });
 
     it('links the public path to the first configured sales channel domain', async () => {

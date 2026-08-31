@@ -183,6 +183,13 @@ class EntityHydratorTest extends TestCase
         $first = $structs->first();
         static::assertNotNull($first);
         static::assertSame(12.5, $first->getTranslation('name'));
+
+        // a repeated hydration with the same definition instance serves the cached fields
+        $structs = $this->createTranslatableHydrator()
+            ->hydrate(new EntityCollection(), $floatDefinition->getEntityClass(), $floatDefinition, $rows, 'test', Context::createDefaultContext());
+        $first = $structs->first();
+        static::assertNotNull($first);
+        static::assertSame(12.5, $first->getTranslation('name'));
     }
 
     public function testCustomFieldHydrationWithoutTranslationWithoutInheritance(): void

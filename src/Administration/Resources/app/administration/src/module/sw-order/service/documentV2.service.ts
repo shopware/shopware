@@ -233,4 +233,29 @@ export default class DocumentV2Service {
         // @ts-expect-error
         return (Shopware.Snippet?.tc(translationKey) as string | undefined) ?? technicalName;
     }
+
+    public getErrorTranslation(errorCode: string, errorParams: { [key: string]: unknown }): string | null {
+        const app = Shopware.Application.getApplicationRoot();
+
+        if (!app) {
+            return null;
+        }
+
+        switch (errorCode) {
+            case 'DOCUMENT_V2__CONFIG_MISSING_REQUIRED_FIELDS':
+                return app.$t('sw-order.documentCard.error.missingCompanyInformation', {
+                    field: app.$t(
+                        `sw-settings-document.detail.label${errorParams.field?.toString().charAt(0).toLocaleUpperCase() ?? ''}${errorParams.field?.toString().substring(1) ?? ''}`,
+                    ),
+                });
+            case 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_LINE_ITEMS':
+                return app.$t('sw-order.documentCard.error.noUnprocessedCreditLineItems');
+            case 'DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS':
+                return app.$t('sw-order.documentCard.error.duplicateDocumentNumber', {
+                    documentNumber: errorParams.documentNumber,
+                });
+            default:
+                return null;
+        }
+    }
 }

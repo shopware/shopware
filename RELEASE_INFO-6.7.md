@@ -1,4 +1,4 @@
-# 6.7.14.0 (upcoming)
+# 6.7.14.0
 
 ## Features
 

@@ -62,6 +62,44 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
 }
 ```
 
+### `PromotionCartInformationTrait` helper methods deprecated
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` are deprecated and will be removed in Shopware 6.8, call `$cart->addErrors()` directly instead:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new PromotionNotFoundError($code));
+$cart->addErrors(new PromotionNotEligibleError($name));
+```
+### Installing translations from files that are already present
+
+`translation:install` accepts a new `--offline` option. It creates the languages and snippet sets for translation files that are already on the filesystem, without contacting the translation repository at all — not even for the metadata lookup that normally runs first.
+
+```
+translation:install --offline --locales=es-ES,fr-FR
+```
+
+This completes the pairing with `translation:download`, which fetches the files without touching the database. Together they cover setups where the two halves happen at different times or in different places: an installation with restricted egress where the files are copied in by hand, or a deployment that fetches them once while building its artifact and then only needs each installation to point at them.
+
+The presence of the files is verified per locale before anything is installed. Locales named with `--locales` are installed as a unit: if one of them has no files, the command fails and lists every missing locale instead of leaving a language with no translations behind it. `--offline --all` instead installs every locale that is provisioned and reports the rest, because a locale the translation repository does not offer must not make the command unusable for the others. The metadata store is neither read nor written in this mode, so a later regular `translation:install` or `translation:update` behaves exactly as before.
+
+`Shopware\Core\System\Snippet\Service\AbstractTranslationLoader` gained `link()` and `hasTranslationFiles()` for this, and decorators inherit both from the abstract class without being adjusted. Installing now calls `download()` and `link()` instead of `load()`, so a decorator that wraps `load()` to observe installs has to wrap `link()` as well; `translation:update` keeps going through `load()`. Extensions that listen to `TranslationLoadedEvent` need no change, because `link()` dispatches it exactly like `load()` does.
+
+### Installing a translation ensures its language and snippet set again
+
+Installing a translation used to decide from the state of the translation *files* whether there was anything to do, and stopped when they were up to date — before creating any language or snippet set. A locale whose files were current but whose `language` record had been removed, for example by a database restore, could therefore not be reinstalled: `translation:install` reported success without doing anything, and `POST /api/_action/translation/install` answered `200` with an empty `updated` list, which the Administration showed as a successful install.
+
+Whether a translation is current and whether it is actually installed are separate questions, and both entry points now answer both. Files are fetched only when the repository has something newer, or when they are missing locally; the language and snippet set are ensured for every requested locale either way.
+
+Two consequences for operators:
+
+- `translation:install` now exits with a non-zero code when none of the requested locales can be installed — that is, when neither the repository offers them nor the filesystem carries them. Previously it printed "All translations are already up to date." and exited `0`. Scripts that check the exit code are affected. The install route already answered such a request with an error.
+- A requested locale that the repository does not offer and that has no files on the filesystem is reported and left out rather than installed as a language without translations. `POST /api/_action/translation/install` keeps reporting those locales in its `unavailable` list, but a locale whose files were provisioned offline no longer appears there, because it can be installed. Its `skipped` list now names the requested locales that were installed without a download, instead of every locale in the local metadata that was not updated.
+
 ## API
 
 ### Store API context token response header is restricted on cacheable reads
@@ -70,7 +108,6 @@ Store API responses no longer echo the request `sw-context-token` header on cach
 ### Dedicated error code for invalid child line item quantity
 
 `CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
-
 ## Administration
 
 ### Shipping prices can be linked to the tax rate

@@ -24,4 +24,31 @@ class CartPositionStructTest extends TestCase
         static::assertSame(10.0, $data['netPrice']);
         static::assertSame(11.9, $data['grossPrice']);
     }
+
+    public function testAccessorsRoundTrip(): void
+    {
+        $position = new CartPositionStruct();
+
+        $position->setNetPrice(10.0);
+        $position->setTaxValue(1.9);
+        $position->setGrossPrice(11.9);
+        $position->setPseudoPrice(14.9);
+        $position->setFirstMonthFree(true);
+        $position->setDiscountAppliesForMonths(3);
+        $position->setExtensionInformation(['id' => 7, 'name' => 'SwagExtension']);
+        $position->setVariant(['id' => 11, 'name' => 'rent']);
+
+        static::assertSame(10.0, $position->getNetPrice());
+        static::assertSame(1.9, $position->getTaxValue());
+        static::assertSame(11.9, $position->getGrossPrice());
+        static::assertSame(14.9, $position->getPseudoPrice());
+        static::assertTrue($position->isFirstMonthFree());
+        static::assertSame(3, $position->getDiscountAppliesForMonths());
+        static::assertSame(['id' => 7, 'name' => 'SwagExtension'], $position->getExtensionInformation());
+        static::assertSame(7, $position->getExtensionId());
+        static::assertSame('SwagExtension', $position->getExtensionName());
+        static::assertSame(['id' => 11, 'name' => 'rent'], $position->getVariant());
+        static::assertSame(11, $position->getVariantId());
+        static::assertSame('rent', $position->getVariantType());
+    }
 }

@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<LicenseDomainStruct>
- *
- * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class LicenseDomainCollection extends Collection

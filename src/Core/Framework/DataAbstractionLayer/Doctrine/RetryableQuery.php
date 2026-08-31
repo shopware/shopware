@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -57,17 +56,23 @@ class RetryableQuery
 
         try {
             return $closure();
-        } catch (RetryableException $e) {
+        } catch (\Throwable $e) {
+            $retryableException = RetryableExceptionDetector::detect($e);
+            if ($retryableException === null) {
+                throw $e;
+            }
+
             MeterProvider::meter()?->emit(new ConfiguredMetric('database.locks.count', 1));
             if ($connection && $connection->getTransactionNestingLevel() > 0) {
                 // If this closure was executed inside a transaction, do not retry. Remember that the whole (outermost)
-                // transaction was already rolled back by the database when any RetryableException is thrown. Rethrow
-                // the exception here so only the outermost transaction is retried which in turn includes this closure.
+                // transaction was already rolled back by the database when a retryable database error is thrown.
+                // Rethrow the exception here so only the outermost transaction is retried which in turn includes this
+                // closure.
                 throw $e;
             }
 
             if ($counter > 10) {
-                throw $e;
+                throw $retryableException;
             }
 
             // randomize sleep to prevent same execution delay for multiple statements

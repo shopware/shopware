@@ -2,6 +2,16 @@
 
 ## Core
 
+### Live state transition writes are batched
+
+Live state transitions now persist the history entry and new entity state in one retryable DAL batch. `EntityWriteEvent` subscribers can receive `state_machine_history` commands together with commands for the transitioned entity; use `getCommandsForEntity()` instead of assuming that an event contains commands for only one entity.
+
+The subsequent entity-written container events remain separate and keep their history-before-state order. They are dispatched after the database batch succeeds, so an exception from a container-event listener no longer rolls back the persisted transition.
+
+### MariaDB record-change conflicts are retryable
+
+MariaDB error `1020` (`Record has changed since last read`) is handled as retryable write contention by DAL queries and transactions. When a missing-savepoint error masks the conflict during transaction unwinding, the underlying contention error is now reported instead.
+
 ### `system:install` dispatches `SystemInstallCompletedEvent`
 
 `Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.

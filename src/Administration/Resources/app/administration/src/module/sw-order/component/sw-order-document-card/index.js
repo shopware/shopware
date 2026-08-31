@@ -317,14 +317,7 @@ export default {
             this.documentService.setListener(this.convertStoreEventToVueEvent);
         },
 
-        /**
-         * @deprecated tag:v6.9.0 - The `app_provided` sentinel guard is removed with `document_type_id`.
-         */
         documentTypeLabel(document) {
-            if (document.documentType?.technicalName !== 'app_provided') {
-                return document.documentType?.name ?? '';
-            }
-
             const technicalName = document.typeName;
 
             if (!technicalName) {

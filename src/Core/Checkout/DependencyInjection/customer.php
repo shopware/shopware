@@ -74,6 +74,7 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerTokenSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerVatIdCountrySubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUniqueValidator;
@@ -661,5 +662,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('kernel.event_subscriber');
 
     $services->set(CustomerAddressSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerVatIdCountrySubscriber::class)
+        ->args([
+            service(VatIdPatternProvider::class),
+        ])
         ->tag('kernel.event_subscriber');
 };

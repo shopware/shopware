@@ -22,8 +22,8 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
     private const EU_PATTERNS = [
-        ['iso' => 'BE', 'vat_id_pattern' => 'BE\d{10}'],
-        ['iso' => 'NL', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+        ['iso' => 'BE', 'id' => '0199f1c4b0d3736a9f3d0f2c5a1b0be0', 'vat_id_pattern' => 'BE\d{10}'],
+        ['iso' => 'NL', 'id' => '0199f1c4b0d3736a9f3d0f2c5a1b0140', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
     ];
 
     private ExecutionContextInterface&MockObject $context;
@@ -45,9 +45,68 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         ));
     }
 
-    public function testEuPatternsAreNotConsultedWhenFlagIsOff(): void
+    public function testVatIdMatchingTheCountryPatternIsAccepted(): void
     {
-        $validator = $this->createValidator('DE\d{9}', self::EU_PATTERNS);
+        $validator = $this->createValidator('DE\\d{9}');
+
+        $this->context->expects($this->never())->method('buildViolation');
+
+        $validator->validate(['DE123456789'], new CustomerVatIdentification(
+            countryId: Uuid::randomHex(),
+            shouldCheck: true,
+        ));
+    }
+
+    public function testTheEuPatternsAreNotLoadedWhenTheCountryPatternAlreadyMatches(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'is_eu' => 1,
+            'check_vat_id_pattern' => 1,
+            'vat_id_pattern' => 'DE\\d{9}',
+        ]);
+        // Every VAT ID matches the country's own pattern, so the fallback must stay off the hot path
+        $connection->expects($this->never())->method('fetchAllAssociative');
+
+        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection));
+        $validator->initialize($this->context);
+
+        $this->context->expects($this->never())->method('buildViolation');
+
+        $validator->validate(['DE123456789', 'DE987654321'], new CustomerVatIdentification(
+            countryId: Uuid::randomHex(),
+            shouldCheck: true,
+        ));
+    }
+
+    public function testVatIdOfAnotherEuMemberStateIsAccepted(): void
+    {
+        $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS);
+
+        $this->context->expects($this->never())->method('buildViolation');
+
+        $validator->validate(['NL123456789B01'], new CustomerVatIdentification(
+            countryId: Uuid::randomHex(),
+            shouldCheck: true,
+        ));
+    }
+
+    public function testNonEuVatIdIsRejected(): void
+    {
+        $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS);
+
+        $this->expectSingleViolationFor('CHE123456789');
+
+        $validator->validate(['CHE123456789'], new CustomerVatIdentification(
+            countryId: Uuid::randomHex(),
+            shouldCheck: true,
+        ));
+    }
+
+    public function testACountryOutsideTheEuOnlyAcceptsItsOwnPattern(): void
+    {
+        // There is no union outside the EU whose VAT IDs a country would have to honour
+        $validator = $this->createValidator('CHE\\d{9}', self::EU_PATTERNS, isEu: false);
 
         $this->expectSingleViolationFor('NL123456789B01');
 
@@ -57,72 +116,43 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         ));
     }
 
-    public function testVatIdMatchingTheCountryPatternIsAcceptedWhenFlagIsOn(): void
+    public function testACountryOutsideTheEuAcceptsAVatIdOfItsOwn(): void
     {
-        $validator = $this->createValidator('DE\d{9}');
+        $validator = $this->createValidator('CHE\\d{9}', self::EU_PATTERNS, isEu: false);
 
         $this->context->expects($this->never())->method('buildViolation');
-
-        $validator->validate(['DE123456789'], new CustomerVatIdentification(
-            countryId: Uuid::randomHex(),
-            shouldCheck: true,
-            matchesAnyEuVat: true,
-        ));
-    }
-
-    public function testVatIdOfAnotherEuMemberStateIsAcceptedWhenFlagIsOn(): void
-    {
-        $validator = $this->createValidator('BE\d{10}', self::EU_PATTERNS);
-
-        $this->context->expects($this->never())->method('buildViolation');
-
-        $validator->validate(['NL123456789B01'], new CustomerVatIdentification(
-            countryId: Uuid::randomHex(),
-            shouldCheck: true,
-            matchesAnyEuVat: true,
-        ));
-    }
-
-    public function testNonEuVatIdIsRejectedWhenFlagIsOn(): void
-    {
-        $validator = $this->createValidator('BE\d{10}', self::EU_PATTERNS);
-
-        $this->expectSingleViolationFor('CHE123456789');
 
         $validator->validate(['CHE123456789'], new CustomerVatIdentification(
             countryId: Uuid::randomHex(),
             shouldCheck: true,
-            matchesAnyEuVat: true,
         ));
     }
 
     public function testOnlyTheUnmatchedVatIdOfASetIsReported(): void
     {
-        $validator = $this->createValidator('BE\d{10}', self::EU_PATTERNS);
+        $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS);
 
         $this->expectSingleViolationFor('INVALID');
 
         $validator->validate(['NL123456789B01', 'INVALID'], new CustomerVatIdentification(
             countryId: Uuid::randomHex(),
             shouldCheck: true,
-            matchesAnyEuVat: true,
         ));
     }
 
-    public function testCountrySwitchWinsOverFlag(): void
+    public function testTheCountrySwitchTurnsTheCheckOff(): void
     {
-        $validator = $this->createValidator('BE\d{10}', self::EU_PATTERNS, checkVatIdPattern: false);
+        $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS, checkVatIdPattern: false);
 
         $this->context->expects($this->never())->method('buildViolation');
 
         $validator->validate(['INVALID'], new CustomerVatIdentification(
             countryId: Uuid::randomHex(),
             shouldCheck: false,
-            matchesAnyEuVat: true,
         ));
     }
 
-    public function testNothingIsValidatedWithoutCountryPatternWhenFlagIsOff(): void
+    public function testNothingIsValidatedWithoutACountryPattern(): void
     {
         $validator = $this->createValidator('', self::EU_PATTERNS);
 
@@ -131,19 +161,6 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         $validator->validate(['INVALID'], new CustomerVatIdentification(
             countryId: Uuid::randomHex(),
             shouldCheck: true,
-        ));
-    }
-
-    public function testCountryWithoutOwnPatternFallsBackToTheEuPatterns(): void
-    {
-        $validator = $this->createValidator('', self::EU_PATTERNS);
-
-        $this->expectSingleViolationFor('INVALID');
-
-        $validator->validate(['NL123456789B01', 'INVALID'], new CustomerVatIdentification(
-            countryId: Uuid::randomHex(),
-            shouldCheck: true,
-            matchesAnyEuVat: true,
         ));
     }
 
@@ -161,22 +178,23 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         $validator->validate(['INVALID'], new CustomerVatIdentification(
             countryId: Uuid::randomHex(),
             shouldCheck: true,
-            matchesAnyEuVat: true,
         ));
     }
 
     /**
-     * @param list<array{iso: string, vat_id_pattern: string}> $euPatterns
+     * @param list<array{iso: string, id: string, vat_id_pattern: string}> $euPatterns
      */
     private function createValidator(
         string $countryPattern,
         array $euPatterns = [],
         bool $checkVatIdPattern = true,
+        bool $isEu = true,
     ): CustomerVatIdentificationValidator {
         $connection = static::createStub(Connection::class);
         $connection
             ->method('fetchAssociative')
             ->willReturn([
+                'is_eu' => (int) $isEu,
                 'check_vat_id_pattern' => (int) $checkVatIdPattern,
                 'vat_id_pattern' => $countryPattern,
             ]);

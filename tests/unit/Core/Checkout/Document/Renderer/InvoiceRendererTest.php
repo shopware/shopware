@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -58,16 +57,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class InvoiceRendererTest extends TestCase
 {
     private const COUNTRY_ID = 'country-id';
-
-    public function testIntraCommunityDeliveryRequestsEuWideMatchingWhenTheDeliveryCountryHasAPattern(): void
-    {
-        static::assertTrue($this->captureVatIdConstraint('DE\d{9}')->getMatchesAnyEuVat());
-    }
-
-    public function testIntraCommunityDeliveryKeepsEuWideMatchingOffWithoutADeliveryCountryPattern(): void
-    {
-        static::assertFalse($this->captureVatIdConstraint(null)->getMatchesAnyEuVat());
-    }
 
     /**
      * @param OrderSettings $orderSettings
@@ -435,93 +424,6 @@ class InvoiceRendererTest extends TestCase
             ],
             'expectedResult' => true,
         ];
-    }
-
-    /**
-     * Renders an EU business order and returns the VAT ID constraint the renderer handed to the validator.
-     */
-    private function captureVatIdConstraint(?string $vatIdPattern): CustomerVatIdentification
-    {
-        $context = Context::createDefaultContext();
-
-        $order = $this->createOrder([
-            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'isCountryCompanyTaxFree' => true,
-            'setOrderDelivery' => true,
-            'setShippingCountry' => true,
-            'setEuCountry' => true,
-            'shouldCheckVatIdPattern' => true,
-        ]);
-
-        $delivery = $order->getPrimaryOrderDelivery() ?? $order->getDeliveries()?->first();
-        static::assertNotNull($delivery);
-
-        $country = $delivery->getShippingOrderAddress()?->getCountry();
-        static::assertNotNull($country);
-
-        if ($vatIdPattern !== null) {
-            $country->setVatIdPattern($vatIdPattern);
-        }
-
-        $order->getOrderCustomer()?->setVatIds(['NL123456789B01']);
-
-        $constraints = [];
-
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturnCallback(
-            function (mixed $value, mixed $given) use (&$constraints): ConstraintViolationList {
-                $constraints = \is_array($given) ? $given : [$given];
-
-                return new ConstraintViolationList();
-            }
-        );
-
-        $orderRepository = static::createStub(EntityRepository::class);
-        $orderRepository->method('search')->willReturn(new EntitySearchResult(
-            OrderDefinition::ENTITY_NAME,
-            1,
-            new OrderCollection([$order]),
-            null,
-            new Criteria(),
-            $context
-        ));
-
-        $documentConfigRepository = static::createStub(EntityRepository::class);
-        $documentConfigRepository->method('search')->willReturn($this->createDocumentConfigSearchResult(
-            ['displayAdditionalNoteDelivery' => true, 'fileTypes' => ['pdf']],
-            $context
-        ));
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['language_id' => Defaults::LANGUAGE_SYSTEM, 'ids' => $order->getId()],
-        ]);
-
-        $renderer = new InvoiceRenderer(
-            $orderRepository,
-            new DocumentConfigLoader($documentConfigRepository, static::createStub(EntityRepository::class)),
-            static::createStub(EventDispatcherInterface::class),
-            static::createStub(NumberRangeValueGeneratorInterface::class),
-            $connection,
-            static::createStub(DocumentFileRendererRegistry::class),
-            $validator,
-            new NativeClock()
-        );
-
-        $renderer->render(
-            [$order->getId() => new DocumentGenerateOperation($order->getId())],
-            $context,
-            new DocumentRendererConfig()
-        );
-
-        $vatConstraints = array_values(array_filter(
-            $constraints,
-            static fn (mixed $constraint): bool => $constraint instanceof CustomerVatIdentification
-        ));
-
-        static::assertCount(1, $vatConstraints);
-
-        return $vatConstraints[0];
     }
 
     /**

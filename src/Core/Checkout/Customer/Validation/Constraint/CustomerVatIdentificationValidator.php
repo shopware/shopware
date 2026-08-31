@@ -42,14 +42,12 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             return;
         }
 
-        $matchesAnyEuVat = $constraint->getMatchesAnyEuVat();
-
-        if ($country['pattern'] === null && !$matchesAnyEuVat) {
+        if ($country['pattern'] === null) {
             return;
         }
 
         foreach ($vatIds as $vatId) {
-            if ($this->isValid((string) $vatId, $country['pattern'], $matchesAnyEuVat)) {
+            if ($this->isValid((string) $vatId, $country['pattern'], $country['isEu'])) {
                 continue;
             }
 
@@ -60,12 +58,17 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         }
     }
 
-    private function isValid(string $vatId, ?string $countryPattern, bool $matchesAnyEuVat): bool
+    /**
+     * An intra-EU B2B supply is tax free because the customer holds a VAT ID of some member state, not
+     * because that state is the one being validated against, so a member state accepts the pattern of
+     * every other one. Outside the EU there is no such union, so only the country's own pattern counts.
+     */
+    private function isValid(string $vatId, string $countryPattern, bool $isEu): bool
     {
-        if ($countryPattern !== null && $this->vatIdPatternProvider->matches($countryPattern, $vatId)) {
+        if ($this->vatIdPatternProvider->matches($countryPattern, $vatId)) {
             return true;
         }
 
-        return $matchesAnyEuVat && $this->vatIdPatternProvider->getStateByEuVatId($vatId) !== null;
+        return $isEu && $this->vatIdPatternProvider->getStateByEuVatId($vatId) !== null;
     }
 }

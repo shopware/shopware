@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -11,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -43,8 +46,13 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\ConstraintValidatorFactoryInterface;
+use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -364,64 +372,20 @@ class InvoiceDataProviderTest extends TestCase
         ];
     }
 
-    public function testIntraCommunityDeliveryRequestsEuWideMatchingWhenTheDeliveryCountryHasAPattern(): void
+    public function testAVatIdOfAnotherEuMemberStateStillCarriesTheIntraCommunityNote(): void
     {
-        static::assertTrue($this->captureVatIdConstraint('DE\d{9}')->getMatchesAnyEuVat());
+        // The legacy renderer reaches the same verdict for this order; the two stacks must not disagree
+        static::assertTrue($this->resolveIntraCommunityDelivery(['NL123456789B01']));
     }
 
-    public function testIntraCommunityDeliveryKeepsEuWideMatchingOffWithoutADeliveryCountryPattern(): void
+    public function testAVatIdOfNoEuMemberStateDropsTheIntraCommunityNote(): void
     {
-        static::assertFalse($this->captureVatIdConstraint(null)->getMatchesAnyEuVat());
+        static::assertFalse($this->resolveIntraCommunityDelivery(['CHE116281838']));
     }
 
-    /**
-     * Renders an EU business order and returns the VAT ID constraint the provider handed to the validator.
-     */
-    private function captureVatIdConstraint(?string $vatIdPattern): CustomerVatIdentification
+    public function testASingleVatIdOfNoMemberStateDropsTheIntraCommunityNoteForTheWholeList(): void
     {
-        $constraints = [];
-
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturnCallback(
-            function (mixed $value, mixed $given) use (&$constraints): ConstraintViolationList {
-                $constraints = \is_array($given) ? $given : [$given];
-
-                return new ConstraintViolationList();
-            }
-        );
-
-        $country = self::createCountry(companyTaxEnabled: true, isEu: true);
-
-        if ($vatIdPattern !== null) {
-            $country->setVatIdPattern($vatIdPattern);
-        }
-
-        $order = self::createOrder(
-            accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            country: $country,
-            vatIds: ['NL123456789B01'],
-        );
-
-        $this->createProvider(['displayAdditionalNoteDelivery' => true], $validator)
-            ->provideRenderingData(
-                new ProviderInput($order, new DocumentGenerationRequest(
-                    $order->getId(),
-                    DocumentType::INVOICE,
-                    [DocumentFormat::PDF],
-                    '12345',
-                    documentDate: '2026-05-05T12:00:00+00:00',
-                )),
-                Context::createDefaultContext()
-            );
-
-        $vatConstraints = array_values(array_filter(
-            $constraints,
-            static fn (mixed $constraint): bool => $constraint instanceof CustomerVatIdentification
-        ));
-
-        static::assertCount(1, $vatConstraints);
-
-        return $vatConstraints[0];
+        static::assertFalse($this->resolveIntraCommunityDelivery(['NL123456789B01', 'INVALID']));
     }
 
     /**
@@ -461,6 +425,73 @@ class InvoiceDataProviderTest extends TestCase
             new DocumentTypeRegistry([new InvoiceDocumentType()]),
             $validator ?? static::createStub(ValidatorInterface::class),
         );
+    }
+
+    /**
+     * Runs the provider against the real VAT ID constraint, so the assertion is the verdict a merchant
+     * sees rather than the constraint the provider happened to build.
+     *
+     * @param list<string> $vatIds
+     */
+    private function resolveIntraCommunityDelivery(array $vatIds): bool
+    {
+        $order = self::createOrder(
+            accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            country: self::createCountry(companyTaxEnabled: true, isEu: true),
+            vatIds: $vatIds,
+        );
+
+        $provider = $this->createProvider(
+            ['displayAdditionalNoteDelivery' => true],
+            $this->createValidatorWithTheRealVatIdCheck()
+        );
+
+        return $provider->provideRenderingData(
+            new ProviderInput($order, new DocumentGenerationRequest(
+                $order->getId(),
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF],
+                '12345',
+                documentDate: '2026-05-05T12:00:00+00:00',
+            )),
+            Context::createDefaultContext()
+        )->intraCommunityDelivery;
+    }
+
+    /**
+     * The delivery country is Belgium and only the Netherlands is a member state with a usable pattern.
+     */
+    private function createValidatorWithTheRealVatIdCheck(): ValidatorInterface
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'is_eu' => 1,
+            'check_vat_id_pattern' => 1,
+            'vat_id_pattern' => 'BE\\d{10}',
+        ]);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['iso' => 'NL', 'id' => Uuid::randomHex(), 'vat_id_pattern' => 'NL\\d{9}B\\d{2}'],
+        ]);
+
+        $vatIdValidator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection));
+
+        return Validation::createValidatorBuilder()
+            ->setConstraintValidatorFactory(new class($vatIdValidator) implements ConstraintValidatorFactoryInterface {
+                private readonly ConstraintValidatorFactory $fallback;
+
+                public function __construct(private readonly CustomerVatIdentificationValidator $vatIdValidator)
+                {
+                    $this->fallback = new ConstraintValidatorFactory();
+                }
+
+                public function getInstance(Constraint $constraint): ConstraintValidatorInterface
+                {
+                    return $constraint instanceof CustomerVatIdentification
+                        ? $this->vatIdValidator
+                        : $this->fallback->getInstance($constraint);
+                }
+            })
+            ->getValidator();
     }
 
     /**

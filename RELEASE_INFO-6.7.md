@@ -304,6 +304,34 @@ A commercial customer with *Company tax free* and *Check VAT ID pattern* enabled
 `TaxDetector::isCompanyTaxFree()` now falls back to the VAT ID patterns of all EU member states (Settings > Countries) when a VAT ID does not match the delivery country's pattern. A VAT ID that matches no member state still removes the exemption. Tax free thresholds and currencies, the private-customer tax free path, and deliveries outside the EU are unchanged.
 
 `Shopware\Core\Checkout\Cart\Tax\TaxDetector` gained an internal constructor taking `VatIdPatternProvider`. If you need to change this behaviour, decorate `AbstractTaxDetector` rather than replacing the `TaxDetector` service.
+
+Merchants need to take no action on upgrade: carts and orders that were taxed only because the buyer's VAT ID belonged to another member state become tax free by themselves, and shops that do not enable *Company tax free* or *Check VAT ID pattern* see no change. Already placed orders and already generated documents are untouched.
+
+### Registration and profile accept VAT IDs from any EU member state
+
+Registering or changing a commercial account previously rejected a VAT ID that did not match the billing country's own VAT ID pattern, so a customer with a German billing address could not enter a Dutch VAT ID.
+
+`store-api/account/register` and `store-api/account/change-profile` now also accept a VAT ID that matches the pattern of any other EU member state. A VAT ID that matches no member state and not the billing country's pattern is still rejected, and a country that has no VAT ID pattern or that turns *Check VAT ID pattern* off is unchanged.
+
+The fallback follows the country's *Member state of the European Union* setting: a member state accepts the VAT ID patterns of all the others, while a country outside the EU keeps validating against its own pattern alone. This lives in `CustomerVatIdentification`, so every use of that constraint behaves the same way — including the intra-community delivery note. Turn the check off for a single country via its *Check VAT ID pattern* setting; there is no per-constraint opt-out.
+
+### Customers store the EU member state their VAT ID belongs to
+
+`customer` gained a nullable `vat_id_country_id` column, exposed on the DAL entity as `vatIdCountryId` with a `vatIdCountry` association to `country`. It is resolved from the customer's VAT IDs on every write that touches `vatIds`, so the Store API, the Admin API, the Sync API, the Administration, imports and plugin writes all store the same member state; a VAT ID that matches no member state stores `null`, and clearing the VAT IDs clears the country. Existing customers keep `null` until their next write that touches `vatIds`.
+
+The value is derived, not entered: the field is not part of the Store API customer payload, is not rendered in the Administration or the storefront, and a value you write yourself is overwritten by `CustomerVatIdCountrySubscriber` whenever the same write also carries `vatIds`. Read it through the Admin API or the DAL when you need the issuing member state without re-deriving it, for example for reporting or documents:
+
+```php
+$criteria->addAssociation('vatIdCountry');
+```
+
+`customer.vat_ids` is a list while the storefront exposes one input, so the first entry decides the country; validation already requires every entry to match some member state. `order_customer` deliberately gets no snapshot of this — documents re-derive the country from the order's own `vat_ids`, so an order keeps rendering what it was placed with.
+
+### Documents print the intra-community delivery note for the same orders as the cart
+
+The invoice, the cancellation invoice and the credit note validate the order's VAT IDs with the shared `CustomerVatIdentification` constraint, so both document stacks accept a VAT ID of any EU member state and print the intra-community delivery note for exactly the orders the cart treats as tax free.
+
+No public method signatures changed, so renderers and document data providers extending `AbstractDocumentRenderer` or `InvoiceDataProvider` keep working. Already generated documents are untouched.
 ### Document V1/V2 file compatibility
 
 Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.

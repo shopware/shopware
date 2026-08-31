@@ -21,6 +21,16 @@ class VatIdPatternProvider implements ResetInterface
      */
     private ?array $euPatterns = null;
 
+    /**
+     * @var array<string, string> ISO code => country id
+     */
+    private array $euCountryIds = [];
+
+    /**
+     * @var array<string, array{isEu: bool, checkPattern: bool, pattern: string|null}|null>
+     */
+    private array $countrySettings = [];
+
     public function __construct(private readonly Connection $connection)
     {
     }
@@ -37,13 +47,13 @@ class VatIdPatternProvider implements ResetInterface
         }
 
         $sql = <<<'SQL'
-            SELECT `iso`, `vat_id_pattern`
+            SELECT `iso`, LOWER(HEX(`id`)) AS `id`, `vat_id_pattern`
             FROM `country`
             WHERE `is_eu` = 1 AND `vat_id_pattern` IS NOT NULL AND `vat_id_pattern` != ''
             ORDER BY `iso`;
         SQL;
 
-        /** @var list<array{iso: string, vat_id_pattern: string}> $rows */
+        /** @var list<array{iso: string, id: string, vat_id_pattern: string}> $rows */
         $rows = $this->connection->fetchAllAssociative($sql);
 
         $patterns = [];
@@ -52,6 +62,7 @@ class VatIdPatternProvider implements ResetInterface
             // pattern would WARN on every VAT ID that has to be checked against the whole list.
             if ($this->compiles($row['vat_id_pattern'])) {
                 $patterns[$row['iso']] = $row['vat_id_pattern'];
+                $this->euCountryIds[$row['iso']] = $row['id'];
             }
         }
 
@@ -61,6 +72,8 @@ class VatIdPatternProvider implements ResetInterface
     public function reset(): void
     {
         $this->euPatterns = null;
+        $this->euCountryIds = [];
+        $this->countrySettings = [];
     }
 
     /**
@@ -78,27 +91,56 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
+     * The member state a customer's VAT IDs belong to.
+     *
+     * A customer holds a list of VAT IDs while the storefront exposes exactly one input, and validation
+     * already requires every entry to match some member state, so the first entry decides the country.
+     *
+     * @param array<mixed>|null $vatIds
+     *
+     * @return string|null the id of the member state, null when the list is empty or matches none
+     */
+    public function getCountryIdForVatIds(?array $vatIds): ?string
+    {
+        $vatId = array_values(array_filter($vatIds ?? []))[0] ?? null;
+
+        if ($vatId === null) {
+            return null;
+        }
+
+        $iso = $this->getStateByEuVatId((string) $vatId);
+
+        return $iso === null ? null : $this->euCountryIds[$iso];
+    }
+
+    /**
      * The VAT ID settings a merchant configured for a single country.
      *
-     * @return array{checkPattern: bool, pattern: string|null}|null null if the country does not exist
+     * @return array{isEu: bool, checkPattern: bool, pattern: string|null}|null null if the country does not exist
      */
     public function getCountrySettings(string $countryId): ?array
     {
+        if (\array_key_exists($countryId, $this->countrySettings)) {
+            return $this->countrySettings[$countryId];
+        }
+
         $country = $this->connection->fetchAssociative(
-            'SELECT `check_vat_id_pattern`, `vat_id_pattern` FROM `country` WHERE `id` = :id',
+            'SELECT `is_eu`, `check_vat_id_pattern`, `vat_id_pattern` FROM `country` WHERE `id` = :id',
             ['id' => Uuid::fromHexToBytes($countryId)]
         );
 
         if ($country === false) {
-            return null;
+            return $this->countrySettings[$countryId] = null;
         }
 
+        \assert(\array_key_exists('is_eu', $country));
         \assert(\array_key_exists('check_vat_id_pattern', $country));
         \assert(\array_key_exists('vat_id_pattern', $country));
 
         $pattern = (string) $country['vat_id_pattern'];
 
-        return [
+        return $this->countrySettings[$countryId] = [
+            'isEu' => (bool) $country['is_eu'],
             'checkPattern' => (bool) $country['check_vat_id_pattern'],
             'pattern' => $pattern === '' ? null : $pattern,
         ];

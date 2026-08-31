@@ -615,10 +615,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1 x');
+        expect(firstRow.classes()).toContain('is--inline-edit');
+        expect(firstRow.find('.sw-order-product-select').exists()).toBe(true);
         expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toBe('...');
         expect(firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]').text()).toBe('0 %');
         expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toBe('...');
+        expect(wrapper.vm.order.lineItems[0].quantity).toBe(1);
     });
 
     it('should able to create new product line item', async () => {
@@ -692,8 +694,13 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         ];
         const wrapper = await createWrapper();
 
-        const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
-        await buttonAddItem.trigger('click');
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [{ ...mockItems[0] }],
+                taxStatus: 'gross',
+            },
+        });
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(1);
@@ -706,6 +713,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         await flushPromises();
         expect(wrapper.emitted('item-cancel')).toBeTruthy();
+        expect(wrapper.vm.order.lineItems).toHaveLength(1);
     });
 
     it('should able to delete single item', async () => {
@@ -741,17 +749,22 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
+
+        // The first item stays in inline edit, so only the second one exposes its context menu
         await buttonAddItem.trigger('click');
+        await flushPromises();
+        await buttonAddItem.trigger('click');
+        await flushPromises();
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows).toHaveLength(1);
+        expect(itemRows).toHaveLength(2);
 
         const firstRow = itemRows[0];
 
         await firstRow.find('.sw-data-grid__cell--actions .sw-context-menu-item[variant="danger"]').trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows).toHaveLength(0);
+        expect(itemRows).toHaveLength(1);
     });
 
     it('should able to delete multiple items', async () => {

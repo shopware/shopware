@@ -6,10 +6,15 @@ use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\AssignOp\Coalesce as CoalesceAssign;
 use PhpParser\Node\Expr\BinaryOp\Coalesce;
+use PhpParser\Node\Expr\BinaryOp\Identical;
+use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\Closure;
+use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\PropertyFetch;
@@ -21,8 +26,12 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Expression;
+use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Return_;
 use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor;
+use PhpParser\NodeVisitorAbstract;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Parser\Parser;
@@ -622,6 +631,25 @@ class NoCreateMockWithoutExpectationsRule implements Rule
             }
         }
 
+        // `$ref === null` / `$ref !== null` reads the reference without configuring anything, and inside an
+        // `if ($ref === null) { ... }` body the tracked double is provably NOT bound to the reference, so
+        // every occurrence there (the guarded stub-defaulting of fixture helpers) belongs to the replacement.
+        foreach ([...$finder->findInstanceOf($stmts, Identical::class), ...$finder->findInstanceOf($stmts, NotIdentical::class)] as $comparison) {
+            foreach ($this->nullComparedReference($comparison->left, $comparison->right, $isReference) as $occurrence) {
+                $harmless[spl_object_id($occurrence)] = true;
+            }
+        }
+
+        foreach ($finder->findInstanceOf($stmts, If_::class) as $if) {
+            if (!$if->cond instanceof Identical || $this->nullComparedReference($if->cond->left, $if->cond->right, $isReference) === []) {
+                continue;
+            }
+
+            foreach ($finder->find($if->stmts, static fn (Node $node): bool => $isReference($node)) as $occurrence) {
+                $harmless[spl_object_id($occurrence)] = true;
+            }
+        }
+
         // forwarded to an own method (recurse into it) or read by an inherited assertion
         foreach ($this->findOwnCalls($finder, $stmts) as $call) {
             $assertion = $this->isInheritedAssertionCall($call, $ownMethods);
@@ -1153,12 +1181,31 @@ class NoCreateMockWithoutExpectationsRule implements Rule
     private function findReturnedVariableNames(NodeFinder $finder, array $stmts): array
     {
         $names = [];
-        foreach ($finder->findInstanceOf($stmts, Return_::class) as $return) {
+        foreach ($this->findScopedReturns($stmts) as $return) {
             if ($return->expr === null) {
                 continue;
             }
 
+            // A double wrapped in a returned `new <production class>(...)` does not reach the caller:
+            // production code cannot configure expectations and does not re-expose the double. A returned
+            // `new <test-namespace fixture>(...)` DOES hand it back (public fixture properties), so its
+            // arguments stay counted.
+            $shielded = [];
+            foreach ($finder->findInstanceOf([$return->expr], New_::class) as $new) {
+                if (!$this->isProductionClassNew($new)) {
+                    continue;
+                }
+
+                foreach ($finder->findInstanceOf($new->getArgs(), Variable::class) as $variable) {
+                    $shielded[spl_object_id($variable)] = true;
+                }
+            }
+
             foreach ($finder->findInstanceOf([$return->expr], Variable::class) as $variable) {
+                if (isset($shielded[spl_object_id($variable)])) {
+                    continue;
+                }
+
                 $name = $this->localName($variable);
                 if ($name !== null) {
                     $names[$name] = true;
@@ -1167,6 +1214,86 @@ class NoCreateMockWithoutExpectationsRule implements Rule
         }
 
         return array_keys($names);
+    }
+
+    /**
+     * The `return` statements that leave the analysed method itself. A `return` inside a nested closure ends
+     * that closure, not the method — the fluent `->willReturnCallback(function () use ($double) { return $double; })`
+     * idiom hands the double to the SUT's call chain, never back to the method's caller. A closure that itself
+     * leaves through a method-level `return` still escapes with its captures: those returns are collected here
+     * and their full expression (the closure included) is scanned by the caller.
+     *
+     * @param array<Node> $stmts
+     *
+     * @return list<Return_>
+     */
+    private function findScopedReturns(array $stmts): array
+    {
+        $visitor = new class extends NodeVisitorAbstract {
+            /**
+             * @var list<Return_>
+             */
+            public array $returns = [];
+
+            public function enterNode(Node $node): ?int
+            {
+                if ($node instanceof Closure || $node instanceof ArrowFunction) {
+                    return NodeVisitor::DONT_TRAVERSE_CHILDREN;
+                }
+
+                if ($node instanceof Return_) {
+                    $this->returns[] = $node;
+                }
+
+                return null;
+            }
+        };
+
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor($visitor);
+        $traverser->traverse($stmts);
+
+        return $visitor->returns;
+    }
+
+    /**
+     * The reference occurrences of a `$ref === null` / `null !== $ref` comparison — a read that cannot
+     * configure an expectation.
+     *
+     * @param callable(Node): bool $isReference
+     *
+     * @return list<Expr>
+     */
+    private function nullComparedReference(Expr $left, Expr $right, callable $isReference): array
+    {
+        $isNull = static fn (Expr $expr): bool => $expr instanceof ConstFetch && mb_strtolower($expr->name->toString()) === 'null';
+
+        if ($isReference($left) && $isNull($right)) {
+            return [$left];
+        }
+
+        if ($isReference($right) && $isNull($left)) {
+            return [$right];
+        }
+
+        return [];
+    }
+
+    /**
+     * True when the instantiated class is resolvable production code: its constructor cannot configure
+     * expectations and does not re-expose the double to the caller — unlike a fixture struct from a test
+     * namespace, whose public properties hand the double back for a later `->expects()`.
+     */
+    private function isProductionClassNew(New_ $new): bool
+    {
+        if (!$new->class instanceof Name) {
+            return false;
+        }
+
+        $resolved = $new->class->getAttribute('resolvedName');
+        $className = $resolved instanceof Name ? $resolved->toString() : $new->class->toString();
+
+        return !$this->isEnabledNamespace($className) && !str_starts_with($className, 'Shopware\Tests\\');
     }
 
     /**

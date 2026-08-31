@@ -435,7 +435,8 @@ class StateMachineRegistryTest extends TestCase
                 return $this->createSearchResult('state_machine_state', new StateMachineStateCollection([$state]), $context);
             });
 
-        $entityRepository->method('search')
+        $entityRepository->expects($this->atLeastOnce())
+            ->method('search')
             ->willReturnCallback(function (Criteria $criteria, Context $context) use ($fromPlace): EntitySearchResult {
                 $entity = new ArrayEntity(['id' => $criteria->getIds()[0], 'stateId' => $fromPlace->getId()]);
                 $entity->internalSetEntityData('order_transaction', new FieldVisibility([]));

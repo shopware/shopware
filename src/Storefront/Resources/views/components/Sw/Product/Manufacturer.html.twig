@@ -17,7 +17,11 @@
 
 <div {{ attributes.defaults(attributeDefaults) }}>
     {% if product is null or product.manufacturer is null %}
-        {{ 'detail.manufacturerUnavailable'|trans|sw_sanitize }}
+        {% block fallback %}
+            {% if app.request.attributes.get('_route') === 'frontend.content-system.preview' %}
+                {{ 'detail.manufacturerUnavailable'|trans|sw_sanitize }}
+            {% endif %}
+        {% endblock %}
     {% else %}
         {% set manufacturer = product.manufacturer %}
 

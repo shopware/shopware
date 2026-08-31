@@ -359,6 +359,26 @@ describe('AddToCartPlugin tests', () => {
         expect(button.disabled).toBe(false);
     });
 
+    test('should enable the buy button again on the removeLoader event', () => {
+        window.openOffcanvasAfterAddToCart = '1';
+
+        const neverOpeningOffCanvas = { openOffCanvas: jest.fn() };
+        window.PluginManager.getPluginInstances = jest.fn(() => [neverOpeningOffCanvas]);
+
+        const form = document.querySelector('form');
+        const button = document.querySelector('button');
+        const buttonLabel = button.innerHTML;
+
+        button.click();
+
+        expect(button.disabled).toBe(true);
+
+        form.dispatchEvent(new CustomEvent('removeLoader'));
+
+        expect(button.disabled).toBe(false);
+        expect(button.innerHTML).toBe(buttonLabel);
+    });
+
     test('should enable the buy button again when no offcanvas cart is present', () => {
         window.openOffcanvasAfterAddToCart = '1';
         window.PluginManager.getPluginInstances = jest.fn(() => []);

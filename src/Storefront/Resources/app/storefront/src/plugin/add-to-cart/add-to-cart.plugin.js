@@ -78,6 +78,7 @@ export default class AddToCartPlugin extends Plugin {
 
     _registerEvents() {
         this.el.addEventListener('submit', this._formSubmit.bind(this));
+        this._form.addEventListener('removeLoader', this.removeLoadingIndicator.bind(this));
         this._form.addEventListener('QuantitySelector/StockAdjusted', this._handleStockAdjusted.bind(this));
         this._form.addEventListener('QuantitySelector/OutOfStock', this._handleOutOfStock.bind(this));
     }
@@ -133,7 +134,7 @@ export default class AddToCartPlugin extends Plugin {
             method: 'POST',
             body: formData,
         }).then((response) => {
-            this._removeLoadingIndicator();
+            this.removeLoadingIndicator();
 
             if (!response.ok) {
                 throw new Error('Add to cart failed');
@@ -192,7 +193,7 @@ export default class AddToCartPlugin extends Plugin {
         const offCanvasCartInstances = window.PluginManager.getPluginInstances('OffCanvasCart');
 
         if (!offCanvasCartInstances.length) {
-            this._removeLoadingIndicator();
+            this.removeLoadingIndicator();
 
             return;
         }
@@ -211,7 +212,7 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCart(instance, requestUrl, formData) {
         instance.openOffCanvas(requestUrl, formData, () => {
-            this._removeLoadingIndicator();
+            this.removeLoadingIndicator();
             this.$emitter.publish('openOffCanvasCart');
         });
     }
@@ -235,10 +236,9 @@ export default class AddToCartPlugin extends Plugin {
 
     /**
      * Removes the loading indicator from the buy button and enables it again.
-     *
-     * @private
+     * Can be called directly on this plugin instance or via event `removeLoader`.
      */
-    _removeLoadingIndicator() {
+    removeLoadingIndicator() {
         if (!this._buyButtonLoader) {
             return;
         }

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\Context;
@@ -55,7 +56,7 @@ class WebhookPersisterTest extends TestCase
         ];
         $context = Context::createDefaultContext();
 
-        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context);
+        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context, 'App1');
 
         $fromDb = $this->connection->fetchAllAssociative('SELECT * FROM webhook');
 
@@ -68,6 +69,19 @@ class WebhookPersisterTest extends TestCase
             ['0', '1', '0'],
             array_column($fromDb, 'only_live_version')
         );
+    }
+
+    public function testRejectsWebhookTargetDisallowedByNetworkPolicy(): void
+    {
+        $this->expectExceptionObject(AppException::registrationFailed('App1', 'Webhook target is not allowed.'));
+
+        $this->persister->updateWebhooksFromArray([
+            [
+                'name' => 'hook1',
+                'eventName' => 'product.written',
+                'url' => 'http://169.254.169.254/webhook',
+            ],
+        ], $this->createApp('App1'), Context::createDefaultContext(), 'App1');
     }
 
     public function testUpdates(): void
@@ -96,7 +110,7 @@ class WebhookPersisterTest extends TestCase
         ];
         $context = Context::createDefaultContext();
 
-        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context);
+        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context, 'App1');
 
         $fromDb = $this->connection->fetchAllAssociative('SELECT * FROM webhook');
 
@@ -106,24 +120,24 @@ class WebhookPersisterTest extends TestCase
             [
                 'name' => 'hook1',
                 'eventName' => 'product.written',
-                'url' => 'new-url',
+                'url' => 'https://example.com/event/product-updated',
             ],
             [
                 'name' => 'hook2',
                 'eventName' => 'category.written',
-                'url' => 'new-url-2',
+                'url' => 'https://example.com/event/category-updated',
                 'onlyLiveVersion' => true,
             ],
             [
                 'name' => 'hook3',
                 'eventName' => 'rule.written',
-                'url' => 'new-url-3',
+                'url' => 'https://example.com/event/rule-updated',
                 'onlyLiveVersion' => false,
                 'active' => true,
             ],
         ];
 
-        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context);
+        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context, 'App1');
 
         $fromDb = $this->connection->fetchAllAssociative('SELECT * FROM webhook');
 
@@ -133,7 +147,11 @@ class WebhookPersisterTest extends TestCase
             array_column($fromDb, 'name')
         );
         static::assertSame(
-            ['new-url', 'new-url-2', 'new-url-3'],
+            [
+                'https://example.com/event/product-updated',
+                'https://example.com/event/category-updated',
+                'https://example.com/event/rule-updated',
+            ],
             array_column($fromDb, 'url')
         );
     }
@@ -164,7 +182,7 @@ class WebhookPersisterTest extends TestCase
         ];
         $context = Context::createDefaultContext();
 
-        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context);
+        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context, 'App1');
 
         $fromDb = $this->connection->fetchAllAssociative('SELECT * FROM webhook');
 
@@ -184,7 +202,7 @@ class WebhookPersisterTest extends TestCase
             ],
         ];
 
-        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context);
+        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context, 'App1');
 
         $fromDb = $this->connection->fetchAllAssociative('SELECT * FROM webhook');
 
@@ -222,7 +240,7 @@ class WebhookPersisterTest extends TestCase
         $webhookManager = static::getContainer()->get(WebhookManager::class);
 
         // save first set of 2 webhooks
-        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context);
+        $this->persister->updateWebhooksFromArray($webhooks, $appId, $context, 'App1');
 
         // trigger loading of webhooks
         $webhookManager->dispatch(new AppDeletedEvent('app-id', $context));
@@ -231,7 +249,7 @@ class WebhookPersisterTest extends TestCase
         static::assertCount(2, $webhookCache);
 
         // update webhooks with existing + new hook
-        $this->persister->updateWebhooksFromArray([...$webhooks, $newWebhook], $appId, $context);
+        $this->persister->updateWebhooksFromArray([...$webhooks, $newWebhook], $appId, $context, 'App1');
 
         // trigger loading of webhooks
         $webhookManager->dispatch(new AppDeletedEvent('app-id', $context));

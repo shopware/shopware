@@ -457,6 +457,7 @@
     "cartItemInfoId": "Produkt-Nr.:",
     "addPromotionLabel": "Gutscheincode",
     "addPromotionPlaceholder": "Gutscheincode eingeben ...",
+    "addPromotionApplyAction": "Gutscheincode anwenden",
     "addProductLabel": "Produktnummer",
     "addProductPlaceholder": "Produktnummer eingeben ...",
     "summaryPositionPrice": "Zwischensumme",
@@ -766,7 +767,9 @@
     "googleReCaptcha": {
       "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\"https://policies.google.com/privacy?hl=de\">Datenschutzrichtlinie</a> und <a href=\"https://policies.google.com/terms?hl=de\">Nutzungsbedingungen</a>."
     },
-    "basicCaptchaLabel": "Um weiterzugehen, geben Sie die oben abgebildeten Zeichen ein*"
+    "basicCaptchaLabel": "Um weiterzugehen, geben Sie die oben abgebildeten Zeichen ein*",
+    "basicCaptchaRefreshButton": "Captcha-Aufgabe aktualisieren",
+    "basicCaptchaChallengeAltText": "Captcha-Aufgabe"
   },
   "cookie": {
     "messageText": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
@@ -841,7 +844,10 @@
         "touchMove": "Drücken und drehen",
         "clickMove": "Klicken und drehen",
         "sliderDotLabel": "Zeige Bild %index% von %total%",
-        "skipImageGallery": "Bildergalerie überspringen"
+        "skipImageGallery": "Bildergalerie überspringen",
+        "zoomIn": "Hineinzoomen",
+        "zoomOut": "Herauszoomen",
+        "zoomReset": "Zoom zurücksetzen"
       },
       "productGallery": {
         "ariaLabel": "Produktgalerie mit %total% Elementen",

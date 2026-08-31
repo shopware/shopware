@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 
 const { State } = Shopware;
 
@@ -21,6 +22,8 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
     async function createWrapper(propsOverride = {}, privileges = []) {
         store = State.get('swProductDetail');
+        store.product.id = 'productId';
+        store.product.getEntityName = () => 'product';
         store.product.guaranteeMonths = 36;
         store.product.guaranteeConfirmed = false;
 
@@ -65,6 +68,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
     }
 
     beforeEach(async () => {
+        State.commit('error/resetApiErrors');
         wrapper = await createWrapper({}, ['product.editor']);
     });
 
@@ -91,6 +95,34 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         await confirmedField.setValue(true);
 
         expect(store.product.guaranteeConfirmed).toBe(true);
+    });
+
+    it.each([
+        '25',
+        '31',
+    ])('should keep the invalid duration %s instead of correcting it', async (guaranteeMonths) => {
+        const monthsField = wrapper.find('.sw-field--number input');
+
+        await monthsField.setValue(guaranteeMonths);
+        await monthsField.trigger('change');
+
+        expect(monthsField.element.value).toBe(guaranteeMonths);
+        expect(store.product.guaranteeMonths).toBe(Number(guaranteeMonths));
+    });
+
+    it('should show the api validation error on the guarantee months field', async () => {
+        State.commit('error/addApiError', {
+            expression: 'product.productId.guaranteeMonths',
+            error: new ShopwareError({
+                code: 'INVALID_GARAN_GUARANTEE_MONTHS',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+            }),
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-field--number .sw-field__error').text()).toBe(
+            'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+        );
     });
 
     it('should disable the fields when allowEdit is false', async () => {

@@ -53,6 +53,7 @@ class AppException extends HttpException
     final public const SHOP_ID_CHANGE_SUGGESTED = 'FRAMEWORK__APP_SHOP_ID_CHANGE_SUGGESTED';
     final public const APP_URL_NOT_CONFIGURED = 'FRAMEWORK__APP_URL_NOT_CONFIGURED';
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
+    final public const APP_SYSTEM_REQUEST_TARGET_NOT_ALLOWED = 'FRAMEWORK__APP_SYSTEM_REQUEST_TARGET_NOT_ALLOWED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -433,6 +434,15 @@ class AppException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::INVALID_ARGUMENT,
             $string
+        );
+    }
+
+    public static function appSystemRequestTargetNotAllowed(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SYSTEM_REQUEST_TARGET_NOT_ALLOWED,
+            'App system request target is not allowed.'
         );
     }
 

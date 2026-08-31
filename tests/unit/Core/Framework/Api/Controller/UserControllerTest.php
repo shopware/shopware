@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -43,12 +44,16 @@ class UserControllerTest extends TestCase
 
     private function createController(?EntityRepository $userRepository = null, ?UserDefinition $userDefinition = null): UserController
     {
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $func) => $func($connection));
+
         return new UserController(
             $userRepository ?? static::createStub(EntityRepository::class),
             static::createStub(EntityRepository::class),
             static::createStub(EntityRepository::class),
             static::createStub(EntityRepository::class),
             $userDefinition ?? static::createStub(UserDefinition::class),
+            $connection,
         );
     }
 }

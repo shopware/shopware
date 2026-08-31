@@ -19,7 +19,7 @@
 
                         {% block layout_main_navigation_menu_home %}
                             {% if context.salesChannel.translated.homeEnabled %}
-                                <a class="nav-link main-navigation-link nav-item-{{ context.salesChannel.navigationCategoryId }} {% if controllerAction is same as('home') %} active{% endif %} home-link"
+                                <a class="nav-link main-navigation-link nav-item-{{ context.salesChannel.navigationCategoryId }} {% if controllerAction is same as('home') %} active{% endif %} home-link nav-item-{{ context.salesChannel.navigationCategoryId }}-link"
                                     href="{{ path('frontend.home.page') }}"
                                     itemprop="url"
                                     title="{{ homeLabel|striptags }}">
@@ -71,7 +71,7 @@
                                             {% set active = 'active' %}
                                         {% endif %}
 
-                                        <a class="nav-link main-navigation-link nav-item-{{ category.id}} {{ active }}"
+                                        <a class="nav-link main-navigation-link nav-item-{{ category.id}} {{ active }} nav-item-{{ category.id }}-link"
                                            href="{{ category_url(category) }}"
                                            itemprop="url"
                                            {% if treeItem.children|length > 0 %}data-flyout-menu-trigger="{{ category.id }}"{% endif %}

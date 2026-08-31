@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -162,7 +163,7 @@ class VersionManagerTest extends TestCase
 
         $this->versionManager = $this->createVersionManager([
             'registry' => $registry,
-            'lockFactory' => $lockFactory,
+            'lockManager' => new LockManager($lockFactory),
         ]);
 
         $versionId = 'version-id';
@@ -189,7 +190,7 @@ class VersionManagerTest extends TestCase
 
         $versionManager = $this->createVersionManager([
             'entitySearcher' => $entitySearcherMock,
-            'lockFactory' => $lockFactory,
+            'lockManager' => new LockManager($lockFactory),
         ]);
 
         $versionId = 'non-existent-version-id';
@@ -552,7 +553,7 @@ class VersionManagerTest extends TestCase
             'versionCommitDefinition' => static::createStub(VersionCommitDefinition::class),
             'versionCommitDataDefinition' => static::createStub(VersionCommitDataDefinition::class),
             'versionDefinition' => static::createStub(VersionDefinition::class),
-            'lockFactory' => static::createStub(LockFactory::class),
+            'lockManager' => new LockManager(static::createStub(LockFactory::class)),
             'clock' => new NativeClock(),
         ];
 
@@ -569,7 +570,7 @@ class VersionManagerTest extends TestCase
             $params['versionCommitDefinition'],
             $params['versionCommitDataDefinition'],
             $params['versionDefinition'],
-            $params['lockFactory'],
+            $params['lockManager'],
             $params['clock']
         );
     }

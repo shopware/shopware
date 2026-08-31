@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand;
 use Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
@@ -219,6 +220,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(RequestDataBagResolver::class)
         ->tag('controller.argument_value_resolver', ['priority' => 1000]);
+
+    $services->set(LockManager::class)
+        ->args([
+            service('lock.factory'),
+        ]);
 
     // Cache
     $services->set('slugify', Slugify::class)

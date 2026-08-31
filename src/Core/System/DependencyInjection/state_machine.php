@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
@@ -46,7 +47,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(StateMachineLocker::class)
         ->args([
-            service('lock.factory'),
+            service(LockManager::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

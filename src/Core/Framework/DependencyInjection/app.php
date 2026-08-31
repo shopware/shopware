@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegist
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\ActionButton\ActionButtonLoader;
@@ -1079,7 +1080,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.shopware_version'),
             service('cache.app'),
             service(HttpClientInterface::class),
-            service('lock.factory'),
+            service(LockManager::class),
             service('logger'),
             service(ClockInterface::class),
         ]);

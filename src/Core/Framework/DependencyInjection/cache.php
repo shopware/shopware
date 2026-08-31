@@ -45,6 +45,7 @@ use Shopware\Core\Framework\Adapter\Command\CacheClearAllCommand;
 use Shopware\Core\Framework\Adapter\Command\CacheClearHttpCommand;
 use Shopware\Core\Framework\Adapter\Command\CacheInvalidateDelayedCommand;
 use Shopware\Core\Framework\Adapter\Kernel\EsiDecoration;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -163,7 +164,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.http_cache.reverse_proxy.enabled'),
             service('messenger.default_bus'),
             service('logger'),
-            service('lock.factory'),
+            service(LockManager::class),
         ]);
 
     $services->set(CleanupOldCacheFoldersHandler::class)

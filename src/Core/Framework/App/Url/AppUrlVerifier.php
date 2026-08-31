@@ -5,14 +5,12 @@ namespace Shopware\Core\Framework\App\Url;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Lock\Exception\LockAcquiringException;
-use Symfony\Component\Lock\Exception\LockConflictedException;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -40,7 +38,7 @@ class AppUrlVerifier
         private readonly string $shopwareVersion,
         private readonly CacheItemPoolInterface&CacheInterface $cache,
         private readonly HttpClientInterface $httpClient,
-        private readonly LockFactory $lockFactory,
+        private readonly LockManager $lockManager,
         private readonly LoggerInterface $logger,
         private readonly ClockInterface $clock,
     ) {
@@ -174,16 +172,7 @@ class AppUrlVerifier
 
     private function acquireLock(string $lockKey): ?LockInterface
     {
-        $lock = $this->lockFactory->createLock($lockKey, 10);
-
-        try {
-            if ($lock->acquire()) {
-                return $lock;
-            }
-        } catch (LockConflictedException|LockAcquiringException) {
-        }
-
-        return null;
+        return $this->lockManager->acquire($lockKey, ttl: 10, catchAcquiringExceptions: true);
     }
 
     private function performVerification(string $appUrl, int $tries = 1): VerificationState

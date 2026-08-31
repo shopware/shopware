@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Extension\LockExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionRedemptionLocker;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Generator;
@@ -51,7 +52,7 @@ class PromotionRedemptionLockerTest extends TestCase
             ->with('promotion-promotion-code', 5.0, true)
             ->willReturn($lock);
 
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $cart = new Cart('test');
         $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
@@ -82,7 +83,7 @@ class PromotionRedemptionLockerTest extends TestCase
             ->with('promotion-promotion-id', 5.0, true)
             ->willReturn($lock);
 
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $cart = new Cart('test');
         $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
@@ -121,7 +122,7 @@ class PromotionRedemptionLockerTest extends TestCase
             ->with('promotion-promotion-code', 5.0, true)
             ->willReturn($lock);
 
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $cart = new Cart('test');
         $firstLineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
@@ -156,7 +157,7 @@ class PromotionRedemptionLockerTest extends TestCase
             ->with('promotion-promotion-code', 5.0, true)
             ->willReturn($lock);
 
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $cart = new Cart('test');
         $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
@@ -187,7 +188,7 @@ class PromotionRedemptionLockerTest extends TestCase
             ->with('promotion-promotion-code', 5.0, true)
             ->willReturn($lock);
 
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $cart = new Cart('test');
         $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
@@ -207,7 +208,7 @@ class PromotionRedemptionLockerTest extends TestCase
         $lockFactory->expects($this->never())
             ->method('createLock');
 
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $cart = new Cart('test');
         $lineItem = new LineItem('id', PromotionProcessor::LINE_ITEM_TYPE);
@@ -229,7 +230,7 @@ class PromotionRedemptionLockerTest extends TestCase
         $lockFactory->expects($this->never())
             ->method('createLock');
 
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $cart = new Cart('test');
         $lineItem = new LineItem('id', LineItem::PRODUCT_LINE_ITEM_TYPE);
@@ -245,7 +246,7 @@ class PromotionRedemptionLockerTest extends TestCase
     public function testReleaseLocks(): void
     {
         $lockFactory = static::createStub(LockFactory::class);
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $lock1 = $this->createMock(SharedLockInterface::class);
         $lock1->expects($this->once())
@@ -268,7 +269,7 @@ class PromotionRedemptionLockerTest extends TestCase
     public function testReleaseLocksWithoutExtension(): void
     {
         $lockFactory = static::createStub(LockFactory::class);
-        $locker = new PromotionRedemptionLocker($lockFactory);
+        $locker = new PromotionRedemptionLocker(new LockManager($lockFactory));
 
         $extension = new CheckoutPlaceOrderExtension(new Cart('test'), Generator::generateSalesChannelContext(), new RequestDataBag());
 
@@ -278,7 +279,7 @@ class PromotionRedemptionLockerTest extends TestCase
 
     public function testGetLockKey(): void
     {
-        $locker = new PromotionRedemptionLocker(static::createStub(LockFactory::class));
+        $locker = new PromotionRedemptionLocker(new LockManager(static::createStub(LockFactory::class)));
         $key = $locker->getLockKey('promotion-id');
         static::assertSame('promotion-promotion-id', $key);
     }

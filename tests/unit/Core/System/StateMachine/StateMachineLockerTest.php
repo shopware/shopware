@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\StateMachine;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
@@ -33,7 +34,7 @@ class StateMachineLockerTest extends TestCase
     protected function setUp(): void
     {
         $this->lockFactory = new LockFactory(new InMemoryStore());
-        $this->locker = new StateMachineLocker($this->lockFactory);
+        $this->locker = new StateMachineLocker(new LockManager($this->lockFactory));
     }
 
     public function testLockedExecutesClosure(): void
@@ -94,7 +95,7 @@ class StateMachineLockerTest extends TestCase
         $context = Context::createDefaultContext();
         $lockFactory = $this->createMock(LockFactory::class);
         $lock = $this->createMock(SharedLockInterface::class);
-        $locker = new StateMachineLocker($lockFactory);
+        $locker = new StateMachineLocker(new LockManager($lockFactory));
 
         $lockFactory->expects($this->once())
             ->method('createLock')
@@ -129,11 +130,11 @@ class StateMachineLockerTest extends TestCase
         $context = Context::createDefaultContext();
         $lockFactory = $this->createMock(LockFactory::class);
         $lock = $this->createMock(SharedLockInterface::class);
-        $locker = new StateMachineLocker($lockFactory);
+        $locker = new StateMachineLocker(new LockManager($lockFactory));
 
         $lockFactory->expects($this->once())
             ->method('createLock')
-            ->with($locker->getLockKey($transition, $context), 5.0, true)
+            ->with($locker->getLockKey($transition, $context), 5.0)
             ->willReturn($lock);
 
         $lock->expects($this->once())
@@ -181,12 +182,12 @@ class StateMachineLockerTest extends TestCase
         $lockFactory = $this->createMock(LockFactory::class);
         $firstLock = $this->createMock(SharedLockInterface::class);
         $secondLock = $this->createMock(SharedLockInterface::class);
-        $locker = new StateMachineLocker($lockFactory);
+        $locker = new StateMachineLocker(new LockManager($lockFactory));
         $transitionResult = $this->createTransitionResult();
 
         $lockFactory->expects($this->exactly(2))
             ->method('createLock')
-            ->with($locker->getLockKey($transition, $context), 5.0, true)
+            ->with($locker->getLockKey($transition, $context), 5.0)
             ->willReturnOnConsecutiveCalls($firstLock, $secondLock);
 
         $firstLock->expects($this->once())

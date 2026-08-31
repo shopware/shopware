@@ -28,7 +28,6 @@ import {
     MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
-    MtFloatingUi,
     MtIcon,
     MtLink,
     MtLoader,
@@ -313,7 +312,33 @@ config.global.stubs = {
     'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
-    'mt-floating-ui': MtFloatingUi,
+    // Unit specs assert their component's popup content through its Vue wrapper. Meteor teleports
+    // the real floating UI content to document.body, which makes that content intentionally
+    // invisible to the wrapper. Keep the component contract while rendering it inline for unit
+    // tests; dedicated Meteor specs can still mount the real component when needed.
+    'mt-floating-ui': {
+        name: 'mt-floating-ui',
+        inheritAttrs: false,
+        props: {
+            isOpened: {
+                type: Boolean,
+                required: true,
+            },
+            matchReferenceWidth: {
+                type: Boolean,
+                required: false,
+                default: false,
+            },
+        },
+        template: `
+            <div class="mt-floating-ui" :class="$attrs.popoverClass ?? $attrs['popover-class']">
+                <slot name="trigger" />
+                <div v-if="isOpened" class="mt-floating-ui__content">
+                    <slot />
+                </div>
+            </div>
+        `,
+    },
     'mt-icon': MtIcon,
     'mt-link': MtLink,
     'mt-loader': MtLoader,

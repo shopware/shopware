@@ -23,7 +23,6 @@ const createMultiSelect = async (customOptions) => {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'mt-floating-ui': true,
                 'sw-color-badge': true,
             },
         },

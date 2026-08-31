@@ -144,7 +144,6 @@ async function createWrapper(props = defaultProps, customFieldMock = defaultCust
                     'sw-context-button': true,
                     'sw-context-menu': true,
                     'sw-context-menu-item': true,
-                    'mt-floating-ui': true,
                 },
                 provide: {
                     conditionDataProviderService: new ConditionDataProviderService(),

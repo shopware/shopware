@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Service;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
+use Shopware\Core\System\Snippet\DataTransfer\TranslationUpdate\TranslationInstallPlan;
 use Shopware\Core\System\Snippet\DataTransfer\TranslationUpdate\TranslationUpdateResult;
 
 /**
@@ -17,6 +18,74 @@ readonly class TranslationUpdater
         private AbstractTranslationLoader $translationLoader,
         private TranslationMetadataStore $metadataStore,
     ) {
+    }
+
+    /**
+     * Splits the requested locales into the work an install has to do. Whether a translation is up to date and whether
+     * it is actually installed are two different questions: files are only fetched when the repository has something
+     * newer or when they are missing locally, while the language and snippet set are ensured either way.
+     *
+     * @param list<string> $locales
+     */
+    public function planInstall(array $locales, MetadataCollection $metadata): TranslationInstallPlan
+    {
+        $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
+        $notRequiringUpdate = array_values(array_diff($locales, $localesRequiringUpdate));
+
+        $localesToLink = array_values(array_filter(
+            $notRequiringUpdate,
+            fn (string $locale) => $this->translationLoader->hasTranslationFiles($locale),
+        ));
+
+        $known = $metadata->getKeys();
+
+        return new TranslationInstallPlan(
+            localesToDownload: array_values(array_merge(
+                $localesRequiringUpdate,
+                array_intersect(array_diff($notRequiringUpdate, $localesToLink), $known),
+            )),
+            localesToLink: $localesToLink,
+            unavailableLocales: array_values(array_diff($locales, $known, $localesToLink)),
+        );
+    }
+
+    /**
+     * Ensures the language and snippet set for every locale of the plan. Unlike update() this never returns early when
+     * nothing requires an update, because a locale whose files are current may still have no language behind it.
+     * Downloading and creating are separate steps on purpose: link() refuses a locale whose download produced no file,
+     * so a repository that offers nothing for a locale cannot leave a language without translations behind.
+     *
+     * Persisting the metadata is left to the caller, which decides how a failing write is reported.
+     *
+     * @param callable(string): void|null $onLocale receives each locale before it is installed, for progress output
+     */
+    public function install(
+        TranslationInstallPlan $plan,
+        MetadataCollection $metadata,
+        Context $context,
+        bool $activate = true,
+        ?callable $onLocale = null,
+    ): TranslationUpdateResult {
+        $onLocale ??= static function (): void {
+        };
+
+        foreach ($plan->localesToDownload as $locale) {
+            $onLocale($locale);
+
+            $this->translationLoader->download($locale);
+            $this->translationLoader->link($locale, $context, $activate);
+        }
+
+        foreach ($plan->localesToLink as $locale) {
+            $onLocale($locale);
+
+            $this->translationLoader->link($locale, $context, $activate);
+        }
+
+        return new TranslationUpdateResult(
+            $plan->localesToDownload,
+            array_values(array_diff($metadata->getKeys(), $plan->localesToDownload)),
+        );
     }
 
     /**

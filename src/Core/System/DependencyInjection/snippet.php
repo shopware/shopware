@@ -101,6 +101,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationLoader::class),
             service(TranslationConfig::class),
             service(TranslationMetadataStore::class),
+            service(TranslationUpdater::class),
         ])
         ->tag('console.command');
 

@@ -137,6 +137,100 @@ class TranslationUpdaterTest extends TestCase
         static::assertSame([], $result->skipped);
     }
 
+    public function testPlanInstallPartitionsTheRequestedLocales(): void
+    {
+        $metadata = $this->metadataCollection(['de-DE' => true, 'es-ES' => false, 'it-IT' => false]);
+
+        $loader = static::createStub(AbstractTranslationLoader::class);
+        $loader->method('hasTranslationFiles')
+            ->willReturnCallback(static fn (string $locale) => \in_array($locale, ['es-ES', 'fr-FR'], true));
+
+        $plan = (new TranslationUpdater($loader, static::createStub(TranslationMetadataStore::class)))
+            ->planInstall(['de-DE', 'es-ES', 'fr-FR', 'nl-NL', 'it-IT'], $metadata);
+
+        // de-DE has something newer, it-IT is current but has lost its files
+        static::assertSame(['de-DE', 'it-IT'], $plan->localesToDownload);
+        // es-ES is current and present, fr-FR has files without a metadata entry
+        static::assertSame(['es-ES', 'fr-FR'], $plan->localesToLink);
+        // nl-NL is neither offered nor present
+        static::assertSame(['nl-NL'], $plan->unavailableLocales);
+        static::assertFalse($plan->nothingCanBeInstalled());
+    }
+
+    public function testPlanInstallReportsNothingInstallableWhenNoLocaleIsOfferedOrPresent(): void
+    {
+        $loader = static::createStub(AbstractTranslationLoader::class);
+        $loader->method('hasTranslationFiles')->willReturn(false);
+
+        $plan = (new TranslationUpdater($loader, static::createStub(TranslationMetadataStore::class)))
+            ->planInstall(['de-DE', 'es-ES'], new MetadataCollection());
+
+        static::assertSame(['de-DE', 'es-ES'], $plan->unavailableLocales);
+        static::assertTrue($plan->nothingCanBeInstalled());
+    }
+
+    public function testInstallDownloadsThenLinksAndLeavesPersistingToTheCaller(): void
+    {
+        $metadata = $this->metadataCollection(['de-DE' => true, 'es-ES' => false]);
+
+        $loader = $this->createMock(AbstractTranslationLoader::class);
+        $loader->method('hasTranslationFiles')->willReturn(true);
+        $loader->expects($this->once())->method('download')->with('de-DE');
+
+        $linked = [];
+        $loader->expects($this->exactly(2))
+            ->method('link')
+            ->willReturnCallback(static function (string $locale, Context $context, bool $activate) use (&$linked): void {
+                static::assertTrue($activate);
+                $linked[] = $locale;
+            });
+
+        $store = $this->createMock(TranslationMetadataStore::class);
+        $store->expects($this->never())->method('save');
+
+        $updater = new TranslationUpdater($loader, $store);
+        $result = $updater->install($updater->planInstall(['de-DE', 'es-ES'], $metadata), $metadata, Context::createCLIContext());
+
+        static::assertSame(['de-DE', 'es-ES'], $linked);
+        static::assertSame(['de-DE'], $result->updated);
+        static::assertSame(['es-ES'], $result->skipped);
+    }
+
+    public function testInstallReportsEveryLocaleToTheProgressCallback(): void
+    {
+        $metadata = $this->metadataCollection(['de-DE' => true, 'es-ES' => false]);
+
+        $loader = static::createStub(AbstractTranslationLoader::class);
+        $loader->method('hasTranslationFiles')->willReturn(true);
+
+        $updater = new TranslationUpdater($loader, static::createStub(TranslationMetadataStore::class));
+
+        $reported = [];
+        $updater->install(
+            $updater->planInstall(['de-DE', 'es-ES'], $metadata),
+            $metadata,
+            Context::createCLIContext(),
+            true,
+            static function (string $locale) use (&$reported): void {
+                $reported[] = $locale;
+            },
+        );
+
+        static::assertSame(['de-DE', 'es-ES'], $reported);
+    }
+
+    public function testInstallPassesActivateFalseToTheLoader(): void
+    {
+        $metadata = $this->metadataCollection(['de-DE' => false]);
+
+        $loader = $this->createMock(AbstractTranslationLoader::class);
+        $loader->method('hasTranslationFiles')->willReturn(true);
+        $loader->expects($this->once())->method('link')->with('de-DE', static::isInstanceOf(Context::class), false);
+
+        $updater = new TranslationUpdater($loader, static::createStub(TranslationMetadataStore::class));
+        $updater->install($updater->planInstall(['de-DE'], $metadata), $metadata, Context::createCLIContext(), false);
+    }
+
     /**
      * @param array<string, bool> $localesRequiringUpdate keyed by locale, value = isUpdateRequired
      */

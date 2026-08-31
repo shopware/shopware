@@ -105,7 +105,7 @@ class TranslationCommandHelperTest extends TestCase
         TranslationCommandHelper::printLocalesInstalledFromExistingFiles($output, ['de-DE', 'fr-FR']);
 
         $content = $output->fetch();
-        static::assertStringContainsString('The following locales are already up to date, their files will not be downloaded again: de-DE, fr-FR', $content);
+        static::assertStringContainsString('The following locales are installed from their existing translation files, without downloading: de-DE, fr-FR', $content);
     }
 
     public function testPrintUnavailableLocales(): void
@@ -116,5 +116,15 @@ class TranslationCommandHelperTest extends TestCase
 
         $content = $output->fetch();
         static::assertStringContainsString('No translations are available for the following locales, they will not be installed: de-DE, fr-FR', $content);
+    }
+
+    public function testPrintLocalesWithoutFiles(): void
+    {
+        $output = new BufferedOutput();
+
+        TranslationCommandHelper::printLocalesWithoutFiles($output, ['de-DE', 'fr-FR']);
+
+        $content = $output->fetch();
+        static::assertStringContainsString('No translation files are present for the following locales, they will not be installed: de-DE, fr-FR', $content);
     }
 }

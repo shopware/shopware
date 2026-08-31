@@ -21,6 +21,7 @@ use Shopware\Core\System\Snippet\Command\InstallTranslationCommand;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
+use Shopware\Core\System\Snippet\Service\TranslationUpdater;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Tests\Integration\Core\System\Snippet\TranslationClientBehaviour;
@@ -185,6 +186,19 @@ class InstallTranslationCommandTest extends TestCase
         static::assertCount(1, $this->findSnippetSets($this->provisionedLocale, 'BASE ' . $this->provisionedLocale));
     }
 
+    public function testOfflineInstallWithAllInstallsOnlyTheProvisionedLocales(): void
+    {
+        $this->provideTranslationFile($this->provisionedLocale);
+
+        $tester = $this->executeCommand(['--all' => true, '--offline' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertCount(1, $this->findLanguages($this->provisionedLocale));
+        static::assertCount(1, $this->findSnippetSets($this->provisionedLocale, 'BASE ' . $this->provisionedLocale));
+        static::assertCount(0, $this->findLanguages($this->unprovisionedLocale));
+        static::assertStringContainsString('No translation files are present for the following locales', $tester->getDisplay());
+    }
+
     public function testOfflineInstallFailsWhenTheLocaleDirectoryHoldsNoFile(): void
     {
         // The bare directory is what a download that fetched no file at all leaves behind
@@ -223,17 +237,29 @@ class InstallTranslationCommandTest extends TestCase
      */
     private function executeOfflineInstall(array $locales, bool $skipActivation = false): CommandTester
     {
-        $command = new InstallTranslationCommand(
-            $this->translationLoader,
-            $this->config,
-            static::getContainer()->get(TranslationMetadataStore::class),
-        );
-
         $options = ['--locales' => implode(',', $locales), '--offline' => true];
 
         if ($skipActivation) {
             $options['--skip-activation'] = true;
         }
+
+        return $this->executeCommand($options);
+    }
+
+    /**
+     * @param array<string, bool|string> $options
+     */
+    private function executeCommand(array $options): CommandTester
+    {
+        $metadataStore = static::getContainer()->get(TranslationMetadataStore::class);
+        static::assertInstanceOf(TranslationMetadataStore::class, $metadataStore);
+
+        $command = new InstallTranslationCommand(
+            $this->translationLoader,
+            $this->config,
+            $metadataStore,
+            new TranslationUpdater($this->translationLoader, $metadataStore),
+        );
 
         $tester = new CommandTester($command);
         $tester->execute($options);

@@ -28,14 +28,21 @@ class TranslationCommandHelper
         }
     }
 
+    public static function createProgressBar(OutputInterface $output, int $max): ProgressBar
+    {
+        ProgressBar::setFormatDefinition(self::PROGRESS_BAR_NAME, self::PROGRESS_BAR_FORMAT);
+        $progressBar = new ProgressBar($output, $max);
+        $progressBar->setFormat(self::PROGRESS_BAR_NAME);
+
+        return $progressBar;
+    }
+
     /**
      * @param list<string> $locales
      */
     public static function executeLoadWithProgressBar(array $locales, OutputInterface $output, callable $loadCallback): void
     {
-        ProgressBar::setFormatDefinition(self::PROGRESS_BAR_NAME, self::PROGRESS_BAR_FORMAT);
-        $progressBar = new ProgressBar($output, \count($locales));
-        $progressBar->setFormat(self::PROGRESS_BAR_NAME);
+        $progressBar = self::createProgressBar($output, \count($locales));
 
         foreach ($locales as $locale) {
             $progressBar->setMessage($locale);
@@ -74,7 +81,7 @@ class TranslationCommandHelper
     public static function printLocalesInstalledFromExistingFiles(OutputInterface $output, array $locales): void
     {
         $output->writeln(\sprintf(
-            'The following locales are already up to date, their files will not be downloaded again: %s',
+            'The following locales are installed from their existing translation files, without downloading: %s',
             implode(', ', $locales)
         ));
     }
@@ -86,6 +93,20 @@ class TranslationCommandHelper
     {
         $output->writeln(\sprintf(
             '<comment>No translations are available for the following locales, they will not be installed: %s</comment>',
+            implode(', ', $locales)
+        ));
+    }
+
+    /**
+     * Unlike printUnavailableLocales() this says nothing about what the repository offers: in offline mode the
+     * repository is never contacted, only the filesystem is.
+     *
+     * @param non-empty-array<int, string> $locales
+     */
+    public static function printLocalesWithoutFiles(OutputInterface $output, array $locales): void
+    {
+        $output->writeln(\sprintf(
+            '<comment>No translation files are present for the following locales, they will not be installed: %s</comment>',
             implode(', ', $locales)
         ));
     }

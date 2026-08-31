@@ -92,19 +92,93 @@ class TranslationControllerTest extends TestCase
         $metadataStore->expects($this->once())->method('save')->with($metadata);
 
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
-        $translationLoader->expects($this->once())
-            ->method('load')
-            ->with('fr-FR', static::isInstanceOf(Context::class), true);
+        $translationLoader->method('hasTranslationFiles')->willReturn(true);
+        $translationLoader->expects($this->once())->method('download')->with('fr-FR');
+
+        $linked = [];
+        $translationLoader->expects($this->exactly(2))
+            ->method('link')
+            ->willReturnCallback(static function (string $locale, Context $context, bool $activate) use (&$linked): void {
+                static::assertTrue($activate);
+                $linked[] = $locale;
+            });
 
         $response = $this->createController($metadataStore, $translationLoader)->install(
             new InstallTranslationRequest(locales: ['fr-FR', 'es-ES']),
             $this->context()
         );
 
+        static::assertSame(['fr-FR', 'es-ES'], $linked);
+
         $content = $this->decode($response);
         static::assertSame(['fr-FR'], $content['updated']);
         static::assertSame(['es-ES'], $content['skipped']);
         static::assertSame([], $content['unavailable']);
+    }
+
+    public function testInstallLinksCurrentLocaleWhoseLanguageIsMissing(): void
+    {
+        // The files are current, so nothing is downloaded — but the language may have been removed since,
+        // for example by a database restore, and installing has to bring it back.
+        $metadataStore = $this->createMock(TranslationMetadataStore::class);
+        $metadataStore->method('getUpdatedLocalMetadata')->willReturn($this->metadataCollection(['fr-FR' => false]));
+        $metadataStore->expects($this->never())->method('save');
+
+        $translationLoader = $this->createMock(AbstractTranslationLoader::class);
+        $translationLoader->method('hasTranslationFiles')->willReturn(true);
+        $translationLoader->expects($this->never())->method('download');
+        $translationLoader->expects($this->once())->method('link')->with('fr-FR', static::isInstanceOf(Context::class), true);
+
+        $response = $this->createController($metadataStore, $translationLoader)->install(
+            new InstallTranslationRequest(locales: ['fr-FR']),
+            $this->context()
+        );
+
+        $content = $this->decode($response);
+        static::assertSame([], $content['updated']);
+        static::assertSame(['fr-FR'], $content['skipped']);
+        static::assertSame([], $content['unavailable']);
+    }
+
+    public function testInstallDoesNotReportALocaleWithFilesAsUnavailable(): void
+    {
+        // Offline provisioning creates no metadata entry, so the remote knows nothing about this locale.
+        // Its files are on the filesystem though, so it can be installed and must not be reported unavailable.
+        $metadataStore = static::createStub(TranslationMetadataStore::class);
+        $metadataStore->method('getUpdatedLocalMetadata')->willReturn(new MetadataCollection());
+
+        $translationLoader = $this->createMock(AbstractTranslationLoader::class);
+        $translationLoader->method('hasTranslationFiles')->willReturn(true);
+        $translationLoader->expects($this->never())->method('download');
+        $translationLoader->expects($this->once())->method('link')->with('fr-FR', static::isInstanceOf(Context::class), true);
+
+        $response = $this->createController($metadataStore, $translationLoader)->install(
+            new InstallTranslationRequest(locales: ['fr-FR']),
+            $this->context()
+        );
+
+        $content = $this->decode($response);
+        static::assertSame([], $content['unavailable']);
+    }
+
+    public function testInstallDownloadsCurrentLocaleWhoseFilesAreMissing(): void
+    {
+        $metadataStore = static::createStub(TranslationMetadataStore::class);
+        $metadataStore->method('getUpdatedLocalMetadata')->willReturn($this->metadataCollection(['fr-FR' => false]));
+
+        $translationLoader = $this->createMock(AbstractTranslationLoader::class);
+        $translationLoader->method('hasTranslationFiles')->willReturn(false);
+        $translationLoader->expects($this->once())->method('download')->with('fr-FR');
+        $translationLoader->expects($this->once())->method('link')->with('fr-FR', static::isInstanceOf(Context::class), true);
+
+        $response = $this->createController($metadataStore, $translationLoader)->install(
+            new InstallTranslationRequest(locales: ['fr-FR']),
+            $this->context()
+        );
+
+        $content = $this->decode($response);
+        static::assertSame(['fr-FR'], $content['updated']);
+        static::assertSame([], $content['skipped']);
     }
 
     public function testInstallThrowsWhenNoRequestedLocaleCanBeInstalled(): void
@@ -114,7 +188,9 @@ class TranslationControllerTest extends TestCase
         $metadataStore->method('getUpdatedLocalMetadata')->willReturn(new MetadataCollection());
 
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
-        $translationLoader->expects($this->never())->method('load');
+        $translationLoader->method('hasTranslationFiles')->willReturn(false);
+        $translationLoader->expects($this->never())->method('download');
+        $translationLoader->expects($this->never())->method('link');
 
         $this->expectExceptionObject(SnippetException::translationsUnavailable(['fr-FR']));
 
@@ -131,7 +207,9 @@ class TranslationControllerTest extends TestCase
         $metadataStore->method('getUpdatedLocalMetadata')->willReturn($this->metadataCollection(['fr-FR' => true]));
 
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
-        $translationLoader->expects($this->once())->method('load')->with('fr-FR', static::isInstanceOf(Context::class), true);
+        $translationLoader->method('hasTranslationFiles')->willReturn(false);
+        $translationLoader->expects($this->once())->method('download')->with('fr-FR');
+        $translationLoader->expects($this->once())->method('link')->with('fr-FR', static::isInstanceOf(Context::class), true);
 
         $response = $this->createController($metadataStore, $translationLoader)->install(
             new InstallTranslationRequest(locales: ['fr-FR', 'es-ES']),
@@ -162,7 +240,7 @@ class TranslationControllerTest extends TestCase
 
         $translationLoader = $this->createMock(AbstractTranslationLoader::class);
         $translationLoader->expects($this->once())
-            ->method('load')
+            ->method('link')
             ->with('fr-FR', static::isInstanceOf(Context::class), false);
 
         $this->createController($metadataStore, $translationLoader)->install(

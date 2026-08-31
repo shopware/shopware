@@ -47,7 +47,7 @@
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
       "labelManualOrder": "Erstellt von Admin",
-      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichern die Bestellung, bevor Du diese Seite verlässt.",
+      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichere die Bestellung, bevor Du diese Seite verlässt.",
       "messageEmptyLineItems": "Bestellung konnte nicht gespeichert werden. Es gibt keine Positionen."
     },
     "create": {
@@ -390,6 +390,7 @@
         "attachMediaToDocumentUpload": "Das Anfügen des ausgewählten Mediums an das Dokument ist fehlgeschlagen.",
         "loadDocumentPreview": "Das Laden der Dokumentenvorschau ist fehlgeschlagen.",
         "openDocument": "Das Öffnen des ausgewählten Dokumentes ist fehlgeschlagen.",
+        "loadDocumentTypes": "Das Laden der verfügbaren Dokumenttypen ist fehlgeschlagen.",
         "missingCompanyInformation": "Das Feld \"{field}\" in Deinen Unternehmensinformationen (Einstellungen > Stammdaten) ist leer. Stelle bitte sicher, dass das Feld mit Deinen Daten gefüllt ist, bevor Dokumente generiert werden.",
         "noUnprocessedCreditLineItems": "Zu allen Gutschriften in dieser Bestellung sind bereits Gutschriftdokumente erstellt worden.",
         "duplicateDocumentNumber": "Ein Dokument mit der Nummer \"{documentNumber}\" existiert bereits."

@@ -1,5 +1,3 @@
-import type RepositoryType from 'src/core/data/repository.data';
-import type CriteriaType from 'src/core/data/criteria.data';
 import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
 import type { DocumentConfig, DeliveryNoteConfig } from '../../service/documentV2.service';
@@ -7,7 +5,6 @@ import template from './sw-order-create-document-modal.html.twig';
 import './sw-order-create-document-modal.scss';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 
 /**
  * @private
@@ -19,7 +16,6 @@ export default Component.wrapComponentConfig({
     inject: [
         'documentV2Service',
         'numberRangeService',
-        'repositoryFactory',
     ],
 
     emits: [
@@ -38,7 +34,7 @@ export default Component.wrapComponentConfig({
         },
 
         documentType: {
-            type: Object as PropType<Entity<'document_type'>>,
+            type: Object as PropType<{ technicalName: string }>,
             required: false,
             default: null,
         },
@@ -58,9 +54,7 @@ export default Component.wrapComponentConfig({
         documentConfig: DocumentConfig;
         documentNumberPreview: string;
         documentTypeLoading: boolean;
-        documentTypeCollection: EntityCollection<'document_type'> | null;
-        documentTypeId: string | null;
-        documentTypes: Entity<'document_type'>[];
+        selectedTechnicalName: string | null;
         referencedDocumentNumber: string | null;
         isLoading: boolean;
         supportedDocumentTypes: NonNullable<AvailableDocumentTypesResponse['documentTypes']>;
@@ -69,9 +63,7 @@ export default Component.wrapComponentConfig({
             documentConfig: this.documentV2Service.createEmptyDocumentConfig(),
             documentNumberPreview: '',
             documentTypeLoading: false,
-            documentTypeCollection: null,
-            documentTypeId: this.documentType?.id ?? null,
-            documentTypes: [],
+            selectedTechnicalName: this.documentType?.technicalName ?? null,
             referencedDocumentNumber: null,
             isLoading: false,
             supportedDocumentTypes: {},
@@ -83,24 +75,20 @@ export default Component.wrapComponentConfig({
             return (this.order.lineItems ?? []).filter((lineItem) => lineItem.type === 'credit');
         },
 
-        currentDocumentType(): Entity<'document_type'> | null {
-            if (!this.documentTypeId) {
+        currentTechnicalName(): string | null {
+            if (this.selectedTechnicalName === null) {
                 return null;
             }
 
-            return this.documentTypeCollection?.get(this.documentTypeId) ?? null;
-        },
+            if (!(this.selectedTechnicalName in this.supportedDocumentTypes)) {
+                return null;
+            }
 
-        documentTypeRepository(): RepositoryType<'document_type'> {
-            return this.repositoryFactory.create('document_type');
-        },
-
-        documentTypeCriteria(): CriteriaType {
-            return new Criteria(1, 100).addSorting(Criteria.sort('name', 'ASC'));
+            return this.selectedTechnicalName;
         },
 
         documentNumberErrorMessage(): { detail: string } | null {
-            if (!this.currentDocumentType || this.documentConfig.documentNumber) {
+            if (!this.currentTechnicalName || this.documentConfig.documentNumber) {
                 return null;
             }
 
@@ -130,24 +118,27 @@ export default Component.wrapComponentConfig({
         },
 
         documentTypeOptions(): { label: string; value: string }[] {
-            return this.documentTypes.map((documentType) => {
+            return Object.keys(this.supportedDocumentTypes).map((technicalName) => {
                 return {
-                    label: this.$t(this.documentV2Service.getDocumentTypeSnippet(documentType.technicalName)),
-                    value: documentType.id,
+                    label: this.documentV2Service.getDocumentTypeLabel(
+                        technicalName,
+                        this.supportedDocumentTypes[technicalName]?.label,
+                    ),
+                    value: technicalName,
                 };
             });
         },
 
         documentFamily(): string | null {
-            return this.documentV2Service.getDocumentFamily(this.currentDocumentType?.technicalName ?? null);
+            return this.documentV2Service.getDocumentFamily(this.currentTechnicalName);
         },
 
         fileFormatOptions(): { label: string; value: string }[] {
-            if (!this.currentDocumentType?.technicalName) {
+            if (!this.currentTechnicalName) {
                 return [];
             }
 
-            const formats = this.supportedDocumentTypes[this.currentDocumentType.technicalName]?.formats ?? [];
+            const formats = this.supportedDocumentTypes[this.currentTechnicalName]?.formats ?? [];
 
             return this.documentV2Service.sortFileFormats(formats).map((format) => {
                 return {
@@ -163,7 +154,7 @@ export default Component.wrapComponentConfig({
 
         invalidInput(): boolean {
             return (
-                !this.currentDocumentType ||
+                !this.currentTechnicalName ||
                 !this.documentConfig.documentNumber ||
                 !this.documentConfig.documentDate ||
                 this.documentConfig.requestedFileFormats.length === 0 ||
@@ -217,17 +208,11 @@ export default Component.wrapComponentConfig({
     },
 
     watch: {
-        documentTypeId: {
+        selectedTechnicalName: {
             async handler(value: string | null): Promise<void> {
-                if (!this.documentTypeCollection) {
-                    return;
-                }
+                this.$emit('update:documentType', value ? { technicalName: value } : null);
 
-                const documentType = value ? this.documentTypeCollection.get(value) : null;
-
-                this.$emit('update:documentType', documentType);
-
-                await this.onDocumentTypeChange(documentType);
+                await this.onDocumentTypeChange(value);
             },
         },
     },
@@ -241,7 +226,7 @@ export default Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                this.documentTypeCollection = await this.documentTypeRepository.search(this.documentTypeCriteria);
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
             } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentTypes'),
@@ -252,38 +237,19 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            try {
-                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
-            } catch {
-                this.createNotificationError({
-                    message: this.$t('sw-order.components.createDocumentModal.error.loadSupportedDocumentFileFormats'),
-                });
-
-                this.isLoading = false;
-
-                return;
+            if (this.selectedTechnicalName && !(this.selectedTechnicalName in this.supportedDocumentTypes)) {
+                this.selectedTechnicalName = null;
             }
 
-            this.documentTypes = this.documentTypeCollection.filter(
-                (documentType) => documentType.technicalName in this.supportedDocumentTypes,
-            );
-
-            if (this.documentTypeId) {
-                const documentType = this.documentTypeCollection.get(this.documentTypeId);
-
-                if (!documentType || !(documentType.technicalName in this.supportedDocumentTypes)) {
-                    this.documentTypeId = null;
-                    return;
-                }
-
-                await this.onDocumentTypeChange(documentType);
+            if (this.selectedTechnicalName) {
+                await this.onDocumentTypeChange(this.selectedTechnicalName);
             }
 
             this.isLoading = false;
         },
 
-        async onDocumentTypeChange(documentType: Entity<'document_type'> | null): Promise<void> {
-            if (!documentType) {
+        async onDocumentTypeChange(technicalName: string | null): Promise<void> {
+            if (!technicalName) {
                 this.documentConfig = this.documentV2Service.createEmptyDocumentConfig();
                 this.documentNumberPreview = '';
                 this.referencedDocumentNumber = null;
@@ -293,12 +259,12 @@ export default Component.wrapComponentConfig({
 
             this.documentTypeLoading = true;
 
-            this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(documentType.technicalName);
+            this.documentConfig = this.documentV2Service.createEmptyDocumentConfig(technicalName);
 
             this.referencedDocumentNumber = null;
 
             try {
-                const documentNumber = await this.reserveDocumentNumber(documentType.technicalName, true);
+                const documentNumber = await this.reserveDocumentNumber(technicalName, true);
 
                 this.documentConfig.documentNumber = documentNumber;
                 this.documentNumberPreview = documentNumber;
@@ -326,7 +292,7 @@ export default Component.wrapComponentConfig({
         },
 
         async onCreateDocument(additionalAction = ''): Promise<void> {
-            if (this.invalidInput || !this.currentDocumentType) {
+            if (this.invalidInput || !this.currentTechnicalName) {
                 return;
             }
 
@@ -334,7 +300,7 @@ export default Component.wrapComponentConfig({
                 let documentNumber;
 
                 try {
-                    documentNumber = await this.reserveDocumentNumber(this.currentDocumentType.technicalName, false);
+                    documentNumber = await this.reserveDocumentNumber(this.currentTechnicalName, false);
                 } catch {
                     this.createNotificationError({
                         message: this.$t('sw-order.components.createDocumentModal.error.loadDocumentNumber'),
@@ -356,7 +322,7 @@ export default Component.wrapComponentConfig({
         },
 
         onPreview(format: string | null = null): void {
-            if (!this.currentDocumentType) {
+            if (!this.currentTechnicalName) {
                 return;
             }
 

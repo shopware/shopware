@@ -646,7 +646,7 @@ export default class FlowBuilderService {
 
         if (config.fileFormats?.length) {
             const documentTypeName = config.documentType
-                ? translator.$t(Shopware.Service('documentV2Service').getDocumentTypeSnippet(config.documentType))
+                ? Shopware.Service('documentV2Service').getDocumentTypeLabel(config.documentType)
                 : '';
 
             const fileFormatLabels = config.fileFormats.map((format) =>

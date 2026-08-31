@@ -1,7 +1,11 @@
 {% sw_extends '@Storefront/storefront/page/error/_page.html.twig' %}
 
+{% block base_head %}
+    {% sw_include '@Storefront/storefront/page/error/meta.html.twig' %}
+{% endblock %}
+
 {% block base_content %}
-    <main class="content-main">
+    <div class="content-main">
         {% block not_found_error_content %}
             <div class="container mt-5">
                 <img src="{{ asset('assets/illustration/404_error.svg', 'theme') }}"
@@ -21,5 +25,5 @@
                 {% endblock %}
             </div>
         {% endblock %}
-    </main>
+    </div>
 {% endblock %}

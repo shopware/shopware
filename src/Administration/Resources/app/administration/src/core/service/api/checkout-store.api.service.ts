@@ -18,13 +18,7 @@ class CheckoutStoreService extends ApiService {
         this.name = 'checkoutStoreService';
     }
 
-    checkout(
-        salesChannelId: string,
-        contextToken: string,
-        additionalParams = {},
-        additionalHeaders = {},
-        payload = {},
-    ) {
+    checkout(salesChannelId: string, contextToken: string, additionalParams = {}, additionalHeaders = {}, payload = {}) {
         const route = `_proxy-order/${salesChannelId}`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),

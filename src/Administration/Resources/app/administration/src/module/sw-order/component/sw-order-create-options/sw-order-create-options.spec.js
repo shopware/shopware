@@ -332,9 +332,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
     it('should emit send-order-confirmation-mail-toggle when toggling order confirmation mail', async () => {
         const wrapper = await createWrapper();
 
-        const sendOrderConfirmationMailSwitch = wrapper.find(
-            '.sw-order-create-options__send-order-confirmation-mail input',
-        );
+        const sendOrderConfirmationMailSwitch = wrapper.find('.sw-order-create-options__send-order-confirmation-mail input');
         expect(sendOrderConfirmationMailSwitch.element.checked).toBeTruthy();
 
         await sendOrderConfirmationMailSwitch.setChecked(false);

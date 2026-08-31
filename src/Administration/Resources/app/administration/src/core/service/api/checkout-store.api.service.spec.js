@@ -33,7 +33,7 @@ describe('checkoutStoreService', () => {
 
         await checkoutStoreService.checkout(salesChannelId, contextToken, {}, {}, { sendOrderConfirmationMail: false });
 
-        expect(clientMock.history.post[0].url).toBe(`/_proxy-order/${salesChannelId}`);
+        expect(clientMock.history.post[0].url).toBe(`_proxy-order/${salesChannelId}`);
         expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ sendOrderConfirmationMail: false });
         expect(clientMock.history.post[0].headers['sw-context-token']).toBe(contextToken);
     });

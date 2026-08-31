@@ -247,9 +247,15 @@ const swOrderStore = Shopware.Store.register({
             contextToken: string;
             sendMail?: boolean;
         }) {
-            return Service('checkoutStoreService').checkout(salesChannelId, contextToken, {}, {}, {
-                sendOrderConfirmationMail: sendMail ?? this.sendOrderConfirmationMail,
-            });
+            return Service('checkoutStoreService').checkout(
+                salesChannelId,
+                contextToken,
+                {},
+                {},
+                {
+                    sendOrderConfirmationMail: sendMail ?? this.sendOrderConfirmationMail,
+                },
+            );
         },
 
         removeLineItems({

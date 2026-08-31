@@ -3,7 +3,7 @@
  * @private
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import ApiService from 'src/core/service/api.service';
 
@@ -15,7 +15,7 @@ import ApiService from 'src/core/service/api.service';
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class UpdateService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'update') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'update') {
         super(httpClient, loginService, apiEndpoint);
 
         this.name = 'updateService';

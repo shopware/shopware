@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     public function testRefund(): void

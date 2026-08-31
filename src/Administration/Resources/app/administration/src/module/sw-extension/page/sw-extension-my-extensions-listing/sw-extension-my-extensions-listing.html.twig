@@ -82,10 +82,25 @@
 
         <template v-else>
             <div class="sw-extension-my-extensions-listing__container">
-                <sw-extension-my-extensions-listing-controls
-                    @update:active-state="changeActiveState"
-                    @update:sorting-option="changeSortingOption"
-                />
+                <div class="sw-extension-my-extensions-listing__controls-row">
+                    <sw-extension-my-extensions-listing-controls
+                        v-if="!hasSelection"
+                        :sorting-option="sortingOption"
+                        @update:active-state="changeActiveState"
+                        @update:sorting-option="changeSortingOption"
+                    />
+
+                    <sw-extension-bulk-actions-bar
+                        v-else
+                        class="sw-extension-my-extensions-listing__bulk-bar"
+                        :selected-count="selectedExtensions.length"
+                        :applicable-counts="applicableCounts"
+                        :disabled="isBulkRunning"
+                        @select-all="selectAllVisible"
+                        @clear="clearSelection"
+                        @run-action="runBulkAction"
+                    />
+                </div>
 
                 <sw-extension-component-section
                     v-if="isThemeRoute"
@@ -117,6 +132,9 @@
                         <component
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
                             :extension="entry"
+                            :selected="isSelected(entry)"
+                            :bulk-loading="bulkProcessingNames.includes(entry.name)"
+                            @select-change="onSelectChange(entry, $event)"
                             @update-list="updateList"
                         />
                     </template>
@@ -130,5 +148,31 @@
                 </template>
             </div>
         </template>
+
+        <sw-extension-permissions-modal
+            v-if="showBulkConsentModal && bulkConsent"
+            :title="bulkConsentTitle"
+            :description="bulkConsentDescription"
+            :action-label="bulkConsentActionLabel"
+            :extension-label="bulkConsentExtensionLabel"
+            :permissions="bulkConsent.permissions"
+            :domains="bulkConsent.domains"
+            @modal-close="onBulkConsentCancel"
+            @close-with-action="onBulkConsentAccept"
+        />
+
+        <sw-extension-bulk-uninstall-modal
+            v-if="showBulkUninstallModal"
+            :extensions="bulkUninstallItems"
+            @modal-close="cancelBulkUninstall"
+            @confirm="confirmBulkUninstall"
+        />
+
+        <sw-extension-bulk-deactivation-modal
+            v-if="showBulkDeactivationModal"
+            :extensions="rentedBulkDeactivationItems"
+            @modal-close="cancelBulkDeactivation"
+            @confirm="confirmBulkDeactivation"
+        />
     </div>
 </div>

@@ -72,8 +72,8 @@ export default Shopware.Component.wrapComponentConfig({
         flowTemplateCriteria(): CriteriaType {
             const criteria = new Criteria(1, 25);
 
-            if (this.searchTerm) {
-                criteria.setTerm(this.searchTerm);
+            if (this.term) {
+                criteria.setTerm(this.term);
             }
 
             criteria

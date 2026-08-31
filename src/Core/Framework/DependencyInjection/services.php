@@ -473,7 +473,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SnippetFilterFactory::class),
             service(ExtensionDispatcher::class),
             service('event_dispatcher'),
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service('filesystem'),
         ]);
 
@@ -507,7 +507,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ActiveAppsLoader::class),
             service(TranslationConfig::class),
             service(TranslationLoader::class),
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service(SourceResolver::class),
             service('logger'),
         ]);

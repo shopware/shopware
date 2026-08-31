@@ -30,13 +30,21 @@ class CachedSystemConfigLoader extends AbstractSystemConfigLoader
     {
         $key = 'system-config-' . $salesChannelId;
 
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($salesChannelId) {
-            $config = $this->getDecorated()->load($salesChannelId);
+        $fresh = null;
+
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($salesChannelId, &$fresh) {
+            $fresh = $this->getDecorated()->load($salesChannelId);
 
             $item->tag([self::CACHE_TAG]);
 
-            return CacheValueCompressor::compress($config);
+            return CacheValueCompressor::compress($fresh);
         });
+
+        // the config was loaded in this call, return it directly instead of
+        // uncompressing the cache payload that was just compressed from it
+        if ($fresh !== null) {
+            return $fresh;
+        }
 
         return CacheValueCompressor::uncompress($value);
     }

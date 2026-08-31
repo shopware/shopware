@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet\ScheduledTask;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 #[Package('discovery')]
 class UpdateTranslationsTask extends ScheduledTask
@@ -16,6 +17,11 @@ class UpdateTranslationsTask extends ScheduledTask
     public static function getDefaultInterval(): int
     {
         return self::DAILY;
+    }
+
+    public static function shouldRun(ParameterBagInterface $bag): bool
+    {
+        return (bool) $bag->get('shopware.translation.scheduled_task.enabled');
     }
 
     public static function shouldRescheduleOnFailure(): bool

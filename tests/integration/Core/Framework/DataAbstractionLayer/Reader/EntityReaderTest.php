@@ -1734,6 +1734,40 @@ class EntityReaderTest extends TestCase
 
         static::assertContains($id2, $category2->getProducts()->getIds());
         static::assertContains($id3, $category2->getProducts()->getIds());
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('products')->setIds([$id1]);
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertSame([$id1], array_values($category1->getProducts()?->getIds() ?? []));
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertSame([], $category2->getProducts()?->getIds() ?? []);
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('products')
+            ->setIds([$id1])
+            ->addSorting(new FieldSorting('product.name'));
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertSame([$id1], array_values($category1->getProducts()?->getIds() ?? []));
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertSame([], $category2->getProducts()?->getIds() ?? []);
     }
 
     public function testLoadManyToManySupportsFilter(): void

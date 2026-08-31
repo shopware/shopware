@@ -58,6 +58,7 @@ use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTask;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
 use Shopware\Core\System\SalesChannel\Context\ContextFactory;
+use Shopware\Core\System\SalesChannel\Context\InvalidationRaceAwareCache;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer;
@@ -277,6 +278,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->decorate(BaseSalesChannelContextFactory::class)
         ->args([
             service(CachedBaseSalesChannelContextFactory::class . '.inner'),
+            service(InvalidationRaceAwareCache::class),
+        ]);
+
+    $services->set(InvalidationRaceAwareCache::class)
+        ->args([
             service('cache.object'),
         ]);
 
@@ -285,7 +291,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(CachedSalesChannelContextFactory::class . '.inner'),
-            service('cache.object'),
+            service(InvalidationRaceAwareCache::class),
         ]);
 
     $services->set(SalesChannelContextService::class)

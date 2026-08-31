@@ -106,7 +106,15 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             },
                             search: searchFunction,
                             searchIds: () => Promise.resolve({ data: [] }),
-                            get: getFunction,
+                            get: async (...args) => {
+                                const product = await getFunction(...args);
+
+                                if (product && !product._origin) {
+                                    product._origin = {};
+                                }
+
+                                return product;
+                            },
                             hasChanges: () => true,
                             save: () => Promise.resolve({}),
                         }),
@@ -257,6 +265,48 @@ describe('module/sw-product/page/sw-product-detail', () => {
         tabItemClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
         });
+    });
+
+    it('should flag the product as loading before awaiting the measurement units', async () => {
+        await wrapper.unmount();
+        wrapper = null;
+
+        let resolveSearch;
+        Shopware.Service('userConfigService').search.mockReturnValue(
+            new Promise((resolve) => {
+                resolveSearch = resolve;
+            }),
+        );
+
+        Shopware.Store.get('swProductDetail').$reset();
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(false);
+
+        wrapper = await createWrapper();
+
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(true);
+
+        resolveSearch({ data: {} });
+        await flushPromises();
+    });
+
+    it('should not keep the product loading when the measurement units cannot be loaded', async () => {
+        await wrapper.unmount();
+        wrapper = null;
+
+        Shopware.Service('userConfigService').search.mockImplementation((keys) => {
+            if (keys.includes('measurement.preferenceUnits')) {
+                return Promise.reject(new Error('Request failed'));
+            }
+
+            return Promise.resolve({ data: {} });
+        });
+
+        Shopware.Store.get('swProductDetail').$reset();
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(Shopware.Store.get('swProductDetail').loading.product).toBe(false);
     });
 
     it('should redirect to product listing when product no longer exists', async () => {
@@ -664,6 +714,17 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('g');
     });
 
+    it('should initialize with default units when the preferences cannot be loaded', async () => {
+        Shopware.Service('userConfigService').search.mockRejectedValue(new Error('Request failed'));
+
+        await wrapper.vm.initProductMeasurementUnits();
+
+        expect(wrapper.vm.previousLengthUnit).toBe('mm');
+        expect(wrapper.vm.previousWeightUnit).toBe('kg');
+        expect(Shopware.Store.get('swProductDetail').setLengthUnit).toHaveBeenCalledWith('mm');
+        expect(Shopware.Store.get('swProductDetail').setWeightUnit).toHaveBeenCalledWith('kg');
+    });
+
     it('should save preferences only when units have changed', async () => {
         await wrapper.setData({
             previousLengthUnit: 'cm',
@@ -1003,6 +1064,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         expect(wrapper.vm.product.id).toBe('test');
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+        expect(wrapper.vm.product._origin.purchasePrices).toEqual(wrapper.vm.product.purchasePrices);
     });
 
     it('should handle the purchase price if its null', async () => {
@@ -1045,6 +1107,39 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         expect(wrapper.vm.product.id).toBe('test');
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+    });
+
+    it('should synchronize the default purchase price with the parent product origin', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            (id) => {
+                if (id === 'parent-id') {
+                    return Promise.resolve({
+                        id: 'parent-id',
+                        purchasePrices: undefined,
+                    });
+                }
+
+                return Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                    purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                });
+            },
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.parentProduct.purchasePrices).toEqual([
+            { currencyId: undefined, gross: 0, net: 0, linked: true },
+        ]);
+        expect(wrapper.vm.parentProduct._origin.purchasePrices).toEqual(wrapper.vm.parentProduct.purchasePrices);
     });
 
     it('should not overwrite purchase price for variant products with parentId when null', async () => {

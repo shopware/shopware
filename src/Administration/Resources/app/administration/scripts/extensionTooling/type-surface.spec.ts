@@ -41,4 +41,10 @@ describe('extension-tooling type surface', () => {
 
         expect(notImported).toEqual([]);
     });
+
+    it('carries the native-setup macro declarations so extensions type-check swDefinePublic and friends', () => {
+        const adminTypes = fs.readFileSync(adminTypesPath, 'utf8');
+
+        expect(adminTypes).toContain("'../build/vue-setup-transform/shopware-setup-macros'");
+    });
 });

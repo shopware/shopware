@@ -25,14 +25,13 @@ import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility';
 import listeners from 'eslint-plugin-listeners';
 import json from '@eslint/json';
 
-import swCoreRules from 'eslint-plugin-sw-core-rules';
 import swTestRules from 'eslint-plugin-sw-test-rules';
 import twigVue from 'eslint-plugin-twig-vue';
 // The factory is the single source of the base lint setup for admin AND
 // extensions. pluginVue/swDeprecationRules must be the factory's own objects:
 // ESLint refuses to redefine a plugin key with a different object reference,
 // and the factory blocks register these plugins for overlapping files.
-import shopwareAdminExtension, { pluginVue, swDeprecationRules } from './extension-tooling/eslint.mjs';
+import shopwareAdminExtension, { pluginVue, swCoreRules, swDeprecationRules } from './extension-tooling/eslint.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -222,7 +221,6 @@ export default [
             'test/eslint/error-reference.html.twig',
             '**/*.spec.vue2.js',
             'build/vue-setup-transform/**/*.d.ts',
-            'build/vue-setup-transform/templates/**/*',
             '**/*.fixtures.js',
             // Hand-written declaration files under build/ sit outside the tsconfig program (a sibling
             // .ts of the same name shadows them), so the typed parser cannot resolve them.
@@ -271,10 +269,10 @@ export default [
             'inclusive-language': fixupPluginRules(inclusiveLanguage),
             'file-progress': fixupPluginRules(fileProgress),
             'filename-rules': fixupPluginRules(filenameRulesPatched),
-            'sw-core-rules': fixupPluginRules(swCoreRules),
             // Deliberately not fixup-wrapped: the wrapper would be a second
-            // object under the key the factory already registers, and the
+            // object under the keys the factory already registers, and the
             // rules only use context APIs that still exist in ESLint 9.
+            'sw-core-rules': swCoreRules,
             'sw-deprecation-rules': swDeprecationRules,
             'sw-test-rules': fixupPluginRules(swTestRules),
             'twig-vue': twigVue,

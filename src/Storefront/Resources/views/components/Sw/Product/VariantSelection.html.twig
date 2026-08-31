@@ -14,7 +14,11 @@
     'data-component-options': { url: product and (product.parentId or product.id) ? url('frontend.detail.switch', { productId: product.parentId ?? product.id }) : null }|json_encode,
 } %}
 
-{% if product and configuratorSettings %}
+{% if product is null or configuratorSettings is null %}
+    <div {{ attributes.defaults({ class: variantSelectionCVA.apply({}) }) }}>
+        {{ 'component.product.configurator.unavailable'|trans|sw_sanitize }}
+    </div>
+{% else %}
     <form {{ attributes.defaults(attributeDefaults) }}>
         {% block groups %}
             {% for group in configuratorSettings %}

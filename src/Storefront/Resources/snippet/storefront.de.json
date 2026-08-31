@@ -875,7 +875,8 @@
         "outOfStock": "Das Produkt ist nicht mehr verfügbar."
       },
       "configurator": {
-        "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"
+        "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>",
+        "unavailable": "Variantenauswahl nicht verfügbar"
       }
     },
     "cms": {

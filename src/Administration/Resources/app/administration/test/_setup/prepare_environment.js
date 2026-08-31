@@ -312,10 +312,8 @@ config.global.stubs = {
     'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
-    // Unit specs assert their component's popup content through its Vue wrapper, while other
-    // specs assert the same content through document.body. Meteor teleports the real content,
-    // which makes it invisible to the wrapper. Render both test representations so either
-    // public interaction style remains available without suppressing deprecation warnings.
+    // Keep popup content inside the test wrapper. Specs that explicitly verify Meteor's
+    // teleport behavior provide a local stub instead, so slot content is never rendered twice.
     'mt-floating-ui': {
         name: 'mt-floating-ui',
         inheritAttrs: false,
@@ -337,11 +335,6 @@ config.global.stubs = {
                     <slot />
                 </div>
             </div>
-            <teleport to="body">
-                <div v-if="isOpened" class="mt-floating-ui__content">
-                    <slot />
-                </div>
-            </teleport>
         `,
     },
     'mt-icon': MtIcon,

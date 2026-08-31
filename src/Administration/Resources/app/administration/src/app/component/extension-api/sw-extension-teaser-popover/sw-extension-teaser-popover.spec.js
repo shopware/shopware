@@ -14,6 +14,24 @@ async function createWrapper(props = {}) {
         global: {
             stubs: {
                 'mt-button': MtButton,
+                'mt-floating-ui': {
+                    props: {
+                        isOpened: {
+                            type: Boolean,
+                            required: true,
+                        },
+                    },
+                    template: `
+                        <div class="mt-floating-ui">
+                            <slot name="trigger" />
+                            <teleport to="body">
+                                <div v-if="isOpened" class="mt-floating-ui__content">
+                                    <slot />
+                                </div>
+                            </teleport>
+                        </div>
+                    `,
+                },
                 'mt-switch': MtSwitch,
                 'mt-popover': MtPopover,
                 'sw-iframe-renderer': true,

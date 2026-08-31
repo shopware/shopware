@@ -865,6 +865,7 @@
         "increaseOfProduct": "Increase quantity of %product%",
         "decrease": "Decrease quantity",
         "decreaseOfProduct": "Decrease quantity of %product%",
+        "notAvailable": "Quantity selector not available.",
         "stockAdjusted": "Your quantity has been updated to %quantity%.",
         "outOfStock": "The product is no longer available."
       },

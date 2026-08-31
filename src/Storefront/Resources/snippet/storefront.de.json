@@ -865,6 +865,7 @@
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
         "decreaseOfProduct": "Verringere die Anzahl %product%",
+        "notAvailable": "Mengenauswahl nicht verfügbar.",
         "stockAdjusted": "Ihre Menge wurde auf %quantity% aktualisiert.",
         "outOfStock": "Das Produkt ist nicht mehr verfügbar."
       },

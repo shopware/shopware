@@ -10,7 +10,16 @@
     includeProductNameInAriaLabels = false,
 %}
 
-{% if product %}
+{% set quantitySelectorCVA = cva({
+    base: 'sw-product-quantity-selector',
+}) %}
+
+{% if product is null %}
+    <div {{ attributes.defaults({ class: quantitySelectorCVA.apply({}) }) }}>
+        <twig:Sw:Icon name="list-numbered-xs" size="sm" />
+        {{ 'component.product.quantitySelect.notAvailable'|trans|sw_sanitize }}
+    </div>
+{% else %}
     {% set inputId = "quantity-selector-input-#{product.id}" %}
     {% set inputName = inputName ?? "lineItems[#{product.id}][quantity]" %}
     {% set value = value ?? product.minPurchase %}
@@ -26,10 +35,6 @@
     {% endif %}
 
     {% set purchaseLimitUrl = product.isCloseout ? path('frontend.product.purchase-limit', { productId: product.id }) : null %}
-
-    {% set quantitySelectorCVA = cva({
-        base: 'sw-product-quantity-selector',
-    }) %}
 
     {% set attributeDefaults = {
         class: quantitySelectorCVA.apply({}),

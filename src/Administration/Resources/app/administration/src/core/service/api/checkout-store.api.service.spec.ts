@@ -20,7 +20,7 @@ function createCheckoutStoreService() {
  * @sw-package checkout
  */
 describe('checkoutStoreService', () => {
-    it('is registered correctly', async () => {
+    it('is registered correctly', () => {
         const { checkoutStoreService } = createCheckoutStoreService();
 
         expect(checkoutStoreService).toBeInstanceOf(CheckoutStoreService);
@@ -34,7 +34,9 @@ describe('checkoutStoreService', () => {
         await checkoutStoreService.checkout(salesChannelId, contextToken, {}, {}, { sendOrderConfirmationMail: false });
 
         expect(clientMock.history.post[0].url).toBe(`_proxy-order/${salesChannelId}`);
-        expect(JSON.parse(clientMock.history.post[0].data)).toEqual({ sendOrderConfirmationMail: false });
+        const requestData = clientMock.history.post[0].data as string;
+
+        expect(JSON.parse(requestData)).toEqual({ sendOrderConfirmationMail: false });
         expect(clientMock.history.post[0].headers['sw-context-token']).toBe(contextToken);
     });
 });

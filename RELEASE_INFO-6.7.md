@@ -62,6 +62,20 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
 }
 ```
 
+### `PromotionCartInformationTrait` helper methods deprecated
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` are deprecated and will be removed in Shopware 6.8, call `$cart->addErrors()` directly instead:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new PromotionNotFoundError($code));
+$cart->addErrors(new PromotionNotEligibleError($name));
+```
+
 ## API
 
 ### Store API context token response header is restricted on cacheable reads
@@ -1075,20 +1089,6 @@ A new `translation.update` scheduled task now keeps installed translations up to
 Operators can change the interval like any other scheduled task (`scheduled_task.run_interval`) or disable it entirely with `bin/console scheduled-task:deactivate translation.update`.
 
 The translation update orchestration was extracted into the new internal service `Shopware\Core\System\Snippet\Service\TranslationUpdater`, which the Admin API route and the scheduled task share. The HTTP contract of `POST /api/_action/translation/update` is unchanged, except that it now short-circuits without a remote request when no translation is installed (the response is identical).
-
-### `PromotionCartInformationTrait` helper methods deprecated
-
-The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` are deprecated and will be removed in Shopware 6.8, call `$cart->addErrors()` directly instead:
-
-```php
-// Before
-$this->addPromotionNotFoundError($code, $cart);
-$this->addPromotionNotEligibleError($name, $cart);
-
-// After
-$cart->addErrors(new PromotionNotFoundError($code));
-$cart->addErrors(new PromotionNotEligibleError($name));
-```
 
 ### Cloning an entity no longer fails on the write-protected `wasModifiedByUser` field
 

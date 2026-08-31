@@ -7,35 +7,37 @@
     newTab = false,
 %}
 
-{% if product.manufacturer %}
-    {% set manufacturer = product.manufacturer %}
+{% set manufacturerCVA = cva({
+    base: 'sw-product-manufacturer',
+}) %}
 
-    {% set manufacturerName = manufacturer.translated.name %}
-    {% set manufacturerLink = manufacturer.translated.link %}
-    {% set manufacturerLinkHasScheme = manufacturerLink matches '/^[a-zA-Z][a-zA-Z0-9+.-]*:/' or manufacturerLink starts with '//' %}
-    {% set manufacturerLinkHref = manufacturerLink ? (manufacturerLinkHasScheme ? manufacturerLink : 'https://' ~ manufacturerLink) : null %}
+{% set attributeDefaults = {
+    class: manufacturerCVA.apply({}),
+} %}
 
-    {% set linkAttributes = {
-        href: manufacturerLinkHref,
-        class: 'sw-product-manufacturer__link',
-    } %}
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% if product is null or product.manufacturer is null %}
+        {{ 'detail.manufacturerUnavailable'|trans|sw_sanitize }}
+    {% else %}
+        {% set manufacturer = product.manufacturer %}
 
-    {% if newTab %}
-        {% set linkAttributes = linkAttributes|merge({
-            target: '_blank',
-            rel: 'noreferrer noopener',
-        }) %}
-    {% endif %}
+        {% set manufacturerName = manufacturer.translated.name %}
+        {% set manufacturerLink = manufacturer.translated.link %}
+        {% set manufacturerLinkHasScheme = manufacturerLink matches '/^[a-zA-Z][a-zA-Z0-9+.-]*:/' or manufacturerLink starts with '//' %}
+        {% set manufacturerLinkHref = manufacturerLink ? (manufacturerLinkHasScheme ? manufacturerLink : 'https://' ~ manufacturerLink) : null %}
 
-    {% set manufacturerCVA = cva({
-        base: 'sw-product-manufacturer',
-    }) %}
+        {% set linkAttributes = {
+            href: manufacturerLinkHref,
+            class: 'sw-product-manufacturer__link',
+        } %}
 
-    {% set attributeDefaults = {
-        class: manufacturerCVA.apply({}),
-    } %}
+        {% if newTab %}
+            {% set linkAttributes = linkAttributes|merge({
+                target: '_blank',
+                rel: 'noreferrer noopener',
+            }) %}
+        {% endif %}
 
-    <div {{ attributes.defaults(attributeDefaults) }}>
         {% block link %}
             {% if manufacturerLinkHref %}
                 <a {{ attributes.nested('link').defaults(linkAttributes) }}>
@@ -60,5 +62,5 @@
                 </a>
             {% endif %}
         {% endblock %}
-    </div>
-{% endif %}
+    {% endif %}
+</div>

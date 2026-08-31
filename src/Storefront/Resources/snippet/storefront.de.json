@@ -660,6 +660,7 @@
     "descriptionTitle": "Produktinformationen",
     "priceUnitName": "Inhalt:",
     "priceUnavailable": "Preis nicht verfügbar",
+    "manufacturerUnavailable": "Hersteller nicht verfügbar",
     "priceDataInfoUntil": "Bis",
     "priceDataInfoFrom": "Ab",
     "listPricePercentage": "(%price%% gespart)",

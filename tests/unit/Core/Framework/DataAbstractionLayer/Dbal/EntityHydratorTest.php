@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -12,12 +13,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -138,6 +144,45 @@ class EntityHydratorTest extends TestCase
         static::assertNotNull($first);
         static::assertSame('0', $first->get('name'));
         static::assertSame('0', $first->getTranslation('name'));
+    }
+
+    #[TestDox('Translated fields are resolved per definition instance, not per entity name')]
+    public function testTranslatedFieldsAreNotSharedBetweenDefinitionInstances(): void
+    {
+        $id = Uuid::randomBytes();
+        $rows = [
+            [
+                'test.id' => $id,
+                'test.name' => '12.5',
+                'test.translation.name' => '12.5',
+            ],
+        ];
+
+        // prime the hydrator with a definition instance that types "name" as a string
+        $stringDefinition = $this->definitionInstanceRegistry->get(TranslatableTestDefinition::class);
+        $structs = $this->createTranslatableHydrator()
+            ->hydrate(new EntityCollection(), $stringDefinition->getEntityClass(), $stringDefinition, $rows, 'test', Context::createDefaultContext());
+        $first = $structs->first();
+        static::assertNotNull($first);
+        static::assertSame('12.5', $first->getTranslation('name'));
+
+        // a second registry compiles its own definition instances for the same entity name,
+        // typing "name" as a float (mirrors a rebooted test kernel with changed custom fields)
+        $floatRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                TranslatableFloatTestDefinition::class,
+                TranslatableFloatTestTranslationDefinition::class,
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+        $floatDefinition = $floatRegistry->get(TranslatableFloatTestDefinition::class);
+
+        $structs = $this->createTranslatableHydrator()
+            ->hydrate(new EntityCollection(), $floatDefinition->getEntityClass(), $floatDefinition, $rows, 'test', Context::createDefaultContext());
+        $first = $structs->first();
+        static::assertNotNull($first);
+        static::assertSame(12.5, $first->getTranslation('name'));
     }
 
     public function testCustomFieldHydrationWithoutTranslationWithoutInheritance(): void
@@ -417,6 +462,15 @@ class EntityHydratorTest extends TestCase
         static::assertNull($first->all()['toMany']);
     }
 
+    private function createTranslatableHydrator(): TranslatableTestHydrator
+    {
+        $container = new ContainerBuilder();
+        $hydrator = new TranslatableTestHydrator($container);
+        $container->set(TranslatableTestHydrator::class, $hydrator);
+
+        return $hydrator;
+    }
+
     /**
      * @param list<non-empty-string> $additionalLanguages
      */
@@ -455,6 +509,56 @@ class FkExtensionFieldTest extends EntityDefinition
             (new FkField('normal_fk', 'normalFk', ProductDefinition::class))->addFlags(new ApiAware()),
 
             (new FkField('extended_fk', 'extendedFk', ProductDefinition::class))->addFlags(new ApiAware(), new Extension()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class TranslatableFloatTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return TranslatableTestDefinition::ENTITY_NAME;
+    }
+
+    public function getHydratorClass(): string
+    {
+        return TranslatableTestHydrator::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey()),
+
+            (new TranslatedField('name'))->addFlags(new ApiAware()),
+
+            (new TranslationsAssociationField(TranslatableFloatTestTranslationDefinition::class, 'translatable_test_id'))->addFlags(new Required()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class TranslatableFloatTestTranslationDefinition extends EntityTranslationDefinition
+{
+    public function getEntityName(): string
+    {
+        return TranslatableTestTranslationDefinition::ENTITY_NAME;
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return TranslatableFloatTestDefinition::class;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new FloatField('name', 'name'))->addFlags(new ApiAware(), new Required()),
         ]);
     }
 }

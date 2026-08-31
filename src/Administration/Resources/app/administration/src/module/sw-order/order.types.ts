@@ -67,6 +67,8 @@ interface PromotionCodeTag {
 interface CartError {
     level: number;
     message: string;
+    messageKey?: string;
+    translatedMessage?: string | null;
 }
 
 interface CartDelivery {

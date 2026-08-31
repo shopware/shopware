@@ -33,6 +33,11 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },
@@ -61,8 +66,27 @@ export default {
             return this.$t('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
+        emptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.crossselling.emptyStateDescription');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.crossselling.inheritedEmptyStateDescription');
+            }
+
+            return this.$t('sw-product.crossselling.notInheritedEmptyStateDescription');
+        },
+
+        parentCrossSellingHref() {
+            if (!this.isChild || !this.isInherited) {
+                return undefined;
+            }
+
+            return this.$router.resolve({
+                name: 'sw.product.detail.crossSelling',
+                params: { id: this.product.parentId },
+            }).href;
         },
 
         crossSellingRepository() {

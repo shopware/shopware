@@ -840,7 +840,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         global.activeFeatureFlags = [];
     });
 
-    it('should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK', async () => {
+    // @deprecated tag:v6.8.0 - The legacy document generation flow will be removed with the rework.
+    it.deprecated('v6.8.0.0')('should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK', async () => {
         wrapper = await createWrapper();
         await flushPromises();
         await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });

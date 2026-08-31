@@ -737,6 +737,42 @@ describe('Form country state select plugin', () => {
         expect(validateFieldSpy).not.toHaveBeenCalled();
     });
 
+    it('should not validate a prefilled vatId on page load, so server-rendered feedback survives', async () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name is-invalid"
+                           aria-describedby="vatIdsFeedback" value="DE123456789">
+                    <div id="vatIdsFeedback" class="invalid-feedback">This VAT ID is already in use.</div>
+                </div>
+
+                <select class="country-select" data-initial-country-id="DE">
+                    <option selected="selected" value="DE" data-vat-id-required="1" data-state-required="0"
+                            data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1">Germany</option>
+                </select>
+                <select class="country-state-select" data-initial-country-state-id="">
+                    <option data-placeholder-option="true">Select state..</option>
+                </select>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        const validateFieldSpy = jest.spyOn(window.formValidation, 'validateField');
+
+        createPlugin();
+        await new Promise(process.nextTick);
+
+        const vatIdField = document.querySelector('#vatIds');
+
+        expect(vatIdField.getAttribute('pattern')).toBe('DE[0-9]{9}');
+        expect(validateFieldSpy).not.toHaveBeenCalled();
+        expect(vatIdField.classList.contains('is-invalid')).toBe(true);
+        expect(document.querySelector('#vatIdsFeedback').innerHTML).toBe('This VAT ID is already in use.');
+    });
+
     it('should set pattern attribute via form field toggle change when country has checkVatIdPattern enabled', async () => {
         template = `
             <form id="registerForm" class="register-shipping" action="/register" method="post">

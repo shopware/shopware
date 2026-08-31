@@ -109,10 +109,11 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
         this._updateZipcodePattern(zipcodeInputs, zipcodePattern, checkZipcodePattern);
-        this._revalidateZipcodeFields(zipcodeInputs);
+        this._revalidateFilledFields(zipcodeInputs);
 
         if (vatIdInput) {
             this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
+            this._revalidateVatIdField(vatIdInput);
         }
     }
 
@@ -137,7 +138,7 @@ export default class CountryStateSelectPlugin extends Plugin {
      * @private
      */
     _updateVatIdField(vatIdFieldInput, vatIdRequired, vatIdPattern = null, checkVatIdPattern = false) {
-        if (this._differentShippingCheckbox && this.options.prefix === 'billingAddress') {
+        if (!this._ownsVatIdField()) {
             return;
         }
 
@@ -152,10 +153,30 @@ export default class CountryStateSelectPlugin extends Plugin {
         } else {
             vatIdFieldInput.removeAttribute('pattern');
         }
+    }
 
-        if (vatIdFieldInput.value.trim().length > 0) {
-            window.formValidation.validateField(vatIdFieldInput);
+    /**
+     * Whether this instance is responsible for the shared VAT ID input.
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _ownsVatIdField() {
+        return !(this._differentShippingCheckbox && this.options.prefix === 'billingAddress');
+    }
+
+    /**
+     * Re-validates the VAT ID field if this instance owns it.
+     *
+     * @param {HTMLElement} vatIdFieldInput
+     * @private
+     */
+    _revalidateVatIdField(vatIdFieldInput) {
+        if (!this._ownsVatIdField()) {
+            return;
         }
+
+        this._revalidateFilledFields([vatIdFieldInput]);
     }
 
     /**
@@ -202,21 +223,21 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     /**
-     * Re-validates zip code fields that already hold a value, so a pending error is resolved
-     * against the pattern of the newly selected country. Only call this on user interaction:
-     * on page load it would reset feedback rendered by the server.
+     * Re-validates fields that already hold a value, so a pending error is resolved against the
+     * rules of the newly selected country. Only call this on user interaction: on page load it
+     * would reset feedback rendered by the server.
      *
-     * @param {NodeList} inputs
+     * @param {NodeList|HTMLElement[]} fields
      * @private
      */
-    _revalidateZipcodeFields(inputs) {
-        if (!inputs) {
+    _revalidateFilledFields(fields) {
+        if (!fields) {
             return;
         }
 
-        inputs.forEach((input) => {
-            if (input.value.trim().length > 0) {
-                window.formValidation.validateField(input);
+        fields.forEach((field) => {
+            if (field && field.value.trim().length > 0) {
+                window.formValidation.validateField(field);
             }
         });
     }
@@ -311,6 +332,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
 
         this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
+        this._revalidateVatIdField(vatIdInput);
     }
 
     _getStateDisplayed(countrySelectOption, stateRequired) {

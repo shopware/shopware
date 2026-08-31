@@ -61,17 +61,15 @@ export default Component.wrapComponentConfig({
     },
 
     data(): {
-        dataSource: StateMachineHistoryData[];
+        stateHistory: StateMachineHistoryData[];
         limit: number;
         page: number;
-        total: number;
         steps: number[];
     } {
         return {
-            dataSource: [],
+            stateHistory: [],
             limit: 10,
             page: 1,
-            total: 0,
             steps: [
                 5,
                 10,
@@ -85,8 +83,18 @@ export default Component.wrapComponentConfig({
             return this.repositoryFactory.create('state_machine_history');
         },
 
+        dataSource(): StateMachineHistoryData[] {
+            const start = (this.page - 1) * this.limit;
+
+            return this.stateHistory.slice(start, start + this.limit);
+        },
+
+        total(): number {
+            return this.stateHistory.length;
+        },
+
         stateMachineHistoryCriteria(): CriteriaType {
-            const criteria = new Criteria(this.page, this.limit);
+            const criteria = new Criteria(1, null);
 
             const entityIds = [
                 this.order.id,
@@ -199,8 +207,7 @@ export default Component.wrapComponentConfig({
 
         getStateHistoryEntries(): Promise<EntityCollection<'state_machine_history'>> {
             return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria).then((fetchedEntries) => {
-                this.dataSource = this.buildStateHistory(fetchedEntries);
-                this.total = fetchedEntries.total ?? 1;
+                this.stateHistory = this.buildStateHistory(fetchedEntries);
                 return Promise.resolve(fetchedEntries);
             });
         },
@@ -223,11 +230,9 @@ export default Component.wrapComponentConfig({
 
             const entries = [] as Array<StateMachineHistoryData>;
 
-            if (this.page === 1) {
-                // @ts-expect-error - states exists
-                // Prepend start state
-                entries.push(this.createEntry(states, this.order));
-            }
+            // @ts-expect-error - states exists
+            // Prepend start state
+            entries.push(this.createEntry(states, this.order));
 
             const knownTransactionIds: string[] = [];
             allEntries.forEach((entry: Entity<'state_machine_history'>) => {
@@ -308,8 +313,6 @@ export default Component.wrapComponentConfig({
         onPageChange({ page, limit }: { page: number; limit: number }): void {
             this.page = page;
             this.limit = limit;
-
-            void this.loadHistory();
         },
 
         enumerateTransaction(item: StateMachineHistoryData): string {

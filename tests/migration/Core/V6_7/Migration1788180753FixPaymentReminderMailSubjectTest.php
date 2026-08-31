@@ -27,8 +27,8 @@ class Migration1788180753FixPaymentReminderMailSubjectTest extends MailTemplateM
 
         $subjects = $this->getPaymentReminderMailTemplateSubjects();
 
-        static::assertSame('Payment reminder for your order with {{ salesChannel.name }}', $subjects['en']);
-        static::assertSame('Zahlungserinnerung für Ihre Bestellung bei {{ salesChannel.name }}', $subjects['de']);
+        static::assertSame('Payment reminder for your order with {{ salesChannel.translated.name }}', $subjects['en']);
+        static::assertSame('Zahlungserinnerung für Ihre Bestellung bei {{ salesChannel.translated.name }}', $subjects['de']);
     }
 
     public function testMigrationDoesNotOverwriteCustomizedPaymentReminderMailSubject(): void

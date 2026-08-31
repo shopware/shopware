@@ -72,6 +72,32 @@ class MissingMigrationTestsTest extends TestCase
         ];
     }
 
+    #[TestDox('A moved migration test satisfies the rule for the migration it accompanies')]
+    public function testRenamedMigrationTestCountsAsCoverage(): void
+    {
+        $context = new Context(new StubPlatform(new StubPullRequest([
+            new StubFile('src/Core/Migration/V6_8/Migration1752000000AddFoo.php', File::STATUS_ADDED),
+            new StubFile('tests/migration/Core/V6_8/Migration1752000000AddFooTest.php', File::STATUS_RENAMED),
+        ])));
+
+        (new MissingMigrationTests())($context);
+
+        static::assertFalse($context->hasReports());
+    }
+
+    #[TestDox('A deleted migration test does not satisfy the rule')]
+    public function testRemovedMigrationTestDoesNotCount(): void
+    {
+        $context = new Context(new StubPlatform(new StubPullRequest([
+            new StubFile('src/Core/Migration/V6_8/Migration1752000000AddFoo.php', File::STATUS_ADDED),
+            new StubFile('tests/migration/Core/V6_8/Migration1752000000AddFooTest.php', File::STATUS_REMOVED),
+        ])));
+
+        (new MissingMigrationTests())($context);
+
+        static::assertCount(1, $context->getFailures());
+    }
+
     #[TestDox('Only added migration files trigger the rule, modifications do not')]
     public function testModifiedMigrationIsIgnored(): void
     {

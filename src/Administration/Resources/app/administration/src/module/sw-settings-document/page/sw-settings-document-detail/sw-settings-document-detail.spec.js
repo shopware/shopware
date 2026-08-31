@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import { MtCheckbox, MtSwitch } from '@shopware-ag/meteor-component-library';
 import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from './index';
 
 /**
@@ -7,7 +6,7 @@ import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from './index';
  */
 const documentBaseConfigRepositoryMock = {
     create: () => {
-        return Promise.resolve({});
+        return {};
     },
     get: (id) => {
         const salesChannels = new Shopware.Data.EntityCollection('source', 'entity', Shopware.Context.api);
@@ -173,54 +172,7 @@ const createWrapper = async (customOptions, privileges = [], isDocumentGeneratio
                     </div>
                 `,
                     },
-                    'sw-entity-single-select': true,
-                    'sw-card-view': true,
-                    'sw-container': true,
-                    'sw-form-field-renderer': {
-                        template: `
-                            <div :id="name">
-                                <span
-                                    v-if="error"
-                                    class="sw-form-field-renderer__error"
-                                >
-                                    {{ error.detail }}
-                                </span>
-                            </div>
-                        `,
-                        props: {
-                            name: {
-                                type: String,
-                                required: true,
-                            },
-                            error: {
-                                type: Object,
-                                required: false,
-                                default: null,
-                            },
-                        },
-                    },
-                    'mt-checkbox': MtCheckbox,
-                    'mt-banner': true,
-                    'sw-media-compact-upload-v2': {
-                        template: '<div id="sw-media-compact-upload"/>',
-                        props: [
-                            'source',
-                            'disabled',
-                        ],
-                    },
-                    'mt-switch': MtSwitch,
-                    'sw-multi-select': {
-                        template: '<div id="documentSalesChannel" @click="$emit(\'click\')"/>',
-                        props: ['disabled'],
-                    },
-                    'sw-skeleton': true,
-                    'sw-select-result': true,
-                    'sw-highlight-text': true,
-                    'sw-custom-field-set-renderer': true,
-                    'sw-help-text': {
-                        template: '<span class="sw-help-text"></span>',
-                        props: ['text'],
-                    },
+                    'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                 },
                 provide: {
                     repositoryFactory: {
@@ -351,8 +303,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeUndefined();
-        expect(wrapper.findAllComponents('.sw-field').every((field) => !field.props().disabled)).toBe(true);
-        expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(false);
+        expect(wrapper.findAll('.mt-field').every((field) => !field.classes('is--disabled'))).toBe(true);
+        expect(wrapper.find('#documentSalesChannel').attributes('disabled')).toBe('false');
     });
 
     it('should not be able to edit', async () => {
@@ -364,8 +316,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeDefined();
-        expect(wrapper.findAllComponents('.sw-field').every((field) => field.props().disabled)).toBe(true);
-        expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(true);
+        expect(wrapper.findAll('.mt-field').every((field) => field.classes('is--disabled'))).toBe(true);
+        expect(wrapper.find('#documentSalesChannel').attributes('disabled')).toBe('true');
     });
 
     it('should create an invoice document with countries note delivery', async () => {
@@ -462,15 +414,25 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
         await flushPromises();
 
-        expect(wrapper.find('#paymentDueDate .sw-form-field-renderer__error').exists()).toBe(false);
+        expect(
+            wrapper
+                .findAll('.mt-field')
+                .filter((field) => field.find('#paymentDueDate').exists())[0]
+                .find('.mt-field__error')
+                .exists(),
+        ).toBe(false);
 
         await wrapper.get('.sw-settings-document-detail__save-action').trigger('click');
         await flushPromises();
 
         expect(documentBaseConfigRepositoryMock.save).toHaveBeenCalledTimes(1);
-        expect(wrapper.get('#paymentDueDate .sw-form-field-renderer__error').text()).toBe(
-            'sw-settings-document.errors.invalidDueDateFormat',
-        );
+        expect(
+            wrapper
+                .findAll('.mt-field')
+                .filter((field) => field.find('#paymentDueDate').exists())[0]
+                .find('.mt-field__error')
+                .text(),
+        ).toBe('sw-settings-document.errors.invalidDueDateFormat');
     });
 
     it('should render the company settings layout without feature flag', async () => {
@@ -496,7 +458,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
         await flushPromises();
 
-        await wrapper.getComponent('mt-banner-stub').vm.$emit('close');
+        await wrapper.find('.sw-settings-document-detail__company-settings-moved-banner > button').trigger('click');
 
         expect(wrapper.find('.sw-settings-document-detail__company-settings-moved-banner').exists()).toBe(false);
         expect(localStorage.getItem(COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY)).toBe('true');
@@ -512,8 +474,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         );
         await flushPromises();
 
-        await wrapper.getComponent('mt-banner-stub').vm.$emit('close');
-        await flushPromises();
+        await wrapper.find('.sw-settings-document-detail__company-settings-moved-banner > button').trigger('click');
 
         const remountedWrapper = await createWrapper(
             {
@@ -669,6 +630,28 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(multiSelect.attributes().value).toBe('pdf');
     });
 
+    it('should exclude zugferd and app-provided document types from documentCriteria', async () => {
+        const wrapper = await createWrapper({}, ['document.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.documentCriteria.filters).toContainEqual({
+            type: 'not',
+            operator: 'OR',
+            queries: [
+                {
+                    type: 'prefix',
+                    field: 'technicalName',
+                    value: 'zugferd_',
+                },
+                {
+                    type: 'equals',
+                    field: 'technicalName',
+                    value: 'app_provided',
+                },
+            ],
+        });
+    });
+
     it.each([
         { name: 'no company form', config: { displayCompanyAddress: false, displayReturnAddress: false } },
         { name: 'return address active', config: { displayCompanyAddress: false, displayReturnAddress: true } },
@@ -744,7 +727,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         const infixHeadline = wrapper.find('.sw-settings-document-detail__filename_infix_headline');
 
         expect(infixHeadline.text()).toContain('sw-settings-document.detail.filenameInfixHeadline');
-        expect(infixHeadline.find('.sw-help-text').exists()).toBe(true);
+        expect(infixHeadline.find('sw-help-text').exists()).toBe(true);
     });
 
     it('should not render the filename infix headline or fields for a new document without a selected document type', async () => {
@@ -764,5 +747,88 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(wrapper.find('.sw-settings-document-detail__filename_pattern').exists()).toBe(false);
         expect(wrapper.find('.sw-settings-document-detail__filename_infix_headline').exists()).toBe(false);
+    });
+
+    it('should set filenameInfixes on save to null when no infixes were configured', async () => {
+        const wrapper = await createWrapper({}, ['document.editor'], true);
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-document-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(documentBaseConfigRepositoryMock.save).toHaveBeenCalledWith({
+            config: {
+                displayAdditionalNoteDelivery: false,
+                displayCompanyAddress: false,
+                displayCustomerVatId: false,
+                displayDivergentDeliveryAddress: false,
+                displayFooter: true,
+                displayHeader: true,
+                displayLineItemPosition: false,
+                displayLineItems: true,
+                displayPageCount: true,
+                displayPrices: true,
+                displayReturnAddress: false,
+                fileTypes: [
+                    'pdf',
+                    'html',
+                ],
+                itemsPerPage: 10,
+                pageOrientation: 'portrait',
+                pageSize: 'a4',
+            },
+            filenameInfixes: null,
+            global: false,
+            salesChannels: [],
+        });
+    });
+
+    it('should save filename infixes with the configured values', async () => {
+        const wrapper = await createWrapper(
+            {
+                props: { documentConfigId: 'documentConfigWithFormats' },
+            },
+            ['document.editor'],
+            true,
+        );
+        await flushPromises();
+
+        await wrapper.find('#sw-field--documentConfig-filenameInfixes-html').setValue('htmlInfix');
+
+        await wrapper.find('.sw-settings-document-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(documentBaseConfigRepositoryMock.save).toHaveBeenCalledWith({
+            config: {
+                displayAdditionalNoteDelivery: false,
+                displayCompanyAddress: false,
+                displayCustomerVatId: false,
+                displayDivergentDeliveryAddress: false,
+                displayFooter: true,
+                displayHeader: true,
+                displayLineItemPosition: false,
+                displayLineItems: true,
+                displayPageCount: true,
+                displayPrices: true,
+                displayReturnAddress: false,
+                fileTypes: [
+                    'pdf',
+                    'html',
+                ],
+                itemsPerPage: 10,
+                pageOrientation: 'portrait',
+                pageSize: 'a4',
+            },
+            documentType: {
+                id: 'documentTypeId1',
+                technicalName: 'invoice',
+            },
+            documentTypeId: 'documentTypeId1',
+            filenameInfixes: {
+                html: 'htmlInfix',
+            },
+            id: 'documentConfigWithFormats',
+            salesChannels: [],
+        });
     });
 });

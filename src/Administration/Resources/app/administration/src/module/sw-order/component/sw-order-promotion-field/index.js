@@ -1,5 +1,6 @@
 import './sw-order-promotion-field.scss';
 import template from './sw-order-promotion-field.html.twig';
+import { getCartErrorMessage } from '../../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -409,24 +410,26 @@ export default {
             }
 
             Object.values(response.data.errors).forEach((value) => {
+                const message = getCartErrorMessage(value);
+
                 switch (value.level) {
                     case 0: {
                         this.createNotificationInfo({
-                            message: value.message,
+                            message,
                         });
                         break;
                     }
 
                     case 10: {
                         this.createNotificationWarning({
-                            message: value.message,
+                            message,
                         });
                         break;
                     }
 
                     default: {
                         this.createNotificationError({
-                            message: value.message,
+                            message,
                         });
                         break;
                     }

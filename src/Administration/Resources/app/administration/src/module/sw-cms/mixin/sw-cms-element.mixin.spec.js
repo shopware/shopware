@@ -240,6 +240,34 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         expect(wrapper.vm.element.config.content.value).not.toBe('system override');
     });
 
+    it('should not mutate the base CMS config when the element has no own translation', async () => {
+        const element = {
+            id: defaultElement.id,
+            type: 'text',
+            config: {},
+            translated: {
+                config: {
+                    content: {
+                        source: 'static',
+                        value: 'base content',
+                    },
+                },
+            },
+            data: null,
+        };
+
+        const wrapper = await createWrapper(element, 'sw.category.detail');
+
+        expect(wrapper.vm.element.config.content).toEqual({
+            source: 'static',
+            value: 'base content',
+        });
+
+        wrapper.vm.element.config.content.value = 'child custom content';
+
+        expect(element.translated.config.content.value).toBe('base content');
+    });
+
     it('should not mutate the parent language slotConfig when editing inherited content', async () => {
         const parentSlotConfig = {
             [defaultElement.id]: {

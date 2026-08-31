@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class RobotsPageLoadedEvent extends NestedEvent implements ShopwareEvent
 {

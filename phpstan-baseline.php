@@ -14,12 +14,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Content/Flow/Dispatching/Action/SendMailAction.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/Flow/Dispatching/Storer/A11yRenderedDocumentStorer.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
@@ -1044,30 +1038,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Storefront/Theme/ConfigLoader/StaticFileConfigLoader.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Storefront\\Theme\\Event\\ThemeIndexerEvent::__construct() has parameter $ids with no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Theme/Event/ThemeIndexerEvent.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Storefront\\Theme\\Event\\ThemeIndexerEvent::__construct() has parameter $skip with no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Theme/Event/ThemeIndexerEvent.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Storefront\\Theme\\Event\\ThemeIndexerEvent::getIds() return type has no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Theme/Event/ThemeIndexerEvent.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Storefront\\Theme\\Event\\ThemeIndexerEvent::getSkip() return type has no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Theme/Event/ThemeIndexerEvent.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',

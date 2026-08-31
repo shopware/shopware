@@ -46,6 +46,8 @@ class PromotionItemBuilder
      */
     public function buildPlaceholderItem(string $code): LineItem
     {
+        $code = mb_trim($code);
+
         // void duplicate codes with other items
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;

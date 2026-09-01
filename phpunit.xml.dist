@@ -35,9 +35,6 @@
             <file>src/Core/DevOps/StaticAnalyze/console-application.php</file>
             <file>src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php</file>
             <file>src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php</file>
-            <!-- untested metric value objects, pending backfill -->
-            <file>src/Core/Framework/Telemetry/Metrics/Metric/ConfiguredMetric.php</file>
-            <file>src/Core/Framework/Telemetry/Metrics/Metric/Type.php</file>
 
             <!-- All fixtures, stubs, traits used for tests -->
             <directory suffix=".php">src/Core/Content/Test</directory>
@@ -56,20 +53,11 @@
             <file>src/Core/Test/Generator.php</file>
             <file>src/Core/Test/TestBuilderTrait.php</file>
             <file>src/Core/Test/TestDefaults.php</file>
-            <!-- untested phpunit extension machinery, pending backfill -->
+            <!-- phpunit runtime bootstrap and outbound IO, exercised by every CI run and not unit-testable:
+                 the extensions wire subscribers before the framework is up, the gateway talks to Datadog -->
             <file>src/Core/Test/PHPUnit/Extension/DatabaseDiff/DatabaseDiffExtension.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/DatabaseDiff/Subscriber/BeforeTestMethodCalledSubscriber.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/DatabaseDiff/Subscriber/TestFinishedSubscriber.php</file>
             <file>src/Core/Test/PHPUnit/Extension/Datadog/DatadogExtension.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/Datadog/DatadogPayload.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/Datadog/DatadogPayloadCollection.php</file>
             <file>src/Core/Test/PHPUnit/Extension/Datadog/Gateway/DatadogGateway.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/Datadog/Subscriber/TestFailedSubscriber.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/Datadog/Subscriber/TestFinishedSubscriber.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/Datadog/Subscriber/TestPreparedSubscriber.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/FeatureFlag/SavedConfig.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/FeatureFlag/Subscriber/TestFinishedSubscriber.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/FeatureFlag/Subscriber/TestSkippedSubscriber.php</file>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
 

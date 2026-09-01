@@ -58,6 +58,9 @@ const pinia = createPinia();
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-flow-sequence-condition', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             plugins: [pinia],
             stubs: {
                 'sw-context-button': {
@@ -316,8 +319,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const ruleOptionInSelect = wrapper.find('.sw-select-option--1');
-        await ruleOptionInSelect.trigger('click');
+        document.body.querySelector('.sw-select-option--1').click();
 
         invalidSequences = Shopware.Store.get('swFlow').invalidSequences;
         expect(invalidSequences).toEqual([]);
@@ -384,8 +386,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const ruleOptionInSelect = wrapper.find('.sw-select-option--1');
-        await ruleOptionInSelect.trigger('click');
+        document.body.querySelector('.sw-select-option--1').click();
 
         const sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState[0]).toEqual({
@@ -481,8 +482,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const createRuleButton = wrapper.find('.sw-select-result__create-new-rule');
-        await createRuleButton.trigger('click');
+        document.body.querySelector('.sw-select-result__create-new-rule').click();
         await flushPromises();
 
         createRuleModal = wrapper.find('sw-flow-rule-modal-stub');
@@ -527,9 +527,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const disabledRule = wrapper.find('ul:nth-of-type(2) li');
+        const disabledRule = document.body.querySelector('ul:nth-of-type(2) li');
 
-        expect(disabledRule.classes()).toContain('is--disabled');
+        expect(disabledRule.classList).toContain('is--disabled');
     });
 
     it('should not disable the rule if it is restricted', async () => {
@@ -541,8 +541,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const disabledRule = wrapper.find('ul:nth-of-type(2) li:nth-of-type(2)');
+        const disabledRule = document.body.querySelector('ul:nth-of-type(2) li:nth-of-type(2)');
 
-        expect(disabledRule.classes()).not.toContain('is--disabled');
+        expect(disabledRule.classList).not.toContain('is--disabled');
     });
 });

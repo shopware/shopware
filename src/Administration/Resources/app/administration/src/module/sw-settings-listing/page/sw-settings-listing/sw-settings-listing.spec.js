@@ -741,9 +741,12 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         await defaultSortingSelectInput.trigger('click');
         await flushPromises();
 
-        await wrapper
-            .find('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select .sw-select-option--rating')
-            .trigger('click');
+        const ratingOption = Shopware.Feature.isActive('V6_8_0_0')
+            ? document.body.querySelector('.sw-select-option--rating')
+            : wrapper.find(
+                  '.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select .sw-select-option--rating',
+              ).element;
+        ratingOption.click();
         await flushPromises();
 
         await wrapper.find('.sw-settings-listing__save-action').trigger('click');

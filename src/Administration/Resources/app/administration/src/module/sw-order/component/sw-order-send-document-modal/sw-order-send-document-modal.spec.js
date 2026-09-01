@@ -219,6 +219,9 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
 
     return mount(await wrapTestComponent('sw-order-send-document-modal', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -288,7 +291,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await mailTemplateSelect.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result__result-item-description').text()).toBe(mockMailTemplates[0].description);
+        expect(document.body.querySelector('.sw-select-result__result-item-description').textContent.trim()).toBe(
+            mockMailTemplates[0].description,
+        );
     });
 
     it('should truncate mail template description', async () => {
@@ -303,7 +308,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        const text = wrapper.find('.sw-select-result__result-item-description').text();
+        const text = document.body.querySelector('.sw-select-result__result-item-description').textContent.trim();
         expect(text).toHaveLength(160);
         expect(text.endsWith('...')).toBe(true);
     });
@@ -384,7 +389,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--1').trigger('click');
+        document.body.querySelector('.sw-select-option--1').click();
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
@@ -444,7 +449,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--2').trigger('click');
+        document.body.querySelector('.sw-select-option--2').click();
         await flushPromises();
 
         expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');

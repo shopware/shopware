@@ -118,10 +118,13 @@
                     "placeholderPromotionSalesChannel": "Verkaufskanal hinzufügen ...",
                     "labelCustomerSelect": "Kunden-Regeln",
                     "placeholderCustomerSelect": "Wähle Kunden-Regeln aus ...",
+                    "helpTextCustomerSelect": "Wenn eine Kunden-Regel die Einlösung verhindert und kein Kunde angemeldet ist, wird automatisch ein Login-Hinweis angezeigt. Für alle anderen Fälle kann eine individuelle Meldung über ein Storefront-Snippet mit dem Schlüssel \"checkout.promotion-not-eligible-{ruleId}\" hinterlegt werden.",
                     "labelCartConditionSelect": "Warenkorb-Regeln",
                     "placeholderCartConditionSelect": "Wähle Warenkorb-Regeln aus ...",
+                    "helpTextCartConditionSelect": "Um eine individuelle Fehlermeldung anzuzeigen, wenn eine Warenkorb-Regel die Einlösung verhindert, kann ein Storefront-Snippet mit dem Schlüssel \"checkout.promotion-not-eligible-{ruleId}\" angelegt werden.",
                     "labelOrderConditionSelect": "Bestellungs-Regeln",
-                    "placeholderOrderConditionSelect": "Wähle Bestellungs-Regeln aus ..."
+                    "placeholderOrderConditionSelect": "Wähle Bestellungs-Regeln aus ...",
+                    "helpTextOrderConditionSelect": "Um eine individuelle Fehlermeldung anzuzeigen, wenn eine Bestellungs-Regel die Einlösung verhindert, kann ein Storefront-Snippet mit dem Schlüssel \"checkout.promotion-not-eligible-{ruleId}\" angelegt werden."
                 },
                 "setgroups": {
                     "switchGroupsEnabled": "Aktion auf Produkt-Sets anwenden",

@@ -224,21 +224,33 @@ class DocumentEntity extends Entity
         $this->static = $static;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     */
     public function getDocumentMediaFile(): ?MediaEntity
     {
         return $this->documentMediaFile;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     */
     public function setDocumentMediaFile(?MediaEntity $documentMediaFile): void
     {
         $this->documentMediaFile = $documentMediaFile;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     */
     public function getDocumentMediaFileId(): ?string
     {
         return $this->documentMediaFileId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     */
     public function setDocumentMediaFileId(?string $documentMediaFileId): void
     {
         $this->documentMediaFileId = $documentMediaFileId;
@@ -254,21 +266,33 @@ class DocumentEntity extends Entity
         return $this->documentNumber;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     */
     public function getDocumentA11yMediaFileId(): ?string
     {
         return $this->documentA11yMediaFileId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     */
     public function setDocumentA11yMediaFileId(?string $mediaFileId): void
     {
         $this->documentA11yMediaFileId = $mediaFileId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     */
     public function getDocumentA11yMediaFile(): ?MediaEntity
     {
         return $this->documentA11yMediaFile;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     */
     public function setDocumentA11yMediaFile(?MediaEntity $mediaEntity): void
     {
         $this->documentA11yMediaFile = $mediaEntity;

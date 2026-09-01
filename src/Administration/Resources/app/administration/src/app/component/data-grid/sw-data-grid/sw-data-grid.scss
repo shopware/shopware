@@ -86,7 +86,6 @@
         }
 
         .sw-label {
-            flex-shrink: 0;
             margin-bottom: 0;
         }
 
@@ -114,6 +113,10 @@
         .sw-color-badge {
             flex-shrink: 0;
         }
+    }
+
+    .sw-data-grid__cell--tags .sw-label {
+        flex-shrink: 0;
     }
 
     .sw-data-grid__cell-value {

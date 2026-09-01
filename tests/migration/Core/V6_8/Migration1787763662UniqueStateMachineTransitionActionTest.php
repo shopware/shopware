@@ -17,7 +17,8 @@ use Shopware\Core\Migration\V6_8\Migration1787763662UniqueStateMachineTransition
 #[CoversClass(Migration1787763662UniqueStateMachineTransitionAction::class)]
 class Migration1787763662UniqueStateMachineTransitionActionTest extends TestCase
 {
-    private const UNIQUE_INDEX_NAME = 'uniq.state_machine_transition.action_name_state_machine';
+    private const INDEX_NAME = 'uniq.state_machine_transition.action_name_from_state';
+    private const PREVIOUS_INDEX_NAME = 'uniq.state_machine_transition.action_name_state_machine';
     private const FIXTURE_ACTION_NAME = 'test_duplicate_destination_action';
 
     private Connection $connection;
@@ -72,18 +73,26 @@ class Migration1787763662UniqueStateMachineTransitionActionTest extends TestCase
         static::assertSame($olderTransitionId, $remaining[0]['id']);
         static::assertSame($olderDestinationId, $remaining[0]['to_state_id']);
 
-        static::assertSame(['action_name', 'state_machine_id', 'from_state_id'], $this->getUniqueIndexColumns());
+        static::assertSame(['action_name', 'state_machine_id', 'from_state_id'], $this->getIndexColumns(self::INDEX_NAME));
+        static::assertSame([], $this->getIndexColumns(self::PREVIOUS_INDEX_NAME));
     }
 
     private function restoreLegacyUniqueIndex(): void
     {
-        $this->connection->executeStatement(
-            \sprintf('ALTER TABLE `state_machine_transition` DROP INDEX `%s`', self::UNIQUE_INDEX_NAME)
-        );
+        if ($this->getIndexColumns(self::INDEX_NAME) !== []) {
+            $this->connection->executeStatement(
+                \sprintf('ALTER TABLE `state_machine_transition` DROP INDEX `%s`', self::INDEX_NAME)
+            );
+        }
+
+        if ($this->getIndexColumns(self::PREVIOUS_INDEX_NAME) !== []) {
+            return;
+        }
+
         $this->connection->executeStatement(
             \sprintf(
                 'ALTER TABLE `state_machine_transition` ADD UNIQUE `%s` (`action_name`, `state_machine_id`, `from_state_id`, `to_state_id`)',
-                self::UNIQUE_INDEX_NAME
+                self::PREVIOUS_INDEX_NAME
             )
         );
     }
@@ -107,7 +116,7 @@ class Migration1787763662UniqueStateMachineTransitionActionTest extends TestCase
     /**
      * @return list<string>
      */
-    private function getUniqueIndexColumns(): array
+    private function getIndexColumns(string $indexName): array
     {
         return $this->connection->fetchFirstColumn(
             'SELECT `COLUMN_NAME` FROM `information_schema`.`STATISTICS`
@@ -117,7 +126,7 @@ class Migration1787763662UniqueStateMachineTransitionActionTest extends TestCase
              ORDER BY `SEQ_IN_INDEX`',
             [
                 'table' => 'state_machine_transition',
-                'index' => self::UNIQUE_INDEX_NAME,
+                'index' => $indexName,
             ]
         );
     }

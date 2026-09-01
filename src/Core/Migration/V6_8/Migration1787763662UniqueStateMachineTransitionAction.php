@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('checkout')]
 class Migration1787763662UniqueStateMachineTransitionAction extends MigrationStep
 {
-    private const UNIQUE_INDEX_NAME = 'uniq.state_machine_transition.action_name_state_machine';
+    private const INDEX_NAME = 'uniq.state_machine_transition.action_name_from_state';
+
+    private const PREVIOUS_INDEX_NAME = 'uniq.state_machine_transition.action_name_state_machine';
 
     public function getCreationTimestamp(): int
     {
@@ -21,6 +23,10 @@ class Migration1787763662UniqueStateMachineTransitionAction extends MigrationSte
 
     public function update(Connection $connection): void
     {
+        if ($this->indexExists($connection, 'state_machine_transition', self::INDEX_NAME)) {
+            return;
+        }
+
         $connection->executeStatement(
             'DELETE `duplicate` FROM `state_machine_transition` AS `duplicate`
              INNER JOIN `state_machine_transition` AS `keeper`
@@ -31,35 +37,15 @@ class Migration1787763662UniqueStateMachineTransitionAction extends MigrationSte
                      OR (`keeper`.`created_at` = `duplicate`.`created_at` AND `keeper`.`id` < `duplicate`.`id`))'
         );
 
-        if ($this->uniqueIndexIncludesToState($connection)) {
-            $this->dropIndexIfExists($connection, 'state_machine_transition', self::UNIQUE_INDEX_NAME);
-        }
+        $this->dropIndexIfExists($connection, 'state_machine_transition', self::PREVIOUS_INDEX_NAME);
 
-        if (!$this->indexExists($connection, 'state_machine_transition', self::UNIQUE_INDEX_NAME)) {
-            $this->executeDdlStatement(
-                $connection,
-                \sprintf(
-                    'ALTER TABLE `state_machine_transition`
-                     ADD UNIQUE `%s` (`action_name`, `state_machine_id`, `from_state_id`)',
-                    self::UNIQUE_INDEX_NAME
-                )
-            );
-        }
-    }
-
-    private function uniqueIndexIncludesToState(Connection $connection): bool
-    {
-        return (bool) $connection->fetchOne(
-            'SELECT 1 FROM `information_schema`.`STATISTICS`
-             WHERE `TABLE_SCHEMA` = DATABASE()
-                 AND `TABLE_NAME` = :table
-                 AND `INDEX_NAME` = :index
-                 AND `COLUMN_NAME` = :column',
-            [
-                'table' => 'state_machine_transition',
-                'index' => self::UNIQUE_INDEX_NAME,
-                'column' => 'to_state_id',
-            ]
+        $this->executeDdlStatement(
+            $connection,
+            \sprintf(
+                'ALTER TABLE `state_machine_transition`
+                 ADD UNIQUE `%s` (`action_name`, `state_machine_id`, `from_state_id`)',
+                self::INDEX_NAME
+            )
         );
     }
 }

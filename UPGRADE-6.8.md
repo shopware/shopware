@@ -8,7 +8,7 @@
 
 A state machine action now maps to exactly one destination state per source state:
 
-- A migration removed existing duplicates, keeping the oldest transition per state machine, source state, and action name, and tightened the unique key on `state_machine_transition` from `(action_name, state_machine_id, from_state_id, to_state_id)` to `(action_name, state_machine_id, from_state_id)`.
+- A migration removed existing duplicates, keeping the oldest transition per state machine, source state, and action name, and replaced the unique key on `state_machine_transition` over `(action_name, state_machine_id, from_state_id, to_state_id)` with `uniq.state_machine_transition.action_name_from_state` over `(action_name, state_machine_id, from_state_id)`.
 - Writing a `state_machine_transition` that has the same state machine, source state, and action name as an existing transition, but a different destination state, now fails against that unique key instead of silently making the action's destination undefined.
 
 If your extension registered a transition that reuses an existing action name (for example `authorize`) from the same source state with its own destination state, register it under its own action name instead. Find affected installations with:

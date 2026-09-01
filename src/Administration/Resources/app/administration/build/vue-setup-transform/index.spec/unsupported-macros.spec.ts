@@ -3,8 +3,9 @@
  */
 
 /**
- * Covers Vue macros the transform rejects: unsupported macros such as `defineModel()` (nested
- * calls stay untouched, like compiler-sfc), and base-only macros used in override mode.
+ * Covers Vue macros the transform rejects: unsupported macros such as `defineModel()` and
+ * `defineExpose()` (nested calls stay untouched, like compiler-sfc), and base-only macros used in
+ * override mode.
  */
 
 import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
@@ -14,6 +15,10 @@ describe('build/vue-setup-transform unsupported macros', () => {
         [
             'defineModel()',
             'Vue macro defineModel() is not supported inside Shopware setup blocks.',
+        ],
+        [
+            'defineExpose({})',
+            'defineExpose() is not supported inside Shopware setup blocks.',
         ],
     ])('rejects unsupported Vue macro %s', (macro, expectedMessage) => {
         const source = stripIndent`
@@ -95,7 +100,21 @@ describe('build/vue-setup-transform unsupported macros', () => {
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'override-expose.override.vue')).toThrow(
-            'defineExpose() is only supported in base Shopware setup blocks.',
+            'defineExpose() is not supported inside Shopware setup blocks.',
+        );
+    });
+
+    it('points an authored defineExpose() at swDefinePublic() instead', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            const count = 1;
+            defineExpose({ count });
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-expose.vue')).toThrow(
+            'List the binding in swDefinePublic({ ... }) instead.',
         );
     });
 

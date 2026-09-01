@@ -104,10 +104,18 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
         setupInput: true,
         exposable: true,
     },
+    // Rejected in both modes and generated instead: base lowering emits defineExpose() from the
+    // swDefinePublic() entries, so a public binding means the same to an override and to a parent
+    // holding a template ref. An authored call would compete with the generated one - Vue allows a
+    // single defineExpose() per block.
     defineExpose: {
         vueBuiltin: true,
-        modes: ['base'],
-        wrongModeMessage: 'defineExpose() is only supported in base Shopware setup blocks.',
+        modes: [],
+        wrongModeMessage: [
+            'defineExpose() is not supported inside Shopware setup blocks.',
+            'A base component exposes exactly its swDefinePublic() bindings to parents - the transform generates',
+            'the defineExpose() call for you. List the binding in swDefinePublic({ ... }) instead.',
+        ].join(' '),
     },
     defineOptions: {
         vueBuiltin: true,

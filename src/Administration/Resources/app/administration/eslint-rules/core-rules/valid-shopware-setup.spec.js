@@ -13,6 +13,15 @@ const vueParser = require('vue-eslint-parser');
 const rule = require('./valid-shopware-setup');
 
 /**
+ * The generated-only defineExpose() diagnostic, shared by its base and override fixtures.
+ *
+ * @type {string}
+ */
+const EXPOSE_MESSAGE = 'defineExpose() is not supported inside Shopware setup blocks. '
+    + 'A base component exposes exactly its swDefinePublic() bindings to parents - the transform generates '
+    + 'the defineExpose() call for you. List the binding in swDefinePublic({ ... }) instead.';
+
+/**
  * Shared tester configured for Vue SFC script parsing.
  *
  * @type {import('eslint').RuleTester}
@@ -82,15 +91,6 @@ swDefinePublic({ count });
             filename: 'base-emits.vue',
             code: `<script setup lang="ts">
 const emit = defineEmits<{ save: [id: string] }>();
-const count = 1;
-swDefinePublic({ count });
-</script>`,
-        },
-        {
-            filename: 'base-expose.vue',
-            code: `<script setup>
-function focus() {}
-defineExpose({ focus });
 const count = 1;
 swDefinePublic({ count });
 </script>`,
@@ -243,6 +243,19 @@ swDefineOverride({});
             ],
         },
         {
+            filename: 'base-expose.vue',
+            code: `<script setup>
+function focus() {}
+defineExpose({ focus });
+swDefinePublic({ focus });
+</script>`,
+            errors: [
+                {
+                    message: EXPOSE_MESSAGE,
+                },
+            ],
+        },
+        {
             filename: 'override-expose.override.vue',
             code: `<script setup>
 defineExpose({});
@@ -250,7 +263,7 @@ swDefineOverride({});
 </script>`,
             errors: [
                 {
-                    message: 'defineExpose() is only supported in base Shopware setup blocks.',
+                    message: EXPOSE_MESSAGE,
                 },
             ],
         },

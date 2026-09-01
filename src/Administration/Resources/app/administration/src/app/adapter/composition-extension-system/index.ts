@@ -526,6 +526,27 @@ export function overrideComponentSetup<TOriginalComponent>() {
 /**
  * @private
  *
+ * Returns the current component's props as read-only refs, keyed by prop name.
+ *
+ * The generated `defineExpose()` of a base component spreads these in front of its swDefinePublic()
+ * bindings, so a parent holding a template ref reads props off the child exactly as it did before the
+ * component was lowered. Computeds rather than plain values, because `defineExpose()` receives its
+ * object once while props keep changing; readonly because a prop belongs to the parent that passes it.
+ */
+export function getExposedProps(): Record<string, ComputedRef<unknown>> {
+    const props = (getCurrentInstance()?.props ?? {}) as Record<string, unknown>;
+    const exposedProps: Record<string, ComputedRef<unknown>> = {};
+
+    Object.keys(props).forEach((key) => {
+        exposedProps[key] = computed(() => props[key]);
+    });
+
+    return exposedProps;
+}
+
+/**
+ * @private
+ *
  * Hooks the override machinery into an already-executed native
  * `<script setup>` body. The author's code runs natively (no hoisting, macros in place); the
  * generated footer passes the finished bindings here, and this delegates to createExtendableSetup()

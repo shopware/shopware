@@ -2,18 +2,18 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 
 export default class VariantSelection extends ShopwareComponent {
     static options = {
-        focusHandlerKey: "product-variant-selection",
+        focusHandlerKey: 'product-variant-selection',
     };
 
     init() {
-        if (this.el.nodeName.toLowerCase() !== "form") {
+        if (this.el.nodeName.toLowerCase() !== 'form') {
             throw new Error(
-                "This component can only be applied to a form element!",
+                'This component can only be applied to a form element!',
             );
         }
 
         this.onChange = this.handleChange.bind(this);
-        this.el.addEventListener("change", this.onChange);
+        this.el.addEventListener('change', this.onChange);
 
         if (window.focusHandler) {
             window.focusHandler.resumeFocusStatePersistent(
@@ -23,16 +23,16 @@ export default class VariantSelection extends ShopwareComponent {
     }
 
     destroy() {
-        this.el.removeEventListener("change", this.onChange);
+        this.el.removeEventListener('change', this.onChange);
     }
 
     serialize() {
         const values = {};
-        this.el.querySelectorAll("input, select").forEach((field) => {
+        this.el.querySelectorAll('input, select').forEach((field) => {
             if (!field.name || field.disabled) {
                 return;
             }
-            if (field.type === "radio" && !field.checked) {
+            if (field.type === 'radio' && !field.checked) {
                 return;
             }
             values[field.name] = field.value;
@@ -61,7 +61,7 @@ export default class VariantSelection extends ShopwareComponent {
         PageLoadingIndicatorUtil.create();
 
         window
-            .fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+            .fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then((response) => response.json())
             .then((response) => this.redirectToVariant(response.url));
     }

@@ -6,6 +6,7 @@
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import transformNativeLegacyBlockConditionals from './transform-legacy-block-conditionals';
+import { getNativeBlockExtensionTargets } from './native-extension-targets';
 
 /**
  * @module core/factory/async-template
@@ -254,13 +255,49 @@ function resolveTemplates() {
     return normalizedTemplateRegistry;
 }
 
+function wrapNativeBlockTargets(tokens) {
+    if (!Array.isArray(tokens)) {
+        return tokens;
+    }
+
+    const targets = getNativeBlockExtensionTargets();
+
+    return tokens.reduce((acc, token) => {
+        if (token.type === 'logic' && token.token && Array.isArray(token.token.output)) {
+            token.token.output = wrapNativeBlockTargets(token.token.output);
+        }
+
+        const blockName = token.type === 'logic' && token.token ? token.token.blockName : null;
+
+        if (!blockName || !targets.has(blockName) || token.token.__swBlockHosted) {
+            acc.push(token);
+            return acc;
+        }
+
+        token.token.__swBlockHosted = true;
+        acc.push(
+            { type: 'raw', value: `<sw-block name="${blockName}" :data="$dataScope" :legacy-shim="false">` },
+            token,
+            { type: 'raw', value: '</sw-block>' },
+        );
+
+        return acc;
+    }, []);
+}
+
+function renderWithNativeBlocks(template, templateVars) {
+    template.tokens = wrapNativeBlockTargets(template.tokens);
+
+    return template.render(templateVars);
+}
+
 function applyTemplateOverrides(name) {
     const item = normalizedTemplateRegistry.get(name);
     const templateVars = {};
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = item.template.render(templateVars);
+        const finalHtml = renderWithNativeBlocks(item.template, templateVars);
 
         // Update item which will be written to the registry
         const updatedTemplate = {
@@ -291,7 +328,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render(templateVars);
+    const finalHtml = renderWithNativeBlocks(updatedTemplate.template, templateVars);
 
     // Update item which will written to the registry
     updatedTemplate = {

@@ -155,18 +155,24 @@ function buildOverrideScript(
         generated('\n});\n'),
     );
 
-    const registrationTemplate: SourceEdit[] = block.template
-        ? []
-        : [
-              {
-                  start: 0,
-                  end: 0,
-                  replacement: '<template><!-- Shopware override registration component --></template>\n',
-              },
-          ];
+    // Only emitted when the override brings no template of its own; the extension-targets script below
+    // is emitted either way, so it cannot ride along on this branch.
+    const placeholderTemplate = block.template
+        ? ''
+        : '<template><!-- Shopware override registration component --></template>\n';
+
+    // A single edit rather than two inserts at offset 0: two edits sharing a position would make the
+    // emitted order depend on the sort stability of applySourceEdits.
+    const scriptPrefix: SourceEdit[] = [
+        {
+            start: 0,
+            end: 0,
+            replacement: buildNativeExtensionTargetsScript(block, templateAnalysis) + placeholderTemplate,
+        },
+    ];
 
     return [
-        ...registrationTemplate,
+        ...scriptPrefix,
         ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
         {
             start: block.contentStart,
@@ -174,6 +180,38 @@ function buildOverrideScript(
             replacement: chunks,
         },
     ];
+}
+
+/**
+ * Builds the plain `<script>` block that registers this override's extension targets.
+ *
+ * Deliberately not part of `<script setup>`: that body only runs when the hidden override component
+ * mounts, which is after `resolveComponentTemplates()`. A plain `<script>` runs at module eval - during
+ * `loadPlugins()` - so the registry is complete while the Twig template pipeline can still act on it.
+ *
+ * `lang` is mirrored from the setup block because Vue requires both script blocks of an SFC to agree
+ * on it.
+ */
+function buildNativeExtensionTargetsScript(block: ShopwareSetupBlock, templateAnalysis: TemplateAnalysis): string {
+    const langAttribute = block.lang ? ` lang="${block.lang}"` : '';
+    const blockNames = Array.from(new Set(templateAnalysis.extendedBlockNames));
+    const blocksProperty =
+        blockNames.length > 0
+            ? [
+                  '    blocks: [',
+                  ...blockNames.map((blockName) => `        '${escapeSingleQuoted(blockName)}',`),
+                  '    ],',
+              ]
+            : [];
+
+    return [
+        `<script${langAttribute}>`,
+        'Shopware.Component.registerNativeExtensionTargets({',
+        `    component: '${escapeSingleQuoted(block.componentName)}',`,
+        ...blocksProperty,
+        '});',
+        '</script>\n',
+    ].join('\n');
 }
 
 /**

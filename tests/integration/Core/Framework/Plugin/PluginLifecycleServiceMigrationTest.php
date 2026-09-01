@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Migration\Reversible\MigrationRunner as ReversibleMigrationRunner;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -179,7 +180,8 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
             $this->container->get(CustomFieldSetPersister::class),
-            new NativeClock()
+            new NativeClock(),
+            $this->container->get(ReversibleMigrationRunner::class)
         );
     }
 

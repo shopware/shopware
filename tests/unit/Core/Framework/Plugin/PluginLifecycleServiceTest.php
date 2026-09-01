@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\Reversible\MigrationRunner as ReversibleMigrationRunner;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
@@ -508,6 +509,7 @@ class PluginLifecycleServiceTest extends TestCase
                 $this->requestStackMock,
                 static::createStub(CustomFieldSetPersister::class),
                 new MockClock(),
+                static::createStub(ReversibleMigrationRunner::class),
             ])
             ->onlyMethods(['isCLI'])
             ->getMock();
@@ -1142,7 +1144,8 @@ class PluginLifecycleServiceTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
             $customFieldSetPersister ?? $this->customFieldSetPersister,
-            new NativeClock()
+            new NativeClock(),
+            static::createStub(ReversibleMigrationRunner::class)
         );
     }
 

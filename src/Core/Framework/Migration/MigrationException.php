@@ -27,6 +27,16 @@ class MigrationException extends HttpException
     final public const LOGIC_ERROR = 'FRAMEWORK__LOGIC_ERROR';
     final public const MIGRATION_FILE_DOES_NOT_EXIST = 'FRAMEWORK__MIGRATION_FILE_DOES_NOT_EXIST';
 
+    private const REVERSIBLE_MIGRATION_NOT_INSTANTIABLE = 'FRAMEWORK__REVERSIBLE_MIGRATION_NOT_INSTANTIABLE';
+    private const REVERSIBLE_MIGRATION_INVALID_TIMESTAMP = 'FRAMEWORK__REVERSIBLE_MIGRATION_INVALID_TIMESTAMP';
+    private const REVERSIBLE_MIGRATION_DUPLICATE_TIMESTAMP = 'FRAMEWORK__REVERSIBLE_MIGRATION_DUPLICATE_TIMESTAMP';
+    private const REVERSIBLE_MIGRATION_OUT_OF_ORDER = 'FRAMEWORK__REVERSIBLE_MIGRATION_OUT_OF_ORDER';
+    private const REVERSIBLE_MIGRATION_TIMESTAMP_CHANGED = 'FRAMEWORK__REVERSIBLE_MIGRATION_TIMESTAMP_CHANGED';
+    private const REVERSIBLE_MIGRATION_MISSING_APPLIED = 'FRAMEWORK__REVERSIBLE_MIGRATION_MISSING_APPLIED';
+    private const REVERSIBLE_MIGRATION_LOCK_NOT_ACQUIRED = 'FRAMEWORK__REVERSIBLE_MIGRATION_LOCK_NOT_ACQUIRED';
+    private const REVERSIBLE_MIGRATION_INVALID_STATE = 'FRAMEWORK__REVERSIBLE_MIGRATION_INVALID_STATE';
+    private const MIGRATION_DIRECTORY_NOT_READABLE = 'FRAMEWORK__MIGRATION_DIRECTORY_NOT_READABLE';
+
     public static function invalidArgument(string $message): self
     {
         return new self(
@@ -171,6 +181,95 @@ class MigrationException extends HttpException
             self::MIGRATION_FILE_DOES_NOT_EXIST,
             'The provided migration file does not exist: "{{ path }}"',
             ['path' => $path]
+        );
+    }
+
+    public static function migrationDirectoryNotReadable(string $directory): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MIGRATION_DIRECTORY_NOT_READABLE,
+            'Migration directory "{{ directory }}" could not be read.',
+            ['directory' => $directory]
+        );
+    }
+
+    public static function reversibleMigrationNotInstantiable(string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REVERSIBLE_MIGRATION_NOT_INSTANTIABLE,
+            'Reversible migration "{{ class }}" must be instantiable without constructor arguments.',
+            ['class' => $class]
+        );
+    }
+
+    public static function reversibleMigrationInvalidTimestamp(string $class, int $timestamp): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REVERSIBLE_MIGRATION_INVALID_TIMESTAMP,
+            'Migration timestamp must be between 1 and 2147483647 to ensure migration order is deterministic on every system, but "{{ timestamp }}" was given for "{{ class }}".',
+            ['class' => $class, 'timestamp' => $timestamp]
+        );
+    }
+
+    public static function duplicateMigrationTimestamp(string $plugin, int $timestamp, string $first, string $second): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REVERSIBLE_MIGRATION_DUPLICATE_TIMESTAMP,
+            'Plugin "{{ plugin }}" contains two reversible migrations with timestamp {{ timestamp }}: "{{ first }}" and "{{ second }}".',
+            ['plugin' => $plugin, 'timestamp' => $timestamp, 'first' => $first, 'second' => $second]
+        );
+    }
+
+    public static function migrationOutOfOrder(string $plugin, string $class, int $timestamp, int $latestApplied): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REVERSIBLE_MIGRATION_OUT_OF_ORDER,
+            'Reversible migration "{{ class }}" ({{ timestamp }}) for plugin "{{ plugin }}" is older than the latest applied migration ({{ latestApplied }}). Add new migrations with a later timestamp.',
+            ['plugin' => $plugin, 'class' => $class, 'timestamp' => $timestamp, 'latestApplied' => $latestApplied]
+        );
+    }
+
+    public static function migrationTimestampChanged(string $class, int $recorded, int $declared): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REVERSIBLE_MIGRATION_TIMESTAMP_CHANGED,
+            'Applied reversible migration "{{ class }}" changed its creation timestamp from {{ recorded }} to {{ declared }}. Restore the recorded timestamp.',
+            ['class' => $class, 'recorded' => $recorded, 'declared' => $declared]
+        );
+    }
+
+    public static function missingAppliedMigration(string $plugin, string $class): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REVERSIBLE_MIGRATION_MISSING_APPLIED,
+            'Applied reversible migration "{{ class }}" for plugin "{{ plugin }}" is no longer available. Restore the migration class before continuing.',
+            ['plugin' => $plugin, 'class' => $class]
+        );
+    }
+
+    public static function migrationLockNotAcquired(string $plugin): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REVERSIBLE_MIGRATION_LOCK_NOT_ACQUIRED,
+            'Could not acquire the reversible migration lock for plugin "{{ plugin }}".',
+            ['plugin' => $plugin]
+        );
+    }
+
+    public static function invalidMigrationState(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REVERSIBLE_MIGRATION_INVALID_STATE,
+            'The reversible migration state contains an invalid row.'
         );
     }
 }

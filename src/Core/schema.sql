@@ -31,3 +31,12 @@ CREATE TABLE IF NOT EXISTS `migration` (
     `message`            TEXT COLLATE utf8mb4_unicode_ci         NULL,
     PRIMARY KEY (`class`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `plugin_migration` (
+    `plugin_name`        VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `migration_class`    VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `creation_timestamp` INT UNSIGNED                            NOT NULL,
+    `executed_at`        DATETIME(3)                             NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    PRIMARY KEY (`plugin_name`, `migration_class`),
+    UNIQUE KEY `uniq.plugin_migration.plugin_name__creation_timestamp` (`plugin_name`, `creation_timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE = utf8mb4_unicode_ci;

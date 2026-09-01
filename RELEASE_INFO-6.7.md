@@ -103,6 +103,28 @@ Two consequences for operators:
 - `translation:install` now exits with a non-zero code when none of the requested locales can be installed — that is, when neither the repository offers them nor the filesystem carries them. Previously it printed "All translations are already up to date." and exited `0`. Scripts that check the exit code are affected. The install route already answered such a request with an error.
 - A requested locale that the repository does not offer and that has no files on the filesystem is reported and left out rather than installed as a language without translations. `POST /api/_action/translation/install` keeps reporting those locales in its `unavailable` list, but a locale whose files were provisioned offline no longer appears there, because it can be installed. Its `skipped` list now names the requested locales that were installed without a download, instead of every locale in the local metadata that was not updated.
 
+### Plugin migrations can now be reversible
+
+`Shopware\Core\Framework\Migration\Reversible\Migration` is a new base class for plugin migrations that declare how to undo themselves. `up()` runs before plugin install and update, `down()` runs after a destructive uninstall in reverse order, and an uninstall that keeps user data skips the rollback so a reinstall resumes from the same state. History is tracked per plugin in the new `plugin_migration` table.
+
+Both methods receive a context object instead of a bare `Connection`, so further capabilities can be added later without breaking the plugin-facing signature:
+
+```php
+public function up(UpMigrationContext $context): void
+{
+    $context->connection->executeStatement('CREATE TABLE IF NOT EXISTS `swag_example` (…)');
+}
+
+public function down(DownMigrationContext $context): void
+{
+    $context->connection->executeStatement('DROP TABLE IF EXISTS `swag_example`');
+}
+```
+
+`MigrationStep` is unchanged and both kinds of migration can live side by side in the same `<Plugin>/src/Migration` directory. Scaffold one with `bin/console database:create-reversible-migration --plugin=SwagExample`, and apply pending ones outside a plugin update with `bin/console database:migrate-reversible`.
+
+Timestamps must be unique within a plugin and must not change once applied: Shopware rejects duplicate timestamps, changed timestamps, applied-but-deleted classes and migrations inserted before the latest applied one, so always append new migrations. `UpMigrationContext::$isInstallation` reports whether the plugin is being installed for the first time — unlike `MigrationStep::isInstallation()`, which refers to Shopware itself. Reversible `up()` runs before the plugin's `install()`/`update()` and before its legacy `MigrationStep` migrations, so it must not depend on a legacy migration introduced in the same release. MySQL implicitly commits most DDL, so keep every `up()`/`down()` self-contained and retryable and guard DDL with `IF EXISTS`/`IF NOT EXISTS`. There is intentionally no CLI rollback: `down()` stays tied to a destructive uninstall.
+
 ## API
 
 ### Store API context token response header is restricted on cacheable reads

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\Reversible\MigrationRunner as ReversibleMigrationRunner;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -396,7 +397,8 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(DefinitionInstanceRegistry::class),
             new RequestStack(),
             $this->createMock(CustomFieldSetPersister::class),
-            new NativeClock()
+            new NativeClock(),
+            $this->createMock(ReversibleMigrationRunner::class)
         );
     }
 

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\Reversible\MigrationRunner as ReversibleMigrationRunner;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
@@ -327,7 +328,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
             $this->container->get(CustomFieldSetPersister::class),
-            new NativeClock()
+            new NativeClock(),
+            $this->container->get(ReversibleMigrationRunner::class)
         );
 
         $context = Context::createDefaultContext();
@@ -868,7 +870,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
             $this->container->get(CustomFieldSetPersister::class),
-            new NativeClock()
+            new NativeClock(),
+            $this->container->get(ReversibleMigrationRunner::class)
         );
     }
 

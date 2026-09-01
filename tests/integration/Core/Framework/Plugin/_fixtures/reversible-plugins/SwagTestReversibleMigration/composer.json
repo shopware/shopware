@@ -1,0 +1,27 @@
+{
+    "name": "swag/test-reversible-migration",
+    "description": "Test description",
+    "version": "1.0.0",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG"
+        }
+    ],
+    "require": {
+        "shopware/core": ">=6.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "SwagTestReversibleMigration\\SwagTestReversibleMigration",
+        "label": {
+            "de-DE": "Deutscher Pluginname",
+            "en-GB": "English plugin name"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+           "SwagTestReversibleMigration\\": "src"
+        }
+    }
+}

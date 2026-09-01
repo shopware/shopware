@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 import ImportExportUpdateByMappingService from 'src/module/sw-import-export/service/importExportUpdateByMapping.service';
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
@@ -64,6 +64,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 sync: true,
             }),
             {
+                attachTo: document.body,
                 props: {
                     profile,
                 },
@@ -81,8 +82,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-empty-state': true,
                         'sw-field-error': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                        'sw-popover': await wrapTestComponent('sw-popover'),
-                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-highlight-text': {
                             props: ['text'],
@@ -159,7 +158,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--mapped .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const productNumberOption = wrapper.find('.sw-select-option--0');
+        const documentBody = new DOMWrapper(document.body);
+        const productNumberOption = documentBody.find('.sw-select-option--0');
         expect(productNumberOption.exists()).toBeTruthy();
 
         expect(
@@ -179,10 +179,10 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         await wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--mapped .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const taxIdOption = wrapper.find('.sw-select-result-list__item-list .sw-select-option--id');
+        const taxIdOption = documentBody.find('.sw-select-result-list__item-list .sw-select-option--id');
         expect(taxIdOption.exists()).toBeTruthy();
 
-        const taxRateOption = wrapper.find('.sw-select-result-list__item-list .sw-select-option--taxRate');
+        const taxRateOption = documentBody.find('.sw-select-result-list__item-list .sw-select-option--taxRate');
         expect(taxRateOption.exists()).toBeTruthy();
     });
 });

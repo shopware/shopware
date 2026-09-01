@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
@@ -184,12 +185,13 @@ class EntityHydratorTest extends TestCase
         static::assertNotNull($first);
         static::assertSame(12.5, $first->getTranslation('name'));
 
-        // a repeated hydration with the same definition instance serves the cached fields
-        $structs = $this->createTranslatableHydrator()
-            ->hydrate(new EntityCollection(), $floatDefinition->getEntityClass(), $floatDefinition, $rows, 'test', Context::createDefaultContext());
-        $first = $structs->first();
-        static::assertNotNull($first);
-        static::assertSame(12.5, $first->getTranslation('name'));
+        // a repeated lookup for the same definition instance is served from the cache: a
+        // recompute would map this poisoned field list instead, throwing on the unknown
+        // field, and could not produce the "name" mapping
+        $cached = (new ExposedTranslatableTestHydrator(new ContainerBuilder()))
+            ->exposeTranslatedFields($floatDefinition, [new TranslatedField('poison')]);
+        static::assertArrayHasKey('name', $cached);
+        static::assertArrayNotHasKey('poison', $cached);
     }
 
     public function testCustomFieldHydrationWithoutTranslationWithoutInheritance(): void
@@ -517,6 +519,22 @@ class FkExtensionFieldTest extends EntityDefinition
 
             (new FkField('extended_fk', 'extendedFk', ProductDefinition::class))->addFlags(new ApiAware(), new Extension()),
         ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class ExposedTranslatableTestHydrator extends TranslatableTestHydrator
+{
+    /**
+     * @param array<Field> $fields
+     *
+     * @return array<string, Field>
+     */
+    public function exposeTranslatedFields(EntityDefinition $definition, array $fields): array
+    {
+        return $this->getTranslatedFields($definition, $fields);
     }
 }
 

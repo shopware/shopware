@@ -183,10 +183,10 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * The whitelist restricts which property groups get a control, like the legacy element's own whitelist.
+     * The allow list restricts which property groups get a control, like the legacy element's own whitelist.
      * It never filtered products there either, so a link carrying an excluded option still narrows the listing.
      */
-    public function testThePropertyWhitelistOffersOnlyTheListedGroups(): void
+    public function testThePropertyAllowListOffersOnlyTheListedGroups(): void
     {
         $colour = $this->propertyGroup('Colour');
         $size = $this->propertyGroup('Size');
@@ -195,7 +195,7 @@ class FilterPanelComponentTest extends TestCase
             'productListing' => $this->listing(new AggregationResultCollection([
                 new EntityResult('properties', new PropertyGroupCollection([$colour, $size])),
             ])),
-            'propertyWhitelist' => ' ' . strtoupper($colour->getId()) . ' ,',
+            'propertyAllowList' => ' ' . strtoupper($colour->getId()) . ' ,',
         ]);
 
         static::assertStringContainsString('Colour', $html);
@@ -203,10 +203,10 @@ class FilterPanelComponentTest extends TestCase
     }
 
     /**
-     * An empty whitelist is the documented "offer every filterable group" case, so it must not be read as
+     * An empty allow list is the documented "offer every filterable group" case, so it must not be read as
      * "offer none".
      */
-    public function testAnEmptyPropertyWhitelistOffersEveryGroup(): void
+    public function testAnEmptyPropertyAllowListOffersEveryGroup(): void
     {
         $html = $this->render([
             'productListing' => $this->listing(new AggregationResultCollection([
@@ -215,7 +215,7 @@ class FilterPanelComponentTest extends TestCase
                     $this->propertyGroup('Size'),
                 ])),
             ])),
-            'propertyWhitelist' => '',
+            'propertyAllowList' => '',
         ]);
 
         static::assertStringContainsString('Colour', $html);

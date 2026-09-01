@@ -91,7 +91,7 @@ properties:
     adminUI:
       panel: "filter"
 
-  propertyWhitelist:
+  propertyAllowList:
     type: string
     title: "Filterable Properties"
     description: "Comma-separated property_group ids whose filters the panel offers. Empty offers every filterable group of the matching products."

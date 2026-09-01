@@ -14,7 +14,7 @@
     slots = [],
     displayType = 'inline',
     navigationId = null,
-    propertyWhitelist = null,
+    propertyAllowList = null,
 %}
 
 {% set filterPanelOptions = {
@@ -39,8 +39,8 @@
 
 {% set filterAggregations = productListing.aggregations ?? null %}
 
-{% set whitelistIds = propertyWhitelist
-    ? propertyWhitelist|split(',')|map(id => id|trim|lower)|filter(id => id != '')
+{% set allowedPropertyIds = propertyAllowList
+    ? propertyAllowList|split(',')|map(id => id|trim|lower)|filter(id => id != '')
     : [] %}
 
 {% set manufacturerAggregation = null %}
@@ -110,7 +110,7 @@
 {% set propertiesFilter %}
     {% if showPropertyFilter and propertiesAggregation is not null and propertiesAggregation.entities|length > 0 %}
         {% for property in propertiesAggregation.entities %}
-            {% if whitelistIds is empty or property.id|lower in whitelistIds %}
+            {% if allowedPropertyIds is empty or property.id|lower in allowedPropertyIds %}
                 <twig:Sw:Filter:Item
                     :filterName="property.translated.name"
                     :displayType="displayType"

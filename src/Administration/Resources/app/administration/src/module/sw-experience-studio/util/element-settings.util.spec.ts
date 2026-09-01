@@ -342,6 +342,38 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ).toBeNull();
     });
 
+    it('hides properties flagged as hidden regardless of values', () => {
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        hidden: true,
+                    },
+                },
+                {},
+            ),
+        ).toBe(false);
+    });
+
+    it('ignores hidden when it is not strictly true and evaluates visibleWhen instead', () => {
+        expect(
+            isPropertyVisible(
+                {
+                    ...stringProperty,
+                    adminUI: {
+                        hidden: false,
+                        visibleWhen: {
+                            field: 'mode',
+                            equals: 'explicit',
+                        },
+                    },
+                },
+                { mode: 'explicit' },
+            ),
+        ).toBe(true);
+    });
+
     it('supports visibleWhen equals and notEquals operators', () => {
         expect(
             isPropertyVisible(

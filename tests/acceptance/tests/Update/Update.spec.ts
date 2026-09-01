@@ -12,13 +12,14 @@ test(
             timeout: 20000,
         });
 
-        (await (await AdminApiContext.get(`./_info/config`)).json()) as { version: string };
+        (await (await AdminApiContext.get(`./_info/config`)).json()) as {
+            version: string;
+        };
 
         await page.goto('#/sw/settings/shopware/updates/wizard');
 
         await page.getByRole('button', { name: 'Start update' }).click();
 
-        await page.getByText('Continue with web installer').click();
         await page.getByLabel("Yes, I've created a backup.").check();
         await page.getByRole('button', { name: 'Continue' }).click();
         await page.waitForLoadState('domcontentloaded');

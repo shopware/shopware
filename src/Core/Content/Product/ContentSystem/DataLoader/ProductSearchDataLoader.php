@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -41,31 +41,25 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
     public function configSpecification(): LoaderConfigSpecification
     {
         return new LoaderConfigSpecification([
-            new ConfigKeySpecification('searchTermProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: null),
+            new ConfigKeySpecification('searchTermProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'searchTerm'),
             new ConfigKeySpecification('associations', ConfigKeyKind::Literal, 'list<string>', required: false, hasDefault: true, default: []),
+            new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'associations', referencedType: 'list<string>', mergesInto: 'associations'),
         ]);
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
+        $searchTerm = $inputs->stringOrNull('searchTermProperty');
 
-        if (!$config instanceof ProductSearchLoaderConfig) {
+        if ($searchTerm === null || $searchTerm === '') {
             return ContentDataLoaderResult::notFound();
         }
 
-        $propertyName = $config->searchTermProperty ?? 'searchTerm';
-        $searchTerm = $element->getProperty($propertyName);
-
-        if (!\is_string($searchTerm) || $searchTerm === '') {
-            return ContentDataLoaderResult::notFound();
-        }
-
-        $criteria = $this->buildCriteria($element, $config);
+        $criteria = $this->buildCriteria($inputs);
 
         $searchRequest = new Request();
         $searchRequest->request->set('search', $searchTerm);
@@ -75,21 +69,12 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         return ContentDataLoaderResult::cachedExternally($response->getListingResult());
     }
 
-    private function buildCriteria(ContentElement $element, ProductSearchLoaderConfig $config): Criteria
+    private function buildCriteria(LoaderInputs $inputs): Criteria
     {
         $criteria = new Criteria();
 
-        foreach ($config->associations as $association) {
+        foreach ($inputs->stringList('associations') as $association) {
             $criteria->addAssociation($association);
-        }
-
-        $elementAssociations = $element->getProperty('associations');
-        if (\is_array($elementAssociations)) {
-            foreach ($elementAssociations as $association) {
-                if (\is_string($association)) {
-                    $criteria->addAssociation($association);
-                }
-            }
         }
 
         return $criteria;

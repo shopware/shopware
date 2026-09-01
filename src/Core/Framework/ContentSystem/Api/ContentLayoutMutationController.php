@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
@@ -31,6 +31,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 /**
  * The persisted counterpart to {@see LayoutMutationController}.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]
@@ -43,7 +45,7 @@ class ContentLayoutMutationController
     public function __construct(
         private readonly PersistedLayoutMutator $mutator,
         private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly ContentElementFieldSerializer $elementSerializer,
+        private readonly StoredElementCodec $elementCodec,
         private readonly DraftLayoutDecoder $decoder,
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         private readonly BindingApplicator $bindingApplicator,
@@ -156,6 +158,6 @@ class ContentLayoutMutationController
     {
         $result = $this->mutator->mutate($layoutId, $expectedVersion, $mutation, $context);
 
-        return new JsonResponse(MutationResponse::fromResult($result, $this->elementSerializer));
+        return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));
     }
 }

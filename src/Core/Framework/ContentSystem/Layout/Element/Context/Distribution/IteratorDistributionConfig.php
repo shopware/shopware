@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -32,13 +33,20 @@ final readonly class IteratorDistributionConfig implements DistributionConfig
     }
 
     /**
+     * An absent (or null) `consumerAlias` takes the default; a present one of the wrong type is rejected
+     * rather than replaced by it, so a caller can tell a field it never set from a field it set wrongly.
+     *
      * @param array<string, mixed> $data
      */
     public static function fromArray(array $data): DistributionConfig
     {
-        return new self(
-            consumerAlias: isset($data['consumerAlias']) && \is_string($data['consumerAlias']) ? $data['consumerAlias'] : null
-        );
+        $consumerAlias = $data['consumerAlias'] ?? null;
+
+        if ($consumerAlias !== null && !\is_string($consumerAlias)) {
+            throw ContentSystemException::invalidFieldValueType('consumerAlias', 'string', get_debug_type($consumerAlias));
+        }
+
+        return new self(consumerAlias: $consumerAlias);
     }
 
     /**

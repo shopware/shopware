@@ -1,6 +1,6 @@
 meta:
   label: "Navigation Tree"
-  description: "Renders a category navigation tree with links, folders and active item highlighting."
+  description: "Renders a category navigation tree with links, folders, active item highlighting and optionally expandable sub-levels."
   icon: "regular-sitemap"
   category: "content"
   copilot:
@@ -8,7 +8,8 @@ meta:
     hints:
       - "Add a navigationTree data requirement with source 'navigation' to load the tree."
       - "The highlighted category follows the page, no configuration needed."
-      - "Pick the service or footer binding to render one of the other navigation roots."
+      - "Set displayType to 'static' for a fixed tree, or to 'collapse' to let shoppers open and close the levels below a category."
+      - "In collapse mode expandAll only decides which branches start open, not whether children are rendered."
 
 properties:
   navigationTree:
@@ -23,10 +24,22 @@ properties:
   activeId:
     type: string
     title: "Active category ID"
-    description: "Category ID highlighted as the current page. Resolved per request from the layout's category root, so it needs no editorial input. Also read by the navigation data loader via its activeProperty config."
+    description: "Category ID highlighted as the current page. On a layout rooted on a category the `{{categoryId}}` placeholder resolves per request, so it needs no editorial input. On any other root the placeholder stays literal and the navigation data loader highlights the navigation root instead. Read by that loader via its activeProperty config."
     default: "{{categoryId}}"
     adminUI:
-      helpText: "Filled automatically from the page you are on — leave this as it is."
+      helpText: "Filled automatically on a category page — leave this as it is."
+
+  displayType:
+    type: string
+    title: "Display type"
+    description: "Whether sub-levels are fixed as rendered or can be opened and closed by the shopper."
+    default: "static"
+    enum:
+      - "static"
+      - "collapse"
+    adminUI:
+      component: "select"
+      helpText: "'Static' renders the tree as it is. 'Collapse' adds a plus button to every category whose sub-levels are rendered, so shoppers can open them. That mode renders the whole tree down to the navigation depth of the sales channel, which makes every page carrying the element heavier on a deep catalogue."
 
   expandAll:
     type: boolean
@@ -34,7 +47,7 @@ properties:
     description: "Render all children instead of only the branch containing the active category."
     default: false
     adminUI:
-      helpText: "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel."
+      helpText: "When off, only the branch leading to the current category is expanded. When on, the tree expands to the navigation depth configured on the sales channel. In collapse mode this sets which branches start open."
 
   ariaLabel:
     type: string

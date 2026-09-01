@@ -1,18 +1,11 @@
 # DataContext
 
-Context resolution and distribution. Providers expose data as context, consumers receive it in properties. Intermediate elements don't need to know about context passing through them.
+Context path resolution. `ContextPathResolver` resolves consumer paths on Struct objects; `ContextType` classifies a context entry as `Single` or `Collection`. The distribution of context between elements — `ContextDeliveryResolver`, `ContextDistributor`, `ContextDeliveryIndex` / `ContextDelivery` — lives in [Rendering/](../../Rendering/README.md).
 
 ## Key Classes
 
-- `DataContextResolver` - Entry point, calls `element.traverse()` with `ContextResolutionVisitor`
-- `ContextResolutionVisitor` - Traverses tree, distributes context to children
 - `ContextPathResolver` - Resolves dot-notation paths on Struct objects
-
-## Distribution
-
-`ContextResolutionVisitor` distributes context ONLY to direct children — never recursive. Multi-level requires explicit re-providing (`acceptsContext` + `providesContext`).
-
-The five strategies it dispatches on are declared in `Layout/Element/Context/Distribution/`: Broadcast, Indexed, Keyed, Sliced, Iterator. What each one means, and the context-flow rules bounding how far a distributed context reaches, are owned by [Layout/Element/Context/docs/distribution-strategies.md](../../Layout/Element/Context/docs/distribution-strategies.md).
+- `ContextType` - Enum: `Single` / `Collection`, classifying the shape of a context entry on providers, consumers and resolution results
 
 ## Path Resolution
 

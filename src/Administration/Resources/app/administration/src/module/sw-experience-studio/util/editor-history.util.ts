@@ -1,7 +1,6 @@
 import { EXPERIENCE_STUDIO_MAX_HISTORY_SIZE } from '../constant/experience-studio-history.constant';
 import type { EditorHistoryEntry } from '../types/editor-history.types';
-import type { ContentElementNode } from '../types/content-element.types';
-import { sanitizeContentElementLayoutForWrite } from './content-element.util';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -14,7 +13,7 @@ export function createEditorHistoryEntry(
     selectedElementId: string | null,
 ): EditorHistoryEntry {
     return {
-        layout: sanitizeContentElementLayoutForWrite(cloneDeep(layout)),
+        layout: cloneDeep(layout),
         selectedElementId,
     };
 }

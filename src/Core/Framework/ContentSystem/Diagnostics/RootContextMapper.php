@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  * page context is exposed exactly as the {@see VirtualRootWrapper} exposes it at runtime: broadcast Single.
  * One mapping path, shared by the entity sources' providedRootContext override and the diagnostics core.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]

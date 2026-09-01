@@ -4,8 +4,5 @@
 
 ## Constraints
 
-- Validation: Symfony `Collection` constraint with `allowMissingFields: false` + `Optional` per field
-- Composition root: `ContentElementFieldSerializer` (injects all child serializers)
-- Recursive: `ElementSlotsFieldSerializer` injects `ContentElementFieldSerializer` for tree serialization; `ElementSlotsFieldSerializer` is registered `lazy="true"` to break the `ContentElementFieldSerializer` ↔ `ElementSlotsFieldSerializer` circular dependency
-- `ContentElementListFieldSerializer` overrides `normalize` to run two write-boundary passes over the layout payload, ahead of `PreWriteValidationEvent`: it first seeds the element types' primitive defaults via the injected `Layout/LayoutDefaultSeeder` (the `IdFieldSerializer::normalize` precedent, never overwriting an authored value), then re-derives each element's `attributedSpecifications` via `Binding/AttributionReconciler` (drop-not-throw: an attribution whose wiring has since diverged is dropped, never an error). Both handle the `ContentElement` and raw-array payload shapes
+- `StoredElementListFieldSerializer::buildConstraints` returns `Layout/Codec/StoredTreeConstraints::build()` and appends only a `NotBlank` for the field's own `Required` flag. The descriptor already covers the whole forest including its own `All()`, so nothing wraps it; its `getCachedConstraints` override skips the inherited process-wide cache, because the descriptor's style part reads the runtime-mutable style option registry per call
 - Infrastructure only — used in `ContentLayoutDefinition`, not domain API

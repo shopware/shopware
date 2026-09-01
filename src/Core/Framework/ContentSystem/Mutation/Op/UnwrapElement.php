@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
@@ -24,7 +25,7 @@ final class UnwrapElement extends AbstractLayoutMutation
     ) {
     }
 
-    public function apply(array $tree): array
+    public function apply(StoredTree $tree): StoredTree
     {
         $location = $this->locate($tree, $this->containerElementId);
 
@@ -39,18 +40,18 @@ final class UnwrapElement extends AbstractLayoutMutation
         // it consumed (data requirements + accepted context) have no home on any child, so report them rather than
         // drop them silently. Context the container *provided* is not reported here — its loss surfaces as a
         // BrokenRequiredChain binding violation in the diagnostics pass instead.
-        $this->droppedProperties = $location->node->getProperties();
+        $this->droppedProperties = $location->node->properties();
         $this->droppedWiring = array_values(array_unique([
-            ...array_keys($location->node->getDataRequirements()),
-            ...array_keys($location->node->getContextDefinitions()->getAllConsumers()),
+            ...array_keys($location->node->dataRequirements),
+            ...array_keys($location->node->contextDefinitions->getAllConsumers()),
         ]));
 
-        $without = $this->removeSubtree($tree, $this->containerElementId);
+        $without = $tree->remove($this->containerElementId);
 
         if ($location->parent === null) {
-            return $this->insertAtRoot($without, $location->index, $children);
+            return $without->insertAtRoot($location->index, $children);
         }
 
-        return $this->insertIntoSlot($without, $location->parent->parentId, $location->parent->slot, $location->index, $children);
+        return $without->insertIntoSlot($location->parent->parentId, $location->parent->slot, $location->index, $children);
     }
 }

@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\Log\Package;
@@ -20,128 +20,112 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(AttachElement::class)]
 class AttachElementTest extends TestCase
 {
-    use AssertsImmutableInput;
-
     #[TestDox('appends the supplied subtree at the root with a server-minted id')]
     public function testAttachesAtRootWithMintedId(): void
     {
-        $tree = [new ContentElement('existing', 'Sw:Block')];
+        $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
 
-        $result = (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card')))->apply($tree);
+        $result = (new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card')))->apply($tree);
 
-        static::assertCount(2, $result);
-        static::assertSame('existing', $result[0]->getId());
-        static::assertSame('Sw:Card', $result[1]->getComponent());
-        static::assertNotSame('incoming', $result[1]->getId());
-        static::assertTrue(Uuid::isValid($result[1]->getId()));
+        static::assertCount(2, $result->roots);
+        static::assertSame('existing', $result->roots[0]->id);
+        static::assertSame('Sw:Card', $result->roots[1]->component);
+        static::assertNotSame('incoming', $result->roots[1]->id);
+        static::assertTrue(Uuid::isValid($result->roots[1]->id));
     }
 
     #[TestDox('remints every id in the supplied subtree, never trusting client ids')]
     public function testRemintsEverySubtreeId(): void
     {
-        $incoming = new ContentElement('incoming', 'Sw:Block', [], [], [
-            'content' => new SlotContent([new ContentElement('incoming-child', 'Sw:Card')]),
+        $incoming = new StoredElement('incoming', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('incoming-child', 'Sw:Card')],
         ]);
 
-        $result = (new AttachElement($this->registry(), $incoming))->apply([]);
+        $result = (new AttachElement($this->registry(), $incoming))->apply(new StoredTree([]));
 
-        $attached = $result[0];
-        $child = array_values($attached->getSlots()['content']->getElements())[0];
-        static::assertNotSame('incoming', $attached->getId());
-        static::assertNotSame('incoming-child', $child->getId());
-        static::assertSame('Sw:Card', $child->getComponent());
+        $attached = $result->roots[0];
+        $child = $attached->slots['content'][0];
+        static::assertNotSame('incoming', $attached->id);
+        static::assertNotSame('incoming-child', $child->id);
+        static::assertSame('Sw:Card', $child->component);
     }
 
     #[TestDox('reports every reminted subtree id as affected')]
     public function testAffectedAreMintedSubtreeIds(): void
     {
-        $incoming = new ContentElement('incoming', 'Sw:Block', [], [], [
-            'content' => new SlotContent([new ContentElement('incoming-child', 'Sw:Card')]),
+        $incoming = new StoredElement('incoming', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('incoming-child', 'Sw:Card')],
         ]);
 
         $attach = new AttachElement($this->registry(), $incoming);
-        $result = $attach->apply([]);
+        $result = $attach->apply(new StoredTree([]));
 
-        $attached = $result[0];
-        $child = array_values($attached->getSlots()['content']->getElements())[0];
-        static::assertSame([$attached->getId(), $child->getId()], $attach->affected());
+        $attached = $result->roots[0];
+        static::assertSame([$attached->id, $attached->slots['content'][0]->id], $attach->affected());
     }
 
     #[TestDox('attaches the subtree into a parent slot at an explicit index')]
     public function testAttachesIntoParentSlotAtIndex(): void
     {
-        $tree = [new ContentElement('parent', 'Sw:Block', [], [], [
-            'content' => new SlotContent([new ContentElement('first', 'Sw:Card')]),
-        ])];
+        $tree = new StoredTree([new StoredElement('parent', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('first', 'Sw:Card')],
+        ])]);
 
-        $result = (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent', 'content', 0))->apply($tree);
+        $result = (new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'), 'parent', 'content', 0))->apply($tree);
 
-        $children = array_values($result[0]->getSlots()['content']->getElements());
+        $children = $result->roots[0]->slots['content'];
         static::assertCount(2, $children);
-        static::assertNotSame('incoming', $children[0]->getId());
-        static::assertSame('first', $children[1]->getId());
+        static::assertNotSame('incoming', $children[0]->id);
+        static::assertSame('first', $children[1]->id);
     }
 
     #[TestDox('clamps an out-of-range index, appending the supplied subtree to the end of the target list')]
     public function testAttachClampsOutOfRangeIndex(): void
     {
-        $tree = [new ContentElement('block-a', 'Sw:Card'), new ContentElement('block-b', 'Sw:Card')];
+        $tree = new StoredTree([new StoredElement('block-a', 'Sw:Card'), new StoredElement('block-b', 'Sw:Card')]);
 
-        $result = (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), null, null, 99))->apply($tree);
+        $result = (new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'), null, null, 99))->apply($tree);
 
-        static::assertCount(3, $result);
-        static::assertSame(['block-a', 'block-b'], [$result[0]->getId(), $result[1]->getId()]);
-        static::assertNotSame('incoming', $result[2]->getId());
+        static::assertCount(3, $result->roots);
+        static::assertSame(['block-a', 'block-b'], [$result->roots[0]->id, $result->roots[1]->id]);
+        static::assertNotSame('incoming', $result->roots[2]->id);
     }
 
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
     public function testAttachDetachesNothing(): void
     {
-        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'));
-        $attach->apply([]);
+        $attach = new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'));
+        $attach->apply(new StoredTree([]));
 
         static::assertSame([], $attach->orphaned());
         static::assertSame([], $attach->droppedWiring());
     }
 
-    #[TestDox('does not mutate the input tree in place')]
-    public function testAttachDoesNotMutateInput(): void
-    {
-        $tree = [new ContentElement('parent', 'Sw:Block', [], ['title' => 'Section'], [
-            'content' => new SlotContent([new ContentElement('first', 'Sw:Card')]),
-        ])];
-        $before = $this->snapshotTree($tree);
-
-        (new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent', 'content'))->apply($tree);
-
-        $this->assertInputTreeUnmutated($before, $tree);
-    }
-
     #[TestDox('rejects an unregistered root component with a 400')]
     public function testAttachUnregisteredComponentRejected(): void
     {
-        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Ghost'));
+        $attach = new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Ghost'));
 
         $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
-        $attach->apply([]);
+        $attach->apply(new StoredTree([]));
     }
 
     #[TestDox('rejects attaching into a parent absent from the tree with a 400')]
     public function testAttachIntoMissingParentRejected(): void
     {
-        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'ghost', 'content');
+        $attach = new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'), 'ghost', 'content');
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
-        $attach->apply([new ContentElement('other', 'Sw:Block')]);
+        $attach->apply(new StoredTree([new StoredElement('other', 'Sw:Block')]));
     }
 
     #[TestDox('rejects attaching into a parent without naming a slot with a 400')]
     public function testAttachIntoParentWithoutSlotRejected(): void
     {
-        $attach = new AttachElement($this->registry(), new ContentElement('incoming', 'Sw:Card'), 'parent');
+        $attach = new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'), 'parent');
 
         $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
-        $attach->apply([new ContentElement('parent', 'Sw:Block')]);
+        $attach->apply(new StoredTree([new StoredElement('parent', 'Sw:Block')]));
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

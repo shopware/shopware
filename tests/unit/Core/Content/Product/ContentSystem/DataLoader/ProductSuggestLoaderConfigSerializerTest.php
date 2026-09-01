@@ -33,14 +33,15 @@ class ProductSuggestLoaderConfigSerializerTest extends TestCase
         static::assertSame('product_suggest', ProductSuggestLoaderConfigSerializer::getSource());
     }
 
-    #[TestDox('decodes empty array into ProductSuggestLoaderConfig with null searchTermProperty')]
-    public function testDecodeEmptyArrayReturnsConfigWithNullSearchTermProperty(): void
+    #[TestDox('decodes empty array into ProductSuggestLoaderConfig with every field at its default')]
+    public function testDecodeEmptyArrayReturnsConfigWithAllDefaults(): void
     {
         $result = $this->serializer->decode([]);
 
         static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
         static::assertNull($result->searchTermProperty);
         static::assertSame([], $result->associations);
+        static::assertNull($result->associationOverride);
     }
 
     #[TestDox('decodes config with valid searchTermProperty into config with property set')]
@@ -186,6 +187,30 @@ class ProductSuggestLoaderConfigSerializerTest extends TestCase
         ], $result);
     }
 
+    #[TestDox('decodes a valid associationOverride into the config')]
+    public function testDecodeWithValidAssociationOverrideSetsAssociationOverride(): void
+    {
+        $result = $this->serializer->decode(['associationOverride' => 'extraAssociations']);
+
+        static::assertInstanceOf(ProductSuggestLoaderConfig::class, $result);
+        static::assertSame('extraAssociations', $result->associationOverride);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[TestWithJson('[{"associationOverride": ""}, "string"]', 'associationOverride is empty string')]
+    #[TestWithJson('[{"associationOverride": 42}, "integer"]', 'associationOverride is non-string type')]
+    #[TestDox('throws exception when associationOverride is invalid')]
+    public function testDecodeWithInvalidAssociationOverrideThrowsException(array $data, string $actualType): void
+    {
+        $this->expectExceptionObject(
+            ProductException::invalidFieldValueType('associationOverride', 'non-empty string', $actualType)
+        );
+
+        $this->serializer->decode($data);
+    }
+
     /**
      * @param array<string, mixed> $original
      */
@@ -207,6 +232,7 @@ class ProductSuggestLoaderConfigSerializerTest extends TestCase
         yield 'empty config' => [[]];
         yield 'searchTermProperty only' => [['searchTermProperty' => 'query']];
         yield 'associations only' => [['associations' => ['options', 'cover']]];
+        yield 'association override only' => [['associationOverride' => 'extraAssociations']];
         yield 'full config' => [
             ['searchTermProperty' => 'myQuery', 'associations' => ['manufacturer', 'media']],
         ];

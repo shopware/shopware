@@ -2,14 +2,23 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Struct;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Read-only projection of ContentElement for skeleton and decomposed output: properties stripped,
- * universal style carried.
+ * Read-only projection of a rendered element for skeleton output: properties stripped, universal style carried.
+ *
+ * The projection is what makes the skeleton the cacheable half of the PWA pattern: it is a function of
+ * structure alone, so the same layout and request produce the same skeleton whatever the data resolution
+ * found, and a later data response composes onto it by element id.
+ *
+ * Minting goes through {@see fromRendered()} rather than the constructor, so the projection rule lives in one
+ * place. The decomposed format used to share this struct through a second factory; it writes its own skeletons
+ * now, so the only wire shape reaching a client from here is the skeleton format's.
+ *
+ * @internal
  *
  * @final
  */
@@ -19,7 +28,7 @@ class ContentSkeletonElement extends Struct
     /**
      * @param array<string, list<self>> $slots
      */
-    public function __construct(
+    private function __construct(
         public string $id,
         public string $component,
         public array $slots,
@@ -28,18 +37,13 @@ class ContentSkeletonElement extends Struct
     }
 
     /**
-     * @param iterable<ContentElement> $elements
+     * @param list<RenderedElement> $elements
      *
      * @return list<self>
      */
-    public static function fromElements(iterable $elements): array
+    public static function fromRendered(array $elements): array
     {
-        $result = [];
-        foreach ($elements as $element) {
-            $result[] = self::fromElement($element);
-        }
-
-        return $result;
+        return array_map(self::fromRenderedElement(...), $elements);
     }
 
     /**
@@ -57,6 +61,9 @@ class ContentSkeletonElement extends Struct
     {
         $data = parent::jsonSerialize();
 
+        // Drop the inherited Struct extension bag; nested nodes bypass the encoder that strips it at the root
+        unset($data['extensions']);
+
         // Re-emit style in wire shape; structural and omitted when empty, so it never serializes as an empty {} / []
         unset($data['style']);
 
@@ -67,17 +74,13 @@ class ContentSkeletonElement extends Struct
         return $data;
     }
 
-    private static function fromElement(ContentElement $element): self
+    private static function fromRenderedElement(RenderedElement $element): self
     {
         $slots = [];
-        foreach ($element->getSlots() as $slotName => $slotContent) {
-            $children = [];
-            foreach ($slotContent as $child) {
-                $children[] = self::fromElement($child);
-            }
-            $slots[$slotName] = $children;
+        foreach ($element->slots as $slotName => $children) {
+            $slots[$slotName] = array_map(self::fromRenderedElement(...), $children);
         }
 
-        return new self($element->getId(), $element->getComponent(), $slots, $element->getStyle());
+        return new self($element->id, $element->component, $slots, $element->style);
     }
 }

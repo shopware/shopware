@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -16,14 +18,10 @@ use Shopware\Core\Framework\Log\Package;
 interface LayoutMutation
 {
     /**
-     * Pure transform: returns a NEW tree. MUST NOT mutate $tree, any ContentElement in it, or any SlotContent.
-     * The structural change is made by reconstructing the affected nodes (path-copying).
-     *
-     * @param list<ContentElement> $tree
-     *
-     * @return list<ContentElement> the new tree
+     * Pure transform: returns a NEW forest. {@see StoredTree} and {@see StoredElement} are both immutable, so
+     * "does not mutate the input" is a property of the types rather than a discipline this contract asks for.
      */
-    public function apply(array $tree): array;
+    public function apply(StoredTree $tree): StoredTree;
 
     /**
      * @return list<string> element ids whose resolution may have changed (a conservative highlight hint; the
@@ -32,8 +30,8 @@ interface LayoutMutation
     public function affected(): array;
 
     /**
-     * @return list<ContentElement> subtrees detached by the op (e.g. replace dropping a slot's children),
-     *                              returned so the caller can re-place them; never discarded
+     * @return list<StoredElement> subtrees detached by the op (e.g. replace dropping a slot's children),
+     *                             returned so the caller can re-place them; never discarded
      */
     public function orphaned(): array;
 
@@ -45,10 +43,10 @@ interface LayoutMutation
     public function droppedWiring(): array;
 
     /**
-     * @return array<string, mixed> static property values the op could not carry over to the new type (e.g.
-     *                              replace to a type lacking that property, or whose property type rejects the
-     *                              value), keyed by property key, reported so authored content is never silently
-     *                              lost
+     * @return array<string, StoredValue> static property values the op could not carry over to the new type
+     *                                    (e.g. replace to a type lacking that property, or whose property type
+     *                                    rejects the value), keyed by property key, reported so authored
+     *                                    content is never silently lost
      */
     public function droppedProperties(): array;
 }

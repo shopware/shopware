@@ -5,6 +5,7 @@
 {% props
     navigationTree = [],
     navigationMaxDepth = context.salesChannel.navigationCategoryDepth,
+    displayType = 'static',
     expandAll = false,
     activeId = shopware.navigation.id,
     activePath = shopware.navigation.pathIdList,
@@ -29,6 +30,7 @@
         <twig:Sw:Navigation:TreeItems
             :navigationTree="treeItems"
             :navigationMaxDepth="navigationMaxDepth"
+            :displayType="displayType"
             :expandAll="expandAll"
             :activeId="activeId"
             :activePath="activePath"

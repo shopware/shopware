@@ -5,14 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Output;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -31,62 +30,28 @@ class ElementTreePrunerTest extends TestCase
         $this->dependencyAnalyzer = new ContextDependencyAnalyzer();
     }
 
-    #[TestDox('finds path from root to target element including both endpoints')]
-    public function testFindPathToElementReturnsPathFromRootToTarget(): void
-    {
-        $childId = 'child-id';
-        $grandChildId = 'grandchild-id';
-        $rootId = 'root-id';
-
-        $grandChild = ContentElementBuilder::create('leaf-component', $grandChildId)->build();
-        $child = ContentElementBuilder::create('middle-component', $childId)
-            ->withSlot('default', [$grandChild])
-            ->build();
-        $root = ContentElementBuilder::create('root-component', $rootId)
-            ->withSlot('default', [$child])
-            ->build();
-
-        $path = $this->pruner->findPathToElement($root, $grandChildId);
-
-        static::assertSame([$rootId, $childId, $grandChildId], $path);
-    }
-
-    #[TestDox('returns empty array when target element is not in tree')]
-    public function testFindPathToElementReturnsEmptyArrayWhenNotFound(): void
-    {
-        $root = ContentElementBuilder::create('root-component', 'root-id')
-            ->withSlot('default', [
-                ContentElementBuilder::create('child-component', 'child-id')->build(),
-            ])
-            ->build();
-
-        $path = $this->pruner->findPathToElement($root, 'non-existent-id');
-
-        static::assertSame([], $path);
-    }
-
-    #[TestDox('returns a cloned target element when target has no context consumers')]
-    public function testPruneReturnsClonedTargetWhenTargetHasNoContextConsumers(): void
+    #[TestDox('returns the target element itself when target has no context consumers')]
+    public function testPruneReturnsTargetWhenTargetHasNoContextConsumers(): void
     {
         $targetId = 'target-id';
-        $rootId = 'root-id';
         $childId = 'child-id';
 
-        $target = ContentElementBuilder::create('target-component', $targetId)->build();
-        $sibling = ContentElementBuilder::create('sibling-component', 'sibling-id')->build();
-        $child = ContentElementBuilder::create('child-component', $childId)
+        $target = StoredElementBuilder::create('target-component', $targetId)->build();
+        $sibling = StoredElementBuilder::create('sibling-component', 'sibling-id')->build();
+        $child = StoredElementBuilder::create('child-component', $childId)
             ->withSlot('default', [$target, $sibling])
             ->build();
-        $root = ContentElementBuilder::create('root-component', $rootId)
+        $root = StoredElementBuilder::create('root-component', 'root-id')
             ->withSlot('default', [$child])
             ->build();
 
         $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
+        static::assertNotNull($pruned);
         // Since target has no context consumers, it is the data root — pruned tree starts at target
-        static::assertSame($targetId, $pruned->getId());
+        static::assertSame($targetId, $pruned->id);
         // No children in pruned tree — target is a leaf
-        static::assertFalse($pruned->hasSlots());
+        static::assertSame([], $pruned->slots);
     }
 
     #[TestDox('selects context-providing ancestor as data root and removes siblings from its slots')]
@@ -94,34 +59,33 @@ class ElementTreePrunerTest extends TestCase
     {
         $targetId = 'target-id';
         $providerId = 'provider-id';
-        $rootId = 'root-id';
 
-        $target = ContentElementBuilder::create('target-component', $targetId)
+        $target = StoredElementBuilder::create('target-component', $targetId)
             ->withConsumer('product', ContextType::Single)
             ->build();
-        $sibling = ContentElementBuilder::create('sibling-component', 'sibling-id')->build();
+        $sibling = StoredElementBuilder::create('sibling-component', 'sibling-id')->build();
 
-        $provider = ContentElementBuilder::create('provider-component', $providerId)
+        $provider = StoredElementBuilder::create('provider-component', $providerId)
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withSlot('default', [$target, $sibling])
             ->build();
 
-        $root = ContentElementBuilder::create('root-component', $rootId)
+        $root = StoredElementBuilder::create('root-component', 'root-id')
             ->withSlot('default', [$provider])
             ->build();
 
         $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
+        static::assertNotNull($pruned);
         // Provider is the data root (doesn't consume), so pruned tree starts there
-        static::assertSame($providerId, $pruned->getId());
+        static::assertSame($providerId, $pruned->id);
 
         // Pruned provider should contain only the target in its slot, not the sibling
-        $slots = $pruned->getSlots();
-        static::assertArrayHasKey('default', $slots);
+        static::assertArrayHasKey('default', $pruned->slots);
 
-        $children = $slots['default']->getElements();
+        $children = $pruned->slots['default'];
         static::assertCount(1, $children);
-        static::assertSame($targetId, $children[0]->getId());
+        static::assertSame($targetId, $children[0]->id);
     }
 
     #[TestDox('preserves correct slot name when target is in non-default slot')]
@@ -130,33 +94,33 @@ class ElementTreePrunerTest extends TestCase
         $targetId = 'target-id';
         $providerId = 'provider-id';
 
-        $headerChild = ContentElementBuilder::create('header-component', 'header-child')->build();
-        $target = ContentElementBuilder::create('target-component', $targetId)
+        $headerChild = StoredElementBuilder::create('header-component', 'header-child')->build();
+        $target = StoredElementBuilder::create('target-component', $targetId)
             ->withConsumer('product', ContextType::Single)
             ->build();
 
-        $provider = ContentElementBuilder::create('provider-component', $providerId)
+        $provider = StoredElementBuilder::create('provider-component', $providerId)
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withSlot('header', [$headerChild])
             ->withSlot('content', [$target])
             ->build();
 
-        $root = ContentElementBuilder::create('root-component', 'root-id')
+        $root = StoredElementBuilder::create('root-component', 'root-id')
             ->withSlot('default', [$provider])
             ->build();
 
         $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
-        static::assertSame($providerId, $pruned->getId());
+        static::assertNotNull($pruned);
+        static::assertSame($providerId, $pruned->id);
 
-        $slots = $pruned->getSlots();
-        static::assertCount(1, $slots);
-        static::assertArrayHasKey('content', $slots);
-        static::assertArrayNotHasKey('header', $slots);
+        static::assertCount(1, $pruned->slots);
+        static::assertArrayHasKey('content', $pruned->slots);
+        static::assertArrayNotHasKey('header', $pruned->slots);
 
-        $children = $slots['content']->getElements();
+        $children = $pruned->slots['content'];
         static::assertCount(1, $children);
-        static::assertSame($targetId, $children[0]->getId());
+        static::assertSame($targetId, $children[0]->id);
     }
 
     #[TestDox('reconstructs multi-level pruned tree and preserves style on each reconstructed ancestor and the target')]
@@ -169,44 +133,66 @@ class ElementTreePrunerTest extends TestCase
         $grandparentStyle = new ElementStyle(['col-span' => ['md' => 6]]);
         $targetStyle = new ElementStyle(['display' => ['xs' => 'none']]);
 
-        $target = ContentElementBuilder::create('target-component', $targetId)
+        $target = StoredElementBuilder::create('target-component', $targetId)
             ->withConsumer('listing', ContextType::Single)
             ->withStyle($targetStyle)
             ->build();
 
-        $parent = ContentElementBuilder::create('parent-component', $parentId)
+        $parent = StoredElementBuilder::create('parent-component', $parentId)
             ->withConsumer('product', ContextType::Single)
             ->withSlot('default', [$target])
             ->build();
 
-        $grandparent = ContentElementBuilder::create('grandparent-component', $grandparentId)
+        $grandparent = StoredElementBuilder::create('grandparent-component', $grandparentId)
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withSlot('default', [$parent])
             ->withStyle($grandparentStyle)
             ->build();
 
-        $root = ContentElementBuilder::create('root-component', 'root-id')
+        $root = StoredElementBuilder::create('root-component', 'root-id')
             ->withSlot('default', [$grandparent])
             ->build();
 
         $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
-        // Grandparent is data root (provides context but doesn't consume); it is rebuilt through the
-        // ContentElement constructor, which carries its style.
-        static::assertSame($grandparentId, $pruned->getId());
-        static::assertSame(['col-span' => ['md' => 6]], $pruned->getStyle()->toArray());
+        static::assertNotNull($pruned);
+        // Grandparent is data root (provides context but doesn't consume); it is rebuilt through
+        // withSlots(), which carries every field it does not override, style included.
+        static::assertSame($grandparentId, $pruned->id);
+        static::assertSame(['col-span' => ['md' => 6]], $pruned->style->toArray());
 
         // Grandparent → parent → target chain preserved
-        $parentSlots = $pruned->getSlots();
-        static::assertCount(1, $parentSlots);
-        $prunedParent = $parentSlots['default']->getElements()[0];
-        static::assertSame($parentId, $prunedParent->getId());
+        static::assertCount(1, $pruned->slots);
+        $prunedParent = $pruned->slots['default'][0];
+        static::assertSame($parentId, $prunedParent->id);
 
-        $targetSlots = $prunedParent->getSlots();
-        static::assertCount(1, $targetSlots);
-        $prunedTarget = $targetSlots['default']->getElements()[0];
-        static::assertSame($targetId, $prunedTarget->getId());
-        static::assertSame(['display' => ['xs' => 'none']], $prunedTarget->getStyle()->toArray());
+        static::assertCount(1, $prunedParent->slots);
+        $prunedTarget = $prunedParent->slots['default'][0];
+        static::assertSame($targetId, $prunedTarget->id);
+        static::assertSame(['display' => ['xs' => 'none']], $prunedTarget->style->toArray());
+    }
+
+    #[TestDox('carries the attribution of a reconstructed ancestor across the rebuild')]
+    public function testPruneCarriesAncestorAttribution(): void
+    {
+        $target = StoredElementBuilder::create('target-component', 'target-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+
+        $provider = StoredElementBuilder::create('provider-component', 'provider-id')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withAttributedSpecification('product', 'product:default')
+            ->withSlot('default', [$target])
+            ->build();
+
+        $root = StoredElementBuilder::create('root-component', 'root-id')
+            ->withSlot('default', [$provider])
+            ->build();
+
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, 'target-id', $this->dependencyAnalyzer);
+
+        static::assertNotNull($pruned);
+        static::assertSame(['product' => 'product:default'], $pruned->attributedSpecifications);
     }
 
     #[TestDox('preserves descendant elements below the target when target has children')]
@@ -216,51 +202,96 @@ class ElementTreePrunerTest extends TestCase
         $childId = 'child-id';
         $grandChildId = 'grandchild-id';
 
-        $grandChild = ContentElementBuilder::create('leaf-component', $grandChildId)->build();
+        $grandChild = StoredElementBuilder::create('leaf-component', $grandChildId)->build();
 
-        $child = ContentElementBuilder::create('inner-component', $childId)
+        $child = StoredElementBuilder::create('inner-component', $childId)
             ->withSlot('default', [$grandChild])
             ->build();
 
-        $target = ContentElementBuilder::create('target-component', $targetId)
+        $target = StoredElementBuilder::create('target-component', $targetId)
             ->withConsumer('product', ContextType::Single)
             ->withSlot('main', [$child])
             ->build();
 
-        $provider = ContentElementBuilder::create('provider-component', 'provider-id')
+        $provider = StoredElementBuilder::create('provider-component', 'provider-id')
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->withSlot('default', [$target])
             ->build();
 
-        $root = ContentElementBuilder::create('root-component', 'root-id')
+        $root = StoredElementBuilder::create('root-component', 'root-id')
             ->withSlot('default', [$provider])
             ->build();
 
         $pruned = $this->pruner->pruneToPathAndDescendants($root, $targetId, $this->dependencyAnalyzer);
 
+        static::assertNotNull($pruned);
         // Provider is data root — pruned tree starts there
-        static::assertSame('provider-id', $pruned->getId());
+        static::assertSame('provider-id', $pruned->id);
 
         // Provider → target
-        $providerSlots = $pruned->getSlots();
-        static::assertArrayHasKey('default', $providerSlots);
-        $prunedTarget = $providerSlots['default']->getElements()[0];
-        static::assertSame($targetId, $prunedTarget->getId());
+        static::assertArrayHasKey('default', $pruned->slots);
+        $prunedTarget = $pruned->slots['default'][0];
+        static::assertSame($targetId, $prunedTarget->id);
 
         // Target still has its children (descendants preserved)
-        static::assertTrue($prunedTarget->hasSlots());
-        $targetSlots = $prunedTarget->getSlots();
-        static::assertArrayHasKey('main', $targetSlots);
-        static::assertSame($childId, $targetSlots['main']->getElements()[0]->getId());
+        static::assertArrayHasKey('main', $prunedTarget->slots);
+        static::assertSame($childId, $prunedTarget->slots['main'][0]->id);
     }
 
-    #[TestDox('throws element-not-found exception when target element is not in tree')]
-    public function testPruneToPathAndDescendantsThrowsWhenElementNotFound(): void
+    #[TestDox('walks through the duplicate-id ancestor that actually holds the target, not its namesake in an earlier slot')]
+    public function testPruneWalksThroughTheAncestorHoldingTheTarget(): void
     {
-        $root = ContentElementBuilder::create('root-component', 'root-id')->build();
+        $target = StoredElementBuilder::create('target-component', 'target-id')->build();
 
-        $this->expectExceptionObject(ContentSystemException::elementNotFound('non-existent-id'));
+        $decoyMiddle = StoredElementBuilder::create('middle-component', 'middle-id')
+            ->withSlot('default', [StoredElementBuilder::create('leaf-component', 'decoy-leaf')->build()])
+            ->build();
+        $realMiddle = StoredElementBuilder::create('middle-component', 'middle-id')
+            ->withSlot('default', [$target])
+            ->build();
 
-        $this->pruner->pruneToPathAndDescendants($root, 'non-existent-id', $this->dependencyAnalyzer);
+        $root = StoredElementBuilder::create('root-component', 'root-id')
+            ->withSlot('first', [$decoyMiddle])
+            ->withSlot('second', [$realMiddle])
+            ->build();
+
+        // Fixture guard: the two ancestors really do share an id, and the earlier slot is really the
+        // one that does not hold the target — the pair a search by id alone cannot tell apart.
+        static::assertSame($decoyMiddle->id, $realMiddle->id);
+        static::assertSame(['first', 'second'], array_keys($root->slots));
+        static::assertNull($this->pruner->pruneToPathAndDescendants($decoyMiddle, 'target-id', $this->dependencyAnalyzer));
+
+        $pruned = $this->pruner->pruneToPathAndDescendants($root, 'target-id', $this->dependencyAnalyzer);
+
+        static::assertNotNull($pruned);
+        // The target consumes nothing, so it is its own data root and the prune stops there.
+        static::assertSame('target-id', $pruned->id);
+    }
+
+    #[TestDox('reports absence with null when the target element is not in the tree')]
+    public function testPruneToPathAndDescendantsReturnsNullWhenElementNotFound(): void
+    {
+        $root = StoredElementBuilder::create('root-component', 'root-id')->build();
+
+        static::assertNull(
+            $this->pruner->pruneToPathAndDescendants($root, 'non-existent-id', $this->dependencyAnalyzer)
+        );
+    }
+
+    #[TestDox('leaves the input tree untouched while rebuilding the pruned path')]
+    public function testPruneLeavesTheInputTreeUntouched(): void
+    {
+        $target = StoredElementBuilder::create('target-component', 'target-id')
+            ->withConsumer('product', ContextType::Single)
+            ->build();
+        $sibling = StoredElementBuilder::create('sibling-component', 'sibling-id')->build();
+        $provider = StoredElementBuilder::create('provider-component', 'provider-id')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('default', [$target, $sibling])
+            ->build();
+
+        $this->pruner->pruneToPathAndDescendants($provider, 'target-id', $this->dependencyAnalyzer);
+
+        static::assertCount(2, $provider->slots['default']);
     }
 }

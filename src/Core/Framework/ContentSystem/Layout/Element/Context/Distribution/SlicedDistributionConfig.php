@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution;
 
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -18,6 +20,9 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('framework')]
 final readonly class SlicedDistributionConfig implements DistributionConfig
 {
+    /**
+     * @param positive-int $sliceSize
+     */
     private function __construct(
         public int $sliceSize,
         public ?string $consumerAlias = null
@@ -26,18 +31,39 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
 
     public static function withSliceSize(int $sliceSize, ?string $consumerAlias = null): self
     {
+        if ($sliceSize < 1) {
+            throw ContentSystemException::invalidFieldValueRange('sliceSize', 1, $sliceSize);
+        }
+
         return new self($sliceSize, $consumerAlias);
     }
 
     /**
+     * An absent field takes its default; a present one of the wrong type is rejected rather than replaced by
+     * it, so a caller can tell a field it never set from a field it set wrongly. `sliceSize` is not nullable,
+     * so a present `null` is one of those wrong types and is rejected like any other.
+     *
      * @param array<string, mixed> $data
      */
     public static function fromArray(array $data): DistributionConfig
     {
-        return new self(
-            sliceSize: isset($data['sliceSize']) && \is_int($data['sliceSize']) ? $data['sliceSize'] : 10,
-            consumerAlias: isset($data['consumerAlias']) && \is_string($data['consumerAlias']) ? $data['consumerAlias'] : null
-        );
+        $sliceSize = \array_key_exists('sliceSize', $data) ? $data['sliceSize'] : 10;
+
+        if (!\is_int($sliceSize)) {
+            throw ContentSystemException::invalidFieldValueType('sliceSize', 'int', get_debug_type($sliceSize));
+        }
+
+        if ($sliceSize < 1) {
+            throw ContentSystemException::invalidFieldValueRange('sliceSize', 1, $sliceSize);
+        }
+
+        $consumerAlias = $data['consumerAlias'] ?? null;
+
+        if ($consumerAlias !== null && !\is_string($consumerAlias)) {
+            throw ContentSystemException::invalidFieldValueType('consumerAlias', 'string', get_debug_type($consumerAlias));
+        }
+
+        return new self(sliceSize: $sliceSize, consumerAlias: $consumerAlias);
     }
 
     /**
@@ -62,13 +88,8 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
             return array_fill(0, \count($consumers), []);
         }
 
-        $sliceSize = $this->sliceSize;
-        if ($sliceSize < 1) {
-            $sliceSize = 1;
-        }
-
         $items = array_values($data);
-        $slices = array_chunk($items, $sliceSize);
+        $slices = array_chunk($items, $this->sliceSize);
 
         $result = [];
         foreach ($consumers as $index => $consumer) {
@@ -93,7 +114,7 @@ final readonly class SlicedDistributionConfig implements DistributionConfig
     public static function buildConstraints(): array
     {
         return [
-            'sliceSize' => [new NotBlank(), new Type('int')],
+            'sliceSize' => [new NotBlank(), new Type('int'), new GreaterThanOrEqual(1)],
             'consumerAlias' => [new Type('string')],
         ];
     }

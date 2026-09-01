@@ -25,9 +25,19 @@
                 }
             }
         },
+        "displayType": {
+            "control": "select",
+            "options": ["static", "collapse"],
+            "description": "Whether sub-levels are fixed as rendered, or get a toggle the shopper can open and close.",
+            "table": {
+                "defaultValue": {
+                    "summary": "static"
+                }
+            }
+        },
         "expandAll": {
             "control": "boolean",
-            "description": "Render all children instead of only the branch containing the active category.",
+            "description": "Render all children instead of only the branch containing the active category. In collapse mode it sets which branches start open.",
             "table": {
                 "defaultValue": {
                     "summary": false
@@ -67,6 +77,15 @@
             "name": "Tree",
             "args": {
                 "navigationTree": [],
+                "displayType": "static",
+                "expandAll": false
+            }
+        },
+        {
+            "name": "Collapse",
+            "args": {
+                "navigationTree": [],
+                "displayType": "collapse",
                 "expandAll": false
             }
         }

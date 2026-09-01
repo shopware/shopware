@@ -1,0 +1,32 @@
+> Conceptual overview and design rationale live in [README.md](README.md), same
+> directory. The references and constraints below cover most code changes; read
+> the README when you need the mental model.
+
+## Source Code References
+
+All `final readonly`; all `@internal` except `RenderedElement`, the public render model.
+
+- `WiringPlanner` - the wiring step preceding the render step; `plan(list<StoredElement> $prePruneForest, list<StoredElement> $prunedTree): list<StoredElement>` — validates the stored forest's context wiring, then derives the redistribute broadcast providers and returns the derived tree. Validation throws; derivation never does
+- `ElementLowering` - entry point of the render step; `lower(list<StoredElement> $forest, RenderingMode $mode, SalesChannelContext $context, Request $request, RenderingCacheContext $cacheContext): LoweringResult`. Owns the forest-wide data walk and the FULL/SKELETON split
+- `ElementDataResolver` - runs ONE element's data requirements; `resolve(StoredElement $stored, SalesChannelContext $context, Request $request, RenderingCacheContext $cacheContext): array<string, ResolvedLoaderValue>` keyed by requirement key. Mints each value's `Output/Index/LoaderValueIdentity` and applies each loader result's cacheability to the cache context
+- `ContextDeliveryResolver` - owns the forest walk (top-down, required for chained re-providing); `resolve(list<StoredElement> $forest, array<string, array<string, mixed>> $loaderValues): ContextDeliveryIndex`, calling `ContextDistributor` at each parent
+- `ContextDistributor` - the rule for ONE parent and its direct children; `distribute(StoredElement $parent, array<string, mixed> $parentValues, list<StoredElement> $children): list<ContextDelivery>`, positionally aligned with `$children`. A provider whose value is `null` distributes nothing and writes no key
+- `ContextDelivery` - what one child received; fields: `elementId (string)`, `context (array<string, mixed>)` keyed by the key each value was delivered under, `distributionReferencedKeys (list<string>)`. `isEmpty()` answers whether the child received anything at all
+- `ContextDeliveryIndex` - what every element of one forest received, by element id; `has()`, `deliveryFor()`, `all()`. Total over the forest it was built from — an element that received nothing carries an empty `ContextDelivery`, so `deliveryFor()` throws `contextDeliveryMissing` only for an id that forest never held
+- `RenderedTreeFactory` - mints the forest; `create(list<StoredElement> $forest, ContextDeliveryIndex $deliveries, array<string, array<string, ResolvedLoaderValue>> $loaderValues, RenderingMode $mode): LoweringResult`, folding `RenderedElementFactory` bottom-up
+- `RenderedElementFactory` - mints one element; `create(StoredElement $stored, array<string, ResolvedLoaderValue> $resolvedLoaderValues, array<string, mixed> $deliveredContext, list<string> $distributionReferencedKeys, array<string, list<RenderedElement>> $slots): ElementMintResult`. Owns which of a stored element's keys survive onto the rendered side, and unwraps `StoredValue` at that seam
+- `RenderedElement` - the render model, and the Store API's view of one element; fields: `id (string)`, `component (string)`, `properties (array<string, mixed>)` holding raw unwrapped values, `slots (array<string, list<RenderedElement>>)`, `style (ElementStyle)`. Immutable, every edit through a `with*()`; deliberately not a `Struct`
+- `ElementMintResult` - one minted `RenderedElement` paired with the `Output/Index/ValueProvenance` the mint recorded per property key
+- `LoweringResult` - what lowering produced; fields: `tree (list<RenderedElement>)`, `provenance (array<string, array<string, ValueProvenance>>)` element id => property key
+- `ResolvedLoaderValue` - one requirement's resolved value: `value (mixed)` paired with the `Output/Index/LoaderValueIdentity` it dedups by
+
+## Constraints
+
+- Data resolution MUST complete over the WHOLE forest before any context-delivery resolution starts — a provider may hand a loaded value on to a child (`ElementLowering::lower()` is what orders the two)
+- `ElementDataResolver` resolves each requirement's `LoaderInputs` (via `LoaderInputResolver`, from the loader's `configSpecification()`, the requirement's config, and the element's unwrapped `StoredElement::properties()`) before calling `load()`
+- Nothing writes into an element: `ElementDataResolver::resolve()` returns a `ResolvedLoaderValue` per requirement key (the loader's value paired with the `Output/Index/LoaderValueIdentity` that value dedups by), `ContextDeliveryResolver::resolve()` returns a `ContextDeliveryIndex`, and `RenderedTreeFactory` mints the tree from both
+- The identity is minted at the load, in `ElementDataResolver`, because two of its four components exist nowhere else: the resolved `LoaderInputs` do not outlive the call, and `producedFingerprint` must describe the value the LOADER returned rather than the value the response finally carries. Context distribution sees the plain values — dataflow does not care where a value came from
+- A requirement whose loader found nothing yields a PRESENT `null`; `RenderedElementFactory` reads the map with `array_key_exists`, so present-null renders as null while an absent key never renders at all
+- `ElementLowering::lower()` returns a `LoweringResult` (the rendered forest plus the provenance of every property key in it, keyed by element id) and owns the mode split: SKELETON resolves no data, computes no deliveries, mints from an empty index and an empty loader-value map, and therefore records no provenance
+- Provenance is recorded by the write that produces the value, inside `RenderedElementFactory::create()`, so a contested key is filed under the member that WON it. The tier write order is therefore load-bearing twice — for the value and for the category — and a provenance assertion guards it, not only a value assertion: reordering the loops would recategorise index entries while every value stayed correct
+- Provider, consumer, alias and redistribute semantics — and which sites enforce them — are owned by [Layout/Element/Context/AGENTS.md](../Layout/Element/Context/AGENTS.md) and its `docs/`; this directory executes those rules and restates none of them

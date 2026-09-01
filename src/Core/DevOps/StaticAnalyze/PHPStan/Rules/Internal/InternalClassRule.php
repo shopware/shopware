@@ -40,6 +40,7 @@ class InternalClassRule implements Rule
     private const INTERNAL_NAMESPACES = [
         '\\DevOps\\StaticAnalyze',
         '\\Core\\Maintenance',
+        '\\ContentSystem\\',
     ];
     private const SUBSCRIBER_EXCEPTIONS = [
         RefreshIndexCommand::class,
@@ -54,6 +55,67 @@ class InternalClassRule implements Rule
         DemodataService::class,
         DemodataCommand::class,
         DemodataRequestCreatedEvent::class,
+    ];
+    /**
+     * The content-system module's public extension surface: every class a plugin must reach to use it.
+     * These carry no `@internal`; every other class in the module still must. Held as plain strings so
+     * this rule takes on no dependency on the module's namespace.
+     */
+    private const CONTENT_SYSTEM_PUBLIC_SURFACE = [
+        'Shopware\\Core\\Framework\\ContentSystem\\Event\\ContentTreePreparationEvent',
+        'Shopware\\Core\\Framework\\ContentSystem\\Event\\RenderedTreeFinalizationEvent',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\AbstractContentDataLoader',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\AbstractContentDataLoaderConfigSerializer',
+        'Shopware\\Core\\Framework\\ContentSystem\\Output\\Format\\AbstractResponseFactory',
+        'Shopware\\Core\\Framework\\ContentSystem\\Adapter\\AbstractSpecificationSource',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Loader\\AbstractContentSystemElementTypeLoader',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\Loader\\AbstractContentSystemStyleOptionLoader',
+        'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Loader\\AbstractContentSystemBindingSpecificationLoader',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\StoredElement',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\StoredValue',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\StoredTree',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\ContextDefinitions',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\ContextProvider',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\ContextConsumer',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataContext\\ContextType',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\Distribution\\DistributionConfig',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\Distribution\\DistributionStrategy',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\DataRequirement\\DataRequirement',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\ElementStyle',
+        'Shopware\\Core\\Framework\\ContentSystem\\Rendering\\RenderedElement',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\RenderedTreeEditor',
+        'Shopware\\Core\\Framework\\ContentSystem\\Cache\\RenderingCacheContext',
+        'Shopware\\Core\\Framework\\ContentSystem\\LayoutReference',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Entity\\ContentLayoutEntity',
+        'Shopware\\Core\\Framework\\ContentSystem\\RenderableLayout',
+        'Shopware\\Core\\Framework\\ContentSystem\\ResolvedContentLayout',
+        'Shopware\\Core\\Framework\\ContentSystem\\ContentSection',
+        'Shopware\\Core\\Framework\\ContentSystem\\RenderingSpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\PlaceholderValues',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\AbstractContentDataLoaderConfig',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\LoaderInputs',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\ContentDataLoaderResult',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\LoaderConfigSpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\ConfigKeySpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\ConfigKeyKind',
+        'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataLoader\\LoaderTypeCapability',
+        'Shopware\\Core\\Framework\\ContentSystem\\Output\\RenderResult',
+        'Shopware\\Core\\Framework\\ContentSystem\\Output\\Index\\ResolvedValueIndex',
+        'Shopware\\Core\\Framework\\ContentSystem\\RenderingMode',
+        'Shopware\\Core\\Framework\\ContentSystem\\SalesChannel\\AbstractContentRouteResponse',
+        'Shopware\\Core\\Framework\\ContentSystem\\Resolution\\ProvidedContext',
+        'Shopware\\Core\\Framework\\ContentSystem\\SpecificationData',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\ContentSystemElementTypeSpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\PropertySpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\PropertyType',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\SlotSpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Type\\Specification\\CopilotSpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\Specification\\StyleOptionSpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\Specification\\StyleOptionValueType',
+        'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\BindingSpecification',
+        'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\LoaderBinding',
+        'Shopware\\Core\\Framework\\ContentSystem\\Binding\\Specification\\BindingInput',
+        'Shopware\\Core\\Framework\\ContentSystem\\ContentSystemException',
     ];
 
     public function getNodeType(): string
@@ -114,7 +176,7 @@ class InternalClassRule implements Rule
             ];
         }
 
-        if ($namespace = $this->isInInternalNamespace($node)) {
+        if (($namespace = $this->isInInternalNamespace($node)) && !\in_array($class, self::CONTENT_SYSTEM_PUBLIC_SURFACE, true)) {
             return [
                 RuleErrorBuilder::message('Classes in `' . $namespace . '` namespace must be flagged @internal to not be captured by the BC checker.')
                     ->identifier('shopware.internalClass')
@@ -232,6 +294,13 @@ class InternalClassRule implements Rule
     private function isInInternalNamespace(InClassNode $node): ?string
     {
         $namespace = $node->getClassReflection()->getName();
+
+        if (\str_contains($namespace, 'Shopware\\Core\\Test\\Stub\\')) {
+            // Test stub classes are public builders by design, as isTestClass() already encodes.
+            // This exempts them from the namespace requirement only; a stub extending an
+            // @internal abstract still has to be @internal or @final.
+            return null;
+        }
 
         foreach (self::INTERNAL_NAMESPACES as $internalNamespace) {
             if (\str_contains($namespace, $internalNamespace)) {

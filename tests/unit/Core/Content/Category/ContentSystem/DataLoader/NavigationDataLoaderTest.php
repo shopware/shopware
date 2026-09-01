@@ -5,15 +5,14 @@ namespace Shopware\Tests\Unit\Core\Content\Category\ContentSystem\DataLoader;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfig;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,17 +27,17 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(NavigationDataLoader::class)]
 class NavigationDataLoaderTest extends TestCase
 {
-    private NavigationLoaderInterface&Stub $navigationLoader;
-
     private NavigationAliasResolver $aliasResolver;
 
     private NavigationDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $this->aliasResolver = new NavigationAliasResolver();
-        $this->dataLoader = new NavigationDataLoader($this->navigationLoader, $this->aliasResolver);
+        $this->dataLoader = new NavigationDataLoader(
+            static::createStub(NavigationLoaderInterface::class),
+            $this->aliasResolver,
+        );
     }
 
     #[TestDox('returns navigation source type identifier')]
@@ -58,16 +57,13 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame([], $capabilities[0]->configTemplate);
     }
 
-    #[TestDox('loads navigation tree with explicit rootId from config')]
+    #[TestDox('loads navigation tree with explicit rootId')]
     public function testLoadWithExplicitRootIdCallsNavigationLoader(): void
     {
         $rootId = Uuid::randomHex();
         $activeId = Uuid::randomHex();
         $tree = new Tree(null, []);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => $activeId]);
-        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'activeId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
 
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
@@ -78,7 +74,12 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => $activeId]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
@@ -91,9 +92,6 @@ class NavigationDataLoaderTest extends TestCase
         $activeId = Uuid::randomHex();
         $tree = new Tree(null, []);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => $activeId]);
-        $config = new NavigationLoaderConfig(rootId: 'main-navigation', depth: 2, activeProperty: 'activeId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($navCategoryId);
 
@@ -105,7 +103,12 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => 'main-navigation', 'depth' => 2, 'activeProperty' => $activeId]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
@@ -123,9 +126,6 @@ class NavigationDataLoaderTest extends TestCase
         $activeId = Uuid::randomHex();
         $tree = new Tree(null, []);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => $activeId]);
-        $config = new NavigationLoaderConfig(rootId: $alias, depth: 2, activeProperty: 'activeId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
         $assignRootToSalesChannel($context->getSalesChannel(), $rootId);
 
@@ -137,7 +137,12 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => $alias, 'depth' => 2, 'activeProperty' => $activeId]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
@@ -157,16 +162,13 @@ class NavigationDataLoaderTest extends TestCase
         }];
     }
 
-    #[TestDox('reads active ID from custom activeProperty name')]
+    #[TestDox('reads the active ID from the element property the config names')]
     public function testLoadReadsActiveIdFromCustomActiveProperty(): void
     {
         $rootId = Uuid::randomHex();
         $activeId = Uuid::randomHex();
         $tree = new Tree(null, []);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['categoryId' => $activeId]);
-        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'categoryId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
 
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
@@ -177,7 +179,12 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $inputs = $this->resolve(
+            new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'categoryId'),
+            ['categoryId' => $activeId],
+        );
+
+        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
@@ -189,14 +196,18 @@ class NavigationDataLoaderTest extends TestCase
         $rootId = Uuid::randomHex();
         $tree = new Tree(null, []);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new NavigationLoaderConfig(rootId: $rootId);
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->navigationLoader->method('load')->willReturn($tree);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
+        $navigationLoader->method('load')->willReturn($tree);
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => null]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
@@ -208,9 +219,6 @@ class NavigationDataLoaderTest extends TestCase
         $rootId = Uuid::randomHex();
         $tree = new Tree(null, []);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 5);
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
 
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
@@ -221,20 +229,21 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader->load(
+            new LoaderInputs(['rootId' => $rootId, 'depth' => 5, 'activeProperty' => null]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
     }
 
-    #[TestDox('defaults to main-navigation alias when rootId is null in config')]
-    public function testLoadDefaultsToMainNavigationWhenRootIdIsNull(): void
+    #[TestDox('resolves an unset rootId to the declared main-navigation default')]
+    public function testUnsetRootIdResolvesToDeclaredMainNavigationDefault(): void
     {
         $navCategoryId = Uuid::randomHex();
         $activeId = Uuid::randomHex();
         $tree = new Tree(null, []);
 
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => $activeId]);
-        // rootId is null — defaults to 'main-navigation'
-        $config = new NavigationLoaderConfig(rootId: null, depth: 3, activeProperty: 'activeId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($navCategoryId);
 
@@ -246,22 +255,23 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $inputs = $this->resolve(
+            new NavigationLoaderConfig(rootId: null, depth: 3, activeProperty: 'activeId'),
+            ['activeId' => $activeId],
+        );
+
+        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
     }
 
-    #[TestDox('uses rootId as activeId when element active property is missing')]
-    public function testLoadUsesRootIdAsActiveIdWhenActivePropertyIsMissing(): void
+    #[TestDox('uses rootId as activeId when the active property is unresolved')]
+    public function testLoadUsesRootIdAsActiveIdWhenActivePropertyIsUnresolved(): void
     {
         $rootId = Uuid::randomHex();
         $tree = new Tree(null, []);
-        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'activeId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
-
-        $elementMissing = new ContentElement(id: Uuid::randomHex(), component: 'test');
 
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
         $navigationLoader
@@ -271,22 +281,23 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $resultMissing = $dataLoader->load($elementMissing, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => null]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
-        static::assertTrue($resultMissing->hasData());
-        static::assertSame($tree, $resultMissing->data);
+        static::assertTrue($result->hasData());
+        static::assertSame($tree, $result->data);
     }
 
-    #[TestDox('uses rootId as activeId when element active property is an empty string')]
-    public function testLoadUsesRootIdAsActiveIdWhenActivePropertyIsEmptyString(): void
+    #[TestDox('uses rootId as activeId when the active property resolves to something other than a UUID')]
+    public function testLoadUsesRootIdAsActiveIdWhenActivePropertyIsNotAUuid(): void
     {
         $rootId = Uuid::randomHex();
         $tree = new Tree(null, []);
-        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'activeId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
         $context = Generator::generateSalesChannelContext();
-
-        $elementEmpty = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => '']);
 
         $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
         $navigationLoader
@@ -296,10 +307,41 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $resultEmpty = $dataLoader->load($elementEmpty, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => '']),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
-        static::assertTrue($resultEmpty->hasData());
-        static::assertSame($tree, $resultEmpty->data);
+        static::assertTrue($result->hasData());
+        static::assertSame($tree, $result->data);
+    }
+
+    #[TestDox('falls back to the root when the activeId placeholder was not resolved')]
+    public function testLoadFallsBackToRootWhenActiveIdIsAnUnresolvedPlaceholder(): void
+    {
+        $rootId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+        $context = Generator::generateSalesChannelContext();
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($rootId, $context, $rootId, 2)
+            ->willReturn($tree);
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        // A layout that is not rooted on a category leaves "{{categoryId}}" in place.
+        $inputs = $this->resolve(
+            new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'activeId'),
+            ['activeId' => '{{categoryId}}'],
+        );
+
+        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
+
+        static::assertSame($tree, $result->data);
     }
 
     #[TestDox('falls back to the sales channel navigation depth when the config declares none')]
@@ -307,10 +349,6 @@ class NavigationDataLoaderTest extends TestCase
     {
         $rootId = Uuid::randomHex();
         $tree = new Tree(null, []);
-
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new NavigationLoaderConfig(rootId: $rootId);
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
 
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryDepth(4);
@@ -323,7 +361,9 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $inputs = $this->resolve(new NavigationLoaderConfig(rootId: $rootId), []);
+
+        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
 
         static::assertSame($tree, $result->data);
     }
@@ -333,10 +373,6 @@ class NavigationDataLoaderTest extends TestCase
     {
         $rootId = Uuid::randomHex();
         $tree = new Tree(null, []);
-
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 1);
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
 
         $context = Generator::generateSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryDepth(4);
@@ -349,32 +385,9 @@ class NavigationDataLoaderTest extends TestCase
             ->willReturn($tree);
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $inputs = $this->resolve(new NavigationLoaderConfig(rootId: $rootId, depth: 1), []);
 
-        static::assertSame($tree, $result->data);
-    }
-
-    #[TestDox('falls back to the root when the activeId placeholder was not resolved')]
-    public function testLoadFallsBackToRootWhenActiveIdIsAnUnresolvedPlaceholder(): void
-    {
-        $rootId = Uuid::randomHex();
-        $tree = new Tree(null, []);
-
-        // A layout that is not rooted on a category leaves "{{categoryId}}" in place.
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test', properties: ['activeId' => '{{categoryId}}']);
-        $config = new NavigationLoaderConfig(rootId: $rootId, depth: 2, activeProperty: 'activeId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
-        $context = Generator::generateSalesChannelContext();
-
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
-        $navigationLoader
-            ->expects($this->once())
-            ->method('load')
-            ->with($rootId, $context, $rootId, 2)
-            ->willReturn($tree);
-
-        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
 
         static::assertSame($tree, $result->data);
     }
@@ -382,10 +395,6 @@ class NavigationDataLoaderTest extends TestCase
     #[TestDox('returns notFound result when an alias does not resolve because the sales channel has no such category')]
     public function testLoadReturnsNotFoundWhenAliasDoesNotResolve(): void
     {
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $config = new NavigationLoaderConfig(rootId: 'service-navigation', depth: 2, activeProperty: 'activeId');
-        $requirement = new DataRequirement('navKey', 'navigation', $config);
-
         $context = Generator::generateSalesChannelContext();
         static::assertNull($context->getSalesChannel()->getServiceCategoryId());
 
@@ -393,7 +402,12 @@ class NavigationDataLoaderTest extends TestCase
         $navigationLoader->expects($this->never())->method('load');
 
         $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => 'service-navigation', 'depth' => 2, 'activeProperty' => null]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         // All three together pin notFound() rather than uncacheable(), which differs only in its tags.
         static::assertFalse($result->hasData());
@@ -401,22 +415,16 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when config is not a NavigationLoaderConfig instance')]
-    public function testLoadReturnNotFoundWhenConfigIsNotNavigationLoaderConfig(): void
+    /**
+     * @param array<string, mixed> $properties
+     */
+    private function resolve(NavigationLoaderConfig $config, array $properties): LoaderInputs
     {
-        $element = new ContentElement(id: Uuid::randomHex(), component: 'test');
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('navKey', 'navigation', $wrongConfig);
-        $context = Generator::generateSalesChannelContext();
+        return (new LoaderInputResolver())->resolve($this->dataLoader->configSpecification(), $config, $properties);
+    }
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
-        $navigationLoader->expects($this->never())->method('load');
-
-        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertFalse($result->hasData());
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+    private static function requirement(): DataRequirement
+    {
+        return new DataRequirement('navKey', 'navigation', new NavigationLoaderConfig());
     }
 }

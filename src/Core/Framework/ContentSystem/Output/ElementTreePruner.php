@@ -2,15 +2,12 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output;
 
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Prunes a content-element tree to a target element's path plus its descendants: the pre-hydration optimization for
+ * Prunes a stored element tree to a target element's path plus its descendants: the pre-render optimization for
  * partial rendering, which drops the siblings along the path because context flows parent to child only.
  *
  * @internal
@@ -21,147 +18,92 @@ use Shopware\Core\Framework\Log\Package;
 class ElementTreePruner
 {
     /**
-     * @return list<string> Element IDs from root to target (inclusive), empty array if not found
-     */
-    public function findPathToElement(ContentElement $root, string $targetId): array
-    {
-        $visitor = new PathFinderVisitor($targetId);
-        $root->traverse($visitor);
-
-        return $visitor->getPath();
-    }
-
-    /**
      * Pre-hydration optimization: discards siblings at each level since context flows
      * parent→child only, not between siblings.
+     *
+     * A target that is not in this root is not an error: the forest has other roots to try, and the
+     * caller decides what an exhausted forest means. `null` is that answer.
      */
     public function pruneToPathAndDescendants(
-        ContentElement $root,
+        StoredElement $root,
         string $targetId,
         ContextDependencyAnalyzer $dependencyAnalyzer
-    ): ContentElement {
-        $path = $this->findPathToElement($root, $targetId);
+    ): ?StoredElement {
+        $resolved = $this->resolvePath($root, $targetId);
 
-        if ($path === []) {
-            throw ContentSystemException::elementNotFound($targetId);
+        if ($resolved === null) {
+            return null;
         }
 
-        $pathElements = $this->buildPathElements($root, $path);
-        $dataRootIndex = $dependencyAnalyzer->findDataRootIndex($pathElements);
+        [$pathElements, $slotNames] = $resolved;
 
-        return $this->reconstructPrunedTree(
+        return $this->reconstructFromBottom(
             $pathElements,
-            $dataRootIndex,
+            $slotNames,
+            $dependencyAnalyzer->findDataRootIndex($pathElements),
             \count($pathElements) - 1
         );
     }
 
     /**
-     * @param list<string> $path Element IDs from root to target
+     * Finds the target and returns the elements from `$element` down to it, recording for each of them
+     * the slot that holds the next one.
      *
-     * @return list<ContentElement>
+     * The elements and their slots come out of one descent, so the reconstruction can never disagree
+     * with the search about which child a step meant: ids are supposed to be unique across the forest,
+     * but a raw-SQL or migration write can put the same id in two slots, and re-locating a step by id
+     * would then be free to pick the sibling the search did not walk through.
+     *
+     * Pre-order, first match wins, slot order.
+     *
+     * @return array{list<StoredElement>, list<string>}|null The path elements and, per element, the
+     *                                                       slot holding its successor; null when the
+     *                                                       target is not in this tree
      */
-    private function buildPathElements(ContentElement $root, array $path): array
+    private function resolvePath(StoredElement $element, string $targetId): ?array
     {
-        $elements = [$root];
-        $current = $root;
-        $pathCount = \count($path);
+        if ($element->id === $targetId) {
+            return [[$element], []];
+        }
 
-        for ($i = 1; $i < $pathCount; ++$i) {
-            $nextId = $path[$i];
+        foreach ($element->slots as $slotName => $children) {
+            foreach ($children as $child) {
+                $resolved = $this->resolvePath($child, $targetId);
 
-            // Search only among direct children (O(children) instead of O(tree))
-            $found = $this->findDirectChild($current, $nextId);
+                if ($resolved === null) {
+                    continue;
+                }
 
-            if ($found === null) {
-                throw ContentSystemException::pathIntegrityViolation(
-                    "Element {$nextId} not found as direct child of {$current->getId()}"
-                );
+                [$elements, $slotNames] = $resolved;
+
+                return [[$element, ...$elements], [$slotName, ...$slotNames]];
             }
-
-            $elements[] = $found;
-            $current = $found;
         }
 
-        return $elements;
+        return null;
     }
 
     /**
-     * @param array<ContentElement> $pathElements
-     */
-    private function reconstructPrunedTree(
-        array $pathElements,
-        int $startIndex,
-        int $targetIndex
-    ): ContentElement {
-        if ($startIndex === $targetIndex) {
-            return clone $pathElements[$targetIndex];
-        }
-
-        // Build from bottom up (target to context root) to handle immutability
-        return $this->reconstructFromBottom($pathElements, $startIndex, $targetIndex);
-    }
-
-    /**
-     * @param array<ContentElement> $pathElements
+     * Rebuilds the kept path from the target upwards, each ancestor carrying only the one slot that leads
+     * on. It rebuilds through {@see StoredElement::withSlots()} rather than through the constructor, the
+     * same idiom `Layout/StoredTree`'s surgery uses: a field added to the element later rides across on its
+     * own, where a hand-written constructor call would drop it without anything failing.
+     *
+     * @param list<StoredElement> $pathElements
+     * @param list<string> $slotNames
      */
     private function reconstructFromBottom(
         array $pathElements,
+        array $slotNames,
         int $currentIndex,
         int $targetIndex
-    ): ContentElement {
+    ): StoredElement {
         if ($currentIndex === $targetIndex) {
-            return clone $pathElements[$targetIndex];
+            return $pathElements[$targetIndex];
         }
 
-        $child = $this->reconstructFromBottom($pathElements, $currentIndex + 1, $targetIndex);
+        $child = $this->reconstructFromBottom($pathElements, $slotNames, $currentIndex + 1, $targetIndex);
 
-        $currentElement = $pathElements[$currentIndex];
-        $nextElement = $pathElements[$currentIndex + 1];
-
-        $slotName = $this->findSlotContaining($currentElement, $nextElement->getId());
-
-        if ($slotName === null) {
-            throw ContentSystemException::pathIntegrityViolation(
-                "Element {$nextElement->getId()} not found in any slot of parent {$currentElement->getId()}"
-            );
-        }
-
-        return new ContentElement(
-            $currentElement->getId(),
-            $currentElement->getComponent(),
-            $currentElement->getDataRequirements(),
-            $currentElement->getProperties(),
-            [$slotName => new SlotContent([$child])],
-            new ContextDefinitions(
-                $currentElement->getProvidesContext(),
-                $currentElement->getAcceptsContext()
-            ),
-            $currentElement->getStyle(),
-        );
-    }
-
-    private function findSlotContaining(ContentElement $parent, string $childId): ?string
-    {
-        foreach ($parent->getSlots() as $slotName => $slotContent) {
-            foreach ($slotContent as $element) {
-                if ($element->getId() === $childId) {
-                    return $slotName;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private function findDirectChild(ContentElement $parent, string $childId): ?ContentElement
-    {
-        foreach ($parent->allSlotElements() as $child) {
-            if ($child->getId() === $childId) {
-                return $child;
-            }
-        }
-
-        return null;
+        return $pathElements[$currentIndex]->withSlots([$slotNames[$currentIndex] => [$child]]);
     }
 }

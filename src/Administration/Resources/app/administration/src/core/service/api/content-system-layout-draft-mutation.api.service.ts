@@ -3,24 +3,12 @@
  */
 
 import type { AxiosInstance } from 'axios';
+import type { ContentElementNode } from '../content-element.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
-/**
- * @private
- */
-export type ContentLayoutDraftMutationElement = {
-    id: string;
-    component: string;
-    properties?: Record<string, unknown>;
-    dataRequirements?: unknown;
-    providesContext?: unknown;
-    acceptsContext?: unknown;
-    slots?: Record<string, ContentLayoutDraftMutationElement[]>;
-};
-
 type ContentLayoutDraftMutationEnvelope = {
-    layout: ContentLayoutDraftMutationElement[];
+    layout: ContentElementNode[];
     rootSource: string | null;
 };
 
@@ -66,14 +54,48 @@ type ContentLayoutDraftMutationDiagnostics = {
 };
 
 /**
+ * How a reference property is (or could be) filled: `parent` (an ancestor/root context), `loader` (a data
+ * loader), or `stored` (the element's own applied wiring).
+ *
+ * @private
+ */
+export type ContentSystemResolutionCandidate = {
+    origin: 'parent' | 'loader' | 'stored';
+    contextKey: string | null;
+    providerElementId: string | null;
+    path: string | null;
+    distribution: string | null;
+    contextType: 'single' | 'collection' | null;
+    loaderSource: string | null;
+    configTemplate: Record<string, unknown> | null;
+    configComplete: boolean | null;
+};
+
+/**
+ * A single declared property's resolution, as reported per element by the diagnose/mutation endpoints.
+ *
+ * @private
+ */
+export type ContentSystemPropertyResolution = {
+    key: string;
+    kind: 'primitive' | 'reference';
+    required: boolean;
+    type: string | null;
+    default: unknown;
+    fqcn: string | null;
+    resolved: ContentSystemResolutionCandidate | null;
+    candidates: ContentSystemResolutionCandidate[];
+};
+
+/**
  * @private
  */
 export type ContentLayoutDraftMutationResponse = {
-    layout: ContentLayoutDraftMutationElement[];
-    resolutions: Record<string, unknown>;
+    layout: ContentElementNode[];
+    resolutions: Record<string, ContentSystemPropertyResolution[]>;
     diagnostics: ContentLayoutDraftMutationDiagnostics;
     affectedElementIds: string[];
-    orphaned: ContentLayoutDraftMutationElement[];
+    orphaned: ContentElementNode[];
     droppedWiring: string[];
     droppedProperties: Record<string, unknown>;
 };

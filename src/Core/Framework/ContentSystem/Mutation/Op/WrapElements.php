@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\ElementLocation;
@@ -31,7 +31,7 @@ final class WrapElements extends AbstractLayoutMutation
     ) {
     }
 
-    public function apply(array $tree): array
+    public function apply(StoredTree $tree): StoredTree
     {
         $this->requireRegistered($this->registry, $this->containerType);
 
@@ -48,27 +48,25 @@ final class WrapElements extends AbstractLayoutMutation
         $ordered = $this->orderByIndex($locations);
         $position = $this->firstPosition($locations);
 
-        $containerElement = $this->scaffoldElement($this->registry, $this->containerType, [$slot => new SlotContent($ordered)]);
-        $this->affected = [$containerElement->getId(), ...$this->elementIds];
+        $containerElement = $this->scaffoldElement($this->registry, $this->containerType, [$slot => $ordered]);
+        $this->affected = [$containerElement->id, ...$this->elementIds];
 
         $without = $tree;
         foreach ($this->elementIds as $id) {
-            $without = $this->removeSubtree($without, $id);
+            $without = $without->remove($id);
         }
 
         if ($locations[0]->parent === null) {
-            return $this->insertAtRoot($without, $position, [$containerElement]);
+            return $without->insertAtRoot($position, [$containerElement]);
         }
 
-        return $this->insertIntoSlot($without, $locations[0]->parent->parentId, $locations[0]->parent->slot, $position, [$containerElement]);
+        return $without->insertIntoSlot($locations[0]->parent->parentId, $locations[0]->parent->slot, $position, [$containerElement]);
     }
 
     /**
-     * @param list<ContentElement> $tree
-     *
      * @return non-empty-list<ElementLocation>
      */
-    private function locateTargets(array $tree): array
+    private function locateTargets(StoredTree $tree): array
     {
         if ($this->elementIds === []) {
             throw ContentSystemException::mutationInvalidWrapTargets('at least one element is required');
@@ -119,13 +117,13 @@ final class WrapElements extends AbstractLayoutMutation
     /**
      * @param list<ElementLocation> $locations
      *
-     * @return list<ContentElement>
+     * @return list<StoredElement>
      */
     private function orderByIndex(array $locations): array
     {
         usort($locations, static fn (ElementLocation $a, ElementLocation $b): int => $a->index <=> $b->index);
 
-        return array_values(array_map(static fn (ElementLocation $location): ContentElement => $location->node, $locations));
+        return array_values(array_map(static fn (ElementLocation $location): StoredElement => $location->node, $locations));
     }
 
     /**

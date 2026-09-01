@@ -62,10 +62,15 @@ A client derives the specifications applicable to an element from the `bindingSp
 | `duplicate_element_id`       | intrinsic | error      |
 | `invalid_config`             | intrinsic | error      |
 | `mismatched_reference_type`  | intrinsic | error      |
+| `mismatched_property_type`   | intrinsic | error      |
+| `unknown_style_option`       | intrinsic | error      |
 | `orphaned_provider`          | intrinsic | warning    |
 | `unresolved_required`        | binding   | error      |
 | `ambiguous_required`         | binding   | error      |
 | `broken_required_chain`      | binding   | error      |
+| `unfilled_required_input`    | binding   | error      |
 | `unresolved_optional`        | binding   | warning    |
 
 `mismatched_reference_type` flags a stored reference wiring (any `dataRequirements` entry the element carries, not only one recorded in `attributedSpecifications`) whose resolved produced type is not assignable to the property's declared FQCN. It is intrinsic, not binding-scope: the mismatch is a property of the element's own stored wiring, independent of any bound `rootSource`. A config that fails to resolve (a client defect) is `invalid_config` instead; a config that resolves and fits produces no violation — it becomes a `stored` resolution instead (see the `origin` note above).
+
+`mismatched_property_type` flags a stored `properties` value that disagrees with the primitive type the element's type declares for that key, one violation per key, with `key` carrying the property name. `string` takes a string, `integer` an integer, `number` an integer or a float, `boolean` a boolean, and a union whose members are all primitive takes a value matching any one of them; `null` is admissible under all of them, because whether a key may be absent or null is `unresolved_required`'s business. A key declared as `object`, as an FQCN, or as a union carrying either constrains nothing and is never flagged, and neither is a `resolvedBy` storage key the type does not also declare as a property. Like `unknown_style_option`, it never appears on a DAL write: the write-path constraint pass refuses such a tree before the gate that produces these diagnostics runs.

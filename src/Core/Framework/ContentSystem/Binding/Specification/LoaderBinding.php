@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * One `resolves` entry of a {@see BindingSpecification}. Becomes a `DataRequirement` downstream.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class LoaderBinding

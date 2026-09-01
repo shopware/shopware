@@ -8,14 +8,14 @@
                 "type": "object",
                 "description": "Layout metadata with fully hydrated element trees.",
                 "properties": {
-                    "layoutId": {
+                    "id": {
                         "type": "string",
                         "pattern": "^[0-9a-f]{32}$"
                     },
-                    "layoutName": {
+                    "name": {
                         "type": "string"
                     },
-                    "layoutVersion": {
+                    "version": {
                         "type": ["string", "null"]
                     },
                     "elements": {
@@ -27,7 +27,7 @@
                         "enum": ["content_page"]
                     }
                 },
-                "required": ["apiAlias", "layoutId", "layoutName", "elements"]
+                "required": ["apiAlias", "id", "name", "version", "elements"]
             }
         }
     }

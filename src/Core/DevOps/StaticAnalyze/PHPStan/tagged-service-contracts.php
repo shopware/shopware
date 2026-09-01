@@ -40,6 +40,13 @@ use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
+use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
+use Shopware\Core\Framework\ContentSystem\Binding\Loader\AbstractContentSystemBindingSpecificationLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\AbstractContentSystemStyleOptionLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSystemElementTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Output\Format\AbstractResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -69,6 +76,14 @@ return [
     'parameters' => [
         // Changing a mapped contract class is a backward compatibility break and must not be done in a minor release.
         'shopwareTaggedServiceContractTagContracts' => [
+            'content_system.binding_specification_loader' => AbstractContentSystemBindingSpecificationLoader::class,
+            'content_system.config_serializer' => AbstractContentDataLoaderConfigSerializer::class,
+            'content_system.data_loader' => AbstractContentDataLoader::class,
+            'content_system.entity_specification_source' => AbstractSpecificationSource::class,
+            'content_system.output_format' => AbstractResponseFactory::class,
+            'content_system.specification_source' => AbstractSpecificationSource::class,
+            'content_system.style_option_loader' => AbstractContentSystemStyleOptionLoader::class,
+            'content_system.type_loader' => AbstractContentSystemElementTypeLoader::class,
             'document.renderer' => AbstractDocumentRenderer::class,
             'document_type.renderer' => AbstractDocumentTypeRenderer::class,
             'flow.action' => FlowAction::class,

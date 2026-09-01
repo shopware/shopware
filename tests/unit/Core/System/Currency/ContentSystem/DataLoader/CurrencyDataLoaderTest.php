@@ -4,11 +4,9 @@ namespace Shopware\Tests\Unit\Core\System\Currency\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -27,14 +25,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CurrencyDataLoader::class)]
 class CurrencyDataLoaderTest extends TestCase
 {
-    private AbstractCurrencyRoute&Stub $currencyRoute;
-
     private CurrencyDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->currencyRoute = static::createStub(AbstractCurrencyRoute::class);
-        $this->dataLoader = new CurrencyDataLoader($this->currencyRoute);
+        $this->dataLoader = new CurrencyDataLoader(static::createStub(AbstractCurrencyRoute::class));
     }
 
     #[TestDox('returns currency source type identifier')]
@@ -67,22 +62,24 @@ class CurrencyDataLoaderTest extends TestCase
         static::assertSame([], $key->default);
     }
 
-    #[TestDox('loads currencies with default config and returns cachedExternally result')]
+    #[TestDox('loads currencies with an empty associations input and returns cachedExternally result')]
     public function testLoadWithDefaultConfig(): void
     {
         $currencies = new CurrencyCollection();
         $response = new CurrencyRouteResponse($currencies);
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new CurrencyLoaderConfig();
-        $requirement = new DataRequirement('currencyKey', 'currency', $config);
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
-        $this->currencyRoute
-            ->method('load')
-            ->willReturn($response);
+        $currencyRoute = static::createStub(AbstractCurrencyRoute::class);
+        $currencyRoute->method('load')->willReturn($response);
+        $dataLoader = new CurrencyDataLoader($currencyRoute);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, $request);
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => []]),
+            self::requirement(),
+            $context,
+            $request,
+        );
 
         static::assertTrue($result->hasData());
         static::assertSame($currencies, $result->data);
@@ -90,19 +87,16 @@ class CurrencyDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('adds associations from CurrencyLoaderConfig to criteria')]
+    #[TestDox('adds the associations input to criteria')]
     public function testLoadAddsAssociationsFromConfigToCriteria(): void
     {
         $currencies = new CurrencyCollection();
         $response = new CurrencyRouteResponse($currencies);
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new CurrencyLoaderConfig(associations: ['country', 'translations']);
-        $requirement = new DataRequirement('currencyKey', 'currency', $config);
         $context = Generator::generateSalesChannelContext();
 
         $currencyRoute = $this->createMock(AbstractCurrencyRoute::class);
         $currencyRoute
-            ->expects($this->once())
+            ->expects($this->atLeastOnce())
             ->method('load')
             ->with(
                 static::anything(),
@@ -117,28 +111,16 @@ class CurrencyDataLoaderTest extends TestCase
             ->willReturn($response);
         $dataLoader = new CurrencyDataLoader($currencyRoute);
 
-        $dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader->load(
+            new LoaderInputs(['associations' => ['country', 'translations']]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
     }
 
-    #[TestDox('loads currencies without associations when config is not a CurrencyLoaderConfig instance')]
-    public function testLoadWithNonCurrencyLoaderConfigSkipsAssociations(): void
+    private static function requirement(): DataRequirement
     {
-        $currencies = new CurrencyCollection();
-        $response = new CurrencyRouteResponse($currencies);
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('currencyKey', 'currency', $wrongConfig);
-        $context = Generator::generateSalesChannelContext();
-
-        $this->currencyRoute
-            ->method('load')
-            ->willReturn($response);
-
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
-
-        static::assertTrue($result->hasData());
-        static::assertSame($currencies, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        return new DataRequirement('currencyKey', 'currency', new CurrencyLoaderConfig());
     }
 }

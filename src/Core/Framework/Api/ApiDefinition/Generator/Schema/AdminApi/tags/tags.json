@@ -15,7 +15,7 @@
         },
         {
             "name": "Content System",
-            "description": "Admin API endpoints for building content layouts: applying one structural edit to a draft layout (`/_action/content-system/layout/{operation}`), committing one edit to a stored layout (`/_action/content-system/layout/{layoutId}/{operation}`), resolving and diagnosing a draft (`/_action/content-system/layout/diagnose`), and previewing a draft against real entity data (`/_action/content-system/preview/entity`). The registered building blocks these endpoints accept are introspected via the `/_info/content-system-*.json` routes."
+            "description": "Admin API endpoints for building content layouts: applying one structural edit to a draft layout (`/_action/content-system/layout/{operation}`), committing one edit to a stored layout (`/_action/content-system/layout/{layoutId}/{operation}`), resolving and diagnosing a draft (`/_action/content-system/layout/diagnose`), and minting a short-lived URL that previews a draft against real entity data (`/_action/content-system/preview/entity/url`). The registered building blocks these endpoints accept are introspected via the `/_info/content-system-*.json` routes."
         }
     ]
 }

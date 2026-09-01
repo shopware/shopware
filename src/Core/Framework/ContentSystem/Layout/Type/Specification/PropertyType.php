@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification;
 
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableTypeValidator;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedEnumValidator;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
- *
  * $type accepts primitives (`string`, `integer`, `boolean`, `number`), `object`,
  * class-string<Struct> FQCNs, and lists for union-like declarations.
  * `enum` and `translatable` are ignored for non-primitive types. {@see TypedEnumValidator} {@see TranslatableTypeValidator}

@@ -34,9 +34,9 @@ The pipeline is source-independent — specification sources translate entity ID
 
 1. **Specification Resolution** — Route calls `RenderingSpecificationResolver` (Adapter/) which iterates sources via `supports()` check, then assembles the `ResolvedContentLayout`. See Adapter/.
 2. **Layout Loading** — `ContentRoute` retrieves the `ContentLayoutEntity` from the content-layout repository and wraps it in a `RenderableLayout` passed into the pipeline.
-3. **PreHydration Events** — Listeners prepare layout: virtual root wrapping, redistribute-flag expansion, placeholder resolution, partial rendering pruning. See Event/Listener/.
-4. **Hydration** (FULL mode only) — `ContentElementHydrator` loads data per element's requirements, then distributes context. Skipped in SKELETON mode. See Hydration/.
-5. **PostHydration Events** — Listeners finalize: virtual root cleanup, partial extraction. See Event/Listener/.
+3. **Preparation** — `Layout/Scaffolding/StoredTreePreparer` brings the stored forest into shape: placeholder resolution (FULL mode only), then the virtual-root wrap, then the partial prune, and it records the outcome as a `Layout/Scaffolding/TreePreparationResult` (the pruned tree, the pre-prune forest, and the `RenderScaffolding`). `ContentPipeline` then checks for a repeated element id and hands both forests to `Rendering/WiringPlanner::plan()`, which validates the context wiring and derives the redistribute providers. Everything up to and including the derivation runs on stored elements. `ContentTreePreparationEvent` is dispatched before all of them, over the stored tree, so a listener sees raw author content. See Rendering/ and Event/Listener/.
+4. **Rendering** — `Rendering/ElementLowering` turns the derived stored forest into the rendered forest: it resolves each element's data requirements across the whole forest, then resolves what context every element received, then mints the `RenderedElement` tree. FULL mode runs all three; SKELETON resolves no data, computes no deliveries, and mints structure only. See Rendering/.
+5. **Finishing** — `ContentPipeline` finishes the rendered tree itself: virtual root cleanup, partial extraction, both driven by the `RenderScaffolding` recorded during preparation. `RenderedTreeFinalizationEvent` is then dispatched over that finished rendered tree, in both modes, so a listener sees and replaces the rendered model. Last, the pipeline checks element ids once more, over the forest the event handed back, because a listener's replacement arrives after the first check. See Event/Listener/.
 
 See [docs/data-flow.md](docs/data-flow.md) for a diagram of this pipeline's data flow.
 
@@ -44,12 +44,12 @@ See [docs/data-flow.md](docs/data-flow.md) for a diagram of this pipeline's data
 
 Module root:
 - `ContentPipeline` - Orchestrates steps 3-5 of the rendering pipeline; receives the loaded `RenderableLayout` from the route
-- `RenderableLayout` - Loaded layout handed to the pipeline: a `LayoutReference` plus its `list<ContentElement>`
+- `RenderableLayout` - Loaded layout handed to the pipeline: a `LayoutReference` plus its `list<StoredElement>`
 - `LayoutReference` - Immutable layout identity: id, name, version
 - `ResolvedContentLayout` - Resolver output: layout ID plus the `RenderingSpecification`
 - `ContentSection` - Enum: HEADER, FOOTER, MAIN
 - `RenderingSpecification` - Data requirements, placeholders, request, target element, cache tags
-- `RenderingMode` - Enum: FULL (hydrate), SKELETON (structure only)
+- `RenderingMode` - Enum: FULL (resolve data and context), SKELETON (structure only)
 - `PlaceholderValues` - Immutable placeholder value map
 - `SpecificationData` - Bundles data requirements (from the entity definition) with placeholder values (from the request path and query parameters), independent of layout assignment
 - `DraftLayoutChecker` - Draft-layout check for the preview action (runs the `LayoutDiagnostics` intrinsic subset)
@@ -64,13 +64,13 @@ Domain-specific content system classes live in their owning domain module — no
 
 **Domain-owned:** Entity definitions, specification sources, data loaders, config serializers. These are co-located with the domain entity they serve (e.g., product data loader lives in the product module).
 
-**Framework-owned (stays here):** Pipeline, hydration engine, field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader, type introspection schema.
+**Framework-owned (stays here):** Pipeline, render step (`Rendering/`) and data loaders (`Hydration/`), field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader, type introspection schema.
 
-**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.entity_specification_source`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which XML file defines them.
+**DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.entity_specification_source`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which DI file defines them.
 
 ## Naming
 
-The reasoning behind how classes in this module are named (the subjects, role-suffix contracts, and domain vocabulary a new class should follow) lives in [`NAMING.md`](NAMING.md). Consult it before adding or renaming a type.
+The reasoning behind how classes in this module are named starts at [`NAMING.md`](NAMING.md), which routes on to the two subjects that need room of their own. Consult it before adding or renaming a type.
 
 ## Administration API
 
@@ -83,18 +83,18 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mut
 - **Binding/** - [Binding/README.md](Binding/README.md) - Binding specification system: declarations wiring a type's reference properties to loaders and seeding its primitive inputs — authored inline, or synthesized automatically from a `resolvedBy` reference property and fill-applied at scaffold/replace with no client action — plus explicit application via the `bind-element` mutation or an `insert-element` carrying a `bindingSpecificationId`
 - **Cache/** - [Cache/README.md](Cache/README.md) - HTTP cache integration and invalidation
 - **Diagnostics/** - [Diagnostics/README.md](Diagnostics/README.md) - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
-- **Event/** - [Event/README.md](Event/README.md) - Hydration lifecycle event definitions
-- **Event/Listener/** - [Event/Listener/README.md](Event/Listener/README.md) - Pre/post hydration pipeline transformations
+- **Event/** - [Event/README.md](Event/README.md) - Rendering lifecycle event definitions, and [Event/Listener/README.md](Event/Listener/README.md) for the listeners on them
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
-- **Hydration/** - [Hydration/README.md](Hydration/README.md) - Data loading and context distribution
+- **Hydration/** - [Hydration/README.md](Hydration/README.md) - The data-loading half of the render step: `DataLoader/` data fetching plus the remaining `DataContext/` utilities; the render step itself lives in Rendering/
 - **Layout/** - [Layout/README.md](Layout/README.md) - Element tree, entities, field types, scaffolding, element type system, universal style options
 - **Mutation/** - [Mutation/README.md](Mutation/README.md) - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap, attach, bind), each re-resolved through the diagnostics pass; applied either statelessly to a draft tree or committed to a stored layout
 - **Output/** - [Output/README.md](Output/README.md) - Response formatting and partial rendering
+- **Rendering/** - [Rendering/README.md](Rendering/README.md) - The pre-render wiring step on stored elements (context-wiring validation, redistribute derivation), then the render step: data loading, context distribution, and the minting of the rendered tree
 - **Resolution/** - [Resolution/README.md](Resolution/README.md) - Property-resolution kernel (element/context resolvers, resolution candidates)
 - **SalesChannel/** - [SalesChannel/README.md](SalesChannel/README.md) - Store API endpoints
 - **Schema/** - Data loader type introspection and schema generation
 - **Validation/** - [Validation/README.md](Validation/README.md) - DAL write-time resolvability gate (`PreWriteValidationEvent` validators)
-- [NAMING.md](NAMING.md) - How classes in this module are named
+- [NAMING.md](NAMING.md) - How classes in this module are named, routing on to [docs/stored-and-rendered.md](docs/stored-and-rendered.md) (which of the two element models a class is about) and [docs/role-suffixes.md](docs/role-suffixes.md) (what each role suffix promises)
 - [docs/product-detail-page.md](docs/product-detail-page.md) - A worked layout combining entity rendering, data loading, and context distribution
 - [docs/service-tags-and-types.md](docs/service-tags-and-types.md) - The DI tags and the base classes, value objects, enums, and events an extension uses
 - [docs/extending.md](docs/extending.md) - The six extension mechanisms and where each one is authored

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Entity;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
-use Shopware\Core\Framework\ContentSystem\Layout\Field\ContentElementListField;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListField;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
@@ -19,6 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]
@@ -56,7 +58,7 @@ class ContentLayoutDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new StringField('name', 'name', 255))->addFlags(new ApiAware(), new Required()),
             (new StringField('version', 'version', 20))->addFlags(new ApiAware(), new Required()),
-            (new ContentElementListField(self::LAYOUT_FIELD, self::LAYOUT_FIELD))->addFlags(new ApiAware(), new Required()),
+            (new StoredElementListField(self::LAYOUT_FIELD, self::LAYOUT_FIELD))->addFlags(new ApiAware(), new Required()),
             (new StringField(self::ROOT_SOURCE_FIELD, 'rootSource'))->addFlags(new ApiAware(), new Required(), new Immutable()),
 
             (new OneToManyAssociationField('productContentLayouts', ProductContentLayoutDefinition::class, 'content_layout_id', 'id'))->addFlags(new RestrictDelete()),

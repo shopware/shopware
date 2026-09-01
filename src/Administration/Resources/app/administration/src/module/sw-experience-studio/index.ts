@@ -61,15 +61,6 @@ Shopware.Component.register('sw-experience-studio-preview', () => import('./comp
  * @sw-package discovery
  */
 Shopware.Component.register(
-    'sw-experience-studio-preview-node',
-    () => import('./component/sw-experience-studio-preview-node'),
-);
-
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register(
     'sw-experience-studio-element-settings',
     () => import('./component/sw-experience-studio-element-settings'),
 );
@@ -90,6 +81,15 @@ Shopware.Component.register(
 Shopware.Component.register(
     'sw-experience-studio-box-spacing-field',
     () => import('./component/sw-experience-studio-box-spacing-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-media-collection-field',
+    () => import('./component/sw-experience-studio-media-collection-field'),
 );
 
 /**

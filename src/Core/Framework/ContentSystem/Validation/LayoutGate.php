@@ -4,13 +4,15 @@ namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * The layout gate: the two gate predicates. It never throws — it returns a {@see DiagnosticsReport}.
  * Well-formedness gates persistence; resolvability for the declared root source gates serving.
+ *
+ * @internal
  */
 #[Package('framework')]
 class LayoutGate
@@ -33,7 +35,7 @@ class LayoutGate
     /**
      * Structural validity and validity of present wiring only — the persistence gate.
      *
-     * @param list<ContentElement> $tree
+     * @param list<StoredElement> $tree
      */
     public function wellFormedness(array $tree): DiagnosticsReport
     {
@@ -43,7 +45,7 @@ class LayoutGate
     /**
      * Full resolvability for a bound source's root context — the serving gate.
      *
-     * @param list<ContentElement> $tree
+     * @param list<StoredElement> $tree
      * @param list<ProvidedContext> $providedRootContext
      */
     public function resolvability(array $tree, array $providedRootContext): DiagnosticsReport

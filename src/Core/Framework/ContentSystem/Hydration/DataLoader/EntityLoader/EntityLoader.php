@@ -10,8 +10,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -107,36 +107,31 @@ class EntityLoader extends AbstractContentDataLoader
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
+        $entityName = $inputs->string('entity');
 
-        if (!$config instanceof EntityLoaderConfig) {
+        if (!$this->definitionRegistry->has($entityName)) {
             return ContentDataLoaderResult::notFound();
         }
 
-        if (!$this->definitionRegistry->has($config->entity)) {
-            return ContentDataLoaderResult::notFound();
-        }
+        $entityId = $inputs->stringOrNull('property');
 
-        $propertyName = $config->property ?? $config->entity;
-        $entityId = $element->getProperty($propertyName);
-
-        if (!\is_string($entityId)) {
+        if ($entityId === null) {
             return ContentDataLoaderResult::notFound();
         }
 
         $entityId = u($entityId)->lower()->toString();
-        $entity = $this->loadEntity($config->entity, $entityId, $config->associations, $context);
+        $entity = $this->loadEntity($entityName, $entityId, $inputs->stringList('associations'), $context);
 
         if ($entity === null) {
             return ContentDataLoaderResult::notFound();
         }
 
-        $definition = $this->definitionRegistry->getByEntityName($config->entity);
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
         $cacheTag = $this->cacheTagResolver->resolve($definition, $entityId);
 
         if ($cacheTag === null) {
@@ -158,9 +153,7 @@ class EntityLoader extends AbstractContentDataLoader
         $criteria = new Criteria([$entityId]);
 
         foreach ($associations as $association) {
-            if (\is_string($association)) {
-                $criteria->addAssociation($association);
-            }
+            $criteria->addAssociation($association);
         }
 
         try {

@@ -1,4 +1,4 @@
-import type { ContentElementNode } from '../../types/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
 
@@ -31,7 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         element: {
-            type: Object,
+            type: Object as PropType<ContentElementNode>,
             required: true,
         },
         selectedElementId: {
@@ -50,7 +50,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: false,
         },
         validateMoveTarget: {
-            type: Function,
+            type: Function as unknown as PropType<((payload: MoveElementPayload) => boolean) | null>,
             required: false,
             default: null,
         },
@@ -89,7 +89,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         contentElement(): ContentElementNode {
-            return this.element as ContentElementNode;
+            return this.element;
         },
 
         elementTypeStore() {
@@ -109,10 +109,12 @@ export default Shopware.Component.wrapComponentConfig({
         slotEntries(): Array<{ name: string; elements: ContentElementNode[] }> {
             const slots = this.contentElement.slots ?? {};
             const definedSlots = this.elementTypeStore.getByName(this.contentElement.component)?.slots ?? [];
-            const slotNames = Array.from(new Set([
-                ...definedSlots.map((slot) => slot.name),
-                ...Object.keys(slots),
-            ]));
+            const slotNames = Array.from(
+                new Set([
+                    ...definedSlots.map((slot) => slot.name),
+                    ...Object.keys(slots),
+                ]),
+            );
 
             return slotNames.map((name) => ({
                 name,
@@ -170,42 +172,48 @@ export default Shopware.Component.wrapComponentConfig({
             const nestedSlotElements = Object.values(element.slots ?? {}).flatMap((slotElements) => slotElements);
             const nestedIds = nestedSlotElements.flatMap((childElement) => this.collectSubtreeIds(childElement));
 
-            return [element.id, ...nestedIds];
+            return [
+                element.id,
+                ...nestedIds,
+            ];
         },
 
         dragConfig() {
             return {
-                dragGroup: this.$options.constants.DRAG_GROUP,
+                dragGroup: (this.$options.constants as { DRAG_GROUP: string }).DRAG_GROUP,
                 disabled: !this.allowDragAndDrop,
                 data: {
                     elementId: this.contentElement.id,
                     elementComponent: this.contentElement.component,
                     subtreeIds: this.collectSubtreeIds(this.contentElement),
                 },
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDrop: this.onDropElement,
             };
         },
 
         dropConfigForSlot(slotName: string) {
             return {
-                dragGroup: this.$options.constants.DRAG_GROUP,
+                dragGroup: (this.$options.constants as { DRAG_GROUP: string }).DRAG_GROUP,
                 data: {
                     newParentElementId: this.contentElement.id,
                     newSlotName: slotName,
                     newIndex: null,
                 },
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 validateDrop: this.validateMoveDrop,
             };
         },
 
         dropConfigForElement() {
             return {
-                dragGroup: this.$options.constants.DRAG_GROUP,
+                dragGroup: (this.$options.constants as { DRAG_GROUP: string }).DRAG_GROUP,
                 data: {
                     newParentElementId: this.parentElementId,
                     newSlotName: this.parentSlotName,
                     newIndex: this.indexInParent,
                 },
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 validateDrop: this.validateMoveDrop,
             };
         },
@@ -218,10 +226,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            if (
-                dropData.newParentElementId
-                && dragData.subtreeIds.includes(dropData.newParentElementId)
-            ) {
+            if (dropData.newParentElementId && dragData.subtreeIds.includes(dropData.newParentElementId)) {
                 return false;
             }
 
@@ -237,10 +242,7 @@ export default Shopware.Component.wrapComponentConfig({
             return true;
         },
 
-        onDropElement(
-            dragData: { elementId: string } | null,
-            dropData: Omit<MoveElementPayload, 'elementId'> | null,
-        ): void {
+        onDropElement(dragData: { elementId: string } | null, dropData: Omit<MoveElementPayload, 'elementId'> | null): void {
             if (!dragData || !dropData) {
                 return;
             }

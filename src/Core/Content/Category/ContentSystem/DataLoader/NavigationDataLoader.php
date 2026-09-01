@@ -10,7 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -45,26 +45,19 @@ class NavigationDataLoader extends AbstractContentDataLoader
     public function configSpecification(): LoaderConfigSpecification
     {
         return new LoaderConfigSpecification([
-            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: null),
-            new ConfigKeySpecification('depth', ConfigKeyKind::Literal, 'integer', required: false, hasDefault: true, default: null),
+            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: 'main-navigation'),
+            new ConfigKeySpecification('depth', ConfigKeyKind::Literal, 'integer', required: false, hasDefault: false),
             new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'activeId'),
         ]);
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
-
-        if (!$config instanceof NavigationLoaderConfig) {
-            return ContentDataLoaderResult::notFound();
-        }
-
-        $rootId = $config->rootId ?? 'main-navigation';
-        $rootId = $this->aliasResolver->resolve($rootId, $context);
+        $rootId = $this->aliasResolver->resolve($inputs->string('rootId'), $context);
 
         // A recognized alias still resolves to itself when the sales channel has no such category
         // (service and footer navigation are both optional). Passing that on would reach
@@ -73,17 +66,18 @@ class NavigationDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        // The property carries the "{{categoryId}}" placeholder by default, which stays literal on a
-        // layout not rooted on a category. Anything but an id therefore falls back rather than
-        // reaching Uuid::fromHexToBytes() in NavigationRoute.
-        $activeProperty = $config->activeProperty;
-        $activeId = $element->getProperty($activeProperty);
+        // The referenced property carries the "{{categoryId}}" placeholder by default, which stays literal on a
+        // layout not rooted on a category. Anything but an id therefore falls back rather than reaching
+        // Uuid::fromHexToBytes() in NavigationRoute.
+        $activeId = $inputs->stringOrNull('activeProperty');
 
         if (!\is_string($activeId) || !Uuid::isValid($activeId)) {
             $activeId = $rootId;
         }
 
-        $depth = $config->depth ?? $context->getSalesChannel()->getNavigationCategoryDepth();
+        // The one context-derived fallback: "depth" is declared without a default because the sales channel,
+        // not the specification, supplies it.
+        $depth = $inputs->intOrNull('depth') ?? $context->getSalesChannel()->getNavigationCategoryDepth();
 
         $tree = $this->navigationLoader->load($activeId, $context, $rootId, $depth);
 

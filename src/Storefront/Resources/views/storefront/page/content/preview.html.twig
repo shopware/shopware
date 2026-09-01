@@ -599,6 +599,13 @@
                     }
                 }
 
+                // Keep cookie-consent video placeholders interactive so their "accept" button
+                // can load the embed inside the preview. Selection/inline-edit handling above
+                // still runs; only the click suppression is skipped for these elements.
+                if (event.target instanceof Element && event.target.closest('.sw-media-embed-video__consent')) {
+                    return;
+                }
+
                 event.preventDefault();
                 event.stopPropagation();
             }, true);

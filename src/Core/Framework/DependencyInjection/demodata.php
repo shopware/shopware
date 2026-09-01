@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Demodata\Generator\MailTemplateGenerator;
 use Shopware\Core\Framework\Demodata\Generator\MediaGenerator;
 use Shopware\Core\Framework\Demodata\Generator\NewsletterRecipientGenerator;
 use Shopware\Core\Framework\Demodata\Generator\OrderGenerator;
+use Shopware\Core\Framework\Demodata\Generator\ProductContentLayoutGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator;
 use Shopware\Core\Framework\Demodata\Generator\ProductReviewGenerator;
@@ -136,6 +137,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductReviewCountService::class),
         ])
         ->tag('shopware.demodata_generator', ['option-name' => 'reviews', 'option-default' => 20, 'option_name' => 'reviews', 'option_default' => 20]);
+
+    $services->set(ProductContentLayoutGenerator::class)
+        ->args([
+            service('content_layout.repository'),
+            service('product_content_layout.repository'),
+            service(Connection::class),
+        ])
+        ->tag('shopware.demodata_generator', ['option-name' => 'product-content-layouts', 'option-default' => 1, 'option-description' => 'Product detail page content layouts (assigned to products)', 'option_name' => 'product-content-layouts', 'option_default' => 1, 'option_description' => 'Product detail page content layouts (assigned to products)']);
 
     $services->set(ProductGenerator::class)
         ->args([

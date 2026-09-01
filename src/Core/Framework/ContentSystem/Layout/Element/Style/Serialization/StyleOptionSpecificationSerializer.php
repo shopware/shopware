@@ -34,6 +34,7 @@ class StyleOptionSpecificationSerializer
             default: $data['default'] ?? null,
             breakpointAware: $data['breakpointAware'] ?? null,
             adminUI: $data['adminUI'] ?? null,
+            kind: $data['kind'] ?? null,
         );
     }
 
@@ -67,6 +68,10 @@ class StyleOptionSpecificationSerializer
 
         if ($dto->adminUI !== null) {
             $result['adminUI'] = $dto->adminUI;
+        }
+
+        if ($dto->kind !== null) {
+            $result['kind'] = $dto->kind;
         }
 
         return $result;

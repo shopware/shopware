@@ -18,6 +18,7 @@ export type ElementPropertyControlType =
     | 'entity'
     | 'entity-multi'
     | 'media'
+    | 'media-collection'
     | 'richtext'
     | 'text'
     | 'responsive-number'
@@ -47,6 +48,8 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     'sw-entity-multi-id-select': 'entity-multi',
     'media-field': 'media',
     'sw-media-field': 'media',
+    'media-collection': 'media-collection',
+    'sw-media-list-selection-v2': 'media-collection',
     'responsive-number': 'responsive-number',
     'box-spacing': 'box-spacing',
 };

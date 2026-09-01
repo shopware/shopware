@@ -1,4 +1,4 @@
-import type { ContentElementNode } from '../types/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { EXPERIENCE_STUDIO_MAX_HISTORY_SIZE } from '../constant/experience-studio-history.constant';
 import { createEditorHistoryEntry, trimHistoryStack } from './editor-history.util';
 
@@ -15,18 +15,21 @@ describe('module/sw-experience-studio/util/editor-history.util', () => {
         },
     ];
 
-    it('creates a sanitized snapshot for history entries', () => {
+    it('carries attributed specification values into the history snapshot', () => {
         const source = cloneDeep(layout);
 
-        Object.assign(source[0], {
-            extensions: {},
-        });
+        source[0].attributedSpecifications = {
+            'layout:section': 'SwagPromotion',
+            headline: 'SwagBlog',
+        };
 
         const entry = createEditorHistoryEntry(source, 'root-1');
 
         expect(entry.selectedElementId).toBe('root-1');
-        expect(entry.layout[0]).not.toHaveProperty('extensions');
-        expect(entry.layout[0].id).toBe('root-1');
+        expect(entry.layout[0].attributedSpecifications).toEqual({
+            'layout:section': 'SwagPromotion',
+            headline: 'SwagBlog',
+        });
     });
 
     it('trims history stacks to the configured maximum size', () => {

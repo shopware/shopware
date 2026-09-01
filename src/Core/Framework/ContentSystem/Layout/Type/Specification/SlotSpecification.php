@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
- *
  * @phpstan-type SlotSchema = array{name: string, maxElements: int|null, allowList: list<string>, description: string}
  */
 #[Package('framework')]

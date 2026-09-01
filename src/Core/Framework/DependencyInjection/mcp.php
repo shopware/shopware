@@ -440,8 +440,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(StoreApiContextTool::class)
         ->args([service(StoreApiMcpContextProvider::class)])
-        ->tag('shopware.store_api_mcp.tool')
-        ->tag('mcp.tool');
+        ->tag('shopware.store_api_mcp.tool');
 
     $services->set(StoreApiToolSearchTool::class)
         ->args([
@@ -449,8 +448,7 @@ return static function (ContainerConfigurator $container): void {
             service(ToolSearch::class),
             null,
         ])
-        ->tag('shopware.store_api_mcp.tool')
-        ->tag('mcp.tool');
+        ->tag('shopware.store_api_mcp.tool');
 
     $services->set(StoreApiToolsetsListTool::class)
         ->args([
@@ -458,8 +456,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpToolsetSessionStorage::class),
             service('request_stack'),
         ])
-        ->tag('shopware.store_api_mcp.tool')
-        ->tag('mcp.tool');
+        ->tag('shopware.store_api_mcp.tool');
 
     $services->set(StoreApiToolsetEnableTool::class)
         ->args([
@@ -467,8 +464,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpToolsetSessionStorage::class),
             service('request_stack'),
         ])
-        ->tag('shopware.store_api_mcp.tool')
-        ->tag('mcp.tool');
+        ->tag('shopware.store_api_mcp.tool');
 
     $services->set(ToolsetsListTool::class)
         ->args([

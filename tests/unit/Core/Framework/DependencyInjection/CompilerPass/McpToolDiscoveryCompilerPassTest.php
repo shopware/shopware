@@ -359,6 +359,41 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function storeApiCapabilityProvider(): iterable
+    {
+        yield 'prompt' => ['shopware.store_api_mcp.prompt', 'mcp.prompt', 'prompts'];
+        yield 'resource' => ['shopware.store_api_mcp.resource', 'mcp.resource', 'resources'];
+    }
+
+    /**
+     * The bundle only collects services carrying an SDK tag, so a Store API prompt or resource has to
+     * be remapped like a tool. Without the remap its class is still appended to the Store API element
+     * list, and a pattern that matches no registered service is fatal in the bundle's compiler pass,
+     * so the container build breaks rather than the capability quietly disappearing.
+     */
+    #[DataProvider('storeApiCapabilityProvider')]
+    public function testStoreApiPromptsAndResourcesAreRemappedAndScopedToTheirServer(string $shopwareTag, string $sdkTag, string $kind): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('mcp.servers.elements', $this->emptyElements());
+        $container->register('store_api.capability', McpDiscoveryTestStoreApiTool::class)->addTag($shopwareTag);
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        static::assertTrue(
+            $container->getDefinition('store_api.capability')->hasTag($sdkTag),
+            \sprintf('"%s" must be remapped to "%s" or the bundle never collects it.', $shopwareTag, $sdkTag),
+        );
+
+        $elements = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($elements);
+        static::assertContains(McpDiscoveryTestStoreApiTool::class, $elements['store_api'][$kind]);
+        static::assertNotContains(McpDiscoveryTestStoreApiTool::class, $elements['admin'][$kind]);
+    }
+
+    /**
      * @return array<string, array<string, list<string>>>
      */
     private function emptyElements(): array

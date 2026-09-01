@@ -36,10 +36,16 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             return;
         }
 
+        // The bundle only collects the SDK tags, so every Shopware-scoped capability has to carry one
+        // too. Store API capabilities are remapped as well: their own tag stays on as the scope
+        // marker the analysis passes and assignElementsToServers() read.
         $tagMapping = [
             'shopware.mcp.tool' => 'mcp.tool',
             'shopware.mcp.prompt' => 'mcp.prompt',
             'shopware.mcp.resource' => 'mcp.resource',
+            'shopware.store_api_mcp.tool' => 'mcp.tool',
+            'shopware.store_api_mcp.prompt' => 'mcp.prompt',
+            'shopware.store_api_mcp.resource' => 'mcp.resource',
         ];
 
         foreach ($tagMapping as $shopwareTag => $mcpTag) {
@@ -107,7 +113,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             ],
         ];
 
-        $storeApiTools = $container->findTaggedServiceIds('shopware.store_api_mcp.tool');
+        $storeApiScoped = $this->storeApiScopedServiceIds($container);
 
         foreach ($scopes as $server => $kinds) {
             if (!isset($elements[$server])) {
@@ -116,9 +122,10 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 
             foreach ($kinds as $kind => $tag) {
                 foreach (array_keys($container->findTaggedServiceIds($tag)) as $serviceId) {
-                    // A Store API tool carries the SDK tag as well so the bundle collects it at all;
-                    // it must not additionally be claimed by the Admin API server.
-                    if ($server === 'admin' && isset($storeApiTools[$serviceId])) {
+                    // A Store API capability carries an SDK tag as well, so the bundle collects it at
+                    // all. It must not additionally be claimed by the Admin API server, whose scope
+                    // reads those same SDK tags.
+                    if ($server === 'admin' && isset($storeApiScoped[$serviceId])) {
                         continue;
                     }
 
@@ -177,6 +184,24 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             array_keys($container->findTaggedServiceIds('mcp.tool')),
             static fn (string $serviceId): bool => !isset($storeApiTools[$serviceId]),
         ));
+    }
+
+    /**
+     * Every service scoped to the Store API server, of any kind, as a lookup keyed by service id.
+     *
+     * @return array<string, true>
+     */
+    private function storeApiScopedServiceIds(ContainerBuilder $container): array
+    {
+        $ids = [];
+
+        foreach (['shopware.store_api_mcp.tool', 'shopware.store_api_mcp.prompt', 'shopware.store_api_mcp.resource'] as $tag) {
+            foreach (array_keys($container->findTaggedServiceIds($tag)) as $serviceId) {
+                $ids[$serviceId] = true;
+            }
+        }
+
+        return $ids;
     }
 
     /**

@@ -28,18 +28,19 @@ export default class UpdateService extends ApiService {
             .get<{
                 version: unknown;
                 changelog: unknown;
-                disabled?: boolean;
+                autoUpdateEnabled?: boolean;
+                clusterSetup?: boolean;
             }>(`/_action/${this.getApiBasePath()}/check`, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
     }
 
-    checkRequirements() {
+    checkLicense() {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get<Array<{ result: boolean }>>(`/_action/${this.getApiBasePath()}/check-requirements`, {
+            .get<{ isValid: boolean }>(`/_action/${this.getApiBasePath()}/check-license`, {
                 headers,
             })
             .then((response) => {
@@ -73,13 +74,13 @@ export default class UpdateService extends ApiService {
             });
     }
 
-    deactivatePlugins(offset: number, pluginDeactivationStrategy = '') {
+    deactivateExtensions(offset: number, extensionDeactivationStrategy = '') {
         const headers = this.getBasicHeaders();
         const actionUrlPart = `/_action/${this.getApiBasePath()}`;
-        const offsetParam = `offset=${offset}&deactivationFilter=${pluginDeactivationStrategy}`;
+        const offsetParam = `offset=${offset}&deactivationFilter=${extensionDeactivationStrategy}`;
 
         return this.httpClient
-            .get<{ offset: number; total: number }>(`${actionUrlPart}/deactivate-plugins?${offsetParam}`, {
+            .get<{ offset: number; total: number }>(`${actionUrlPart}/deactivate-extensions?${offsetParam}`, {
                 headers,
             })
             .then((response) => {

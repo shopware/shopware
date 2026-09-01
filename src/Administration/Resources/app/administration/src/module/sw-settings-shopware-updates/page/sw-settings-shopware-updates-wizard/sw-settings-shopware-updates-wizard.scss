@@ -4,23 +4,86 @@
         width: 100%;
         min-height: 100%;
         padding-bottom: var(--scale-size-24);
-
-        &:has(.mt-empty-state) {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100%;
-        }
     }
 
     .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
         height: initial;
         min-height: 42px;
     }
+}
 
-    .sw-changelog .mt-button.mt-button--ghost {
-        margin-top: var(--scale-size-20);
+.sw-settings-shopware-updates-version {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--scale-size-16);
+    margin-bottom: var(--scale-size-24);
+
+    &__content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: var(--scale-size-8);
+    }
+
+    &__versions {
+        display: grid;
+        grid-template-columns: max-content max-content;
+        column-gap: var(--scale-size-24);
+        row-gap: var(--scale-size-4);
+        margin: 0;
+
+        dt {
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            color: var(--color-text-secondary-default);
+        }
+
+        dd {
+            margin: 0;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            font-variant-numeric: tabular-nums;
+            line-height: var(--font-line-height-xs);
+            color: var(--color-text-primary-default);
+        }
+    }
+
+    &__changelog-link {
+        width: fit-content;
+    }
+}
+
+.sw-settings-shopware-updates-up-to-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--scale-size-8);
+    padding: var(--scale-size-24) 0;
+    text-align: center;
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--scale-size-64);
+        height: var(--scale-size-64);
+        margin-bottom: var(--scale-size-8);
+        border-radius: var(--border-radius-round);
+        background: var(--color-background-positive-default);
+        color: var(--color-icon-positive-default);
+    }
+
+    &__title {
+        font-size: var(--font-size-l);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-l);
+        color: var(--color-text-primary-default);
+    }
+
+    &__description {
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-secondary-default);
     }
 }
 
@@ -72,73 +135,11 @@
     }
 }
 
-.sw-settings-shopware-updates-method-options {
+.sw-settings-shopware-updates-cli-method {
     display: flex;
     flex-direction: column;
-    gap: var(--scale-size-12);
-}
-
-.sw-settings-shopware-updates-method-option {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    gap: var(--scale-size-16);
-    margin: 0;
-    padding: var(--scale-size-16);
-    border: 1px solid var(--color-border-primary-default);
-    border-radius: var(--border-radius-s);
-    background: var(--color-elevation-surface-default);
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-
-    &:hover,
-    &.is--selected {
-        border-color: var(--color-border-brand-default);
-    }
-
-    &__input {
-        position: absolute;
-        top: var(--scale-size-16);
-        right: var(--scale-size-16);
-        z-index: 1;
-        width: var(--scale-size-16);
-        height: var(--scale-size-16);
-        margin: 0;
-        cursor: pointer;
-        opacity: 0;
-    }
-
-    &__icon {
-        display: flex;
-        flex-shrink: 0;
-        align-items: center;
-        justify-content: center;
-        width: var(--scale-size-40);
-        height: var(--scale-size-40);
-        border-radius: var(--border-radius-xs);
-        background: var(--color-elevation-surface-sunken);
-        color: var(--color-icon-primary-default);
-    }
-
-    &--cli &__icon {
-        background: var(--color-static-black);
-        color: var(--color-static-white);
-    }
-
-    &--web &__icon {
-        border: 1px solid var(--color-border-primary-default);
-        background: var(--color-elevation-surface-default);
-        color: var(--color-icon-secondary-default);
-    }
-
-    &__content {
-        display: flex;
-        min-width: 0;
-        flex: 1;
-        flex-direction: column;
-        gap: var(--scale-size-4);
-        padding-right: var(--scale-size-24);
-    }
+    gap: var(--scale-size-8);
+    margin-bottom: var(--scale-size-20);
 
     &__title {
         font-size: var(--font-size-s);
@@ -147,22 +148,10 @@
         color: var(--color-text-primary-default);
     }
 
-    &__recommended {
-        font-size: var(--font-size-xs);
-        font-weight: var(--font-weight-medium);
-        line-height: var(--font-line-height-xs);
-        color: var(--color-text-brand-default);
-    }
-
-    &__description,
-    &__hint {
+    &__description {
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         color: var(--color-text-secondary-default);
-    }
-
-    &__hint {
-        margin-top: var(--scale-size-8);
     }
 
     &__command {
@@ -170,10 +159,10 @@
         align-items: center;
         justify-content: space-between;
         gap: var(--scale-size-8);
-        margin: var(--scale-size-4) 0;
         padding: var(--scale-size-8) var(--scale-size-12);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: var(--border-radius-xs);
-        background: var(--color-elevation-surface-sunken);
+        background: var(--color-background-primary-default);
         color: var(--color-text-primary-default);
 
         code {
@@ -187,21 +176,54 @@
 
     &__install-link {
         width: fit-content;
-        margin-top: var(--scale-size-4);
+    }
+}
+
+.sw-settings-shopware-updates-method-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--scale-size-16);
+    margin-bottom: var(--scale-size-20);
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-xs);
+    color: var(--color-text-secondary-default);
+    text-transform: uppercase;
+
+    &::before,
+    &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--color-border-primary-default);
+    }
+}
+
+.sw-settings-shopware-updates-web-installer {
+    display: flex;
+    align-items: center;
+    gap: var(--scale-size-16);
+
+    &__content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: var(--scale-size-4);
     }
 
-    &__radio {
-        position: absolute;
-        top: var(--scale-size-16);
-        right: var(--scale-size-16);
-        width: var(--scale-size-16);
-        height: var(--scale-size-16);
-        border: 2px solid var(--color-border-primary-default);
-        border-radius: 50%;
-        background: var(--color-elevation-surface-default);
+    &__title {
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-s);
+        color: var(--color-text-primary-default);
     }
 
-    &.is--selected &__radio {
-        border: 5px solid var(--color-border-brand-default);
+    &__description {
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-secondary-default);
+    }
+
+    &__action {
+        flex-shrink: 0;
     }
 }

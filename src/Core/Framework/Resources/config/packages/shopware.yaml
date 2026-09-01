@@ -4,6 +4,7 @@ parameters:
     env(PRODUCT_ANALYTICS_GATEWAY_URL): 'https://product-analytics-gateway.services.shopware.io'
     APP_URL: "%env(string:APP_URL)%"
     env(REDIS_PREFIX): ''
+    env(SHOPWARE_DISABLE_UPDATE_CHECK): ''
 
 shopware:
     http_cache:
@@ -404,7 +405,8 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 
     auto_update:
-        enabled: true
+        enabled: '%env(bool:default:defaults_bool_true:SHOPWARE_DISABLE_UPDATE_CHECK)%'
+        hide_module: '%env(bool:default:defaults_bool_false:SHOPWARE_AUTO_UPDATE_HIDE_MODULE)%'
 
     store:
         frw: false

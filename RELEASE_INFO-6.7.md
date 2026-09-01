@@ -8,6 +8,14 @@ The administration update wizard now asks you to choose an update method before 
 
 When `shopware.auto_update.enabled` is `false` or `SHOPWARE_DISABLE_UPDATE_CHECK` is set, the wizard no longer claims the shop is already on the latest version. `GET /api/_action/update/check` returns `{ "disabled": true }` instead of an empty object, and the Administration explains that update checks are disabled and points to Shopware CLI.
 
+On cluster setups (`shopware.deployment.cluster_setup: true`) the web installer is no longer offered: the update button in the wizard is disabled with a hint towards Shopware CLI, and `GET /api/_action/update/download-recovery` responds with `403` (`FRAMEWORK__UPDATE_CLUSTER_SETUP_NOT_SUPPORTED`).
+
+### Update module can be hidden from the Administration
+
+Operators who manage updates through Shopware CLI or their deployment pipeline can now remove the update module from the Administration entirely. Set `shopware.auto_update.hide_module: true` or the environment variable `SHOPWARE_AUTO_UPDATE_HIDE_MODULE=1` and the module is no longer registered: the "Shopware updates" settings item and its wizard route do not exist, and the update-available notification is suppressed. The flag is also exposed to API consumers as `settings.hideUpdateModule` in `GET /api/_info/config`.
+
+The update API endpoints enforce both flags server-side: all `GET /api/_action/update/*` endpoints respond with `403` (`FRAMEWORK__UPDATE_MODULE_HIDDEN`) while the module is hidden, and the mutating `download-recovery` and `deactivate-extensions` actions respond with `403` (`FRAMEWORK__AUTO_UPDATE_DISABLED`) while `shopware.auto_update.enabled` is `false`.
+
 ## Core
 
 ### `system:install` dispatches `SystemInstallCompletedEvent`

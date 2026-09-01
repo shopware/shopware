@@ -3,13 +3,26 @@
  */
 import { mount } from '@vue/test-utils';
 import useSession from 'src/app/composables/use-session';
+import useSnackbar from 'src/app/composables/use-snackbar';
+
+jest.mock('src/app/composables/use-snackbar', () => ({
+    __esModule: true,
+    default: jest.fn(),
+}));
 
 describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard', () => {
     let wrapper;
+    const mockSnackbar = {
+        addSnackbar: jest.fn(),
+        removeSnackbar: jest.fn(),
+    };
 
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         useSession().currentLocale.value = null;
+        Shopware.Store.get('context').app.config.version = '6.4.17.2';
+        mockSnackbar.addSnackbar.mockClear();
+        jest.mocked(useSnackbar).mockReturnValue(mockSnackbar);
         wrapper = mount(
             await wrapTestComponent('sw-settings-shopware-updates-wizard', {
                 sync: true,
@@ -28,26 +41,11 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                                     version: '6.4.18.0',
                                     fixedVulnerabilities: [],
                                 }),
-                            checkRequirements: () =>
-                                Promise.resolve([
-                                    {
-                                        name: 'writeableCheck',
-                                        result: true,
-                                        message: 'writeableCheckValid',
-                                        vars: {
-                                            checkedDirectories: '',
-                                        },
-                                        extensions: [],
-                                    },
-                                    {
-                                        name: 'validShopwareLicense',
-                                        result: false,
-                                        message: 'validShopwareLicense',
-                                        vars: [],
-                                        extensions: [],
-                                    },
-                                ]),
-                            deactivatePlugins: () => {
+                            checkLicense: () =>
+                                Promise.resolve({
+                                    isValid: false,
+                                }),
+                            deactivateExtensions: () => {
                                 const error = new Error();
 
                                 error.response = {
@@ -135,16 +133,9 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-tooltip': {
                             template: '<div></div>',
                         },
-                        'sw-settings-shopware-updates-requirements': await wrapTestComponent(
-                            'sw-settings-shopware-updates-requirements',
-                        ),
-                        'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'sw-card-view': await wrapTestComponent('sw-card-view'),
                         'sw-ignore-class': true,
-                        'sw-settings-shopware-updates-info': {
-                            template: '<div></div>',
-                        },
-                        'sw-settings-shopware-updates-plugins': {
+                        'sw-settings-shopware-updates-extensions': {
                             template: '<div></div>',
                         },
                         'sw-loader': {
@@ -153,7 +144,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'router-link': {
                             template: '<a></a>',
                         },
-                        'sw-color-badge': await wrapTestComponent('sw-color-badge'),
                         'sw-app-actions': true,
                         'sw-extension-component-section': true,
                         'sw-error-summary': true,
@@ -161,17 +151,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                             template: '<div><slot></slot><slot name="modal-footer"></slot></div>',
                         },
                         'mt-banner': true,
-                        'sw-field-copyable': true,
                         'sw-external-link': {
                             template: '<a class="sw-external-link" :href="$attrs.href"><slot></slot></a>',
-                        },
-                        'mt-empty-state': {
-                            props: [
-                                'headline',
-                                'description',
-                            ],
-                            template:
-                                '<div class="mt-empty-state"><p>{{ headline }}</p><p>{{ description }}</p><slot name="button"></slot></div>',
                         },
                         'mt-progress-bar': true,
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
@@ -184,15 +165,9 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-app-topbar-sidebar': true,
                         'sw-help-center-v2': true,
                         'sw-empty-state': true,
-                        'sw-data-grid-column-boolean': true,
-                        'sw-context-button': true,
 
                         'sw-radio-field': true,
                         'sw-ai-copilot-badge': true,
-                        'sw-context-menu-item': true,
-                        'sw-data-grid-settings': true,
-                        'sw-data-grid-inline-edit': true,
-                        'sw-data-grid-skeleton': true,
                         'sw-provide': true,
                     },
                     attachTo: document.body,
@@ -203,15 +178,18 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         await flushPromises();
     });
 
-    it('should have three green color badges and one red one', async () => {
-        const allGreenColorBadges = wrapper.findAll('.sw-color-badge.is--success');
-        const allRedColorBadges = wrapper.findAll('.sw-color-badge.is--error');
+    it('shows a critical banner when the Shopware license check fails', async () => {
+        const licenseBanner = wrapper.get('.sw-settings-shopware-updates-wizard__license-banner');
 
-        expect(allGreenColorBadges).toHaveLength(1);
-        expect(allRedColorBadges).toHaveLength(1);
+        expect(licenseBanner.attributes('variant')).toBe('critical');
+
+        wrapper.vm.licenseValid = true;
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-shopware-updates-wizard__license-banner').exists()).toBe(false);
     });
 
-    it('should disable the button if one requirement is not met', async () => {
+    it('should disable the button if the license check fails', async () => {
         const button = wrapper.findByText('button', 'sw-settings-shopware-updates.infos.startUpdate');
 
         expect(button.attributes('disabled')).toBeDefined();
@@ -221,7 +199,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const stopUpdateProcessSpy = jest.spyOn(wrapper.vm, 'stopUpdateProcess');
         const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
 
-        wrapper.vm.deactivatePlugins(0);
+        wrapper.vm.deactivateExtensions(0);
         await flushPromises();
 
         expect(stopUpdateProcessSpy).toHaveBeenCalled();
@@ -232,8 +210,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         );
     });
 
-    it('deactivate plugins success', async () => {
-        wrapper.vm.updateService.deactivatePlugins = () => {
+    it('deactivate extensions success', async () => {
+        wrapper.vm.updateService.deactivateExtensions = () => {
             return Promise.resolve({
                 offset: 0,
                 total: 0,
@@ -243,15 +221,15 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const redirectSpy = jest.fn();
         wrapper.vm.redirectToPage = redirectSpy;
 
-        await wrapper.vm.deactivatePlugins(0);
+        await wrapper.vm.deactivateExtensions(0);
 
         expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
     });
 
-    it('deactivate plugins success forwards the admin locale to the recovery tool', async () => {
+    it('deactivate extensions success forwards the admin locale to the recovery tool', async () => {
         useSession().currentLocale.value = 'de-DE';
 
-        wrapper.vm.updateService.deactivatePlugins = () => {
+        wrapper.vm.updateService.deactivateExtensions = () => {
             return Promise.resolve({
                 offset: 0,
                 total: 0,
@@ -261,7 +239,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const redirectSpy = jest.fn();
         wrapper.vm.redirectToPage = redirectSpy;
 
-        await wrapper.vm.deactivatePlugins(0);
+        await wrapper.vm.deactivateExtensions(0);
 
         expect(redirectSpy).toHaveBeenCalledWith(
             `${Shopware.Context.api.basePath}/shopware-installer.phar.php?language=de-DE`,
@@ -282,8 +260,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(wrapper.vm.buildRecoveryUrl()).toBe(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
     });
 
-    it('deactivate plugins success loops to disable all', async () => {
-        wrapper.vm.updateService.deactivatePlugins = (offset) => {
+    it('deactivate extensions success loops to disable all', async () => {
+        wrapper.vm.updateService.deactivateExtensions = (offset) => {
             if (offset === 0) {
                 return Promise.resolve({
                     offset: 1,
@@ -300,9 +278,9 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const redirectSpy = jest.fn();
         wrapper.vm.redirectToPage = redirectSpy;
 
-        const updateCallSpy = jest.spyOn(wrapper.vm.updateService, 'deactivatePlugins');
+        const updateCallSpy = jest.spyOn(wrapper.vm.updateService, 'deactivateExtensions');
 
-        await wrapper.vm.deactivatePlugins(0);
+        await wrapper.vm.deactivateExtensions(0);
         await flushPromises();
 
         expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
@@ -310,7 +288,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     });
 
     it('download recovery should disable extensions', async () => {
-        const disableExtensionsSpy = jest.spyOn(wrapper.vm, 'deactivatePlugins');
+        const disableExtensionsSpy = jest.spyOn(wrapper.vm, 'deactivateExtensions');
 
         await wrapper.vm.downloadRecovery();
         expect(wrapper.vm.progressbarValue).toBe(0);
@@ -340,19 +318,24 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(wrapper.emitted('update-started')).toHaveLength(1);
     });
 
-    it('test changelog info are rendered', async () => {
-        const element = await wrapper.get('div[changelog]');
-        expect(element.attributes().changelog).toBe('This is a test release');
+    it('shows the installed and the latest version in the version card', async () => {
+        const versionCard = wrapper.get('.sw-settings-shopware-updates-version');
+
+        expect(versionCard.get('.sw-settings-shopware-updates-version__current-version').text()).toBe('6.4.17.2');
+        expect(versionCard.get('.sw-settings-shopware-updates-version__new-version').text()).toBe('6.4.18.0');
+        expect(versionCard.get('.sw-settings-shopware-updates-version__changelog-link').attributes('href')).toBe(
+            'https://github.com/shopware/shopware/releases/',
+        );
     });
 
     it('click on update button', async () => {
-        wrapper.vm.updateService.deactivatePlugins = () => {
+        wrapper.vm.updateService.deactivateExtensions = () => {
             return Promise.resolve({
                 offset: 1,
                 total: 1,
             });
         };
-        wrapper.vm.requirements = [];
+        wrapper.vm.licenseValid = true;
 
         expect(wrapper.vm.updatePossible).toBe(true);
         expect(wrapper.vm.updaterIsRunning).toBe(false);
@@ -366,16 +349,13 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(wrapper.vm.updateModalShown).toBe(true);
 
         expect(wrapper.find('.sw-settings-shopware-updates-check__start-update').exists()).toBe(true);
-        expect(wrapper.vm.chosenUpdateMethod).toBe('cli');
-        expect(wrapper.find('.sw-settings-shopware-updates-method-option--cli').classes()).toContain('is--selected');
-        expect(wrapper.get('.sw-settings-shopware-updates-method-option__command').text()).toContain(
+        expect(wrapper.get('.sw-settings-shopware-updates-cli-method__command').text()).toContain(
             'shopware-cli project upgrade',
         );
-        expect(wrapper.get('.sw-settings-shopware-updates-method-option__install-link').attributes('href')).toBe(
+        expect(wrapper.get('.sw-settings-shopware-updates-cli-method__install-link').attributes('href')).toBe(
             'https://developer.shopware.com/docs/products/tools/cli/',
         );
 
-        await wrapper.get('.sw-settings-shopware-updates-method-option--web input').setValue();
         await wrapper.get('.sw-settings-shopware-updates-check__start-update-backup-checkbox input').setChecked(true);
 
         const redirectSpy = jest.fn();
@@ -391,44 +371,103 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(redirectSpy).toHaveBeenCalledWith(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
     });
 
-    it('shows that update checks are disabled instead of claiming the shop is up to date', async () => {
-        wrapper.vm.updateInfo = {
-            version: null,
-            changelog: null,
-        };
-        wrapper.vm.updateCheckDisabled = true;
-        wrapper.vm.isLoading = false;
+    it('still shows the update but disables the web installer when auto updates are disabled', async () => {
+        wrapper.vm.licenseValid = true;
+        wrapper.vm.autoUpdateEnabled = false;
         await flushPromises();
 
-        const emptyState = wrapper.get('.sw-settings-shopware-updates-wizard__empty-state');
+        expect(wrapper.find('.sw-settings-shopware-updates-version').exists()).toBe(true);
+        expect(wrapper.get('.sw-settings-shopware-updates-cli-method__command').text()).toContain(
+            'shopware-cli project upgrade',
+        );
+        expect(wrapper.get('.sw-settings-shopware-updates-wizard__start-update').attributes('disabled')).toBeDefined();
+        expect(wrapper.vm.updateButtonTooltip.message).toBe('sw-settings-shopware-updates.infos.autoUpdateDisabled');
+    });
 
-        expect(emptyState.text()).toContain('sw-settings-shopware-updates.general.disabledTitle');
-        expect(emptyState.text()).toContain('sw-settings-shopware-updates.general.disabledDescription');
-        expect(wrapper.get('.sw-settings-shopware-updates-wizard__cli-link').attributes('href')).toBe(
+    it('disables the web installer on cluster setups', async () => {
+        wrapper.vm.licenseValid = true;
+        wrapper.vm.clusterSetup = true;
+        await flushPromises();
+
+        expect(wrapper.get('.sw-settings-shopware-updates-wizard__start-update').attributes('disabled')).toBeDefined();
+        expect(wrapper.vm.updateButtonTooltip.message).toBe('sw-settings-shopware-updates.infos.clusterSetupDisabled');
+    });
+
+    it('recommends the Shopware CLI inside the version card', async () => {
+        const versionCard = wrapper.get('.sw-settings-shopware-updates-wizard__version-card');
+        const cliMethod = versionCard.get('.sw-settings-shopware-updates-cli-method');
+
+        expect(cliMethod.text()).toContain('sw-settings-shopware-updates.methodModal.cliDescription');
+        expect(cliMethod.get('.sw-settings-shopware-updates-cli-method__command').text()).toContain(
+            'shopware-cli project upgrade',
+        );
+        expect(cliMethod.get('.sw-settings-shopware-updates-cli-method__install-link').attributes('href')).toBe(
             'https://developer.shopware.com/docs/products/tools/cli/',
         );
     });
 
-    it('hides continue and the backup checkbox for the recommended CLI method', async () => {
-        wrapper.vm.updateModalShown = true;
+    it('shows the update status as a badge in the version card header', async () => {
+        const badge = wrapper.get('.sw-settings-shopware-updates-version__status-badge');
+
+        expect(badge.text()).toContain('sw-settings-shopware-updates.versionCard.badgeUpdateAvailable');
+        expect(wrapper.vm.updateStatusBadgeVariant).toBe('attention');
+
+        wrapper.vm.updateInfo = { version: null, changelog: null };
         await flushPromises();
 
-        expect(wrapper.vm.chosenUpdateMethod).toBe('cli');
-        expect(wrapper.find('.sw-settings-shopware-updates-check__start-update-button').exists()).toBe(false);
-        expect(wrapper.find('.sw-settings-shopware-updates-check__start-update-backup-checkbox').exists()).toBe(false);
-        expect(wrapper.findByText('button', 'global.default.close').exists()).toBe(true);
-        expect(wrapper.emitted('update-started')).toBeFalsy();
-        expect(wrapper.vm.updaterIsRunning).toBe(false);
+        expect(wrapper.vm.updateStatusBadgeVariant).toBe('positive');
+        expect(wrapper.vm.updateStatusBadgeLabel).toBe('sw-settings-shopware-updates.versionCard.badgeUpToDate');
     });
 
-    it('shows plugin deactivation options only for the web installer', async () => {
-        wrapper.vm.plugins = [{ statusName: 'incompatible' }];
+    it('shows only the version card with an up-to-date state when no update is available', async () => {
+        wrapper.vm.updateInfo = { version: null, changelog: null };
+        await flushPromises();
+
+        const versionCard = wrapper.get('.sw-settings-shopware-updates-wizard__version-card');
+        const upToDateState = versionCard.get('.sw-settings-shopware-updates-up-to-date');
+
+        expect(upToDateState.get('.sw-settings-shopware-updates-up-to-date__icon').exists()).toBe(true);
+        expect(upToDateState.text()).toContain('sw-settings-shopware-updates.versionCard.upToDateTitle');
+        expect(upToDateState.text()).toContain('sw-settings-shopware-updates.versionCard.upToDateDescription');
+        expect(versionCard.find('.sw-settings-shopware-updates-version').exists()).toBe(false);
+        expect(versionCard.find('.sw-settings-shopware-updates-cli-method').exists()).toBe(false);
+        expect(versionCard.find('.sw-settings-shopware-updates-method-divider').exists()).toBe(false);
+        expect(versionCard.find('.sw-settings-shopware-updates-web-installer').exists()).toBe(false);
+        expect(wrapper.find('sw-settings-shopware-updates-extensions-stub').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
+    });
+
+    it('offers the web installer as a second update method behind a divider', async () => {
+        const versionCard = wrapper.get('.sw-settings-shopware-updates-wizard__version-card');
+
+        expect(versionCard.find('.sw-settings-shopware-updates-method-divider').exists()).toBe(true);
+
+        const webInstaller = versionCard.get('.sw-settings-shopware-updates-web-installer');
+
+        expect(webInstaller.text()).toContain('sw-settings-shopware-updates.versionCard.webInstallerTitle');
+        expect(webInstaller.find('.sw-settings-shopware-updates-wizard__start-update').exists()).toBe(true);
+    });
+
+    it('copies the CLI command to the clipboard and shows a snackbar', async () => {
+        const copySpy = jest.spyOn(Shopware.Utils.dom, 'copyStringToClipboard').mockResolvedValue();
+
+        await wrapper.get('.sw-settings-shopware-updates-cli-method__copy-button').trigger('click');
+        await flushPromises();
+
+        expect(copySpy).toHaveBeenCalledWith('shopware-cli project upgrade');
+        expect(mockSnackbar.addSnackbar).toHaveBeenCalledWith({
+            message: 'global.sw-field.notification.notificationCopySuccessMessage',
+            variant: 'success',
+        });
+    });
+
+    it('shows extension deactivation options when incompatible extensions are installed', async () => {
         wrapper.vm.updateModalShown = true;
         await flushPromises();
 
         expect(wrapper.find('sw-radio-field-stub').exists()).toBe(false);
 
-        await wrapper.get('.sw-settings-shopware-updates-method-option--web input').setValue();
+        wrapper.vm.extensions = [{ statusName: 'incompatible' }];
         await flushPromises();
 
         expect(wrapper.find('sw-radio-field-stub').exists()).toBe(true);
@@ -436,9 +475,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
 
     it('disables continue until a backup is confirmed', async () => {
         wrapper.vm.updateModalShown = true;
-        await flushPromises();
-
-        await wrapper.get('.sw-settings-shopware-updates-method-option--web input').setValue();
         await flushPromises();
 
         expect(wrapper.get('.sw-settings-shopware-updates-check__start-update-button').attributes('disabled')).toBeDefined();

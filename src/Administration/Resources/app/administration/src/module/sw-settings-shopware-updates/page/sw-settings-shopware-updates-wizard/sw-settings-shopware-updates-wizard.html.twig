@@ -2,76 +2,185 @@
 <sw-page class="sw-settings-shopware-updates-wizard">
     {% block sw_settings_shopware_updates_wizard_smart_bar_header %}
     <template #smart-bar-header>
-        <h2 v-if="updateInfo.version">
-            {{ $t('sw-settings-shopware-updates.general.title', {version: updateInfo.version }) }}
+        <h2>
+            {{ $t('sw-settings-shopware-updates.general.title') }}
         </h2>
-        <h2 v-if="!updateInfo.version">
-            {{ $t(updateCheckDisabled ? 'sw-settings-shopware-updates.general.disabledTitle' : 'sw-settings-shopware-updates.general.emptyTitle') }}
-        </h2>
-    </template>
-    {% endblock %}
-
-    {% block sw_settings_shopware_updates_wizard_smart_bar_actions %}
-    <template #smart-bar-actions>
-        <div
-            :key="updatePossible"
-            v-tooltip="updateButtonTooltip"
-        >
-            <mt-button
-                v-if="updateInfo.version"
-                :disabled="!updatePossible"
-                :is-loading="updaterIsRunning"
-                variant="primary"
-                class="sw-settings-shopware-updates-wizard__start-update"
-                size="default"
-                @click="updateModalShown = true"
-            >
-                {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
-            </mt-button>
-        </div>
     </template>
     {% endblock %}
 
     <template #content>
         <div class="sw-settings-shopware-updates-wizard__content">
         {% block sw_settings_shopware_updates_wizard_content %}
-            <sw-card-view v-if="isLoading || updateInfo.version">
-                <sw-settings-shopware-updates-info
-                    v-if="updateInfo"
+            <sw-card-view>
+                {% block sw_settings_shopware_updates_wizard_version_card %}
+                <mt-card
+                    class="sw-settings-shopware-updates-wizard__version-card"
+                    position-identifier="sw-settings-shopware-updates-version"
+                    :title="$t('sw-settings-shopware-updates.versionCard.title')"
                     :is-loading="isLoading"
-                    :changelog="updateInfo.body"
-                />
-                <sw-settings-shopware-updates-requirements
-                    :is-loading="isLoading"
-                    :update-info="updateInfo"
-                    :requirements="requirements"
-                />
-                <sw-settings-shopware-updates-plugins
-                    :plugins="plugins"
+                >
+                    {% block sw_settings_shopware_updates_wizard_license_banner %}
+                    <mt-banner
+                        v-if="licenseCheckFailed"
+                        class="sw-settings-shopware-updates-wizard__license-banner"
+                        variant="critical"
+                        :title="$t('sw-settings-shopware-updates.license.bannerTitle')"
+                    >
+                        <span v-html="$t('sw-settings-shopware-updates.license.bannerMessage')"></span>
+                    </mt-banner>
+                    {% endblock %}
+
+                    <template #headerRight>
+                        <mt-badge
+                            v-if="!isLoading"
+                            class="sw-settings-shopware-updates-version__status-badge"
+                            :variant="updateStatusBadgeVariant"
+                            size="m"
+                        >
+                            {{ updateStatusBadgeLabel }}
+                        </mt-badge>
+                    </template>
+
+                    <div
+                        v-if="isUpdateAvailable"
+                        class="sw-settings-shopware-updates-version"
+                    >
+                        <div class="sw-settings-shopware-updates-version__content">
+                            <dl class="sw-settings-shopware-updates-version__versions">
+                                <dt>{{ $t('sw-settings-shopware-updates.versionCard.currentVersionLabel') }}</dt>
+                                <dd class="sw-settings-shopware-updates-version__current-version">
+                                    {{ currentVersion }}
+                                </dd>
+                                <dt>{{ $t('sw-settings-shopware-updates.versionCard.newVersionLabel') }}</dt>
+                                <dd class="sw-settings-shopware-updates-version__new-version">
+                                    {{ updateInfo.version }}
+                                </dd>
+                            </dl>
+
+                            <sw-external-link
+                                class="sw-settings-shopware-updates-version__changelog-link"
+                                :href="changelogUrl"
+                            >
+                                {{ $t('sw-settings-shopware-updates.versionCard.changelogLink') }}
+                            </sw-external-link>
+                        </div>
+                    </div>
+
+                    {% block sw_settings_shopware_updates_wizard_up_to_date %}
+                    <div
+                        v-else-if="!isLoading"
+                        class="sw-settings-shopware-updates-up-to-date"
+                    >
+                        <span class="sw-settings-shopware-updates-up-to-date__icon">
+                            <mt-icon
+                                name="solid-check-circle"
+                                size="32px"
+                            />
+                        </span>
+
+                        <span class="sw-settings-shopware-updates-up-to-date__title">
+                            {{ $t('sw-settings-shopware-updates.versionCard.upToDateTitle') }}
+                        </span>
+
+                        <span class="sw-settings-shopware-updates-up-to-date__description">
+                            {{ $t('sw-settings-shopware-updates.versionCard.upToDateDescription', { version: currentVersion }) }}
+                        </span>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_shopware_updates_wizard_cli_method %}
+                    <div
+                        v-if="isUpdateAvailable"
+                        class="sw-settings-shopware-updates-cli-method"
+                    >
+                        <span class="sw-settings-shopware-updates-cli-method__title">
+                            {{ $t('sw-settings-shopware-updates.methodModal.cliTitle') }}
+                        </span>
+
+                        <span class="sw-settings-shopware-updates-cli-method__description">
+                            {{ $t('sw-settings-shopware-updates.methodModal.cliDescription') }}
+                            {{ $t('sw-settings-shopware-updates.methodModal.cliInstallHint') }}
+                        </span>
+
+                        <span class="sw-settings-shopware-updates-cli-method__command">
+                            <code>{{ cliUpgradeCommand }}</code>
+                            <mt-button
+                                class="sw-settings-shopware-updates-cli-method__copy-button"
+                                size="small"
+                                variant="secondary"
+                                square
+                                :aria-label="$t('global.default.copy')"
+                                @click="copyCliCommand"
+                            >
+                                <template #iconFront="{ size }">
+                                    <mt-icon
+                                        name="regular-copy"
+                                        :size="`${size}px`"
+                                    />
+                                </template>
+                            </mt-button>
+                        </span>
+
+                        <sw-external-link
+                            class="sw-settings-shopware-updates-cli-method__install-link"
+                            :href="cliInstallUrl"
+                        >
+                            {{ $t('sw-settings-shopware-updates.methodModal.cliInstallLink') }}
+                        </sw-external-link>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_shopware_updates_wizard_method_divider %}
+                    <div
+                        v-if="isUpdateAvailable"
+                        class="sw-settings-shopware-updates-method-divider"
+                        role="separator"
+                    >
+                        <span>{{ $t('sw-settings-shopware-updates.versionCard.methodDivider') }}</span>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_shopware_updates_wizard_web_installer %}
+                    <div
+                        v-if="isUpdateAvailable"
+                        class="sw-settings-shopware-updates-web-installer"
+                    >
+                        <div class="sw-settings-shopware-updates-web-installer__content">
+                            <span class="sw-settings-shopware-updates-web-installer__title">
+                                {{ $t('sw-settings-shopware-updates.versionCard.webInstallerTitle') }}
+                            </span>
+                            <span class="sw-settings-shopware-updates-web-installer__description">
+                                {{ $t('sw-settings-shopware-updates.versionCard.webInstallerDescription') }}
+                            </span>
+                        </div>
+
+                        <div
+                            :key="updatePossible"
+                            v-tooltip="updateButtonTooltip"
+                            class="sw-settings-shopware-updates-web-installer__action"
+                        >
+                            <mt-button
+                                :disabled="!updatePossible"
+                                :is-loading="updaterIsRunning"
+                                variant="secondary"
+                                class="sw-settings-shopware-updates-wizard__start-update"
+                                size="default"
+                                @click="updateModalShown = true"
+                            >
+                                {{ $t('sw-settings-shopware-updates.infos.startUpdate') }}
+                            </mt-button>
+                        </div>
+                    </div>
+                    {% endblock %}
+                </mt-card>
+                {% endblock %}
+
+                <sw-settings-shopware-updates-extensions
+                    v-if="isUpdateAvailable"
+                    :extensions="extensions"
                     :is-loading="isLoading"
                 />
             </sw-card-view>
-
-            <mt-empty-state
-                v-if="!isLoading && !updateInfo.version"
-                class="sw-settings-shopware-updates-wizard__empty-state"
-                :centered="true"
-                :icon="$route.meta.$module.icon"
-                :headline="emptyStateHeadline"
-                :description="emptyStateDescription"
-            >
-                <template
-                    v-if="updateCheckDisabled"
-                    #button
-                >
-                    <sw-external-link
-                        class="sw-settings-shopware-updates-wizard__cli-link"
-                        :href="cliInstallUrl"
-                    >
-                        {{ $t('sw-settings-shopware-updates.methodModal.cliInstallLink') }}
-                    </sw-external-link>
-                </template>
-            </mt-empty-state>
 
             <sw-modal
                 v-if="updaterIsRunning"
@@ -101,141 +210,34 @@
             >
                 {% block sw_settings_shopware_updates_wizard_method_warnings %}
                 <mt-banner
-                    v-if="displayUnknownPluginsWarning"
+                    v-if="displayUnknownExtensionsWarning"
                     variant="attention"
                 >
                     {{ $t('sw-settings-shopware-updates.updateModal.messageNotInStore') }}
                 </mt-banner>
 
                 <mt-banner
-                    v-if="displayIncompatiblePluginsWarning"
+                    v-if="displayIncompatibleExtensionsWarning"
                     variant="attention"
                 >
                     {{ $t('sw-settings-shopware-updates.updateModal.messageIncompatible') }}
                 </mt-banner>
                 {% endblock %}
 
-                {% block sw_settings_shopware_updates_wizard_method_options %}
-                <div
-                    class="sw-settings-shopware-updates-method-options"
-                    role="radiogroup"
-                    :aria-label="$t('sw-settings-shopware-updates.methodModal.title')"
-                >
-                    {% block sw_settings_shopware_updates_wizard_method_option_cli %}
-                    <label
-                        class="sw-settings-shopware-updates-method-option sw-settings-shopware-updates-method-option--cli"
-                        :class="{ 'is--selected': isCliUpdateSelected }"
-                        for="sw-settings-shopware-updates-method-cli"
-                    >
-                        <input
-                            id="sw-settings-shopware-updates-method-cli"
-                            v-model="chosenUpdateMethod"
-                            class="sw-settings-shopware-updates-method-option__input"
-                            type="radio"
-                            name="sw-settings-shopware-updates-method"
-                            value="cli"
-                        >
-
-                        <span
-                            class="sw-settings-shopware-updates-method-option__icon"
-                            aria-hidden="true"
-                        >
-                            <mt-icon
-                                name="regular-window-terminal"
-                                size="20px"
-                            />
-                        </span>
-
-                        <span class="sw-settings-shopware-updates-method-option__content">
-                            <span class="sw-settings-shopware-updates-method-option__title">
-                                {{ $t('sw-settings-shopware-updates.methodModal.cliTitle') }}
-                            </span>
-                            <span class="sw-settings-shopware-updates-method-option__recommended">
-                                {{ $t('sw-settings-shopware-updates.methodModal.cliRecommended') }}
-                            </span>
-                            <span class="sw-settings-shopware-updates-method-option__description">
-                                {{ $t('sw-settings-shopware-updates.methodModal.cliDescription') }}
-                            </span>
-                            <span class="sw-settings-shopware-updates-method-option__hint">
-                                {{ $t('sw-settings-shopware-updates.methodModal.cliInstallHint') }}
-                            </span>
-                            <span class="sw-settings-shopware-updates-method-option__command">
-                                <code>{{ cliUpgradeCommand }}</code>
-                                <sw-field-copyable
-                                    :copyable-text="cliUpgradeCommand"
-                                    :tooltip="true"
-                                />
-                            </span>
-                            <sw-external-link
-                                class="sw-settings-shopware-updates-method-option__install-link"
-                                :href="cliInstallUrl"
-                            >
-                                {{ $t('sw-settings-shopware-updates.methodModal.cliInstallLink') }}
-                            </sw-external-link>
-                        </span>
-
-                        <span
-                            class="sw-settings-shopware-updates-method-option__radio"
-                            aria-hidden="true"
-                        ></span>
-                    </label>
-                    {% endblock %}
-
-                    {% block sw_settings_shopware_updates_wizard_method_option_web %}
-                    <label
-                        class="sw-settings-shopware-updates-method-option sw-settings-shopware-updates-method-option--web"
-                        :class="{ 'is--selected': !isCliUpdateSelected }"
-                        for="sw-settings-shopware-updates-method-web"
-                    >
-                        <input
-                            id="sw-settings-shopware-updates-method-web"
-                            v-model="chosenUpdateMethod"
-                            class="sw-settings-shopware-updates-method-option__input"
-                            type="radio"
-                            name="sw-settings-shopware-updates-method"
-                            value="web"
-                        >
-
-                        <span
-                            class="sw-settings-shopware-updates-method-option__icon"
-                            aria-hidden="true"
-                        >
-                            <mt-icon
-                                name="regular-globe"
-                                size="20px"
-                            />
-                        </span>
-
-                        <span class="sw-settings-shopware-updates-method-option__content">
-                            <span class="sw-settings-shopware-updates-method-option__title">
-                                {{ $t('sw-settings-shopware-updates.methodModal.webTitle') }}
-                            </span>
-                        </span>
-
-                        <span
-                            class="sw-settings-shopware-updates-method-option__radio"
-                            aria-hidden="true"
-                        ></span>
-                    </label>
-                    {% endblock %}
-                </div>
-                {% endblock %}
-
                 {% block sw_settings_shopware_updates_wizard_method_plugin_options %}
                 <sw-radio-field
-                    v-if="showWebInstallerPluginOptions"
-                    v-model:value="chosenPluginBehaviour"
+                    v-if="displayIncompatibleExtensionsWarning"
+                    v-model:value="chosenExtensionBehaviour"
                     :options="[
                         {'value': 'all', 'name': optionDeactivateAllTranslation },
                         {'value': 'notCompatible', 'name': optionDeactivateIncompatibleTranslation },
-                        {'value': '', 'name': $t('sw-settings-shopware-updates.plugins.actions.deactivateNone')}]"
+                        {'value': '', 'name': $t('sw-settings-shopware-updates.extensions.actions.deactivateNone')}]"
                 />
                 {% endblock %}
 
                 <template #modal-footer>
                     <mt-checkbox
-                        v-if="!isCliUpdateSelected"
-                        v-model:checked="checkedBackupCheckbox"
+                        v-model="checkedBackupCheckbox"
                         class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                         :label="$t('sw-settings-shopware-updates.updateModal.backupLabel')"
                     />
@@ -246,11 +248,10 @@
                             variant="secondary"
                             @click="updateModalShown = false"
                         >
-                            {{ $t(isCliUpdateSelected ? 'global.default.close' : 'global.default.cancel') }}
+                            {{ $t('global.default.cancel') }}
                         </mt-button>
 
                         <mt-button
-                            v-if="!isCliUpdateSelected"
                             :disabled="!checkedBackupCheckbox"
                             variant="primary"
                             size="small"

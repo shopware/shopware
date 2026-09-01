@@ -35,17 +35,17 @@ describe('updateApiService', () => {
         });
     });
 
-    it('test requirements', async () => {
+    it('test checkLicense', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/check-requirements').reply(200, {
-            success: true,
+        clientMock.onGet('/_action/update/check-license').reply(200, {
+            isValid: true,
         });
 
-        const result = await updateApiService.checkRequirements();
+        const result = await updateApiService.checkLicense();
 
         expect(result).toEqual({
-            success: true,
+            isValid: true,
         });
     });
 
@@ -77,14 +77,14 @@ describe('updateApiService', () => {
         });
     });
 
-    it('test deactivatePlugins', async () => {
+    it('test deactivateExtensions', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/deactivate-plugins?offset=0&deactivationFilter=foo').reply(200, {
+        clientMock.onGet('/_action/update/deactivate-extensions?offset=0&deactivationFilter=foo').reply(200, {
             success: true,
         });
 
-        const result = await updateApiService.deactivatePlugins(0, 'foo');
+        const result = await updateApiService.deactivateExtensions(0, 'foo');
 
         expect(result).toEqual({
             success: true,

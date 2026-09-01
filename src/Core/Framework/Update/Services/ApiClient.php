@@ -24,7 +24,6 @@ class ApiClient
      */
     public function __construct(
         private readonly HttpClientInterface $client,
-        private readonly bool $shopwareUpdateEnabled,
         private readonly string $shopwareVersion,
         private readonly string $projectDir,
         private readonly ClockInterface $clock
@@ -42,10 +41,6 @@ class ApiClient
                 'date' => $this->clock->now(),
                 'fixedVulnerabilities' => [],
             ]);
-        }
-
-        if (!$this->shopwareUpdateEnabled) {
-            return new Version();
         }
 
         try {

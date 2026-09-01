@@ -1,6 +1,7 @@
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 import useSession from 'src/app/composables/use-session';
+import useSnackbar from 'src/app/composables/use-snackbar';
 
 const { Component, Mixin } = Shopware;
 
@@ -27,8 +28,8 @@ export default Component.wrapComponentConfig({
             version: unknown;
             changelog: unknown;
         };
-        requirements: Array<{ result: boolean }>;
-        plugins: Array<{ statusName: string }>;
+        licenseValid: boolean;
+        extensions: Array<{ statusName: string }>;
         isLoading: boolean;
         checkedBackupCheckbox: boolean;
         updateRunning: boolean;
@@ -36,17 +37,17 @@ export default Component.wrapComponentConfig({
         step: string;
         updaterIsRunning: boolean;
         updateModalShown: boolean;
-        chosenPluginBehaviour: string;
-        chosenUpdateMethod: 'cli' | 'web';
-        updateCheckDisabled: boolean;
+        chosenExtensionBehaviour: string;
+        autoUpdateEnabled: boolean;
+        clusterSetup: boolean;
     } {
         return {
             updateInfo: {
                 version: null,
                 changelog: null,
             },
-            requirements: [],
-            plugins: [],
+            licenseValid: true,
+            extensions: [],
             isLoading: true,
             checkedBackupCheckbox: false,
             updateRunning: false,
@@ -54,9 +55,9 @@ export default Component.wrapComponentConfig({
             step: 'download',
             updaterIsRunning: false,
             updateModalShown: false,
-            chosenPluginBehaviour: '',
-            chosenUpdateMethod: 'cli',
-            updateCheckDisabled: false,
+            chosenExtensionBehaviour: '',
+            autoUpdateEnabled: true,
+            clusterSetup: false,
         };
     },
 
@@ -67,8 +68,7 @@ export default Component.wrapComponentConfig({
     },
     computed: {
         updatePossible() {
-            // Check if the result of every requirement is true. If it's the case, return true, otherwise return false.
-            return this.requirements.every((requirement) => requirement.result === true);
+            return this.licenseValid && this.autoUpdateEnabled && !this.clusterSetup;
         },
 
         updateButtonTooltip() {
@@ -79,54 +79,80 @@ export default Component.wrapComponentConfig({
                 };
             }
 
+            let message = 'sw-settings-shopware-updates.license.bannerTitle';
+
+            if (this.clusterSetup) {
+                message = 'sw-settings-shopware-updates.infos.clusterSetupDisabled';
+            } else if (!this.autoUpdateEnabled) {
+                message = 'sw-settings-shopware-updates.infos.autoUpdateDisabled';
+            }
+
             return {
-                message: this.$t('sw-settings-shopware-updates.infos.requirementsNotMet'),
+                message: this.$t(message),
                 position: 'bottom',
             };
         },
 
-        displayIncompatiblePluginsWarning() {
-            return this.plugins.some((plugin) => {
-                return plugin.statusName !== 'compatible' && plugin.statusName !== 'notInStore';
+        displayIncompatibleExtensionsWarning() {
+            return this.extensions.some((extension) => {
+                return extension.statusName !== 'compatible' && extension.statusName !== 'notInStore';
             });
         },
 
-        displayUnknownPluginsWarning() {
-            return this.plugins.some((plugin) => {
-                return plugin.statusName === 'notInStore';
+        displayUnknownExtensionsWarning() {
+            return this.extensions.some((extension) => {
+                return extension.statusName === 'notInStore';
             });
-        },
-
-        displayAllPluginsOkayInfo() {
-            return !(this.displayIncompatiblePluginsWarning || this.displayUnknownPluginsWarning);
         },
 
         optionDeactivateIncompatibleTranslation() {
-            const deactivateIncompatTrans = this.$t('sw-settings-shopware-updates.plugins.actions.deactivateIncompatible');
+            const deactivateIncompatTrans = this.$t(
+                'sw-settings-shopware-updates.extensions.actions.deactivateIncompatible',
+            );
             const isRecommended =
-                this.displayIncompatiblePluginsWarning && !this.displayUnknownPluginsWarning
-                    ? this.$t('sw-settings-shopware-updates.plugins.actions.recommended')
+                this.displayIncompatibleExtensionsWarning && !this.displayUnknownExtensionsWarning
+                    ? this.$t('sw-settings-shopware-updates.extensions.actions.recommended')
                     : '';
 
             return `${deactivateIncompatTrans} ${isRecommended}`;
         },
 
         optionDeactivateAllTranslation() {
-            const deactiveAllTrans = this.$t('sw-settings-shopware-updates.plugins.actions.deactivateAll');
+            const deactiveAllTrans = this.$t('sw-settings-shopware-updates.extensions.actions.deactivateAll');
             const isRecommended =
-                this.displayIncompatiblePluginsWarning && this.displayUnknownPluginsWarning
-                    ? this.$t('sw-settings-shopware-updates.plugins.actions.recommended')
+                this.displayIncompatibleExtensionsWarning && this.displayUnknownExtensionsWarning
+                    ? this.$t('sw-settings-shopware-updates.extensions.actions.recommended')
                     : '';
 
             return `${deactiveAllTrans} ${isRecommended}`;
         },
 
-        isCliUpdateSelected(): boolean {
-            return this.chosenUpdateMethod === 'cli';
+        currentVersion(): string {
+            return Shopware.Context.app.config.version ?? '';
         },
 
-        showWebInstallerPluginOptions(): boolean {
-            return this.chosenUpdateMethod === 'web' && this.displayIncompatiblePluginsWarning;
+        isUpdateAvailable(): boolean {
+            return Boolean(this.updateInfo.version);
+        },
+
+        licenseCheckFailed(): boolean {
+            return !this.licenseValid;
+        },
+
+        updateStatusBadgeVariant(): 'attention' | 'positive' {
+            return this.isUpdateAvailable ? 'attention' : 'positive';
+        },
+
+        updateStatusBadgeLabel(): string {
+            return this.$t(
+                this.isUpdateAvailable
+                    ? 'sw-settings-shopware-updates.versionCard.badgeUpdateAvailable'
+                    : 'sw-settings-shopware-updates.versionCard.badgeUpToDate',
+            );
+        },
+
+        changelogUrl(): string {
+            return `https://github.com/shopware/shopware/releases/`;
         },
 
         cliUpgradeCommand(): string {
@@ -135,22 +161,6 @@ export default Component.wrapComponentConfig({
 
         cliInstallUrl(): string {
             return 'https://developer.shopware.com/docs/products/tools/cli/';
-        },
-
-        emptyStateHeadline(): string {
-            if (this.updateCheckDisabled) {
-                return this.$t('sw-settings-shopware-updates.general.disabledTitle');
-            }
-
-            return this.$t('sw-settings-shopware-updates.general.emptyState');
-        },
-
-        emptyStateDescription(): string {
-            if (this.updateCheckDisabled) {
-                return this.$t('sw-settings-shopware-updates.general.disabledDescription');
-            }
-
-            return '';
         },
     },
 
@@ -164,33 +174,53 @@ export default Component.wrapComponentConfig({
             window.location.href = url;
         },
 
-        createdComponent() {
-            void this.updateService.checkForUpdates().then((response) => {
-                this.updateCheckDisabled = response.disabled === true;
-                this.updateInfo = response;
-
-                if (response.version) {
-                    void this.updateService.checkRequirements().then((requirementsStore) => {
-                        this.onRequirementsResponse(requirementsStore);
-                    });
-                } else {
-                    this.isLoading = false;
-                }
-            });
+        async copyCliCommand() {
+            try {
+                await Shopware.Utils.dom.copyStringToClipboard(this.cliUpgradeCommand);
+                useSnackbar().addSnackbar({
+                    message: this.$t('global.sw-field.notification.notificationCopySuccessMessage'),
+                    variant: 'success',
+                });
+            } catch {
+                useSnackbar().addSnackbar({
+                    message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
+                    variant: 'error',
+                });
+            }
         },
 
-        onRequirementsResponse(requirementsStore: Array<{ result: boolean }>) {
-            this.requirements = requirementsStore;
-            void this.updateService.extensionCompatibility().then((plugins) => {
-                this.plugins = plugins;
+        createdComponent() {
+            void this.updateService.checkForUpdates().then((response) => {
+                this.autoUpdateEnabled = response.autoUpdateEnabled !== false;
+                this.clusterSetup = response.clusterSetup === true;
+                this.updateInfo = response;
 
-                if (this.displayUnknownPluginsWarning && this.displayIncompatiblePluginsWarning) {
-                    this.chosenPluginBehaviour = 'all';
-                } else if (this.displayIncompatiblePluginsWarning) {
-                    this.chosenPluginBehaviour = 'notCompatible';
+                if (!response.version) {
+                    this.isLoading = false;
+
+                    return;
                 }
 
-                this.isLoading = false;
+                void Promise.all([
+                    this.updateService.checkLicense(),
+                    this.updateService.extensionCompatibility(),
+                ]).then(
+                    ([
+                        licenseCheck,
+                        extensions,
+                    ]) => {
+                        this.licenseValid = licenseCheck.isValid === true;
+                        this.extensions = extensions;
+
+                        if (this.displayUnknownExtensionsWarning && this.displayIncompatibleExtensionsWarning) {
+                            this.chosenExtensionBehaviour = 'all';
+                        } else if (this.displayIncompatibleExtensionsWarning) {
+                            this.chosenExtensionBehaviour = 'notCompatible';
+                        }
+
+                        this.isLoading = false;
+                    },
+                );
             });
         },
 
@@ -219,7 +249,7 @@ export default Component.wrapComponentConfig({
                 .downloadRecovery()
                 .then(() => {
                     this.progressbarValue = 0;
-                    this.deactivatePlugins(0);
+                    this.deactivateExtensions(0);
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -228,17 +258,17 @@ export default Component.wrapComponentConfig({
                 });
         },
 
-        deactivatePlugins(offset: number) {
+        deactivateExtensions(offset: number) {
             this.step = 'deactivate';
             this.updateService
-                .deactivatePlugins(offset, this.chosenPluginBehaviour)
+                .deactivateExtensions(offset, this.chosenExtensionBehaviour)
                 .then((response) => {
                     this.progressbarValue = Math.floor((response.offset / response.total) * 100);
 
                     if (response.offset === response.total) {
                         this.redirectToPage(this.buildRecoveryUrl());
                     } else {
-                        this.deactivatePlugins(response.offset);
+                        this.deactivateExtensions(response.offset);
                     }
                 })
                 .catch((e: ShopwareApiError) => {

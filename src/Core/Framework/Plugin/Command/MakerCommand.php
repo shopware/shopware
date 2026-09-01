@@ -100,7 +100,7 @@ class MakerCommand extends Command
 
             $this->generator->addScaffoldConfig($configuration, $input, $io);
 
-            $stubCollection = $this->scaffoldingCollector->collect($configuration);
+            $stubCollection = $this->scaffoldingCollector->collect($configuration, $this->generator);
 
             $this->scaffoldingWriter->write($stubCollection, $configuration);
 

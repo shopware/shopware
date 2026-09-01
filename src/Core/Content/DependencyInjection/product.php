@@ -75,6 +75,11 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
+use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
+use Shopware\Core\Content\Product\Garan\GaranLabelProductValidator;
+use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
+use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
+use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
 use Shopware\Core\Content\Product\IsNewDetector;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
@@ -86,6 +91,8 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
+use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\AbstractListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler;
@@ -283,6 +290,30 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductVariationBuilder::class);
 
+    $services->set(GaranLabelDurationFormatter::class);
+
+    $services->set(GaranLabelRenderer::class)
+        ->args([
+            service('twig'),
+        ]);
+
+    $services->set(GaranLabelResolver::class)
+        ->args([
+            service(GaranLabelDurationFormatter::class),
+            service(GaranLabelRenderer::class),
+        ]);
+
+    $services->set(GaranLabelTwigFilter::class)
+        ->args([
+            service(GaranLabelDurationFormatter::class),
+            service('product.repository'),
+            service(GaranLabelResolver::class),
+        ])
+        ->tag('twig.extension');
+
+    $services->set(GaranLabelProductValidator::class)
+        ->tag('kernel.event_subscriber');
+
     $services->set(CustomFieldSearchableSubscriber::class)
         ->args([
             service(Connection::class),
@@ -411,6 +442,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
             service('event_dispatcher'),
             service('logger'),
+            service(SystemConfigService::class),
+            service(ProductCloseoutFilterFactory::class),
         ])
         ->tag('shopware.cms.product_slider.processor');
 
@@ -482,6 +515,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SystemConfigService::class),
             service('product_sorting.repository'),
+            service('event_dispatcher'),
         ])
         ->tag('shopware.listing.processor');
 
@@ -746,6 +780,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductListingLoader::class),
             service(ProductCloseoutFilterFactory::class),
             service(CacheTagCollector::class),
+            service(Connection::class),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)
@@ -763,6 +798,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.product.repository'),
         ]);
+
+    $services->set(GaranLabelRoute::class)
+        ->public()
+        ->args([
+            service('sales_channel.product.repository'),
+            service(GaranLabelResolver::class),
+        ]);
+
+    $services->alias(AbstractGaranLabelRoute::class, GaranLabelRoute::class);
 
     $services->set(BuyBoxCmsElementResolver::class)
         ->args([

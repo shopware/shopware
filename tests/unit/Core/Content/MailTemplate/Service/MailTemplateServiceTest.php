@@ -62,6 +62,10 @@ class MailTemplateServiceTest extends TestCase
         $mailTemplate = $this->createMailTemplate();
         $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])]);
 
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
+        $this->templateRenderer->expects($this->never())->method('render');
+
         $mailTemplateService = $this->createService(
             $mailTemplateRepository
         );
@@ -74,6 +78,10 @@ class MailTemplateServiceTest extends TestCase
     public function testLoadUnknownTemplate(): void
     {
         $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
+
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
+        $this->templateRenderer->expects($this->never())->method('render');
 
         $mailTemplateService = $this->createService(
             $mailTemplateRepository
@@ -92,6 +100,8 @@ class MailTemplateServiceTest extends TestCase
             ->method('getTemplateData')
             ->with('checkout.order.placed', $context)
             ->willReturn(['order' => ['id' => 'order-id']]);
+
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
 
         $this->templateRenderer->expects($this->once())->method('enableTestMode');
         $this->templateRenderer->expects($this->once())->method('disableTestMode');
@@ -142,6 +152,8 @@ class MailTemplateServiceTest extends TestCase
             ->with('checkout.order.placed', $context, $salesChannel)
             ->willReturn(['order' => ['id' => 'order-id']]);
 
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
+
         $this->templateRenderer->expects($this->never())->method('enableTestMode');
         $this->templateRenderer->expects($this->never())->method('disableTestMode');
         $this->templateRenderer->expects($this->once())
@@ -176,6 +188,8 @@ class MailTemplateServiceTest extends TestCase
             ->method('getTemplateData')
             ->with('checkout.order.placed', $context, $salesChannel)
             ->willReturn(['order' => ['id' => 'order-id']]);
+
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->once())
@@ -230,6 +244,8 @@ class MailTemplateServiceTest extends TestCase
             ->with($mailTemplate, ['order' => 'order-id'], $context, ['foo' => 'bar'])
             ->willReturn(['foo' => 'bar']);
 
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
+
         $this->templateRenderer->expects($this->once())->method('enableTestMode');
         $this->templateRenderer->expects($this->once())->method('disableTestMode');
         $this->templateRenderer->expects($this->exactly(4))
@@ -257,7 +273,8 @@ class MailTemplateServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
 
-        $this->mailDataProvider->method('getTemplateData')->willReturn([]);
+        $this->mailDataProvider->expects($this->once())->method('getTemplateData')->willReturn([]);
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
 
         $this->templateRenderer->expects($this->never())->method('enableTestMode');
         $this->templateRenderer->expects($this->never())->method('disableTestMode');
@@ -300,6 +317,8 @@ class MailTemplateServiceTest extends TestCase
             ->with($mailTemplate, [], $context, ['foo' => 'bar'])
             ->willReturn(['foo' => 'bar']);
 
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
+
         $this->templateRenderer->expects($this->once())->method('enableTestMode');
         $this->templateRenderer->expects($this->once())->method('disableTestMode');
         $this->templateRenderer->expects($this->exactly(4))
@@ -338,6 +357,8 @@ class MailTemplateServiceTest extends TestCase
             ->method('getTemplateData')
             ->with($mailTemplate, [], $context, ['foo' => 'bar'])
             ->willReturn(['foo' => 'bar']);
+
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects($this->once())
@@ -416,6 +437,9 @@ class MailTemplateServiceTest extends TestCase
                     },
                 ]),
             ]);
+
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
+        $this->templateRenderer->expects($this->never())->method('render');
 
         $mailTemplateService = $this->createService();
 

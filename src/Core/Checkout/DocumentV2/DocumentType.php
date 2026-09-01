@@ -17,8 +17,11 @@ enum DocumentType: string
     case CREDIT_NOTE = 'credit_note';
     case CANCELLATION_INVOICE = 'storno';
 
-    public function allowsNegativeLineItems(): bool
-    {
-        return $this === self::CANCELLATION_INVOICE;
-    }
+    /**
+     * Reserved technical name of the shared `document_type` row that every app-provided
+     * document references. It is not a generatable type on its own: apps must never claim it as an identifier.
+     *
+     * @deprecated tag:v6.9.0 - reason:experimental-replacement - Remove together with the legacy `document_type` table
+     */
+    case APP_PROVIDED = 'app_provided';
 }

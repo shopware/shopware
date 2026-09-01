@@ -75,7 +75,7 @@ class CheckShopIdCommand extends Command
         $fingerprintsTable->setHeaders(['Fingerprint', 'Old Value', 'New Value', 'Score', 'State']);
 
         foreach ($result->mismatchingFingerprints as $fingerprint) {
-            $fingerprintsTable->addRow([$fingerprint->identifier, $fingerprint->storedStamp, $fingerprint->expectedStamp ?? 'NULL', $fingerprint->score, '<fg=red>✘ MISMATCH</>']);
+            $fingerprintsTable->addRow([$fingerprint->identifier, $fingerprint->storedStamp, $fingerprint->expectedStamp, $fingerprint->score, '<fg=red>✘ MISMATCH</>']);
         }
 
         foreach ($result->matchingFingerprints as $fingerprint) {

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('fundamentals@discovery')]
 class Migration1752219159AddLanguageActive extends MigrationStep
 {
     public function getCreationTimestamp(): int

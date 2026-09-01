@@ -63,7 +63,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testGenerateCashHashWithItemsInCart(?CustomerEntity $customer, Cart $cart, bool $hasCookie, ?string $hashName = null): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getCustomer')->willReturn($customer);
+        $salesChannelContext->expects($this->atLeastOnce())->method('getCustomer')->willReturn($customer);
         if ($customer !== null) {
             $salesChannelContext->expects($this->once())
                 ->method('getRuleIdsByAreas')

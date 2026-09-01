@@ -13,6 +13,9 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class SalesChannelDomainEntity extends Entity
 {
@@ -44,6 +47,8 @@ class SalesChannelDomainEntity extends Entity
     protected ?SalesChannelEntity $salesChannelDefaultHreflang = null;
 
     protected bool $hreflangUseOnlyLocale;
+
+    protected bool $isExternalStorefront = false;
 
     public function getUrl(): string
     {
@@ -173,5 +178,15 @@ class SalesChannelDomainEntity extends Entity
     public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
     {
         $this->measurementUnits = $measurementUnits;
+    }
+
+    public function getIsExternalStorefront(): bool
+    {
+        return $this->isExternalStorefront;
+    }
+
+    public function setIsExternalStorefront(bool $isExternalStorefront): void
+    {
+        $this->isExternalStorefront = $isExternalStorefront;
     }
 }

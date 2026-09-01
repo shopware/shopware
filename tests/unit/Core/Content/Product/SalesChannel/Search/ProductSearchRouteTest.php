@@ -43,6 +43,9 @@ class ProductSearchRouteTest extends TestCase
 
     public function testGetDecoratedShouldThrowException(): void
     {
+        $this->searchBuilder->expects($this->never())->method('build');
+        $this->listingLoader->expects($this->never())->method('load');
+
         static::expectException(DecorationPatternException::class);
 
         $this->getProductSearchRoute()->getDecorated();

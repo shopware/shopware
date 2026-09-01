@@ -222,7 +222,10 @@ export default {
         },
 
         salesChannelRepository() {
-            return this.repositoryFactory.create('sales_channel');
+            // Sync keeps removed language mappings and the new languageId in one write, so the
+            // default language validation sees the post-write state instead of rejecting the
+            // removal of the previous default.
+            return this.repositoryFactory.create('sales_channel', null, { useSync: true });
         },
 
         salesChannelAnalyticsRepository() {
@@ -240,7 +243,12 @@ export default {
         storefrontSalesChannelCriteria() {
             const criteria = new Criteria(1, 25);
 
-            return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontSalesChannelTypeId));
+            return criteria.addFilter(
+                Criteria.equalsAny('typeId', [
+                    Defaults.storefrontSalesChannelTypeId,
+                    Defaults.apiSalesChannelTypeId,
+                ]),
+            );
         },
 
         tooltipSave() {

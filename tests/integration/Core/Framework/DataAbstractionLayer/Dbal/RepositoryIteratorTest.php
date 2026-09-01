@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
@@ -97,5 +98,64 @@ class RepositoryIteratorTest extends TestCase
             ++$totalFetchedIds;
         }
         static::assertSame($totalFetchedIds, 3);
+    }
+
+    public function testFetchAutoIncrementDoesNotSkipBatches(): void
+    {
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $context = Context::createDefaultContext();
+        $ids = new IdsCollection();
+
+        foreach (['product1', 'product2', 'product3'] as $productNumber) {
+            $builder = new ProductBuilder($ids, $productNumber);
+            $builder->price(1);
+            $productRepository->create([$builder->build()], $context);
+        }
+
+        $criteria = new Criteria(array_values($ids->getList(['product1', 'product2', 'product3'])));
+        $criteria->setLimit(1);
+        $iterator = new RepositoryIterator($productRepository, $context, $criteria);
+
+        $fetchedIds = [];
+        while (($result = $iterator->fetch()) !== null) {
+            $fetchedIds[] = $result->getEntities()->first()?->getId();
+        }
+
+        static::assertSame(
+            [$ids->get('product1'), $ids->get('product2'), $ids->get('product3')],
+            $fetchedIds
+        );
+    }
+
+    public function testFetchWithSortingUsesOffsetPagination(): void
+    {
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $context = Context::createDefaultContext();
+        $ids = new IdsCollection();
+
+        foreach (['product1', 'product2', 'product3'] as $productNumber) {
+            $builder = new ProductBuilder($ids, $productNumber);
+            $builder->price(1);
+            $productRepository->create([$builder->build()], $context);
+        }
+
+        $criteria = new Criteria(array_values($ids->getList(['product1', 'product2', 'product3'])));
+        $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::DESCENDING));
+        $criteria->setLimit(1);
+        $iterator = new RepositoryIterator($productRepository, $context, $criteria);
+
+        $fetchedIds = [];
+        while (($result = $iterator->fetch()) !== null) {
+            $fetchedIds[] = $result->getEntities()->first()?->getId();
+        }
+
+        static::assertSame(
+            [$ids->get('product3'), $ids->get('product2'), $ids->get('product1')],
+            $fetchedIds
+        );
     }
 }

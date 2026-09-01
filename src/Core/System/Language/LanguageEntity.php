@@ -67,6 +67,9 @@ use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTransla
 use Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation\TaxProviderTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@discovery')]
 class LanguageEntity extends Entity
 {
@@ -84,6 +87,8 @@ class LanguageEntity extends Entity
     protected string $name;
 
     protected bool $active;
+
+    protected bool $translationAutoUpdate = true;
 
     protected ?LocaleEntity $locale = null;
 
@@ -282,6 +287,16 @@ class LanguageEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getTranslationAutoUpdate(): bool
+    {
+        return $this->translationAutoUpdate;
+    }
+
+    public function setTranslationAutoUpdate(bool $translationAutoUpdate): void
+    {
+        $this->translationAutoUpdate = $translationAutoUpdate;
     }
 
     public function getLocale(): ?LocaleEntity

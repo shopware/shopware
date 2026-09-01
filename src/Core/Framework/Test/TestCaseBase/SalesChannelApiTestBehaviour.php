@@ -195,7 +195,7 @@ trait SalesChannelApiTestBehaviour
             'shippingMethods' => [['id' => $shippingMethod->getId()]],
             'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(null),
-            'currencies' => [['id' => Defaults::CURRENCY]],
+            'currencies' => [['id' => $salesChannelOverride['currencyId'] ?? Defaults::CURRENCY]],
             'languages' => $salesChannelOverride['languages'] ?? [['id' => Defaults::LANGUAGE_SYSTEM]],
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => [

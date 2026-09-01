@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductSearchConfigFieldDefinition extends EntityDefinition
 {

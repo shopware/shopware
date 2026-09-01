@@ -70,6 +70,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfig(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->setEnvVars([
             'APP_URL' => 'https://app.url',
         ]);
@@ -154,6 +156,8 @@ class InfoControllerTest extends TestCase
     #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testConfigHidesWebhookTransportWhenWebhookReworkIsInactive(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $content = $this->createController(['webhook', 'async', 'low_priority'])
             ->config(Context::createDefaultContext(), Request::create('http://localhost'))
             ->getContent();
@@ -166,6 +170,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigKeepsWebhookTransportWhenWebhookReworkIsActive(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $content = $this->createController(['webhook', 'async', 'low_priority'])
             ->config(Context::createDefaultContext(), Request::create('http://localhost'))
             ->getContent();
@@ -178,6 +184,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigExtension(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, static function (AdminInfoConfigEvent $event): void {
             $event->addConfig('foo', 'bar');
         });
@@ -193,6 +201,8 @@ class InfoControllerTest extends TestCase
 
     public function testMessageStatsPreservesFloatingPointPrecision(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $this->statsService->method('getStats')->willReturn(
             new MessageStatsResponseEntity(
                 true,
@@ -213,6 +223,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNull(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
 
         $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
@@ -228,6 +240,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNullAgain(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
 
         $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
@@ -243,6 +257,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsFirstMigrationDateFromMigrationInfo(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn('2020-01-01T00:00:00.123+00:00');
 
         $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));

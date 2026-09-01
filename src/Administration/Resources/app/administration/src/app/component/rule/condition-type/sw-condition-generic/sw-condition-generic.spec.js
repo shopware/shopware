@@ -90,6 +90,9 @@ async function createWrapper(condition = {}) {
                 'sw-popover-deprecated': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
+                'mt-floating-ui': {
+                    template: '<div><slot /></div>',
+                },
                 'sw-tagged-field': {
                     template: '<div class="sw-tagged-field"></div>',
                 },

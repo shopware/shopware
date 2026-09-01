@@ -171,14 +171,12 @@ export default {
             }
 
             if (!this.isChild && this.showModeSetting) {
-                tabs.push(
-                    createRouteTab('sw-product.detail.tabVariation', 'sw.product.detail.variants'),
-                    createRouteTab('sw-product.detail.tabLayout', 'sw.product.detail.layout'),
-                );
+                tabs.push(createRouteTab('sw-product.detail.tabVariation', 'sw.product.detail.variants'));
             }
 
             if (this.showModeSetting) {
                 tabs.push(
+                    createRouteTab('sw-product.detail.tabLayout', 'sw.product.detail.layout'),
                     createRouteTab('sw-product.detail.tabSeo', 'sw.product.detail.seo'),
                     createRouteTab('sw-product.detail.tabCrossSelling', 'sw.product.detail.crossSelling', {
                         hasError: this.swProductDetailCrossSellingError,
@@ -545,6 +543,11 @@ export default {
                 }
             }
 
+            Shopware.Store.get('swProductDetail').setLoading([
+                'product',
+                true,
+            ]);
+
             await this.initProductMeasurementUnits();
 
             // initialize default state
@@ -840,6 +843,7 @@ export default {
                         }
 
                         product.purchasePrices = this.getDefaultPurchasePrices();
+                        product._origin.purchasePrices = cloneDeep(product.purchasePrices);
                     }
 
                     if (product.propertyIds?.length > 0) {
@@ -935,6 +939,7 @@ export default {
                         }
 
                         parent.purchasePrices = this.getDefaultPurchasePrices();
+                        parent._origin.purchasePrices = cloneDeep(parent.purchasePrices);
                     }
 
                     if (parent.propertyIds?.length > 0) {
@@ -1568,9 +1573,15 @@ export default {
         },
 
         async getPreferredMeasurementUnits() {
-            return (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
-                'measurement.preferenceUnits'
-            ];
+            try {
+                return (await Shopware.Service('userConfigService').search(['measurement.preferenceUnits']))?.data?.[
+                    'measurement.preferenceUnits'
+                ];
+            } catch {
+                // the product must not stay in its loading state when the preferences cannot be read,
+                // initProductMeasurementUnits() falls back to the default units instead
+                return null;
+            }
         },
 
         savePreferenceUnits() {

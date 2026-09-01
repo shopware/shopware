@@ -60,7 +60,7 @@ class PaymentMethodRouteTest extends TestCase
         static::assertContains($this->ids->get('payment2'), $ids);
         static::assertContains($this->ids->get('payment3'), $ids);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->browser->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(PaymentMethodRouteHook::HOOK_NAME, $traces);
     }
 

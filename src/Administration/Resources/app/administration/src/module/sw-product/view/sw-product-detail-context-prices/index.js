@@ -45,6 +45,11 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },
@@ -206,8 +211,27 @@ export default {
             ];
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
+        emptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.advancedPrices.advancedPricesNotExisting');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.advancedPrices.advancedPricesInherited');
+            }
+
+            return this.$t('sw-product.advancedPrices.advancedPricesNotInherited');
+        },
+
+        parentPricesHref() {
+            if (!this.isChild || !this.isInherited) {
+                return undefined;
+            }
+
+            return this.$router.resolve({
+                name: 'sw.product.detail.prices',
+                params: { id: this.product.parentId },
+            }).href;
         },
     },
 

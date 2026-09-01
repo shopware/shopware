@@ -128,7 +128,7 @@ export default {
 
     methods: {
         getFieldError(fieldName) {
-            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.salesChannelId, fieldName);
+            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.currentSalesChannelId, fieldName);
         },
 
         async createdComponent() {
@@ -442,6 +442,7 @@ export default {
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;
             bind.config = { ...(element.config || {}) };
+            bind.error = this.getFieldError(element.name);
 
             // Inheritance bindings
             bind.inheritedValue = this.getInheritedValue(element);

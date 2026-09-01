@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
+                ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
                 ->append($this->createTranslationSection())
             ->end();
@@ -1706,6 +1707,31 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createAppSystemSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('app_system');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
+                ->arrayNode('allowed_private_ip_addresses')
+                    ->performNoDeepMerging()
+                    ->defaultValue([])
+                    ->scalarPrototype()
+                        ->cannotBeEmpty()
+                        ->validate()
+                            ->ifTrue(static fn (string $value): bool => filter_var($value, \FILTER_VALIDATE_IP) === false)
+                            ->thenInvalid('"%s" is not a valid IP address.')
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createTranslationSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('translation');
@@ -1717,6 +1743,9 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('repository_url')->defaultNull()->end()
                 ->scalarNode('metadata_url')->defaultNull()->end()
+                ->scalarNode('community_translations_url')->defaultNull()->end()
+                ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
+                ->integerNode('completeness_threshold')->defaultNull()->end()
                 // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
                 ->arrayNode('plugins')
                     ->defaultNull()
@@ -1724,6 +1753,11 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->cannotBeEmpty()->end()
                 ->end()
                 ->arrayNode('excluded_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('pseudo_locales')
                     ->defaultNull()
                     ->performNoDeepMerging()
                     ->scalarPrototype()->cannotBeEmpty()->end()
@@ -1746,6 +1780,13 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
                             ->scalarNode('locale')->isRequired()->cannotBeEmpty()->end()
                         ->end()
+                    ->end()
+                ->end()
+                ->booleanNode('use_local_filesystem')->defaultFalse()->end()
+                ->arrayNode('scheduled_task')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
                     ->end()
                 ->end()
             ->end();

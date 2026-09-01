@@ -73,11 +73,16 @@ trait AppSystemTestBehaviour
     }
 
     /**
+     * Pass the container of the browser that performed the request (e.g.
+     * `$browser->getContainer()`) — script traces are collected by the
+     * container that handled the request, which is not the static test
+     * container once kernel services are reset between requests.
+     *
      * @return array<string, mixed>
      */
-    protected function getScriptTraces(): array
+    protected function getScriptTraces(?ContainerInterface $container = null): array
     {
-        return static::getContainer()
+        return ($container ?? static::getContainer())
             ->get(ScriptTraces::class)
             ->getTraces();
     }

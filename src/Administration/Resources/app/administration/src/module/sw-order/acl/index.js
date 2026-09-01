@@ -86,6 +86,7 @@ Shopware.Service('privileges')
                     'order_line_item:delete',
                     'salutation:read',
                     'order_address:create',
+                    'number_range:read',
                 ],
                 dependencies: [
                     'order.viewer',

@@ -80,7 +80,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
             static fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
         );
 
-        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(CategoryDefinition::ENTITY_NAME, $context->getSalesChannel()->getTypeId());
         $seoUrls = $this->getSeoUrls($categoryIdsFetchedEvent->getIds(), $routeName, $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
@@ -99,7 +99,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$category['id']])) {
                 $newUrl->setLoc($seoUrls[$category['id']]['seo_path_info']);
             } else {
-                $newUrl->setLoc($this->entityRouteResolver->generateUrl(CategoryDefinition::ENTITY_NAME, $category['id']));
+                $newUrl->setLoc($this->entityRouteResolver->generateUrl(CategoryDefinition::ENTITY_NAME, $category['id'], $context->getSalesChannel()->getTypeId()));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

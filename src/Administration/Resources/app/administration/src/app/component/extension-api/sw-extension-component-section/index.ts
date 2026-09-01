@@ -54,7 +54,9 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         componentSections(): ComponentSectionEntry[] {
-            const sections = Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [];
+            const sections = this.sortSections(
+                Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [],
+            );
             if (sections.length && this.deprecated) {
                 sections.forEach((section) => {
                     const debugArgs = [
@@ -98,6 +100,33 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        /**
+         * Sorts the sections for this position identifier:
+         * 1. Sections registered by services (`sourceType === 'service'`) always render above app sections.
+         * 2. Within each group, ascending `priority` (1 = topmost). Entries without a valid `priority`
+         *    render below those that set one (unset sorts last).
+         * 3. Ties (equal `priority`, or both unset) keep their original registration order. The sort is
+         *    stable, so returning `0` preserves the array index — no extension is favoured by name.
+         */
+        sortSections(sections: ComponentSectionEntry[]): ComponentSectionEntry[] {
+            const extensionsState = Shopware.Store.get('extensions').extensionsState;
+
+            const isService = (entry: ComponentSectionEntry): boolean =>
+                extensionsState[entry.extensionName]?.sourceType === 'service';
+
+            // Unset priorities sort last so explicitly prioritized entries always win their group.
+            const priorityOf = (entry: ComponentSectionEntry): number => entry.priority ?? Number.MAX_SAFE_INTEGER;
+
+            return [...sections].sort((a, b) => {
+                const serviceDiff = Number(isService(b)) - Number(isService(a));
+                if (serviceDiff !== 0) {
+                    return serviceDiff;
+                }
+
+                return priorityOf(a) - priorityOf(b);
+            });
+        },
+
         setActiveTab(name: string) {
             this.activeTabName = name;
         },

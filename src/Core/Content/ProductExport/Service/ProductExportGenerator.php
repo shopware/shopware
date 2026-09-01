@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -14,6 +16,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -63,7 +66,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         Environment $twig,
         private readonly ProductDefinition $productDefinition,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        TwigVariableParserFactory $parserFactory
+        TwigVariableParserFactory $parserFactory,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
         $this->twigVariableParser = $parserFactory->getParser($twig);
     }
@@ -106,10 +110,16 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $criteria = new Criteria();
 
         $productStreamBuilder = $this->productStreamBuilder;
-        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
-            $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
-        } else {
-            $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
+
+        try {
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                $productStreamBuilder->enrichCriteria($criteria, $productExport->getProductStreamId(), $context->getContext());
+            } else {
+                $criteria->addFilter(...$productStreamBuilder->buildFilters($productExport->getProductStreamId(), $context->getContext()));
+            }
+        } catch (EmptyProductStreamException) {
+            // No filters left on a valid stream → export all products (criteria stays unfiltered).
+            // A broken stream throws NoFilterException instead, which we intentionally let propagate.
         }
 
         $associations = $this->getAssociations($productExport, $context);
@@ -137,6 +147,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $criteria->getAssociation('categories')
                 ->addFilter(new EqualsFilter('active', true));
         }
+
+        // Preload so getProductSeoCategory() resolves the main category in-memory.
+        $criteria->addAssociation('mainCategories.category');
 
         $this->eventDispatcher->dispatch(
             new ProductExportProductCriteriaEvent($criteria, $productExport, $exportBehavior, $context)
@@ -202,6 +215,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 if (!$productExport->isIncludeVariants() && $product->getParentId()) {
                     continue; // Skip variants unless they are included
                 }
+
+                $this->populateSeoCategory($product, $context);
 
                 $data = $productContext->getContext();
                 $data['product'] = $product;
@@ -280,6 +295,23 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 'The JSONL row for product export "' . $productExport->getId() . '" could not be normalized: ' . $exception->getMessage()
             );
         }
+    }
+
+    private function populateSeoCategory(SalesChannelProductEntity $product, SalesChannelContext $context): void
+    {
+        if ($product->getSeoCategory() !== null) {
+            return;
+        }
+
+        // Only resolve when a main category is configured for this sales channel.
+        $mainCategories = $product->getMainCategories();
+        if ($mainCategories === null || $mainCategories->filterBySalesChannelId($context->getSalesChannelId())->count() === 0) {
+            return;
+        }
+
+        $product->setSeoCategory(
+            $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
+        );
     }
 
     /**

@@ -16,6 +16,21 @@ abstract class AbstractTranslationLoader
 
     abstract public function load(string $locale, Context $context, bool $activate = true): void;
 
+    public function download(string $locale): void
+    {
+        $this->getDecorated()->download($locale);
+    }
+
+    public function link(string $locale, Context $context, bool $activate = true): void
+    {
+        $this->getDecorated()->link($locale, $context, $activate);
+    }
+
+    public function hasTranslationFiles(string $locale): bool
+    {
+        return $this->getDecorated()->hasTranslationFiles($locale);
+    }
+
     /**
      * @deprecated tag:v6.8.0 - reason:becomes-unused - Override `pluginTranslationExistsForLocale()` instead for
      * locale-aware behaviour. This method will be removed.

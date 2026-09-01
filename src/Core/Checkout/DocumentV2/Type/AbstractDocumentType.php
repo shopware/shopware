@@ -20,4 +20,9 @@ abstract readonly class AbstractDocumentType
      * @return list<string>
      */
     abstract public function getSupportedFormats(): array;
+
+    public function allowsNegativeLineItems(): bool
+    {
+        return false;
+    }
 }

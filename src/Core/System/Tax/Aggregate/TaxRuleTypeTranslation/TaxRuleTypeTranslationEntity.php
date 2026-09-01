@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class TaxRuleTypeTranslationEntity extends TranslationEntity
 {

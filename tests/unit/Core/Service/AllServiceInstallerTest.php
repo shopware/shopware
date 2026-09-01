@@ -62,6 +62,7 @@ class AllServiceInstallerTest extends TestCase
 
         // A fresh shop only installs; reconcile must not enqueue update messages when nothing is installed yet.
         $this->messageBus->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         static::assertSame(['Service1', 'Service2'], $installer->reconcile(Context::createDefaultContext()));
     }
@@ -83,6 +84,8 @@ class AllServiceInstallerTest extends TestCase
             ->with(static::isInstanceOf(UpdateServiceMessage::class))
             ->willReturn(new Envelope(new \stdClass()));
 
+        $this->logger->expects($this->once())->method('debug');
+
         static::assertSame([], $installer->reconcile(Context::createDefaultContext()));
     }
 
@@ -96,9 +99,13 @@ class AllServiceInstallerTest extends TestCase
             $this->entry('Service3'),
         ]);
 
-        $this->serviceLifecycle->method('install')->willReturnCallback(
+        $this->serviceLifecycle->expects($this->exactly(3))->method('install')->willReturnCallback(
             static fn (ServiceEntry $entry): bool => $entry->name !== 'Service2'
         );
+
+        $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $this->messageBus->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         static::assertSame(['Service1', 'Service3'], $installer->reconcile(Context::createDefaultContext()));
     }
@@ -110,7 +117,7 @@ class AllServiceInstallerTest extends TestCase
         $this->registryClient->method('getAll')->willReturn([$this->entry('BrokenService'), $this->entry('ValidService')]);
 
         $exception = AppXmlParsingException::cannotParseContent('Invalid manifest');
-        $this->serviceLifecycle->method('install')->willReturnCallback(
+        $this->serviceLifecycle->expects($this->exactly(2))->method('install')->willReturnCallback(
             static fn (ServiceEntry $entry): bool => match ($entry->name) {
                 'BrokenService' => throw $exception,
                 default => true,
@@ -123,6 +130,7 @@ class AllServiceInstallerTest extends TestCase
 
         // the throw from BrokenService must not prevent ValidService from being installed
         $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $this->messageBus->expects($this->never())->method('dispatch');
 
         static::assertSame(['ValidService'], $installer->reconcile(Context::createDefaultContext()));
     }
@@ -135,6 +143,8 @@ class AllServiceInstallerTest extends TestCase
 
         $this->serviceLifecycle->expects($this->never())->method('install');
         $this->messageBus->expects($this->never())->method('dispatch');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         static::assertSame([], $installer->reconcile(Context::createDefaultContext()));
     }
@@ -149,6 +159,8 @@ class AllServiceInstallerTest extends TestCase
         $this->registryClient->method('getAll')->willReturn([$this->entry('Service1')]);
 
         $this->serviceLifecycle->expects($this->never())->method('install');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->once())->method('debug');
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
@@ -173,6 +185,7 @@ class AllServiceInstallerTest extends TestCase
             });
 
         $this->eventDispatcher->expects($this->once())->method('dispatch');
+        $this->logger->expects($this->once())->method('debug');
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
@@ -185,6 +198,10 @@ class AllServiceInstallerTest extends TestCase
     public function testScheduleInstallDispatchesMessage(): void
     {
         $installer = $this->installer($this->buildAppRepository());
+
+        $this->serviceLifecycle->expects($this->never())->method('install');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+        $this->logger->expects($this->never())->method('warning');
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')

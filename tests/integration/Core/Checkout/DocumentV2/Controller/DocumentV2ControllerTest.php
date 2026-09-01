@@ -4,6 +4,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator as LegacyDocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -20,6 +24,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -73,7 +78,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertIsArray($payload['documentTypes'] ?? null);
         static::assertArrayHasKey(DocumentType::INVOICE->value, $payload['documentTypes']);
         static::assertArrayHasKey(DocumentType::DELIVERY_NOTE->value, $payload['documentTypes']);
-        static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value] ?? null);
+        static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value]);
         static::assertIsArray($payload['documentTypes'][DocumentType::INVOICE->value]['formats'] ?? null);
         static::assertEqualsCanonicalizing(
             [
@@ -284,6 +289,79 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame(DocumentFormat::PDF->mimeType(), $response->headers->get('content-type'));
         static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
         static::assertStringContainsString('uploaded-invoice.pdf', (string) $response->headers->get('content-disposition'));
+    }
+
+    public function testDownloadFallsBackToLegacyDocumentFile(): void
+    {
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+        $orderId = $this->createDraftOrder();
+        $documentNumber = 'legacy-' . Uuid::randomHex();
+        $config = $this->getDemoInvoiceLegacyConfig();
+        $config['documentNumber'] = $documentNumber;
+
+        $document = static::getContainer()->get(LegacyDocumentGenerator::class)->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => new DocumentGenerateOperation($orderId, PdfRenderer::FILE_EXTENSION, $config)],
+            $this->context,
+        )->getSuccess()->first();
+
+        static::assertNotNull($document);
+
+        $this->getBrowser()->request(
+            'GET',
+            \sprintf(
+                '/api/_action/order/document-v2/%s/download/%s',
+                $document->getId(),
+                DocumentFormat::PDF->value,
+            ),
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $response->headers->get('content-type'));
+        static::assertStringStartsWith('attachment;', (string) $response->headers->get('content-disposition'));
+        static::assertStringContainsString($documentNumber . '.pdf', (string) $response->headers->get('content-disposition'));
+    }
+
+    public function testDownloadArchiveFallsBackToLegacyDocumentFile(): void
+    {
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+        $orderId = $this->createDraftOrder();
+        $documentNumber = 'legacy-archive-' . Uuid::randomHex();
+        $config = $this->getDemoInvoiceLegacyConfig();
+        $config['documentNumber'] = $documentNumber;
+
+        $document = static::getContainer()->get(LegacyDocumentGenerator::class)->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => new DocumentGenerateOperation($orderId, PdfRenderer::FILE_EXTENSION, $config)],
+            $this->context,
+        )->getSuccess()->first();
+
+        static::assertNotNull($document);
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/order/document-v2/download-archive',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['documentIds' => [$document->getId()]], \JSON_THROW_ON_ERROR),
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('application/zip', $response->headers->get('content-type'));
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'document-v2-test-');
+        static::assertIsString($tempFile);
+        (new Filesystem())->dumpFile($tempFile, (string) $response->getContent());
+
+        $zip = new \ZipArchive();
+        static::assertTrue($zip->open($tempFile));
+        static::assertSame('invoice_' . $documentNumber . '.pdf', $zip->getNameIndex(0));
+        $zip->close();
+
+        (new Filesystem())->remove($tempFile);
     }
 
     private function createDraftOrder(): string

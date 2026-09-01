@@ -207,6 +207,7 @@ class AssetServiceTest extends TestCase
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->willThrowException(new \InvalidArgumentException('foo'));
 
@@ -238,6 +239,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('ExampleBundle')
             ->willThrowException(new \InvalidArgumentException());
@@ -365,6 +367,7 @@ class AssetServiceTest extends TestCase
         ksort($manifest);
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -450,6 +453,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());

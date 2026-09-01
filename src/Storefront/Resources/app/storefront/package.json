@@ -117,6 +117,7 @@
     "qs": "6.15.2",
     "express": "4.22.2",
     "minimatch": "10.2.5",
+    "nanoid": "3.3.18",
     "brace-expansion": "5.0.9",
     "serialize-javascript": "7.0.5",
     "test-exclude": "8.0.0",

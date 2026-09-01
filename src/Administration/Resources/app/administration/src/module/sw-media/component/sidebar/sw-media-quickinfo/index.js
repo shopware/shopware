@@ -167,6 +167,12 @@ export default {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-media-quickinfo__item',
+                path: 'item',
+                scope: this,
+            });
+
             this.loadCustomFieldSets();
             this.fetchSpatialItemConfig();
         },

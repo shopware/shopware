@@ -558,9 +558,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             return [];
         }
 
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
+
         foreach ($configuration->getAssetPaths() as $asset) {
-            if (mb_strpos((string) $asset, '@') === 0) {
-                $name = mb_substr((string) $asset, 1);
+            if (str_starts_with($asset, '@')) {
+                $name = mb_substr($asset, 1);
                 $config = $configurationCollection->getByTechnicalName($name);
                 if (!$config) {
                     throw ThemeException::couldNotFindThemeByName($name);
@@ -571,7 +573,6 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
             if ($asset[0] !== '/' && $fs->has('Resources', $asset)) {
                 $asset = $fs->path('Resources', $asset);
             }
@@ -681,7 +682,15 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @param array{fields?: array{value: string|array<mixed>|null, scss?: bool, type: string}[]} $config
+     * @param array{
+     *     fields?: array<string, array{
+     *         value?: array<mixed>|bool|float|int|string|null,
+     *         scss?: bool|null,
+     *         type?: string|null,
+     *         ...<string, mixed>
+     *     }>,
+     *     ...<string, mixed>
+     * } $config
      *
      * @throws FilesystemException
      */

@@ -3,6 +3,7 @@
  */
 
 import './index';
+import { searchRankingPoint } from '../../app/service/search-ranking.service';
 
 jest.mock('./acl', () => jest.fn());
 
@@ -40,11 +41,43 @@ describe('src/module/sw-settings-rule/index.js', () => {
             name: 'settings-rule',
             title: 'sw-settings-rule.general.mainMenuItemGeneral',
             description: 'sw-settings-rule.general.descriptionTextModule',
-            color: '#9AA8B5',
-            icon: 'regular-cog',
-            favicon: 'icon-module-settings.png',
+            color: 'var(--color-red-300)',
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
+                description: {
+                    _searchable: true,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
+            icon: 'regular-rule',
+            favicon: 'icon-module-settings.svg',
             entity: 'rule',
             routes: expect.any(Object),
+            navigation: [
+                {
+                    id: 'sw-settings-rule',
+                    label: 'sw-settings-rule.general.mainMenuItemGeneral',
+                    path: 'sw.settings.rule.index',
+                    icon: 'regular-rule',
+                    color: 'var(--color-red-300)',
+                    parent: 'sw-automation',
+                    privilege: 'rule.viewer',
+                    moduleType: 'core',
+                    position: 10,
+                },
+                {
+                    id: 'sw-automation',
+                    label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
+                    icon: 'regular-rule',
+                    color: 'var(--color-red-300)',
+                    moduleType: 'core',
+                    position: 70,
+                },
+            ],
             settingsItem: [
                 {
                     id: 'sw-settings-rule',

@@ -32,8 +32,10 @@ import MtPasswordField from '@shopware-ag/meteor-component-library/dist/esm/MtPa
 import MtSelect from '@shopware-ag/meteor-component-library/dist/esm/MtSelect';
 import MtSlider from '@shopware-ag/meteor-component-library/dist/esm/MtSlider';
 import MtSwitch from '@shopware-ag/meteor-component-library/dist/esm/MtSwitch';
+import MtText from '@shopware-ag/meteor-component-library/dist/esm/MtText';
 import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextField';
 import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
+import MtThemeSelect from '@shopware-ag/meteor-component-library/dist/esm/MtThemeSelect';
 import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
 import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
 import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
@@ -55,7 +57,13 @@ import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromo
 import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
 import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
 import MtActionMenuGroup from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuGroup';
-import { MtDropdownMenuRoot, MtDropdownMenuTrigger, MtDropdownMenuPortal } from '@shopware-ag/meteor-component-library';
+import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
+import {
+    MtDropdownMenuRoot,
+    MtDropdownMenuTrigger,
+    MtDropdownMenuPortal,
+    MtDropdownMenuSub,
+} from '@shopware-ag/meteor-component-library';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -452,8 +460,10 @@ export default class VueAdapter extends ViewAdapter {
             MtSelect,
             MtSlider,
             MtSwitch,
+            MtText,
             MtTextField,
             MtTextarea,
+            MtThemeSelect,
             MtIcon,
             MtPagination,
             MtSkeletonBar,
@@ -478,6 +488,8 @@ export default class VueAdapter extends ViewAdapter {
             MtDropdownMenuRoot,
             MtDropdownMenuTrigger,
             MtDropdownMenuPortal,
+            MtDropdownMenuSub,
+            MtTooltip,
         } as const;
 
         const lazyMeteorComponents = {

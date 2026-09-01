@@ -14,7 +14,7 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(CachedDomainLoader::class)]
 class CachedDomainLoaderTest extends TestCase
 {
@@ -74,6 +74,9 @@ class CachedDomainLoaderTest extends TestCase
         return new class extends ArrayAdapter {
             public int $getCalls = 0;
 
+            /**
+             * @phpstan-ignore missingType.iterableValue (array type needs to be defined on external dependency)
+             */
             public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed
             {
                 ++$this->getCalls;

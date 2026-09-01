@@ -796,29 +796,37 @@ class SendMailActionTest extends TestCase
 
         $sequencesConfig = $this->createFlowSequencesConfig($mailTemplateId, $documentTypes);
 
+        $transportDecorator = new MailerTransportDecorator(
+            $this->createMock(TransportInterface::class),
+            static::getContainer()->get(MailAttachmentsBuilder::class),
+            static::getContainer()->get('shopware.filesystem.public'),
+            $this->documentRepository
+        );
+
+        $logger = static::getContainer()->get('logger');
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+        $mailTemplateTypeRepository = static::getContainer()->get('mail_template_type.repository');
+        $translator = static::getContainer()->get(Translator::class);
+        $languageLocaleCodeProvider = static::getContainer()->get(LanguageLocaleCodeProvider::class);
+        $jsonEntityEncoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $definitionInstanceRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
+
         foreach ($sequencesConfig as $config) {
             $flow->setConfig($config);
-
-            $transportDecorator = new MailerTransportDecorator(
-                $this->createMock(TransportInterface::class),
-                static::getContainer()->get(MailAttachmentsBuilder::class),
-                static::getContainer()->get('shopware.filesystem.public'),
-                $this->documentRepository
-            );
 
             $mailService = new TestEmailService(static::getContainer()->get(MailFactory::class), $transportDecorator);
 
             $sendMailAction = new SendMailAction(
                 $mailService,
                 $this->mailTemplateRepository,
-                static::getContainer()->get('logger'),
-                static::getContainer()->get('event_dispatcher'),
-                static::getContainer()->get('mail_template_type.repository'),
-                static::getContainer()->get(Translator::class),
+                $logger,
+                $eventDispatcher,
+                $mailTemplateTypeRepository,
+                $translator,
                 $this->connection,
-                static::getContainer()->get(LanguageLocaleCodeProvider::class),
-                static::getContainer()->get(JsonEntityEncoder::class),
-                static::getContainer()->get(DefinitionInstanceRegistry::class),
+                $languageLocaleCodeProvider,
+                $jsonEntityEncoder,
+                $definitionInstanceRegistry,
                 true
             );
 

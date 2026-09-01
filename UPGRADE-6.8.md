@@ -4,6 +4,36 @@
 
 <details>
 
+## State machine actions enforce a single destination per source state
+
+A state machine action now maps to exactly one destination state per source state:
+
+- A migration removed existing duplicates, keeping the oldest transition per state machine, source state, and action name, and replaced the unique key on `state_machine_transition` over `(action_name, state_machine_id, from_state_id, to_state_id)` with `uniq.state_machine_transition.action_name_from_state` over `(action_name, state_machine_id, from_state_id)`.
+- Writing a `state_machine_transition` that has the same state machine, source state, and action name as an existing transition, but a different destination state, now fails against that unique key instead of silently making the action's destination undefined.
+
+If your extension registered a transition that reuses an existing action name (for example `authorize`) from the same source state with its own destination state, register it under its own action name instead. Find affected installations with:
+
+```sql
+SELECT sm.technical_name, f.technical_name AS from_state, t.action_name, COUNT(*) AS destinations
+FROM state_machine_transition t
+JOIN state_machine sm ON sm.id = t.state_machine_id
+JOIN state_machine_state f ON f.id = t.from_state_id
+GROUP BY t.state_machine_id, t.from_state_id, t.action_name
+HAVING COUNT(*) > 1;
+```
+
+## Composition API extension system is no longer a public entry point
+
+The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
+
+The same applies to the override-component mounting hooks `Shopware.Component.registerOverrideComponent()` and `Shopware.Component.getOverrideComponents()`, which exist so a generated override component can be rendered once, hidden, at boot — that is what causes its setup body to run and register its override callback.
+
+Nothing is removed from the `Shopware.Component` global — generated component code resolves these at runtime — but they are no longer intended to be called directly, and their signatures may change without a deprecation.
+
+Write native setup SFCs instead. The build-time transform emits these calls for you: a base component (`sw-thing.vue`) keeps its `<script setup>` body and gains a generated `attachOverrides(...)` footer, and an override (`sw-thing.override.vue`) registers its callback through `overrideComponentSetup()`. Extension points are declared with `swDefinePublic({ ... })` in the base and consumed with `swDefineOverride({ ... })` in the override.
+
+See `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md` for the authoring rules.
+
 ## Locale-aware sorting for product property group options
 
 To ensure product property group options are sorted more precisely based on locale code:
@@ -71,6 +101,15 @@ The calculated taxes of the original line item are now distributed proportionall
 This can change cent-level rounding compared to previous versions.
 
 If an extension relies on recalculated taxes for percentage prices or split line items, review the resulting taxes for mixed tax rates, net and gross prices, promotions, and partial quantities.
+
+## Edit order page selects the payment method of the order
+
+`frontend.account.edit-order.change-payment-method` no longer switches the payment method of the sales channel context.
+It passes the selected method to the edit order page as the `paymentMethodId` query parameter, and the page selects the payment method of the order when that parameter is absent.
+
+Storefront templates of the edit order page that render `context.paymentMethod` have to use `page.selectedPaymentMethodId` instead, which is the payment method of the order or the one the customer selected on the page.
+
+Extensions that reacted to the context switch can listen to `Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent`, which is dispatched when the customer confirms the change and the payment method of the order really changes.
 
 ## Payment: Removal of Payment Method "Debit Payment"
 
@@ -163,6 +202,12 @@ The Agentic Commerce sales channel features — including product export provide
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
 
+## Nullable order reference on `DocumentEntity`
+
+The order reference on `Shopware\Core\Checkout\Document\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
+
+`DocumentEntity::setOrderId()` and `setOrderVersionId()` accepted `?string`. Extensions overriding these setters had to widen their parameter types accordingly.
+
 ## Removed document template variables
 
 The following variables in `src/Core/Framework/Resources/views/documents/includes/position_header.html.twig` have been deprecated and were removed without replacement:
@@ -236,19 +281,15 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 
 The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
 
-## Newsletter route methods removed and response changed
+## Newsletter route methods removed
 
-The following methods have been removed:
+`AbstractNewsletterSubscribeRoute::subscribe()`, `AbstractNewsletterConfirmRoute::confirm()` and
+`AbstractNewsletterUnsubscribeRoute::unsubscribe()` have been removed. Their replacements
+`subscribeWithResponse()`, `confirmWithResponse()` and `unsubscribeWithResponse()` are now abstract
+and have to be implemented by every class that extends one of those routes.
 
-- `AbstractNewsletterSubscribeRoute::subscribe()`
-- `AbstractNewsletterConfirmRoute::confirm()`
-- `AbstractNewsletterUnsubscribeRoute::unsubscribe()`
-
-The following methods are now abstract and must be implemented by extensions. Their return types have been narrowed from `StoreApiResponse` to their explicit types:
-
-- `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
-- `confirmWithResponse()` returns `SuccessResponse`
-- `unsubscribeWithResponse()` returns `SuccessResponse`
+The return type is `StoreApiResponse`, so an implementation written against 6.7 needs no change. A
+leftover implementation of the removed method is harmless.
 
 ## Removed `/api/_action/mail-template/validate` route
 
@@ -326,6 +367,22 @@ return static function (RoutingConfigurator $routes): void {
 ```
 
 XML package configuration below `Resources/config/packages/` can be migrated to YAML or PHP. YAML configuration (`services.yaml`, `routes.yaml`, package YAML files) remains supported.
+
+## `ThumbnailService::updateThumbnails()` received a new optional `$force` parameter
+
+`Shopware\Core\Content\Media\Thumbnail\ThumbnailService::updateThumbnails()` received a new optional parameter `bool $force = false` that regenerates thumbnails for all configured sizes even when a thumbnail already exists. Call sites are not affected. Classes overriding this method had to add the parameter to keep a compatible signature:
+
+Before:
+
+```php
+public function updateThumbnails(MediaEntity $media, Context $context, bool $strict): int
+```
+
+After:
+
+```php
+public function updateThumbnails(MediaEntity $media, Context $context, bool $strict, bool $force = false): int
+```
 
 ## Landing page slot config must not be null
 
@@ -474,6 +531,20 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
+
+## Removal of `PromotionCartInformationTrait` helper methods
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` and `addPromotionNotEligibleError()` are removed, replace any calls in classes that use this trait with `$cart->addErrors()`:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError($code));
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
+```
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -761,11 +832,11 @@ This also means that the following exceptions are not thrown anymore and were re
 * `ThemeException::themeMediaStillInUse`
 * `SalesChannelException::salesChannelDomainInUse`
 
-## Removal of `CartBehavior::isRecalculation`
+## Removal of `CartBehavior` recalculation API
 
-`CartBehavior::isRecalculation` was removed.
-Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
-Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+The `$isRecalculation` constructor parameter and `CartBehavior::isRecalculation()` were removed.
+Use the applicable granular permission from `Shopware\Core\Checkout\CheckoutPermissions` when constructing `CartBehavior` instead.
+Create new `CartBehavior` instances with the permissions from the `SalesChannelContext`.
 
 ## Removal of `NavigationRoute::buildName()`
 
@@ -888,7 +959,7 @@ From now on, price definitions must explicitly implement the
 
 ## Symfony validator is not used to validate the honeypot captcha
 
-The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `isValid` method of the honeypot captcha directly.
+The Symfony validator is not used to check the validity of the honeypot captcha, so if it was used to change the validity of the honeypot captcha, overwrite the `validate` method of the honeypot captcha directly (`isValid` is removed in 6.8, see "Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`" in the Storefront section).
 
 ## `CmsPageLoadedEvent::$result` now requires `CmsPageCollection` type
 
@@ -1139,7 +1210,31 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 `\Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument have been removed. The product export paginates by an `autoIncrement` keyset cursor and no longer computes a grand total per run. Use `hasNextBatch()` to decide whether another batch follows and `getOffset()` for the resume position.
 
+## `AbstractIncrementStorage::increaseToAtLeast()` is now abstract
+
+If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage.php`, implement `increaseToAtLeast(string $configurationId, int $value): void`.
+
+The method must raise the stored increment state to at least the given value without lowering an existing higher state.
+
+
 # Administration
+
+## Deprecated password verification members in `sw-users-permissions-user-listing`
+
+The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
+
+## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
+
+The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
+## Removed `integrationService.updateAdmin()`
+
+`Shopware.Service('integrationService').updateAdmin()` was removed. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
 
 <details>
 
@@ -1344,10 +1439,11 @@ This change addresses the security vulnerability CVE-2023-45857 present in older
 **Shopware 6.7.x:**
 - Default: axios 0.30.2
 - Opt-in to v1: `useAxiosV1: true`
+- Repository requests use axios 1.x internally so the standard data-access path is migrated before the global switch. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
 
 **Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
-- Default: axios 1.x
-- Opt-out to v0: `useAxiosV1: false`
+- Direct HTTP request default: axios 1.x
+- Direct HTTP request opt-out to v0: `useAxiosV1: false`
 
 ### Key differences between axios 0.30.2 and axios 1.x
 
@@ -1385,27 +1481,19 @@ if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
 }
 ```
 
-**Version-Specific Interceptors and Defaults:**
+**Interceptors and Defaults:**
 
-During the transition period, the HTTP client provides direct access to both axios versions' interceptors and defaults:
+The Administration HTTP client is a Shopware-owned compatibility facade. Interceptors and defaults registered through its existing public API are mirrored to both internal axios clients:
 
 ```javascript
-// Access interceptors for specific version
-httpClient.interceptorsV0 // Always axios 0.30.2 interceptors
-httpClient.interceptorsV1 // Always axios 1.x interceptors
-httpClient.interceptors   // Current default version (v1 in 6.8+)
+const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
+httpClient.defaults.headers.common['my-header'] = 'value';
 
-// Access defaults for specific version
-httpClient.defaultsV0 // Always axios 0.30.2 defaults
-httpClient.defaultsV1 // Always axios 1.x defaults
-httpClient.defaults   // Current default version (v1 in 6.8+)
-
-// Example: Add interceptor to both versions during transition
-httpClient.interceptorsV0.request.use(myRequestHandler);
-httpClient.interceptorsV1.request.use(myRequestHandler);
+// Removes the interceptor from both internal clients
+httpClient.interceptors.request.eject(interceptorId);
 ```
 
-This allows plugins to configure both axios versions simultaneously during the migration period.
+Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
 
 ### Migration guide
 
@@ -1416,7 +1504,7 @@ However, if you use request cancellation or depend on specific axios behavior:
 2. **Test your plugin** with axios v1 before the 6.8 release
 3. **Review error handling** for version-specific error codes
 
-**If you need axios 0.30.2 temporarily:**
+**If a direct HTTP request needs axios 0.30.2 temporarily:**
 ```javascript
 // Explicitly opt-out to use axios 0.30.2
 httpClient.request({
@@ -1433,6 +1521,7 @@ The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
 Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
+The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
 
 ## Removal of "sw-empty-state"
 
@@ -2050,11 +2139,25 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Footer collapse headlines and columns now use semantic elements
+
+In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.
+
+- Collapse section headlines: `<div role="heading">` became `<h2>`.
+- Footer columns wrapper: `<div role="list">` became `<ul>` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
+- Footer column: `<div role="listitem">` became `<li>`.
+
 ## Removed `AbstractDomainLoader::load()` in favor of `loadDomains()`
 
 `Shopware\Storefront\Framework\Routing\AbstractDomainLoader::load()` (and the `DomainLoader` / `CachedDomainLoader` implementations) have been removed. Use `loadDomains()` instead, which returns a `Shopware\Storefront\Framework\Routing\Struct\DomainCollection` of `Shopware\Storefront\Framework\Routing\Struct\DomainStruct` objects, keyed by domain URL, instead of `array<string, array<string, string>>`.
 
 `loadDomains()` is now abstract. If you decorate `AbstractDomainLoader`, implement `loadDomains()` and return a `DomainCollection`. If you consume the result, look up entries via the collection (e.g. `$domains->get($url)`) and access the values as objects (e.g. `$domain->url`) instead of array keys (`$domains[$url]['url']`).
+
+## Removed `AbstractCaptcha::isValid()` and `AbstractCaptcha::getViolations()` in favor of `validate()`
+
+`Shopware\Storefront\Framework\Captcha\AbstractCaptcha::isValid()` and `getViolations()` have been removed. Implement the now abstract `validate(Request $request, array $captchaConfig): ConstraintViolationList` instead — an empty list means valid, a non-empty one is rendered as a form error. If your `isValid()` returned `false` without violations, return a violation whose code maps to an `error.*` snippet.
+
+Throughout 6.7 the default `validate()` delegates to the deprecated pair, so a captcha extending `AbstractCaptcha` keeps working. A captcha extending a shipped captcha does not: those implement `validate()` themselves, so an override of only `isValid()`/`getViolations()` is silently ignored — migrate it now. Implement at least one of `validate()`/`isValid()`; the two defaults delegate to each other, so implementing neither recurses.
 
 ## Removal of inline microdata in favour of JSON-LD structured data
 

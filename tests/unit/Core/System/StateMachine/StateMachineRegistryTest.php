@@ -4,11 +4,16 @@ namespace Shopware\Tests\Unit\Core\System\StateMachine;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -17,8 +22,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,6 +44,7 @@ use Shopware\Core\System\StateMachine\StateMachineLocker;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\StateMachineTransitionResult;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -73,6 +82,7 @@ class StateMachineRegistryTest extends TestCase
                     'transitionActionName' => 'paid',
                     'userId' => 'user-id',
                     'integrationId' => 'integration-id',
+                    'sourceType' => 'admin-api',
                     'referencedId' => $transition->getEntityId(),
                     'referencedVersionId' => $context->getVersionId(),
                     'internalComment' => 'internal comment',
@@ -91,6 +101,87 @@ class StateMachineRegistryTest extends TestCase
         static::assertCount(3, $dispatcher->events);
     }
 
+    #[DataProvider('transitionSourceProvider')]
+    public function testTransitionRecordsWhereTheStateChangeCameFrom(
+        Context $context,
+        ?string $expectedUserId,
+        ?string $expectedIntegrationId,
+        ?string $expectedSourceType
+    ): void {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $toPlace),
+        ]);
+        $fixture = $this->createRegistryFixture(
+            $stateMachine,
+            $fromPlace,
+            new CollectingEventDispatcher(),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class)
+        );
+
+        $fixture->historyRepository->expects($this->once())
+            ->method('create')
+            ->with(
+                [[
+                    'stateMachineId' => $toPlace->getStateMachineId(),
+                    'entityName' => 'order_transaction',
+                    'fromStateId' => $fromPlace->getId(),
+                    'toStateId' => $toPlace->getId(),
+                    'transitionActionName' => 'paid',
+                    'userId' => $expectedUserId,
+                    'integrationId' => $expectedIntegrationId,
+                    'sourceType' => $expectedSourceType,
+                    'referencedId' => $transition->getEntityId(),
+                    'referencedVersionId' => $context->getVersionId(),
+                    'internalComment' => null,
+                ]],
+                $context
+            );
+
+        $fixture->registry->transition($transition, $context);
+    }
+
+    public static function transitionSourceProvider(): \Generator
+    {
+        yield 'store-api request has no admin actor and is recorded as sales channel source' => [
+            new Context(new SalesChannelApiSource('sales-channel-id')),
+            null,
+            null,
+            'sales-channel',
+        ];
+
+        yield 'internal transition without a request is recorded as system source' => [
+            new Context(new SystemSource()),
+            null,
+            null,
+            'system',
+        ];
+
+        yield 'admin user acting in a sales channel context stays the admin actor' => [
+            new Context(new AdminSalesChannelApiSource('sales-channel-id', new Context(new AdminApiSource('user-id')))),
+            'user-id',
+            null,
+            'admin-api',
+        ];
+
+        yield 'custom context source contributes its own type' => [
+            new Context(new StateMachineRegistryTestContextSource()),
+            null,
+            null,
+            'custom-source',
+        ];
+
+        yield 'context source without a public type is recorded without source' => [
+            new Context(new StateMachineRegistryTestTypelessContextSource()),
+            null,
+            null,
+            null,
+        ];
+    }
+
     public function testTransitionDoesNotUpdateStateWhenHistoryWriteFails(): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
@@ -107,7 +198,8 @@ class StateMachineRegistryTest extends TestCase
 
         // The history entry is written first inside the transaction; if it fails, the state must not be
         // updated, so no entity-written events are dispatched for a state change that never commits.
-        $fixture->historyRepository->method('create')
+        $fixture->historyRepository->expects($this->once())
+            ->method('create')
             ->willThrowException(new \RuntimeException('history write failed'));
 
         $fixture->entityRepository->expects($this->never())
@@ -190,6 +282,96 @@ class StateMachineRegistryTest extends TestCase
         $this->expectExceptionObject(new IllegalTransitionException($fromPlace->getId(), '', ['paid']));
 
         $fixture->registry->transition($transition, $context);
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the ambiguity handling in StateMachineRegistry
+    public function testTransitionThrowsWhenActionResolvesToMultipleDestinations(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'authorize', 'stateId');
+        $context = Context::createDefaultContext();
+        $fromPlace = $this->createState('open');
+        $coreDestination = $this->createState('authorized');
+        $pluginDestination = $this->createState('custom_authorize');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('authorize', $fromPlace, $coreDestination),
+            $this->createStateTransition('authorize', $fromPlace, $pluginDestination),
+        ]);
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher(), $entityRepository, $historyRepository);
+
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: The action "authorize" of state machine "order_transaction.state" resolves to multiple destination states ("authorized", "custom_authorize") from the same source state. A state machine action must have exactly one destination state per source state.'
+        ));
+
+        $fixture->registry->transition($transition, $context);
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the ambiguity handling in StateMachineRegistry
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testTransitionResolvesFirstDestinationWhenActionIsAmbiguous(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'authorize', 'stateId');
+        $context = Context::createDefaultContext();
+        $fromPlace = $this->createState('open');
+        $coreDestination = $this->createState('authorized');
+        $pluginDestination = $this->createState('custom_authorize');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('authorize', $fromPlace, $coreDestination),
+            $this->createStateTransition('authorize', $fromPlace, $pluginDestination),
+        ]);
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher(), $entityRepository, $historyRepository);
+
+        $fixture->entityRepository->expects($this->once())
+            ->method('upsert')
+            ->with([['id' => $transition->getEntityId(), 'stateId' => $coreDestination->getId()]], $context);
+
+        $stateMachineStates = $fixture->registry->transition($transition, $context);
+
+        static::assertSame($coreDestination, $stateMachineStates->get('toPlace'));
+    }
+
+    public function testGetStateMachineLoadsTransitionsWithDeterministicOrder(): void
+    {
+        $context = Context::createDefaultContext();
+        $stateMachine = $this->createStateMachine([]);
+        /** @var EntityRepository<StateMachineCollection>&Stub $stateMachineRepository */
+        $stateMachineRepository = static::createStub(EntityRepository::class);
+
+        $capturedCriteria = null;
+        $stateMachineRepository->method('search')
+            ->willReturnCallback(function (Criteria $criteria, Context $context) use ($stateMachine, &$capturedCriteria): EntitySearchResult {
+                $capturedCriteria = $criteria;
+
+                return $this->createSearchResult('state_machine', new StateMachineCollection([$stateMachine]), $context);
+            });
+
+        $registry = new StateMachineRegistry(
+            $stateMachineRepository,
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            new CollectingEventDispatcher(),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(StateMachineLocker::class),
+            $this->createConnection()
+        );
+
+        $registry->getStateMachine('order_transaction.state', $context);
+
+        static::assertNotNull($capturedCriteria);
+        $sortings = $capturedCriteria->getAssociation('transitions')->getSorting();
+        static::assertSame(
+            ['state_machine_transition.actionName', 'state_machine_transition.createdAt', 'state_machine_transition.id'],
+            array_map(static fn (FieldSorting $sorting): string => $sorting->getField(), $sortings)
+        );
     }
 
     public function testTransitionCanForceDestinationStateByTechnicalName(): void
@@ -347,11 +529,12 @@ class StateMachineRegistryTest extends TestCase
             });
 
         $entityRepository->method('search')
-            ->willReturnCallback(fn (Criteria $criteria, Context $context): EntitySearchResult => $this->createSearchResult(
-                'order_transaction',
-                new EntityCollection([new ArrayEntity(['id' => $criteria->getIds()[0], 'stateId' => $fromPlace->getId()])]),
-                $context
-            ));
+            ->willReturnCallback(function (Criteria $criteria, Context $context) use ($fromPlace): EntitySearchResult {
+                $entity = new ArrayEntity(['id' => $criteria->getIds()[0], 'stateId' => $fromPlace->getId()]);
+                $entity->internalSetEntityData('order_transaction', new FieldVisibility([]));
+
+                return $this->createSearchResult('order_transaction', new EntityCollection([$entity]), $context);
+            });
 
         $definitionRegistry->method('getByEntityName')
             ->willReturnMap([['order_transaction', $definition]]);
@@ -487,6 +670,22 @@ class StateMachineRegistryFixture
         public readonly EntityRepository&MockObject $historyRepository,
     ) {
     }
+}
+
+/**
+ * @internal
+ */
+class StateMachineRegistryTestContextSource implements ContextSource
+{
+    public string $type = 'custom-source';
+}
+
+/**
+ * @internal
+ */
+class StateMachineRegistryTestTypelessContextSource implements ContextSource
+{
+    protected string $type = 'not-readable-from-outside';
 }
 
 /**

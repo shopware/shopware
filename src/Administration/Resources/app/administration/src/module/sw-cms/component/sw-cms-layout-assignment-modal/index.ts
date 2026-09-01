@@ -42,6 +42,7 @@ export default Shopware.Component.wrapComponentConfig({
             previousLandingPageIds: [] as string[],
             showConfirmChangesModal: false,
             isLoading: false,
+            isLoadingProducts: false,
             selectedShopPages: {} as Record<string, string[] | null>,
             previousShopPages: {} as Record<string, string[] | null>,
             confirmedCategories: false,
@@ -167,10 +168,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         productCriteria() {
             const productCriteria = new Criteria(1, 5);
-            productCriteria
-                .addAssociation('options.group')
-                .addAssociation('manufacturer')
-                .addFilter(Criteria.equals('parentId', null));
+            productCriteria.addAssociation('options.group').addAssociation('manufacturer');
             return productCriteria;
         },
 
@@ -184,6 +182,18 @@ export default Shopware.Component.wrapComponentConfig({
 
         categoryRepository() {
             return this.repositoryFactory.create('category');
+        },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
+        isModalLoading() {
+            return this.isLoading || this.isLoadingProducts;
+        },
+
+        allowedCategoryTypes() {
+            return ['page'];
         },
     },
 
@@ -201,7 +211,41 @@ export default Shopware.Component.wrapComponentConfig({
             this.previousProducts = [...this.page.products!];
             this.previousProductIds = this.page.products!.getIds();
 
+            void this.loadProductsWithInheritance();
+
             void this.loadSystemConfig();
+        },
+
+        async loadProductsWithInheritance() {
+            const products = this.page.products;
+
+            if (!products?.getIds().length) {
+                return;
+            }
+
+            const hasMissingVariantNames = [...products].some(
+                (product) => product.parentId && (!product.translated?.name || !product.variation?.length),
+            );
+
+            if (!hasMissingVariantNames) {
+                return;
+            }
+
+            this.isLoadingProducts = true;
+
+            const criteria = new Criteria(1, products.getIds().length);
+            criteria.setIds(products.getIds());
+            criteria.addAssociation('options.group');
+            criteria.addAssociation('manufacturer');
+
+            const context = {
+                ...Shopware.Context.api,
+                inheritance: true,
+            };
+
+            this.page.products = await this.productRepository
+                .search(criteria, context)
+                .finally(() => (this.isLoadingProducts = false));
         },
 
         onModalClose(saveAfterClose = false) {

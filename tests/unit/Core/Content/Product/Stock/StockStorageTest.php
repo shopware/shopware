@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Content\Product\Stock\StockAlteration;
 use Shopware\Core\Content\Product\Stock\StockLoadRequest;
@@ -55,6 +56,34 @@ class StockStorageTest extends TestCase
         $stockStorage->alter([], Context::createDefaultContext());
     }
 
+    public function testIndexDispatchesEventWhenProductBecomesUnavailable(): void
+    {
+        $productId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('getTransactionNestingLevel')->willReturn(0);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure());
+        $connection->method('fetchAllAssociativeIndexed')->willReturn([
+            $productId => ['current_available' => 1, 'calculated_available' => 0],
+        ]);
+        $connection->method('fetchAllKeyValue')->willReturn([$productId => 0]);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static function (object $event) use ($productId, $context): bool {
+                static::assertInstanceOf(ProductNoLongerAvailableEvent::class, $event);
+                static::assertSame([$productId], $event->getIds());
+                static::assertSame($context, $event->getContext());
+
+                return true;
+            }));
+
+        $stockStorage = new StockStorage($connection, $dispatcher);
+        $stockStorage->index([$productId], $context);
+    }
+
     public function testAlterRetriesMariaDbRecordChangedExceptionOutsideTransaction(): void
     {
         $productId = Uuid::randomHex();
@@ -81,10 +110,12 @@ class StockStorageTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('prepare')->willReturn($statement);
         $connection->method('getTransactionNestingLevel')->willReturn(0);
-        $connection->expects($this->exactly(2))
-            ->method('fetchAllKeyValue')
-            ->willReturn([$productId => 1]);
-        $connection->expects($this->once())->method('executeStatement')->willReturn(1);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure());
+        $connection->method('fetchAllAssociativeIndexed')->willReturn([
+            $productId => ['current_available' => 1, 'calculated_available' => 1],
+        ]);
+        $connection->method('fetchAllKeyValue')->willReturn([$productId => 1]);
+        $connection->method('executeStatement')->willReturn(1);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->once())

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -91,54 +92,81 @@ class StockStorage extends AbstractStockStorage
      */
     private function updateAvailableFlag(array $ids, Context $context): void
     {
-        $ids = array_filter(array_unique($ids));
+        $ids = array_values(array_filter(array_unique($ids)));
 
         if ($ids === []) {
             return;
         }
 
         $bytes = Uuid::fromHexToBytesList($ids);
+        sort($bytes);
 
-        $sql = '
-            UPDATE product
+        $version = Uuid::fromHexToBytes($context->getVersionId());
+
+        [$before, $after] = RetryableTransaction::retryable($this->connection, function () use ($bytes, $version): array {
+            $params = ['ids' => $bytes, 'version' => $version];
+
+            // Lock only the products whose availability is recalculated. Reading the inherited values in a
+            // separate, non-locking SELECT prevents variants from contending through their shared parent.
+            $this->connection->executeStatement(
+                'SELECT id FROM product WHERE id IN (:ids) AND version_id = :version FOR UPDATE',
+                $params,
+                ['ids' => ArrayParameterType::BINARY]
+            );
+
+            /**
+             * @var array<string, array{current_available: mixed, calculated_available: mixed}> $availability
+             */
+            $availability = $this->connection->fetchAllAssociativeIndexed('
+            SELECT LOWER(HEX(product.id)),
+                product.available AS current_available,
+                IFNULL((
+                    COALESCE(product.is_closeout, parent.is_closeout, 0) * product.stock
+                    >=
+                    COALESCE(product.is_closeout, parent.is_closeout, 0) * IFNULL(product.min_purchase, parent.min_purchase)
+                ), 0) AS calculated_available
+            FROM product
             LEFT JOIN product parent
                 ON parent.id = product.parent_id
                 AND parent.version_id = product.version_id
-
-            SET product.available = IFNULL((
-                COALESCE(product.is_closeout, parent.is_closeout, 0) * product.stock
-                >=
-                COALESCE(product.is_closeout, parent.is_closeout, 0) * IFNULL(product.min_purchase, parent.min_purchase)
-            ), 0),
-                product.updated_at = NOW()
             WHERE product.id IN (:ids)
             AND product.version_id = :version
-        ';
+        ', $params, ['ids' => ArrayParameterType::BINARY]);
 
-        $before = $this->connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(id)), available FROM product WHERE id IN (:ids) AND product.version_id = :version',
-            ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+            $before = [];
+            $cases = [];
+            foreach ($availability as $id => $values) {
+                $index = \count($cases);
+                $before[$id] = $values['current_available'];
+                $cases[] = \sprintf('WHEN :id%d THEN :available%d', $index, $index);
+                $params['id' . $index] = Uuid::fromHexToBytes($id);
+                $params['available' . $index] = (int) $values['calculated_available'];
+            }
 
-        RetryableQuery::retryable($this->connection, function () use ($sql, $context, $bytes): void {
-            $this->connection->executeStatement(
-                $sql,
-                ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
+            if ($cases !== []) {
+                $this->connection->executeStatement(
+                    \sprintf(
+                        'UPDATE product SET available = CASE id %s ELSE available END, updated_at = NOW() WHERE id IN (:ids) AND version_id = :version',
+                        \implode(' ', $cases)
+                    ),
+                    $params,
+                    ['ids' => ArrayParameterType::BINARY]
+                );
+            }
+
+            $after = $this->connection->fetchAllKeyValue(
+                'SELECT LOWER(HEX(id)), available FROM product WHERE id IN (:ids) AND product.version_id = :version',
+                ['ids' => $bytes, 'version' => $version],
                 ['ids' => ArrayParameterType::BINARY]
             );
-        });
 
-        $after = $this->connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(id)), available FROM product WHERE id IN (:ids) AND product.version_id = :version',
-            ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+            return [$before, $after];
+        });
 
         $updated = [];
         foreach ($before as $id => $available) {
             if ($available !== $after[$id]) {
-                $updated[] = (string) $id;
+                $updated[] = $id;
             }
         }
 

@@ -71,6 +71,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-product', { sync: true }), {
             global: {
+                directives: {
+                    popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+                },
                 plugins: [
                     router,
                 ],
@@ -651,10 +654,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await minPurchaseField.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const changeTypeList = wrapper.find('.sw-select-result-list__item-list');
-        const clearOption = changeTypeList.find('.sw-select-option--1');
+        const clearOption = document.body.querySelector('.sw-select-result-list__item-list .sw-select-option--1');
 
-        await clearOption.trigger('click');
+        clearOption.click();
         await flushPromises();
         expect(minPurchaseField.find('.sw-single-select__selection-text').text()).toBe('sw-bulk-edit.changeTypes.clear');
 

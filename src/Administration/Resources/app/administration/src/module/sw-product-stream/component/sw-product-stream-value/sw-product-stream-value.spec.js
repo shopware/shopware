@@ -32,7 +32,7 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
             'sw-select-result': await wrapTestComponent('sw-select-result'),
             'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
             'sw-popover': await wrapTestComponent('sw-popover'),
-            'sw-popover-deprecated': true,
+            'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
             'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             'sw-field-error': await wrapTestComponent('sw-field-error'),
         };
@@ -56,6 +56,9 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
             },
         },
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             renderStubDefaultSlot: true,
             provide: {
                 repositoryFactory: {
@@ -217,7 +220,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await productStreamValueSwitch.get('.sw-select-option--1').trigger('click');
+        document.body.querySelector('.sw-select-option--1').click();
         await flushPromises();
 
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
@@ -231,10 +234,10 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(0);
+        const productStreamValueYes = document.body.querySelectorAll('.sw-select-result').item(0);
 
-        expect(productStreamValueYes.text()).toBe('global.default.yes');
-        await productStreamValueYes.trigger('click');
+        expect(productStreamValueYes.textContent.trim()).toBe('global.default.yes');
+        productStreamValueYes.click();
         await flushPromises();
 
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
@@ -250,10 +253,10 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const productStreamValueNo = productStreamValueSwitch.findAll('.sw-select-result').at(1);
+        const productStreamValueNo = document.body.querySelectorAll('.sw-select-result').item(1);
 
-        expect(productStreamValueNo.text()).toBe('global.default.no');
-        await productStreamValueNo.trigger('click');
+        expect(productStreamValueNo.textContent.trim()).toBe('global.default.no');
+        productStreamValueNo.click();
 
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
         expect(wrapper.emitted('boolean-change')[0][0].type).toBe('notEquals');
@@ -268,10 +271,10 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        let productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(0);
+        let productStreamValueYes = document.body.querySelectorAll('.sw-select-result').item(0);
 
-        expect(productStreamValueYes.text()).toBe('global.default.yes');
-        await productStreamValueYes.trigger('click');
+        expect(productStreamValueYes.textContent.trim()).toBe('global.default.yes');
+        productStreamValueYes.click();
         await flushPromises();
 
         expect(wrapper.emitted('empty-change')).toBeTruthy();
@@ -280,10 +283,10 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(1);
+        productStreamValueYes = document.body.querySelectorAll('.sw-select-result').item(1);
 
-        expect(productStreamValueYes.text()).toBe('global.default.no');
-        await productStreamValueYes.trigger('click');
+        expect(productStreamValueYes.textContent.trim()).toBe('global.default.no');
+        productStreamValueYes.click();
         await flushPromises();
 
         expect(wrapper.emitted('empty-change')[1][0].type).toBe('equals');

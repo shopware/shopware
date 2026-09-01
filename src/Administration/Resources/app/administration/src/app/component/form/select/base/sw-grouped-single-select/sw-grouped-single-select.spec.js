@@ -7,6 +7,9 @@ import { mount } from '@vue/test-utils';
 const createWrapper = async (customOptions = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-grouped-single-select', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -68,8 +71,8 @@ describe('components/sw-grouped-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const resultList = wrapper.find('.sw-select-result-list__content');
-        expect(resultList.isVisible()).toBeTruthy();
+        const resultList = document.body.querySelector('.sw-select-result-list__content');
+        expect(resultList).toBeTruthy();
     });
 
     it('should show the results items and groups', async () => {
@@ -78,13 +81,13 @@ describe('components/sw-grouped-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const listElements = wrapper.findAll('.sw-select-result-list__item-list li');
+        const listElements = document.body.querySelectorAll('.sw-select-result-list__item-list li');
 
-        expect(listElements.at(0).text()).toBe('Group 1');
-        expect(listElements.at(1).text()).toBe('Entry 1');
-        expect(listElements.at(2).text()).toBe('Entry 2');
-        expect(listElements.at(3).text()).toBe('Group 2');
-        expect(listElements.at(4).text()).toBe('Entry 3');
+        expect(listElements.item(0).textContent.trim()).toBe('Group 1');
+        expect(listElements.item(1).textContent.trim()).toBe('Entry 1');
+        expect(listElements.item(2).textContent.trim()).toBe('Entry 2');
+        expect(listElements.item(3).textContent.trim()).toBe('Group 2');
+        expect(listElements.item(4).textContent.trim()).toBe('Entry 3');
     });
 
     it('should close the result list after clicking an item', async () => {
@@ -93,11 +96,11 @@ describe('components/sw-grouped-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        document.body.querySelector('.sw-select-option--0').click();
         await flushPromises();
 
-        const resultList = wrapper.find('.sw-select-result-list__content');
-        expect(resultList.exists()).toBeFalsy();
+        const resultList = document.body.querySelector('.sw-select-result-list__content');
+        expect(resultList).toBeFalsy();
     });
 
     it('should not close the result list after clicking a group', async () => {
@@ -106,10 +109,10 @@ describe('components/sw-grouped-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-grouped-single-select__group-separator').trigger('click');
+        document.body.querySelector('.sw-grouped-single-select__group-separator').click();
         await flushPromises();
 
-        const resultList = wrapper.find('.sw-select-result-list__content');
-        expect(resultList.exists()).toBe(true);
+        const resultList = document.body.querySelector('.sw-select-result-list__content');
+        expect(resultList).toBeTruthy();
     });
 });

@@ -7,6 +7,9 @@ import { mount } from '@vue/test-utils';
 async function createSingleSelect(customOptions) {
     const options = {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -61,8 +64,8 @@ describe('components/sw-single-select', () => {
 
         await flushPromises();
 
-        const resultList = wrapper.find('.sw-select-result-list__content');
-        expect(resultList.isVisible()).toBeTruthy();
+        const resultList = document.body.querySelector('.sw-select-result-list__content');
+        expect(resultList).toBeTruthy();
         expect(wrapper.emitted()).toHaveProperty('on-open-change');
     });
 
@@ -72,14 +75,14 @@ describe('components/sw-single-select', () => {
         await swSingleSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryOne = swSingleSelect.find('.sw-select-option--0');
-        expect(entryOne.text()).toBe('Entry 1');
+        const entryOne = document.body.querySelector('.sw-select-option--0');
+        expect(entryOne.textContent.trim()).toBe('Entry 1');
 
-        const entryTwo = swSingleSelect.find('.sw-select-option--1');
-        expect(entryTwo.text()).toBe('Entry 2');
+        const entryTwo = document.body.querySelector('.sw-select-option--1');
+        expect(entryTwo.textContent.trim()).toBe('Entry 2');
 
-        const entryThree = swSingleSelect.find('.sw-select-option--2');
-        expect(entryThree.text()).toBe('Entry 3');
+        const entryThree = document.body.querySelector('.sw-select-option--2');
+        expect(entryThree.textContent.trim()).toBe('Entry 3');
     });
 
     it('should close the result list after clicking an item', async () => {
@@ -88,11 +91,11 @@ describe('components/sw-single-select', () => {
 
         await swSingleSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
-        await swSingleSelect.find('.sw-select-option--0').trigger('click');
+        document.body.querySelector('.sw-select-option--0').click();
         await flushPromises();
 
-        const resultList = swSingleSelect.find('.sw-select-result-list__content');
-        expect(resultList.exists()).toBeFalsy();
+        const resultList = document.body.querySelector('.sw-select-result-list__content');
+        expect(resultList).toBeFalsy();
         expect(swSingleSelect.emitted()).toHaveProperty('on-open-change');
     });
 
@@ -155,9 +158,9 @@ describe('components/sw-single-select', () => {
         await wrapper.find('input').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-option--0').text()).toBe('Entry 1');
-        expect(wrapper.find('.sw-select-option--1').text()).toBe('Entry 2');
-        expect(wrapper.find('.sw-select-option--2').text()).toBe('Entry 3');
+        expect(document.body.querySelector('.sw-select-option--0').textContent.trim()).toBe('Entry 1');
+        expect(document.body.querySelector('.sw-select-option--1').textContent.trim()).toBe('Entry 2');
+        expect(document.body.querySelector('.sw-select-option--2').textContent.trim()).toBe('Entry 3');
     });
 
     it('should show the clearable icon in the single select', async () => {
@@ -262,7 +265,7 @@ describe('components/sw-single-select', () => {
         await flushPromises();
 
         // First dropdown should be open
-        expect(firstDropdown.find('.sw-select-result-list__content').isVisible()).toBe(true);
+        expect(document.body.querySelector('.sw-select-result-list__content')).toBeTruthy();
 
         // User clicks the second dropdown
         const secondSelectionElement = secondDropdown.find('.sw-select__selection').element;
@@ -270,10 +273,10 @@ describe('components/sw-single-select', () => {
         await flushPromises();
 
         // First dropdown should now be closed
-        expect(firstDropdown.find('.sw-select-result-list__content').exists()).toBe(false);
+        expect(document.body.querySelectorAll('.sw-select-result-list__content')).toHaveLength(1);
 
         // Second dropdown should be open
-        expect(secondDropdown.find('.sw-select-result-list__content').isVisible()).toBe(true);
+        expect(document.body.querySelector('.sw-select-result-list__content')).toBeTruthy();
 
         // Cleanup
         firstDropdown.unmount();

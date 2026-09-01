@@ -29,6 +29,9 @@ async function createWrapper() {
                 sequence: {},
             },
             global: {
+                directives: {
+                    popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+                },
                 provide: {
                     shortcutService: {
                         startEventListener() {},
@@ -83,7 +86,7 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--1 .sw-select-result__result-item-text').trigger('click');
+        document.body.querySelector('.sw-select-option--1 .sw-select-result__result-item-text').click();
         await flushPromises();
 
         await saveButton.trigger('click');
@@ -99,7 +102,7 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-result-list .sw-select-option--1').trigger('click');
+        document.body.querySelector('.sw-select-option--1').click();
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-flow-change-customer-group-modal__save-button');

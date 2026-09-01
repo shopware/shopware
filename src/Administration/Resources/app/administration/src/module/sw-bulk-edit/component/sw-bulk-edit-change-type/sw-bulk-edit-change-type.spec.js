@@ -6,6 +6,9 @@ import { mount } from '@vue/test-utils';
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-change-type', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -43,9 +46,9 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectClear = wrapper.find('.sw-select-option--1');
-        expect(selectClear.text()).toBe('sw-bulk-edit.changeTypes.clear');
-        await selectClear.trigger('click');
+        const selectClear = document.body.querySelector('.sw-select-option--1');
+        expect(selectClear.textContent.trim()).toBe('sw-bulk-edit.changeTypes.clear');
+        selectClear.click();
         await flushPromises();
 
         expect(wrapper.vm.isDisplayingValue).toBeFalsy();
@@ -67,9 +70,9 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectClear = wrapper.find('.sw-select-option--1');
-        expect(selectClear.text()).toBe('sw-bulk-edit.changeTypes.clear');
-        await selectClear.trigger('click');
+        const selectClear = document.body.querySelector('.sw-select-option--1');
+        expect(selectClear.textContent.trim()).toBe('sw-bulk-edit.changeTypes.clear');
+        selectClear.click();
         await flushPromises();
 
         expect(wrapper.vm.isDisplayingValue).toBeFalsy();
@@ -77,9 +80,9 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectAdd = wrapper.find('.sw-select-option--2');
-        expect(selectAdd.text()).toBe('global.default.add');
-        await selectAdd.trigger('click');
+        const selectAdd = document.body.querySelector('.sw-select-option--2');
+        expect(selectAdd.textContent.trim()).toBe('global.default.add');
+        selectAdd.click();
 
         expect(wrapper.vm.isDisplayingValue).toBeTruthy();
     });
@@ -98,10 +101,10 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectClear = wrapper.find('.sw-select-option--0');
-        expect(selectClear.text()).toBe('global.default.add');
+        const selectClear = document.body.querySelector('.sw-select-option--0');
+        expect(selectClear.textContent.trim()).toBe('global.default.add');
 
-        const selectRemove = wrapper.find('.sw-select-option--1');
-        expect(selectRemove.text()).toBe('global.default.remove');
+        const selectRemove = document.body.querySelector('.sw-select-option--1');
+        expect(selectRemove.textContent.trim()).toBe('global.default.remove');
     });
 });

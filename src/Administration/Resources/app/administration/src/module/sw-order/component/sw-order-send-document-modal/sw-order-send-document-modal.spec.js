@@ -167,16 +167,12 @@ const mockRepositoryFactory = (entity, mailTemplates) => {
     if (entity === 'mail_template') {
         return {
             search: jest.fn((criteria) => {
-                const typeFilter = criteria?.filters.find((filter) => filter.field === 'mailTemplateType.technicalName');
-
-                const typeFilterValues = typeFilter
-                    ? Array.isArray(typeFilter.value)
-                        ? typeFilter.value
-                        : typeFilter.value.split('|')
-                    : [];
+                const typeFilter = criteria?.filters.find(
+                    (filter) => filter.field === 'mailTemplateType.technicalName' && !filter.value.includes('|'),
+                );
 
                 const filtered = typeFilter
-                    ? mailTemplates.filter((template) => typeFilterValues.includes(template.mailTemplateType?.technicalName))
+                    ? mailTemplates.filter((template) => template.mailTemplateType?.technicalName === typeFilter.value)
                     : mailTemplates;
 
                 return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, filtered, filtered.length));
@@ -292,7 +288,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await mailTemplateSelect.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result__result-item-description').text()).toBe(mockMailTemplates[0].description);
+        expect(document.body.querySelector('.sw-select-result__result-item-description')?.textContent).toBe(
+            mockMailTemplates[0].description,
+        );
     });
 
     it('should truncate mail template description', async () => {
@@ -307,7 +305,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        const text = wrapper.find('.sw-select-result__result-item-description').text();
+        const text = document.body.querySelector('.sw-select-result__result-item-description')?.textContent ?? '';
         expect(text).toHaveLength(160);
         expect(text.endsWith('...')).toBe(true);
     });
@@ -388,7 +386,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--1').trigger('click');
+        document.body.querySelector('.sw-select-option--1')?.click();
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
@@ -448,7 +446,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--2').trigger('click');
+        document.body.querySelector('.sw-select-option--2')?.click();
         await flushPromises();
 
         expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');

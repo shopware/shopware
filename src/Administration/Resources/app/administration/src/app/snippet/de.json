@@ -1403,6 +1403,7 @@
     "closeModal": "Warnung schließen",
     "ignorePlugin": "Dauerhaft ignorieren",
     "successfullyDeleted": "Erweiterung wurde gelöscht",
+    "alreadyRemoved": "Erweiterung wurde bereits entfernt",
     "table": {
       "plugin": "Erweiterung"
     }

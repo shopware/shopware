@@ -13,17 +13,11 @@ interface DeliveryNoteConfig extends DocumentConfig {
     deliveryDate: string;
 }
 
-interface DocumentEntityConfig {
-    custom?: {
-        invoiceNumber?: string;
-    };
-}
-
 /**
  * @sw-package after-sales
  * @private
  */
-export type { DocumentConfig, DeliveryNoteConfig, DocumentEntityConfig };
+export type { DocumentConfig, DeliveryNoteConfig };
 
 const DOCUMENT_TYPES = {
     INVOICE: 'invoice',
@@ -214,17 +208,54 @@ export default class DocumentV2Service {
         return translationKey ?? `sw-order.components.createDocumentModal.fileFormats.${format}`;
     }
 
-    public getDocumentTypeSnippet(technicalName: string): string {
-        const translationKey = (
-            {
-                [DOCUMENT_TYPES.INVOICE]: 'sw-order.components.createDocumentModal.documentTypes.invoice',
-                [DOCUMENT_TYPES.CREDIT_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.creditNote',
-                [DOCUMENT_TYPES.CANCELLATION_INVOICE]:
-                    'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice',
-                [DOCUMENT_TYPES.DELIVERY_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.deliveryNote',
-            } as Record<string, string>
-        )[technicalName];
+    public getDocumentTypeLabel(technicalName: string, label?: Record<string, string> | null): string {
+        if (label && Object.keys(label).length > 0) {
+            const locale = Shopware.Store.get('session')?.currentLocale ?? 'en-GB';
 
-        return translationKey ?? `sw-order.components.createDocumentModal.documentTypes.${technicalName}`;
+            return label[locale] ?? label['en-GB'] ?? Object.values(label)[0] ?? technicalName;
+        }
+
+        const translationKey =
+            (
+                {
+                    [DOCUMENT_TYPES.INVOICE]: 'sw-order.components.createDocumentModal.documentTypes.invoice',
+                    [DOCUMENT_TYPES.CREDIT_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.creditNote',
+                    [DOCUMENT_TYPES.CANCELLATION_INVOICE]:
+                        'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice',
+                    [DOCUMENT_TYPES.DELIVERY_NOTE]: 'sw-order.components.createDocumentModal.documentTypes.deliveryNote',
+                } as Record<string, string>
+            )[technicalName] ?? `sw-order.components.createDocumentModal.documentTypes.${technicalName}`;
+
+        if (!Shopware.Snippet?.te?.(translationKey)) {
+            return technicalName;
+        }
+
+        // @ts-expect-error
+        return (Shopware.Snippet?.tc(translationKey) as string | undefined) ?? technicalName;
+    }
+
+    public getErrorTranslation(errorCode: string, errorParams: { [key: string]: unknown }): string | null {
+        const app = Shopware.Application.getApplicationRoot();
+
+        if (!app) {
+            return null;
+        }
+
+        switch (errorCode) {
+            case 'DOCUMENT_V2__CONFIG_MISSING_REQUIRED_FIELDS':
+                return app.$t('sw-order.documentCard.error.missingCompanyInformation', {
+                    field: app.$t(
+                        `sw-settings-document.detail.label${errorParams.field?.toString().charAt(0).toLocaleUpperCase() ?? ''}${errorParams.field?.toString().substring(1) ?? ''}`,
+                    ),
+                });
+            case 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_LINE_ITEMS':
+                return app.$t('sw-order.documentCard.error.noUnprocessedCreditLineItems');
+            case 'DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS':
+                return app.$t('sw-order.documentCard.error.duplicateDocumentNumber', {
+                    documentNumber: errorParams.documentNumber,
+                });
+            default:
+                return null;
+        }
     }
 }

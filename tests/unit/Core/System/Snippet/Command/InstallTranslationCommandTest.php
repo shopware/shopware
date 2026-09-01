@@ -83,6 +83,36 @@ class InstallTranslationCommandTest extends TestCase
         static::assertSame(['en-GB', 'es-ES'], $installed);
     }
 
+    public function testAPseudoLocaleIsStillInstallableWhenNamedExplicitly(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['en-GB', 'es-ES', 'ach-UG'],
+            [],
+            new LanguageCollection(),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+            pseudoLocales: ['ach-UG'],
+        );
+
+        $this->initMetadataLoader(new MetadataCollection([]));
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
+
+        $installed = [];
+        $collect = static function (string $locale) use (&$installed): void {
+            $installed[] = $locale;
+        };
+        $this->translationLoader->method('load')->willReturnCallback($collect);
+        $this->translationLoader->method('link')->willReturnCallback($collect);
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--locales' => 'ach-UG']);
+        $tester->assertCommandIsSuccessful();
+
+        static::assertSame(['ach-UG'], $installed);
+    }
+
     public function testExecuteThrowsExceptionWithoutArguments(): void
     {
         $this->translationLoader->expects($this->never())->method('download');

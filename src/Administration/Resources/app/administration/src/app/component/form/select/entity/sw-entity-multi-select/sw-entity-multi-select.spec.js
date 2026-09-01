@@ -65,6 +65,9 @@ function getPropertyCollection() {
 const createWrapper = async (customOptions = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-entity-multi-select', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -204,11 +207,13 @@ describe('components/sw-entity-multi-select', () => {
         await wrapper.find('input').trigger('change');
         await flushPromises();
 
-        const firstListEntry = wrapper.findAll('.sw-select-result-list__item-list li').at(0);
+        const firstListEntry = document.body.querySelector('.sw-select-result-list__item-list li');
 
-        expect(firstListEntry.classes()).toContain('has--description');
-        expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
-        expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
+        expect(firstListEntry.classList).toContain('has--description');
+        expect(firstListEntry.querySelector('.sw-select-result__result-item-text').textContent.trim()).toBe('first entry');
+        expect(firstListEntry.querySelector('.sw-select-result__result-item-description').textContent.trim()).toBe(
+            'example',
+        );
     });
 
     it('should render select indicator', async () => {
@@ -242,7 +247,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .mt-icon')).toBeDefined();
+        expect(document.body.querySelector('.sw-select-result-list__item-list li .mt-icon')).toBeTruthy();
     });
 
     it('should be possible to clear the selection', async () => {

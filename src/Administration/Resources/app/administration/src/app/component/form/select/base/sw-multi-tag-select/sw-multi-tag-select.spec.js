@@ -14,6 +14,9 @@ const selector = {
 const createWrapper = async (customOptions = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-multi-tag-select', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -79,8 +82,8 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
         await flushPromises();
 
-        const selectOptionsPopover = wrapper.find(selector.multiDataSelect.popover);
-        expect(selectOptionsPopover.isVisible()).toBeTruthy();
+        const selectOptionsPopover = document.body.querySelector(selector.multiDataSelect.popover);
+        expect(selectOptionsPopover).toBeTruthy();
     });
 
     it('should focus input when the user click on .sw-select__selection', async () => {
@@ -97,13 +100,13 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
         await flushPromises();
 
-        const selectOptionsPopover = wrapper.find(selector.multiDataSelect.popover);
-        expect(selectOptionsPopover.text()).toBe('global.sw-multi-tag-select.enterValidData');
+        const selectOptionsPopover = document.body.querySelector(selector.multiDataSelect.popover);
+        expect(selectOptionsPopover.textContent.trim()).toBe('global.sw-multi-tag-select.enterValidData');
 
         const input = wrapper.find(selector.multiDataSelect.input);
         await input.setValue('anything');
 
-        expect(selectOptionsPopover.text()).toBe('global.sw-multi-tag-select.addData');
+        expect(selectOptionsPopover.textContent.trim()).toBe('global.sw-multi-tag-select.addData');
     });
 
     it('should add a new item when the user selects one using the enter key', async () => {
@@ -136,8 +139,7 @@ describe('components/sw-multi-tag-select', () => {
 
         expect(wrapper.vm.searchTerm).toBe(value);
 
-        const addItemPopover = wrapper.find('.sw-multi-tag-select-valid');
-        await addItemPopover.trigger('click');
+        document.body.querySelector('.sw-multi-tag-select-valid').click();
 
         expect(wrapper.emitted('update:value')).toStrictEqual([[[value]]]);
         expect(wrapper.vm.searchTerm).toBe('');

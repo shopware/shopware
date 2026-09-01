@@ -5,6 +5,14 @@ General styling for cms sections
 */
 
 .cms-section {
+    // Deviation from trunk: trunk removes clipping entirely because it also adds
+    // `.cms-section .full-width { @include make-container(); --bs-gutter-x: 0; }`,
+    // which does not exist on 6.6.x. On 6.6.x `.cms-section-sidebar` is itself the
+    // `.row`, so a full-width section would overflow the viewport by the row's
+    // negative margins. Clip on the x axis only, so focus rings can still escape
+    // vertically (the point of this PR).
+    overflow-x: clip;
+
     &.bg-image {
         background-repeat: no-repeat;
         background-position: 50%;

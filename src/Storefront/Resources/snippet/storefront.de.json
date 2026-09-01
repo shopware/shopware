@@ -18,6 +18,7 @@
   "general": {
     "homeLink": "Home",
     "menuLink": "Menü",
+    "breadcrumbPlaceholder": "Breadcrumb nicht verfügbar",
     "star": "*",
     "grossTaxInformation": "Preise inkl. MwSt. zzgl. Versandkosten",
     "grossTaxInformationShort": "inkl. MwSt. zzgl. Versandkosten",

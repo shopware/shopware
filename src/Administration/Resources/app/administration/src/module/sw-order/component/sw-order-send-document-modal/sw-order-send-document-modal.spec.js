@@ -168,11 +168,19 @@ const mockRepositoryFactory = (entity, mailTemplates) => {
         return {
             search: jest.fn((criteria) => {
                 const typeFilter = criteria?.filters.find(
-                    (filter) => filter.field === 'mailTemplateType.technicalName' && !filter.value.includes('|'),
+                    (filter) => filter.field === 'mailTemplateType.technicalName',
                 );
 
+                const typeFilterValues = typeFilter
+                    ? Array.isArray(typeFilter.value)
+                        ? typeFilter.value
+                        : typeFilter.value.split('|')
+                    : [];
+
                 const filtered = typeFilter
-                    ? mailTemplates.filter((template) => template.mailTemplateType?.technicalName === typeFilter.value)
+                    ? mailTemplates.filter((template) =>
+                          typeFilterValues.includes(template.mailTemplateType?.technicalName),
+                      )
                     : mailTemplates;
 
                 return Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, filtered, filtered.length));

@@ -77,9 +77,7 @@
     "length": null,
     "releaseDate": null,
     "categoryTree": null,
-    "streamIds": [
-      "01a05cbe2bc973819514356fafcfd380"
-    ],
+    "streamIds": null,
     "optionIds": null,
     "propertyIds": null,
     "name": "with-layout",
@@ -406,9 +404,7 @@
                       "length": null,
                       "releaseDate": null,
                       "categoryTree": null,
-                      "streamIds": [
-                        "01a05cbe2bc973819514356fafcfd380"
-                      ],
+                      "streamIds": null,
                       "optionIds": null,
                       "propertyIds": null,
                       "name": "with-layout",
@@ -748,9 +744,7 @@
                       "length": null,
                       "releaseDate": null,
                       "categoryTree": null,
-                      "streamIds": [
-                        "01a05cbe2bc973819514356fafcfd380"
-                      ],
+                      "streamIds": null,
                       "optionIds": null,
                       "propertyIds": null,
                       "name": "with-layout",
@@ -1060,9 +1054,7 @@
                             "length": null,
                             "releaseDate": null,
                             "categoryTree": null,
-                            "streamIds": [
-                              "01a05cbe2bc973819514356fafcfd380"
-                            ],
+                            "streamIds": null,
                             "optionIds": null,
                             "propertyIds": null,
                             "name": "product",

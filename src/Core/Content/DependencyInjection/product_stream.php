@@ -48,8 +48,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDefinition::class),
             service('event_dispatcher'),
         ])
-        // Must run before ProductIndexer so it compiles stream filters before ProductStreamUpdater creates mappings.
-        ->tag('shopware.entity_indexer', ['priority' => 110]);
+        ->tag('shopware.entity_indexer', ['priority' => 100]);
 
     $services->set(UpdateProductStreamMappingTask::class)
         ->tag('shopware.scheduled.task');

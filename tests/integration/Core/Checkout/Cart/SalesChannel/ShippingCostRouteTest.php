@@ -119,19 +119,19 @@ class ShippingCostRouteTest extends TestCase
         );
 
         $this->browser->request('GET', '/store-api/context');
-        $beforeContext = $this->contextSnapshot($this->decodeResponse());
+        $beforeContext = $this->contextSnapshot($this->decodeResponse(false));
 
         $this->browser->request('GET', '/store-api/checkout/cart');
-        $beforeCart = $this->cartSnapshot($this->decodeResponse());
+        $beforeCart = $this->cartSnapshot($this->decodeResponse(false));
 
         $this->browser->request('GET', '/store-api/shipping-cost/cart');
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $this->browser->request('GET', '/store-api/context');
-        $afterContext = $this->contextSnapshot($this->decodeResponse());
+        $afterContext = $this->contextSnapshot($this->decodeResponse(false));
 
         $this->browser->request('GET', '/store-api/checkout/cart');
-        $afterCart = $this->cartSnapshot($this->decodeResponse());
+        $afterCart = $this->cartSnapshot($this->decodeResponse(false));
 
         static::assertSame($beforeContext, $afterContext);
         static::assertSame($beforeCart, $afterCart);
@@ -179,8 +179,7 @@ class ShippingCostRouteTest extends TestCase
             ]
         );
 
-        /** @var array{deliveries: list<array{shippingCosts: array{totalPrice: float|int}}>} $cart */
-        $cart = $this->decodeResponse();
+        $cart = $this->decodeResponse(false);
         static::assertCount(2, $cart['deliveries']);
         static::assertEqualsWithDelta(3.0, $cart['deliveries'][0]['shippingCosts']['totalPrice'] + $cart['deliveries'][1]['shippingCosts']['totalPrice'], 0.001);
 
@@ -220,8 +219,7 @@ class ShippingCostRouteTest extends TestCase
             ]
         );
 
-        /** @var array{deliveries?: list<array<string, mixed>>} $cart */
-        $cart = $this->decodeResponse();
+        $cart = $this->decodeResponse(false);
         static::assertSame([], $cart['deliveries'] ?? []);
 
         $this->browser->request('GET', '/store-api/shipping-cost/cart');
@@ -231,11 +229,17 @@ class ShippingCostRouteTest extends TestCase
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return ($expectList is true ? list<array<string, mixed>> : array<string, mixed>)
      */
-    private function decodeResponse(): array
+    private function decodeResponse(bool $expectList = true): array
     {
-        return json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $decodedResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($decodedResponse);
+        if ($expectList) {
+            static::assertIsList($decodedResponse);
+        }
+
+        return $decodedResponse;
     }
 
     /**
@@ -268,15 +272,19 @@ class ShippingCostRouteTest extends TestCase
     }
 
     /**
-     * @param list<array<string, mixed>> $response
+     * @param array<string, mixed> $response
      *
-     * @return array<string, mixed>
+     * @return array{token: string, shippingMethodId: string, paymentMethodId: string, ruleIds: list<string>|null}
      */
     private function contextSnapshot(array $response): array
     {
         static::assertArrayHasKey('token', $response);
         static::assertArrayHasKey('shippingMethod', $response);
+        static::assertIsArray($response['shippingMethod']);
+        static::assertArrayHasKey('id', $response['shippingMethod']);
         static::assertArrayHasKey('paymentMethod', $response);
+        static::assertIsArray($response['paymentMethod']);
+        static::assertArrayHasKey('id', $response['paymentMethod']);
 
         return [
             'token' => $response['token'],
@@ -287,7 +295,7 @@ class ShippingCostRouteTest extends TestCase
     }
 
     /**
-     * @param list<array<string, mixed>> $response
+     * @param array<string, mixed> $response
      *
      * @return array<string, mixed>
      */

@@ -67,7 +67,10 @@ EOL;
         }
 
         foreach ($configuration->getOption(self::OPTION_NAME) as $entityName) {
-            $stubCollection->add($this->createMigration($configuration, $entityName));
+            if (!$this->migrationAlreadyExists($configuration, $entityName)) {
+                $stubCollection->add($this->createMigration($configuration, $entityName));
+            }
+
             $stubCollection->add($this->createEntityClass($configuration, $entityName));
             $stubCollection->add($this->createEntityDefinition($configuration, $entityName));
             $stubCollection->add($this->createEntityCollection($configuration, $entityName));
@@ -81,6 +84,17 @@ EOL;
                 )
             );
         }
+    }
+
+    private function migrationAlreadyExists(
+        PluginScaffoldConfiguration $configuration,
+        string $entityName
+    ): bool {
+        $migrations = glob(
+            $configuration->directory . '/src/Migration/Migration*Create' . $entityName . 'Table.php'
+        );
+
+        return $migrations !== false && $migrations !== [];
     }
 
     private function createMigration(PluginScaffoldConfiguration $configuration, string $entityName): Stub

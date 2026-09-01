@@ -16,7 +16,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(SalesChannelContext::class)]
 class SalesChannelContextTest extends TestCase
 {
@@ -77,6 +77,28 @@ class SalesChannelContextTest extends TestCase
                 'weight' => 'lb',
             ],
         ], $salesChannelContext->getMeasurementSystem()->jsonSerialize());
+    }
+
+    public function testGetRuleIdsByAreasDeduplicatesWithinAndAcrossAreas(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $idA = Uuid::randomHex();
+        $idB = Uuid::randomHex();
+        $idC = Uuid::randomHex();
+
+        $salesChannelContext->setAreaRuleIds([
+            // duplicate id within a single area must be collapsed
+            'a' => [$idA, $idB, $idA],
+            'b' => [$idB, $idC],
+        ]);
+
+        // within-area dedup, insertion order preserved
+        static::assertSame([$idA, $idB], $salesChannelContext->getRuleIdsByAreas(['a']));
+        // cross-area dedup ($idB appears in both areas), first-occurrence order preserved
+        static::assertSame([$idA, $idB, $idC], $salesChannelContext->getRuleIdsByAreas(['a', 'b']));
+        // the result is a sequentially indexed list (no gaps from dedup)
+        static::assertSame([0, 1, 2], array_keys($salesChannelContext->getRuleIdsByAreas(['a', 'b'])));
     }
 
     public function testWithPermissions(): void

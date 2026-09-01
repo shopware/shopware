@@ -21,6 +21,10 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * The dbal entity searcher only joins and select fields which defined in sorting, filter or query classes.
  * Fields which are not necessary to determines which ids are affected are not fetched.
  *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\EntitySearcherTest
+ *
  * @internal
  */
 #[Package('framework')]
@@ -192,7 +196,7 @@ class EntitySearcher implements EntitySearcherInterface
             return;
         }
 
-        $query->setMaxResults((int) $criteria->getLimit() * 6 + 1);
+        $query->setMaxResults($criteria->getNextPagesLimit());
     }
 
     /**
@@ -202,6 +206,15 @@ class EntitySearcher implements EntitySearcherInterface
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
             return \count($data);
+        }
+
+        $offset = $criteria->getOffset() ?? 0;
+        $isPartialPage = $criteria->getLimit() === null || \count($data) < $criteria->getLimit();
+        // A partial page is the last page, so the fetched rows already determine the exact total and no separate
+        // COUNT(*) query is needed. An empty page with an offset does not: the total could be anything up to the
+        // offset, so fall through to the count query for that case.
+        if ($isPartialPage && ($data !== [] || $offset === 0)) {
+            return $offset + \count($data);
         }
 
         $query->resetOrderBy();

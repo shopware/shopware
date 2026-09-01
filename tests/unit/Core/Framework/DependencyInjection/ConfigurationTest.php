@@ -78,6 +78,9 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['excluded_locales']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['plugin_mapping']);
         static::assertInstanceOf(ArrayNodeDefinition::class, $children['languages']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['use_local_filesystem']);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $children['scheduled_task']);
+        static::assertInstanceOf(BooleanNodeDefinition::class, $children['scheduled_task']->getChildNodeDefinitions()['enabled']);
     }
 
     public function testTranslationConfigRejectsInvalidListType(): void
@@ -165,10 +168,18 @@ class ConfigurationTest extends TestCase
         static::assertSame([
             'repository_url' => null,
             'metadata_url' => null,
+            'community_translations_url' => null,
+            'documentation_url_snippet_key' => null,
+            'completeness_threshold' => null,
             'plugins' => null,
             'excluded_locales' => null,
+            'pseudo_locales' => null,
             'plugin_mapping' => null,
             'languages' => null,
+            'use_local_filesystem' => false,
+            'scheduled_task' => [
+                'enabled' => true,
+            ],
         ], $config['translation']);
     }
 
@@ -373,6 +384,55 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('relevant_keyword_count', $nodes);
         static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
+    }
+
+    public function testWebhookDoesNotAcceptNetworkPolicy(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'webhook' => [
+                    'allow_unencrypted_traffic' => true,
+                ],
+            ],
+        ]);
+    }
+
+    public function testAppSystemNetworkPolicyDefaultsAreSecure(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), []);
+
+        static::assertFalse($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame([], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
+    public function testAppSystemNetworkPolicyCanBeConfigured(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'allow_unencrypted_traffic' => true,
+                    'allowed_private_ip_addresses' => ['10.0.0.10', 'fd00::1'],
+                ],
+            ],
+        ]);
+
+        static::assertTrue($config['app_system']['allow_unencrypted_traffic']);
+        static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
+    public function testAppSystemNetworkPolicyRejectsInvalidAllowedIpAddress(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.app_system.allowed_private_ip_addresses.0": ""not-an-ip"" is not a valid IP address.'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'allowed_private_ip_addresses' => ['not-an-ip'],
+                ],
+            ],
+        ]);
     }
 
     public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void

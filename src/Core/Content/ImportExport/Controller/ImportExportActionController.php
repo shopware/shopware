@@ -83,6 +83,7 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 $file,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $request->request->all('config'),
                 $request->request->has('dryRun')
             );
@@ -96,6 +97,7 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 null,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $request->request->all('config')
             );
         }
@@ -136,7 +138,12 @@ class ImportExportActionController extends AbstractController
         $definition->add('accessToken', new NotBlank(), new Type('string'));
         $this->dataValidator->validate($params, $definition);
 
-        return $this->downloadService->createFileResponse($context, $params['fileId'], $params['accessToken']);
+        return $this->downloadService->createFileResponse(
+            $context,
+            $params['fileId'],
+            $params['accessToken'],
+            (string) $request->getClientIp()
+        );
     }
 
     #[Route(path: '/api/_action/import-export/cancel', name: 'api.action.import_export.cancel', methods: ['POST'])]

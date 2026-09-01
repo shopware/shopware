@@ -17,6 +17,7 @@ interface bundlesSinglePluginResponse {
     html?: string;
     baseUrl?: null | string;
     type?: 'app' | 'plugin';
+    sourceType?: string;
     version?: string;
     // Properties below this line are only available for apps
     integrationId?: string;
@@ -426,18 +427,18 @@ class ApplicationBootstrapper {
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
      */
-    createApplicationRoot(): Promise<ApplicationBootstrapper> {
+    async createApplicationRoot(): Promise<ApplicationBootstrapper> {
         const initContainer = this.getContainer('init');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const router = initContainer.router.getRouterInstance();
 
         // We're in a test environment, we're not needing an application root
         if (Shopware.Context.app.environment === 'testing') {
-            return Promise.resolve(this);
+            return this;
         }
 
         if (!this.view) {
-            return Promise.reject(new Error('The ViewAdapter was not defined in the application.'));
+            throw new Error('The ViewAdapter was not defined in the application.');
         }
 
         this.view.init(
@@ -451,23 +452,30 @@ class ApplicationBootstrapper {
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
 
         const loginService = this.getContainer('service').loginService;
-        if (
-            firstRunWizard &&
-            loginService.isLoggedIn() &&
+        if (firstRunWizard && loginService.isLoggedIn()) {
+            // Wait for the router to resolve its initial navigation before deciding whether the
+            // user needs to be redirected into the wizard. Directly after `view.init` the router
+            // still reports the START location (an empty route name), so a reload that lands on a
+            // deeper wizard step - e.g. the PayPal credentials step after activating the plugin -
+            // would otherwise be pushed back to the wizard start and the wizard would appear to
+            // restart. See issue #6210.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            !router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard')
-        ) {
+            await router.isReady().catch(() => {});
+
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            router.push({
-                name: 'sw.first.run.wizard.index',
-            });
+            if (!router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard')) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                router.push({
+                    name: 'sw.first.run.wizard.index',
+                });
+            }
         }
 
         if (typeof this._resolveViewInitialized === 'function') {
             this._resolveViewInitialized();
         }
 
-        return Promise.resolve(this);
+        return this;
     }
 
     _resolveViewInitialized: undefined | ((arg0?: unknown) => void);
@@ -538,6 +546,7 @@ class ApplicationBootstrapper {
             'coreDirectives',
             'locale',
             'store',
+            'theme',
         ];
 
         const initContainer = this.getContainer('init');
@@ -691,6 +700,7 @@ class ApplicationBootstrapper {
                     bundleVersion: bundle.version,
                     iframeSrc: bundle.baseUrl,
                     bundleType: bundle.type,
+                    sourceType: bundle.sourceType,
                 });
             },
         );
@@ -808,6 +818,7 @@ class ApplicationBootstrapper {
         iframeSrc,
         bundleVersion,
         bundleType,
+        sourceType,
     }: {
         active?: boolean;
         integrationId?: string;
@@ -815,6 +826,7 @@ class ApplicationBootstrapper {
         iframeSrc: string;
         bundleVersion?: string;
         bundleType?: 'app' | 'plugin';
+        sourceType?: string;
     }): void {
         const bundles = Shopware.Context.app.config.bundles;
         let permissions = null;
@@ -830,6 +842,7 @@ class ApplicationBootstrapper {
             baseUrl: string;
             version?: string;
             type: 'app' | 'plugin';
+            sourceType?: string;
             permissions: Record<string, unknown>;
         } = {
             active,
@@ -838,6 +851,7 @@ class ApplicationBootstrapper {
             baseUrl: iframeSrc,
             version: bundleVersion,
             type: bundleType ?? 'plugin',
+            sourceType,
             permissions: {},
         };
 

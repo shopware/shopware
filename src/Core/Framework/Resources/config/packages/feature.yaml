@@ -106,3 +106,8 @@ shopware:
         major: true
         toggleable: true
         description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
+      - name: ADMIN_EXTENSION_TOOLING
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Run the Administration extension tooling (admin:setup-extension-tooling) automatically during composer setup."

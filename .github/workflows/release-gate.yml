@@ -19,8 +19,11 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  actions: read
   contents: read
   id-token: write
+  pull-requests: read
+  security-events: write
 
 jobs:
   acceptance:
@@ -29,6 +32,7 @@ jobs:
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       profile: release
+      currents: false
   integration:
     uses: ./.github/workflows/integration.yml
     secrets: inherit

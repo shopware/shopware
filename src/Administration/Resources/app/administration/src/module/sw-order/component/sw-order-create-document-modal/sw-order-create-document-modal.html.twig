@@ -1,0 +1,210 @@
+{% block sw_order_create_document_modal %}
+<sw-modal
+    class="sw-order-create-document-modal"
+    :title="$t('sw-order.components.createDocumentModal.title')"
+    :is-loading="isModalLoading"
+    @modal-close="onCancel"
+>
+    <div class="sw-order-create-document-modal__header-fields">
+        <mt-select
+            v-model="selectedTechnicalName"
+            class="sw-order-create-document-modal__document-type"
+            :label="$t('sw-order.components.createDocumentModal.labelDocumentType')"
+            :placeholder="$t('sw-order.components.createDocumentModal.placeholderDocumentType')"
+            :options="documentTypeOptions"
+            :disabled="isLoading"
+            required
+        />
+
+        <mt-select
+            v-model="documentConfig.requestedFileFormats"
+            class="sw-order-create-document-modal__file-formats"
+            label-property="label"
+            value-property="value"
+            :label="$t('sw-order.components.createDocumentModal.labelFileFormats')"
+            :placeholder="$t('sw-order.components.createDocumentModal.placeholderFileFormats')"
+            :options="fileFormatOptions"
+            :enable-multi-selection="true"
+            :disabled="!currentTechnicalName || isModalLoading"
+            required
+        />
+    </div>
+
+    <div class="sw-order-create-document-modal__body">
+        <hr
+            v-if="!isModalLoading"
+            class="sw-order-create-document-modal__divider"
+        >
+
+        <div
+            v-if="!isModalLoading && !currentTechnicalName"
+            class="sw-order-create-document-modal__empty-state"
+        >
+            <mt-empty-state
+                centered
+                icon="regular-files"
+                :headline="$t('sw-order.components.createDocumentModal.emptyStateTitle')"
+                :description="$t('sw-order.components.createDocumentModal.emptyStateDescription')"
+            />
+        </div>
+
+        <div
+            v-else-if="!isModalLoading"
+            class="sw-order-create-document-modal__content"
+        >
+            <div class="sw-order-create-document-modal__type-specific-fields">
+                <mt-text-field
+                    v-model="documentConfig.documentNumber"
+                    class="sw-order-create-document-modal__document-number"
+                    :label="isStornoDocument ? $t('sw-order.documentModal.labelDocumentStornoNumber') : $t('sw-order.documentModal.labelDocumentNumber')"
+                    :error="documentNumberErrorMessage"
+                    required
+                />
+
+                <mt-select
+                    v-if="isReferencingOtherDocument"
+                    v-model="referencedDocumentNumber"
+                    class="sw-order-create-document-modal__referenced-document-number"
+                    :label="$t('sw-order.documentModal.labelInvoiceNumber')"
+                    :placeholder="$t('sw-order.documentModal.selectInvoiceNumber')"
+                    :options="referencedDocumentNumberOptions"
+                    :error="referencedDocumentNumberErrorMessage"
+                    required
+                />
+
+                <mt-datepicker
+                    v-model="documentConfig.documentDate"
+                    class="sw-order-create-document-modal__document-date"
+                    date-type="date"
+                    hide-hint
+                    :label="$t('sw-order.documentModal.labelDocumentDate')"
+                    :placeholder="$t('sw-datepicker.date.placeholder')"
+                    required
+                />
+
+                <mt-datepicker
+                    v-if="isDeliveryNoteDocument"
+                    v-model="documentConfig.deliveryDate"
+                    class="sw-order-create-document-modal__delivery-date"
+                    date-type="date"
+                    hide-hint
+                    :label="$t('sw-order.documentModal.labelDeliveryDate')"
+                    :placeholder="$t('sw-datepicker.date.placeholder')"
+                    required
+                />
+            </div>
+
+            <mt-textarea
+                v-model="documentConfig.documentComment"
+                class="sw-order-create-document-modal__comment"
+                :label="$t('sw-order.documentModal.labelDocumentComment')"
+                :placeholder="$t('sw-order.components.createDocumentModal.placeholderComment')"
+            />
+        </div>
+    </div>
+
+    <template #modal-footer>
+        <sw-button-group split-button>
+            <mt-button
+                class="sw-order-create-document-modal__preview-button"
+                size="small"
+                variant="secondary"
+                :disabled="invalidInput || isLoadingDocument"
+                :is-loading="isLoadingPreview"
+                @click="onPreview()"
+            >
+                {{ $t('sw-order.documentModal.labelPreview') }}
+            </mt-button>
+
+            <sw-context-button
+                class="sw-order-create-document-modal__preview-button-arrow"
+                :menu-width="160"
+                :disabled="invalidInput || isLoadingDocument"
+            >
+                <template #button>
+                    <mt-button
+                        square
+                        size="small"
+                        variant="secondary"
+                        :disabled="invalidInput"
+                    >
+                        <mt-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </mt-button>
+                </template>
+
+                <sw-context-menu-item
+                    v-for="fileFormatOption in previewFileFormatOptions"
+                    :key="fileFormatOption.value"
+                    class="sw-order-create-document-modal__preview-button-option"
+                    :disabled="invalidInput"
+                    @click="onPreview(fileFormatOption.value)"
+                >
+                    {{ fileFormatOption.label }}
+                </sw-context-menu-item>
+            </sw-context-button>
+        </sw-button-group>
+
+        <div>
+            <mt-button
+                size="small"
+                variant="secondary"
+                :disabled="isLoadingDocument || isLoadingPreview"
+                @click="onCancel"
+            >
+                {{ $t('global.default.cancel') }}
+            </mt-button>
+
+            <sw-button-group split-button>
+                <mt-button
+                    class="sw-order-create-document-modal__create-button"
+                    variant="primary"
+                    size="small"
+                    :disabled="invalidInput || isLoadingPreview"
+                    :is-loading="isLoadingDocument"
+                    @click="onCreateDocument"
+                >
+                    {{ $t('sw-order.components.createDocumentModal.generate') }}
+                </mt-button>
+
+                <sw-context-button
+                    class="sw-order-create-document-modal__create-button-arrow"
+                    :disabled="invalidInput || isLoadingPreview"
+                >
+                    <template #button>
+                        <mt-button
+                            square
+                            variant="primary"
+                            size="small"
+                            :disabled="invalidInput || isLoadingPreview"
+                        >
+                            <mt-icon
+                                name="regular-chevron-down-xs"
+                                size="16"
+                            />
+                        </mt-button>
+                    </template>
+
+                    <sw-context-menu-item
+                        class="sw-order-create-document-modal__create-button-send"
+                        :disabled="invalidInput || isLoadingPreview"
+                        @click="onCreateDocument('send')"
+                    >
+                        {{ $t('sw-order.components.createDocumentModal.generateAndSend') }}
+                    </sw-context-menu-item>
+
+                    <sw-context-menu-item
+                        class="sw-order-create-document-modal__create-button-download"
+                        :disabled="invalidInput || isLoadingPreview"
+                        @click="onCreateDocument('download')"
+                    >
+                        {{ $t('sw-order.components.createDocumentModal.generateAndDownload') }}
+                    </sw-context-menu-item>
+                </sw-context-button>
+            </sw-button-group>
+        </div>
+    </template>
+</sw-modal>
+{% endblock %}

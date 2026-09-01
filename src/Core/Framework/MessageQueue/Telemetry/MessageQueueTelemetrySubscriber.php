@@ -48,6 +48,8 @@ class MessageQueueTelemetrySubscriber implements EventSubscriberInterface
 
     public function onMessageReceived(WorkerMessageReceivedEvent $event): void
     {
+        // Keep start call even if is called in other subscribers, so that removing either
+        // subscriber or reordering does not break the other's duration metric.
         $this->timingHelper->start($event->getEnvelope()->getMessage());
 
         $this->meter->emit(new ConfiguredMetric(

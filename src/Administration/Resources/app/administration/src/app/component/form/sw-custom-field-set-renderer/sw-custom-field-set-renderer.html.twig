@@ -22,6 +22,7 @@
                 >
                     <div
                         v-show="activeCustomFieldSetTabName === set.id"
+                        class="mt-tabs__custom-content"
                         :class="'sw-custom-field-set-renderer-tab-content__' + set.name"
                     >
                         {% block sw_custom_field_set_renderer_card_mt_tabs_form_renderer %}

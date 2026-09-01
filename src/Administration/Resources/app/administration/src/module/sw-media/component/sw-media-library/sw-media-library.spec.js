@@ -326,7 +326,8 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         expect(loadMoreButton.exists()).toBe(false);
     });
 
-    it('should have a computed property for nextMediaCriteria', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy media-library sort criterion.
+    it.deprecated('v6.8.0.0')('should have a computed property for nextMediaCriteria', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.nextMediaCriteria.parse()).toEqual({
@@ -373,9 +374,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         });
     });
 
-    it('should use created at descending for nextMediaCriteria when v6.8.0.0 is active', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should use created at descending for nextMediaCriteria', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.nextMediaCriteria.parse()).toEqual({
@@ -435,15 +434,16 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
         });
     });
 
-    it('should sort folders by name ascending when media defaults to created at descending', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should sort folders by name ascending when media defaults to created at descending',
+        async () => {
+            const wrapper = await createWrapper();
 
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.nextFoldersCriteria.parse().sort).toEqual([
-            { field: 'name', order: 'asc', naturalSorting: false },
-        ]);
-    });
+            expect(wrapper.vm.nextFoldersCriteria.parse().sort).toEqual([
+                { field: 'name', order: 'asc', naturalSorting: false },
+            ]);
+        },
+    );
 
     it('should default the limit to 100 for folders and media', async () => {
         const wrapper = await createWrapper({ limit: null });

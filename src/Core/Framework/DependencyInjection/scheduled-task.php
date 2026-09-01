@@ -20,8 +20,12 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\ScheduledTaskHealthCollector;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\ScheduledTaskHealthGateway;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\ScheduledTaskMetricsSubscriber;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\Telemetry\TaskNameResolver;
 use Shopware\Core\Framework\MessageQueue\Subscriber\PluginLifecycleSubscriber;
 use Shopware\Core\Framework\MessageQueue\Subscriber\UpdatePostFinishSubscriber;
+use Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -45,6 +49,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ClockInterface::class),
         ])
         ->tag('shopware.telemetry.periodic_metric_collector');
+
+    $services->set(TaskNameResolver::class);
+
+    $services->set(ScheduledTaskMetricsSubscriber::class)
+        ->args([
+            service(Meter::class),
+            service(TaskNameResolver::class),
+            service(WorkerMessageTimingHelper::class),
+        ])
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.telemetry.subscriber');
 
     $services->set(ScheduledTaskExecutor::class)
         ->args([

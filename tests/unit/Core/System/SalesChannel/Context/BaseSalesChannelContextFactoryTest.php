@@ -57,7 +57,7 @@ use Shopware\Core\Test\TestDefaults;
  *
  * @phpstan-import-type ContextOptions from BaseSalesChannelContextFactory
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(BaseSalesChannelContextFactory::class)]
 class BaseSalesChannelContextFactoryTest extends TestCase
 {

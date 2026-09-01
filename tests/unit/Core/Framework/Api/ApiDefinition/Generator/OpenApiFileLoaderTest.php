@@ -58,4 +58,14 @@ class OpenApiFileLoaderTest extends TestCase
 
         static::assertSame('Override', $spec['paths']['/_action/order_delivery/{orderDeliveryId}/state/{transition}']['post']['description']);
     }
+
+    public function testMergingFilesUsesDeterministicNameOrder(): void
+    {
+        $paths = [__DIR__ . '/_fixtures/Api/ApiDefinition/Generator/Schema/DeterministicOrder'];
+        $fsLoader = new OpenApiFileLoader($paths);
+
+        $spec = $fsLoader->loadOpenapiSpecification();
+
+        static::assertSame('Sorted last', $spec['paths']['/deterministic']['get']['description']);
+    }
 }

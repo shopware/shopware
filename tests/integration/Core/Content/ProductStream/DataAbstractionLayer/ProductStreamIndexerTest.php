@@ -456,8 +456,8 @@ class ProductStreamIndexerTest extends TestCase
 
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
-        static::assertNull($entity->getApiFilter());
-        static::assertTrue($entity->isInvalid());
+        static::assertSame([], $entity->getApiFilter());
+        static::assertFalse($entity->isInvalid());
     }
 
     public function testWithParameters(): void

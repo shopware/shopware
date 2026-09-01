@@ -55,7 +55,7 @@ class AccountOrderDetailPageLoader
             throw CartException::customerNotLoggedIn();
         }
 
-        $orderId = (string) $request->get('id');
+        $orderId = $request->attributes->getString('id', $request->query->getString('id'));
 
         if ($orderId === '') {
             throw RoutingException::missingRequestParameter('id');

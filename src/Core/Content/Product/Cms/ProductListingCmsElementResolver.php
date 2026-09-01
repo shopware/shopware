@@ -120,7 +120,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         // if we have no specific order given at this point, set the order to the highest priority available sorting
         $availableSortings = RequestParamHelper::get($request, 'availableSortings');
         if ($availableSortings) {
-            arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
+            arsort($availableSortings);
             $sortingId = array_key_first($availableSortings);
             if (!\is_string($sortingId)) {
                 return;

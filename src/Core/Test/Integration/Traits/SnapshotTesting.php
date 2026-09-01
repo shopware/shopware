@@ -40,8 +40,8 @@ trait SnapshotTesting
                 $assertion['actual'],
                 $type,
                 \sprintf($config['message'], $name),
-                $config['transform'] ?? null,
-                $config['normalize'] ?? null,
+                $config['transform'],
+                $config['normalize'],
             );
 
             if ($updated !== null) {

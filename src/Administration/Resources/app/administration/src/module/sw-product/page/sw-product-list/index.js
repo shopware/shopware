@@ -159,6 +159,14 @@ export default {
                     labelProperty: 'key',
                     criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
                 },
+                'release-date-filter': {
+                    property: 'releaseDate',
+                    label: this.$t('sw-product.filters.releaseDateFilter.label'),
+                    dateType: 'datetime-local',
+                    fromFieldLabel: null,
+                    toFieldLabel: null,
+                    showTimeframe: true,
+                },
                 'active-filter': {
                     property: 'active',
                     label: this.$t('sw-product.filters.activeFilter.label'),
@@ -242,14 +250,6 @@ export default {
                         label: this.$t(`sw-product.type.${type}`),
                         value: type,
                     })),
-                },
-                'release-date-filter': {
-                    property: 'releaseDate',
-                    label: this.$t('sw-product.filters.releaseDateFilter.label'),
-                    dateType: 'datetime-local',
-                    fromFieldLabel: null,
-                    toFieldLabel: null,
-                    showTimeframe: true,
                 },
             };
 

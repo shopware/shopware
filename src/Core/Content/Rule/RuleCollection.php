@@ -52,11 +52,11 @@ class RuleCollection extends EntityCollection
 
         foreach ($this->getElements() as $rule) {
             foreach ($rule->getAreas() ?? [] as $area) {
-                $idsByArea[$area] = array_unique(array_merge($idsByArea[$area] ?? [], [$rule->getId()]));
+                $idsByArea[$area][$rule->getId()] = $rule->getId();
             }
         }
 
-        return $idsByArea;
+        return array_map(array_values(...), $idsByArea);
     }
 
     public function sortByPriority(): void

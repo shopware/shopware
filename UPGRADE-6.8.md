@@ -508,6 +508,20 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
 
+## Removal of `PromotionCartInformationTrait` helper methods
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` and `addPromotionNotEligibleError()` are removed, replace any calls in classes that use this trait with `$cart->addErrors()`:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError($code));
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
+```
+
 ## Removal of `$options` parameter in custom validator's constraints
 
 The `$options` of all Shopware's custom validator constraint are removed, if you use one of them, please use named argument instead

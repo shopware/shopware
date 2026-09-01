@@ -14,16 +14,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 
 /**
- * Bans kernel boots in the static PHPUnit lifecycle hooks.
- *
- * A deprecation triggered during a static-context kernel boot (the container compile is the
- * deprecation hotspot) has no TestCase object on the call stack: when a previous test leaked
- * PHPUnit's per-test error handler, the handler throws NoTestCaseObjectOnCallStackException and
- * the run dies with an order-dependent, junit-invisible crash instead of a recorded deprecation.
- *
- * Boot lazily inside a test context instead: keep a static "booted" flag and boot in setUp() of
- * the first test; tearDownAfterClass() only needs ensureKernelShutdown(), the next class boots
- * its own kernel.
+ * A kernel booted in setUpBeforeClass()/tearDownAfterClass() has no TestCase on the call stack,
+ * so a deprecation during the container compile crashes the run under a leaked error handler
+ * (NoTestCaseObjectOnCallStackException) instead of being recorded. Boot lazily in setUp().
  *
  * @implements Rule<StaticCall>
  *
@@ -32,7 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 #[Package('framework')]
 class NoKernelBootInSetUpBeforeClassRule implements Rule
 {
-    public const ERROR_STATIC_BOOT = 'Do not boot a kernel in a static PHPUnit lifecycle hook: a deprecation triggered during the boot has no TestCase on the call stack and crashes the run when a leaked error handler is active. Boot lazily in setUp() behind a static flag, and only call ensureKernelShutdown() in tearDownAfterClass().';
+    public const ERROR_STATIC_BOOT = 'Do not boot a kernel in a static PHPUnit lifecycle hook: a deprecation during the boot crashes the run instead of being recorded. Boot lazily in setUp() behind a static flag; tearDownAfterClass() only needs ensureKernelShutdown().';
 
     private const BANNED_METHODS = ['bootKernel' => true, 'createKernel' => true];
 

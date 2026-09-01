@@ -135,10 +135,10 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const defaultProduct = document.body.querySelector('.sw-select-option--0');
-        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('default_product');
+        const defaultProduct = getFloatingUiRoot(wrapper).find('.sw-select-option--0');
+        expect(defaultProduct.find('.sw-highlight-text').text()).toBe('default_product');
 
-        await defaultProduct.click();
+        await defaultProduct.trigger('click');
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
         expect(wrapper.find('.sw-import-export-importer__variants-warning').exists()).toBeFalsy();
@@ -148,10 +148,10 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const defaultProduct = document.body.querySelector('.sw-select-option--0');
-        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('default_product');
+        const defaultProduct = getFloatingUiRoot(wrapper).find('.sw-select-option--0');
+        expect(defaultProduct.find('.sw-highlight-text').text()).toBe('default_product');
 
-        await defaultProduct.click();
+        await defaultProduct.trigger('click');
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
 
@@ -164,10 +164,10 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const defaultProduct = document.body.querySelector('.sw-select-option--0');
-        expect(defaultProduct.querySelector('.sw-highlight-text').textContent).toBe('default_product');
+        const defaultProduct = getFloatingUiRoot(wrapper).find('.sw-select-option--0');
+        expect(defaultProduct.find('.sw-highlight-text').text()).toBe('default_product');
 
-        await defaultProduct.click();
+        await defaultProduct.trigger('click');
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
 
@@ -188,7 +188,7 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await document.body.querySelector('.sw-select-option--0').click();
+        await getFloatingUiRoot(wrapper).find('.sw-select-option--0').trigger('click');
 
         await wrapper.setData({
             config: {
@@ -211,7 +211,7 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await document.body.querySelector('.sw-select-option--0').click();
+        await getFloatingUiRoot(wrapper).find('.sw-select-option--0').trigger('click');
 
         await wrapper.setData({
             config: {
@@ -235,7 +235,7 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await document.body.querySelector('.sw-select-option--0').click();
+        await getFloatingUiRoot(wrapper).find('.sw-select-option--0').trigger('click');
 
         await wrapper.setData({
             config: {
@@ -261,12 +261,12 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const results = document.body.querySelectorAll('.sw-select-result');
+        const results = getFloatingUiRoot(wrapper).findAll('.sw-select-result');
 
-        expect(results.item(0).textContent).toContain('default_product');
-        expect(results.item(1).textContent).toContain('default_configurator_settings');
-        expect(results.item(2).textContent).toContain('default_category');
-        expect(results.item(3).textContent).toContain('default_media');
+        expect(results[0].text()).toContain('default_product');
+        expect(results[1].text()).toContain('default_configurator_settings');
+        expect(results[2].text()).toContain('default_category');
+        expect(results[3].text()).toContain('default_media');
     });
 
     it('should show only matching profiles when sourceEntity property has been set', async () => {
@@ -277,9 +277,9 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const results = document.body.querySelectorAll('.sw-select-result');
+        const results = getFloatingUiRoot(wrapper).findAll('.sw-select-result');
 
-        expect(results.item(0).textContent).toContain('default_configurator_settings');
+        expect(results[0].text()).toContain('default_configurator_settings');
         expect(results).toHaveLength(1);
     });
 

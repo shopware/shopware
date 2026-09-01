@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { config, enableAutoUnmount } from '@vue/test-utils';
+import { config, DOMWrapper, enableAutoUnmount } from '@vue/test-utils';
 
 import '@testing-library/jest-dom';
 
@@ -28,6 +28,7 @@ import {
     MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
+    MtFloatingUi,
     MtIcon,
     MtLink,
     MtLoader,
@@ -70,6 +71,14 @@ import CacheService from '../../src/app/service/cache.service';
 
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
+
+function getFloatingUiRoot(wrapper) {
+    if (Shopware.Feature.isActive('V6_8_0_0') || !wrapper.find('.sw-popover__wrapper').exists()) {
+        return new DOMWrapper(document.body);
+    }
+
+    return wrapper;
+}
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -312,31 +321,7 @@ config.global.stubs = {
     'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
-    // Keep popup content inside the test wrapper. Specs that explicitly verify Meteor's
-    // teleport behavior provide a local stub instead, so slot content is never rendered twice.
-    'mt-floating-ui': {
-        name: 'mt-floating-ui',
-        inheritAttrs: false,
-        props: {
-            isOpened: {
-                type: Boolean,
-                required: true,
-            },
-            matchReferenceWidth: {
-                type: Boolean,
-                required: false,
-                default: false,
-            },
-        },
-        template: `
-            <div v-bind="$attrs" class="mt-floating-ui" :class="$attrs.popoverClass ?? $attrs['popover-class']">
-                <slot name="trigger" />
-                <div v-if="isOpened" class="mt-floating-ui__content">
-                    <slot />
-                </div>
-            </div>
-        `,
-    },
+    'mt-floating-ui': MtFloatingUi,
     'mt-icon': MtIcon,
     'mt-link': MtLink,
     'mt-loader': MtLoader,
@@ -634,6 +619,7 @@ global.allowedErrors = [
 ];
 
 global.flushPromises = flushPromises;
+global.getFloatingUiRoot = getFloatingUiRoot;
 global.wrapTestComponent = wrapTestComponent;
 
 let consoleHasError = false;

@@ -78,7 +78,7 @@
     "releaseDate": null,
     "categoryTree": null,
     "streamIds": [
-      "01a05cbe2bc973819514356fafcfd380"
+      "__stream-1__"
     ],
     "optionIds": null,
     "propertyIds": null,
@@ -407,7 +407,7 @@
                       "releaseDate": null,
                       "categoryTree": null,
                       "streamIds": [
-                        "01a05cbe2bc973819514356fafcfd380"
+                        "__stream-1__"
                       ],
                       "optionIds": null,
                       "propertyIds": null,
@@ -749,7 +749,7 @@
                       "releaseDate": null,
                       "categoryTree": null,
                       "streamIds": [
-                        "01a05cbe2bc973819514356fafcfd380"
+                        "__stream-1__"
                       ],
                       "optionIds": null,
                       "propertyIds": null,
@@ -1061,7 +1061,7 @@
                             "releaseDate": null,
                             "categoryTree": null,
                             "streamIds": [
-                              "01a05cbe2bc973819514356fafcfd380"
+                              "__stream-1__"
                             ],
                             "optionIds": null,
                             "propertyIds": null,

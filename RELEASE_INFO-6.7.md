@@ -23,6 +23,9 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### Documents can be persisted without an order reference
+
+The `document.orderId` and `document.orderVersionId` fields are now optional. Extensions that read documents directly should not assume every document belongs to an order; use the `order` association only when it is available.
 ### `JsonField::addPropertyMapping()` for entity extensions
 
 `Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.

@@ -9,6 +9,8 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,8 +22,14 @@ class DocumentEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
+    /**
+     * @deprecated tag:v6.8.0 - Type will change to ?string.
+     */
     protected string $orderId;
 
+    /**
+     * @deprecated tag:v6.8.0 - Type will change to ?string.
+     */
     protected string $orderVersionId;
 
     protected string $documentTypeId;
@@ -74,21 +82,25 @@ class DocumentEntity extends Entity
         $this->order = $order;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderVersionId(): string
     {
-        return $this->orderVersionId;
+        return $this->orderVersionId ?? '';
     }
 
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'orderVersionId', newType: '?string', description: 'Will accept null for documents without order.')]
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderId(): string
     {
-        return $this->orderId;
+        return $this->orderId ?? '';
     }
 
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'orderId', newType: '?string', description: 'Will accept null for documents without order.')]
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;

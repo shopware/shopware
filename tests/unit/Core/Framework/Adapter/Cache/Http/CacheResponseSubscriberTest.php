@@ -1009,14 +1009,25 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertFalse($response->headers->has('No-Vary-Search'));
     }
 
-    public function testExistingNoVarySearchHeaderIsKeptWhenPolicyHasNone(): void
+    public function testExistingNoVarySearchHeaderIsRemovedWhenPolicyHasNone(): void
     {
+        // the resolved policy is the only source of truth for the header, same as for cache-control
         $response = new Response();
         $response->headers->set('No-Vary-Search', 'params=("ref")');
 
         $this->dispatchWithNoVarySearchPolicy(null, response: $response);
 
-        static::assertSame('params=("ref")', $response->headers->get('No-Vary-Search'));
+        static::assertFalse($response->headers->has('No-Vary-Search'));
+    }
+
+    public function testExistingNoVarySearchHeaderIsRemovedForUncacheableRequest(): void
+    {
+        $response = new Response();
+        $response->headers->set('No-Vary-Search', 'params=("ref")');
+
+        $this->dispatchWithNoVarySearchPolicy('key-order', method: Request::METHOD_POST, response: $response);
+
+        static::assertFalse($response->headers->has('No-Vary-Search'));
     }
 
     public function testExistingNoVarySearchHeaderIsOverriddenByPolicy(): void
@@ -1065,6 +1076,10 @@ class CacheResponseSubscriberTest extends TestCase
         ?Response $response = null,
         string $area = 'storefront',
     ): Response {
+        // this helper builds its own subscriber, so the doubles from setUp() stay untouched
+        $this->cartService->expects($this->never())->method('getCart');
+        $this->cacheHeadersService->expects($this->never())->method('applyCacheHeaders');
+
         $headers = ['cache_control' => ['public' => true, 's_maxage' => 100]];
         if ($noVarySearch !== null) {
             $headers['no_vary_search'] = $noVarySearch;
@@ -1077,7 +1092,7 @@ class CacheResponseSubscriberTest extends TestCase
             new MaintenanceModeResolver($this->eventDispatcher),
             null,
             null,
-            $this->cacheHeadersService,
+            static::createStub(CacheHeadersService::class),
             $this->createCachePolicyProvider(
                 ['cacheable' => ['headers' => $headers], 'uncacheable' => ['headers' => ['cache_control' => ['private' => true]]]],
                 [$area => ['cacheable' => 'cacheable', 'uncacheable' => 'uncacheable']],

@@ -268,15 +268,16 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute, $enforceNoStore);
 
-        // reset existing cache-control to avoid mixing policies
+        // reset existing cache headers to avoid mixing policies, the resolved policy is the only source
+        // of truth for both of them
         $response->headers->remove('cache-control');
+        $response->headers->remove(self::HEADER_NO_VARY_SEARCH);
 
         // apply resolved policy to response
         $response->setCache($policy->cacheControl->toArray());
 
-        // `No-Vary-Search` only has a meaning for responses a client may actually store. Restricting it
-        // to cacheable responses also keeps it out of the only code path that reaches this method
-        // without the cache rework being active (http cache disabled + no-store route).
+        // `No-Vary-Search` only has a meaning for responses a client may actually store, an uncacheable
+        // response has nothing to match a later request against
         if ($cacheable && $policy->noVarySearch !== null) {
             $response->headers->set(self::HEADER_NO_VARY_SEARCH, $policy->noVarySearch);
         }

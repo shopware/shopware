@@ -154,9 +154,11 @@ shopware:
                         s_maxage: 1800
                         stale_while_revalidate: 86400
                         stale_if_error: 7200
-                    # `HttpCacheKeyGenerator::getRequestUri()` sorts the query string before hashing, so the
-                    # order of query parameters can never change the response. Saying so lets a client match
-                    # a stored response against a differently ordered URL instead of refetching it.
+                    # The order of query parameters never changes the response, otherwise the default
+                    # installation would already be buggy. Saying so lets a client match a stored response
+                    # against a differently ordered URL instead of refetching it.
+                    # `HttpCacheKeyGenerator::getRequestUri()` sorts the query string before hashing, but only
+                    # for the Symfony HTTP cache; an external reverse proxy has to be told to sort separately.
                     # Do not add a `params=(...)` part without checking that the listed parameters really
                     # have no effect on the response, see `ignored_url_parameters` above.
                     no_vary_search: 'key-order'

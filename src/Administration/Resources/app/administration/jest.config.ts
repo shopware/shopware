@@ -68,12 +68,15 @@ const config: Config = {
     testEnvironment: '<rootDir>/test/_setup/feature-flag-test-environment.js',
 
     // Worker configuration - prevent OOM kills while maximizing parallelism
-    // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
-    workerIdleMemoryLimit: '1GB',
+    // Memory limit per worker to prevent SIGSEGV crashes from memory pressure.
+    // Keep the default conservative for constrained Docker setups; CI raises it via env.
+    workerIdleMemoryLimit: process.env.JEST_WORKER_IDLE_MEMORY_LIMIT || '1GB',
     // Full CPU parallelism can cause worker OOM kills in constrained CI/Docker runners.
     maxWorkers: process.env.JEST_MAX_WORKERS || (isDocker ? '100%' : '50%'),
     testTimeout: process.env.JEST_TEST_TIMEOUT ? Number(process.env.JEST_TEST_TIMEOUT) : isCi || isDocker ? 10000 : 5000,
     collectCoverage: isCi,
+    // V8 coverage is much cheaper than babel-plugin-istanbul instrumentation on top of @swc/jest
+    coverageProvider: 'v8',
     clearMocks: true,
     restoreMocks: true,
     moduleFileExtensions: [

@@ -648,6 +648,7 @@ export default [
         rules: {
             ...jestPlugin.configs['flat/recommended'].rules,
             'sw-test-rules/await-async-functions': 'error',
+            'sw-test-rules/no-set-data': 'error',
             'sw-test-rules/stabilize-feature-flag': [
                 'error',
                 {

@@ -169,7 +169,6 @@ jobs:
               return created.data;
             };
 
-
             for (const issue of payload.issues) {
               const upserted = await upsert(issue, issue.label ? [issue.label] : []);
               try {

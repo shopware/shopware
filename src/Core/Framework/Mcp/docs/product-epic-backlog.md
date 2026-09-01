@@ -137,7 +137,7 @@ Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Sessi
 | **Prompts** | `shopware-context` + app-backed prompts loader | Optional extra prompts; keep discovery test aligned |
 | **Resources** | 8 static resources + `shopware://tool-result/{id}` template (large-result delivery) | Templates/subscriptions if clients rely on them; ACL policy still open |
 | **Completion** | Unknown — likely partially handled by `symfony/mcp-bundle` | Spike: wire entity name / field / enum completions for `shopware-entity-search` |
-| **Logging** | `mcp` Monolog channel (debug/support); product metrics need OpenTelemetry path | Decide on `logging/setLevel` + `notifications/message` as real protocol feature |
+| **Logging** | `mcp` Monolog channel (debug/support); product metrics need OpenTelemetry path | Closed: SEP-2577 deprecated the MCP logging utility in mcp/sdk 0.8, so `logging/setLevel` and `notifications/message` are not on the table |
 | **Pagination** | Application-level (`_meta`, criteria `page`/`limit`) | Confirm if protocol-level `resources/list` cursors are needed |
 | **Client: Roots / Sampling / Elicitation** | N/A on server side | Document "N/A on `/api/_mcp`" in public docs |
 

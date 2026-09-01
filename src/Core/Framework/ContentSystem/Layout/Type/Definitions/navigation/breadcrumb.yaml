@@ -1,0 +1,54 @@
+meta:
+  label: "Breadcrumb"
+  description: "Renders the breadcrumb path of the current product or category page."
+  icon: "double-chevron-right-s"
+  category: "content"
+  copilot:
+    summary: "Breadcrumb element for product and category pages."
+    hints:
+      - "Place inside a product or category page layout; the breadcrumb path is resolved from the page's entity automatically."
+
+properties:
+  breadcrumb:
+    type: Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection
+    required: false
+    title: "Breadcrumb"
+    description: "Breadcrumb path of the current product or category page, resolved by the breadcrumb data loader from the page entity's id."
+    resolvedBy:
+      breadcrumb:
+        type: "{{entityType}}"
+        property: "{{entityIdField}}"
+        referrerCategoryProperty: referrerCategoryId
+
+  showHome:
+    type: boolean
+    title: "Show home link"
+    description: "Prepend a link to the shop home page in front of the breadcrumb path."
+    default: false
+    adminUI:
+      component: "switch"
+
+  referrerCategoryId:
+    type: string
+    required: false
+    title: "Referrer category ID"
+    description: "Category the visitor navigated from. When present, the breadcrumb follows that category's path; otherwise it falls back to the page entity's own default path. Filled per request from the referrerCategoryId query parameter, so it needs no editorial input."
+    default: "{{referrerCategoryId}}"
+    adminUI:
+      hidden: true
+
+  productId:
+    type: string
+    title: "Product entity ID"
+    description: "Id of the current product page's entity. Resolved per request from the layout root, so it needs no editorial input."
+    default: "{{productId}}"
+    adminUI:
+      hidden: true
+
+  categoryId:
+    type: string
+    title: "Category entity ID"
+    description: "Id of the current category page's entity. Resolved per request from the layout root, so it needs no editorial input."
+    default: "{{categoryId}}"
+    adminUI:
+      hidden: true

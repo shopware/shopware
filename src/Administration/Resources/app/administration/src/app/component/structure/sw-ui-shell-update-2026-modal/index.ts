@@ -191,13 +191,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async resolveVisibility() {
-            if (!this.isIntendedAudience()) {
-                return;
-            }
-
-            if (await this.hasSeenModal()) {
-                return;
-            }
+            // TESTING: trigger conditions disabled so the modal always opens.
+            // if (!this.isIntendedAudience()) {
+            //     return;
+            // }
+            //
+            // if (await this.hasSeenModal()) {
+            //     return;
+            // }
 
             this.isOpen = true;
         },
@@ -276,11 +277,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.hasRecordedSeen = true;
 
-            this.markModalSeen().catch(() => {
-                this.createNotificationError({
-                    message: this.$t('sw-ui-shell-update-2026-modal.seenSaveError'),
-                });
-            });
+            // TESTING: do not persist the seen flag while the trigger is forced open.
+            // this.markModalSeen().catch(() => {
+            //     this.createNotificationError({
+            //         message: this.$t('sw-ui-shell-update-2026-modal.seenSaveError'),
+            //     });
+            // });
         },
 
         onPreviousPage() {

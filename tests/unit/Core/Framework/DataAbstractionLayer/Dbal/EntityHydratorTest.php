@@ -184,14 +184,29 @@ class EntityHydratorTest extends TestCase
         $first = $structs->first();
         static::assertNotNull($first);
         static::assertSame(12.5, $first->getTranslation('name'));
+    }
 
-        // a repeated lookup for the same definition instance is served from the cache: a
-        // recompute would map this poisoned field list instead, throwing on the unknown
-        // field, and could not produce the "name" mapping
-        $cached = (new ExposedTranslatableTestHydrator(new ContainerBuilder()))
-            ->exposeTranslatedFields($floatDefinition, [new TranslatedField('poison')]);
-        static::assertArrayHasKey('name', $cached);
-        static::assertArrayNotHasKey('poison', $cached);
+    #[TestDox('A repeated translated-field lookup for the same definition instance is served from the cache')]
+    public function testRepeatedTranslatedFieldLookupIsServedFromTheCache(): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                TranslatableFloatTestDefinition::class,
+                TranslatableFloatTestTranslationDefinition::class,
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+        $definition = $registry->get(TranslatableFloatTestDefinition::class);
+        $hydrator = new ExposedTranslatableTestHydrator(new ContainerBuilder());
+
+        $firstLookup = $hydrator->exposeTranslatedFields($definition, $definition->getTranslatedFields());
+
+        // the field list of a later lookup is ignored; actually resolving this one would throw
+        $secondLookup = $hydrator->exposeTranslatedFields($definition, [new TranslatedField('unknown')]);
+
+        static::assertSame($firstLookup, $secondLookup);
+        static::assertArrayHasKey('name', $firstLookup);
     }
 
     public function testCustomFieldHydrationWithoutTranslationWithoutInheritance(): void

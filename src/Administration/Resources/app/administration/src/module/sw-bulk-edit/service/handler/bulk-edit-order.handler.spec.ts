@@ -1,12 +1,19 @@
 /**
  * @sw-package checkout
  */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,
-    @typescript-eslint/no-unsafe-call,
-    @typescript-eslint/no-unsafe-member-access,
-    @typescript-eslint/unbound-method
-*/
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 import BulkEditOrderHandler from './bulk-edit-order.handler';
+
+type BulkEditOrderHandlerTestDouble = Omit<BulkEditOrderHandler, 'orderRepository' | 'orderStateMachineService'> & {
+    orderRepository: {
+        search: jest.Mock;
+    };
+    orderStateMachineService: {
+        transitionOrderState: jest.Mock;
+        transitionOrderTransactionState: jest.Mock;
+        transitionOrderDeliveryState: jest.Mock;
+    };
+};
 
 function createOrder(id: string) {
     return {
@@ -38,7 +45,7 @@ function createApiError(code: string) {
 }
 
 function createHandler(orders = [createOrder('1')]) {
-    const handler = new BulkEditOrderHandler();
+    const handler = new BulkEditOrderHandler() as unknown as BulkEditOrderHandlerTestDouble;
 
     handler.statusTransitionRetryDelay = 0;
     handler.orderRepository = {

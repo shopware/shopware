@@ -40,7 +40,7 @@ export default class UpdateService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get<{ isValid: boolean }>(`/_action/${this.getApiBasePath()}/check-license`, {
+            .get<{ isValid: boolean }>(`/_action/${this.getApiBasePath()}/check-requirements`, {
                 headers,
             })
             .then((response) => {
@@ -80,7 +80,7 @@ export default class UpdateService extends ApiService {
         const offsetParam = `offset=${offset}&deactivationFilter=${extensionDeactivationStrategy}`;
 
         return this.httpClient
-            .get<{ offset: number; total: number }>(`${actionUrlPart}/deactivate-extensions?${offsetParam}`, {
+            .get<{ offset: number; total: number }>(`${actionUrlPart}/deactivate-plugins?${offsetParam}`, {
                 headers,
             })
             .then((response) => {

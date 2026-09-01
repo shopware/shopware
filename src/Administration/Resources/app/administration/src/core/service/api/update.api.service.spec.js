@@ -38,7 +38,7 @@ describe('updateApiService', () => {
     it('test checkLicense', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/check-license').reply(200, {
+        clientMock.onGet('/_action/update/check-requirements').reply(200, {
             isValid: true,
         });
 
@@ -80,7 +80,7 @@ describe('updateApiService', () => {
     it('test deactivateExtensions', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 
-        clientMock.onGet('/_action/update/deactivate-extensions?offset=0&deactivationFilter=foo').reply(200, {
+        clientMock.onGet('/_action/update/deactivate-plugins?offset=0&deactivationFilter=foo').reply(200, {
             success: true,
         });
 

@@ -75,8 +75,8 @@ class UpdateController extends AbstractController
     }
 
     #[Route(
-        path: '/api/_action/update/check-license',
-        name: 'api.custom.update.check_license',
+        path: '/api/_action/update/check-requirements',
+        name: 'api.custom.update.check_requirements',
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update']],
         methods: [Request::METHOD_GET]
     )]
@@ -126,8 +126,8 @@ class UpdateController extends AbstractController
     }
 
     #[Route(
-        path: '/api/_action/update/deactivate-extensions',
-        name: 'api.custom.updateapi.deactivate-extensions',
+        path: '/api/_action/update/deactivate-plugins',
+        name: 'api.custom.updateapi.deactivate-plugins',
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update', 'system_config:read']],
         methods: [Request::METHOD_GET]
     )]

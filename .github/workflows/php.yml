@@ -441,6 +441,7 @@ jobs:
           # PHPUnit 12 requires PHP 8.3+
           php-version: "8.4"
           keep-composer-tools: "true"
+          migration-coverage: ${{ matrix.suite == 'migration' }}
           force-phpunit-12: "true"
       - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
         if: ${{ matrix.suite == 'unit' }}
@@ -450,6 +451,9 @@ jobs:
         uses: ./.github/actions/phpunit-run
         with:
           test-testsuite: ${{ matrix.suite }}
+          # coverage is collected but not uploaded: PHPUnit only validates #[CoversClass] targets
+          # ("is not a valid target for code coverage" PHPUnit warnings) while coverage is active
+          coverage: "true"
           phpunit-options: "--display-phpunit-notices --fail-on-notice --fail-on-warning --fail-on-phpunit-notice --fail-on-phpunit-warning"
       - name: Upload junit report for the failure tracking issue
         if: failure() && github.event_name == 'schedule'

@@ -3,7 +3,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper(entityType = 'product') {
     return mount(
@@ -522,19 +522,19 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-result-list__empty').textContent).toBeTruthy();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__empty').text()).toBeTruthy();
 
         await input.setValue('foo.');
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-result-list__empty').textContent).toBeTruthy();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__empty').text()).toBeTruthy();
 
         await input.setValue('parent.foo.');
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-result-list__empty').textContent).toBeTruthy();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__empty').text()).toBeTruthy();
     });
 
     it('should return filtered product properties when searching', async () => {
@@ -1109,9 +1109,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        const selectResults = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
-            element.textContent.trim(),
-        );
+        const selectResults = new DOMWrapper(document.body).findAll('.sw-select-result').map((element) => element.text());
         expect(selectResults).toStrictEqual([
             'sw-import-export.profile.mapping.notMapped',
             'transactions.amount',
@@ -1146,9 +1144,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        const selectResults = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
-            element.textContent.trim(),
-        );
+        const selectResults = new DOMWrapper(document.body).findAll('.sw-select-result').map((element) => element.text());
         expect(selectResults).toStrictEqual([
             'sw-import-export.profile.mapping.notMapped',
             'deliveries.createdAt',
@@ -1182,11 +1178,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.find('.sw-import-export-entity-path-select__selection-input').trigger('click');
         await flushPromises();
 
-        expect(
-            document.body
-                .querySelector('.sw-import-export-entity-path-select__result-list')
-                .classList.contains('sw-import-export-entity-path-select__result-list'),
-        ).toBe(true);
+        expect(new DOMWrapper(document.body).find('.sw-import-export-entity-path-select__result-list').classes()).toContain(
+            'sw-import-export-entity-path-select__result-list',
+        );
     });
 
     it('should filter out password, legacy_password and legacy_encoder', async () => {
@@ -1197,9 +1191,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
-            element.textContent.trim(),
-        );
+        const possibleSelectionResult = new DOMWrapper(document.body)
+            .findAll('.sw-select-result')
+            .map((element) => element.text());
 
         expect(possibleSelectionResult).toContain('firstName');
         expect(possibleSelectionResult).toContain('lastName');
@@ -1219,9 +1213,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
-            element.textContent.trim(),
-        );
+        const possibleSelectionResult = new DOMWrapper(document.body)
+            .findAll('.sw-select-result')
+            .map((element) => element.text());
 
         expect(possibleSelectionResult).toContain('aclRoleId');
         expect(possibleSelectionResult).toContain('userId');
@@ -1237,9 +1231,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
-            element.textContent.trim(),
-        );
+        const possibleSelectionResult = new DOMWrapper(document.body)
+            .findAll('.sw-select-result')
+            .map((element) => element.text());
 
         expect(possibleSelectionResult).toContain('lastOrderDate');
         expect(possibleSelectionResult).toContain('orderCount');

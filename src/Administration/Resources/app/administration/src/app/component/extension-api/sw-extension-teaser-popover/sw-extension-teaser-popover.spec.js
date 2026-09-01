@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-extension-teaser-popover', { sync: true }), {
@@ -112,8 +112,8 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         const triggerComponent = wrapper.find('.sw-extension-teaser-popover__trigger');
         await triggerComponent.trigger('mouseenter');
 
-        const contentComponent = document.body.querySelector('.sw-extension-teaser-popover__content');
-        expect(contentComponent).toBeTruthy();
+        const contentComponent = new DOMWrapper(document.body).find('.sw-extension-teaser-popover__content');
+        expect(contentComponent.exists()).toBeTruthy();
 
         expect(wrapper.vm.isInsideComponent).toBeTruthy();
     });
@@ -158,10 +158,10 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         const triggerComponent = wrapper.find('.sw-extension-teaser-popover__trigger');
         await triggerComponent.trigger('mouseenter');
 
-        const contentComponent = document.body.querySelector('.sw-extension-teaser-popover__content');
+        const contentComponent = new DOMWrapper(document.body).get('.sw-extension-teaser-popover__content');
 
         await triggerComponent.trigger('mouseleave');
-        contentComponent.dispatchEvent(new Event('mouseenter'));
+        await contentComponent.trigger('mouseenter');
 
         jest.runAllTimers();
 
@@ -184,15 +184,15 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
         const triggerComponent = wrapper.find('.sw-extension-teaser-popover__trigger');
         await triggerComponent.trigger('mouseenter');
 
-        const contentComponent = document.body.querySelector('.sw-extension-teaser-popover__content');
+        const contentComponent = new DOMWrapper(document.body).get('.sw-extension-teaser-popover__content');
 
         await triggerComponent.trigger('mouseleave');
-        contentComponent.dispatchEvent(new Event('mouseenter'));
+        await contentComponent.trigger('mouseenter');
         jest.runAllTimers();
 
         expect(wrapper.vm.isInsideComponent).toBeTruthy();
 
-        contentComponent.dispatchEvent(new Event('mouseleave'));
+        await contentComponent.trigger('mouseleave');
         jest.runAllTimers();
 
         expect(wrapper.vm.isInsideComponent).toBeFalsy();

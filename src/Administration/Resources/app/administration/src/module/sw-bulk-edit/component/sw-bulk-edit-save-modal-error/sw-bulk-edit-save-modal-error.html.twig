@@ -20,9 +20,7 @@
 
     <template v-if="failedItems.length > 0">
         <p class="sw-bulk-edit-save-modal-error__failed-status-description">
-            {{ $t('sw-bulk-edit.modal.error.failedStatusChanges', {
-                count: failedItems.length
-            }, failedItems.length) }}
+            {{ $t('sw-bulk-edit.modal.error.failedStatusChanges', { count: failedItems.length }, failedItems.length) }}
         </p>
 
         <ul class="sw-bulk-edit-save-modal-error__failed-status-list">

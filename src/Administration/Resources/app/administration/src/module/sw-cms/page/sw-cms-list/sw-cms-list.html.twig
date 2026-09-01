@@ -157,7 +157,7 @@
                                         :class="'sw-cms-list-item--' + index"
                                         :page="cmsPage"
                                         :active="layoutIsLinked(cmsPage.id)"
-                                        :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
+                                        :is-default="isDefaultLayout(cmsPage)"
                                         @item-click="onListItemClick"
                                         @preview-image-change="onPreviewChange"
                                         @cms-page-delete="onDeleteCmsPage"
@@ -186,6 +186,7 @@
                                                 </sw-context-menu-item>
                                                 {% endblock %}
 
+                                                {% block sw_cms_list_listing_list_item_option_set_as_default %}
                                                 <sw-context-menu-item
                                                     v-if="showDefaultLayoutContextMenu(cmsPage)"
                                                     class="sw-cms-list-item__option-set-as-default"
@@ -199,6 +200,7 @@
                                                         {{ $t('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
                                                     </template>
                                                 </sw-context-menu-item>
+                                                {% endblock %}
 
                                                 {% block sw_cms_list_listing_list_item_option_duplicate %}
                                                 <sw-context-menu-item
@@ -359,6 +361,7 @@
                                         </sw-context-menu-item>
                                         {% endblock %}
 
+                                        {% block sw_cms_list_listing_list_data_grid_actions_set_as_default %}
                                         <sw-context-menu-item
                                             v-if="showDefaultLayoutContextMenu(item)"
                                             class="sw-cms-list-item__option-set-as-default"
@@ -372,6 +375,7 @@
                                                 {{ $t('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
                                             </template>
                                         </sw-context-menu-item>
+                                        {% endblock %}
 
                                         {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
                                         <sw-context-menu-item

@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception as PdoException;
+use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -9,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -92,6 +96,79 @@ class EntityWriteGatewayTest extends TestCase
         $gateway->execute([$command], $context);
 
         static::assertTrue($postWriteEventDispatched);
+    }
+
+    public function testRetryClearsExceptionsFromFailedAttempt(): void
+    {
+        $recordChangedException = new DriverException(
+            new PdoException('Record has changed since last read', 'HY000', 1020),
+            null,
+        );
+        $attempts = 0;
+        $transactionAttempts = 0;
+        $transactionNestingLevel = 0;
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getTransactionNestingLevel')
+            ->willReturnCallback(static function () use (&$transactionNestingLevel): int {
+                return $transactionNestingLevel;
+            });
+        $connection->expects($this->exactly(2))
+            ->method('transactional')
+            ->willReturnCallback(static function (\Closure $closure) use ($connection, &$transactionAttempts, &$transactionNestingLevel): mixed {
+                ++$transactionAttempts;
+                $transactionNestingLevel = 1;
+
+                try {
+                    return $closure($connection);
+                } finally {
+                    $transactionNestingLevel = 0;
+                }
+            });
+        $connection->expects($this->exactly(2))
+            ->method('update')
+            ->willReturnCallback(static function () use (&$attempts, $recordChangedException): int {
+                ++$attempts;
+
+                if ($attempts === 1) {
+                    throw $recordChangedException;
+                }
+
+                return 1;
+            });
+
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('immutable_test');
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $definitionRegistry->method('getByEntityName')->willReturn($definition);
+
+        $successCallbacks = 0;
+        $errorCallbacks = 0;
+        $this->dispatcher->addListener(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCallbacks, &$errorCallbacks): void {
+            $event->addSuccess(static function () use (&$successCallbacks): void {
+                ++$successCallbacks;
+            });
+            $event->addError(static function () use (&$errorCallbacks): void {
+                ++$errorCallbacks;
+            });
+        });
+
+        $gateway = new EntityWriteGateway(
+            100,
+            $connection,
+            $this->dispatcher,
+            static::createStub(ExceptionHandlerRegistry::class),
+            $definitionRegistry,
+        );
+        $context = WriteContext::createFromContext(Context::createDefaultContext());
+
+        $gateway->execute([$this->createUpdateCommand('initial', 'initial')], $context);
+
+        static::assertSame(2, $attempts);
+        static::assertSame(2, $transactionAttempts);
+        static::assertSame([], $context->getExceptions()->getExceptions());
+        static::assertSame(1, $successCallbacks);
+        static::assertSame(0, $errorCallbacks);
     }
 
     private function createGateway(): EntityWriteGateway

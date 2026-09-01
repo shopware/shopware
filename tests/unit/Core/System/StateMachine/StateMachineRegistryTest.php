@@ -14,21 +14,28 @@ use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
@@ -54,7 +61,7 @@ class StateMachineRegistryTest extends TestCase
 {
     private int $transactionalCalls = 0;
 
-    public function testTransitionWritesHistoryAndUpdatesEntityInsideLock(): void
+    public function testLiveTransitionWritesHistoryAndStateInSingleBatch(): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId', 'internal comment');
         $context = new Context(new AdminApiSource('user-id', 'integration-id'));
@@ -68,10 +75,36 @@ class StateMachineRegistryTest extends TestCase
         $historyRepository = $this->createMock(EntityRepository::class);
         $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
 
-        $fixture->historyRepository->expects($this->once())
-            ->method('create')
-            ->with(
-                [[
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
+        $fixture->entityWriter->expects($this->once())
+            ->method('sync')
+            ->willReturnCallback(static function (array $operations, WriteContext $writeContext) use ($context, $transition, $fromPlace, $toPlace, $dispatcher): WriteResult {
+                static::assertSame($context, $writeContext->getContext());
+                static::assertSame([], $dispatcher->events);
+                static::assertCount(2, $operations);
+
+                [$historyOperation, $stateOperation] = $operations;
+                static::assertInstanceOf(SyncOperation::class, $historyOperation);
+                static::assertInstanceOf(SyncOperation::class, $stateOperation);
+                static::assertSame('state-machine-history', $historyOperation->getKey());
+                static::assertSame(StateMachineHistoryDefinition::ENTITY_NAME, $historyOperation->getEntity());
+                static::assertSame(SyncOperation::ACTION_UPSERT, $historyOperation->getAction());
+
+                $historyPayload = $historyOperation->getPayload();
+                static::assertCount(1, $historyPayload);
+                $history = $historyPayload[0];
+                static::assertIsArray($history);
+                static::assertArrayHasKey('id', $history);
+                static::assertIsString($history['id']);
+                static::assertTrue(Uuid::isValid($history['id']));
+                $historyId = $history['id'];
+                unset($history['id']);
+
+                static::assertSame([
                     'stateMachineId' => $toPlace->getStateMachineId(),
                     'entityName' => 'order_transaction',
                     'fromStateId' => $fromPlace->getId(),
@@ -83,19 +116,38 @@ class StateMachineRegistryTest extends TestCase
                     'referencedId' => $transition->getEntityId(),
                     'referencedVersionId' => $context->getVersionId(),
                     'internalComment' => 'internal comment',
-                ]],
-                $context
-            );
+                ], $history);
 
-        $fixture->entityRepository->expects($this->once())
-            ->method('upsert')
-            ->with([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $context);
+                static::assertSame('state-machine-state', $stateOperation->getKey());
+                static::assertSame('order_transaction', $stateOperation->getEntity());
+                static::assertSame(SyncOperation::ACTION_UPSERT, $stateOperation->getAction());
+                static::assertSame([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $stateOperation->getPayload());
+
+                return new WriteResult([], [], [
+                    StateMachineHistoryDefinition::ENTITY_NAME => [
+                        new EntityWriteResult($historyId, $history, StateMachineHistoryDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+                    ],
+                    'order_transaction' => [
+                        new EntityWriteResult($transition->getEntityId(), ['stateId' => $toPlace->getId()], 'order_transaction', EntityWriteResult::OPERATION_UPDATE),
+                    ],
+                ]);
+            });
 
         $stateMachineStates = $fixture->registry->transition($transition, $context);
 
         static::assertSame($fromPlace, $stateMachineStates->get('fromPlace'));
         static::assertSame($toPlace, $stateMachineStates->get('toPlace'));
-        static::assertCount(3, $dispatcher->events);
+        static::assertSame(0, $this->transactionalCalls);
+        static::assertCount(5, $dispatcher->events);
+
+        $historyEvent = $dispatcher->events[0]['event'];
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $historyEvent);
+        static::assertNotNull($historyEvent->getEventByEntityName(StateMachineHistoryDefinition::ENTITY_NAME));
+
+        $stateEvent = $dispatcher->events[1]['event'];
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $stateEvent);
+        static::assertNotNull($stateEvent->getEventByEntityName('order_transaction'));
+        static::assertInstanceOf(StateMachineTransitionEvent::class, $dispatcher->events[2]['event']);
     }
 
     #[DataProvider('transitionSourceProvider')]
@@ -119,10 +171,26 @@ class StateMachineRegistryTest extends TestCase
             $this->createMock(EntityRepository::class)
         );
 
-        $fixture->historyRepository->expects($this->once())
-            ->method('create')
-            ->with(
-                [[
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
+        $fixture->entityWriter->expects($this->once())
+            ->method('sync')
+            ->willReturnCallback(static function (array $operations, WriteContext $writeContext) use ($context, $transition, $fromPlace, $toPlace, $expectedUserId, $expectedIntegrationId, $expectedSourceType): WriteResult {
+                static::assertSame($context, $writeContext->getContext());
+                static::assertCount(2, $operations);
+
+                $historyOperation = $operations[0];
+                static::assertInstanceOf(SyncOperation::class, $historyOperation);
+                $historyPayload = $historyOperation->getPayload();
+                static::assertCount(1, $historyPayload);
+                $history = $historyPayload[0];
+                static::assertIsArray($history);
+                unset($history['id']);
+
+                static::assertSame([
                     'stateMachineId' => $toPlace->getStateMachineId(),
                     'entityName' => 'order_transaction',
                     'fromStateId' => $fromPlace->getId(),
@@ -134,9 +202,10 @@ class StateMachineRegistryTest extends TestCase
                     'referencedId' => $transition->getEntityId(),
                     'referencedVersionId' => $context->getVersionId(),
                     'internalComment' => null,
-                ]],
-                $context
-            );
+                ], $history);
+
+                return new WriteResult([]);
+            });
 
         $fixture->registry->transition($transition, $context);
     }
@@ -179,7 +248,7 @@ class StateMachineRegistryTest extends TestCase
         ];
     }
 
-    public function testTransitionDoesNotUpdateStateWhenHistoryWriteFails(): void
+    public function testLiveTransitionDoesNotDispatchEventsWhenBatchFails(): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
         $context = Context::createDefaultContext();
@@ -193,24 +262,64 @@ class StateMachineRegistryTest extends TestCase
         $historyRepository = $this->createMock(EntityRepository::class);
         $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
 
-        // The history entry is written first inside the transaction; if it fails, the state must not be
-        // updated, so no entity-written events are dispatched for a state change that never commits.
-        $fixture->historyRepository->expects($this->once())
-            ->method('create')
-            ->willThrowException(new \RuntimeException('history write failed'));
-
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
         $fixture->entityRepository->expects($this->never())
             ->method('upsert');
+        $fixture->entityWriter->expects($this->once())
+            ->method('sync')
+            ->willThrowException(new \RuntimeException('batch write failed'));
 
-        $this->expectExceptionObject(new \RuntimeException('history write failed'));
+        try {
+            $fixture->registry->transition($transition, $context);
+            static::fail('Expected the batch write to fail.');
+        } catch (\RuntimeException $exception) {
+            static::assertSame('batch write failed', $exception->getMessage());
+        }
 
-        $fixture->registry->transition($transition, $context);
+        static::assertSame([], $dispatcher->events);
     }
 
-    public function testTransitionWritesHistoryAndStateInsideTransaction(): void
+    public function testLiveTransitionPropagatesWrittenEventFailureAfterBatchSucceeds(): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
         $context = Context::createDefaultContext();
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $toPlace),
+        ]);
+        $dispatcher = new FailingWrittenEventDispatcher();
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $historyRepository = $this->createMock(EntityRepository::class);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
+
+        $fixture->entityWriter->expects($this->once())
+            ->method('sync')
+            ->willReturn(new WriteResult([], [], [
+                StateMachineHistoryDefinition::ENTITY_NAME => [
+                    new EntityWriteResult(Uuid::randomHex(), [], StateMachineHistoryDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+                ],
+                'order_transaction' => [
+                    new EntityWriteResult($transition->getEntityId(), [], 'order_transaction', EntityWriteResult::OPERATION_UPDATE),
+                ],
+            ]));
+
+        try {
+            $fixture->registry->transition($transition, $context);
+            static::fail('Expected the written-event listener to fail.');
+        } catch (\RuntimeException $exception) {
+            static::assertSame('written-event listener failed', $exception->getMessage());
+        }
+
+        static::assertCount(1, $dispatcher->events);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $dispatcher->events[0]['event']);
+    }
+
+    public function testVersionedTransitionUsesRepositoriesInsideTransaction(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext()->createWithVersionId(Uuid::randomHex());
         $fromPlace = $this->createState('open');
         $toPlace = $this->createState('paid');
         $stateMachine = $this->createStateMachine([
@@ -220,14 +329,22 @@ class StateMachineRegistryTest extends TestCase
         $historyRepository = $this->createMock(EntityRepository::class);
         $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher(), $entityRepository, $historyRepository);
 
+        $fixture->entityWriter->expects($this->never())
+            ->method('sync');
         $fixture->historyRepository->expects($this->once())
-            ->method('create');
+            ->method('create')
+            ->with(static::callback(static function (array $payload) use ($context): bool {
+                static::assertCount(1, $payload);
+                static::assertSame($context->getVersionId(), $payload[0]['referencedVersionId']);
+
+                return true;
+            }), $context);
         $fixture->entityRepository->expects($this->once())
-            ->method('upsert');
+            ->method('upsert')
+            ->with([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $context);
 
         $fixture->registry->transition($transition, $context);
 
-        // The history and state writes must be performed inside a single transaction.
         static::assertSame(1, $this->transactionalCalls);
     }
 
@@ -249,6 +366,8 @@ class StateMachineRegistryTest extends TestCase
 
         $fixture->entityRepository->expects($this->never())
             ->method('upsert');
+        $fixture->entityWriter->expects($this->never())
+            ->method('sync');
 
         $stateMachineStates = $fixture->registry->transition($transition, $context);
 
@@ -275,6 +394,8 @@ class StateMachineRegistryTest extends TestCase
 
         $fixture->entityRepository->expects($this->never())
             ->method('upsert');
+        $fixture->entityWriter->expects($this->never())
+            ->method('sync');
 
         $this->expectExceptionObject(new IllegalTransitionException($fromPlace->getId(), '', ['paid']));
 
@@ -294,12 +415,20 @@ class StateMachineRegistryTest extends TestCase
         $historyRepository = $this->createMock(EntityRepository::class);
         $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository, $toPlace);
 
-        $fixture->historyRepository->expects($this->once())
+        $fixture->historyRepository->expects($this->never())
             ->method('create');
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+        $fixture->entityWriter->expects($this->once())
+            ->method('sync')
+            ->willReturnCallback(static function (array $operations, WriteContext $writeContext) use ($context, $transition, $toPlace): WriteResult {
+                static::assertSame($context, $writeContext->getContext());
+                static::assertCount(2, $operations);
+                static::assertInstanceOf(SyncOperation::class, $operations[1]);
+                static::assertSame([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $operations[1]->getPayload());
 
-        $fixture->entityRepository->expects($this->once())
-            ->method('upsert')
-            ->with([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $context);
+                return new WriteResult([]);
+            });
 
         $stateMachineStates = $fixture->registry->transition($transition, $context);
 
@@ -386,7 +515,8 @@ class StateMachineRegistryTest extends TestCase
             $dispatcher,
             static::createStub(DefinitionInstanceRegistry::class),
             $locker,
-            $this->createConnection()
+            $this->createConnection(),
+            static::createStub(EntityWriterInterface::class),
         );
     }
 
@@ -424,6 +554,7 @@ class StateMachineRegistryTest extends TestCase
         $definition = new StateMachineRegistryTestEntityDefinition();
         $definition->compile($definitionRegistry);
         $locker = static::createStub(StateMachineLocker::class);
+        $entityWriter = $this->createMock(EntityWriterInterface::class);
 
         $stateMachineRepository->method('search')
             ->willReturn($this->createSearchResult('state_machine', new StateMachineCollection([$stateMachine]), $context));
@@ -460,10 +591,12 @@ class StateMachineRegistryTest extends TestCase
                 $dispatcher,
                 $definitionRegistry,
                 $locker,
-                $this->createConnection()
+                $this->createConnection(),
+                $entityWriter,
             ),
             $entityRepository,
-            $historyRepository
+            $historyRepository,
+            $entityWriter,
         );
     }
 
@@ -565,6 +698,23 @@ class CollectingEventDispatcher implements EventDispatcherInterface
 /**
  * @internal
  */
+class FailingWrittenEventDispatcher extends CollectingEventDispatcher
+{
+    public function dispatch(object $event, ?string $eventName = null): object
+    {
+        parent::dispatch($event, $eventName);
+
+        if ($event instanceof EntityWrittenContainerEvent) {
+            throw new \RuntimeException('written-event listener failed');
+        }
+
+        return $event;
+    }
+}
+
+/**
+ * @internal
+ */
 class StateMachineRegistryFixture
 {
     /**
@@ -575,6 +725,7 @@ class StateMachineRegistryFixture
         public readonly StateMachineRegistry $registry,
         public readonly EntityRepository&MockObject $entityRepository,
         public readonly EntityRepository&MockObject $historyRepository,
+        public readonly EntityWriterInterface&MockObject $entityWriter,
     ) {
     }
 }

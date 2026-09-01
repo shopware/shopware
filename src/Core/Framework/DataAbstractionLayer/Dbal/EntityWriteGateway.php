@@ -111,7 +111,14 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $this->eventDispatcher->dispatch($beforeWriteEvent);
 
         try {
-            RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
+            $firstAttempt = true;
+
+            RetryableTransaction::retryable($this->connection, function () use ($commands, $context, &$firstAttempt): void {
+                if (!$firstAttempt) {
+                    $context->resetExceptions();
+                }
+
+                $firstAttempt = false;
                 $this->executeCommands($commands, $context);
             });
 

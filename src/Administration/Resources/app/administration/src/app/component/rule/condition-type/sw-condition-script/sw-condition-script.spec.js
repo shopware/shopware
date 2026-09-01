@@ -79,9 +79,6 @@ async function createWrapper(condition = {}) {
                     template: '<div class="sw-highlight-text">{{ this.text }}</div>',
                 },
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
                 'sw-product-variant-info': {
                     template: '<div class="sw-product-variant-info"><slot></slot></div>',
                 },
@@ -107,7 +104,7 @@ async function createWrapper(condition = {}) {
 }
 
 describe('components/rule/condition-type/sw-condition-script', () => {
-    it('should render fields and set condition values on change', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should render fields and set condition values on change', async () => {
         const wrapper = await createWrapper({
             type: 'scriptRule',
             scriptId: 'foo',
@@ -170,14 +167,10 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        let entryOne = Shopware.Feature.isActive('V6_8_0_0')
-            ? new DOMWrapper(document.body).get('.sw-select-option--0')
-            : wrapper.get('.sw-select-option--0');
+        let entryOne = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(entryOne.text()).toBe('Is equal to');
 
-        let entryTwo = Shopware.Feature.isActive('V6_8_0_0')
-            ? new DOMWrapper(document.body).get('.sw-select-option--1')
-            : wrapper.get('.sw-select-option--1');
+        let entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Is not equal to');
 
         await entryTwo.trigger('click');
@@ -194,25 +187,16 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        entryOne = Shopware.Feature.isActive('V6_8_0_0')
-            ? new DOMWrapper(document.body).get('.sw-select-option--0')
-            : wrapper.get('.sw-select-option--0');
+        entryOne = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(entryOne.text()).toBe('Product A');
 
-        entryTwo = Shopware.Feature.isActive('V6_8_0_0')
-            ? new DOMWrapper(document.body).get('.sw-select-option--1')
-            : wrapper.get('.sw-select-option--1');
+        entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Product B');
 
-        if (Shopware.Feature.isActive('V6_8_0_0')) {
-            await entryOne.trigger('click');
-            await flushPromises();
-            entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
-            await entryTwo.trigger('click');
-        } else {
-            await entryOne.trigger('click');
-            await entryTwo.trigger('click');
-        }
+        await entryOne.trigger('click');
+        await flushPromises();
+        entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
+        await entryTwo.trigger('click');
 
         expect(wrapper.vm.condition.value.productIds).toEqual(
             expect.arrayContaining([

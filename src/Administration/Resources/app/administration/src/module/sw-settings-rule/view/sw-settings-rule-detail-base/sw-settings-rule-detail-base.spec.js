@@ -57,9 +57,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-condition-tree': swConditionTree,
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
                 'sw-text-field': true,
                 'mt-number-field': true,
                 'mt-textarea': true,
@@ -139,7 +136,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').classes()).not.toContain('is--disabled');
         });
 
-        it('should set module types', async () => {
+        it.activeFeatureFlags(['v6.8.0.0'])('should set module types', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
@@ -147,11 +144,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
-            if (Shopware.Feature.isActive('V6_8_0_0')) {
-                await new DOMWrapper(document.body).find('.sw-select-result').trigger('click');
-            } else {
-                await wrapper.find('.sw-select-result').trigger('click');
-            }
+            await new DOMWrapper(document.body).find('.sw-select-result').trigger('click');
             await flushPromises();
 
             expect(wrapper.vm.rule.moduleTypes).toEqual({
@@ -159,7 +152,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             });
         });
 
-        it('should set module types to null if value is empty', async () => {
+        it.activeFeatureFlags(['v6.8.0.0'])('should set module types to null if value is empty', async () => {
             const wrapper = await createWrapper({
                 ...defaultProps,
                 rule: {
@@ -175,11 +168,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
-            if (Shopware.Feature.isActive('V6_8_0_0')) {
-                await new DOMWrapper(document.body).find('.sw-select-result').trigger('click');
-            } else {
-                await wrapper.find('.sw-select-result').trigger('click');
-            }
+            await new DOMWrapper(document.body).find('.sw-select-result').trigger('click');
             await flushPromises();
 
             expect(wrapper.vm.rule.moduleTypes).toBeNull();

@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -171,18 +171,16 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         await flushPromises();
 
         let entryOne = Shopware.Feature.isActive('V6_8_0_0')
-            ? document.body.querySelector('.sw-select-option--0')
+            ? new DOMWrapper(document.body).get('.sw-select-option--0')
             : wrapper.get('.sw-select-option--0');
-        expect(Shopware.Feature.isActive('V6_8_0_0') ? entryOne.textContent.trim() : entryOne.text()).toBe('Is equal to');
+        expect(entryOne.text()).toBe('Is equal to');
 
         let entryTwo = Shopware.Feature.isActive('V6_8_0_0')
-            ? document.body.querySelector('.sw-select-option--1')
+            ? new DOMWrapper(document.body).get('.sw-select-option--1')
             : wrapper.get('.sw-select-option--1');
-        expect(Shopware.Feature.isActive('V6_8_0_0') ? entryTwo.textContent.trim() : entryTwo.text()).toBe(
-            'Is not equal to',
-        );
+        expect(entryTwo.text()).toBe('Is not equal to');
 
-        Shopware.Feature.isActive('V6_8_0_0') ? entryTwo.click() : await entryTwo.trigger('click');
+        await entryTwo.trigger('click');
 
         expect(wrapper.vm.condition.value.operator).toBe('!=');
         expect(wrapper.vm.values.operator).toBe('!=');
@@ -197,20 +195,20 @@ describe('components/rule/condition-type/sw-condition-script', () => {
         await flushPromises();
 
         entryOne = Shopware.Feature.isActive('V6_8_0_0')
-            ? document.body.querySelector('.sw-select-option--0')
+            ? new DOMWrapper(document.body).get('.sw-select-option--0')
             : wrapper.get('.sw-select-option--0');
-        expect(Shopware.Feature.isActive('V6_8_0_0') ? entryOne.textContent.trim() : entryOne.text()).toBe('Product A');
+        expect(entryOne.text()).toBe('Product A');
 
         entryTwo = Shopware.Feature.isActive('V6_8_0_0')
-            ? document.body.querySelector('.sw-select-option--1')
+            ? new DOMWrapper(document.body).get('.sw-select-option--1')
             : wrapper.get('.sw-select-option--1');
-        expect(Shopware.Feature.isActive('V6_8_0_0') ? entryTwo.textContent.trim() : entryTwo.text()).toBe('Product B');
+        expect(entryTwo.text()).toBe('Product B');
 
         if (Shopware.Feature.isActive('V6_8_0_0')) {
-            entryOne.click();
+            await entryOne.trigger('click');
             await flushPromises();
-            entryTwo = document.body.querySelector('.sw-select-option--1');
-            entryTwo.click();
+            entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
+            await entryTwo.trigger('click');
         } else {
             await entryOne.trigger('click');
             await entryTwo.trigger('click');

@@ -1,6 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia } from 'pinia';
 
@@ -319,7 +319,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-select-option--1').click();
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
 
         invalidSequences = Shopware.Store.get('swFlow').invalidSequences;
         expect(invalidSequences).toEqual([]);
@@ -386,7 +386,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-select-option--1').click();
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
 
         const sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState[0]).toEqual({
@@ -482,7 +482,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-select-result__create-new-rule').click();
+        await new DOMWrapper(document.body).get('.sw-select-result__create-new-rule').trigger('click');
         await flushPromises();
 
         createRuleModal = wrapper.find('sw-flow-rule-modal-stub');
@@ -527,9 +527,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const disabledRule = document.body.querySelector('ul:nth-of-type(2) li');
+        const disabledRule = new DOMWrapper(document.body).get('ul:nth-of-type(2) li');
 
-        expect(disabledRule.classList).toContain('is--disabled');
+        expect(disabledRule.classes()).toContain('is--disabled');
     });
 
     it('should not disable the rule if it is restricted', async () => {
@@ -541,8 +541,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const disabledRule = document.body.querySelector('ul:nth-of-type(2) li:nth-of-type(2)');
+        const disabledRule = new DOMWrapper(document.body).get('ul:nth-of-type(2) li:nth-of-type(2)');
 
-        expect(disabledRule.classList).not.toContain('is--disabled');
+        expect(disabledRule.classes()).not.toContain('is--disabled');
     });
 });

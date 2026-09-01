@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.constant';
 
@@ -148,7 +148,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await flushPromises();
 
             if (Shopware.Feature.isActive('V6_8_0_0')) {
-                document.body.querySelector('.sw-select-result').click();
+                await new DOMWrapper(document.body).find('.sw-select-result').trigger('click');
             } else {
                 await wrapper.find('.sw-select-result').trigger('click');
             }
@@ -176,7 +176,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await flushPromises();
 
             if (Shopware.Feature.isActive('V6_8_0_0')) {
-                document.body.querySelector('.sw-select-result').click();
+                await new DOMWrapper(document.body).find('.sw-select-result').trigger('click');
             } else {
                 await wrapper.find('.sw-select-result').trigger('click');
             }

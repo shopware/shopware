@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], languageId = null, stubTranslationIsoField = true) {
     const languageRepositoryGet = jest.fn((id) => {
@@ -254,17 +254,17 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-option--0').classList).not.toContain('is--disabled');
+        expect(new DOMWrapper(document.body).get('.sw-select-option--0').classes()).not.toContain('is--disabled');
 
-        document.body.querySelector('.sw-select-option--0').click();
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-option--2').textContent).toContain('*');
+        expect(new DOMWrapper(document.body).get('.sw-select-option--2').text()).toContain('*');
 
-        document.body.querySelector('.sw-select-option--2').click();
+        await new DOMWrapper(document.body).get('.sw-select-option--2').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-field__hint').text()).toContain('textIsoCodeIsInUse');

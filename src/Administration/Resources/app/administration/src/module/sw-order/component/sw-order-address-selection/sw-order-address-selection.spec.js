@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 
@@ -214,9 +214,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectEdit = document.body.querySelector('.sw-select-option--0');
+        const selectEdit = new DOMWrapper(document.body).get('.sw-select-option--0');
 
-        selectEdit.querySelector('.sw-context-menu-item').click();
+        await selectEdit.get('.sw-context-menu-item').trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -251,9 +251,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const select = document.body.querySelector('.sw-select-option--1');
+        const select = new DOMWrapper(document.body).get('.sw-select-option--1');
 
-        select.click();
+        await select.trigger('click');
         await flushPromises();
 
         expect(wrapper.emitted('change-address')).toBeTruthy();
@@ -275,9 +275,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const newAddress = document.body.querySelector('.sw-select-result-list__content ul:nth-of-type(1)');
+        const newAddress = new DOMWrapper(document.body).get('.sw-select-result-list__content ul:nth-of-type(1)');
 
-        newAddress.querySelector('.sw-select-result__add-new-address').click();
+        await newAddress.get('.sw-select-result__add-new-address').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.currentAddress._isNew).toBe(true);
@@ -295,8 +295,8 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await flushPromises();
 
         expect(wrapper.vm.customer).toBeNull();
-        expect(document.body.querySelector('.sw-select-result__add-new-address')).toBeFalsy();
-        expect(document.body.querySelectorAll('.sw-select-result')).toHaveLength(1);
+        expect(new DOMWrapper(document.body).find('.sw-select-result__add-new-address').exists()).toBeFalsy();
+        expect(new DOMWrapper(document.body).findAll('.sw-select-result')).toHaveLength(1);
     });
 
     it('should select a newly created address after saving it', async () => {
@@ -387,20 +387,20 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const list = document.body.querySelector('.sw-select-result-list__item-list');
+        const list = new DOMWrapper(document.body).get('.sw-select-result-list__item-list');
 
-        expect(list.querySelectorAll('.sw-select-result')).toHaveLength(2);
+        expect(list.findAll('.sw-select-result')).toHaveLength(2);
 
-        const firstSelection = list.querySelector('.sw-select-result .sw-order-address-selection__information');
-        expect(firstSelection.querySelectorAll('p').item(1).textContent.trim()).toBe('Muster SE - People & Culture');
-        expect(firstSelection.querySelectorAll('p').item(2).textContent.trim()).toBe('Denesik Bridge');
-        expect(firstSelection.querySelectorAll('p').item(3).textContent.trim()).toBe('05132 Bernierstad');
-        expect(firstSelection.querySelectorAll('p').item(4).textContent.trim()).toBe('Buzbach');
+        const firstSelection = list.get('.sw-select-result .sw-order-address-selection__information');
+        expect(firstSelection.findAll('p').at(1).text()).toBe('Muster SE - People & Culture');
+        expect(firstSelection.findAll('p').at(2).text()).toBe('Denesik Bridge');
+        expect(firstSelection.findAll('p').at(3).text()).toBe('05132 Bernierstad');
+        expect(firstSelection.findAll('p').at(4).text()).toBe('Buzbach');
 
-        const secondSelection = list.querySelectorAll('.sw-select-result .sw-order-address-selection__information').item(1);
-        expect(secondSelection.querySelectorAll('p').item(1).textContent.trim()).toBe('Stehr Divide');
-        expect(secondSelection.querySelectorAll('p').item(2).textContent.trim()).toBe('64885-2245 Faheyshire');
-        expect(secondSelection.querySelectorAll('p').item(3).textContent.trim()).toBe('Buzbach');
+        const secondSelection = list.findAll('.sw-select-result .sw-order-address-selection__information').at(1);
+        expect(secondSelection.findAll('p').at(1).text()).toBe('Stehr Divide');
+        expect(secondSelection.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
+        expect(secondSelection.findAll('p').at(3).text()).toBe('Buzbach');
     });
 
     it('should be able to get the options with not props', async () => {
@@ -416,14 +416,14 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const list = document.body.querySelector('.sw-select-result-list__item-list');
+        const list = new DOMWrapper(document.body).get('.sw-select-result-list__item-list');
 
-        const information = list.querySelector('.sw-select-result .sw-order-address-selection__information');
+        const information = list.get('.sw-select-result .sw-order-address-selection__information');
 
-        expect(list.querySelectorAll('.sw-select-result')).toHaveLength(2);
-        expect(information.querySelectorAll('p').item(1).textContent.trim()).toBe('Stehr Divide');
-        expect(information.querySelectorAll('p').item(2).textContent.trim()).toBe('64885-2245 Faheyshire');
-        expect(information.querySelectorAll('p').item(3).textContent.trim()).toBe('Buzbach');
+        expect(list.findAll('.sw-select-result')).toHaveLength(2);
+        expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
+        expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
+        expect(information.findAll('p').at(3).text()).toBe('Buzbach');
     });
 
     it('should report and clear required field errors when validating an address', async () => {

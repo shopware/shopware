@@ -1,6 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 /**
  * @sw-package inventory
@@ -742,11 +742,11 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         await flushPromises();
 
         const ratingOption = Shopware.Feature.isActive('V6_8_0_0')
-            ? document.body.querySelector('.sw-select-option--rating')
-            : wrapper.find(
+            ? new DOMWrapper(document.body).get('.sw-select-option--rating')
+            : wrapper.get(
                   '.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select .sw-select-option--rating',
-              ).element;
-        ratingOption.click();
+              );
+        await ratingOption.trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-settings-listing__save-action').trigger('click');

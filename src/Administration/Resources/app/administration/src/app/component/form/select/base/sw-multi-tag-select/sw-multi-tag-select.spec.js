@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 const selector = {
     multiDataSelect: {
@@ -82,8 +82,8 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
         await flushPromises();
 
-        const selectOptionsPopover = document.body.querySelector(selector.multiDataSelect.popover);
-        expect(selectOptionsPopover).toBeTruthy();
+        const selectOptionsPopover = new DOMWrapper(document.body).find(selector.multiDataSelect.popover);
+        expect(selectOptionsPopover.exists()).toBeTruthy();
     });
 
     it('should focus input when the user click on .sw-select__selection', async () => {
@@ -100,13 +100,13 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
         await flushPromises();
 
-        const selectOptionsPopover = document.body.querySelector(selector.multiDataSelect.popover);
-        expect(selectOptionsPopover.textContent.trim()).toBe('global.sw-multi-tag-select.enterValidData');
+        const selectOptionsPopover = new DOMWrapper(document.body).get(selector.multiDataSelect.popover);
+        expect(selectOptionsPopover.text()).toBe('global.sw-multi-tag-select.enterValidData');
 
         const input = wrapper.find(selector.multiDataSelect.input);
         await input.setValue('anything');
 
-        expect(selectOptionsPopover.textContent.trim()).toBe('global.sw-multi-tag-select.addData');
+        expect(selectOptionsPopover.text()).toBe('global.sw-multi-tag-select.addData');
     });
 
     it('should add a new item when the user selects one using the enter key', async () => {
@@ -139,7 +139,7 @@ describe('components/sw-multi-tag-select', () => {
 
         expect(wrapper.vm.searchTerm).toBe(value);
 
-        document.body.querySelector('.sw-multi-tag-select-valid').click();
+        await new DOMWrapper(document.body).get('.sw-multi-tag-select-valid').trigger('click');
 
         expect(wrapper.emitted('update:value')).toStrictEqual([[[value]]]);
         expect(wrapper.vm.searchTerm).toBe('');

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -207,13 +207,11 @@ describe('components/sw-entity-multi-select', () => {
         await wrapper.find('input').trigger('change');
         await flushPromises();
 
-        const firstListEntry = document.body.querySelector('.sw-select-result-list__item-list li');
+        const firstListEntry = new DOMWrapper(document.body).get('.sw-select-result-list__item-list li');
 
-        expect(firstListEntry.classList).toContain('has--description');
-        expect(firstListEntry.querySelector('.sw-select-result__result-item-text').textContent.trim()).toBe('first entry');
-        expect(firstListEntry.querySelector('.sw-select-result__result-item-description').textContent.trim()).toBe(
-            'example',
-        );
+        expect(firstListEntry.classes()).toContain('has--description');
+        expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
+        expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
     });
 
     it('should render select indicator', async () => {
@@ -247,7 +245,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-result-list__item-list li .mt-icon')).toBeTruthy();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__item-list li .mt-icon').exists()).toBeTruthy();
     });
 
     it('should be possible to clear the selection', async () => {

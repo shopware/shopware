@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 async function createWrapper(privileges = [], isSso = false) {
@@ -167,8 +167,8 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         await wrapper.find('.sw-profile--timezone .sw-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        const results = document.body.querySelectorAll('.sw-select-result');
-        const resultNames = Array.from(results, (result) => result.textContent.trim());
+        const results = new DOMWrapper(document.body).findAll('.sw-select-result');
+        const resultNames = results.map((result) => result.text());
 
         expect(resultNames).toContain('UTC');
     });

@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -194,7 +194,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-result').getAttribute('tooltip-mock-message')).toBe(expected);
+        expect(new DOMWrapper(document.body).get('.sw-select-result').attributes('tooltip-mock-message')).toBe(expected);
     });
 
     it.each([
@@ -230,7 +230,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-result__result-item-description').textContent.trim()).toBe(
+        expect(new DOMWrapper(document.body).get('.sw-select-result__result-item-description').text()).toBe(
             'This is a very lo...',
         );
     });
@@ -242,7 +242,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-select-result').click();
+        await new DOMWrapper(document.body).get('.sw-select-result').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('checkbox');
@@ -266,7 +266,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-select-result').click();
+        await new DOMWrapper(document.body).get('.sw-select-result').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(label);
@@ -275,14 +275,14 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-condition-operator-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const operators = document.body.querySelectorAll('.sw-select-result');
+        const operators = new DOMWrapper(document.body).findAll('.sw-select-result');
         expect(operators).toHaveLength(1);
 
-        expect(operators.item(0).querySelector('sw-highlight-text-stub').getAttribute('text')).toBe(
+        expect(operators.at(0).find('sw-highlight-text-stub').attributes('text')).toBe(
             'global.sw-condition.operator.equals',
         );
 
-        operators.item(0).click();
+        await operators.at(0).trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-condition-operator-select .sw-single-select__selection-text').text()).toBe(
@@ -292,11 +292,11 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-form-field-renderer .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const options = document.body.querySelectorAll('.sw-select-result');
+        const options = new DOMWrapper(document.body).findAll('.sw-select-result');
         expect(options).toHaveLength(2);
 
-        expect(options.item(0).querySelector('sw-highlight-text-stub').getAttribute('text')).toBe('global.default.yes');
-        expect(options.item(1).querySelector('sw-highlight-text-stub').getAttribute('text')).toBe('global.default.no');
+        expect(options.at(0).find('sw-highlight-text-stub').attributes('text')).toBe('global.default.yes');
+        expect(options.at(1).find('sw-highlight-text-stub').attributes('text')).toBe('global.default.no');
     });
 
     it('should transform custom field config & operators for text editors', async () => {
@@ -308,7 +308,7 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-select-result').click();
+        await new DOMWrapper(document.body).get('.sw-select-result').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('editor');
@@ -317,17 +317,17 @@ describe('components/rule/condition-type/sw-condition-line-item-custom-field', (
         await wrapper.find('.sw-condition-operator-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const operators = document.body.querySelectorAll('.sw-select-result');
+        const operators = new DOMWrapper(document.body).findAll('.sw-select-result');
         expect(operators).toHaveLength(2);
 
-        expect(operators.item(0).querySelector('sw-highlight-text-stub').getAttribute('text')).toBe(
+        expect(operators.at(0).find('sw-highlight-text-stub').attributes('text')).toBe(
             'global.sw-condition.operator.equals',
         );
-        expect(operators.item(1).querySelector('sw-highlight-text-stub').getAttribute('text')).toBe(
+        expect(operators.at(1).find('sw-highlight-text-stub').attributes('text')).toBe(
             'global.sw-condition.operator.notEquals',
         );
 
-        operators.item(0).click();
+        await operators.at(0).trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-condition-operator-select .sw-single-select__selection-text').text()).toBe(

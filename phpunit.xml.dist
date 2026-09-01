@@ -27,16 +27,6 @@
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
             <file>src/Core/Content/Resources/config/routes_test.php</file>
 
-            <!-- Kept scoped to src/Core/System on purpose: a blanket src/Core/ suffix match would
-                 also sweep classes whose name merely ends in a DAL suffix (e.g. Framework/Migration's
-                 MigrationCollection), which PHPUnit 12 then reports as invalid #[CoversClass] targets. -->
-            <directory suffix="Definition.php">src/Core/System/</directory>
-            <directory suffix="Entity.php">src/Core/System/</directory>
-            <directory suffix="Event.php">src/Core/System/</directory>
-            <directory suffix="Field.php">src/Core/System/</directory>
-            <directory suffix="Struct.php">src/Core/System/</directory>
-            <directory suffix="Collection.php">src/Core/System/</directory>
-
             <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
             <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
             <!-- Static-analysis tooling; the Danger rules stay covered by their unit tests. -->

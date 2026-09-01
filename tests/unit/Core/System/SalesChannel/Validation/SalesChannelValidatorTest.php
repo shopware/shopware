@@ -308,6 +308,34 @@ class SalesChannelValidatorTest extends TestCase
         static::assertSame('SYSTEM__CANNOT_DELETE_DEFAULT_CURRENCY_ID', $exception->getViolations()->get(0)->getCode());
     }
 
+    public function testReaddingAssignedCurrencyIsIgnored(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $currencyId = Uuid::randomHex();
+
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new InsertCommand(
+                    $this->definitionRegistry->getByEntityName(SalesChannelCurrencyDefinition::ENTITY_NAME),
+                    [],
+                    [
+                        'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+                        'currency_id' => Uuid::fromHexToBytes($currencyId),
+                    ],
+                    static::createStub(EntityExistence::class),
+                    '/0/currencies/0'
+                ),
+            ]
+        );
+
+        $connection = $this->connectionWithCurrencyState($salesChannelId, $currencyId, [$currencyId]);
+
+        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
     /**
      * @return iterable<string, array{string}>
      */

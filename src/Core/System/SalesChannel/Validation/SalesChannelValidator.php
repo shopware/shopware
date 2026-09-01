@@ -31,12 +31,6 @@ class SalesChannelValidator implements EventSubscriberInterface
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
     private const INSERT_VALIDATION_CODE = 'SYSTEM__NO_GIVEN_DEFAULT_LANGUAGE_ID';
 
-    private const DUPLICATED_ENTRY_VALIDATION_MESSAGE = 'The sales channel language "%s" for the sales channel "%s" already exists.';
-    private const DUPLICATED_ENTRY_VALIDATION_CODE = 'SYSTEM__DUPLICATED_SALES_CHANNEL_LANGUAGE';
-
-    private const DUPLICATED_CURRENCY_ENTRY_VALIDATION_MESSAGE = 'The sales channel currency "%s" for the sales channel "%s" already exists.';
-    private const DUPLICATED_CURRENCY_ENTRY_VALIDATION_CODE = 'SYSTEM__DUPLICATED_SALES_CHANNEL_CURRENCY';
-
     private const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
     private const UPDATE_VALIDATION_CODE = 'SYSTEM__CANNOT_UPDATE_DEFAULT_LANGUAGE_ID';
 
@@ -74,8 +68,6 @@ class SalesChannelValidator implements EventSubscriberInterface
             mappingEntity: SalesChannelLanguageDefinition::ENTITY_NAME,
             mappingTable: 'sales_channel_language',
             mappingField: 'language_id',
-            duplicateValidationMessage: self::DUPLICATED_ENTRY_VALIDATION_MESSAGE,
-            duplicateValidationCode: self::DUPLICATED_ENTRY_VALIDATION_CODE,
             insertValidationMessage: self::INSERT_VALIDATION_MESSAGE,
             insertValidationCode: self::INSERT_VALIDATION_CODE,
             deleteValidationMessage: self::DELETE_VALIDATION_MESSAGE,
@@ -90,8 +82,6 @@ class SalesChannelValidator implements EventSubscriberInterface
             mappingEntity: SalesChannelCurrencyDefinition::ENTITY_NAME,
             mappingTable: 'sales_channel_currency',
             mappingField: 'currency_id',
-            duplicateValidationMessage: self::DUPLICATED_CURRENCY_ENTRY_VALIDATION_MESSAGE,
-            duplicateValidationCode: self::DUPLICATED_CURRENCY_ENTRY_VALIDATION_CODE,
             insertValidationMessage: self::CURRENCY_INSERT_VALIDATION_MESSAGE,
             insertValidationCode: self::CURRENCY_INSERT_VALIDATION_CODE,
             deleteValidationMessage: self::CURRENCY_DELETE_VALIDATION_MESSAGE,
@@ -107,8 +97,6 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $mappingEntity,
         string $mappingTable,
         string $mappingField,
-        string $duplicateValidationMessage,
-        string $duplicateValidationCode,
         string $insertValidationMessage,
         string $insertValidationCode,
         string $deleteValidationMessage,
@@ -132,8 +120,6 @@ class SalesChannelValidator implements EventSubscriberInterface
             deleteValidationCode: $deleteValidationCode,
             updateValidationMessage: $updateValidationMessage,
             updateValidationCode: $updateValidationCode,
-            duplicateValidationMessage: $duplicateValidationMessage,
-            duplicateValidationCode: $duplicateValidationCode,
         );
     }
 
@@ -215,11 +201,8 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $deleteValidationCode,
         string $updateValidationMessage,
         string $updateValidationCode,
-        string $duplicateValidationMessage,
-        string $duplicateValidationCode,
     ): void {
         $inserts = [];
-        $duplicates = [];
         $deletions = [];
         $updates = [];
 
@@ -227,12 +210,6 @@ class SalesChannelValidator implements EventSubscriberInterface
             if ($salesChannelData->inserts !== null) {
                 if ($this->isInvalidInsertCase($salesChannelData)) {
                     $inserts[$salesChannelId] = $salesChannelData->newDefault;
-                }
-
-                $duplicatedIds = $this->getDuplicates($salesChannelData);
-
-                if ($duplicatedIds !== []) {
-                    $duplicates[$salesChannelId] = $duplicatedIds;
                 }
             }
 
@@ -246,7 +223,6 @@ class SalesChannelValidator implements EventSubscriberInterface
             }
         }
 
-        $this->writeDuplicateViolationExceptions($duplicates, $duplicateValidationMessage, $duplicateValidationCode, $event);
         $this->writeViolationExceptions($inserts, $insertValidationMessage, $insertValidationCode, $event);
         $this->writeViolationExceptions($deletions, $deleteValidationMessage, $deleteValidationCode, $event);
         $this->writeViolationExceptions($updates, $updateValidationMessage, $updateValidationCode, $event);
@@ -290,50 +266,6 @@ class SalesChannelValidator implements EventSubscriberInterface
         }
 
         return $default;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getDuplicates(SalesChannelData $salesChannelData): array
-    {
-        if ($salesChannelData->inserts === null) {
-            throw SalesChannelException::invalidMappingOperation('Inserts are not allowed to be null while calling this method.');
-        }
-
-        return array_values(array_intersect($salesChannelData->state, $salesChannelData->inserts));
-    }
-
-    /**
-     * @param array<string, list<string>> $duplicates
-     */
-    private function writeDuplicateViolationExceptions(array $duplicates, string $messageTemplate, string $validationCode, PreWriteValidationEvent $event): void
-    {
-        if (!$duplicates) {
-            return;
-        }
-
-        $violations = new ConstraintViolationList();
-
-        foreach ($duplicates as $id => $duplicateMappingIds) {
-            foreach ($duplicateMappingIds as $mappingId) {
-                $violations->add(new ConstraintViolation(
-                    \sprintf($messageTemplate, $mappingId, $id),
-                    \sprintf($messageTemplate, '{{ mappingId }}', '{{ salesChannelId }}'),
-                    [
-                        '{{ salesChannelId }}' => $id,
-                        '{{ mappingId }}' => $mappingId,
-                    ],
-                    null,
-                    '/',
-                    null,
-                    null,
-                    $validationCode
-                ));
-            }
-        }
-
-        $event->getExceptions()->add(new WriteConstraintViolationException($violations));
     }
 
     /**

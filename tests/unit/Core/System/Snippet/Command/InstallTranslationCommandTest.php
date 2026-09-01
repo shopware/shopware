@@ -66,11 +66,9 @@ class InstallTranslationCommandTest extends TestCase
         $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
 
         $installed = [];
-        $this->translationLoader->method('load')
-            ->willReturnCallback(static function (string $locale) use (&$installed): void {
-                $installed[] = $locale;
-            });
-        $this->translationLoader->method('link')
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->translationLoader->expects($this->exactly(2))
+            ->method('link')
             ->willReturnCallback(static function (string $locale) use (&$installed): void {
                 $installed[] = $locale;
             });
@@ -100,11 +98,12 @@ class InstallTranslationCommandTest extends TestCase
         $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
 
         $installed = [];
-        $collect = static function (string $locale) use (&$installed): void {
-            $installed[] = $locale;
-        };
-        $this->translationLoader->method('load')->willReturnCallback($collect);
-        $this->translationLoader->method('link')->willReturnCallback($collect);
+        $this->translationLoader->expects($this->never())->method('load');
+        $this->translationLoader->expects($this->once())
+            ->method('link')
+            ->willReturnCallback(static function (string $locale) use (&$installed): void {
+                $installed[] = $locale;
+            });
 
         $tester = new CommandTester($this->getCommand());
         $tester->execute(['--locales' => 'ach-UG']);

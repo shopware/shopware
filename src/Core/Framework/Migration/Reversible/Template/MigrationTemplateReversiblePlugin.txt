@@ -1,0 +1,26 @@
+<?php declare(strict_types=1);
+
+namespace %%namespace%%;
+
+use Shopware\Core\Framework\Migration\Reversible\DownMigrationContext;
+use Shopware\Core\Framework\Migration\Reversible\Migration;
+use Shopware\Core\Framework\Migration\Reversible\UpMigrationContext;
+
+/**
+ * @internal
+ */
+class Migration%%timestamp%%%%name%% extends Migration
+{
+    public function getCreationTimestamp(): int
+    {
+        return %%timestamp%%;
+    }
+
+    public function up(UpMigrationContext $context): void
+    {
+    }
+
+    public function down(DownMigrationContext $context): void
+    {
+    }
+}

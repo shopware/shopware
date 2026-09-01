@@ -113,6 +113,7 @@ class DefinitionValidator
         'messenger_messages',
         'messenger_stats',
         'payment_token',
+        'plugin_migration',
         'refresh_token',
         'usage_data_entity_deletion',
         'one_time_tasks',

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\Reversible\MigrationRunner as ReversibleMigrationRunner;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
@@ -150,6 +151,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RequestStack::class),
             service(CustomFieldSetPersister::class),
             service(ClockInterface::class),
+            service(ReversibleMigrationRunner::class),
         ]);
 
     $services->set(PluginManagementService::class)

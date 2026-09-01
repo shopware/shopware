@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Migration\Reversible\MigrationRunner as ReversibleMigrationRunner;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -104,6 +105,7 @@ class PluginLifecycleService
         private readonly RequestStack $requestStack,
         private readonly CustomFieldSetPersister $customFieldSetPersister,
         private readonly ClockInterface $clock,
+        private readonly ReversibleMigrationRunner $reversibleMigrationRunner,
     ) {
         $this->originalEventDispatcher = $eventDispatcher;
     }
@@ -153,6 +155,10 @@ class PluginLifecycleService
             }
 
             $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
+
+            // reversible migrations run before the plugin's own install method, so that install() can
+            // already rely on the schema they create
+            $this->reversibleMigrationRunner->up($pluginBaseClass, true);
 
             $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
 
@@ -231,6 +237,11 @@ class PluginLifecycleService
 
         $pluginBaseClass->uninstall($uninstallContext);
 
+        // unlike removeMigrations() above, which only drops the legacy migration history, this rolls
+        // back the reversible migrations before removing their history. It has to run after the
+        // plugin's own uninstall method, but before composer may delete the plugin files below.
+        $this->reversibleMigrationRunner->down($pluginBaseClass, $uninstallContext->keepUserData());
+
         if (!$uninstallContext->keepUserData()) {
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
         }
@@ -293,6 +304,8 @@ class PluginLifecycleService
         }
 
         $this->eventDispatcher->dispatch(new PluginPreUpdateEvent($plugin, $updateContext));
+
+        $this->reversibleMigrationRunner->up($pluginBaseClass);
 
         $this->systemConfigService->savePluginConfiguration($pluginBaseClass);
 

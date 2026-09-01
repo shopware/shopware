@@ -78,6 +78,7 @@ class Framework extends Bundle
         $phpLoader->load('acl.php');
         $phpLoader->load('api.php');
         $phpLoader->load('services.php');
+        $phpLoader->load('migration-reversible.php');
         $phpLoader->load('cache.php');
         $phpLoader->load('app.php');
         $phpLoader->load('custom-field.php');

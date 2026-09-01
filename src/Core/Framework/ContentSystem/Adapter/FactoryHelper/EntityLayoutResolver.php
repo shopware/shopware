@@ -48,6 +48,7 @@ class EntityLayoutResolver
     }
 
     public function resolvePlaceholders(
+        string $entityType,
         string $entityIdField,
         string $entityId,
         Request $request
@@ -55,7 +56,7 @@ class EntityLayoutResolver
         $scalarParameters = array_filter($request->query->all(), '\is_scalar');
 
         return PlaceholderValues::from(array_merge(
-            [$entityIdField => $entityId],
+            ['entityType' => $entityType, 'entityIdField' => $entityIdField, $entityIdField => $entityId],
             $scalarParameters
         ));
     }

@@ -31,15 +31,15 @@ class EntityLayoutResolverTest extends TestCase
         $this->resolver = new EntityLayoutResolver();
     }
 
-    #[TestDox('builds placeholder values from entity id field and scalar query parameters, ignoring non-scalar parameters')]
+    #[TestDox('builds placeholder values from entity type, entity id field and scalar query parameters, ignoring non-scalar parameters')]
     public function testResolvePlaceholdersMergesEntityIdWithScalarQueryParameters(): void
     {
         $request = new Request(['color' => 'red', 'tags' => ['a', 'b']]);
 
-        $result = $this->resolver->resolvePlaceholders('productId', 'product-id-1', $request);
+        $result = $this->resolver->resolvePlaceholders('product', 'productId', 'product-id-1', $request);
 
         static::assertSame(
-            ['productId' => 'product-id-1', 'color' => 'red'],
+            ['entityType' => 'product', 'entityIdField' => 'productId', 'productId' => 'product-id-1', 'color' => 'red'],
             $result->all()
         );
     }

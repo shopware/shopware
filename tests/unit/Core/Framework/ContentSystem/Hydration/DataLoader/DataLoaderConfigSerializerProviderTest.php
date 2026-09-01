@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -35,6 +36,58 @@ class DataLoaderConfigSerializerProviderTest extends TestCase
         $result = $provider->decode('entity', ['key' => 'value']);
 
         static::assertSame($config, $result);
+    }
+
+    #[TestDox('resolves placeholder tokens in the raw config before decoding when values are provided')]
+    public function testDecodeResolvesPlaceholdersWhenValuesProvided(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $captured = null;
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('decode')->willReturnCallback(
+            static function (array $data) use (&$captured, $config): AbstractContentDataLoaderConfig {
+                $captured = $data;
+
+                return $config;
+            }
+        );
+
+        $locator = new ServiceLocator(['breadcrumb' => fn () => $serializer]);
+        $provider = new DataLoaderConfigSerializerProvider($locator);
+
+        $result = $provider->decode(
+            'breadcrumb',
+            ['type' => '{{entityType}}', 'nested' => ['id' => '{{productId}}'], 'keep' => 'static'],
+            PlaceholderValues::from(['entityType' => 'category', 'productId' => 'p-1']),
+        );
+
+        static::assertSame($config, $result);
+        static::assertSame(
+            ['type' => 'category', 'nested' => ['id' => 'p-1'], 'keep' => 'static'],
+            $captured,
+        );
+    }
+
+    #[TestDox('leaves the raw config untouched when no placeholder values are provided')]
+    public function testDecodeLeavesConfigUntouchedWithoutValues(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $captured = null;
+        $serializer = static::createStub(AbstractContentDataLoaderConfigSerializer::class);
+        $serializer->method('decode')->willReturnCallback(
+            static function (array $data) use (&$captured, $config): AbstractContentDataLoaderConfig {
+                $captured = $data;
+
+                return $config;
+            }
+        );
+
+        $locator = new ServiceLocator(['entity' => fn () => $serializer]);
+        $provider = new DataLoaderConfigSerializerProvider($locator);
+
+        $provider->decode('entity', ['type' => '{{entityType}}']);
+
+        static::assertSame(['type' => '{{entityType}}'], $captured);
     }
 
     #[TestDox('routes encode to the correct serializer and returns its result')]

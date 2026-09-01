@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -715,6 +716,32 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame(0, $tester->getStatusCode());
         static::assertStringContainsString('native command ran', $tester->getDisplay());
         static::assertStringNotContainsString('Admin API', $tester->getDisplay());
+    }
+
+    /**
+     * A capability name given alongside --native is forwarded, so `debug:mcp <name> --native` shows
+     * the bundle's detail view for that capability instead of its server list.
+     */
+    public function testNativeOptionForwardsTheCapabilityName(): void
+    {
+        $seen = null;
+        $native = new Command(McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME);
+        $native->addArgument('name', InputArgument::OPTIONAL);
+        $native->setCode(static function (InputInterface $input, OutputInterface $output) use (&$seen): int {
+            $seen = $input->getArgument('name');
+
+            return Command::SUCCESS;
+        });
+
+        $application = new Application();
+        $application->addCommand($native);
+        $application->addCommand($this->makeCommand(new Registry()));
+
+        $tester = new CommandTester($application->find('debug:mcp'));
+        $tester->execute(['name' => 'shopware-entity-search', '--native' => true]);
+
+        static::assertSame(0, $tester->getStatusCode());
+        static::assertSame('shopware-entity-search', $seen);
     }
 
     public function testNativeOptionFailsWhenTheBundleCommandIsMissing(): void

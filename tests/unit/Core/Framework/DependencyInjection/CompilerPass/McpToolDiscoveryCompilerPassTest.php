@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use Mcp\Capability\Attribute\McpTool;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
@@ -266,11 +267,29 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
      * The bundle stops at the first pattern that matches and treats a pattern which matched nothing
      * as a fatal typo, so a class a configured prefix already covers must not be added again.
      */
-    public function testClassCoveredByAConfiguredPrefixIsNotAddedAgain(): void
+    /**
+     * @return iterable<string, array{list<mixed>}>
+     */
+    public static function coveringPatternProvider(): iterable
+    {
+        yield 'namespace prefix' => [['Shopware\\Tests\\Unit\\Core\\Framework\\DependencyInjection\\CompilerPass\\']];
+        yield 'exact class name' => [[McpDiscoveryTestNamespacedTool::class]];
+        yield 'wildcard' => [['*']];
+        yield 'ignores a non-string entry before the match' => [[42, McpDiscoveryTestNamespacedTool::class]];
+    }
+
+    /**
+     * The bundle stops at the first pattern that matches and treats a pattern which matched nothing
+     * as a fatal typo, so a class any configured pattern already reaches must not be added again.
+     *
+     * @param list<mixed> $patterns
+     */
+    #[DataProvider('coveringPatternProvider')]
+    public function testClassCoveredByAConfiguredPatternIsNotAddedAgain(array $patterns): void
     {
         $container = $this->createContainer();
         $elements = $this->emptyElements();
-        $elements['admin']['tools'] = ['Shopware\\Tests\\Unit\\Core\\Framework\\DependencyInjection\\CompilerPass\\'];
+        $elements['admin']['tools'] = $patterns;
         $container->setParameter('mcp.servers.elements', $elements);
         $container->register(McpDiscoveryTestNamespacedTool::class, McpDiscoveryTestNamespacedTool::class)
             ->addTag('shopware.mcp.tool');
@@ -279,7 +298,47 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
 
         $result = $container->getParameter('mcp.servers.elements');
         static::assertIsArray($result);
-        static::assertSame(['Shopware\\Tests\\Unit\\Core\\Framework\\DependencyInjection\\CompilerPass\\'], $result['admin']['tools']);
+        static::assertSame($patterns, $result['admin']['tools']);
+    }
+
+    /**
+     * The parameter comes from the MCP bundle. If it is ever not the shape we expect, skip the
+     * assignment rather than fataling the container build.
+     */
+    public function testAMalformedElementsParameterIsIgnored(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('mcp.servers.elements', 'not-an-array');
+        $container->register(McpDiscoveryTestNamespacedTool::class, McpDiscoveryTestNamespacedTool::class)
+            ->addTag('shopware.mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        static::assertSame('not-an-array', $container->getParameter('mcp.servers.elements'));
+    }
+
+    /**
+     * A server Shopware knows about but that is not configured in packages/mcp.php simply gets
+     * nothing assigned; the servers that are configured are unaffected.
+     */
+    public function testAScopeMissingFromTheElementsParameterIsSkipped(): void
+    {
+        $container = $this->createContainer();
+        $elements = $this->emptyElements();
+        unset($elements['store_api']);
+        $container->setParameter('mcp.servers.elements', $elements);
+        $container->register(McpDiscoveryTestStoreApiTool::class, McpDiscoveryTestStoreApiTool::class)
+            ->addTag('mcp.tool')
+            ->addTag('shopware.store_api_mcp.tool');
+        $container->register(McpDiscoveryTestNamespacedTool::class, McpDiscoveryTestNamespacedTool::class)
+            ->addTag('shopware.mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        $result = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($result);
+        static::assertArrayNotHasKey('store_api', $result);
+        static::assertContains(McpDiscoveryTestNamespacedTool::class, $result['admin']['tools']);
     }
 
     public function testStoreApiToolIsNotCountedAsAnAdminToolNameConflict(): void

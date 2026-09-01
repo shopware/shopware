@@ -44,7 +44,6 @@ async function createWrapper() {
             sync: true,
         }),
         {
-            attachTo: document.body,
             global: {
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal', {
@@ -58,6 +57,8 @@ async function createWrapper() {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-inheritance-switch': true,

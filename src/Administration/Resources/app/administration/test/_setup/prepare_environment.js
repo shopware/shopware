@@ -72,12 +72,8 @@ import CacheService from '../../src/app/service/cache.service';
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
 
-function getFloatingUiRoot(wrapper) {
-    if (Shopware.Feature.isActive('V6_8_0_0') || !wrapper.find('.sw-popover__wrapper').exists()) {
-        return new DOMWrapper(document.body);
-    }
-
-    return wrapper;
+function getFloatingUiRoot() {
+    return new DOMWrapper(document.body);
 }
 
 // initialize the Stores

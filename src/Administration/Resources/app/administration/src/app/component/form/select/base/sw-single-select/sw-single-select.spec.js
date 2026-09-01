@@ -21,7 +21,6 @@ async function createSingleSelect(customOptions) {
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
                 'sw-loader': true,
-                'mt-floating-ui': true,
             },
         },
         props: {

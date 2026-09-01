@@ -27,7 +27,8 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-label': true,
-                'mt-floating-ui': true,
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
             },
         },
         props: {
@@ -61,9 +62,9 @@ describe('components/sw-multi-tag-select', () => {
             await wrapper.find(selector.multiDataSelect.container).trigger('click');
             await flushPromises();
 
-            const floatingUi = wrapper.get('mt-floating-ui-stub');
+            const floatingUi = wrapper.getComponent({ name: 'mt-floating-ui' });
 
-            expect(floatingUi.attributes('match-reference-width')).toBe('true');
+            expect(floatingUi.props('matchReferenceWidth')).toBe(true);
             expect(floatingUi.attributes()).not.toHaveProperty('resize-width');
             expect(warnSpy).not.toHaveBeenCalledWith(
                 'sw-popover',

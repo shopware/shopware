@@ -28,7 +28,6 @@ import {
     MtDropdownMenuTrigger,
     MtEmailField,
     MtEmptyState,
-    MtFloatingUi,
     MtIcon,
     MtLink,
     MtLoader,
@@ -297,6 +296,37 @@ config.global.stubs = {
     'mt-popover-deprecated': {
         template: `<div class="mt-popover-deprecated"><slot/></div>`,
     },
+    // renders in place: the real component teleports its content to the body, out of `wrapper.find` reach
+    'mt-floating-ui': {
+        name: 'mt-floating-ui',
+        template: `
+        <div class="mt-floating-ui">
+            <div
+                v-if="!detached"
+                class="mt-floating-ui__trigger"
+            >
+                <slot name="trigger" />
+            </div>
+            <div
+                v-if="isOpened"
+                class="mt-floating-ui__content"
+                :data-show="isOpened"
+            >
+                <slot />
+            </div>
+        </div>
+        `,
+        props: {
+            isOpened: { type: Boolean, default: true },
+            matchReferenceWidth: { type: Boolean, default: false },
+            showArrow: { type: Boolean, default: false },
+            detached: { type: Boolean, default: false },
+            offset: { type: Number, default: undefined },
+            floatingUiOptions: { type: Object, default: undefined },
+            autoUpdateOptions: { type: Object, default: undefined },
+            anchorElement: { type: null, default: null },
+        },
+    },
     'mt-action-menu': MtActionMenu,
     'mt-action-menu-group': MtActionMenuGroup,
     'mt-action-menu-item': MtActionMenuItem,
@@ -313,7 +343,6 @@ config.global.stubs = {
     'mt-dropdown-menu-trigger': MtDropdownMenuTrigger,
     'mt-email-field': MtEmailField,
     'mt-empty-state': MtEmptyState,
-    'mt-floating-ui': MtFloatingUi,
     'mt-icon': MtIcon,
     'mt-link': MtLink,
     'mt-loader': MtLoader,

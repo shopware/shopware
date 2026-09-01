@@ -85,7 +85,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-color-badge': true,
                 'mt-loader': true,
                 'sw-loader-deprecated': true,
-                'mt-floating-ui': true,
             },
             provide: {
                 repositoryFactory: {

@@ -128,6 +128,18 @@ export default {
 
             return Math.max(0, this.totalValuesCount - this.limit);
         },
+
+        validationOptions() {
+            if (!this.hasFocus) {
+                return [];
+            }
+
+            if (this.inputIsValid) {
+                return [{ type: 'add' }];
+            }
+
+            return [{ type: 'invalid' }];
+        },
     },
 
     methods: {
@@ -191,6 +203,12 @@ export default {
             this.$emit('display-values-expand');
 
             this.limit += this.limit;
+        },
+
+        onValidationItemSelect(item) {
+            if (item.type === 'add') {
+                this.addItem();
+            }
         },
     },
 };

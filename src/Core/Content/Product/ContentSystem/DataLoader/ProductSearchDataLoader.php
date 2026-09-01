@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -64,7 +66,14 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         $searchRequest = new Request();
         $searchRequest->request->set('search', $searchTerm);
 
-        $response = $this->searchRoute->load($searchRequest, $context, $criteria);
+        // A whitespace-only search term or a stale default-sorting reference are domain outcomes routed through
+        // the search chain (ProductSearchBuilder, SortingListingProcessor); ProductException::missingRequestParameter()
+        // returns RoutingException while flag v6.8.0.0 is inactive, hence the union.
+        try {
+            $response = $this->searchRoute->load($searchRequest, $context, $criteria);
+        } catch (ProductException|RoutingException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         return ContentDataLoaderResult::cachedExternally($response->getListingResult());
     }

@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfig;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -303,6 +306,46 @@ class ProductSearchDataLoaderTest extends TestCase
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    #[DataProvider('catchArmProvider')]
+    #[TestDox('returns notFound result when the search route throws $_dataName')]
+    public function testLoadReturnsNotFoundWhenSearchRouteThrows(\Throwable $exception): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
+        $searchRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($exception);
+
+        $loader = new ProductSearchDataLoader($searchRoute);
+        $result = $loader->load(
+            new LoaderInputs(['searchTermProperty' => 'shoes', 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    /**
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function catchArmProvider(): iterable
+    {
+        // Reachable via CompositeListingProcessor::prepare() -> SortingListingProcessor::prepare() when
+        // the configured default sorting id points to a deleted sorting entity; SortingListingProcessor
+        // itself calls the factory with an empty key. Not flag-dependent.
+        yield 'default sorting entity missing (ProductException arm)' => [ProductException::sortingNotFoundException('')];
+
+        // Flag-off form of ProductException::missingRequestParameter('search'), thrown directly rather than
+        // via the factory so this row exercises the RoutingException arm regardless of v6.8.0.0 state.
+        yield 'missing search parameter, flag-off form (RoutingException arm)' => [RoutingException::missingRequestParameter('search')];
     }
 
     /**

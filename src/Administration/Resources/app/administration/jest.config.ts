@@ -39,6 +39,10 @@ process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR || '<rootDir>.jestcache'
 const isCi = (() => {
     return process.argv.some((arg) => arg === '--ci');
 })();
+
+// The extension-tooling e2e specs run the real ESLint/tsc toolchain against fixture projects and
+// take minutes, which unbalances sharded unit runs. They run separately via `npm run unit:e2e`.
+const e2eSpecPattern = '<rootDir>/scripts/**/e2e.spec/**/*.spec.ts';
 const isDocker = existsSync('/.dockerenv');
 
 if (isCi) {
@@ -219,24 +223,37 @@ const config: Config = {
               '<rootDir>/test/_helper_/failedSpecFileReporter.js',
           ],
 
-    testMatch: [
-        '<rootDir>/src/**/*.spec.js',
-        '<rootDir>/src/**/*.spec.ts',
-        '<rootDir>/src/**/*.spec/*.spec.js',
-        '<rootDir>/src/**/*.spec/*.spec.ts',
-        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
-        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.ts',
-        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
-        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
-        '<rootDir>/eslint-rules/**/*.spec.js',
-        '<rootDir>/build/vite-plugins/**/*.spec.ts',
-        '<rootDir>/build/vite-plugins/**/*.spec.js',
-        '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
-        '<rootDir>/test/_helper_/**/*.spec.ts',
-        '<rootDir>/test/_setup/**/*.spec.ts',
-        '!<rootDir>/src/**/*.spec.vue2.js',
-        '<rootDir>/scripts/**/*.spec.ts',
-    ],
+    testMatch:
+        process.env.JEST_E2E === '1'
+            ? [e2eSpecPattern]
+            : [
+                  '<rootDir>/src/**/*.spec.js',
+                  '<rootDir>/src/**/*.spec.ts',
+                  '<rootDir>/src/**/*.spec/*.spec.js',
+                  '<rootDir>/src/**/*.spec/*.spec.ts',
+                  '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
+                  '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.ts',
+                  '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.js',
+                  '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec/*.spec.ts',
+                  '<rootDir>/eslint-rules/**/*.spec.js',
+                  '<rootDir>/build/vite-plugins/**/*.spec.ts',
+                  '<rootDir>/build/vite-plugins/**/*.spec.js',
+                  '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
+                  '<rootDir>/test/_helper_/**/*.spec.ts',
+                  '<rootDir>/test/_setup/**/*.spec.ts',
+                  '!<rootDir>/src/**/*.spec.vue2.js',
+                  '<rootDir>/scripts/**/*.spec.ts',
+              ],
+
+    // Jest does not expand <rootDir> in negated testMatch globs, so the e2e exclusion
+    // lives here as a regex against absolute paths instead.
+    testPathIgnorePatterns:
+        process.env.JEST_E2E === '1'
+            ? ['/node_modules/']
+            : [
+                  '/node_modules/',
+                  '/e2e\\.spec/',
+              ],
 
     testEnvironmentOptions: {
         customExportConditions: [

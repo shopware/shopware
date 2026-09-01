@@ -60,6 +60,71 @@ await wrapper.setProps({ isLoading: false });
             `.trim(),
         },
         {
+            name: 'spares a call on an inline Options API host that only registers the converted component',
+            filename: convertedSpec,
+            code: `
+const wrapper = mount({
+    template: '<div><sw-converted /></div>',
+    components: {
+        'sw-converted': await wrapTestComponent('sw-converted', { sync: true }),
+    },
+    data() {
+        return { label: 'initial' };
+    },
+});
+
+await wrapper.setData({ label: 'a' });
+            `.trim(),
+        },
+        {
+            name: 'spares a call routed through a helper that mounts an inline Options API host',
+            filename: convertedSpec,
+            code: `
+async function createWrapper() {
+    return mount({
+        template: '<div><sw-converted /></div>',
+        components: { 'sw-converted': await wrapTestComponent('sw-converted') },
+        data() {
+            return { label: 'initial' };
+        },
+    });
+}
+
+const wrapper = await createWrapper();
+await wrapper.setData({ label: 'a' });
+            `.trim(),
+        },
+        {
+            name: 'spares a call on a wrapper destructured out of such a helper',
+            filename: convertedSpec,
+            code: `
+async function createWrapper() {
+    const wrapper = mount({
+        template: '<div><sw-converted /></div>',
+        components: { 'sw-converted': await wrapTestComponent('sw-converted') },
+        data() {
+            return { label: 'initial' };
+        },
+    });
+
+    return { wrapper, toggle: () => {} };
+}
+
+const { wrapper } = await createWrapper();
+await wrapper.setData({ label: 'a' });
+            `.trim(),
+        },
+        {
+            name: 'spares the unconverted one when a spec mounts both',
+            filename: convertedSpec,
+            code: `
+const converted = mount(await wrapTestComponent('sw-converted'));
+const legacy = mount(await wrapTestComponent('sw-legacy'));
+
+await legacy.setData({ plain: 'x' });
+            `.trim(),
+        },
+        {
             name: 'ignores a spec outside any package',
             filename: path.join(os.tmpdir(), 'sw-no-set-data-orphan.spec.js'),
             code: "await wrapper.setData({ plain: 'written' });",
@@ -279,6 +344,51 @@ await wrapper.setData({ 'data-value': 'written' });
 import { nextTick } from 'vue';
 
 wrapper.vm["data-value"] = 'written';
+await nextTick();
+            `.trim(),
+            errors: [{ messageId: 'silentNoOp' }],
+        },
+        {
+            name: 'still reports an inline host that keeps its state in setup(), where setData is just as dead',
+            filename: convertedSpec,
+            code: `
+import { nextTick } from 'vue';
+
+const wrapper = mount({
+    template: '<div />',
+    setup() {
+        return { label: ref('initial') };
+    },
+});
+
+await wrapper.setData({ label: 'a' });
+            `.trim(),
+            output: `
+import { nextTick } from 'vue';
+
+const wrapper = mount({
+    template: '<div />',
+    setup() {
+        return { label: ref('initial') };
+    },
+});
+
+wrapper.vm.label = 'a';
+await nextTick();
+            `.trim(),
+            errors: [{ messageId: 'silentNoOp' }],
+        },
+        {
+            name: 'still reports a call whose wrapper cannot be traced',
+            filename: convertedSpec,
+            code: `
+const wrapper = someUntraceableFactory();
+await wrapper.setData({ plain: 'x' });
+            `.trim(),
+            output: `
+import { nextTick } from 'vue';
+const wrapper = someUntraceableFactory();
+wrapper.vm.plain = 'x';
 await nextTick();
             `.trim(),
             errors: [{ messageId: 'silentNoOp' }],

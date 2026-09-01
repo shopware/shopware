@@ -141,6 +141,248 @@ function deriveSpecSubject(filename) {
     };
 }
 
+const MOUNT_FUNCTIONS = new Set([
+    'mount',
+    'shallowMount',
+]);
+
+/**
+ * What a wrapper variable was mounted from, as far as it can be traced.
+ *
+ * `optionsApi` is the only verdict the rule acts on, and only to stay quiet. Tracing never turns a
+ * silent call into a reported one, so a resolver that gives up costs nothing: the file-level signal still
+ * decides. That keeps a wrong trace from hiding the very no-op the rule exists to catch.
+ */
+const UNTRACED = { kind: 'untraced' };
+
+function lookUpVariable(scope, name) {
+    for (let current = scope; current !== null; current = current.upper) {
+        const variable = current.variables.find((candidate) => candidate.name === name);
+
+        if (variable !== undefined) {
+            return variable;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * The expression a component literal was mounted with, if it is plainly Options API.
+ *
+ * A `setup()` block puts state in `setupState` exactly like a native setup SFC does, so an inline
+ * component that has one is no safer than a converted file and must stay reported.
+ */
+function describeComponentLiteral(node) {
+    const names = node.properties
+        .filter((property) => property.type === 'Property' && !property.computed)
+        .map((property) => (property.key.type === 'Identifier' ? property.key.name : property.key.value));
+
+    if (names.includes('setup')) {
+        return UNTRACED;
+    }
+
+    return names.includes('data') ? { kind: 'optionsApi' } : UNTRACED;
+}
+
+/**
+ * The expression a function hands back, ignoring returns from functions nested inside it.
+ */
+function findReturnedExpression(functionNode) {
+    const body = functionNode.body;
+
+    if (body.type !== 'BlockStatement') {
+        return body;
+    }
+
+    let returned = null;
+
+    (function walk(node) {
+        if (returned !== null || node === null || typeof node?.type !== 'string') {
+            return;
+        }
+
+        if (node.type === 'ReturnStatement') {
+            returned = node.argument;
+
+            return;
+        }
+
+        if (node !== body && /Function(Declaration|Expression)$/.test(node.type)) {
+            return;
+        }
+
+        for (const key of Object.keys(node)) {
+            if (key === 'parent') {
+                continue;
+            }
+
+            const value = node[key];
+
+            if (Array.isArray(value)) {
+                value.forEach(walk);
+            } else if (value !== null && typeof value?.type === 'string') {
+                walk(value);
+            }
+        }
+    })(body);
+
+    return returned;
+}
+
+function findFunctionNode(variable) {
+    for (const definition of variable?.defs ?? []) {
+        if (definition.node.type === 'FunctionDeclaration') {
+            return definition.node;
+        }
+
+        const init = definition.node.init;
+
+        if (init && /^(ArrowFunctionExpression|FunctionExpression)$/.test(init.type)) {
+            return init;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * The expression a variable last holds, plus the destructuring key it was bound through.
+ *
+ * `const { wrapper } = await createWrapper()` binds through the key `wrapper`, so the helper's return
+ * value has to be narrowed to that property before the trace can continue.
+ */
+function findAssignedExpression(variable) {
+    const definition = variable?.defs?.[variable.defs.length - 1];
+    const write = variable?.references.filter((reference) => reference.writeExpr).pop();
+    const expression = definition?.node?.type === 'VariableDeclarator' ? definition.node.init : null;
+    const identifier = definition?.node?.id;
+
+    let key = null;
+
+    if (identifier?.type === 'ObjectPattern') {
+        const property = identifier.properties.find(
+            (candidate) => candidate.type === 'Property' && candidate.value.name === variable.name,
+        );
+
+        key = property?.key.type === 'Identifier' ? property.key.name : null;
+    }
+
+    return { expression: expression ?? write?.writeExpr ?? null, key };
+}
+
+function isVueFileImport(variable) {
+    return (variable?.defs ?? []).some(
+        (definition) => definition.type === 'ImportBinding' && String(definition.parent.source.value).endsWith(VUE_SUFFIX),
+    );
+}
+
+/**
+ * Traces a wrapper expression back to the component `mount()` received.
+ *
+ * `key` narrows an object the trace passed through, for a wrapper destructured out of a helper's return.
+ */
+function traceWrapper(node, scope, sourceCode, key = null, depth = 0) {
+    if (node === null || node === undefined || depth > 6) {
+        return UNTRACED;
+    }
+
+    switch (node.type) {
+        case 'AwaitExpression':
+            return traceWrapper(node.argument, scope, sourceCode, key, depth + 1);
+
+        case 'TSAsExpression':
+        case 'TSNonNullExpression':
+            return traceWrapper(node.expression, scope, sourceCode, key, depth + 1);
+
+        case 'ObjectExpression': {
+            const property = node.properties.find(
+                (candidate) => candidate.type === 'Property' && !candidate.computed && candidate.key.name === key,
+            );
+
+            return property === undefined ? UNTRACED : traceWrapper(property.value, scope, sourceCode, null, depth + 1);
+        }
+
+        case 'Identifier': {
+            const variable = lookUpVariable(scope, node.name);
+
+            if (variable === null) {
+                return UNTRACED;
+            }
+
+            const assigned = findAssignedExpression(variable);
+
+            return traceWrapper(assigned.expression, variable.scope, sourceCode, assigned.key ?? key, depth + 1);
+        }
+
+        case 'CallExpression': {
+            if (node.callee.type !== 'Identifier') {
+                return UNTRACED;
+            }
+
+            if (MOUNT_FUNCTIONS.has(node.callee.name)) {
+                return describeMountArgument(node.arguments[0], scope, sourceCode, depth + 1);
+            }
+
+            const helper = findFunctionNode(lookUpVariable(scope, node.callee.name));
+
+            if (helper === null) {
+                return UNTRACED;
+            }
+
+            const helperScope = sourceCode.scopeManager.acquire(helper) ?? scope;
+
+            return traceWrapper(findReturnedExpression(helper), helperScope, sourceCode, key, depth + 1);
+        }
+
+        default:
+            return UNTRACED;
+    }
+}
+
+function describeMountArgument(node, scope, sourceCode, depth) {
+    if (node === null || node === undefined || depth > 6) {
+        return UNTRACED;
+    }
+
+    switch (node.type) {
+        case 'AwaitExpression':
+            return describeMountArgument(node.argument, scope, sourceCode, depth + 1);
+
+        case 'TSAsExpression':
+        case 'TSNonNullExpression':
+            return describeMountArgument(node.expression, scope, sourceCode, depth + 1);
+
+        case 'ObjectExpression':
+            return describeComponentLiteral(node);
+
+        case 'CallExpression':
+            return node.callee.type === 'Identifier' &&
+                node.callee.name === 'wrapTestComponent' &&
+                node.arguments[0]?.type === 'Literal' &&
+                typeof node.arguments[0].value === 'string'
+                ? { kind: 'named', name: node.arguments[0].value }
+                : UNTRACED;
+
+        case 'Identifier': {
+            const variable = lookUpVariable(scope, node.name);
+
+            if (isVueFileImport(variable)) {
+                return { kind: 'nativeSetup' };
+            }
+
+            const assigned = findAssignedExpression(variable);
+
+            return assigned.expression === null
+                ? UNTRACED
+                : describeMountArgument(assigned.expression, variable.scope, sourceCode, depth + 1);
+        }
+
+        default:
+            return UNTRACED;
+    }
+}
+
 function isIdentifierLike(name) {
     return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name);
 }
@@ -211,7 +453,11 @@ function classifySetDataCall(node, sourceCode) {
  *
  * A spec counts as mounting a native setup component when it imports a `.vue` file, when it passes a name
  * to `wrapTestComponent()` that resolves to a `.vue` file, or when the component it is named after is a
- * `.vue` file in its own directory.
+ * `.vue` file in its own directory. Within such a spec an individual call is spared only when its wrapper
+ * traces back to a component that provably is not native setup - an Options API literal, or a
+ * `wrapTestComponent()` name with no `.vue` behind it. A spec that mounts an inline host and registers the
+ * converted component as one of its children is the common shape here: `setData` on the host is correct
+ * and stays correct.
  *
  * @type {import('eslint').Rule.RuleModule}
  */
@@ -250,18 +496,20 @@ module.exports = {
         let firstImport = null;
         let importFixEmitted = false;
 
-        function mountsNativeSetupComponent() {
+        function resolveComponentIndex() {
+            const srcRoot = findSrcRoot(filename);
+
+            return srcRoot === null ? null : indexNativeSetupComponents(srcRoot);
+        }
+
+        function mountsNativeSetupComponent(index) {
             if (importsVueFile) {
                 return true;
             }
 
-            const srcRoot = findSrcRoot(filename);
-
-            if (srcRoot === null) {
+            if (index === null) {
                 return false;
             }
-
-            const index = indexNativeSetupComponents(srcRoot);
 
             for (const componentName of wrappedComponentNames) {
                 if (index.has(componentName)) {
@@ -273,6 +521,26 @@ module.exports = {
             const declaringDirectories = index.get(subject.componentName);
 
             return declaringDirectories !== undefined && subject.directories.some((d) => declaringDirectories.has(d));
+        }
+
+        /**
+         * Whether this one call is on a wrapper that demonstrably holds something other than a native setup
+         * component, in a spec that mounts one elsewhere.
+         */
+        function targetsAnUnconvertedComponent(node, index) {
+            const receiver = node.callee.object;
+
+            if (receiver.type !== 'Identifier') {
+                return false;
+            }
+
+            const traced = traceWrapper(receiver, sourceCode.getScope(receiver), sourceCode);
+
+            if (traced.kind === 'optionsApi') {
+                return true;
+            }
+
+            return traced.kind === 'named' && index !== null && !index.has(traced.name);
         }
 
         /**
@@ -408,11 +676,21 @@ module.exports = {
             },
 
             'Program:exit': function reportCollectedCalls() {
-                if (setDataCalls.length === 0 || !mountsNativeSetupComponent()) {
+                if (setDataCalls.length === 0) {
+                    return;
+                }
+
+                const index = resolveComponentIndex();
+
+                if (!mountsNativeSetupComponent(index)) {
                     return;
                 }
 
                 for (const node of setDataCalls) {
+                    if (targetsAnUnconvertedComponent(node, index)) {
+                        continue;
+                    }
+
                     const classification = classifySetDataCall(node, sourceCode);
 
                     if (classification.blocker !== undefined) {

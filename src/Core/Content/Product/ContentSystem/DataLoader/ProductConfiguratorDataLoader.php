@@ -69,12 +69,16 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
+        $parentId = $product->getParentId();
+
         // Product detail layouts may receive the parent product when no concrete variant was selected yet.
         // ProductConfiguratorLoader intentionally serves the legacy buy widget only for a child variant, so
         // use a copy with the parent id as the configurator root for this standalone Content System component.
-        if ($product->getParentId() === null) {
+        if ($parentId === null) {
+            $parentId = $product->getId();
+
             $product = clone $product;
-            $product->setParentId($product->getId());
+            $product->setParentId($parentId);
         }
 
         try {
@@ -83,6 +87,6 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
-        return ContentDataLoaderResult::cached($groups, EntityCacheKeyGenerator::buildProductTag($product->getParentId()));
+        return ContentDataLoaderResult::cached($groups, EntityCacheKeyGenerator::buildProductTag($parentId));
     }
 }

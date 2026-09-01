@@ -108,6 +108,9 @@ const repositoryMockFactory = (entity) => {
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-seo', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             provide: {
                 acl: {
                     can: (identifier) => {
@@ -223,9 +226,9 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
-        expect(selectStoreFront.text()).toBe('Storefront');
-        await selectStoreFront.trigger('click');
+        const selectStoreFront = document.body.querySelector('.sw-select-option--1');
+        expect(selectStoreFront.textContent.trim()).toBe('Storefront');
+        selectStoreFront.click();
         await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
@@ -297,9 +300,9 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
-        expect(selectStoreFront.text()).toBe('Storefront');
-        await selectStoreFront.trigger('click');
+        const selectStoreFront = document.body.querySelector('.sw-select-option--1');
+        expect(selectStoreFront.textContent.trim()).toBe('Storefront');
+        selectStoreFront.click();
         await wrapper.vm.$nextTick();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
@@ -348,9 +351,9 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectHeadless = salesChannelSwitch.find('.sw-select-option--2');
-        expect(selectHeadless.text()).toBe('Headless');
-        await selectHeadless.trigger('click');
+        const selectHeadless = document.body.querySelector('.sw-select-option--2');
+        expect(selectHeadless.textContent.trim()).toBe('Headless');
+        selectHeadless.click();
         await wrapper.vm.$nextTick();
         await flushPromises();
 
@@ -428,9 +431,9 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
-        expect(selectStoreFront.text()).toBe('Storefront');
-        await selectStoreFront.trigger('click');
+        const selectStoreFront = document.body.querySelector('.sw-select-option--1');
+        expect(selectStoreFront.textContent.trim()).toBe('Storefront');
+        selectStoreFront.click();
         await wrapper.vm.$nextTick();
         await flushPromises();
 

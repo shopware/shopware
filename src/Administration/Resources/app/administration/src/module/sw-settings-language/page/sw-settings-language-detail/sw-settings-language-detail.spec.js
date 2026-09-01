@@ -18,6 +18,9 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
             languageId,
         },
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             renderStubDefaultSlot: true,
             mocks: {
                 $t(translationKey) {
@@ -251,17 +254,17 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
+        expect(document.body.querySelector('.sw-select-option--0').classList).not.toContain('is--disabled');
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        document.body.querySelector('.sw-select-option--0').click();
         await flushPromises();
 
         await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-option--2').text()).toContain('*');
+        expect(document.body.querySelector('.sw-select-option--2').textContent).toContain('*');
 
-        await languageTranslationCodeIdField.find('.sw-select-option--2').trigger('click');
+        document.body.querySelector('.sw-select-option--2').click();
         await flushPromises();
 
         expect(wrapper.find('.sw-field__hint').text()).toContain('textIsoCodeIsInUse');

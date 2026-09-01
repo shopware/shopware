@@ -4,6 +4,24 @@
 
 <details>
 
+## State machine actions enforce a single destination per source state
+
+A state machine action now maps to exactly one destination state per source state:
+
+- A migration removed existing duplicates, keeping the oldest transition per state machine, source state, and action name, and replaced the unique key on `state_machine_transition` over `(action_name, state_machine_id, from_state_id, to_state_id)` with `uniq.state_machine_transition.action_name_from_state` over `(action_name, state_machine_id, from_state_id)`.
+- Writing a `state_machine_transition` that has the same state machine, source state, and action name as an existing transition, but a different destination state, now fails against that unique key instead of silently making the action's destination undefined.
+
+If your extension registered a transition that reuses an existing action name (for example `authorize`) from the same source state with its own destination state, register it under its own action name instead. Find affected installations with:
+
+```sql
+SELECT sm.technical_name, f.technical_name AS from_state, t.action_name, COUNT(*) AS destinations
+FROM state_machine_transition t
+JOIN state_machine sm ON sm.id = t.state_machine_id
+JOIN state_machine_state f ON f.id = t.from_state_id
+GROUP BY t.state_machine_id, t.from_state_id, t.action_name
+HAVING COUNT(*) > 1;
+```
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
@@ -183,6 +201,12 @@ The Agentic Commerce sales channel features — including product export provide
 ## Document rendering no longer falls back to the Storefront browser timezone
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
+
+## Nullable order reference on `DocumentEntity`
+
+The order reference on `Shopware\Core\Checkout\Document\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
+
+`DocumentEntity::setOrderId()` and `setOrderVersionId()` accepted `?string`. Extensions overriding these setters had to widen their parameter types accordingly.
 
 ## Removed document template variables
 
@@ -507,6 +531,20 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
+
+## Removal of `PromotionCartInformationTrait` helper methods
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` and `addPromotionNotEligibleError()` are removed, replace any calls in classes that use this trait with `$cart->addErrors()`:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError($code));
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
+```
 
 ## Removal of `$options` parameter in custom validator's constraints
 

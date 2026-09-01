@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\TaxProvider\TaxProviderEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class TaxProviderTranslationEntity extends TranslationEntity
 {

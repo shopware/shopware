@@ -51,6 +51,7 @@
                 class="sw-sales-channel-detail-agentic-file__state-action"
                 size="small"
                 variant="secondary"
+                :disabled="!acl.can('sales_channel.editor')"
                 @click="onToggleEnabled"
             >
                 {{ getToggleLabel(file) }}
@@ -99,7 +100,7 @@
                     class="sw-sales-channel-detail-agentic-file__custom-notes-input"
                     name="sw-field--sales-channel-agentic-file-custom-notes"
                     :placeholder="$t('sw-sales-channel.detail.agenticFiles.detail.customNotesPlaceholder')"
-                    :disabled="isLoading || undefined"
+                    :disabled="isLoading || !acl.can('sales_channel.editor') || undefined"
                 />
             </div>
         </div>
@@ -191,6 +192,7 @@
             >
                 <template #column-templateName="{ item }">
                     <button
+                        v-if="acl.can('sales_channel.editor')"
                         type="button"
                         class="sw-sales-channel-detail-agentic-file__source sw-sales-channel-detail-agentic-file__source-button"
                         @click="openTemplateOverrideModal(item)"
@@ -199,6 +201,12 @@
                             {{ item.templateName }}
                         </span>
                     </button>
+                    <span
+                        v-else
+                        class="sw-sales-channel-detail-agentic-file__source sw-sales-channel-detail-agentic-file__source-name"
+                    >
+                        {{ item.templateName }}
+                    </span>
                 </template>
 
                 <template #column-role="{ item }">
@@ -221,7 +229,10 @@
                 </template>
 
                 <template #actions="{ item }">
-                    <sw-context-menu-item @click="openTemplateOverrideModal(item)">
+                    <sw-context-menu-item
+                        :disabled="!acl.can('sales_channel.editor')"
+                        @click="openTemplateOverrideModal(item)"
+                    >
                         {{ $t('sw-sales-channel.detail.agenticFiles.detail.actionEditOverride') }}
                     </sw-context-menu-item>
                 </template>
@@ -249,6 +260,7 @@
                 :soft-wraps="true"
                 :set-focus="true"
                 :label="$t('sw-sales-channel.detail.agenticFiles.detail.overrideModalFieldLabel')"
+                :disabled="!acl.can('sales_channel.editor')"
             />
         </div>
 
@@ -257,7 +269,7 @@
                 class="sw-sales-channel-detail-agentic-file__override-modal-reset"
                 size="small"
                 variant="secondary"
-                :disabled="!canResetTemplateOverride"
+                :disabled="!acl.can('sales_channel.editor') || !canResetTemplateOverride"
                 @click="resetTemplateOverride"
             >
                 {{ $t('sw-sales-channel.detail.agenticFiles.detail.overrideModalReset') }}
@@ -275,6 +287,7 @@
                 class="sw-sales-channel-detail-agentic-file__override-modal-apply"
                 size="small"
                 variant="primary"
+                :disabled="!acl.can('sales_channel.editor')"
                 @click="applyTemplateOverride"
             >
                 {{ $t('sw-sales-channel.detail.agenticFiles.detail.overrideModalApply') }}

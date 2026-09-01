@@ -339,6 +339,18 @@ The button is looked up with the plugin's existing `buyButtonSelector` option, w
 
 Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
 
+## Hosting & Configuration
+
+### `No-Vary-Search` header on cacheable responses
+
+With `CACHE_REWORK` active, cacheable storefront and store-api responses send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), declaring that the order of query parameters does not change the response. The server already normalizes the query order before it looks up its cache entry, so the header only tells clients what was always true.
+
+The header is a specification draft, support differs per browser and per cache, and it does not replace query sorting in a reverse proxy such as Varnish or Fastly. A client that ignores it keeps treating a reordered query string as a different URL, which is the behaviour you have today.
+
+Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. The resolved policy owns the header the same way it owns `Cache-Control`: omit the key and no `No-Vary-Search` is sent, even if a controller or plugin set one earlier.
+
+Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. A client would then match a stored response against the wrong URL and show page 1 at a `?p=2` URL. Tracking parameters are safe, because reuse does not rewrite the document URL.
+
 # 6.7.14.0
 
 ## Features
@@ -1058,15 +1070,6 @@ Assign the relevant app privilege to users or integrations that need to use an a
 
 ## Hosting & Configuration
 
-### `No-Vary-Search` header on cacheable responses
-
-With `CACHE_REWORK` active, cacheable storefront and store-api responses send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), declaring that the order of query parameters does not change the response. `HttpCacheKeyGenerator` already normalizes this server side, so the header only tells clients what was always true.
-
-`No-Vary-Search` is an HTTP specification draft (`draft-ietf-httpbis-no-vary-search`). Support differs per browser and per cache the browser keeps, so check the [browser compatibility table](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search#browser_compatibility) before relying on it. A client that does not support the header keeps treating a reordered query string as a different URL, which is the behaviour you have today. It does not replace reverse proxy configuration either: Varnish and Fastly ignore the header, use `std.querysort()` or `querystring.sort()` there.
-
-Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. Omit the key to send no header.
-
-Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. A client would then match a stored response against the wrong URL and show page 1 at a `?p=2` URL. Tracking parameters are safe, because reuse does not rewrite the document URL.
 ### Local translation files and optional automatic updates
 
 The translation system can store downloaded translation files locally instead of on the configured private filesystem. Set `shopware.translation.use_local_filesystem` to `true` and include `var/translation` in the deployed release. Run `translation:download` during the build to populate that directory without creating language or snippet-set records.

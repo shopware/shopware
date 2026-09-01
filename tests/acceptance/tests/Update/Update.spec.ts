@@ -21,7 +21,7 @@ test(
         await page.getByRole('button', { name: 'Start update' }).click();
 
         await page.getByLabel("Yes, I've created a backup.").check();
-        await page.getByRole('button', { name: 'Continue' }).click();
+        await page.getByRole('button', { name: 'Install' }).click();
         await page.waitForLoadState('domcontentloaded');
 
         await page.getByRole('link', { name: 'Continue' }).click();

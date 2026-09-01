@@ -4,7 +4,21 @@
     :title="$t('sw-settings-shopware-updates.cards.extensions')"
     :is-loading="isLoading"
 >
-    <template #grid>
+    {% block sw_shopware_updates_extensions_empty_state %}
+    <mt-empty-state
+        v-if="!isLoading && !hasExtensions"
+        class="sw-shopware-updates-extensions__empty-state"
+        :centered="true"
+        icon="regular-plug"
+        :headline="$t('sw-settings-shopware-updates.extensions.emptyStateHeadline')"
+        :description="$t('sw-settings-shopware-updates.extensions.emptyStateDescription')"
+    />
+    {% endblock %}
+
+    <template
+        v-if="hasExtensions"
+        #grid
+    >
         <sw-data-grid
             :show-selection="false"
             :data-source="extensions"

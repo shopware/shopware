@@ -2,7 +2,7 @@
   "sw-settings-shopware-updates": {
     "general": {
       "menuTitle": "Shopware updates",
-      "title": "Shopware update"
+      "title": "Shopware updates"
     },
     "cards": {
       "requirements": "System requirements",
@@ -13,16 +13,19 @@
       "title": "Shopware version",
       "badgeUpdateAvailable": "Update available",
       "badgeUpToDate": "Up to date",
-      "currentVersionLabel": "Installed version",
-      "newVersionLabel": "Latest version",
-      "changelogLink": "View changelog on GitHub",
-      "methodDivider": "or",
-      "webInstallerTitle": "Update using the web installer",
+      "currentVersionLabel": "Installed version:",
+      "newVersionLabel": "Latest version:",
+      "changelogLink": "View changelog",
+      "methodsHeadline": "Update now",
+      "cliRecommendedBadge": "Recommended",
+      "methodDivider": "or continue with",
+      "webInstallerTitle": "With the web installer",
       "webInstallerDescription": "Run the guided update directly in your browser.",
       "upToDateTitle": "You're up to date",
       "upToDateDescription": "Shopware {version} is the latest version."
     },
     "notifications": {
+      "checkFailed": "Checking for updates failed.",
       "updateStarted": "Update started.",
       "updateStopped": "Update stopped.",
       "downloadFailed": "Download has failed.",
@@ -57,6 +60,8 @@
         "deactivateNone": "I am aware of the implicit dangers and still want to update Shopware without deactivating incompatible extensions first. I am conscious, that Shopware cannot guarantee the functionality of my installation after an incompatible update.",
         "recommended": "(Recommended)"
       },
+      "emptyStateHeadline": "No compatibility issues",
+      "emptyStateDescription": "All installed extensions are compatible with this update.",
       "extensionNotInStore": "This extension is not available in the store. Please contact the extension's authors.",
       "extensionWillBeDeactivatedHint": "(This extension will be deactivated on update)"
     },
@@ -74,7 +79,7 @@
     "methodModal": {
       "title": "Update Shopware",
       "subtitle": "A backup is recommended before updating.",
-      "cliTitle": "Recommended: update with Shopware CLI",
+      "cliTitle": "With Shopware CLI",
       "cliDescription": "Shopware CLI gives you more control and repeatable deployments.",
       "cliInstallHint": "Install Shopware CLI and run:",
       "cliInstallLink": "Install Shopware CLI",

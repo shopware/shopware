@@ -1,8 +1,8 @@
 {
   "sw-settings-shopware-updates": {
     "general": {
-      "menuTitle": "Shopware-Aktualisierungen",
-      "title": "Shopware-Aktualisierung"
+      "menuTitle": "Shopware-Updates",
+      "title": "Shopware-Updates"
     },
     "cards": {
       "requirements": "Systemvoraussetzungen",
@@ -13,16 +13,19 @@
       "title": "Shopware-Version",
       "badgeUpdateAvailable": "Update verfügbar",
       "badgeUpToDate": "Auf dem aktuellen Stand",
-      "currentVersionLabel": "Installierte Version",
-      "newVersionLabel": "Neueste Version",
-      "changelogLink": "Changelog auf GitHub ansehen",
-      "methodDivider": "oder",
-      "webInstallerTitle": "Aktualisierung über den Web-Installer",
+      "currentVersionLabel": "Installierte Version:",
+      "newVersionLabel": "Neueste Version:",
+      "changelogLink": "Changelog ansehen",
+      "methodsHeadline": "Jetzt aktualisieren",
+      "cliRecommendedBadge": "Empfohlen",
+      "methodDivider": "oder weiter mit",
+      "webInstallerTitle": "Mit dem Web-Installer",
       "webInstallerDescription": "Führe die geführte Aktualisierung direkt im Browser aus.",
       "upToDateTitle": "Du bist auf dem neuesten Stand",
       "upToDateDescription": "Shopware {version} ist die neueste Version."
     },
     "notifications": {
+      "checkFailed": "Die Update-Prüfung ist fehlgeschlagen.",
       "updateStarted": "Aktualisierung gestartet.",
       "updateStopped": "Aktualisierung gestoppt.",
       "downloadFailed": "Download fehlgeschlagen.",
@@ -57,6 +60,8 @@
         "deactivateNone": "Ich bin mir der potentiellen Gefahren bewusst und möchte trotzdem eine Aktualisierung durchführen, ohne die entsprechenden Erweiterungen vorher zu deaktivieren. Mir ist klar, dass Shopware keinerlei Garantie zur Funktionsweise meiner Installation nach einer inkompatiblen Aktualisierung geben kann.",
         "recommended": "(Empfohlen)"
       },
+      "emptyStateHeadline": "Keine Kompatibilitätsprobleme",
+      "emptyStateDescription": "Alle installierten Erweiterungen sind mit diesem Update kompatibel.",
       "extensionNotInStore": "Diese Erweiterung ist im Store nicht verfügbar. Bitte kontaktiere den Erweiterungs-Hersteller.",
       "extensionWillBeDeactivatedHint": "(Wird im Aktualisierungsprozess deaktiviert)"
     },
@@ -74,7 +79,7 @@
     "methodModal": {
       "title": "Shopware aktualisieren",
       "subtitle": "Vor der Aktualisierung wird eine Datensicherung empfohlen.",
-      "cliTitle": "Empfohlen: Aktualisierung mit der Shopware CLI",
+      "cliTitle": "Mit der Shopware CLI",
       "cliDescription": "Die Shopware CLI bietet mehr Kontrolle und wiederholbare Deployments.",
       "cliInstallHint": "Installiere die Shopware CLI und führe aus:",
       "cliInstallLink": "Shopware CLI installieren",

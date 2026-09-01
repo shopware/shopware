@@ -49,6 +49,7 @@ async function createWrapper(props: Record<string, unknown> = {}, routerPush: je
                     ],
                     template: `
                         <div class="mt-card" :data-is-loading="String(isLoading)" :data-title="title">
+                            <slot></slot>
                             <slot name="grid"></slot>
                         </div>
                     `,
@@ -85,6 +86,24 @@ describe('src/module/sw-settings-shopware-updates/view/sw-settings-shopware-upda
         const wrapper = await createWrapper();
 
         expect(wrapper.findAll('.sw-data-grid__row')).toHaveLength(3);
+    });
+
+    it('shows an empty state instead of the grid when there are no extensions', async () => {
+        const wrapper = await createWrapper({ extensions: [] });
+
+        const emptyState = wrapper.get('.sw-shopware-updates-extensions__empty-state');
+        expect(emptyState.text()).toContain('sw-settings-shopware-updates.extensions.emptyStateHeadline');
+        expect(emptyState.text()).toContain('sw-settings-shopware-updates.extensions.emptyStateDescription');
+        expect(wrapper.find('.sw-data-grid').exists()).toBe(false);
+    });
+
+    it('shows no empty state while loading or when extensions are present', async () => {
+        const loadingWrapper = await createWrapper({ extensions: [], isLoading: true });
+        expect(loadingWrapper.find('.sw-shopware-updates-extensions__empty-state').exists()).toBe(false);
+
+        const filledWrapper = await createWrapper();
+        expect(filledWrapper.find('.sw-shopware-updates-extensions__empty-state').exists()).toBe(false);
+        expect(filledWrapper.find('.sw-data-grid').exists()).toBe(true);
     });
 
     it('passes the loading state and title to the card', async () => {

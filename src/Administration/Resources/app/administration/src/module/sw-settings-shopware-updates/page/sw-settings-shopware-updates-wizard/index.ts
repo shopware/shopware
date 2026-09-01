@@ -40,6 +40,9 @@ export default Component.wrapComponentConfig({
         chosenExtensionBehaviour: string;
         autoUpdateEnabled: boolean;
         clusterSetup: boolean;
+        updateCheckFailed: boolean;
+        cliCommandCopied: boolean;
+        cliCommandCopiedTimeout: number | null;
     } {
         return {
             updateInfo: {
@@ -58,6 +61,9 @@ export default Component.wrapComponentConfig({
             chosenExtensionBehaviour: '',
             autoUpdateEnabled: true,
             clusterSetup: false,
+            updateCheckFailed: false,
+            cliCommandCopied: false,
+            cliCommandCopiedTimeout: null,
         };
     },
 
@@ -68,29 +74,25 @@ export default Component.wrapComponentConfig({
     },
     computed: {
         updatePossible() {
-            return this.licenseValid && this.autoUpdateEnabled && !this.clusterSetup;
+            return !this.updateCheckFailed && this.licenseValid && this.autoUpdateEnabled && !this.clusterSetup;
         },
 
-        updateButtonTooltip() {
+        updateButtonTooltipMessage(): string {
             if (this.updatePossible) {
-                return {
-                    message: '',
-                    disabled: true,
-                };
+                return '';
             }
 
             let message = 'sw-settings-shopware-updates.license.bannerTitle';
 
-            if (this.clusterSetup) {
+            if (this.updateCheckFailed) {
+                message = 'sw-settings-shopware-updates.notifications.checkFailed';
+            } else if (this.clusterSetup) {
                 message = 'sw-settings-shopware-updates.infos.clusterSetupDisabled';
             } else if (!this.autoUpdateEnabled) {
                 message = 'sw-settings-shopware-updates.infos.autoUpdateDisabled';
             }
 
-            return {
-                message: this.$t(message),
-                position: 'bottom',
-            };
+            return this.$t(message);
         },
 
         displayIncompatibleExtensionsWarning() {
@@ -165,7 +167,13 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
-        this.createdComponent();
+        void this.createdComponent();
+    },
+
+    beforeUnmount() {
+        if (this.cliCommandCopiedTimeout !== null) {
+            window.clearTimeout(this.cliCommandCopiedTimeout);
+        }
     },
 
     methods: {
@@ -177,6 +185,16 @@ export default Component.wrapComponentConfig({
         async copyCliCommand() {
             try {
                 await Shopware.Utils.dom.copyStringToClipboard(this.cliUpgradeCommand);
+                this.cliCommandCopied = true;
+
+                if (this.cliCommandCopiedTimeout !== null) {
+                    window.clearTimeout(this.cliCommandCopiedTimeout);
+                }
+                this.cliCommandCopiedTimeout = window.setTimeout(() => {
+                    this.cliCommandCopied = false;
+                    this.cliCommandCopiedTimeout = null;
+                }, 2000);
+
                 useSnackbar().addSnackbar({
                     message: this.$t('global.sw-field.notification.notificationCopySuccessMessage'),
                     variant: 'success',
@@ -189,39 +207,41 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        createdComponent() {
-            void this.updateService.checkForUpdates().then((response) => {
+        async createdComponent() {
+            try {
+                const response = await this.updateService.checkForUpdates();
                 this.autoUpdateEnabled = response.autoUpdateEnabled !== false;
                 this.clusterSetup = response.clusterSetup === true;
                 this.updateInfo = response;
 
                 if (!response.version) {
-                    this.isLoading = false;
-
                     return;
                 }
 
-                void Promise.all([
+                const [
+                    licenseCheck,
+                    extensions,
+                ] = await Promise.all([
                     this.updateService.checkLicense(),
                     this.updateService.extensionCompatibility(),
-                ]).then(
-                    ([
-                        licenseCheck,
-                        extensions,
-                    ]) => {
-                        this.licenseValid = licenseCheck.isValid === true;
-                        this.extensions = extensions;
+                ]);
 
-                        if (this.displayUnknownExtensionsWarning && this.displayIncompatibleExtensionsWarning) {
-                            this.chosenExtensionBehaviour = 'all';
-                        } else if (this.displayIncompatibleExtensionsWarning) {
-                            this.chosenExtensionBehaviour = 'notCompatible';
-                        }
+                this.licenseValid = licenseCheck.isValid === true;
+                this.extensions = extensions;
 
-                        this.isLoading = false;
-                    },
-                );
-            });
+                if (this.displayUnknownExtensionsWarning && this.displayIncompatibleExtensionsWarning) {
+                    this.chosenExtensionBehaviour = 'all';
+                } else if (this.displayIncompatibleExtensionsWarning) {
+                    this.chosenExtensionBehaviour = 'notCompatible';
+                }
+            } catch {
+                this.updateCheckFailed = true;
+                this.createNotificationError({
+                    message: this.$t('sw-settings-shopware-updates.notifications.checkFailed'),
+                });
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         startUpdateProcess() {

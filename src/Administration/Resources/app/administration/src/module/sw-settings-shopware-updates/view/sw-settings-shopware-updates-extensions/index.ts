@@ -19,6 +19,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
     computed: {
+        hasExtensions(): boolean {
+            return this.extensions.length > 0;
+        },
+
         columns() {
             return [
                 {

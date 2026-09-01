@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -11,6 +12,7 @@ use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderCon
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRouteResponse;
+use Shopware\Core\Content\ProductStream\ProductStreamException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -118,6 +120,8 @@ class CrossSellingDataLoaderTest extends TestCase
     #[TestDox('dereferences the element property the config names into the product ID')]
     public function testLoadUsesCustomPropertyNameFromConfig(): void
     {
+        $productId = Uuid::randomHex();
+
         $context = Generator::generateSalesChannelContext();
 
         $capturedProductId = null;
@@ -134,17 +138,19 @@ class CrossSellingDataLoaderTest extends TestCase
 
         $inputs = $this->resolve(
             new CrossSellingLoaderConfig(property: 'mainProductId'),
-            ['mainProductId' => 'product-alice'],
+            ['mainProductId' => $productId],
         );
 
         $this->loader->load($inputs, self::requirement(), $context, new Request());
 
-        static::assertSame('product-alice', $capturedProductId);
+        static::assertSame($productId, $capturedProductId);
     }
 
     #[TestDox('resolves an unset property to the declared productId default')]
     public function testUnsetPropertyResolvesToDeclaredProductIdDefault(): void
     {
+        $productId = Uuid::randomHex();
+
         $context = Generator::generateSalesChannelContext();
 
         $crossSellingCollection = new CrossSellingElementCollection();
@@ -154,11 +160,11 @@ class CrossSellingDataLoaderTest extends TestCase
         $crossSellingRoute
             ->expects($this->once())
             ->method('load')
-            ->with('product-alice', static::isInstanceOf(Request::class), $context, static::isInstanceOf(Criteria::class))
+            ->with($productId, static::isInstanceOf(Request::class), $context, static::isInstanceOf(Criteria::class))
             ->willReturn($response);
 
         $loader = new CrossSellingDataLoader($crossSellingRoute);
-        $inputs = $this->resolve(new CrossSellingLoaderConfig(), ['productId' => 'product-alice']);
+        $inputs = $this->resolve(new CrossSellingLoaderConfig(), ['productId' => $productId]);
 
         $loader->load($inputs, self::requirement(), $context, new Request());
     }
@@ -197,6 +203,8 @@ class CrossSellingDataLoaderTest extends TestCase
     #[TestDox('appends the associations element property after the configured associations by default')]
     public function testLoadMergesElementAssociationsIntoCriteria(): void
     {
+        $productId = Uuid::randomHex();
+
         $context = Generator::generateSalesChannelContext();
 
         /** @var Criteria|null $capturedCriteria */
@@ -214,7 +222,7 @@ class CrossSellingDataLoaderTest extends TestCase
 
         $inputs = $this->resolve(
             new CrossSellingLoaderConfig(associations: ['manufacturer']),
-            ['productId' => 'product-alice', 'associations' => ['cover', 'media']],
+            ['productId' => $productId, 'associations' => ['cover', 'media']],
         );
 
         $this->loader->load($inputs, self::requirement(), $context, new Request());
@@ -242,6 +250,66 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('returns notFound result when the resolved property is not a valid uuid')]
+    public function testLoadReturnsNotFoundWhenPropertyIsNotValidUuid(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $crossSellingRoute->expects($this->never())->method('load');
+
+        $loader = new CrossSellingDataLoader($crossSellingRoute);
+        $result = $loader->load(
+            new LoaderInputs(['property' => '{{productId}}', 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[DataProvider('catchArmProvider')]
+    #[TestDox('returns notFound result when the cross-selling route throws $_dataName')]
+    public function testLoadReturnsNotFoundWhenCrossSellingRouteThrows(\Throwable $exception): void
+    {
+        $productId = Uuid::randomHex();
+
+        $context = Generator::generateSalesChannelContext();
+
+        $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $crossSellingRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($exception);
+
+        $loader = new CrossSellingDataLoader($crossSellingRoute);
+        $result = $loader->load(
+            new LoaderInputs(['property' => $productId, 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    /**
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function catchArmProvider(): iterable
+    {
+        yield 'product stream not found' => [ProductStreamException::productStreamNotFound('stream-missing')];
+
+        yield 'product stream has no filters' => [ProductStreamException::noFilters('stream-no-filters')];
+
+        yield 'product stream is empty' => [ProductStreamException::emptyProductStream('stream-empty')];
     }
 
     /**

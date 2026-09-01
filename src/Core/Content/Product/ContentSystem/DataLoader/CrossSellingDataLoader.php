@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
@@ -11,8 +12,10 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -63,9 +66,21 @@ class CrossSellingDataLoader extends AbstractContentDataLoader
 
         $productId = u($productId)->lower()->toString();
 
+        // A PropertyReference value passes LoaderInputResolver::dereference()'s string type check untouched, so
+        // an unsubstituted template placeholder (e.g. "{{productId}}" left literal on a layout not rooted on a
+        // product) reaches here as-is. Anything but an id therefore degrades rather than reaching
+        // Uuid::fromHexToBytes() when ProductCrossSellingRoute searches the product by id.
+        if (!Uuid::isValid($productId)) {
+            return ContentDataLoaderResult::notFound();
+        }
+
         $criteria = $this->buildCriteria($inputs);
 
-        $response = $this->crossSellingRoute->load($productId, $request, $context, $criteria);
+        try {
+            $response = $this->crossSellingRoute->load($productId, $request, $context, $criteria);
+        } catch (EntityNotFoundException|NoFilterException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         return ContentDataLoaderResult::cachedExternally($response->getResult());
     }

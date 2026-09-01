@@ -52,8 +52,8 @@ jobs:
 
       # Issues created with the workflow token trigger no other workflows, and the project
       # auto-add leaves the Status field empty, so reporter-created issues never enter the
-      # domain triage boards. The script therefore sets "Pending Refinement" itself, with a
-      # token from the ManageProjects identity; without that token it logs and skips.
+      # domain triage boards. The script therefore sets the board's intake status itself,
+      # with a token from the ManageProjects identity; without that token it logs and skips.
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -74,19 +74,28 @@ jobs:
 
             const projects = process.env.STS_TOKEN ? getOctokit(process.env.STS_TOKEN) : null;
 
-            const setPendingRefinement = async (item, issueNumber) => {
+            // The intake column is named differently per board (Pending Refinement, For
+            // Refinement, To be refined, Pending Triage, Backlog, ...); prefer a refine-named
+            // option, then a triage-named one, and fall back to the leftmost option, which is
+            // the intake lane on every board by convention.
+            const intakeOption = (options) =>
+              options.find((candidate) => /refine/i.test(candidate.name))
+                ?? options.find((candidate) => /triage/i.test(candidate.name))
+                ?? options[0];
+
+            const setIntakeStatus = async (item, issueNumber) => {
               const { node } = await projects.graphql(`query($id: ID!) {
                 node(id: $id) { ... on ProjectV2 { field(name: "Status") { ... on ProjectV2SingleSelectField { id options { id name } } } } }
               }`, { id: item.project.id });
-              const option = node?.field?.options?.find((candidate) => candidate.name === 'Pending Refinement');
+              const option = intakeOption(node?.field?.options ?? []);
               if (!option) {
-                core.info(`Project "${item.project.title}" has no "Pending Refinement" status; issue #${issueNumber} left as is`);
+                core.info(`Project "${item.project.title}" has no status options; issue #${issueNumber} left as is`);
                 return;
               }
               await projects.graphql(`mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
                 updateProjectV2ItemFieldValue(input: {projectId: $project, itemId: $item, fieldId: $field, value: {singleSelectOptionId: $option}}) { projectV2Item { id } }
               }`, { project: item.project.id, item: item.id, field: node.field.id, option: option.id });
-              core.info(`Set "Pending Refinement" on project "${item.project.title}" for issue #${issueNumber}`);
+              core.info(`Set "${option.name}" on project "${item.project.title}" for issue #${issueNumber}`);
             };
 
             // Put the issue into the triage lane of every domain project the auto-add bot
@@ -114,7 +123,7 @@ jobs:
                 const items = node?.projectItems?.nodes ?? [];
                 if (items.length > 0) {
                   for (const item of items.filter((candidate) => !candidate.fieldValueByName)) {
-                    await setPendingRefinement(item, issue.number);
+                    await setIntakeStatus(item, issue.number);
                   }
                   return;
                 }

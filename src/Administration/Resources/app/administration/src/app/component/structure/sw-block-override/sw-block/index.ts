@@ -101,6 +101,10 @@ export default Shopware.Component.wrapComponentConfig({
             type: Object as PropType<ComponentInternalInstance['proxy']>,
             default: null,
         },
+        legacyShim: {
+            type: Boolean,
+            default: true,
+        },
     },
     setup(props, { slots }) {
         const { addBlock, removeBlock, getBlocks, invalidateBlock } = useBlockContext();
@@ -149,7 +153,7 @@ export default Shopware.Component.wrapComponentConfig({
         // multiple simultaneous instances of <sw-block name="foo"> each maintain
         // their own isolated shim slots and cannot double-render each other's content.
         const shimSlots: Slot[] =
-            props.name && hasBlockEntries(props.swInternalComponentName, props.name)
+            props.legacyShim && props.name && hasBlockEntries(props.swInternalComponentName, props.name)
                 ? getBlockEntries(props.swInternalComponentName, props.name).map((entry) => {
                       // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
                       const shimSlot = createShimSlot(entry, props.name!);

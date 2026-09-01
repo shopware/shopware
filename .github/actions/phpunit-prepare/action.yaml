@@ -89,4 +89,6 @@ runs:
     - name: Force PHPUnit 12
       if: ${{ inputs.force-phpunit-12 == 'true' }}
       shell: bash
-      run: composer update phpunit/phpunit:^12.4 --with-all-dependencies
+      # composer require rewrites the root constraint for this run only, so every other job
+      # keeps resolving PHPUnit 11 (a shared ||-constraint made composer pick 12 everywhere)
+      run: composer require --dev --update-with-all-dependencies phpunit/phpunit:^12.4

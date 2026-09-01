@@ -81,10 +81,12 @@ class StockStorageTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('prepare')->willReturn($statement);
         $connection->method('getTransactionNestingLevel')->willReturn(0);
-        $connection->expects($this->exactly(2))
-            ->method('fetchAllKeyValue')
-            ->willReturn([$productId => 1]);
-        $connection->expects($this->once())->method('executeStatement')->willReturn(1);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure());
+        $connection->method('fetchAllAssociativeIndexed')->willReturn([
+            $productId => ['current_available' => 1, 'calculated_available' => 1],
+        ]);
+        $connection->method('fetchAllKeyValue')->willReturn([$productId => 1]);
+        $connection->method('executeStatement')->willReturn(1);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects($this->once())

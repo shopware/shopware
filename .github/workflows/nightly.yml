@@ -100,9 +100,9 @@ jobs:
   # aggregated from the junit-phpunit-* artifacts those jobs upload on scheduled failures
   report-phpunit-failures:
     # maintenance-branch nightlies arrive as bot workflow_dispatch (schedule only fires on the default
-    # branch), so do not gate on the event; the branch guard keeps manual test dispatches on feature
-    # branches out of the tracking issues
-    if: always() && (github.ref_name == 'trunk' || endsWith(github.ref_name, '.x')) && (needs.redis.result == 'failure' || needs.integration.result == 'failure' || needs.php.result == 'failure')
+    # branch), so do not gate on the event; the aggregation script skips branches that are neither
+    # trunk nor maintenance-shaped, keeping manual test dispatches out of the tracking issues
+    if: always() && github.ref_type != 'tag' && (needs.redis.result == 'failure' || needs.integration.result == 'failure' || needs.php.result == 'failure')
     needs:
       - redis
       - integration

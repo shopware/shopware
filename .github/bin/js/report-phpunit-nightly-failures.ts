@@ -401,6 +401,13 @@ function collectXmlFiles(directory: string): string[] {
   });
 }
 
+// The tracking issues only reflect trunk and the maintenance branches; a nightly
+// dispatched manually on any other branch runs without reporting. The shapes mirror
+// the branch globs of release-gate.yml (6.6.x minor lines, 6.7.11.x patch lines).
+export function isNightlyBranch(refName: string): boolean {
+  return refName === 'trunk' || /^\d+\.\d+(\.\d+)?\.x$/.test(refName);
+}
+
 /**
  * Walks the downloaded artifact directories. Every junit-phpunit-* artifact stems
  * from a failed job (their upload steps run on `if: failure()`), so an artifact
@@ -468,6 +475,13 @@ function main(): void {
       'Usage: REPORT_TITLE="..." node report-phpunit-nightly-failures.ts <junit-report-directory> <payload-file>'
     );
     process.exit(1);
+  }
+
+  const refName = process.env['GITHUB_REF_NAME'] ?? '';
+  if (!isNightlyBranch(refName)) {
+    writeFileSync(payloadFile, `${JSON.stringify({ issues: [] })}\n`, 'utf8');
+    console.log(`Branch '${refName}' is neither trunk nor a maintenance branch: reporting skipped.`);
+    return;
   }
 
   const repoRoot = process.env['GITHUB_WORKSPACE'] ?? process.cwd();

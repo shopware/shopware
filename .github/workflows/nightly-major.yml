@@ -29,8 +29,8 @@ jobs:
   # turn a red major matrix into a domain-grouped tracking issue, aggregated from
   # the junit-phpunit-* artifacts integration-major.yml uploads on scheduled failures
   report-phpunit-failures:
-    # the branch guard keeps manual test dispatches on feature branches out of the tracking issues
-    if: always() && (github.ref_name == 'trunk' || endsWith(github.ref_name, '.x')) && needs.integration-major.result == 'failure'
+    # the aggregation script skips branches that are neither trunk nor maintenance-shaped
+    if: always() && needs.integration-major.result == 'failure'
     needs:
       - integration-major
     uses: ./.github/workflows/report-phpunit-failures.yml

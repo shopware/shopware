@@ -9,6 +9,7 @@ import {
   groupByDomain,
   jestAppRoot,
   parseJestJUnitReport,
+  isNightlyBranch,
   parseJUnitReport,
   resolvePackageKey,
   scanReports,
@@ -338,5 +339,21 @@ describe('scanReports', () => {
     const scan = scanReports(reportDir);
 
     assert.deepEqual(scan.silentLanes, ['junit-phpunit-blue-green-66-67', 'junit-phpunit-died-before-reporting']);
+  });
+});
+
+describe('isNightlyBranch', () => {
+  it('accepts trunk and the maintenance branch shapes of release-gate.yml', () => {
+    assert.equal(isNightlyBranch('trunk'), true);
+    assert.equal(isNightlyBranch('6.6.x'), true);
+    assert.equal(isNightlyBranch('6.7.11.x'), true);
+  });
+
+  it('rejects every other branch, .x-suffixed backport branches included', () => {
+    assert.equal(isNightlyBranch('12753/allow-vtt-files-backport-6.6.x'), false);
+    assert.equal(isNightlyBranch('fix-backport-6.6.x'), false);
+    assert.equal(isNightlyBranch('6.7.0.0'), false);
+    assert.equal(isNightlyBranch('trunk-test'), false);
+    assert.equal(isNightlyBranch(''), false);
   });
 });

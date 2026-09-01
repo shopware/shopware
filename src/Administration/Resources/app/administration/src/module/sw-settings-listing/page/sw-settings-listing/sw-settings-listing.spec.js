@@ -418,6 +418,9 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 global: {
                     renderStubDefaultSlot: true,
+                    directives: {
+                        popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+                    },
                     provide: {
                         repositoryFactory: {
                             create: (name) => {
@@ -565,6 +568,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-skeleton': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-search-bar': true,
                         'sw-field-error': true,
@@ -720,47 +724,44 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         ).toHaveLength(0);
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should restore inheritance when the selected default sorting was deleted',
-        async () => {
-            wrapper.vm.$refs.systemConfig.onSalesChannelChanged('salesChannelId');
-            await flushPromises();
+    it('should restore inheritance when the selected default sorting was deleted', async () => {
+        wrapper.vm.$refs.systemConfig.onSalesChannelChanged('salesChannelId');
+        await flushPromises();
 
-            const defaultSortingInheritWrapper = wrapper.find('.sw-inherit-wrapper');
+        const defaultSortingInheritWrapper = wrapper.find('.sw-inherit-wrapper');
 
-            const defaultSortingToggleInheritance = defaultSortingInheritWrapper.find('.sw-inheritance-switch button');
-            await defaultSortingToggleInheritance.trigger('click');
-            await flushPromises();
+        const defaultSortingToggleInheritance = defaultSortingInheritWrapper.find('.sw-inheritance-switch button');
+        await defaultSortingToggleInheritance.trigger('click');
+        await flushPromises();
 
-            const defaultSortingSelectInput = wrapper.find(
-                '.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select input',
-            );
-            await defaultSortingSelectInput.trigger('click');
-            await flushPromises();
+        const defaultSortingSelectInput = wrapper.find(
+            '.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select input',
+        );
+        await defaultSortingSelectInput.trigger('click');
+        await flushPromises();
 
-            const ratingOption = new DOMWrapper(document.body).get('.sw-select-option--rating');
-            await ratingOption.trigger('click');
-            await flushPromises();
+        const ratingOption = new DOMWrapper(document.body).get('.sw-select-option--rating');
+        await ratingOption.trigger('click');
+        await flushPromises();
 
-            await wrapper.find('.sw-settings-listing__save-action').trigger('click');
-            await flushPromises();
+        await wrapper.find('.sw-settings-listing__save-action').trigger('click');
+        await flushPromises();
 
-            await wrapper.find('.sw-data-grid__row--1 > .sw-data-grid__cell--actions button:last-child').trigger('click');
-            await flushPromises();
+        await wrapper.find('.sw-data-grid__row--1 > .sw-data-grid__cell--actions button:last-child').trigger('click');
+        await flushPromises();
 
-            await wrapper.find('.sw-settings-listing-delete-modal button').trigger('click');
-            await flushPromises();
+        await wrapper.find('.sw-settings-listing-delete-modal button').trigger('click');
+        await flushPromises();
 
-            await wrapper.find('.sw-settings-listing__save-action').trigger('click');
-            await flushPromises();
+        await wrapper.find('.sw-settings-listing__save-action').trigger('click');
+        await flushPromises();
 
-            expect(wrapper.vm.$refs.systemConfig.actualConfigData.salesChannelId['core.listing.defaultSorting']).toBeNull();
-            expect(defaultSortingInheritWrapper.attributes('class')).toContain('is--inherited');
-            expect(
-                defaultSortingInheritWrapper.findAll('.sw-settings-listing-index__default-sorting-select.has--error'),
-            ).toHaveLength(0);
-        },
-    );
+        expect(wrapper.vm.$refs.systemConfig.actualConfigData.salesChannelId['core.listing.defaultSorting']).toBeNull();
+        expect(defaultSortingInheritWrapper.attributes('class')).toContain('is--inherited');
+        expect(
+            defaultSortingInheritWrapper.findAll('.sw-settings-listing-index__default-sorting-select.has--error'),
+        ).toHaveLength(0);
+    });
 
     it('should display correct product sorting criteria', async () => {
         expect(wrapper.find('.sw-data-grid__row--0 > .sw-data-grid__cell--criteria > div > span').text()).toBe(

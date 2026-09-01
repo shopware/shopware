@@ -53,6 +53,9 @@ async function createWrapper(condition = {}) {
         },
         global: {
             renderStubDefaultSlot: true,
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -79,6 +82,7 @@ async function createWrapper(condition = {}) {
                     template: '<div class="sw-highlight-text">{{ this.text }}</div>',
                 },
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-product-variant-info': {
                     template: '<div class="sw-product-variant-info"><slot></slot></div>',
                 },
@@ -104,7 +108,7 @@ async function createWrapper(condition = {}) {
 }
 
 describe('components/rule/condition-type/sw-condition-script', () => {
-    it.activeFeatureFlags(['v6.8.0.0'])('should render fields and set condition values on change', async () => {
+    it('should render fields and set condition values on change', async () => {
         const wrapper = await createWrapper({
             type: 'scriptRule',
             scriptId: 'foo',

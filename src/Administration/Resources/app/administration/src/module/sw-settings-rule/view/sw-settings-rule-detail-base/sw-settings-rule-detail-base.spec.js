@@ -47,6 +47,9 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
     return mount(await wrapTestComponent('sw-settings-rule-detail-base', { sync: true }), {
         props,
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -57,6 +60,7 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-condition-tree': swConditionTree,
                 'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-text-field': true,
                 'mt-number-field': true,
                 'mt-textarea': true,
@@ -136,7 +140,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             expect(wrapper.find('.sw-settings-rule-detail__type-field').classes()).not.toContain('is--disabled');
         });
 
-        it.activeFeatureFlags(['v6.8.0.0'])('should set module types', async () => {
+        it('should set module types', async () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
@@ -152,7 +156,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             });
         });
 
-        it.activeFeatureFlags(['v6.8.0.0'])('should set module types to null if value is empty', async () => {
+        it('should set module types to null if value is empty', async () => {
             const wrapper = await createWrapper({
                 ...defaultProps,
                 rule: {

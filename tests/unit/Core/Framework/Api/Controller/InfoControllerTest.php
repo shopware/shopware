@@ -291,6 +291,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigDispatchesMediaFileExtensionWhitelistEventOnlyOnce(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $dispatchCount = 0;
         $this->eventDispatcher->addListener(
             MediaFileExtensionWhitelistEvent::class,

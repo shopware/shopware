@@ -58,9 +58,6 @@ const pinia = createPinia();
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-flow-sequence-condition', { sync: true }), {
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             plugins: [pinia],
             stubs: {
                 'sw-context-button': {

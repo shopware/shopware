@@ -12,9 +12,6 @@ async function createWrapper(entityType = 'product') {
         }),
         {
             global: {
-                directives: {
-                    popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-                },
                 stubs: {
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),

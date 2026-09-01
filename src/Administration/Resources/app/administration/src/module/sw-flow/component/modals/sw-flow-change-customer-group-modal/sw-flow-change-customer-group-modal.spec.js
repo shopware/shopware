@@ -29,9 +29,6 @@ async function createWrapper() {
                 sequence: {},
             },
             global: {
-                directives: {
-                    popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-                },
                 provide: {
                     shortcutService: {
                         startEventListener() {},

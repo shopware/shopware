@@ -6,9 +6,6 @@ import { DOMWrapper, mount } from '@vue/test-utils';
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-change-type', { sync: true }), {
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),

@@ -46,9 +46,6 @@ async function createWrapper(customField = customNormalField) {
         }),
         {
             global: {
-                directives: {
-                    popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-                },
                 provide: {
                     flowBuilderService: {
                         mapActionType: () => {},

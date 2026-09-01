@@ -56,9 +56,6 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
             },
         },
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             renderStubDefaultSlot: true,
             provide: {
                 repositoryFactory: {

@@ -47,9 +47,6 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
     return mount(await wrapTestComponent('sw-settings-rule-detail-base', { sync: true }), {
         props,
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),

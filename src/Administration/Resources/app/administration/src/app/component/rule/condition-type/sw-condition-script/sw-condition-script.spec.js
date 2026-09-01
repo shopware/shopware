@@ -53,9 +53,6 @@ async function createWrapper(condition = {}) {
         },
         global: {
             renderStubDefaultSlot: true,
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),

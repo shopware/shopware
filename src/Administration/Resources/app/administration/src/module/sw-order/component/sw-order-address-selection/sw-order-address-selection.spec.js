@@ -53,9 +53,6 @@ function createCustomerMock() {
 async function createWrapper(propsData, customerResponse = createCustomerMock()) {
     return mount(await wrapTestComponent('sw-order-address-selection', { sync: true }), {
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-select-result': {

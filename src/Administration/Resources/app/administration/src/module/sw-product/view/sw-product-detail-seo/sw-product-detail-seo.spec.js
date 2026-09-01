@@ -108,9 +108,6 @@ const repositoryMockFactory = (entity) => {
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-seo', { sync: true }), {
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             provide: {
                 acl: {
                     can: (identifier) => {

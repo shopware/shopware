@@ -71,9 +71,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-product', { sync: true }), {
             global: {
-                directives: {
-                    popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-                },
                 plugins: [
                     router,
                 ],

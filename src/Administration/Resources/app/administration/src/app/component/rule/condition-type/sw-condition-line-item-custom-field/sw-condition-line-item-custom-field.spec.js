@@ -120,9 +120,6 @@ async function createWrapper(props = defaultProps, customFieldMock = defaultCust
         {
             props,
             global: {
-                directives: {
-                    popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-                },
                 stubs: {
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),

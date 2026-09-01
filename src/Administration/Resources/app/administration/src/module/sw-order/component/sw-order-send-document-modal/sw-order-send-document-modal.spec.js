@@ -219,9 +219,6 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
 
     return mount(await wrapTestComponent('sw-order-send-document-modal', { sync: true }), {
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

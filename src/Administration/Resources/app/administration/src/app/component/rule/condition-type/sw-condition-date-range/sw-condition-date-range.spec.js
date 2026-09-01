@@ -18,9 +18,6 @@ async function createWrapper(useTime) {
             },
         },
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),

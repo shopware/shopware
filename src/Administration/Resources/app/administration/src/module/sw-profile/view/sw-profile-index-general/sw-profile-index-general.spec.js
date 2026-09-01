@@ -7,9 +7,6 @@ import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 async function createWrapper(privileges = [], isSso = false) {
     return mount(await wrapTestComponent('sw-profile-index-general', { sync: true }), {
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-text-field': true,

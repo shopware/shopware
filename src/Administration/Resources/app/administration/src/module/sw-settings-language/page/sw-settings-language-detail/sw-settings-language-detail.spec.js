@@ -18,9 +18,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
             languageId,
         },
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             renderStubDefaultSlot: true,
             mocks: {
                 $t(translationKey) {

@@ -418,9 +418,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 global: {
                     renderStubDefaultSlot: true,
-                    directives: {
-                        popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-                    },
                     provide: {
                         repositoryFactory: {
                             create: (name) => {

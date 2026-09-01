@@ -7,9 +7,6 @@ import { DOMWrapper, mount } from '@vue/test-utils';
 async function createSingleSelect(customOptions) {
     const options = {
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

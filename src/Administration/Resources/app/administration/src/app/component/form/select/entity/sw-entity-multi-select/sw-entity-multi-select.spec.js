@@ -65,9 +65,6 @@ function getPropertyCollection() {
 const createWrapper = async (customOptions = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-entity-multi-select', { sync: true }), {
         global: {
-            directives: {
-                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
-            },
             stubs: {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

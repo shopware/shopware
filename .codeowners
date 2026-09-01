@@ -52,6 +52,12 @@
 tests/integration/Core/Checkout/Document/Renderer/_snapshots/** @shopware/product-cc-after-sales
 tests/integration/Core/Checkout/DocumentV2/Renderer/_snapshots/** @shopware/product-cc-after-sales
 
+# cc-framework
+? src/Administration/Resources/app/administration/package.json @shopware/product-cc-framework
+? src/Administration/Resources/app/administration/package-lock.json @shopware/product-cc-framework
+? src/Administration/Resources/app/administration/jest.config.ts @shopware/product-cc-framework
+? src/Administration/Resources/app/administration/test/_setup/** @shopware/product-cc-framework
+
 # product-operations
 .github/** @shopware/product-operations
 

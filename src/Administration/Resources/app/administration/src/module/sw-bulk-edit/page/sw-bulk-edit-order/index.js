@@ -37,6 +37,7 @@ export default {
             customFieldSets: [],
             itemsPerRequest: 100,
             processStatus: '',
+            statusTransitionFailures: [],
             order: {},
         };
     },
@@ -531,36 +532,86 @@ export default {
 
         onSave() {
             this.isLoading = true;
+            this.statusTransitionFailures = [];
 
             const { statusData, syncData } = this.onProcessData();
             const bulkEditOrderHandler = this.bulkEditApiFactory.getHandler('order');
 
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
-            const requests = [];
+            const statusRequest = statusData.length
+                ? this.processStatusChunks(bulkEditOrderHandler, payloadChunks, statusData)
+                : Promise.resolve([]);
 
-            payloadChunks.forEach((payload) => {
-                if (statusData.length) {
-                    requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
-                }
+            return statusRequest
+                .then((statusFailures) => {
+                    this.statusTransitionFailures = statusFailures.map((failure) => ({
+                        orderId: failure.orderId,
+                        orderNumber: failure.orderNumber,
+                        field: failure.field,
+                        code: failure.code,
+                        fieldLabel: this.getStatusTransitionFieldLabel(failure.field),
+                    }));
 
-                if (syncData.length) {
-                    requests.push(bulkEditOrderHandler.bulkEdit(payload, syncData));
-                }
-            });
+                    const syncRequests = syncData.length
+                        ? payloadChunks.map((payload) => bulkEditOrderHandler.bulkEdit(payload, syncData))
+                        : [];
 
-            return Promise.all(requests)
-                .then(() => {
-                    this.processStatus = 'success';
+                    return Promise.allSettled(syncRequests);
+                })
+                .then((syncResults) => {
+                    const hasStatusFailures = this.statusTransitionFailures.length > 0;
+                    const hasSyncFailures = syncResults.some((result) => result.status === 'rejected');
+
+                    this.processStatus = hasStatusFailures || hasSyncFailures ? 'fail' : 'success';
                 })
                 .catch(() => {
                     this.processStatus = 'fail';
                 })
                 .finally(() => {
-                    this.isLoading = false;
-                    this.getLatestOrderStatus().finally(() => {
+                    return this.getLatestOrderStatus().finally(() => {
                         this.isLoading = false;
                     });
                 });
+        },
+
+        async processStatusChunks(bulkEditOrderHandler, payloadChunks, statusData) {
+            const failures = [];
+
+            for (const payload of payloadChunks) {
+                try {
+                    await bulkEditOrderHandler.bulkEditStatus(payload, statusData);
+                } catch (error) {
+                    if (Array.isArray(error?.failures)) {
+                        failures.push(...error.failures);
+
+                        continue;
+                    }
+
+                    payload.forEach((orderId) => {
+                        statusData.forEach((change) => {
+                            failures.push({
+                                orderId,
+                                orderNumber: orderId,
+                                field: change.field,
+                                code: String(error?.response?.data?.errors?.[0]?.code ?? ''),
+                                error,
+                            });
+                        });
+                    });
+                }
+            }
+
+            return failures;
+        },
+
+        getStatusTransitionFieldLabel(field) {
+            const labels = {
+                orderTransactions: 'sw-bulk-edit.order.status.failedFields.orderTransactions',
+                orderDeliveries: 'sw-bulk-edit.order.status.failedFields.orderDeliveries',
+                orders: 'sw-bulk-edit.order.status.failedFields.orders',
+            };
+
+            return labels[field] ? this.$t(labels[field]) : field;
         },
 
         getLatestOrderStatus() {

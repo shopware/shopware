@@ -17,6 +17,21 @@
     <p class="sw-bulk-edit-save-modal__help-text">
         {{ $t('sw-bulk-edit.modal.error.description') }}
     </p>
+
+    <template v-if="failedItems.length > 0">
+        <p class="sw-bulk-edit-save-modal-error__failed-status-description">
+            {{ $t('sw-bulk-edit.modal.error.failedStatusChanges', { count: failedItems.length }, failedItems.length) }}
+        </p>
+
+        <ul class="sw-bulk-edit-save-modal-error__failed-status-list">
+            <li
+                v-for="(failedItem, index) in failedItems"
+                :key="`${failedItem.orderId}-${failedItem.field}-${index}`"
+            >
+                {{ failedItem.orderNumber }} — {{ failedItem.fieldLabel ?? failedItem.field }}
+            </li>
+        </ul>
+    </template>
     {% endblock %}
 
 </div>

@@ -522,19 +522,19 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(getFloatingUiRoot(wrapper).find('.sw-select-result-list__empty').text()).toBeTruthy();
+        expect(document.body.querySelector('.sw-select-result-list__empty').textContent).toBeTruthy();
 
         await input.setValue('foo.');
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(getFloatingUiRoot(wrapper).find('.sw-select-result-list__empty').text()).toBeTruthy();
+        expect(document.body.querySelector('.sw-select-result-list__empty').textContent).toBeTruthy();
 
         await input.setValue('parent.foo.');
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        expect(getFloatingUiRoot(wrapper).find('.sw-select-result-list__empty').text()).toBeTruthy();
+        expect(document.body.querySelector('.sw-select-result-list__empty').textContent).toBeTruthy();
     });
 
     it('should return filtered product properties when searching', async () => {
@@ -1109,9 +1109,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        const selectResults = getFloatingUiRoot(wrapper)
-            .findAll('.sw-select-result')
-            .map((element) => element.text());
+        const selectResults = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
+            element.textContent.trim(),
+        );
         expect(selectResults).toStrictEqual([
             'sw-import-export.profile.mapping.notMapped',
             'transactions.amount',
@@ -1146,9 +1146,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         jest.advanceTimersByTime(300);
         await flushPromises();
 
-        const selectResults = getFloatingUiRoot(wrapper)
-            .findAll('.sw-select-result')
-            .map((element) => element.text());
+        const selectResults = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
+            element.textContent.trim(),
+        );
         expect(selectResults).toStrictEqual([
             'sw-import-export.profile.mapping.notMapped',
             'deliveries.createdAt',
@@ -1182,9 +1182,11 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await wrapper.find('.sw-import-export-entity-path-select__selection-input').trigger('click');
         await flushPromises();
 
-        expect(getFloatingUiRoot(wrapper).find('.sw-import-export-entity-path-select__result-list').classes()).toContain(
-            'sw-import-export-entity-path-select__result-list',
-        );
+        expect(
+            document.body
+                .querySelector('.sw-import-export-entity-path-select__result-list')
+                .classList.contains('sw-import-export-entity-path-select__result-list'),
+        ).toBe(true);
     });
 
     it('should filter out password, legacy_password and legacy_encoder', async () => {
@@ -1195,9 +1197,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = getFloatingUiRoot(wrapper)
-            .findAll('.sw-select-result')
-            .map((element) => element.text());
+        const possibleSelectionResult = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
+            element.textContent.trim(),
+        );
 
         expect(possibleSelectionResult).toContain('firstName');
         expect(possibleSelectionResult).toContain('lastName');
@@ -1217,9 +1219,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = getFloatingUiRoot(wrapper)
-            .findAll('.sw-select-result')
-            .map((element) => element.text());
+        const possibleSelectionResult = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
+            element.textContent.trim(),
+        );
 
         expect(possibleSelectionResult).toContain('aclRoleId');
         expect(possibleSelectionResult).toContain('userId');
@@ -1235,9 +1237,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         await pathSelection.trigger('click');
         await flushPromises();
 
-        const possibleSelectionResult = getFloatingUiRoot(wrapper)
-            .findAll('.sw-select-result')
-            .map((element) => element.text());
+        const possibleSelectionResult = Array.from(document.body.querySelectorAll('.sw-select-result')).map((element) =>
+            element.textContent.trim(),
+        );
 
         expect(possibleSelectionResult).toContain('lastOrderDate');
         expect(possibleSelectionResult).toContain('orderCount');

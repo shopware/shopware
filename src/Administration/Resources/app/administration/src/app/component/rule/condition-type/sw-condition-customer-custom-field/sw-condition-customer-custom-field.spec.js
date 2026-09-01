@@ -132,13 +132,13 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const listElements = getFloatingUiRoot(wrapper).find('.sw-select-result-list__item-list').findAll('li');
+        const listElements = document.body.querySelector('.sw-select-result-list__item-list').querySelectorAll('li');
 
-        expect(listElements[0].element.querySelector('.sw-select-result__result-item-text').textContent).toBe(' foo ');
-        expect(listElements[0].element.querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
+        expect(listElements.item(0).querySelector('.sw-select-result__result-item-text').textContent).toBe(' foo ');
+        expect(listElements.item(0).querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
 
-        expect(listElements[1].element.querySelector('.sw-select-result__result-item-text').textContent).toBe(' foo2 ');
-        expect(listElements[1].element.querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
+        expect(listElements.item(1).querySelector('.sw-select-result__result-item-text').textContent).toBe(' foo2 ');
+        expect(listElements.item(1).querySelector('.sw-select-result__result-item-description').textContent).toBe('bar');
     });
 
     it('should set data on field change with known id', async () => {
@@ -189,7 +189,7 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await getFloatingUiRoot(wrapper).find('li:nth-of-type(2)').trigger('click');
+        document.body.querySelector('li:nth-of-type(2)').click();
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('foo2');
@@ -202,13 +202,13 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await getFloatingUiRoot(wrapper).find('li:nth-of-type(2)').trigger('click');
+        document.body.querySelector('li:nth-of-type(2)').click();
         await flushPromises();
 
         await wrapper.find('.sw-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await getFloatingUiRoot(wrapper).find('li').trigger('click');
+        document.body.querySelector('li').click();
         await flushPromises();
 
         expect(wrapper.find('.sw-single-select__selection-text').text()).toBe('global.sw-condition.operator.equals');
@@ -221,13 +221,13 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await getFloatingUiRoot(wrapper).find('li:nth-of-type(2)').trigger('click');
+        document.body.querySelector('li:nth-of-type(2)').click();
         await flushPromises();
 
         await wrapper.find('.sw-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await getFloatingUiRoot(wrapper).find('li').trigger('click');
+        document.body.querySelector('li').click();
         await flushPromises();
 
         await wrapper.find('.sw-form-field-renderer input').setValue('test123');
@@ -280,7 +280,7 @@ describe('components/rule/condition-type/sw-condition-customer-custom-field', ()
         await wrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const description = getFloatingUiRoot(wrapper).find('.sw-select-result__result-item-description').text();
+        const description = document.body.querySelector('.sw-select-result__result-item-description').textContent;
         expect(description).toHaveLength(20);
         expect(description.endsWith('...')).toBe(true);
     });

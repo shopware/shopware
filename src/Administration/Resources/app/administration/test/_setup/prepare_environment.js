@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { config, DOMWrapper, enableAutoUnmount } from '@vue/test-utils';
+import { config, enableAutoUnmount } from '@vue/test-utils';
 
 import '@testing-library/jest-dom';
 
@@ -71,10 +71,6 @@ import CacheService from '../../src/app/service/cache.service';
 
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 global[defaultActiveFeatureFlagsSymbol] = [...global.activeFeatureFlags];
-
-function getFloatingUiRoot() {
-    return new DOMWrapper(document.body);
-}
 
 // initialize the Stores
 import '../../src/module/sw-cms/store/cms-page.store';
@@ -615,7 +611,6 @@ global.allowedErrors = [
 ];
 
 global.flushPromises = flushPromises;
-global.getFloatingUiRoot = getFloatingUiRoot;
 global.wrapTestComponent = wrapTestComponent;
 
 let consoleHasError = false;

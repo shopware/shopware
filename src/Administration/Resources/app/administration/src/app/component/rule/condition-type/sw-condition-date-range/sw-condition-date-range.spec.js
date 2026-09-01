@@ -18,6 +18,9 @@ async function createWrapper(useTime) {
             },
         },
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -89,7 +92,7 @@ describe('component/rule/sw-condition-date-range', () => {
         await wrapper.find('.sw-single-select input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--true').trigger('click');
+        document.body.querySelector('.sw-select-option--true').click();
         await flushPromises();
 
         getDatepickers().forEach((datepicker) => {

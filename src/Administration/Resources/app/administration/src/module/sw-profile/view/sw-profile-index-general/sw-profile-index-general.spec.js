@@ -7,6 +7,9 @@ import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 async function createWrapper(privileges = [], isSso = false) {
     return mount(await wrapTestComponent('sw-profile-index-general', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getDirectiveRegistry().get('popover'),
+            },
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-text-field': true,
@@ -164,8 +167,8 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         await wrapper.find('.sw-profile--timezone .sw-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        const results = wrapper.findAll('.sw-select-result');
-        const resultNames = results.map((result) => result.text());
+        const results = document.body.querySelectorAll('.sw-select-result');
+        const resultNames = Array.from(results, (result) => result.textContent.trim());
 
         expect(resultNames).toContain('UTC');
     });

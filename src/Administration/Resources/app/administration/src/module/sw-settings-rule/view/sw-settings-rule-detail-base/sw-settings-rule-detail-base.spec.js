@@ -147,7 +147,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
-            await wrapper.find('.sw-select-result').trigger('click');
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                document.body.querySelector('.sw-select-result').click();
+            } else {
+                await wrapper.find('.sw-select-result').trigger('click');
+            }
             await flushPromises();
 
             expect(wrapper.vm.rule.moduleTypes).toEqual({
@@ -171,7 +175,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
-            await wrapper.find('.sw-select-result').trigger('click');
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                document.body.querySelector('.sw-select-result').click();
+            } else {
+                await wrapper.find('.sw-select-result').trigger('click');
+            }
             await flushPromises();
 
             expect(wrapper.vm.rule.moduleTypes).toBeNull();

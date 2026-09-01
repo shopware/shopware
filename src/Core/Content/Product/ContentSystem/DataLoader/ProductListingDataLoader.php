@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
@@ -11,8 +13,10 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -63,13 +67,24 @@ class ProductListingDataLoader extends AbstractContentDataLoader
 
         $navigationId = u($navigationId)->lower()->toString();
 
+        // A PropertyReference value passes LoaderInputResolver::dereference()'s string type check untouched, so
+        // an unsubstituted template placeholder (e.g. "{{categoryId}}" left literal on a layout not rooted on a
+        // category) reaches here as-is. Anything but an id therefore degrades rather than reaching
+        // Uuid::fromHexToBytes() when ProductListingRoute searches the category by id.
+        if (!Uuid::isValid($navigationId)) {
+            return ContentDataLoaderResult::notFound();
+        }
+
         $criteria = $this->buildCriteria($inputs);
 
-        $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
-        $result = $response->getResult();
+        try {
+            $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
+        } catch (ProductException|EntityNotFoundException|NoFilterException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         // ProductListingRoute internally adds cache tags via CacheTagCollector
-        return ContentDataLoaderResult::cachedExternally($result);
+        return ContentDataLoaderResult::cachedExternally($response->getResult());
     }
 
     /**

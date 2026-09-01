@@ -49,7 +49,7 @@ class EntityDeleteTool extends McpToolResponse { ... }
 
 - The attribute is **repeatable** — add multiple `#[McpToolDependsOn]` lines if the tool depends on several others.
 - Dependencies are **tool-only** — tools can only depend on other tools, not on prompts or resources.
-- The `McpToolCompilerPass` resolves dependencies transitively and stores the result in the `shopware.mcp.tool_dependencies` container parameter, which the allowlist provider uses at runtime.
+- `McpToolAnalysisCompilerPass` resolves dependencies transitively and stores the result in the `shopware.mcp.tool_dependencies` container parameter, which the allowlist provider uses at runtime.
 - **Allowlist auto-expansion:** when a user enables a tool in the Admin integration UI, all its declared dependencies (and their transitive dependencies) are automatically added to the allowlist. Removing a tool does **not** auto-remove its dependencies — they may be intentionally enabled independently.
 - `bin/console debug:mcp` shows the resolved dependencies in a **Dependencies** column.
 
@@ -233,11 +233,11 @@ How registration works differs between core tools and plugin tools:
 
 | Tool location | Registration mechanism | What can go wrong |
 |---|---|---|
-| Core (`src/Core/Framework/Mcp/Tool/`) | `mcp.tool` DI tag + directory in `mcp.yaml` `scan_dirs` | Missing tag **or** missing scan_dir silently drops the tool |
-| Plugin (`shopware.mcp.tool` DI tag) | `McpToolCompilerPass` calls `addTool()` at compile time | Missing tag; wrong tag name; attribute on method instead of class |
+| Core (`src/Core/Framework/Mcp/Tool/`) | `mcp.tool` DI tag; the namespace is covered by the Admin API server's `registry` prefixes in `packages/mcp.php` | Missing tag; a class moved outside the configured namespaces is assigned to no server |
+| Plugin (`shopware.mcp.tool` DI tag) | `McpToolDiscoveryCompilerPass` re-tags it and assigns it to the Admin API server | Missing tag; wrong tag name; attribute on method instead of class |
 
 **For core tools**, `McpCapabilityDiscoveryTest` (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) is the authoritative check. It boots the full kernel, calls the live `/api/_mcp` endpoint, and asserts every expected capability name is present. Add new core tool names to its `expectedTools()` list.
 
-**For plugin tools**, the `McpToolCompilerPass` handles HTTP registration automatically from the DI tag — no `scan_dirs` entry is needed. A missing `#[McpTool]` attribute (or attribute placed on `__invoke()` instead of the class) means the compiler pass cannot extract the tool name and the tool is silently skipped.
+**For plugin tools**, `McpToolDiscoveryCompilerPass` handles registration automatically from the DI tag. A missing `#[McpTool]` attribute (or attribute placed on `__invoke()` instead of the class) means the tool name cannot be extracted and the tool is silently skipped.
 
 Quick manual check: `bin/console debug:mcp` uses the same registry as the HTTP endpoint and shows core tools, plugin tools, and app tools in one view.

@@ -6,19 +6,24 @@ use Mcp\Capability\Registry;
 use Mcp\Schema\Prompt;
 use Mcp\Schema\PromptArgument;
 use Mcp\Schema\ResourceDefinition;
-use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server;
 use Mcp\Server\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpDebugCommandCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -60,8 +65,8 @@ class DebugMcpCommandTest extends TestCase
 
         $output = $tester->getDisplay();
         static::assertStringContainsString('Tools', $output);
-        static::assertStringContainsString('Prompts', $output);
-        static::assertStringContainsString('Resources', $output);
+        // Prompts and resources are listed by the bundle's command; this one points at it.
+        static::assertStringContainsString('debug:mcp:native', $output);
         static::assertSame(0, $tester->getStatusCode());
     }
 
@@ -73,8 +78,6 @@ class DebugMcpCommandTest extends TestCase
 
         $output = $tester->getDisplay();
         static::assertStringContainsString('No tools registered', $output);
-        static::assertStringContainsString('No prompts registered', $output);
-        static::assertStringContainsString('No resources registered', $output);
     }
 
     public function testToolIsRenderedCompactInListWithoutDescription(): void
@@ -139,7 +142,11 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('My Human-Readable Tool', $tester->getDisplay());
     }
 
-    public function testDetailViewOmitsTitleWhenNull(): void
+    /**
+     * Title is always rendered, with a dash when the capability carries none, so the block keeps the
+     * same shape and the rows below it do not shift.
+     */
+    public function testDetailViewShowsADashWhenTitleIsNull(): void
     {
         $registry = new Registry();
         $registry->registerTool(
@@ -150,7 +157,36 @@ class DebugMcpCommandTest extends TestCase
         $tester = new CommandTester($this->makeCommand($registry));
         $tester->execute(['name' => 'my-tool']);
 
-        static::assertStringNotContainsString('Title', $tester->getDisplay());
+        static::assertMatchesRegularExpression('/Title\s+-/', $tester->getDisplay());
+    }
+
+    /**
+     * The detail block reads top-down: what it is, where it lives, what governs reaching it, and only
+     * then how it is implemented. Handler is last because it is the longest value and the least
+     * common reason to open this view.
+     */
+    public function testDetailViewOrdersMetadataFromIdentityToImplementation(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('my-tool', 'My Tool', self::inputSchema(), 'Does things', null),
+            'Acme\\MyTool',
+        );
+
+        $tester = new CommandTester($this->makeCommand($registry));
+        $tester->execute(['name' => 'my-tool']);
+
+        $output = $tester->getDisplay();
+        $positions = [];
+        foreach (['Title', 'Type', 'Scope', 'Group', 'Handler'] as $label) {
+            $position = mb_strpos($output, $label);
+            static::assertNotFalse($position, \sprintf('The detail view is missing the "%s" row.', $label));
+            $positions[] = $position;
+        }
+
+        $sorted = $positions;
+        sort($sorted);
+        static::assertSame($sorted, $positions, 'Detail rows must read Title, Type, Scope, Group, Handler.');
     }
 
     public function testDetailViewShowsToolDescriptionAndSource(): void
@@ -268,42 +304,6 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('my-tool', $output);
         static::assertStringNotContainsString('Prompts', $output);
         static::assertStringNotContainsString('Resources', $output);
-        static::assertSame(0, $tester->getStatusCode());
-    }
-
-    public function testPromptsFilterShowsOnlyPrompts(): void
-    {
-        $registry = new Registry();
-        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool');
-        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', []);
-        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource');
-
-        $tester = new CommandTester($this->makeCommand($registry));
-        $tester->execute(['--prompts' => true]);
-
-        $output = $tester->getDisplay();
-        static::assertStringContainsString('Prompts', $output);
-        static::assertStringContainsString('my-prompt', $output);
-        static::assertStringNotContainsString('Tools', $output);
-        static::assertStringNotContainsString('Resources', $output);
-        static::assertSame(0, $tester->getStatusCode());
-    }
-
-    public function testResourcesFilterShowsOnlyResources(): void
-    {
-        $registry = new Registry();
-        $registry->registerTool(new Tool('my-tool', null, self::inputSchema(), 'Tool desc', null), 'Acme\\MyTool');
-        $registry->registerPrompt(new Prompt('my-prompt', null, 'Prompt desc', []), 'Acme\\MyPrompt', []);
-        $registry->registerResource(new ResourceDefinition('shopware://test', 'my-resource', null, 'Resource desc', null, null, null), 'Acme\\MyResource');
-
-        $tester = new CommandTester($this->makeCommand($registry));
-        $tester->execute(['--resources' => true]);
-
-        $output = $tester->getDisplay();
-        static::assertStringContainsString('Resources', $output);
-        static::assertStringContainsString('my-resource', $output);
-        static::assertStringNotContainsString('Tools', $output);
-        static::assertStringNotContainsString('Prompts', $output);
         static::assertSame(0, $tester->getStatusCode());
     }
 
@@ -491,24 +491,6 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('catalogue', $output);
     }
 
-    public function testResourceTemplatesAreRendered(): void
-    {
-        $registry = new Registry();
-        $registry->registerResourceTemplate(
-            new ResourceTemplate('shopware://{entity}/{id}', 'entity-by-id', null, 'Get entity by ID'),
-            'Acme\\EntityByIdTemplate',
-            [],
-        );
-
-        $tester = new CommandTester($this->makeCommand($registry));
-        $tester->execute(['--resources' => true]);
-
-        $output = $tester->getDisplay();
-        static::assertStringContainsString('entity-by-id', $output);
-        static::assertStringContainsString('shopware://{entity}/{id}', $output);
-        static::assertSame(0, $tester->getStatusCode());
-    }
-
     public function testDetailViewReturnsFailureForUnknownName(): void
     {
         $tester = new CommandTester($this->makeCommand(new Registry()));
@@ -588,12 +570,8 @@ class DebugMcpCommandTest extends TestCase
         $tester->execute([]);
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('Admin API: Tools (1)', $output);
-        static::assertStringContainsString('Admin API: Prompts (0)', $output);
-        static::assertStringContainsString('Store API: Tools (1)', $output);
-        static::assertStringContainsString('Store API: Prompts (0)', $output);
-        static::assertStringContainsString('Store API: Resources (0)', $output);
-        static::assertStringContainsString('Store API: Resource Templates (0)', $output);
+        static::assertStringContainsString('Tools (1) [Admin API]', $output);
+        static::assertStringContainsString('Tools (1) [Store API]', $output);
     }
 
     public function testAllowlistCountsStayOnTheAdminSectionHeading(): void
@@ -612,8 +590,8 @@ class DebugMcpCommandTest extends TestCase
         $tester->execute(['--integration' => 'SWIA-restricted']);
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('Admin API: Tools (1/2 allowed)', $output);
-        static::assertStringContainsString('Store API: Tools (1)', $output);
+        static::assertStringContainsString('Tools (1/2 allowed) [Admin API]', $output);
+        static::assertStringContainsString('Tools (1) [Store API]', $output);
     }
 
     public function testScopeOptionLimitsOutputToStoreApi(): void
@@ -713,6 +691,96 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringNotContainsString('admin-hidden', $output);
         static::assertStringContainsString('store-tool', $output);
         static::assertSame(0, $tester->getStatusCode());
+    }
+
+    /**
+     * --native hands over to the MCP bundle's own command, which McpDebugCommandCompilerPass renamed
+     * so both can keep their own output.
+     */
+    public function testNativeOptionRunsTheBundleCommand(): void
+    {
+        $native = new Command(McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME);
+        $native->setCode(static function (InputInterface $input, OutputInterface $output): int {
+            $output->writeln('native command ran');
+
+            return Command::SUCCESS;
+        });
+
+        $application = new Application();
+        $application->addCommand($native);
+        $application->addCommand($this->makeCommand(new Registry()));
+
+        $tester = new CommandTester($application->find('debug:mcp'));
+        $tester->execute(['--native' => true]);
+
+        static::assertSame(0, $tester->getStatusCode());
+        static::assertStringContainsString('native command ran', $tester->getDisplay());
+        static::assertStringNotContainsString('Admin API', $tester->getDisplay());
+    }
+
+    /**
+     * A capability name given alongside --native is forwarded, so `debug:mcp <name> --native` shows
+     * the bundle's detail view for that capability instead of its server list.
+     */
+    public function testNativeOptionForwardsTheCapabilityName(): void
+    {
+        $seen = null;
+        $native = new Command(McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME);
+        $native->addArgument('name', InputArgument::OPTIONAL);
+        $native->setCode(static function (InputInterface $input, OutputInterface $output) use (&$seen): int {
+            $seen = $input->getArgument('name');
+
+            return Command::SUCCESS;
+        });
+
+        $application = new Application();
+        $application->addCommand($native);
+        $application->addCommand($this->makeCommand(new Registry()));
+
+        $tester = new CommandTester($application->find('debug:mcp'));
+        $tester->execute(['name' => 'shopware-entity-search', '--native' => true]);
+
+        static::assertSame(0, $tester->getStatusCode());
+        static::assertSame('shopware-entity-search', $seen);
+    }
+
+    public function testNativeOptionFailsWhenTheBundleCommandIsMissing(): void
+    {
+        $application = new Application();
+        $application->addCommand($this->makeCommand(new Registry()));
+
+        $tester = new CommandTester($application->find('debug:mcp'));
+        $tester->execute(['--native' => true]);
+
+        static::assertSame(1, $tester->getStatusCode());
+        static::assertStringContainsString(McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME, $tester->getDisplay());
+    }
+
+    public function testUnassignedCapabilitiesAreReported(): void
+    {
+        $command = new DebugMcpCommand(
+            Server::builder(),
+            new Registry(),
+            static::createStub(McpAllowlistProvider::class),
+            new McpCapabilityCatalog(null, $this->stubPrivilegeProvider()),
+            unassigned: ['tools' => ['Acme\\OrphanTool'], 'prompts' => []],
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('exposed by no server', $output);
+        static::assertStringContainsString('Acme\\OrphanTool', $output);
+        static::assertStringContainsString('tools', $output);
+    }
+
+    public function testNothingIsReportedWhenEveryCapabilityIsAssigned(): void
+    {
+        $tester = new CommandTester($this->makeCommand(new Registry()));
+        $tester->execute([]);
+
+        static::assertStringNotContainsString('exposed by no server', $tester->getDisplay());
     }
 
     private function makeCommand(

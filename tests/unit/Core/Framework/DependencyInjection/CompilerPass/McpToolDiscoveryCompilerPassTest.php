@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use Mcp\Capability\Attribute\McpTool;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
@@ -227,12 +228,211 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
         );
     }
 
+    public function testPluginToolIsAssignedToTheAdminServer(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('mcp.servers.elements', $this->emptyElements());
+        $container->register(McpDiscoveryTestNamespacedTool::class, McpDiscoveryTestNamespacedTool::class)
+            ->addTag('shopware.mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        $elements = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($elements);
+        static::assertContains(McpDiscoveryTestNamespacedTool::class, $elements['admin']['tools']);
+        static::assertNotContains(McpDiscoveryTestNamespacedTool::class, $elements['store_api']['tools']);
+    }
+
+    /**
+     * A Store API tool carries the SDK tag too, so the bundle collects it at all. It must reach the
+     * Store API server only — the Admin API endpoint never advertises Store API tools.
+     */
+    public function testStoreApiToolIsAssignedToTheStoreApiServerOnly(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('mcp.servers.elements', $this->emptyElements());
+        $container->register(McpDiscoveryTestStoreApiTool::class, McpDiscoveryTestStoreApiTool::class)
+            ->addTag('mcp.tool')
+            ->addTag('shopware.store_api_mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        $elements = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($elements);
+        static::assertContains(McpDiscoveryTestStoreApiTool::class, $elements['store_api']['tools']);
+        static::assertNotContains(McpDiscoveryTestStoreApiTool::class, $elements['admin']['tools']);
+    }
+
+    /**
+     * The bundle stops at the first pattern that matches and treats a pattern which matched nothing
+     * as a fatal typo, so a class a configured prefix already covers must not be added again.
+     */
+    /**
+     * @return iterable<string, array{list<mixed>}>
+     */
+    public static function coveringPatternProvider(): iterable
+    {
+        yield 'namespace prefix' => [['Shopware\\Tests\\Unit\\Core\\Framework\\DependencyInjection\\CompilerPass\\']];
+        yield 'exact class name' => [[McpDiscoveryTestNamespacedTool::class]];
+        yield 'wildcard' => [['*']];
+        yield 'ignores a non-string entry before the match' => [[42, McpDiscoveryTestNamespacedTool::class]];
+    }
+
+    /**
+     * The bundle stops at the first pattern that matches and treats a pattern which matched nothing
+     * as a fatal typo, so a class any configured pattern already reaches must not be added again.
+     *
+     * @param list<mixed> $patterns
+     */
+    #[DataProvider('coveringPatternProvider')]
+    public function testClassCoveredByAConfiguredPatternIsNotAddedAgain(array $patterns): void
+    {
+        $container = $this->createContainer();
+        $elements = $this->emptyElements();
+        $elements['admin']['tools'] = $patterns;
+        $container->setParameter('mcp.servers.elements', $elements);
+        $container->register(McpDiscoveryTestNamespacedTool::class, McpDiscoveryTestNamespacedTool::class)
+            ->addTag('shopware.mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        $result = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($result);
+        static::assertSame($patterns, $result['admin']['tools']);
+    }
+
+    /**
+     * The parameter comes from the MCP bundle. If it is ever not the shape we expect, skip the
+     * assignment rather than fataling the container build.
+     */
+    public function testAMalformedElementsParameterIsIgnored(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('mcp.servers.elements', 'not-an-array');
+        $container->register(McpDiscoveryTestNamespacedTool::class, McpDiscoveryTestNamespacedTool::class)
+            ->addTag('shopware.mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        static::assertSame('not-an-array', $container->getParameter('mcp.servers.elements'));
+    }
+
+    /**
+     * A server Shopware knows about but that is not configured in packages/mcp.php simply gets
+     * nothing assigned; the servers that are configured are unaffected.
+     */
+    public function testAScopeMissingFromTheElementsParameterIsSkipped(): void
+    {
+        $container = $this->createContainer();
+        $elements = $this->emptyElements();
+        unset($elements['store_api']);
+        $container->setParameter('mcp.servers.elements', $elements);
+        $container->register(McpDiscoveryTestStoreApiTool::class, McpDiscoveryTestStoreApiTool::class)
+            ->addTag('mcp.tool')
+            ->addTag('shopware.store_api_mcp.tool');
+        $container->register(McpDiscoveryTestNamespacedTool::class, McpDiscoveryTestNamespacedTool::class)
+            ->addTag('shopware.mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        $result = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($result);
+        static::assertArrayNotHasKey('store_api', $result);
+        static::assertContains(McpDiscoveryTestNamespacedTool::class, $result['admin']['tools']);
+    }
+
+    public function testStoreApiToolIsNotCountedAsAnAdminToolNameConflict(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('mcp.servers.elements', $this->emptyElements());
+        // Same tool name on both endpoints — that is deliberate for the discovery meta-tools.
+        $container->register(McpDiscoveryTestCoreTool::class, McpDiscoveryTestCoreTool::class)
+            ->addTag('mcp.tool');
+        $container->register(McpDiscoveryTestSameNameStoreApiTool::class, McpDiscoveryTestSameNameStoreApiTool::class)
+            ->addTag('mcp.tool')
+            ->addTag('shopware.store_api_mcp.tool');
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        static::assertTrue($container->hasDefinition(McpDiscoveryTestCoreTool::class));
+        static::assertTrue($container->hasDefinition(McpDiscoveryTestSameNameStoreApiTool::class));
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function storeApiCapabilityProvider(): iterable
+    {
+        yield 'prompt' => ['shopware.store_api_mcp.prompt', 'mcp.prompt', 'prompts'];
+        yield 'resource' => ['shopware.store_api_mcp.resource', 'mcp.resource', 'resources'];
+    }
+
+    /**
+     * The bundle only collects services carrying an SDK tag, so a Store API prompt or resource has to
+     * be remapped like a tool. Without the remap its class is still appended to the Store API element
+     * list, and a pattern that matches no registered service is fatal in the bundle's compiler pass,
+     * so the container build breaks rather than the capability quietly disappearing.
+     */
+    #[DataProvider('storeApiCapabilityProvider')]
+    public function testStoreApiPromptsAndResourcesAreRemappedAndScopedToTheirServer(string $shopwareTag, string $sdkTag, string $kind): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('mcp.servers.elements', $this->emptyElements());
+        $container->register('store_api.capability', McpDiscoveryTestStoreApiTool::class)->addTag($shopwareTag);
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        static::assertTrue(
+            $container->getDefinition('store_api.capability')->hasTag($sdkTag),
+            \sprintf('"%s" must be remapped to "%s" or the bundle never collects it.', $shopwareTag, $sdkTag),
+        );
+
+        $elements = $container->getParameter('mcp.servers.elements');
+        static::assertIsArray($elements);
+        static::assertContains(McpDiscoveryTestStoreApiTool::class, $elements['store_api'][$kind]);
+        static::assertNotContains(McpDiscoveryTestStoreApiTool::class, $elements['admin'][$kind]);
+    }
+
+    /**
+     * @return array<string, array<string, list<string>>>
+     */
+    private function emptyElements(): array
+    {
+        $kinds = ['tools' => [], 'prompts' => [], 'resources' => [], 'resource_templates' => [], 'apps' => []];
+
+        return ['admin' => $kinds, 'store_api' => $kinds];
+    }
+
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
-        $container->register('mcp.server.builder');
+        $container->register('mcp.server.admin.builder');
 
         return $container;
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'shopware-discovery-store-api-tool', description: 'test store api tool')]
+class McpDiscoveryTestStoreApiTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'shopware-discovery-core-tool', description: 'same name as the admin tool')]
+class McpDiscoveryTestSameNameStoreApiTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
     }
 }
 

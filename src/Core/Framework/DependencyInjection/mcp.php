@@ -1,9 +1,6 @@
 <?php declare(strict_types=1);
 
 use Doctrine\DBAL\Connection;
-use Mcp\Capability\Registry;
-use Mcp\Server as McpServer;
-use Mcp\Server\Builder as McpServerBuilder;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
@@ -94,13 +91,15 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set('shopware.mcp.discovery_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
+    // The bundle dropped the flat "mcp.pagination_limit" parameter when it gained multiple servers:
+    // the limit became a per-server builder value. Keep one Shopware-owned parameter as the single
+    // source of truth — McpServerBuilderCompilerPass applies it to every server builder, and the
+    // allowlist request handlers page with the same number.
+    $container->parameters()->set('shopware.mcp.pagination_limit', 50);
 
     $services->set('shopware.mcp.session_registry_cache', Psr16Cache::class)
         ->args([service('cache.system')]);
@@ -114,7 +113,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpListChangedNotifier::class)
         ->args([
-            service('mcp.session.store')->nullOnInvalid(),
+            service('mcp.server.admin.session.store')->nullOnInvalid(),
             service(McpSessionRegistry::class),
             service('logger'),
         ])
@@ -147,15 +146,15 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpAllowlistListRequestHandler::class)
         ->args([
-            service('mcp.registry'),
+            service('mcp.server.admin.registry'),
             service(McpAllowlistProvider::class),
-            param('mcp.pagination_limit'),
+            param('shopware.mcp.pagination_limit'),
             param('shopware.mcp.advertised_tools'),
             service(McpToolsetRegistry::class)->nullOnInvalid(),
             service(McpToolsetSessionStorage::class)->nullOnInvalid(),
             service('request_stack'),
         ])
-        ->tag('mcp.request_handler');
+        ->tag('mcp.admin.request_handler');
 
     $services->set(McpAuthenticationListener::class)
         ->args([
@@ -192,7 +191,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpServerController::class)
         ->public()
         ->args([
-            service('mcp.server')->nullOnInvalid(),
+            service('mcp.server.admin')->nullOnInvalid(),
             service(McpHttpTransportFactory::class),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
@@ -204,30 +203,6 @@ return static function (ContainerConfigurator $container): void {
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
-
-    $services->set('mcp.store_api.registry', Registry::class)
-        ->args([service('event_dispatcher'), service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
-
-    $services->set('mcp.store_api.server.builder', McpServerBuilder::class)
-        ->factory([McpServer::class, 'builder'])
-        ->call('setServerInfo', [
-            'Shopware Store API',
-            '1.0.0',
-            'Shopware Store API MCP server for sales-channel and customer-context operations.',
-        ])
-        ->call('setPaginationLimit', [param('mcp.pagination_limit')])
-        ->call('setInstructions', ['This MCP server exposes Store API capabilities. All operations run in the current sales-channel context and use Store API authentication headers. The advertised tool list is not the full catalogue: if no advertised tool matches the requested action, call shopware-tool-search first instead of assuming the action is unsupported, then use shopware-toolsets-list and shopware-toolset-enable to make a matched tool callable if your client cannot invoke it inline.'])
-        ->call('setEventDispatcher', [service('event_dispatcher')])
-        ->call('setRegistry', [service('mcp.store_api.registry')])
-        ->call('setSession', [service('mcp.session.store')->nullOnInvalid()])
-        ->call('addRequestHandlers', [tagged_iterator('mcp.store_api.request_handler')])
-        ->call('addNotificationHandlers', [tagged_iterator('mcp.store_api.notification_handler')])
-        ->call('setLogger', [service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
-
-    $services->set('mcp.store_api.server', McpServer::class)
-        ->factory([service('mcp.store_api.server.builder'), 'build']);
 
     // Store-api-scoped discovery stack: second instances of the scope-neutral discovery classes,
     // pointed at the store-api registry/params and an isolated session registry (own cache) so
@@ -246,7 +221,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
         ->args([
-            service('mcp.session.store')->nullOnInvalid(),
+            service('mcp.server.store_api.session.store')->nullOnInvalid(),
             service('mcp.store_api.session_registry'),
             service('logger'),
         ])
@@ -254,7 +229,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set('mcp.store_api.capability_catalog', McpCapabilityCatalog::class)
         ->args([
-            service('mcp.store_api.registry')->nullOnInvalid(),
+            service('mcp.server.store_api.registry')->nullOnInvalid(),
             service(AppMcpPrivilegeProvider::class),
             param('shopware.store_api_mcp.tool_dependencies'),
             param('shopware.store_api_mcp.tool_privileges'),
@@ -266,9 +241,9 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set('mcp.store_api.list_request_handler', McpAllowlistListRequestHandler::class)
         ->args([
-            service('mcp.store_api.registry'),
+            service('mcp.server.store_api.registry'),
             null,
-            param('mcp.pagination_limit'),
+            param('shopware.mcp.pagination_limit'),
             param('shopware.store_api_mcp.advertised_tools'),
             service('mcp.store_api.toolset_registry'),
             service(McpToolsetSessionStorage::class),
@@ -279,7 +254,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(StoreApiMcpServerController::class)
         ->public()
         ->args([
-            service('mcp.store_api.server')->nullOnInvalid(),
+            service('mcp.server.store_api')->nullOnInvalid(),
             service(McpHttpTransportFactory::class),
             service(McpRateLimiter::class),
             service(McpSessionIdValidator::class),
@@ -296,7 +271,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpCapabilityCatalog::class)
         ->args([
-            service('mcp.registry')->nullOnInvalid(),
+            service('mcp.server.admin.registry')->nullOnInvalid(),
             service(AppMcpPrivilegeProvider::class),
             param('shopware.mcp.tool_dependencies'),
             param('shopware.mcp.tool_privileges'),
@@ -312,7 +287,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpToolListController::class)
         ->public()
         ->args([
-            service('mcp.server.builder')->nullOnInvalid(),
+            service('mcp.server.admin.builder')->nullOnInvalid(),
             service(McpCapabilityCatalog::class)->nullOnInvalid(),
         ])
         ->tag('controller.service_arguments');
@@ -329,13 +304,14 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(DebugMcpCommand::class)
         ->args([
-            service('mcp.server.builder')->nullOnInvalid(),
-            service('mcp.registry')->nullOnInvalid(),
+            service('mcp.server.admin.builder')->nullOnInvalid(),
+            service('mcp.server.admin.registry')->nullOnInvalid(),
             service(McpAllowlistProvider::class),
             service(McpCapabilityCatalog::class),
-            service('mcp.store_api.server.builder')->nullOnInvalid(),
-            service('mcp.store_api.registry')->nullOnInvalid(),
+            service('mcp.server.store_api.builder')->nullOnInvalid(),
+            service('mcp.server.store_api.registry')->nullOnInvalid(),
             service('mcp.store_api.capability_catalog')->nullOnInvalid(),
+            param('mcp.servers.unassigned'),
         ])
         ->tag('console.command');
 
@@ -355,7 +331,8 @@ return static function (ContainerConfigurator $container): void {
             service('scheduled_task.repository'),
             service('logger'),
             service(McpToolsetSessionStorage::class),
-            service('mcp.session.store')->nullOnInvalid(),
+            service('mcp.server.admin.session.store')->nullOnInvalid(),
+            service('mcp.server.store_api.session.store')->nullOnInvalid(),
         ])
         ->tag('messenger.message_handler');
 
@@ -375,7 +352,7 @@ return static function (ContainerConfigurator $container): void {
     // Tools
     $services->set(ToolSearchTool::class)
         ->args([
-            service('mcp.registry')->nullOnInvalid(),
+            service('mcp.server.admin.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             service(McpAllowlistProvider::class),
         ])
@@ -467,7 +444,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(StoreApiToolSearchTool::class)
         ->args([
-            service('mcp.store_api.registry')->nullOnInvalid(),
+            service('mcp.server.store_api.registry')->nullOnInvalid(),
             service(ToolSearch::class),
             null,
         ])

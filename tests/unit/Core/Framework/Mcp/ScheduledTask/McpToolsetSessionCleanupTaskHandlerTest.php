@@ -52,6 +52,43 @@ class McpToolsetSessionCleanupTaskHandlerTest extends TestCase
         static::assertSame([self::EXPIRED_SESSION, self::MALFORMED_SESSION], $deleted);
     }
 
+    /**
+     * mcp_toolset_session rows are keyed on the raw Mcp-Session-Id and are not namespaced per
+     * endpoint, while each MCP server owns its own session store. A session that only lives in the
+     * Store API store must therefore survive: consulting the Admin API store alone would treat every
+     * live Store API session as abandoned and drop its toolsets.
+     */
+    public function testRunKeepsASessionThatOnlyExistsInTheStoreApiStore(): void
+    {
+        $storage = static::createStub(McpToolsetSessionStorage::class);
+        $storage->method('sessionIds')->willReturn([self::ALIVE_SESSION, self::EXPIRED_SESSION]);
+
+        $adminStore = static::createStub(SessionStoreInterface::class);
+        $adminStore->method('exists')->willReturn(false);
+
+        $storeApiStore = static::createStub(SessionStoreInterface::class);
+        $storeApiStore->method('exists')->willReturnCallback(
+            static fn (AbstractUid $uuid): bool => $uuid->toRfc4122() === self::ALIVE_SESSION,
+        );
+
+        $deleted = [];
+        $storage->method('deleteForSession')->willReturnCallback(static function (string $sessionId) use (&$deleted): void {
+            $deleted[] = $sessionId;
+        });
+
+        $handler = new McpToolsetSessionCleanupTaskHandler(
+            static::createStub(EntityRepository::class),
+            new NullLogger(),
+            $storage,
+            $adminStore,
+            $storeApiStore,
+        );
+
+        $handler->run();
+
+        static::assertSame([self::EXPIRED_SESSION], $deleted);
+    }
+
     public function testRunDoesNothingWhenSessionStoreIsUnavailable(): void
     {
         $storage = $this->createMock(McpToolsetSessionStorage::class);

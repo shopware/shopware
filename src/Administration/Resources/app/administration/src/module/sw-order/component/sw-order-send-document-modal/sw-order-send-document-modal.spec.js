@@ -288,9 +288,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await mailTemplateSelect.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(document.body.querySelector('.sw-select-result__result-item-description')?.textContent).toBe(
-            mockMailTemplates[0].description,
-        );
+        expect(wrapper.find('.sw-select-result__result-item-description').text()).toBe(mockMailTemplates[0].description);
     });
 
     it('should truncate mail template description', async () => {
@@ -305,7 +303,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        const text = document.body.querySelector('.sw-select-result__result-item-description')?.textContent ?? '';
+        const text = wrapper.find('.sw-select-result__result-item-description').text();
         expect(text).toHaveLength(160);
         expect(text.endsWith('...')).toBe(true);
     });
@@ -386,7 +384,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-select-option--1')?.click();
+        await wrapper.find('.sw-select-option--1').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
@@ -446,7 +444,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        document.body.querySelector('.sw-select-option--2')?.click();
+        await wrapper.find('.sw-select-option--2').trigger('click');
         await flushPromises();
 
         expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');

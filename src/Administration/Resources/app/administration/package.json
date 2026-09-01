@@ -229,8 +229,7 @@
     "typescript-eslint": "8.56.1",
     "vue-eslint-parser": "10.4.1",
     "vue-sfc-parser": "0.1.2",
-    "vue-tsc": "3.3.7",
-    "xml2js": "0.6.2"
+    "vue-tsc": "3.3.7"
   },
   "engines": {
     "node": "^20.0.0 || ^21.0.0 || ^22.0.0 || ^23.0.0 || ^24.0.0 || ^25.0.0",

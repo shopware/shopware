@@ -11,7 +11,6 @@ When a state machine contains multiple transitions with the same action name and
 `Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
 
 When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
-
 ### New document lifecycle business events
 
 Two new events give extensions a hook into the document lifecycle without polling or fetching the document to discover its type, number, order and file:
@@ -114,6 +113,10 @@ Two consequences for operators:
 - A requested locale that the repository does not offer and that has no files on the filesystem is reported and left out rather than installed as a language without translations. `POST /api/_action/translation/install` keeps reporting those locales in its `unavailable` list, but a locale whose files were provisioned offline no longer appears there, because it can be installed. Its `skipped` list now names the requested locales that were installed without a download, instead of every locale in the local metadata that was not updated.
 
 ## API
+
+### Store API currency headers validate sales channel availability
+
+Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
 
 ### Store API context token response header is restricted on cacheable reads
 

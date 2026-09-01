@@ -2,6 +2,17 @@
 
 Reference spec: [Model Context Protocol server specification 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25/server)
 
+Shopware serves the handshake era only. mcp/sdk 0.8 added the 2026-07-28 revision and serves it from
+the same endpoint by default, but both Shopware servers are pinned back to the handshake era with
+`Builder::withoutModernEra()` in `McpServerBuilderCompilerPass`. That era is stateless: it mints no
+`Mcp-Session-Id`, which the toolset session storage and the list-changed notifications are built on,
+and a handler returning an `InputRequiredResult` additionally needs a signed request-state key shared
+across every worker that might serve the retry. Adopting it is its own piece of work, not a
+side effect of a dependency bump.
+
+The same SDK release deprecated Roots, Sampling and Logging (SEP-2577, earliest removal 2027-07-28).
+Shopware exposes none of the three, so nothing here depends on them.
+
 This doc is the compact matrix for one question:
 
 - what the MCP server spec allows

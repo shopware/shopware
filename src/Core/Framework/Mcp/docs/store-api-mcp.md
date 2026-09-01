@@ -92,9 +92,11 @@ Store API-specific tags:
 - `mcp.store_api.request_handler`
 - `mcp.store_api.notification_handler`
 
-These are intentionally separate from `mcp.request_handler` and `mcp.notification_handler`
-used by the Admin API server, so protocol extensions can target a specific API scope
-without affecting the other.
+These are intentionally separate from `mcp.admin.request_handler` and
+`mcp.admin.notification_handler` used by the Admin API server, so protocol extensions can
+target a specific API scope without affecting the other. The MCP bundle wires handlers from
+one global tag for every server it registers; `McpServerBuilderCompilerPass` replaces that
+with these per-server tags, because Shopware's handlers are bound to one registry.
 
 ## Access Control
 
@@ -131,11 +133,15 @@ The server assigns a session ID (UUID) on `initialize` and returns it in the
 `mcp-session-id` response header. A malformed `mcp-session-id` request header is
 rejected with HTTP 400 before it reaches the transport.
 
-Session state uses the MCP SDK's in-memory session store by default, which does not
-survive across PHP workers. For multi-worker or multi-server deployments, define the
-`mcp.session.store` service with an implementation of
-`Mcp\Server\Session\SessionStoreInterface` backed by shared storage (e.g. Redis); the
-Store API server builder picks it up automatically.
+Each MCP server owns its own session store — `mcp.server.store_api.session.store` here,
+`mcp.server.admin.session.store` for the Admin API. They must stay separate: session ids are
+not namespaced per server and the SDK accepts any id present in the store, so a shared store
+would make a session minted on one endpoint valid on the other.
+
+Both default to a file-based store under `%kernel.cache_dir%/mcp-sessions/<server>`. For
+multi-worker or multi-server deployments, configure a `session` store per server in
+`packages/mcp.php` (`cache` or `framework`), or override the service with an implementation of
+`Mcp\Server\Session\SessionStoreInterface` backed by shared storage (e.g. Redis).
 
 ## Built-in Capabilities
 

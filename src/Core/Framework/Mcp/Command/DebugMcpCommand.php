@@ -5,9 +5,9 @@ namespace Shopware\Core\Framework\Mcp\Command;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
 use Mcp\Schema\ResourceDefinition;
-use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server\Builder;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpDebugCommandCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -35,6 +36,8 @@ class DebugMcpCommand extends Command
     /**
      * @internal
      *
+     * @param array<string, list<string>> $unassigned kind => service ids the bundle assigned to no server
+     *
      * The builder and registry arguments are nullable via nullOnInvalid(): null when the MCP
      * bundle is absent. Once MCP is stable (v6.8.0) remove the nullable
      * types and the null guards in resolveScopes().
@@ -47,6 +50,7 @@ class DebugMcpCommand extends Command
         private readonly ?Builder $storeApiBuilder = null,
         private readonly ?RegistryInterface $storeApiRegistry = null,
         private readonly ?McpCapabilityCatalog $storeApiCatalog = null,
+        private readonly array $unassigned = [],
     ) {
         parent::__construct();
     }
@@ -55,9 +59,9 @@ class DebugMcpCommand extends Command
     {
         $this->addArgument('name', InputArgument::OPTIONAL, 'Show full details for a specific capability by name or URI');
         $this->addOption('integration', null, InputOption::VALUE_REQUIRED, 'Filter to tools allowed for this integration access key (SWIA...). Applies to the admin scope only');
-        $this->addOption('tools', null, InputOption::VALUE_NONE, 'Limit output to tools only');
-        $this->addOption('prompts', null, InputOption::VALUE_NONE, 'Limit output to prompts only');
-        $this->addOption('resources', null, InputOption::VALUE_NONE, 'Limit output to resources only');
+        // Accepted and a no-op: this command only lists tools. Kept because external callers invoke
+        // "debug:mcp --tools --no-ansi" (the MCP eval suite parses that table in CI).
+        $this->addOption('tools', null, InputOption::VALUE_NONE, 'No-op: this command only lists tools. Use --native for prompts and resources');
         $this->addOption(
             'scope',
             null,
@@ -66,17 +70,27 @@ class DebugMcpCommand extends Command
             null,
             [ApiRouteScope::ID, StoreApiRouteScope::ID],
         );
+        $this->addOption(
+            'native',
+            null,
+            InputOption::VALUE_NONE,
+            \sprintf(
+                'Run the MCP bundle\'s own "%s" command instead: the configured servers and clients, and any capability left unassigned by the "registry" patterns',
+                McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME,
+            ),
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
         $integration = $input->getOption('integration');
-        $tools = (bool) $input->getOption('tools');
-        $prompts = (bool) $input->getOption('prompts');
-        $resources = (bool) $input->getOption('resources');
         $scopeOption = $input->getOption('scope');
         $io = new SymfonyStyle($input, $output);
+
+        if ($input->getOption('native')) {
+            return $this->runNativeCommand($input, $output, $io);
+        }
 
         $requestedScopes = match ($scopeOption) {
             null => [ApiRouteScope::ID, StoreApiRouteScope::ID],
@@ -127,37 +141,84 @@ class DebugMcpCommand extends Command
             return $this->renderDetail($io, $name, $scopes);
         }
 
-        $noFilter = !$tools && !$prompts && !$resources;
-
         foreach ($scopes as $scopeId => $scope) {
             $io->title($scope['label']);
 
-            $scopeAllowlist = $scopeId === ApiRouteScope::ID ? $toolsAllowlist : null;
-
-            if ($tools || $noFilter) {
-                $this->renderTools($io, $scope, $scopeAllowlist);
-            }
-            if ($prompts || $noFilter) {
-                $this->renderPrompts($io, $scope);
-            }
-            if ($resources || $noFilter) {
-                $this->renderResources($io, $scope);
-                $this->renderResourceTemplates($io, $scope);
-            }
+            $this->renderTools($io, $scope, $scopeId === ApiRouteScope::ID ? $toolsAllowlist : null);
         }
+
+        $this->renderUnassigned($io);
 
         $io->writeln('Run <comment>debug:mcp <name></comment> to see full details for a specific capability.');
         if (\count($scopes) > 1) {
             $io->writeln(\sprintf('Run <comment>debug:mcp --scope=%s</comment> to inspect a single MCP server.', StoreApiRouteScope::ID));
         }
+        $io->writeln(\sprintf(
+            'Run <comment>bin/console %s</comment> for prompts, resources, the configured servers and clients.',
+            McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME,
+        ));
         $io->newLine();
 
         return self::SUCCESS;
     }
 
     /**
+     * Capabilities the MCP bundle collected but that no server exposes, because no `registry`
+     * pattern in packages/mcp.php claims them and no compiler pass assigned them.
+     *
+     * This is how a capability silently disappears now that discovery no longer scans directories,
+     * so it is reported here rather than only by the bundle's own command: a developer whose tool is
+     * missing should not have to know a second command exists to find out why.
+     */
+    private function renderUnassigned(SymfonyStyle $io): void
+    {
+        $unassigned = array_filter($this->unassigned);
+
+        if ($unassigned === []) {
+            return;
+        }
+
+        $lines = [];
+        foreach ($unassigned as $kind => $serviceIds) {
+            foreach ($serviceIds as $serviceId) {
+                $lines[] = \sprintf('%s (%s)', $serviceId, $kind);
+            }
+        }
+
+        $io->warning(array_merge(
+            ['Registered with an MCP attribute but exposed by no server, so unreachable on both endpoints:'],
+            $lines,
+        ));
+    }
+
+    /**
+     * Hands over to the MCP bundle's command, which McpDebugCommandCompilerPass renamed so both can
+     * coexist. Only the options that command actually declares are forwarded.
+     */
+    private function runNativeCommand(InputInterface $input, OutputInterface $output, SymfonyStyle $io): int
+    {
+        $application = $this->getApplication();
+
+        if ($application === null || !$application->has(McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME)) {
+            $io->error(\sprintf('The "%s" command is not available. The MCP bundle provides it.', McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME));
+
+            return self::FAILURE;
+        }
+
+        $arguments = ['command' => McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME];
+
+        $name = $input->getArgument('name');
+        if (\is_string($name) && $name !== '') {
+            $arguments['name'] = $name;
+        }
+
+        return $application->find(McpDebugCommandCompilerPass::NATIVE_COMMAND_NAME)
+            ->run(new ArrayInput($arguments), $output);
+    }
+
+    /**
      * Returns the requested scopes that are actually available, keyed by route scope ID and always
-     * ordered admin before store-api. 'name' prefixes every section heading, 'label' titles the
+     * ordered admin before store-api. 'name' suffixes every section heading, 'label' titles the
      * scope block and names the owning server in the detail view.
      *
      * @param list<string> $requestedScopes
@@ -264,18 +325,23 @@ class DebugMcpCommand extends Command
 
         $deps = $toolData['dependencies'] ?? [];
         $privilegeLabel = $this->formatPrivileges($toolData['requiredPrivileges'] ?? null);
-        $meta = [['Type' => 'tool'], ['Scope' => $scopeLabel]];
-        if ($tool->title !== null && $tool->title !== '') {
-            $meta[] = ['Title' => $tool->title];
-        }
-        $meta[] = ['Group' => $toolData['group'] ?? 'other'];
-        $meta[] = ['Source' => $this->describeHandler($handler)];
+        // Ordered so the block reads top-down: what it is, where it lives, what governs reaching it,
+        // and only then how it is implemented. Title is always rendered so the shape does not shift
+        // between capabilities that carry one and those that do not, and Handler comes last because
+        // it is the longest value and the least common reason to open this view.
+        $meta = [
+            ['Title' => $tool->title !== null && $tool->title !== '' ? $tool->title : '-'],
+            ['Type' => 'tool'],
+            ['Scope' => $scopeLabel],
+            ['Group' => $toolData['group'] ?? 'other'],
+        ];
         if ($deps !== []) {
             $meta[] = ['Dependencies' => implode(', ', $deps)];
         }
         if ($privilegeLabel !== '') {
             $meta[] = ['Privileges' => $privilegeLabel];
         }
+        $meta[] = ['Handler' => $this->describeHandler($handler)];
 
         $this->renderCapabilityDetail(
             $io,
@@ -298,11 +364,12 @@ class DebugMcpCommand extends Command
             $rows[] = [$arg->name, ($arg->required ?? false) ? 'required' : 'optional', $arg->description ?? ''];
         }
 
-        $meta = [['Type' => 'prompt'], ['Scope' => $scopeLabel]];
-        if ($prompt->title !== null && $prompt->title !== '') {
-            $meta[] = ['Title' => $prompt->title];
-        }
-        $meta[] = ['Source' => $this->describeHandler($handler)];
+        $meta = [
+            ['Title' => $prompt->title !== null && $prompt->title !== '' ? $prompt->title : '-'],
+            ['Type' => 'prompt'],
+            ['Scope' => $scopeLabel],
+            ['Handler' => $this->describeHandler($handler)],
+        ];
 
         $this->renderCapabilityDetail(
             $io,
@@ -320,10 +387,16 @@ class DebugMcpCommand extends Command
      */
     private function renderResourceDetail(SymfonyStyle $io, ResourceDefinition $resource, \Closure|array|string $handler, string $scopeLabel): void
     {
-        $meta = [['Type' => 'resource'], ['Scope' => $scopeLabel], ['URI' => $resource->uri], ['Source' => $this->describeHandler($handler)]];
+        $meta = [
+            ['Title' => $resource->title !== null && $resource->title !== '' ? $resource->title : '-'],
+            ['Type' => 'resource'],
+            ['Scope' => $scopeLabel],
+            ['URI' => $resource->uri],
+        ];
         if ($resource->mimeType !== null) {
             $meta[] = ['MIME type' => $resource->mimeType];
         }
+        $meta[] = ['Handler' => $this->describeHandler($handler)];
 
         $this->renderCapabilityDetail($io, $resource->name, $meta, $resource->description);
     }
@@ -342,25 +415,26 @@ class DebugMcpCommand extends Command
         array $tableHeaders = [],
         array $tableRows = [],
     ): void {
+        // Every block closes with exactly one blank line, so the next heading never needs to open
+        // with one. definitionList() and the title already behave that way.
         $io->title($title);
         $io->definitionList(...$meta);
 
         if ($description !== null && $description !== '') {
             $this->subSection($io, 'Description');
             $io->writeln($description);
+            $io->newLine();
         }
 
         if ($tableSection !== '' && $tableRows !== []) {
             $this->subSection($io, $tableSection);
             (new Table($io))->setHeaders($tableHeaders)->setRows($tableRows)->render();
+            $io->newLine();
         }
-
-        $io->newLine();
     }
 
     private function subSection(SymfonyStyle $io, string $title): void
     {
-        $io->newLine();
         $io->writeln(\sprintf('<comment>%s</>', $title));
         $io->writeln(\sprintf('<comment>%s</>', str_repeat('-', mb_strlen($title))));
     }
@@ -376,13 +450,14 @@ class DebugMcpCommand extends Command
         $total = $scope['catalog']->totalToolCount();
 
         $heading = $allowlist !== null
-            ? \sprintf('%s: Tools (%d/%d allowed)', $scope['name'], \count($enrichedTools), $total)
-            : \sprintf('%s: Tools (%d)', $scope['name'], $total);
+            ? \sprintf('Tools (%d/%d allowed) [%s]', \count($enrichedTools), $total, $scope['name'])
+            : \sprintf('Tools (%d) [%s]', $total, $scope['name']);
 
         $io->section($heading);
 
         if ($enrichedTools === []) {
             $io->text('No tools registered.');
+            $io->newLine();
 
             return;
         }
@@ -401,103 +476,10 @@ class DebugMcpCommand extends Command
         }
 
         (new Table($io))
-            ->setHeaders(['Name', 'Group', 'Source', 'Dependencies', 'Privileges'])
+            ->setHeaders(['Name', 'Group', 'Handler', 'Dependencies', 'Privileges'])
             ->setRows($rows)
             ->render();
         $io->newLine();
-    }
-
-    /**
-     * @param McpScope $scope
-     */
-    private function renderPrompts(SymfonyStyle $io, array $scope): void
-    {
-        $registry = $scope['registry'];
-        $page = $registry->getPrompts();
-        $io->section(\sprintf('%s: Prompts (%d)', $scope['name'], $page->count()));
-
-        if ($page->count() === 0) {
-            $io->text('No prompts registered.');
-
-            return;
-        }
-
-        $rows = [];
-        foreach ($page->references as $prompt) {
-            \assert($prompt instanceof Prompt);
-            $ref = $registry->getPrompt($prompt->name);
-            $rows[] = [$prompt->name, $this->describeHandler($ref->handler)];
-        }
-
-        $this->renderTable($io, $rows);
-        $io->newLine();
-    }
-
-    /**
-     * @param McpScope $scope
-     */
-    private function renderResources(SymfonyStyle $io, array $scope): void
-    {
-        $registry = $scope['registry'];
-        $page = $registry->getResources();
-        $io->section(\sprintf('%s: Resources (%d)', $scope['name'], $page->count()));
-
-        if ($page->count() === 0) {
-            $io->text('No resources registered.');
-
-            return;
-        }
-
-        $rows = [];
-        foreach ($page->references as $resource) {
-            \assert($resource instanceof ResourceDefinition);
-
-            $ref = $registry->getResource($resource->uri, false);
-            $rows[] = [$resource->name, $this->describeHandler($ref->handler)];
-        }
-
-        $this->renderTable($io, $rows);
-        $io->newLine();
-    }
-
-    /**
-     * @param McpScope $scope
-     */
-    private function renderResourceTemplates(SymfonyStyle $io, array $scope): void
-    {
-        $registry = $scope['registry'];
-        $page = $registry->getResourceTemplates();
-        $io->section(\sprintf('%s: Resource Templates (%d)', $scope['name'], $page->count()));
-
-        if ($page->count() === 0) {
-            $io->text('No resource templates registered.');
-
-            return;
-        }
-
-        $rows = [];
-        foreach ($page->references as $template) {
-            \assert($template instanceof ResourceTemplate);
-            $ref = $registry->getResourceTemplate($template->uriTemplate);
-            $rows[] = [$template->name, $template->uriTemplate, $this->describeHandler($ref->handler)];
-        }
-
-        (new Table($io))
-            ->setHeaders(['Name', 'URI Template', 'Source'])
-            ->setRows($rows)
-            ->render();
-        $io->newLine();
-    }
-
-    /**
-     * @param array<array<string>> $rows
-     */
-    private function renderTable(SymfonyStyle $io, array $rows): void
-    {
-        (new Table($io))
-            ->setHeaders(['Name', 'Source'])
-            ->setRows($rows)
-            ->render();
     }
 
     /**

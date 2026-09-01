@@ -13,10 +13,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @experimental stableVersion:v6.8.0
  *
- * First MCP compiler pass: remaps Shopware-specific tags to MCP SDK tags, enforces the
- * configured tool allowlist, and detects duplicate tool name conflicts.
+ * First MCP compiler pass: remaps Shopware-specific tags to MCP SDK tags, assigns the remapped
+ * capabilities to an MCP server, enforces the configured tool allowlist, and detects duplicate tool
+ * name conflicts.
  *
- * Must run before McpToolAnalysisCompilerPass and McpServerBuilderCompilerPass.
+ * Must run before McpToolAnalysisCompilerPass and McpServerBuilderCompilerPass, and before the
+ * bundle's own McpPass — hence the explicit priority where it is registered.
  */
 #[Package('framework')]
 class McpToolDiscoveryCompilerPass implements CompilerPassInterface
@@ -30,7 +32,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             $container->setParameter($paramPrefix . 'tool_groups', []);
         }
 
-        if (!$container->hasDefinition('mcp.server.builder')) {
+        if (!$container->hasDefinition('mcp.server.admin.builder')) {
             return;
         }
 
@@ -50,21 +52,141 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             }
         }
 
-        $this->enforceToolAllowlist($container);
+        $this->enforceToolAllowlist($container, $this->adminToolIds($container));
 
-        // Per scope: names are unique within a scope's own registry (admin and Store API may
-        // legitimately share a name like shopware-tool-search across the two registries).
-        foreach (['mcp.tool' => 'shopware.mcp.advertised_tools', 'shopware.store_api_mcp.tool' => 'shopware.store_api_mcp.advertised_tools'] as $tag => $advertisedParam) {
-            $this->detectToolNameConflicts($container, $tag);
-            $this->buildAdvertisedTools($container, $tag, $advertisedParam);
+        // After the allowlist, so a blocked tool's class is never handed to the bundle: it removes
+        // the service, and a pattern naming a service that no longer exists is fatal there.
+        $this->assignElementsToServers($container);
+
+        // Per scope: names are unique within a scope's own registry, and the two scopes deliberately
+        // share names — both endpoints expose their own shopware-tool-search, shopware-toolsets-list
+        // and shopware-toolset-enable. Checking them in one pool would report those as duplicates.
+        // The ids are re-read because the allowlist may have removed services.
+        $storeApiToolIds = array_keys($container->findTaggedServiceIds('shopware.store_api_mcp.tool'));
+
+        foreach ([[$this->adminToolIds($container), 'shopware.mcp.advertised_tools'], [$storeApiToolIds, 'shopware.store_api_mcp.advertised_tools']] as [$serviceIds, $advertisedParam]) {
+            $this->detectToolNameConflicts($container, $serviceIds);
+            $this->buildAdvertisedTools($container, $serviceIds, $advertisedParam);
         }
+    }
+
+    /**
+     * Hands the bundle's McpPass the capabilities that its `registry` patterns cannot name.
+     *
+     * A server's element list is configured in packages/mcp.php as namespace prefixes, which covers
+     * core and in-tree bundles but not plugins or third-party bundles: their namespace is arbitrary,
+     * and the "*" wildcard is not usable because it would also claim the other server's elements.
+     * The bundle passes those lists to its compiler pass through the `mcp.servers.elements`
+     * parameter, so appending the resolved class names here assigns each capability to exactly one
+     * server. An exact class name always matches, so it can never become an unused pattern (which
+     * the bundle treats as a fatal typo).
+     */
+    private function assignElementsToServers(ContainerBuilder $container): void
+    {
+        if (!$container->hasParameter('mcp.servers.elements')) {
+            return;
+        }
+
+        $elements = $container->getParameter('mcp.servers.elements');
+
+        if (!\is_array($elements)) {
+            return;
+        }
+
+        $scopes = [
+            'admin' => [
+                'tools' => 'mcp.tool',
+                'prompts' => 'mcp.prompt',
+                'resources' => 'mcp.resource',
+                'resource_templates' => 'mcp.resource_template',
+            ],
+            'store_api' => [
+                'tools' => 'shopware.store_api_mcp.tool',
+                'prompts' => 'shopware.store_api_mcp.prompt',
+                'resources' => 'shopware.store_api_mcp.resource',
+            ],
+        ];
+
+        $storeApiTools = $container->findTaggedServiceIds('shopware.store_api_mcp.tool');
+
+        foreach ($scopes as $server => $kinds) {
+            if (!isset($elements[$server])) {
+                continue;
+            }
+
+            foreach ($kinds as $kind => $tag) {
+                foreach (array_keys($container->findTaggedServiceIds($tag)) as $serviceId) {
+                    // A Store API tool carries the SDK tag as well so the bundle collects it at all;
+                    // it must not additionally be claimed by the Admin API server.
+                    if ($server === 'admin' && isset($storeApiTools[$serviceId])) {
+                        continue;
+                    }
+
+                    $class = $container->getDefinition($serviceId)->getClass() ?? $serviceId;
+
+                    // Only capabilities no configured pattern reaches. The bundle stops at the first
+                    // pattern that matches and reports every pattern that matched nothing as a fatal
+                    // typo, so adding a class the namespace prefix already covers would break the
+                    // container build.
+                    if (!self::isCovered($elements[$server][$kind] ?? [], $serviceId, $class)) {
+                        $elements[$server][$kind][] = $class;
+                    }
+                }
+            }
+        }
+
+        $container->setParameter('mcp.servers.elements', $elements);
+    }
+
+    /**
+     * Mirrors the bundle's own pattern matching: the "*" wildcard, an exact service id or class, or a
+     * namespace prefix recognised by its trailing backslash.
+     *
+     * @param array<mixed> $patterns
+     */
+    private static function isCovered(array $patterns, string $serviceId, string $class): bool
+    {
+        foreach ($patterns as $pattern) {
+            if (!\is_string($pattern)) {
+                continue;
+            }
+
+            if ($pattern === '*' || $pattern === $serviceId || $pattern === $class) {
+                return true;
+            }
+
+            if (str_ends_with($pattern, '\\') && (str_starts_with($class, $pattern) || str_starts_with($serviceId, $pattern))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The Admin API tools: everything carrying the SDK tag except the Store API ones, which carry it
+     * only so the bundle collects them for their own server.
+     *
+     * @return list<string>
+     */
+    private function adminToolIds(ContainerBuilder $container): array
+    {
+        $storeApiTools = $container->findTaggedServiceIds('shopware.store_api_mcp.tool');
+
+        return array_values(array_filter(
+            array_keys($container->findTaggedServiceIds('mcp.tool')),
+            static fn (string $serviceId): bool => !isset($storeApiTools[$serviceId]),
+        ));
     }
 
     /**
      * When shopware.mcp.allowed_tools is non-empty, remove any tool services
      * whose name is not in the allowlist.
      */
-    private function enforceToolAllowlist(ContainerBuilder $container): void
+    /**
+     * @param list<string> $serviceIds
+     */
+    private function enforceToolAllowlist(ContainerBuilder $container, array $serviceIds): void
     {
         if (!$container->hasParameter('shopware.mcp.allowed_tools')) {
             return;
@@ -77,7 +199,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
             return;
         }
 
-        foreach ($container->findTaggedServiceIds('mcp.tool') as $serviceId => $tags) {
+        foreach ($serviceIds as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
@@ -88,12 +210,15 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
         }
     }
 
-    private function detectToolNameConflicts(ContainerBuilder $container, string $tag): void
+    /**
+     * @param list<string> $serviceIds
+     */
+    private function detectToolNameConflicts(ContainerBuilder $container, array $serviceIds): void
     {
         /** @var array<string, string> $toolNames tool-name => service-id */
         $toolNames = [];
 
-        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
+        foreach ($serviceIds as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
@@ -115,11 +240,14 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
      * -enable). Every other tool is deferred and only advertised once its toolset is enabled, so a
      * domain tool cannot leak into the default surface — group membership is the single gate.
      */
-    private function buildAdvertisedTools(ContainerBuilder $container, string $tag, string $advertisedParam): void
+    /**
+     * @param list<string> $serviceIds
+     */
+    private function buildAdvertisedTools(ContainerBuilder $container, array $serviceIds, string $advertisedParam): void
     {
         $advertisedTools = [];
 
-        foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
+        foreach ($serviceIds as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
             $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name']);

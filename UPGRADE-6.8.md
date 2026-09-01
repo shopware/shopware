@@ -4,6 +4,69 @@
 
 <details>
 
+## MCP server registration and service IDs changed
+
+Shopware now runs on `symfony/mcp-bundle` 0.13 with `mcp/sdk` 0.8, which register both MCP servers
+declaratively. This only affects code that integrated with the MCP internals; the extension tags
+(`shopware.mcp.tool`, `shopware.mcp.prompt`, `shopware.mcp.resource` and the
+`shopware.store_api_mcp.*` equivalents) are unchanged, so plugins and apps need no adjustment.
+
+### Per-server service IDs
+
+The bundle registers one set of services per configured server, so the flat IDs are gone:
+
+| Before | After (Admin API) | After (Store API) |
+|---|---|---|
+| `mcp.server` | `mcp.server.admin` | `mcp.server.store_api` |
+| `mcp.server.builder` | `mcp.server.admin.builder` | `mcp.server.store_api.builder` |
+| `mcp.registry` | `mcp.server.admin.registry` | `mcp.server.store_api.registry` |
+| `mcp.session.store` | `mcp.server.admin.session.store` | `mcp.server.store_api.session.store` |
+
+The hand-built `mcp.store_api.registry`, `mcp.store_api.server.builder` and `mcp.store_api.server`
+services were removed along with them, as was `StoreApiMcpServerBuilderCompilerPass`.
+
+Protocol request and notification handlers are now scoped per server. Replace the tag
+`mcp.request_handler` with `mcp.admin.request_handler` (and `mcp.notification_handler` with
+`mcp.admin.notification_handler`) to target the Admin API server; the Store API tags
+`mcp.store_api.request_handler` and `mcp.store_api.notification_handler` are unchanged. A handler on
+the bundle's global `mcp.request_handler` tag reaches neither server.
+
+### Capability discovery no longer scans directories
+
+The `discovery.scan_dirs` option of the `mcp` extension no longer exists — the bundle replaced the
+SDK's file-based discovery with compile-time container registration. An in-tree bundle capability now
+needs only its DI tag, and a directory listing is neither required nor possible.
+
+Each server instead declares which capabilities it exposes, as namespace prefixes under
+`mcp.servers.<name>.registry`. A capability whose namespace no server names is **silently not
+registered** rather than reaching every server. Run `bin/console debug:mcp --native` to list
+capabilities that ended up assigned to no server. Capabilities in an arbitrary namespace — every
+plugin and third-party bundle — are assigned by `McpToolDiscoveryCompilerPass` instead of by prefix.
+
+### Pagination limit
+
+The bundle's flat `mcp.pagination_limit` parameter is gone. Shopware sets both servers from its own
+`shopware.mcp.pagination_limit` parameter (default 50).
+
+### `debug:mcp`
+
+The MCP bundle ships its own `debug:mcp` command as of 0.12. Shopware keeps the name for its command
+and moves the bundle's to `debug:mcp:native`, also reachable as `bin/console debug:mcp --native`.
+
+### Store API MCP sessions are stored separately
+
+Each server now owns its own session store, defaulting to
+`%kernel.cache_dir%/mcp-sessions/<server>`. They must stay separate: session IDs are not namespaced
+per server and the SDK accepts any ID present in the store, so a shared store would make a session
+minted on `/api/_mcp` valid on `/store-api/_mcp`. Store API MCP sessions that existed before the
+update are not carried over and clients have to re-initialize once.
+
+### Protocol revision
+
+`mcp/sdk` 0.8 serves the 2026-07-28 revision from the same endpoint as the handshake era by default.
+Both Shopware endpoints are pinned to the handshake era for now, so the negotiated `protocolVersion`
+and the `Mcp-Session-Id` behaviour are unchanged.
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.

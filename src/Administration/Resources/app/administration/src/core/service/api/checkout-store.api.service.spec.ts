@@ -4,9 +4,10 @@ import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 function createCheckoutStoreService() {
-    const client = createHTTPClient();
+    const context = Shopware.Context?.api || {};
+    const client = createHTTPClient(context);
     const clientMock = new MockAdapter(client);
-    const loginService = createLoginService(client, Shopware.Context.api);
+    const loginService = createLoginService(client, context);
     const checkoutStoreService = new CheckoutStoreService(client, loginService);
 
     clientMock.onAny().reply(200, {
@@ -33,10 +34,16 @@ describe('checkoutStoreService', () => {
 
         await checkoutStoreService.checkout(salesChannelId, contextToken, {}, {}, { sendOrderConfirmationMail: false });
 
-        expect(clientMock.history.post[0].url).toBe(`_proxy-order/${salesChannelId}`);
-        const requestData = clientMock.history.post[0].data as string;
+        const request = clientMock.history.post[0];
+
+        if (!request) {
+            throw new Error('Expected checkout request to be sent');
+        }
+
+        expect(request.url).toBe(`_proxy-order/${salesChannelId}`);
+        const requestData = request.data as string;
 
         expect(JSON.parse(requestData)).toEqual({ sendOrderConfirmationMail: false });
-        expect(clientMock.history.post[0].headers['sw-context-token']).toBe(contextToken);
+        expect(request.headers?.['sw-context-token']).toBe(contextToken);
     });
 });

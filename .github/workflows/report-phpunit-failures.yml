@@ -1,7 +1,7 @@
 name: Report PHPUnit failures
 
 # Files (or updates) one flat tracking issue per owning domain from the junit.xml
-# artifacts of a failed scheduled test run — deliberately no parent issue, flat
+# artifacts of a failed nightly run (scheduled on trunk, bot-dispatched on maintenance branches) — deliberately no parent issue, flat
 # per-domain issues only. Called by nightly.yml and nightly-major.yml;
 # the PHPUnit jobs of the run (redis, integration.yml, integration-major.yml, php.yml)
 # upload the `junit-phpunit-*` artifacts this consumes, the Jest jobs upload

@@ -29,7 +29,7 @@ jobs:
   # turn a red major matrix into a domain-grouped tracking issue, aggregated from
   # the junit-phpunit-* artifacts integration-major.yml uploads on scheduled failures
   report-phpunit-failures:
-    if: always() && github.event_name == 'schedule' && needs.integration-major.result == 'failure'
+    if: always() && needs.integration-major.result == 'failure'
     needs:
       - integration-major
     uses: ./.github/workflows/report-phpunit-failures.yml

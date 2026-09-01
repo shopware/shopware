@@ -279,6 +279,7 @@
       "error": {
         "title": "Mehrfachänderung - Fehler",
         "description": "Mehrfachänderung mit Fehlern abgeschlossen.",
+        "failedStatusChanges": "Die folgende Statusänderung ist fehlgeschlagen: | Die folgenden {count} Statusänderungen sind fehlgeschlagen:",
         "buttons": {
           "openLog": "Log-Datei öffnen"
         }
@@ -316,6 +317,11 @@
         "statusMails": {
           "label": "Versende: Status-E-Mails",
           "helpText": "Diese Option ist verfügbar, sobald mindestens ein Statuswechsel erfolgt ist."
+        },
+        "failedFields": {
+          "orderTransactions": "Zahlungsstatus",
+          "orderDeliveries": "Lieferstatus",
+          "orders": "Bestellstatus"
         },
         "documents": {
           "label": "Verschicken: Dokumente",

@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Test\Stub\Framework\Util;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
@@ -12,7 +12,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
  * @internal
  */
 #[Package('framework')]
-#[CoversNothing]
+#[CoversClass(StaticFilesystem::class)]
 class StaticFilesystemTest extends TestCase
 {
     public function testHas(): void

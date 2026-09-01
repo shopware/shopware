@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Test\Stub\Doctrine;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Doctrine\FakeResultFactory;
@@ -12,7 +12,7 @@ use Shopware\Core\Test\Stub\Doctrine\FakeResultFactory;
  * @internal
  */
 #[Package('checkout')]
-#[CoversNothing]
+#[CoversClass(FakeResultFactory::class)]
 class FakeResultFactoryTest extends TestCase
 {
     public function testCreateResult(): void

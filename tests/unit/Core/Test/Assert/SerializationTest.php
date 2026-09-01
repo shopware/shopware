@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Test\Assert;
 
 use PHPUnit\Framework\AssertionFailedError;
-use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Assert\Serialization;
@@ -12,7 +12,7 @@ use Shopware\Core\Test\Assert\Serialization;
  * @internal
  */
 #[Package('framework')]
-#[CoversNothing]
+#[CoversClass(Serialization::class)]
 class SerializationTest extends TestCase
 {
     public function testAssertRoundTripReturnsUnserialized(): void

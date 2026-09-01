@@ -49,6 +49,40 @@ class InstallTranslationCommandTest extends TestCase
         );
     }
 
+    public function testAllSkipsPseudoLocales(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['en-GB', 'es-ES', 'ach-UG'],
+            [],
+            new LanguageCollection(),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+            pseudoLocales: ['ach-UG'],
+        );
+
+        $this->initMetadataLoader(new MetadataCollection([]));
+        $this->translationLoader->method('hasTranslationFiles')->willReturn(true);
+
+        $installed = [];
+        $this->translationLoader->method('load')
+            ->willReturnCallback(static function (string $locale) use (&$installed): void {
+                $installed[] = $locale;
+            });
+        $this->translationLoader->method('link')
+            ->willReturnCallback(static function (string $locale) use (&$installed): void {
+                $installed[] = $locale;
+            });
+
+        $tester = new CommandTester($this->getCommand());
+        $tester->execute(['--all' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        // A pseudo-locale is a proofreading tool; --all must not turn it into a shop language.
+        static::assertSame(['en-GB', 'es-ES'], $installed);
+    }
+
     public function testExecuteThrowsExceptionWithoutArguments(): void
     {
         $this->translationLoader->expects($this->never())->method('download');

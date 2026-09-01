@@ -152,7 +152,10 @@ class InstallTranslationCommand extends Command
     private function getLocales(InputInterface $input, OutputInterface $output): array
     {
         if ($input->getOption('all')) {
-            return $this->config->locales;
+            // A pseudo-locale is a proofreading tool rather than a language a shop offers, so
+            // "all" does not mean it. It stays installable by naming it in --locales, which is
+            // how the audits it exists for ask for it.
+            return array_values(array_diff($this->config->locales, $this->config->pseudoLocales));
         }
 
         $locales = $input->getOption('locales');

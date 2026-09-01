@@ -28,6 +28,23 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Export the canonical PHPUnit environment
+      # every PHPUnit job runs against the same test app and service endpoints; exporting them here
+      # keeps the values out of each job's env block (FEATURE_ALL stays with the caller: it is
+      # matrix- and workflow-specific). APP_SECRET is a fixed test value, not a real secret.
+      shell: bash
+      run: |
+        {
+          echo "APP_ENV=test"
+          echo "DATABASE_URL=mysql://root@127.0.0.1:3306/root"
+          echo "APP_URL=http://localhost:8000"
+          echo "APP_SECRET=def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48"
+          echo "OPENSEARCH_URL=127.0.0.1:9200"
+          echo "ADMIN_OPENSEARCH_URL=127.0.0.1:9200"
+          echo "BLUE_GREEN_DEPLOYMENT=1"
+          echo "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true"
+        } >> "$GITHUB_ENV"
+
     - name: Setup Shopware
       uses: shopware/setup-shopware@main
       with:

@@ -1,8 +1,53 @@
 /**
  * @sw-package checkout
  */
-/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import component from './index';
+
+type StatusChange = {
+    field: string;
+    value: string;
+};
+
+type SyncChange = {
+    field: string;
+    value: unknown;
+};
+
+type StatusTransitionFailure = {
+    orderId: string;
+    orderNumber: string;
+    field: string;
+    fieldLabel: string;
+    code: string;
+};
+
+type ViewModelOptions = {
+    selectedIds?: string[];
+    statusData?: StatusChange[];
+    syncData?: SyncChange[];
+    bulkEditStatus?: jest.Mock;
+    bulkEdit?: jest.Mock;
+    getLatestOrderStatus?: jest.Mock;
+};
+
+type ViewModel = {
+    isLoading: boolean;
+    processStatus: string;
+    statusTransitionFailures: StatusTransitionFailure[];
+    selectedIds: string[];
+    itemsPerRequest: number;
+    onProcessData: jest.Mock;
+    bulkEditApiFactory: {
+        getHandler: jest.Mock;
+    };
+    getLatestOrderStatus: jest.Mock;
+    $t: (key: string) => string;
+    processStatusChunks: (
+        ...args: Parameters<typeof component.methods.processStatusChunks>
+    ) => ReturnType<typeof component.methods.processStatusChunks>;
+    getStatusTransitionFieldLabel: (field: string) => string;
+};
 
 function deferredPromise() {
     let resolvePromise: () => void = () => {};
@@ -23,7 +68,7 @@ function createViewModel({
     bulkEditStatus = jest.fn().mockResolvedValue([]),
     bulkEdit = jest.fn().mockResolvedValue({}),
     getLatestOrderStatus = jest.fn().mockResolvedValue(undefined),
-} = {}) {
+}: ViewModelOptions = {}) {
     const viewModel = {
         isLoading: false,
         processStatus: '',
@@ -39,9 +84,10 @@ function createViewModel({
         },
         getLatestOrderStatus,
         $t: (key: string) => key,
-    };
+    } as unknown as ViewModel;
 
-    viewModel.processStatusChunks = (...args) => component.methods.processStatusChunks.call(viewModel, ...args);
+    viewModel.processStatusChunks = (...args: Parameters<typeof component.methods.processStatusChunks>) =>
+        component.methods.processStatusChunks.call(viewModel, ...args);
     viewModel.getStatusTransitionFieldLabel = (field: string) =>
         component.methods.getStatusTransitionFieldLabel.call(viewModel, field);
 

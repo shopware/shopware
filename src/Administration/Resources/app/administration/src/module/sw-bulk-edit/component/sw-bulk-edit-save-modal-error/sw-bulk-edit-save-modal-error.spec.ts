@@ -3,7 +3,15 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(failedItems = []) {
+type FailedItem = {
+    orderId: string;
+    orderNumber: string;
+    field: string;
+    fieldLabel: string;
+    code: string;
+};
+
+async function createWrapper(failedItems: FailedItem[] = []) {
     return mount(await wrapTestComponent('sw-bulk-edit-save-modal-error', { sync: true }), {
         global: {
             stubs: {

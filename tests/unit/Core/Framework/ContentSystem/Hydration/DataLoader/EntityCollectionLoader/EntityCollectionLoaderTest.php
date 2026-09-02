@@ -16,7 +16,9 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
@@ -183,6 +185,29 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertArrayHasKey('manufacturer', $capturedCriteria->getAssociations());
         static::assertArrayHasKey('cover', $capturedCriteria->getAssociations());
         static::assertCount(2, $capturedCriteria->getAssociations());
+    }
+
+    #[TestDox('declares exactly the required config keys the serializer needs to decode a config (drift guard)')]
+    public function testConfigSpecificationRequiredKeysMatchSerializerRequiredKeys(): void
+    {
+        $loader = $this->createMinimalLoader();
+
+        $requiredKeys = $loader->configSpecification()->requiredKeys();
+        sort($requiredKeys);
+
+        static::assertSame(['entity', 'property'], $requiredKeys);
+
+        // Drive decode() purely from the keys the specification declares required: if the specification drops a
+        // key the serializer requires (or decode() gains a new required key), decode() throws and this fails.
+        // The serializer delegates to EntityLoaderConfigSerializer, so a required key added for the entity source
+        // reaches entity_collection too. EntityCollectionLoaderConfigSerializerTest pins necessity (decode rejects
+        // either key's absence).
+        $input = [];
+        foreach ($requiredKeys as $key) {
+            $input[$key] = 'product';
+        }
+
+        (new EntityCollectionLoaderConfigSerializer(new EntityLoaderConfigSerializer()))->decode($input);
     }
 
     #[TestDox('skips bare EntityCollection definitions but keeps enumerating the rest')]

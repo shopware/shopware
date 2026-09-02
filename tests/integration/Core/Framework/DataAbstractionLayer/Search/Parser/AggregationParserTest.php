@@ -160,7 +160,7 @@ class AggregationParserTest extends TestCase
         $error = array_shift($errors);
 
         static::assertNotNull($error);
-        static::assertSame('The aggregation name should not contain a question mark, colon, or control character.', $error['detail']);
+        static::assertSame('The aggregation name should not contain a backtick, question mark, colon, or control character.', $error['detail']);
         static::assertCount(0, $criteria->getAggregations());
     }
 
@@ -381,7 +381,7 @@ class AggregationParserTest extends TestCase
 
         static::assertNotNull($error);
 
-        static::assertSame('The aggregation name should not contain a question mark, colon, or control character.', $error['detail']);
+        static::assertSame('The aggregation name should not contain a backtick, question mark, colon, or control character.', $error['detail']);
     }
 
     /**
@@ -389,6 +389,7 @@ class AggregationParserTest extends TestCase
      */
     public static function provideDisallowedRangeKeys(): \Generator
     {
+        yield 'backtick' => ['foo`foo'];
         yield 'question mark' => ['foo?foo'];
         yield 'colon' => ['foo:foo'];
         yield 'control character' => ["foo\nfoo"];
@@ -422,7 +423,7 @@ class AggregationParserTest extends TestCase
         $error = array_shift($errors);
 
         static::assertNotNull($error);
-        static::assertSame('The range aggregation key should not contain a question mark, colon, or control character.', $error['detail']);
+        static::assertSame('The range aggregation key should not contain a backtick, question mark, colon, or control character.', $error['detail']);
         static::assertCount(0, $criteria->getAggregations());
     }
 }

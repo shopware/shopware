@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
@@ -199,13 +200,8 @@ class AggregationParser
             return null;
         }
 
-        if (
-            str_contains($name, '?')
-            || str_contains($name, ':')
-            // https://www.php.net/manual/en/regexp.reference.unicode.php
-            || preg_match('/\p{Cc}/u', $name) === 1
-        ) {
-            $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a question mark, colon, or control character.'), '/aggregations/' . $index);
+        if (!EntityDefinitionQueryHelper::isValidIdentifier($name)) {
+            $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a backtick, question mark, colon, or control character.'), '/aggregations/' . $index);
 
             return null;
         }
@@ -249,19 +245,8 @@ class AggregationParser
                 }
 
                 foreach ($aggregation['ranges'] as $range) {
-                    if (!isset($range['key'])) {
-                        continue;
-                    }
-
-                    $key = (string) $range['key'];
-
-                    if (
-                        str_contains($key, '?')
-                        || str_contains($key, ':')
-                        // https://www.php.net/manual/en/regexp.reference.unicode.php
-                        || preg_match('/\p{Cc}/u', $key) === 1
-                    ) {
-                        $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The range aggregation key should not contain a question mark, colon, or control character.'), '/aggregations/' . $index . '/' . $type . '/ranges');
+                    if (isset($range['key']) && !EntityDefinitionQueryHelper::isValidIdentifier((string) $range['key'])) {
+                        $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The range aggregation key should not contain a backtick, question mark, colon, or control character.'), '/aggregations/' . $index . '/' . $type . '/ranges');
 
                         return null;
                     }

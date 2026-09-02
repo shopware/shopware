@@ -6,7 +6,13 @@ import { registerNativeExtensionTargets, getNativeBlockExtensionTargets } from '
 
 describe('core/factory/native-extension-targets', () => {
     it('collects the block names of every registered override', () => {
-        registerNativeExtensionTargets({ component: 'net-a', blocks: ['net_first', 'net_second'] });
+        registerNativeExtensionTargets({
+            component: 'net-a',
+            blocks: [
+                'net_first',
+                'net_second',
+            ],
+        });
         registerNativeExtensionTargets({ component: 'net-b', blocks: ['net_third'] });
 
         const targets = getNativeBlockExtensionTargets();

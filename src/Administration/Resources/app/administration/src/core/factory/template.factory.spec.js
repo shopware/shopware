@@ -57,4 +57,42 @@ describe('core/factory/template.factory.js - native block extension points', () 
             '<div><sw-block name="tf_parent_block" :data="$dataScope" :legacy-shim="false"><i>kid</i><p>parent</p></sw-block></div>',
         );
     });
+
+    it('moves the extension point inside a block that is a single slot template', () => {
+        registerNativeExtensionTargets({ component: 'tf-slot', blocks: ['tf_slot_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-slot',
+            '<sw-card>{% block tf_slot_block %}<template #header="{ item }"><b>{{ item }}</b></template>{% endblock %}</sw-card>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // Wrapping from the outside would bind #header to sw-block, which renders only its default
+        // slot - the content would vanish from the DOM without any error.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-slot').html).toBe(
+            '<sw-card><template #header="{ item }"><sw-block name="tf_slot_block" :data="$dataScope" :legacy-shim="false"><b>{{ item }}</b></sw-block></template></sw-card>',
+        );
+    });
+
+    it('leaves a block that mixes a slot template with other content unwrapped', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-mixed', blocks: ['tf_mixed_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-mixed',
+            '<sw-card>{% block tf_mixed_block %}<template #header><b>h</b></template><p>extra</p>{% endblock %}</sw-card>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // There is no single position that would serve both the slot and the trailing content.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-mixed').html).toBe(
+            '<sw-card><template #header><b>h</b></template><p>extra</p></sw-card>',
+        );
+        expect(warnSpy).toHaveBeenCalledWith('TemplateFactory', expect.stringContaining('tf_mixed_block'));
+
+        warnSpy.mockRestore();
+    });
 });

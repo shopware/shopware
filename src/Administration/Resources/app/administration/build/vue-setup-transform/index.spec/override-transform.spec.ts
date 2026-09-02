@@ -47,7 +47,7 @@ describe('build/vue-setup-transform override transforms', () => {
         // blank-line residue is not behaviour. The Vue round-trip below guards the token sequence.
         const expected = stripWhitespace`
             <script lang="ts">
-            Shopware.Component.registerNativeExtensionTargets({
+            Shopware.Component.registerNativeExtensionTargets?.({
                 component: 'sw-example',
                 blocks: [
                     'sw_example_headline',

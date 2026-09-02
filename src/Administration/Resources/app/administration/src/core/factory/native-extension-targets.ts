@@ -1,6 +1,8 @@
 /**
  * @sw-package framework
  * @private
+ *
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 
 type NativeExtensionTargets = {

@@ -206,7 +206,9 @@ function buildNativeExtensionTargetsScript(block: ShopwareSetupBlock, templateAn
 
     return [
         `<script${langAttribute}>`,
-        'Shopware.Component.registerNativeExtensionTargets({',
+        // Optional call: this line is compiled into every shipped plugin bundle and runs at module
+        // eval, so a missing function would abort the whole entry and take the plugin down with it.
+        'Shopware.Component.registerNativeExtensionTargets?.({',
         `    component: '${escapeSingleQuoted(block.componentName)}',`,
         ...blocksProperty,
         '});',

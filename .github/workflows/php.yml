@@ -314,14 +314,8 @@ jobs:
           - unit
           - migration
     env:
-      APP_ENV: test
-      DATABASE_URL: mysql://root@127.0.0.1:3306/root
-      APP_URL: http://localhost:8000
-      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
-      OPENSEARCH_URL: 127.0.0.1:9200
-      ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
-      BLUE_GREEN_DEPLOYMENT: 1
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      # the shared test environment (APP_ENV, DATABASE_URL, APP_SECRET, ...) is exported by
+      # ./.github/actions/phpunit-prepare; only the matrix-specific part lives here
       FEATURE_ALL: ${{ matrix.suite == 'migration' && 'major' || '' }}
 
     services:
@@ -378,6 +372,82 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: junit-phpunit-${{ matrix.suite }}
+          path: junit.xml
+          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
+
+  phpunit-12:
+    # PHPUnit 12 gate: runs the unit, migration and devops suites on PHPUnit 12 and
+    # tolerates no PHP or PHPUnit notices/warnings (see the --fail-on-* options below).
+    # Coverage stays on the PHPUnit 11 `phpunit` job above; this job gates the upgrade.
+    name: "PHPUnit 12 for ${{ matrix.suite }}"
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - unit
+          - migration
+          - devops
+    env:
+      # the shared test environment (APP_ENV, DATABASE_URL, APP_SECRET, ...) is exported by
+      # ./.github/actions/phpunit-prepare; only the matrix-specific part lives here
+      FEATURE_ALL: ${{ matrix.suite == 'migration' && 'major' || '' }}
+
+    services:
+      elasticsearch:
+        # no suite in this job talks to OpenSearch; the cheap placeholder keeps the port closed
+        image: alpine
+        env:
+          discovery.type: single-node
+          plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
+        ports:
+          - "9200:9200"
+      database:
+        # migration: MySQL 8.4 rejects foreign keys onto non-unique keys during install/migrate
+        # (restrict_fk_on_non_standard_key defaults to ON there); devops: NonStandardFkGuardTest
+        # skips without that default. The unit suite stays on MySQL 8.0.
+        image: ${{ matrix.suite == 'unit' && 'mysql:8.0' || 'mysql:8.4' }}
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: shopware
+        ports:
+          - "3306:3306"
+        options: --health-cmd="mysqladmin ping || mariadb-admin ping"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup and install Shopware
+        uses: ./.github/actions/phpunit-prepare
+        with:
+          # PHPUnit 12 requires PHP 8.3+
+          php-version: "8.4"
+          keep-composer-tools: "true"
+          migration-coverage: ${{ matrix.suite == 'migration' }}
+          force-phpunit-12: "true"
+      - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
+        if: ${{ matrix.suite == 'unit' }}
+        run: composer install -d vendor-bin/danger-php --no-interaction
+      - name: Run PHPUnit failing on notices and warnings
+        id: phpunit
+        uses: ./.github/actions/phpunit-run
+        with:
+          test-testsuite: ${{ matrix.suite }}
+          # coverage is collected but not uploaded: PHPUnit only validates #[CoversClass] targets
+          # ("is not a valid target for code coverage" PHPUnit warnings) while coverage is active
+          coverage: "true"
+          phpunit-options: "--display-phpunit-notices --fail-on-notice --fail-on-warning --fail-on-phpunit-notice --fail-on-phpunit-warning"
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-12-${{ matrix.suite }}
           path: junit.xml
           # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
           if-no-files-found: ignore
@@ -450,6 +520,7 @@ jobs:
       - phpstan
       - openapi-lint
       - phpunit
+      - phpunit-12
       - license-check
       - composer-audit
       - bc-checker
@@ -460,5 +531,5 @@ jobs:
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           # allowed-failures: docs, linters
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, license-check, composer-audit, bc-checker' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, phpunit-12, license-check, composer-audit, bc-checker' || '' }}
           jobs: ${{ toJSON(needs) }}

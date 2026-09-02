@@ -45,6 +45,39 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         expect(wrapper.text()).toBe('base subline / overridden — Demo GmbH');
     });
 
+    it('writes through previousState to the base state, not to the override result', async () => {
+        let write = (): void => {};
+
+        _overridesMap['sw-shim-write'] = [
+            (previousState: Record<string, { value: unknown }>) => {
+                write = () => {
+                    previousState.counter.value = 42;
+                };
+
+                return { counter: computed(() => `override ${String(previousState.counter.value)}`) };
+            },
+        ] as never;
+
+        const config = {
+            template: '<p>{{ counter }}</p>',
+            data() {
+                return { counter: 1 };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-write', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+        expect(wrapper.text()).toBe('override 1');
+
+        write();
+        await flushPromises();
+
+        // Would stay at "override 1" if the setter wrote into the override's own result instead of data.
+        expect(wrapper.text()).toBe('override 42');
+    });
+
     it('keeps Vue resolving late-added setup keys before data and computed', async () => {
         const bag: Record<string, unknown> = {};
 

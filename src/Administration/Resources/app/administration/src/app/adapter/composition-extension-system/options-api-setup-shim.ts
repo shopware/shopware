@@ -53,8 +53,6 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 return;
             }
 
-            const proxy = instance.proxy as unknown as AnyRecord;
-
             // Deliberately skips `setupState`: reading through the instance proxy would resolve to the
             // override's own result and loop. Mirrors Vue's own order minus that first step.
             const readBaseState = (key: string): unknown => {
@@ -71,6 +69,24 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 return (instance as unknown as { ctx: AnyRecord }).ctx[key];
             };
 
+            // Mirrors readBaseState for writes, so a write lands on the base state instead of the
+            // override's own result. Props stay read-only, as they are on Vue's own proxy.
+            const writeBaseState = (key: string, next: unknown): void => {
+                const data = instance.data as AnyRecord;
+
+                if (data && key in data) {
+                    data[key] = next;
+
+                    return;
+                }
+
+                if (instance.props && key in instance.props) {
+                    return;
+                }
+
+                (instance as unknown as { ctx: AnyRecord }).ctx[key] = next;
+            };
+
             // Override callbacks read `previousState.x.value`, so every key is served as a ref-like
             // accessor. A proxy avoids having to enumerate data, computed and methods upfront.
             const previousState = new Proxy(
@@ -82,7 +98,7 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                             return readBaseState(key);
                         },
                         set value(next: unknown) {
-                            proxy[key] = next;
+                            writeBaseState(key, next);
                         },
                     }),
                 },

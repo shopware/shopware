@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
  */
 #[Package('after-sales')]
 final class DocumentFileResolver

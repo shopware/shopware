@@ -40,6 +40,9 @@ function createESLint(fix: boolean): ESLint {
                     '**/*.spec.ts',
                 ],
                 languageOptions: { parser: tsParser, ecmaVersion: 2023, sourceType: 'module' },
+                // Every `eslint-disable` in the suite points at a rule this run does not enable, so
+                // ESLint would call them all unused and strip them as part of `--fix`.
+                linterOptions: { reportUnusedDisableDirectives: 'off' },
                 plugins: { 'sw-test-rules': { rules: { 'no-set-data': noSetDataRule } } },
                 rules: {
                     'sw-test-rules/no-set-data': [

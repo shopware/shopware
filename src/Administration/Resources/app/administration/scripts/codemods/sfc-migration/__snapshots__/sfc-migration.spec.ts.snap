@@ -1407,7 +1407,6 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
   "reasons": [
     "unsupported inject declaration (only the array form is migrated)",
     "convert 'metaInfo' manually",
-    "convert 'shortcuts' manually",
     "unmapped this.$device",
   ],
   "sfc": "<template>
@@ -1418,6 +1417,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 <script setup>
 import { ref } from 'vue';
+import useShortcut from 'src/app/composables/use-shortcut';
 
 const onSave = function () {
     if (this.$device.getViewportWidth() > 500) {
@@ -1426,6 +1426,8 @@ const onSave = function () {
 };
 
 const title = ref('Partial');
+
+useShortcut('SYSTEMKEY+S', onSave);
 
 // TODO(sfc-migration): unsupported inject declaration (only the array form is migrated) — original code:
 // inject: {
@@ -1440,11 +1442,6 @@ const title = ref('Partial');
 //         return {
 //             title: this.title,
 //         };
-//     }
-
-// TODO(sfc-migration): convert 'shortcuts' manually — original code:
-// shortcuts: {
-//         'SYSTEMKEY+S': 'onSave',
 //     }
 
 // TODO(sfc-migration): unmapped this.$device
@@ -1626,6 +1623,50 @@ swDefinePublic({
     countItems,
     toggle,
     openModal,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-shortcut-page 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_shortcut_page">
+        <button class="sw-shortcut-page" @click="onSave">{{ saved }}</button>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import useShortcut from 'src/app/composables/use-shortcut';
+
+const onSave = function () {
+    saved.value = true;
+};
+
+const onCancel = function () {
+    saved.value = false;
+};
+
+const editable = ref(true);
+const saved = ref(false);
+
+useShortcut('SYSTEMKEY+S', onSave, {
+    active: function () {
+        return editable.value;
+    },
+});
+
+useShortcut('ESCAPE', onCancel);
+
+swDefinePublic({
+    editable,
+    saved,
+    onSave,
+    onCancel,
 });
 </script>
 ",

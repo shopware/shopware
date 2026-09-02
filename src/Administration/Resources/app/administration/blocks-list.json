@@ -3930,6 +3930,7 @@
  "sw_order_create_options_order_headline",
  "sw_order_create_options_order_language",
  "sw_order_create_options_order_switch_disable_auto_promotion",
+ "sw_order_create_options_order_switch_send_order_confirmation_mail",
  "sw_order_create_options_payment",
  "sw_order_create_options_payment_container",
  "sw_order_create_options_payment_headline",

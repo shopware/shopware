@@ -11,6 +11,7 @@ The `DOCUMENT_GENERATION_REWORK` feature flag now defaults to `true`. All Shopwa
 The flag became an opt-out. Set it to `false` to keep running the legacy implementation during 6.8. The legacy implementation and the flag are removed with Shopware 6.9, so verify your document related extensions are v2 ready before upgrading. Migration guidance is in `UPGRADE-6.9.md`.
 
 The `@experimental` annotations on the v2 surface were removed. The classes listed in `UPGRADE-6.7.md` ("Document generation v2 experimental public surface", section 6.7.15.0) are now the stable public API. Everything else in the `DocumentV2` namespace stays `@internal`.
+
 ## State machine actions enforce a single destination per source state
 
 A state machine action now maps to exactly one destination state per source state:

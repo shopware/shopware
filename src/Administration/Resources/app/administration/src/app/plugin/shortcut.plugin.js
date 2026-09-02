@@ -216,7 +216,7 @@ export default {
                 // remove shortcuts of this component instance
                 const shortcutKeys = Object.keys(shortcuts);
                 activeShortcuts = activeShortcuts.filter((activeShortcut) => {
-                    return !(activeShortcut.instance._uid === this._uid && shortcutKeys.includes(activeShortcut.key));
+                    return !(activeShortcut.instance.$.uid === this.$.uid && shortcutKeys.includes(activeShortcut.key));
                 });
 
                 // The event listener is intentionally not removed to keep global shortcuts working.

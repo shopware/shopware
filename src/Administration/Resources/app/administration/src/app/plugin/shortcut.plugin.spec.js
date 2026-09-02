@@ -654,6 +654,69 @@ describe('app/plugins/shortcut.plugin', () => {
         wrapper2.unmount();
     });
 
+    it('should keep shortcuts of sibling instances that registered the same key', async () => {
+        const onPageSave = jest.fn();
+        const onPanelSave = jest.fn();
+
+        const element = document.createElement('div');
+        if (document.body) {
+            document.body.appendChild(element);
+        }
+
+        const wrapper = mount(
+            {
+                name: 'root-component',
+                template: '<div><page-component /><panel-component v-if="showPanel" /></div>',
+                data() {
+                    return {
+                        showPanel: true,
+                    };
+                },
+                components: {
+                    'page-component': {
+                        name: 'page-component',
+                        template: '<div></div>',
+                        shortcuts: {
+                            'SYSTEMKEY+S': 'onSave',
+                        },
+                        methods: {
+                            onSave: onPageSave,
+                        },
+                    },
+                    'panel-component': {
+                        name: 'panel-component',
+                        template: '<div></div>',
+                        shortcuts: {
+                            'SYSTEMKEY+S': 'onSave',
+                        },
+                        methods: {
+                            onSave: onPanelSave,
+                        },
+                    },
+                },
+            },
+            {
+                attachTo: element,
+                global: {
+                    plugins: [shortcutPlugin],
+                },
+            },
+        );
+
+        await wrapper.setData({ showPanel: false });
+        await flushPromises();
+
+        await wrapper.trigger('keydown', {
+            key: 's',
+            ctrlKey: true,
+        });
+
+        expect(onPageSave).toHaveBeenCalledTimes(1);
+        expect(onPanelSave).not.toHaveBeenCalled();
+
+        wrapper.unmount();
+    });
+
     it('should not trigger shortcuts from unmounted components', async () => {
         const onSaveMock = jest.fn();
 

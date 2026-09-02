@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(McpEntityIncludes::class)]
+#[CoversTrait(McpEntityIncludes::class)]
 class McpEntityIncludesTest extends TestCase
 {
     use McpEntityIncludes;

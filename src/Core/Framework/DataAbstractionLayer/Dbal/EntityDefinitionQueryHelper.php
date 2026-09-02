@@ -48,17 +48,17 @@ class EntityDefinitionQueryHelper
     }
 
     /**
-     * A string is a safe SQL identifier only if it contains none of the characters that would
-     * break out of the backtick quoting escape() applies: the backtick itself, and - because PDO
-     * MySQL emulated prepares parse them even inside backtick-quoted identifiers on PHP < 8.4 -
-     * question marks and colons, plus control characters.
+     * Rejects the characters that break out of the backtick quoting escape() applies: the backtick,
+     * plus question marks and colons (parsed as placeholders by PDO MySQL emulated prepares even
+     * inside backtick-quoted identifiers on PHP < 8.4) and control characters.
+     *
+     * @see https://www.php.net/manual/en/regexp.reference.unicode.php \p{Cc} matches control characters
      */
     public static function isValidIdentifier(string $identifier): bool
     {
         return !str_contains($identifier, '`')
             && !str_contains($identifier, '?')
             && !str_contains($identifier, ':')
-            // https://www.php.net/manual/en/regexp.reference.unicode.php
             && preg_match('/\p{Cc}/u', $identifier) !== 1;
     }
 

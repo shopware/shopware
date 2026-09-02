@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -30,7 +31,9 @@ class Migration1787130172BackfillDocumentTypeName extends MigrationStep
     public function update(Connection $connection): void
     {
         foreach (self::DOCUMENT_TYPE_TABLES as $table) {
-            $this->backfillTable($connection, $table);
+            if (TableHelper::columnExists($connection, $table, 'type_name')) {
+                $this->backfillTable($connection, $table);
+            }
         }
     }
 

@@ -676,6 +676,7 @@ export default [
                 {
                     additionalTestBlockFunctions: [
                         'it.activeFeatureFlags',
+                        'it.inactiveFeatureFlags',
                         'it.deprecated',
                     ],
                 },

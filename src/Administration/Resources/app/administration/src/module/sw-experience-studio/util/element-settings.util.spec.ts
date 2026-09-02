@@ -211,6 +211,29 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ).toBe('entity');
     });
 
+    it('maps entity multi select properties to entity multi controls', () => {
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                adminUI: {
+                    component: 'entity-multi',
+                    entity: 'property_group',
+                },
+            }),
+        ).toBe('entity-multi');
+
+        expect(
+            getPropertyControlType({
+                ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Product\\ProductCollection',
+                adminUI: {
+                    component: 'sw-entity-multi-id-select',
+                    entity: 'product',
+                },
+            }),
+        ).toBe('entity-multi');
+    });
+
     it('maps media field properties to media controls', () => {
         expect(
             getPropertyControlType({

@@ -1,3 +1,4 @@
+import type Repository from 'src/core/data/repository.data';
 import type {
     ContentSystemElementTypeProperty,
     ContentSystemElementTypeSpecification,
@@ -29,6 +30,7 @@ type SettingsFieldPanel = {
     technicalName: string | null;
     fields: SettingsFieldDefinition[];
 };
+type EntityMultiCodec = 'csv' | 'array';
 
 const DEFAULT_PANEL_KEY = '__default__';
 const DEFAULT_PANEL_SNIPPET = 'sw-experience-studio.detail.elementSettings.panelGeneral';
@@ -61,6 +63,10 @@ export type SettingsFieldDefinition = {
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    inject: [
+        'repositoryFactory',
+    ],
 
     props: {
         fields: {
@@ -525,6 +531,56 @@ export default Shopware.Component.wrapComponentConfig({
             return typeof entity === 'string' && entity.length > 0 ? entity : null;
         },
 
+        getEntityRepository(entityName: string): Repository<keyof EntitySchema.Entities> {
+            return this.repositoryFactory.create(entityName as keyof EntitySchema.Entities);
+        },
+
+        getEntityMultiCodec(field: SettingsFieldDefinition): EntityMultiCodec | null {
+            const selectedElementType = this.selectedElementType as ContentSystemElementTypeSpecification | null;
+            const storesIdArray = Object.values(selectedElementType?.bindingSpecifications ?? {}).some(
+                (bindingSpecification) =>
+                    bindingSpecification.default && bindingSpecification.resolves[field.key]?.loader === 'entity_collection',
+            );
+
+            if (storesIdArray) {
+                return 'array';
+            }
+
+            const propertyType = field.property.type;
+            const storesCommaSeparatedIds = Array.isArray(propertyType)
+                ? propertyType.includes('string')
+                : propertyType === 'string';
+
+            return storesCommaSeparatedIds ? 'csv' : null;
+        },
+
+        getEntityMultiValue(key: string): string[] {
+            const rawValue = this.getRawPropertyValue(key);
+
+            if (typeof rawValue === 'string') {
+                return rawValue.split(',').filter((id) => id.length > 0);
+            }
+
+            if (Array.isArray(rawValue)) {
+                return rawValue.filter((id): id is string => typeof id === 'string');
+            }
+
+            return [];
+        },
+
+        onUpdateEntityMultiField(field: SettingsFieldDefinition, ids: string[]): void {
+            const codec = this.getEntityMultiCodec(field);
+
+            if (codec === 'csv') {
+                this.onUpdateField(field.key, ids.join(','));
+                return;
+            }
+
+            if (codec === 'array') {
+                this.onUpdateField(field.key, ids);
+            }
+        },
+
         getControlProps(property: ContentSystemElementTypeProperty): Record<string, unknown> {
             return getPropertyAdminUiProps(property);
         },
@@ -601,7 +657,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.getRadioPanelOptionId(key, selectedOption.value);
         },
 
-        onUpdateField(key: string, value: PrimitiveValue): void {
+        onUpdateField(key: string, value: PrimitiveValue | string[]): void {
             if (!this.allowEdit) {
                 return;
             }

@@ -16,7 +16,9 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
@@ -183,6 +185,27 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertArrayHasKey('manufacturer', $capturedCriteria->getAssociations());
         static::assertArrayHasKey('cover', $capturedCriteria->getAssociations());
         static::assertCount(2, $capturedCriteria->getAssociations());
+    }
+
+    #[TestDox('declares exactly the required config keys the serializer needs to decode a config (drift guard)')]
+    public function testConfigSpecificationRequiredKeysMatchSerializerRequiredKeys(): void
+    {
+        $requiredKeys = $this->createMinimalLoader()->configSpecification()->requiredKeys();
+        sort($requiredKeys);
+
+        // The assertSame runs last so a dropped required key fails at decode() instead of being pre-empted by it.
+        // EntityCollectionLoaderConfigSerializerTest pins necessity (decode rejects either key's absence).
+        $input = [];
+        foreach ($requiredKeys as $key) {
+            $input[$key] = $key . '-value';
+        }
+
+        $config = (new EntityCollectionLoaderConfigSerializer(new EntityLoaderConfigSerializer()))->decode($input);
+
+        static::assertInstanceOf(EntityLoaderConfig::class, $config);
+        static::assertSame('entity-value', $config->entity);
+        static::assertSame('property-value', $config->property);
+        static::assertSame(['entity', 'property'], $requiredKeys);
     }
 
     #[TestDox('skips bare EntityCollection definitions but keeps enumerating the rest')]

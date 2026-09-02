@@ -90,6 +90,34 @@ class DocumentPersisterCompatTest extends TestCase
         static::assertSame($mediaByFormat[DocumentFormat::HTML->value], $document->getDocumentA11yMediaFileId());
     }
 
+    public function testPdfOnlyGenerationPersistsAccessibleHtmlFileAndFillsA11ySlot(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19]));
+        $this->enrichOrderForRendering($orderId);
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+
+        $document = $this->documentGenerator->generate(
+            new DocumentGenerationRequest(
+                $orderId,
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF],
+                '1002',
+                documentDate: self::DOCUMENT_DATE,
+            ),
+            $this->context,
+        );
+
+        $mediaByFormat = [];
+
+        foreach ($document->getDocumentFiles() ?? [] as $file) {
+            $mediaByFormat[$file->getDocumentFormat()] = $file->getMediaId();
+        }
+
+        static::assertArrayHasKey(DocumentFormat::HTML->value, $mediaByFormat);
+        static::assertSame($mediaByFormat[DocumentFormat::PDF->value], $document->getDocumentMediaFileId());
+        static::assertSame($mediaByFormat[DocumentFormat::HTML->value], $document->getDocumentA11yMediaFileId());
+    }
+
     public function testTypeNameIsBackfilledOnLegacyStyleDocumentWrite(): void
     {
         $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19]));

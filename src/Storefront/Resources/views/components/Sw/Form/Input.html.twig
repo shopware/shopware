@@ -1,0 +1,126 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name,
+    id = name,
+    type = 'text',
+    label = null,
+    ariaLabel = null,
+    value = null,
+    placeholder = null,
+    description = null,
+    autocomplete = null,
+    minlength = null,
+    maxlength = null,
+    size = null,
+    disabled = false,
+    readonly = false,
+    validationRules = null,
+    violationPath = null,
+    violationLabel = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    formViolations = formViolations|default(null),
+    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+    additionalClass = null,
+    additionalInputClass = null,
+%}
+
+{% set feedbackId = "#{id}-feedback" %}
+{% set descriptionId = "#{id}-description" %}
+{% set describedBy = description is not empty ? "#{descriptionId} #{feedbackId}" : feedbackId %}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-input sw-form-field form-group',
+}) %}
+
+{% set inputCVA = cva({
+    base: 'sw-form-input__control sw-form-field__control form-control',
+    variants: {
+        type: {
+            color: 'form-control-color',
+        },
+        size: {
+            sm: 'form-control-sm',
+            lg: 'form-control-lg',
+        },
+        isInvalid: {
+            true: 'is-invalid',
+            false: null,
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({}, additionalClass),
+    'data-violation-path': violationPath is not null ? violationPath : false,
+} %}
+
+{% set inputAttributeDefaults = {
+    class: inputCVA.apply({ type, size, isInvalid }, additionalInputClass),
+    type: type,
+    id: id,
+    name: name,
+    'aria-describedby': describedBy,
+    'aria-label': ariaLabel is not null and label is empty ? ariaLabel : false,
+    'aria-required': required ? 'true' : false,
+    'aria-invalid': isInvalid ? 'true' : false,
+    'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
+    value: value is not null ? value : false,
+    placeholder: placeholder is not null ? placeholder : false,
+    autocomplete: autocomplete is not null ? autocomplete : false,
+    minlength: minlength is not null ? minlength : false,
+    maxlength: maxlength is not null ? maxlength : false,
+    disabled: disabled,
+    readonly: readonly,
+} %}
+
+{% set hiddenAttributeDefaults = {
+    class: 'sw-form-input',
+    type: type,
+    id: id,
+    name: name,
+    value: value is not null ? value : false,
+} %}
+
+{% if type == 'hidden' %}
+    <input {{ attributes.defaults(hiddenAttributeDefaults) }}>
+{% else %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block label %}
+        <twig:Sw:Form:Label
+            :fieldId="id"
+            :label="label"
+            :required="required"
+        />
+    {% endblock %}
+
+    {% block control %}
+        <input {{ attributes.nested('control').defaults(inputAttributeDefaults) }}>
+    {% endblock %}
+
+    {% block description %}
+        <twig:Sw:Form:Description
+            :id="descriptionId"
+            :description="description"
+        />
+    {% endblock %}
+
+    {% block feedback %}
+        <twig:Sw:Form:Feedback
+            :id="feedbackId"
+            :violationPath="violationPath"
+            :violationLabel="violationLabel"
+            :formViolations="formViolations"
+            :hasViolations="isInvalid"
+        />
+    {% endblock %}
+</div>
+
+{% endif %}

@@ -1,0 +1,103 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name,
+    id = name,
+    label = null,
+    ariaLabel = null,
+    value = '1',
+    checked = false,
+    description = null,
+    disabled = false,
+    variant = 'default',
+    validationRules = null,
+    violationPath = null,
+    violationLabel = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    formViolations = formViolations|default(null),
+    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+    additionalClass = null,
+    additionalInputClass = null,
+%}
+
+{% set feedbackId = "#{id}-feedback" %}
+{% set descriptionId = "#{id}-description" %}
+{% set describedBy = description is not empty ? "#{descriptionId} #{feedbackId}" : feedbackId %}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-checkbox sw-form-field form-group form-check',
+    variants: {
+        variant: {
+            switch: 'form-switch',
+        },
+    },
+}) %}
+
+{% set checkboxCVA = cva({
+    base: 'sw-form-checkbox__control sw-form-field__control form-check-input',
+    variants: {
+        isInvalid: {
+            true: 'is-invalid',
+            false: null,
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({ variant }, additionalClass),
+    'data-violation-path': violationPath is not null ? violationPath : false,
+} %}
+
+{% set checkboxAttributeDefaults = {
+    class: checkboxCVA.apply({ isInvalid }, additionalInputClass),
+    type: 'checkbox',
+    id: id,
+    name: name,
+    value: value,
+    'aria-describedby': describedBy,
+    'aria-label': ariaLabel is not null and label is empty ? ariaLabel : false,
+    'aria-required': required ? 'true' : false,
+    'aria-invalid': isInvalid ? 'true' : false,
+    'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
+    role: variant == 'switch' ? 'switch' : false,
+    checked: checked,
+    disabled: disabled,
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block control %}
+        <input {{ attributes.nested('control').defaults(checkboxAttributeDefaults) }}>
+    {% endblock %}
+
+    {% block label %}
+        <twig:Sw:Form:Label
+            :fieldId="id"
+            :label="label"
+            :required="required"
+            variant="check"
+        />
+    {% endblock %}
+
+    {% block description %}
+        <twig:Sw:Form:Description
+            :id="descriptionId"
+            :description="description"
+        />
+    {% endblock %}
+
+    {% block feedback %}
+        <twig:Sw:Form:Feedback
+            :id="feedbackId"
+            :violationPath="violationPath"
+            :violationLabel="violationLabel"
+            :formViolations="formViolations"
+            :hasViolations="isInvalid"
+        />
+    {% endblock %}
+</div>

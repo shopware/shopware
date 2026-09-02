@@ -1,0 +1,203 @@
+{
+    "title": "Sw/Form/Input",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:Input"
+        },
+        "template": "<twig:Sw:Form:Input type=\"text\" name=\"firstName\" label=\"First name\" validationRules=\"required\" />"
+    },
+    "argTypes": {
+        "name": {
+            "control": "text",
+            "description": "Name attribute of the input. Required.",
+            "required": true
+        },
+        "id": {
+            "control": "text",
+            "description": "Id of the input. The label, description and feedback element are derived from it.",
+            "table": {
+                "defaultValue": {
+                    "summary": "name"
+                }
+            }
+        },
+        "type": {
+            "control": "select",
+            "options": [
+                "text",
+                "email",
+                "password",
+                "tel",
+                "url",
+                "number",
+                "search",
+                "date",
+                "color",
+                "hidden"
+            ],
+            "description": "Type attribute of the input. `hidden` renders the bare input without label, description or feedback.",
+            "table": {
+                "defaultValue": {
+                    "summary": "text"
+                }
+            }
+        },
+        "label": {
+            "control": "text",
+            "description": "Visible label of the field. Without it no label element is rendered."
+        },
+        "ariaLabel": {
+            "control": "text",
+            "description": "Accessible name for fields that have no visible label."
+        },
+        "value": {
+            "control": "text",
+            "description": "Initial value of the input."
+        },
+        "placeholder": {
+            "control": "text",
+            "description": "Placeholder attribute of the input."
+        },
+        "description": {
+            "control": "text",
+            "description": "Hint below the field. Linked to the input via aria-describedby."
+        },
+        "autocomplete": {
+            "control": "text",
+            "description": "Autocomplete attribute of the input."
+        },
+        "minlength": {
+            "control": "number",
+            "description": "Minlength attribute of the input."
+        },
+        "maxlength": {
+            "control": "number",
+            "description": "Maxlength attribute of the input."
+        },
+        "size": {
+            "control": "select",
+            "options": [
+                "sm",
+                "lg"
+            ],
+            "description": "Bootstrap sizing of the control."
+        },
+        "disabled": {
+            "control": "boolean",
+            "description": "Disabled attribute of the input.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "readonly": {
+            "control": "boolean",
+            "description": "Readonly attribute of the input.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation."
+        },
+        "violationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of this field are stored under."
+        },
+        "violationLabel": {
+            "control": "text",
+            "description": "Field name used in server-side violation messages instead of the property path."
+        },
+        "formViolations": {
+            "control": false,
+            "description": "ConstraintViolationException holding the server-side violations of the request. Defaults to the `formViolations` Twig global; pass it explicitly to render a field outside a request scope.",
+            "type": "ConstraintViolationException",
+            "table": {
+                "readonly": true,
+                "defaultValue": {
+                    "summary": "formViolations"
+                }
+            }
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders the required marker and aria-required.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "isInvalid": {
+            "control": "boolean",
+            "description": "Marks the control invalid.",
+            "table": {
+                "defaultValue": {
+                    "summary": "violationPath has violations"
+                }
+            }
+        },
+        "additionalClass": {
+            "control": "text",
+            "description": "Additional classes on the form-group wrapper. Migration alias for the `class` attribute on the component tag; both are merged."
+        },
+        "additionalInputClass": {
+            "control": "text",
+            "description": "Additional classes on the input. Migration alias for the `control:class` attribute; both are merged."
+        }
+    },
+    "stories": [
+        {
+            "name": "Input",
+            "args": {
+                "name": "firstName",
+                "type": "text",
+                "label": "First name",
+                "validationRules": "required"
+            }
+        },
+        {
+            "name": "With description",
+            "args": {
+                "name": "password",
+                "type": "password",
+                "label": "Password",
+                "description": "At least 8 characters.",
+                "autocomplete": "new-password",
+                "validationRules": "required,minLength",
+                "minlength": 8
+            }
+        },
+        {
+            "name": "Invalid",
+            "args": {
+                "name": "email",
+                "type": "email",
+                "label": "Email address",
+                "validationRules": "required,email",
+                "isInvalid": true
+            }
+        },
+        {
+            "name": "Disabled",
+            "args": {
+                "name": "customerNumber",
+                "label": "Customer number",
+                "value": "10000",
+                "disabled": true
+            }
+        },
+        {
+            "name": "Hidden",
+            "args": {
+                "name": "forwardTo",
+                "type": "hidden",
+                "value": "frontend.product.reviews"
+            }
+        }
+    ]
+}

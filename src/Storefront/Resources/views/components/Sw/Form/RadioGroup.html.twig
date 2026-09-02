@@ -1,0 +1,82 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name,
+    id = name,
+    label = null,
+    options = [],
+    value = null,
+    description = null,
+    disabled = false,
+    inline = false,
+    validationRules = null,
+    violationPath = null,
+    violationLabel = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    formViolations = formViolations|default(null),
+    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+    additionalClass = null,
+%}
+
+{% set feedbackId = "#{id}-feedback" %}
+{% set descriptionId = "#{id}-description" %}
+{% set describedBy = description is not empty ? "#{descriptionId} #{feedbackId}" : feedbackId %}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-radio-group sw-form-field form-radio-group mb-3',
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({}, additionalClass),
+    'data-violation-path': violationPath is not null ? violationPath : false,
+} %}
+
+<fieldset {{ attributes.defaults(attributeDefaults) }}>
+    {% block label %}
+        <twig:Sw:Form:FieldsetLabel
+            :label="label"
+            :required="required"
+            class="sw-form-radio-group__legend fs-5 fw-bold"
+        />
+    {% endblock %}
+
+    {% block description %}
+        <twig:Sw:Form:Description
+            :id="descriptionId"
+            :description="description"
+        />
+    {% endblock %}
+
+    {% block content %}
+        {% for option in options %}
+            <twig:Sw:Form:Radio
+                :name="name"
+                :value="option.value"
+                :id="option.id|default(null)"
+                :label="option.label"
+                :checked="option.checked|default(option.value == value)"
+                :disabled="disabled or option.disabled|default(false)"
+                :inline="inline"
+                :describedBy="describedBy"
+                :validationRules="clientValidationRules"
+                :isInvalid="isInvalid"
+            />
+        {% endfor %}
+    {% endblock %}
+
+    {% block feedback %}
+        <twig:Sw:Form:Feedback
+            :id="feedbackId"
+            :violationPath="violationPath"
+            :violationLabel="violationLabel"
+            :formViolations="formViolations"
+            :hasViolations="isInvalid"
+        />
+    {% endblock %}
+</fieldset>

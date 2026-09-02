@@ -1,0 +1,127 @@
+{
+    "title": "Sw/Form/BirthdaySelect",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:BirthdaySelect"
+        },
+        "template": "<twig:Sw:Form:BirthdaySelect validationRules=\"required\" />"
+    },
+    "argTypes": {
+        "label": {
+            "control": "text",
+            "description": "Legend of the fieldset.",
+            "table": {
+                "defaultValue": {
+                    "summary": "account.personalBirthdayLabel"
+                }
+            }
+        },
+        "namePrefix": {
+            "control": "text",
+            "description": "Wraps the field names, e.g. \"billingAddress\" produces billingAddress[birthdayDay]."
+        },
+        "idPrefix": {
+            "control": "text",
+            "description": "Prefix of the three select ids, needed when the component is used more than once per page."
+        },
+        "day": {
+            "control": "number",
+            "description": "Preselected day."
+        },
+        "month": {
+            "control": "number",
+            "description": "Preselected month."
+        },
+        "year": {
+            "control": "number",
+            "description": "Preselected year."
+        },
+        "yearRange": {
+            "control": "number",
+            "description": "Number of years offered, counting back from the current one.",
+            "table": {
+                "defaultValue": {
+                    "summary": 120
+                }
+            }
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation on each select."
+        },
+        "dayViolationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of the day are stored under.",
+            "table": {
+                "defaultValue": {
+                    "summary": "/birthdayDay"
+                }
+            }
+        },
+        "monthViolationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of the month are stored under.",
+            "table": {
+                "defaultValue": {
+                    "summary": "/birthdayMonth"
+                }
+            }
+        },
+        "yearViolationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of the year are stored under.",
+            "table": {
+                "defaultValue": {
+                    "summary": "/birthdayYear"
+                }
+            }
+        },
+        "formViolations": {
+            "control": false,
+            "description": "ConstraintViolationException holding the server-side violations of the request. Defaults to the `formViolations` Twig global; pass it explicitly to render a field outside a request scope.",
+            "type": "ConstraintViolationException",
+            "table": {
+                "readonly": true,
+                "defaultValue": {
+                    "summary": "formViolations"
+                }
+            }
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders the required marker in the legend and aria-required on the selects.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "additionalClass": {
+            "control": "text",
+            "description": "Additional classes on the fieldset. Migration alias for the `class` attribute on the component tag; both are merged."
+        }
+    },
+    "stories": [
+        {
+            "name": "BirthdaySelect",
+            "args": {
+                "validationRules": "required"
+            }
+        },
+        {
+            "name": "Prefilled",
+            "args": {
+                "day": 24,
+                "month": 7,
+                "year": 1990
+            }
+        },
+        {
+            "name": "Address form",
+            "args": {
+                "namePrefix": "billingAddress",
+                "idPrefix": "billing-"
+            }
+        }
+    ]
+}

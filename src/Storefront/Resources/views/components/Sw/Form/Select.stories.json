@@ -1,0 +1,176 @@
+{
+    "title": "Sw/Form/Select",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:Select"
+        },
+        "template": "<twig:Sw:Form:Select name=\"salutationId\" label=\"Salutation\" :options=\"options\" />"
+    },
+    "argTypes": {
+        "name": {
+            "control": "text",
+            "description": "Name attribute of the select. Required.",
+            "required": true
+        },
+        "id": {
+            "control": "text",
+            "description": "Id of the select. The label, description and feedback element are derived from it.",
+            "table": {
+                "defaultValue": {
+                    "summary": "name"
+                }
+            }
+        },
+        "label": {
+            "control": "text",
+            "description": "Visible label of the field. Without it no label element is rendered."
+        },
+        "ariaLabel": {
+            "control": "text",
+            "description": "Accessible name for selects that have no visible label."
+        },
+        "value": {
+            "control": "text",
+            "description": "Value of the option that is preselected."
+        },
+        "options": {
+            "control": "object",
+            "description": "Options as a list of { value, label, selected?, disabled? }. Pass the options as component content instead to render own option markup.",
+            "type": "array"
+        },
+        "placeholder": {
+            "control": "text",
+            "description": "Label of a leading empty option. Selected while the field has no value."
+        },
+        "placeholderDisabled": {
+            "control": "boolean",
+            "description": "Makes the placeholder option unselectable once a real value was chosen.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "description": {
+            "control": "text",
+            "description": "Hint below the field. Linked to the select via aria-describedby."
+        },
+        "autocomplete": {
+            "control": "text",
+            "description": "Autocomplete attribute of the select."
+        },
+        "size": {
+            "control": "select",
+            "options": [
+                "sm",
+                "lg"
+            ],
+            "description": "Bootstrap sizing of the control."
+        },
+        "disabled": {
+            "control": "boolean",
+            "description": "Disabled attribute of the select.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation."
+        },
+        "violationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of this field are stored under."
+        },
+        "violationLabel": {
+            "control": "text",
+            "description": "Field name used in server-side violation messages instead of the property path."
+        },
+        "formViolations": {
+            "control": false,
+            "description": "ConstraintViolationException holding the server-side violations of the request. Defaults to the `formViolations` Twig global; pass it explicitly to render a field outside a request scope.",
+            "type": "ConstraintViolationException",
+            "table": {
+                "readonly": true,
+                "defaultValue": {
+                    "summary": "formViolations"
+                }
+            }
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders the required marker and aria-required.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "isInvalid": {
+            "control": "boolean",
+            "description": "Marks the control invalid.",
+            "table": {
+                "defaultValue": {
+                    "summary": "violationPath has violations"
+                }
+            }
+        },
+        "additionalClass": {
+            "control": "text",
+            "description": "Additional classes on the form-group wrapper. Migration alias for the `class` attribute on the component tag; both are merged."
+        },
+        "additionalInputClass": {
+            "control": "text",
+            "description": "Additional classes on the select. Migration alias for the `control:class` attribute; both are merged."
+        }
+    },
+    "stories": [
+        {
+            "name": "Select",
+            "args": {
+                "name": "salutationId",
+                "label": "Salutation",
+                "placeholder": "Please choose",
+                "options": [
+                    {
+                        "value": "mr",
+                        "label": "Mr."
+                    },
+                    {
+                        "value": "ms",
+                        "label": "Ms."
+                    },
+                    {
+                        "value": "nd",
+                        "label": "Not specified"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Preselected and required",
+            "args": {
+                "name": "countryId",
+                "label": "Country",
+                "value": "de",
+                "validationRules": "required",
+                "options": [
+                    {
+                        "value": "de",
+                        "label": "Germany"
+                    },
+                    {
+                        "value": "at",
+                        "label": "Austria"
+                    },
+                    {
+                        "value": "ch",
+                        "label": "Switzerland"
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,148 @@
+{
+    "title": "Sw/Form/RadioGroup",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:RadioGroup"
+        },
+        "template": "<twig:Sw:Form:RadioGroup name=\"sizeChoice\" label=\"Choose a size\" :options=\"options\" />"
+    },
+    "argTypes": {
+        "name": {
+            "control": "text",
+            "description": "Name attribute shared by all radios of the group. Required.",
+            "required": true
+        },
+        "id": {
+            "control": "text",
+            "description": "Id the description element is derived from.",
+            "table": {
+                "defaultValue": {
+                    "summary": "name"
+                }
+            }
+        },
+        "label": {
+            "control": "text",
+            "description": "Legend of the fieldset."
+        },
+        "options": {
+            "control": "object",
+            "description": "Radios as a list of { value, label, id?, checked?, disabled? }. Pass Sw:Form:Radio components as content instead to render them yourself.",
+            "type": "array"
+        },
+        "value": {
+            "control": "text",
+            "description": "Value of the radio that is checked."
+        },
+        "description": {
+            "control": "text",
+            "description": "Hint below the legend. Linked to the radios via aria-describedby."
+        },
+        "inline": {
+            "control": "boolean",
+            "description": "Lays the radios out in a row.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "disabled": {
+            "control": "boolean",
+            "description": "Disables every radio of the group.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation on each radio."
+        },
+        "violationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of this group are stored under."
+        },
+        "violationLabel": {
+            "control": "text",
+            "description": "Field name used in server-side violation messages instead of the property path."
+        },
+        "formViolations": {
+            "control": false,
+            "description": "ConstraintViolationException holding the server-side violations of the request. Defaults to the `formViolations` Twig global; pass it explicitly to render a field outside a request scope.",
+            "type": "ConstraintViolationException",
+            "table": {
+                "readonly": true,
+                "defaultValue": {
+                    "summary": "formViolations"
+                }
+            }
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders the required marker in the legend and aria-required on the radios.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "isInvalid": {
+            "control": "boolean",
+            "description": "Marks every radio of the group invalid.",
+            "table": {
+                "defaultValue": {
+                    "summary": "violationPath has violations"
+                }
+            }
+        },
+        "additionalClass": {
+            "control": "text",
+            "description": "Additional classes on the fieldset. Migration alias for the `class` attribute on the component tag; both are merged."
+        }
+    },
+    "stories": [
+        {
+            "name": "RadioGroup",
+            "args": {
+                "name": "sizeChoice",
+                "label": "Choose a size",
+                "value": "md",
+                "validationRules": "required",
+                "options": [
+                    {
+                        "value": "sm",
+                        "label": "Small"
+                    },
+                    {
+                        "value": "md",
+                        "label": "Medium"
+                    },
+                    {
+                        "value": "lg",
+                        "label": "Large"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Inline",
+            "args": {
+                "name": "deliveryChoice",
+                "label": "Delivery",
+                "inline": true,
+                "options": [
+                    {
+                        "value": "standard",
+                        "label": "Standard"
+                    },
+                    {
+                        "value": "express",
+                        "label": "Express"
+                    }
+                ]
+            }
+        }
+    ]
+}

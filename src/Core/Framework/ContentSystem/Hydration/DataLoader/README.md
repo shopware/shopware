@@ -44,7 +44,7 @@ The six unlinked loaders above — `service_menu`, `cross_selling`, `product_rev
 4. Override `configSpecification()` when the config serializer accepts keys — declares the loader's config contract for the derived completion residue, and is the only place a key's default may live
 5. Read every input off the `LoaderInputs` argument (see [AGENTS.md](AGENTS.md) Constraints for what `load()` may and may not touch)
 6. Tag with `content_system.data_loader` in the owning domain's DI — service locator uses `getRequirementType()` as key
-7. Return `ContentDataLoaderResult` with appropriate cache info — never throw exceptions
+7. Return `ContentDataLoaderResult` with appropriate cache info — throw nothing yourself; only a collaborator's exceptions outside the `ShopwareHttpException` boundary pass through `load()` (see [AGENTS.md](AGENTS.md) Constraints)
 
 Fixed-type loaders need no override: the base `producibleTypes()` returns one `LoaderTypeCapability` derived from `@extends`, and `resolveProducedType()` returns that type ignoring config.
 

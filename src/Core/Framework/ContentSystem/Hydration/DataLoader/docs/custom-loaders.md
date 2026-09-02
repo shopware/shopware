@@ -96,7 +96,7 @@ final class WeatherLoader extends AbstractContentDataLoader
 
 ## Example: Dereferencing an Entity ID
 
-`WeatherLoaderConfig` above holds plain strings, not entity ids, so it needs neither of the checks below. A loader whose `PropertyReference` config key does resolve to an entity id needs both.
+`WeatherLoaderConfig` above holds plain strings, not entity ids, so it needs no id guard — and its `WeatherApiClient` signals failure by returning `null` rather than throwing, so it needs no wrap either. A loader whose `PropertyReference` config key does resolve to an entity id, and whose collaborator throws, needs both checks below.
 
 A `PropertyReference` value arrives as whatever string the stored map holds, including an unsubstituted template placeholder such as `{{productId}}` left literal on a layout that never bound the property. `LoaderInputResolver::dereference()` only type-checks the value as a string, so a placeholder passes through untouched. Guard the value with `Uuid::isValid()` before using it as an id, and wrap the collaborator call in a `try`/`catch (ShopwareHttpException)`:
 

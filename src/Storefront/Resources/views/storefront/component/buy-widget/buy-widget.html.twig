@@ -116,7 +116,8 @@
                                         <button class="btn btn-link-inline product-detail-tax-link"
                                                 type="button"
                                                 data-ajax-modal="true"
-                                                data-url="{{ cmsPath }}">
+                                                data-url="{{ cmsPath }}"
+                                                aria-haspopup="dialog">
                                             {{ taxText }}
                                         </button>
                                     {% else %}
@@ -124,7 +125,8 @@
                                            href="{{ cmsPath }}"
                                            title="{{ taxText }}"
                                            data-ajax-modal="true"
-                                           data-url="{{ cmsPath }}">
+                                           data-url="{{ cmsPath }}"
+                                           aria-haspopup="dialog">
                                             {{ taxText }}
                                         </a>
                                     {% endif %}

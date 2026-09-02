@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
-use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
@@ -16,6 +14,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -66,11 +66,24 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
 
         $productId = u($productId)->lower()->toString();
 
+        // An unsubstituted placeholder such as "{{productId}}" passes LoaderInputResolver::dereference()
+        // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
+        // Uuid::fromHexToBytes() when SqlQueryParser parses the review route's `product.id` equals filter.
+        if (!Uuid::isValid($productId)) {
+            return ContentDataLoaderResult::notFound();
+        }
+
         $criteria = $this->buildCriteria($inputs);
 
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: ProductReviewRoute throws ProductException::reviewNotActive() when the sales
+        // channel has reviews switched off; the deprecated ReviewNotActiveExeption extends
+        // ShopwareHttpException directly, so both inheritance lines are covered.
         try {
             $response = $this->productReviewRoute->load($productId, $request, $context, $criteria);
-        } catch (ProductException|ReviewNotActiveExeption) {
+        } catch (ShopwareHttpException) {
             return ContentDataLoaderResult::notFound();
         }
 

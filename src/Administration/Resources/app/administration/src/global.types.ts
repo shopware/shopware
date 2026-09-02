@@ -17,6 +17,7 @@ import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
+import type ContentSystemElementTypeApiService from 'src/core/service/api/content-system-element-type.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type UserActivityService from 'src/app/service/user-activity.service';
 import type { FullState } from 'src/core/factory/state.factory';
@@ -254,7 +255,7 @@ declare global {
         cmsService: CmsService;
         contentSystemLayoutDraftMutationService: $TSFixMe;
         contentSystemEntityTypeService: $TSFixMe;
-        contentSystemElementTypeService: $TSFixMe;
+        contentSystemElementTypeService: ContentSystemElementTypeApiService;
         contentSystemStyleOptionService: $TSFixMe;
         contentSystemPreviewService: $TSFixMe;
         configService: ConfigApiService;

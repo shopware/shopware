@@ -31,20 +31,30 @@ describe('core/factory/template.factory.js - native block extension points', () 
         );
     });
 
-    it('wraps a block once even when its component is normalized twice through an extension chain', () => {
-        registerNativeExtensionTargets({ component: 'tf-base', blocks: ['tf_base_block'] });
+    it('wraps a block once when an extending component overrides it', () => {
+        registerNativeExtensionTargets({ component: 'tf-parent', blocks: ['tf_parent_block'] });
 
         TemplateFactory.registerComponentTemplate(
-            'tf-base',
-            '<div>{% block tf_base_block %}<p>base</p>{% endblock %}</div>',
+            'tf-parent',
+            '<div>{% block tf_parent_block %}<p>parent</p>{% endblock %}</div>',
         );
-        TemplateFactory.registerTemplateOverride('tf-base', '{% block tf_base_block %}<p>overridden</p>{% endblock %}');
-        TemplateFactory.extendComponentTemplate('tf-child', 'tf-base');
+        TemplateFactory.extendComponentTemplate(
+            'tf-kid',
+            'tf-parent',
+            '{% block tf_parent_block %}<i>kid</i>{% parent %}{% endblock %}',
+        );
 
         TemplateFactory.resolveTemplates();
 
-        const html = TemplateFactory.getNormalizedTemplateRegistry().get('tf-base').html;
+        const registry = TemplateFactory.getNormalizedTemplateRegistry();
 
-        expect(html.match(/<sw-block/g)).toHaveLength(1);
+        // The child inherits the parent's tokens. A wrapper persisted on those tokens would be
+        // inherited and then wrapped a second time.
+        expect(registry.get('tf-parent').html).toBe(
+            '<div><sw-block name="tf_parent_block" :data="$dataScope" :legacy-shim="false"><p>parent</p></sw-block></div>',
+        );
+        expect(registry.get('tf-kid').html).toBe(
+            '<div><sw-block name="tf_parent_block" :data="$dataScope" :legacy-shim="false"><i>kid</i><p>parent</p></sw-block></div>',
+        );
     });
 });

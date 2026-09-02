@@ -261,33 +261,69 @@ function wrapNativeBlockTargets(tokens) {
     }
 
     const targets = getNativeBlockExtensionTargets();
+    let changed = false;
 
-    return tokens.reduce((acc, token) => {
+    const result = tokens.reduce((acc, token) => {
+        let current = token;
+
+        // Blocks can sit inside other logic tokens (if/for), so recurse first. A changed output means a
+        // shallow copy of the token, never a mutation of the shared tree.
         if (token.type === 'logic' && token.token && Array.isArray(token.token.output)) {
-            token.token.output = wrapNativeBlockTargets(token.token.output);
+            const output = wrapNativeBlockTargets(token.token.output);
+
+            if (output !== token.token.output) {
+                current = {
+                    ...token,
+                    token: {
+                        ...token.token,
+                        output,
+                    },
+                };
+                changed = true;
+            }
         }
 
-        const blockName = token.type === 'logic' && token.token ? token.token.blockName : null;
+        const blockName = current.type === 'logic' && current.token ? current.token.blockName : null;
 
-        if (!blockName || !targets.has(blockName) || token.token.__swBlockHosted) {
-            acc.push(token);
+        if (!blockName || !targets.has(blockName)) {
+            acc.push(current);
+
             return acc;
         }
 
-        token.token.__swBlockHosted = true;
-        acc.push({ type: 'raw', value: `<sw-block name="${blockName}" :data="$dataScope" :legacy-shim="false">` }, token, {
+        changed = true;
+        acc.push({ type: 'raw', value: `<sw-block name="${blockName}" :data="$dataScope" :legacy-shim="false">` }, current, {
             type: 'raw',
             value: '</sw-block>',
         });
 
         return acc;
     }, []);
+
+    return changed ? result : tokens;
 }
 
+/**
+ * Renders a template with `sw-block` extension points around every natively overridden block.
+ *
+ * The wrapped tokens are swapped in for the render only. Components that extend this one inherit its
+ * tokens, so a persisted wrapper would be inherited too and wrapped a second time.
+ */
 function renderWithNativeBlocks(template, templateVars) {
-    template.tokens = wrapNativeBlockTargets(template.tokens);
+    const originalTokens = template.tokens;
+    const wrappedTokens = wrapNativeBlockTargets(originalTokens);
 
-    return template.render(templateVars);
+    if (wrappedTokens === originalTokens) {
+        return template.render(templateVars);
+    }
+
+    template.tokens = wrappedTokens;
+
+    try {
+        return template.render(templateVars);
+    } finally {
+        template.tokens = originalTokens;
+    }
 }
 
 function applyTemplateOverrides(name) {

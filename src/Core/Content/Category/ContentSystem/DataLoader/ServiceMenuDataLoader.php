@@ -65,34 +65,27 @@ class ServiceMenuDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::cachedExternally(new CategoryCollection());
         }
 
-        // The alias resolution above must run on the raw, un-normalized configured value: NavigationAliasResolver
-        // matches its alias constants case-sensitively, so normalizing first would turn an uppercase rendering
-        // of a built-in alias into the recognized literal and change which branch runs. The early return just
-        // above reads raw values too, but not for that reason: it also requires the raw alias to equal the
-        // lowercase built-in name, so moving only this normalization earlier would not make an uppercase alias
-        // take that branch.
+        // Alias resolution above runs on the raw configured value: NavigationAliasResolver matches its alias
+        // constants case-sensitively, so normalizing first would turn an uppercase rendering of a built-in
+        // alias into the recognized literal and change which branch runs.
         $rootId = u($rootId)->lower()->toString();
 
         // The early return above covers exactly one case: the built-in `service-navigation` alias on a sales
         // channel with no service category. Every other unresolved value arrives here intact, because
-        // NavigationAliasResolver returns an unrecognized literal unchanged
-        // (src/Core/Framework/ContentSystem/Adapter/FactoryHelper/NavigationAliasResolver.php:37) and hands
-        // back `footer-navigation` itself when that optional category is unset (:36). Passing one on would
-        // reach Uuid::fromHexToBytes() in NavigationRoute::getCategoryMetaInfo()
-        // (src/Core/Content/Category/SalesChannel/NavigationRoute.php:163) and abort the whole render. The
-        // guard runs after the lowercase because Uuid::VALID_PATTERN is lowercase-only while
-        // Uuid::fromHexToBytes() accepts uppercase hex, so an uppercase configured id reaches the database and
-        // guarding the raw value would reject an id that works.
+        // NavigationAliasResolver returns an unrecognized literal unchanged and hands back `footer-navigation`
+        // itself when that optional category is unset. Passing one on would reach Uuid::fromHexToBytes() in
+        // NavigationRoute::getCategoryMetaInfo() and abort the whole render. Guard after the lowercase:
+        // Uuid::VALID_PATTERN is lowercase-only, and an uppercase configured id works against the database.
         if (!Uuid::isValid($rootId)) {
             return ContentDataLoaderResult::notFound();
         }
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
-        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
-        // rewrap a named class into an unnamed one. NavigationLoader delegates to AbstractNavigationRoute,
-        // whose TreeBuildingNavigationRoute decorator reaches NavigationRoute, and that throws
-        // CategoryNotFoundException when the root category is missing from the tree.
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: NavigationLoader delegates through TreeBuildingNavigationRoute to
+        // NavigationRoute, which throws CategoryNotFoundException when the root category is missing from
+        // the tree.
         try {
             $tree = $this->navigationLoader->load($rootId, $context, $rootId, 1);
         } catch (ShopwareHttpException) {

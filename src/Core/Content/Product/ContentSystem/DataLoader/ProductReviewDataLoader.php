@@ -66,26 +66,21 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
 
         $productId = u($productId)->lower()->toString();
 
-        // A PropertyReference value passes LoaderInputResolver::dereference()'s string type check untouched, so
-        // an unsubstituted template placeholder (e.g. "{{productId}}" left literal on a layout not rooted on a
-        // product) reaches here as-is. Anything but an id therefore degrades rather than reaching
-        // Uuid::fromHexToBytes() when the review route's `product.id` equals filter is parsed
-        // (src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php:302). The guard runs after
-        // the lowercase because Uuid::VALID_PATTERN is lowercase-only and would reject an uppercase id.
+        // An unsubstituted placeholder such as "{{productId}}" passes LoaderInputResolver::dereference()
+        // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
+        // Uuid::fromHexToBytes() when SqlQueryParser parses the review route's `product.id` equals filter.
         if (!Uuid::isValid($productId)) {
             return ContentDataLoaderResult::notFound();
         }
 
         $criteria = $this->buildCriteria($inputs);
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
-        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
-        // rewrap a named class into an unnamed one. ProductReviewRoute itself throws
-        // ProductException::reviewNotActive() when the sales channel has reviews switched off
-        // (src/Core/Content/Product/SalesChannel/Review/ProductReviewRoute.php:59), and the deprecated
-        // ReviewNotActiveExeption extends ShopwareHttpException directly rather than through ProductException,
-        // so both branches of that inheritance line are covered by the single ancestor.
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: ProductReviewRoute throws ProductException::reviewNotActive() when the sales
+        // channel has reviews switched off; the deprecated ReviewNotActiveExeption extends
+        // ShopwareHttpException directly, so both inheritance lines are covered.
         try {
             $response = $this->productReviewRoute->load($productId, $request, $context, $criteria);
         } catch (ShopwareHttpException) {

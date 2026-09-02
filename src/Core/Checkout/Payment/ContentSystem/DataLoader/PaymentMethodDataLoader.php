@@ -65,12 +65,11 @@ class PaymentMethodDataLoader extends AbstractContentDataLoader
         $clonedRequest = clone $request;
         $clonedRequest->query->set('onlyAvailable', $inputs->bool('onlyAvailable'));
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
-        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
-        // rewrap a named class into an unnamed one. PaymentMethodRoute executes the PaymentMethodRouteHook
-        // store-api route hook through ScriptExecutor, which rewraps every Throwable an app script raises as
-        // ScriptExecutionFailedException, so no enumeration of the chain's own classes can be complete.
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: PaymentMethodRoute runs the PaymentMethodRouteHook app scripts through
+        // ScriptExecutor, which rewraps any Throwable they raise as ScriptExecutionFailedException.
         try {
             $response = $this->paymentMethodRoute->load($clonedRequest, $context, $criteria);
         } catch (ShopwareHttpException) {

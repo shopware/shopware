@@ -343,9 +343,8 @@ class ProductReviewDataLoaderTest extends TestCase
      */
     public static function sampleDomainExceptionProvider(): iterable
     {
-        // ProductReviewRoute throws this when the sales channel has reviews switched off
-        // (src/Core/Content/Product/SalesChannel/Review/ProductReviewRoute.php:59). ProductException extends
-        // HttpException, which extends ShopwareHttpException.
+        // ProductReviewRoute throws this when the sales channel has reviews switched off. ProductException
+        // extends HttpException, which extends ShopwareHttpException.
         yield 'reviews switched off for the sales channel' => [
             new ProductException(403, 'PRODUCT__REVIEW_NOT_ACTIVE', 'Reviews not activated'),
         ];

@@ -240,10 +240,8 @@ class ShippingMethodDataLoaderTest extends TestCase
     public static function sampleDomainExceptionProvider(): iterable
     {
         // ShippingMethodRoute::load() executes the ShippingMethodRouteHook store-api route hook through
-        // ScriptExecutor (src/Core/Checkout/Shipping/SalesChannel/ShippingMethodRoute.php:85), and
-        // ScriptExecutor rewraps every Throwable an app script raises into ScriptExecutionFailedException
-        // (src/Core/Framework/Script/Execution/ScriptExecutor.php:70), so no enumeration of the chain's own
-        // exception classes can cover it.
+        // ScriptExecutor, which rewraps every Throwable an app script raises into
+        // ScriptExecutionFailedException, so no enumeration of the chain's own exception classes can cover it.
         yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
             ScriptException::scriptExecutionFailed('shipping-method-route', 'shipping-method-route.twig', new \RuntimeException('app script failed')),
         ];

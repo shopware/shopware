@@ -60,12 +60,12 @@ class CurrencyDataLoader extends AbstractContentDataLoader
             $criteria->addAssociation($association);
         }
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. No domain
-        // exception is reachable through this chain today: CurrencyRoute::load() collects a cache tag and
-        // runs one sales-channel repository search. The wrap is here for uniformity across the loaders and
-        // because the reachable set is open, so a decorator or a future route change can add a class no
-        // enumeration here would name.
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // No domain exception is reachable through this chain today (CurrencyRoute::load() collects a cache
+        // tag and runs one sales-channel repository search); the wrap is uniform across the loaders because
+        // the reachable set is open.
         try {
             $response = $this->currencyRoute->load($request, $context, $criteria);
         } catch (ShopwareHttpException) {

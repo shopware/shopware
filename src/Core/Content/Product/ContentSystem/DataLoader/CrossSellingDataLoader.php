@@ -65,9 +65,8 @@ class CrossSellingDataLoader extends AbstractContentDataLoader
 
         $productId = u($productId)->lower()->toString();
 
-        // A PropertyReference value passes LoaderInputResolver::dereference()'s string type check untouched, so
-        // an unsubstituted template placeholder (e.g. "{{productId}}" left literal on a layout not rooted on a
-        // product) reaches here as-is. Anything but an id therefore degrades rather than reaching
+        // An unsubstituted placeholder such as "{{productId}}" passes LoaderInputResolver::dereference()
+        // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
         // Uuid::fromHexToBytes() when ProductCrossSellingRoute searches the product by id.
         if (!Uuid::isValid($productId)) {
             return ContentDataLoaderResult::notFound();
@@ -75,12 +74,12 @@ class CrossSellingDataLoader extends AbstractContentDataLoader
 
         $criteria = $this->buildCriteria($inputs);
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. The catch is the
-        // covering ancestor rather than an enumerated set (rationale in Hydration/DataLoader/AGENTS.md); the
-        // known local throws already cross file boundaries: ProductCrossSellingRoute::loadByStream() calls
-        // ProductStreamBuilder::enrichCriteria(), so a cross selling backed by a deleted or filterless product
-        // stream surfaces as EntityNotFoundException or NoFilterException, neither visible in the route's own file.
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: ProductCrossSellingRoute::loadByStream() calls
+        // ProductStreamBuilder::enrichCriteria(), so a cross selling backed by a deleted or filterless
+        // product stream surfaces as EntityNotFoundException or NoFilterException.
         try {
             $response = $this->crossSellingRoute->load($productId, $request, $context, $criteria);
         } catch (ShopwareHttpException) {

@@ -129,26 +129,21 @@ class EntityCollectionLoader extends AbstractContentDataLoader
 
         $entityIds = \array_map(static fn (string $entityId) => u($entityId)->lower()->toString(), $entityIds);
 
-        // A PropertyReference value passes LoaderInputResolver::dereference()'s list<string> type check
-        // untouched, so an unsubstituted template placeholder left literal in the stored list reaches here
-        // as-is. Anything but an id therefore degrades rather than reaching Uuid::fromHexToBytes() in
-        // EntityDefinitionQueryHelper::addIdCondition()
-        // (src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php:612), where every
-        // criteria id below is converted. One bad entry degrades the whole element rather than being filtered
-        // out: the guard rejects only malformed strings, so a bad entry means broken authoring rather than a
-        // missing entity, and a silently shortened collection would hide it. The guard runs after the
-        // lowercase because Uuid::VALID_PATTERN is lowercase-only and would reject a legitimate uppercase id.
+        // An unsubstituted placeholder left literal in the stored list passes LoaderInputResolver::dereference()
+        // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
+        // Uuid::fromHexToBytes() in EntityDefinitionQueryHelper::addIdCondition(). One bad entry degrades the
+        // whole element rather than being filtered out: a malformed string means broken authoring, and a
+        // silently shortened collection would hide it.
         foreach ($entityIds as $entityId) {
             if (!Uuid::isValid($entityId)) {
                 return ContentDataLoaderResult::notFound();
             }
         }
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
-        // covering ancestor rather than an enumerated set: the reachable set is open, and this loader searches
-        // an arbitrary registered entity, so the repositories and their decorators it can reach are not
-        // enumerable from here at all.
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // The set is fully open here: this loader searches an arbitrary registered entity.
         try {
             $entities = $this->loadEntities($entityName, $entityIds, $inputs->stringList('associations'), $context);
 
@@ -177,11 +172,9 @@ class EntityCollectionLoader extends AbstractContentDataLoader
     }
 
     /**
-     * The definition lookup degrades here rather than propagating: resolveDefinition() reaches the
-     * sales-channel registry, whose getByEntityName() throws DefinitionNotFoundException when the mapped
-     * definition service is absent from the container, and rethrows a base-registry miss as a
-     * ContentSystemException. resolveDefinition() itself stays throwing, because resolveProducedType() is an
-     * introspection path that must fail hard on an unknown entity.
+     * Degrades rather than propagating: resolveDefinition() throws DefinitionNotFoundException when the
+     * mapped definition service is absent from the container. resolveDefinition() itself stays throwing,
+     * because resolveProducedType() is an introspection path that must fail hard on an unknown entity.
      */
     private function emptyCollectionResult(string $entityName): ContentDataLoaderResult
     {

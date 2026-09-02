@@ -65,10 +65,10 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         $searchRequest = new Request();
         $searchRequest->request->set('search', $searchTerm);
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. The catch is the
-        // covering ancestor rather than an enumerated set (rationale in Hydration/DataLoader/AGENTS.md); the
-        // known local throws: a stored term that survives the empty-string check above ("0", or whitespace
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: a stored term that survives the empty-string check above ("0", or whitespace
         // ProductSearchBuilder trims to empty) throws ProductException or RoutingException depending on the
         // v6.8.0.0 flag, and a default sorting naming a deleted sorting entity surfaces as
         // ProductException::sortingNotFoundException() out of SortingListingProcessor.

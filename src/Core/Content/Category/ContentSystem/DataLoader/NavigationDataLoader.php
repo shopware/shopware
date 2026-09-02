@@ -65,18 +65,16 @@ class NavigationDataLoader extends AbstractContentDataLoader
 
         // A recognized alias still resolves to itself when the sales channel has no such category
         // (service and footer navigation are both optional). Passing that on would reach
-        // Uuid::fromHexToBytes() in NavigationRoute and abort the whole render. The guard runs after the
-        // lowercase because Uuid::VALID_PATTERN is lowercase-only while Uuid::fromHexToBytes() accepts
-        // uppercase hex, so an uppercase configured id reaches the database and guarding the raw value would
-        // reject an id that works. NavigationLoaderConfigSerializer::decode() preserves the configured case.
+        // Uuid::fromHexToBytes() in NavigationRoute and abort the whole render. Guard after the lowercase
+        // (Uuid::VALID_PATTERN is lowercase-only): NavigationLoaderConfigSerializer::decode() preserves the
+        // configured case, and an uppercase configured id works against the database.
         if (!Uuid::isValid($rootId)) {
             return ContentDataLoaderResult::notFound();
         }
 
         // The referenced property carries the "{{categoryId}}" placeholder by default, which stays literal on a
-        // layout not rooted on a category. Anything but an id therefore falls back rather than reaching
-        // Uuid::fromHexToBytes() in NavigationRoute. LoaderInputResolver::dereference() hands back the stored
-        // string unchanged, so the same lowercase-before-guard order applies here.
+        // layout not rooted on a category. Anything but an id falls back to the root rather than reaching
+        // Uuid::fromHexToBytes() in NavigationRoute; same lowercase-before-guard order as above.
         $activeProperty = $inputs->stringOrNull('activeProperty');
         $activeId = $activeProperty === null ? null : u($activeProperty)->lower()->toString();
 
@@ -88,12 +86,12 @@ class NavigationDataLoader extends AbstractContentDataLoader
         // not the specification, supplies it.
         $depth = $inputs->intOrNull('depth') ?? $context->getSalesChannel()->getNavigationCategoryDepth();
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
-        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
-        // rewrap a named class into an unnamed one. NavigationLoader delegates to AbstractNavigationRoute,
-        // whose TreeBuildingNavigationRoute decorator reaches NavigationRoute, and that throws
-        // CategoryNotFoundException when the active or root category is missing from the tree.
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: NavigationLoader delegates through TreeBuildingNavigationRoute to
+        // NavigationRoute, which throws CategoryNotFoundException when the active or root category is
+        // missing from the tree.
         try {
             $tree = $this->navigationLoader->load($activeId, $context, $rootId, $depth);
         } catch (ShopwareHttpException) {

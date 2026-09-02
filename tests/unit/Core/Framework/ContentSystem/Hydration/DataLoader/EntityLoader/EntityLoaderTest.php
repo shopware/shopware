@@ -431,8 +431,7 @@ class EntityLoaderTest extends TestCase
      */
     public static function sampleDomainExceptionProvider(): iterable
     {
-        // EntityDefinitionQueryHelper::addIdCondition() converts every criteria id with
-        // Uuid::fromHexToBytes() (src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php:612).
+        // EntityDefinitionQueryHelper::addIdCondition() converts every criteria id with Uuid::fromHexToBytes().
         // The guard above keeps a malformed id away from it; this row states that a repository reaching it
         // anyway still degrades. InvalidUuidException extends ShopwareHttpException directly.
         yield 'an id the DAL rejects when building the criteria condition' => [

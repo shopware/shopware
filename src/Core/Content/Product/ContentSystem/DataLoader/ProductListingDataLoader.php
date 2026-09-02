@@ -65,9 +65,8 @@ class ProductListingDataLoader extends AbstractContentDataLoader
 
         $navigationId = u($navigationId)->lower()->toString();
 
-        // A PropertyReference value passes LoaderInputResolver::dereference()'s string type check untouched, so
-        // an unsubstituted template placeholder (e.g. "{{categoryId}}" left literal on a layout not rooted on a
-        // category) reaches here as-is. Anything but an id therefore degrades rather than reaching
+        // An unsubstituted placeholder such as "{{categoryId}}" passes LoaderInputResolver::dereference()
+        // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
         // Uuid::fromHexToBytes() when ProductListingRoute searches the category by id.
         if (!Uuid::isValid($navigationId)) {
             return ContentDataLoaderResult::notFound();
@@ -75,12 +74,11 @@ class ProductListingDataLoader extends AbstractContentDataLoader
 
         $criteria = $this->buildCriteria($inputs);
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. The catch is the
-        // covering ancestor rather than an enumerated set (rationale in Hydration/DataLoader/AGENTS.md); the
-        // known local throws already cross file boundaries: a category assigned to a deleted or filterless
-        // product stream surfaces as EntityNotFoundException or NoFilterException out of ProductStreamBuilder,
-        // which never appears as a throw in ProductListingRoute's own file.
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: a category assigned to a deleted or filterless product stream surfaces as
+        // EntityNotFoundException or NoFilterException out of ProductStreamBuilder.
         try {
             $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
         } catch (ShopwareHttpException) {

@@ -64,13 +64,10 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
 
         $entityId = u($entityId)->lower()->toString();
 
-        // A PropertyReference value passes LoaderInputResolver::dereference()'s string type check untouched, so
-        // an unsubstituted template placeholder (e.g. "{{productId}}" left literal on a layout not rooted on a
-        // product) reaches here as-is. Anything but an id therefore degrades rather than reaching
+        // An unsubstituted placeholder such as "{{productId}}" passes LoaderInputResolver::dereference()
+        // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
         // Uuid::fromHexToBytes() in the DAL id lookups behind CategoryBreadcrumbBuilder. BreadcrumbRoute
-        // declares the same domain on the HTTP side, `requirements: ['id' => '[0-9a-f]{32}']`
-        // (src/Core/Content/Breadcrumb/SalesChannel/BreadcrumbRoute.php:40). The guard runs after the lowercase
-        // because Uuid::VALID_PATTERN is lowercase-only and would reject an uppercase id.
+        // declares the same domain on the HTTP side, requirements: ['id' => '[0-9a-f]{32}'].
         if (!Uuid::isValid($entityId)) {
             return ContentDataLoaderResult::notFound();
         }
@@ -81,12 +78,9 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
 
         $referrerCategoryId = $inputs->stringOrNull('referrerCategoryProperty');
 
-        // The referrer is optional: its key declares `default: null`, so an unconfigured reference resolves to
-        // null and the query parameter simply stays unset, which is the route's own default
-        // (BreadcrumbRoute::load() reads it as ''). A resolved referrer is an entity id like any other and
-        // carries the same guard: BreadcrumbRoute passes it to
-        // CategoryBreadcrumbBuilder::getProductCategoryByReferrer(), which loads it by id when the product's
-        // category tree contains it.
+        // The referrer is optional (its key declares default: null): unconfigured, the query parameter stays
+        // unset, which is BreadcrumbRoute's own default. A resolved referrer is an entity id like any other
+        // and carries the same guard.
         if ($referrerCategoryId !== null) {
             $referrerCategoryId = u($referrerCategoryId)->lower()->toString();
 
@@ -97,14 +91,12 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
             $clonedRequest->query->set('referrerCategoryId', $referrerCategoryId);
         }
 
-        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
-        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
-        // rewrap a named class into an unnamed one. BreadcrumbRoute reaches CategoryBreadcrumbBuilder, which
-        // throws BreadcrumbException::categoryNotFoundForProduct()
-        // (src/Core/Content/Category/Service/CategoryBreadcrumbBuilder.php:56) and
-        // BreadcrumbException::productNotFound() (:191, returning ProductNotFoundException, which the route
-        // catches only on the product branch).
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: BreadcrumbRoute reaches CategoryBreadcrumbBuilder, which throws
+        // BreadcrumbException::categoryNotFoundForProduct() and BreadcrumbException::productNotFound()
+        // (a ProductNotFoundException the route catches only on the product branch).
         try {
             $response = $this->breadcrumbRoute->load($clonedRequest, $context);
         } catch (ShopwareHttpException) {

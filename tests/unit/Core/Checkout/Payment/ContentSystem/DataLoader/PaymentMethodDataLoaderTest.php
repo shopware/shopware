@@ -264,10 +264,8 @@ class PaymentMethodDataLoaderTest extends TestCase
     public static function sampleDomainExceptionProvider(): iterable
     {
         // PaymentMethodRoute::load() executes the PaymentMethodRouteHook store-api route hook through
-        // ScriptExecutor (src/Core/Checkout/Payment/SalesChannel/PaymentMethodRoute.php:82), and
-        // ScriptExecutor rewraps every Throwable an app script raises into ScriptExecutionFailedException
-        // (src/Core/Framework/Script/Execution/ScriptExecutor.php:70), so no enumeration of the chain's own
-        // exception classes can cover it.
+        // ScriptExecutor, which rewraps every Throwable an app script raises into
+        // ScriptExecutionFailedException, so no enumeration of the chain's own exception classes can cover it.
         yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
             ScriptException::scriptExecutionFailed('payment-method-route', 'payment-method-route.twig', new \RuntimeException('app script failed')),
         ];

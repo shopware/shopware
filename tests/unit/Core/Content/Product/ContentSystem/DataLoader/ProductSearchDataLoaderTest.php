@@ -380,10 +380,9 @@ class ProductSearchDataLoaderTest extends TestCase
         // via the factory so this row holds regardless of v6.8.0.0 state.
         yield 'missing search parameter, flag-off form' => [RoutingException::missingRequestParameter('search')];
 
-        // AppScriptProductPriceCalculator decorates ProductPriceCalculator on the search chain
-        // (src/Core/Content/DependencyInjection/product.php:490) and ScriptExecutor rewraps any Throwable an
-        // app script raises into ScriptExecutionFailedException, so no enumeration of the chain's own
-        // exception classes can cover it.
+        // AppScriptProductPriceCalculator decorates ProductPriceCalculator on the search chain, and
+        // ScriptExecutor rewraps any Throwable an app script raises into ScriptExecutionFailedException, so
+        // no enumeration of the chain's own exception classes can cover it.
         yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
             ScriptException::scriptExecutionFailed('product-pricing', 'product-pricing.twig', new \RuntimeException('app script failed')),
         ];

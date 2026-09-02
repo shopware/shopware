@@ -281,10 +281,10 @@ class ServiceMenuDataLoaderTest extends TestCase
     public static function nonUuidRootIdProvider(): iterable
     {
         // NavigationAliasResolver hands the footer alias back unchanged when the sales channel has no footer
-        // category (src/Core/Framework/ContentSystem/Adapter/FactoryHelper/NavigationAliasResolver.php:36).
+        // category.
         yield 'the optional footer alias resolves to itself' => ['footer-navigation'];
 
-        // An unrecognized literal is returned unchanged by the resolver's default arm (:37).
+        // An unrecognized literal is returned unchanged by the resolver's default arm.
         yield 'an unrecognized configured literal passes through' => ['not-a-navigation-alias'];
     }
 
@@ -355,10 +355,9 @@ class ServiceMenuDataLoaderTest extends TestCase
     public static function sampleDomainExceptionProvider(): iterable
     {
         // NavigationLoader delegates to AbstractNavigationRoute, whose TreeBuildingNavigationRoute decorator
-        // reaches NavigationRoute, and that throws this at
-        // src/Core/Content/Category/SalesChannel/NavigationRoute.php:166, :183 and :203. The factory is
-        // CategoryException::categoryNotFound(), but the class it returns is CategoryNotFoundException, which
-        // extends ShopwareHttpException directly and not CategoryException.
+        // reaches NavigationRoute, which throws this. The factory is CategoryException::categoryNotFound(),
+        // but the class it returns is CategoryNotFoundException, which extends ShopwareHttpException directly
+        // and not CategoryException.
         yield 'the root category is missing from the navigation tree' => [
             CategoryException::categoryNotFound('category-missing'),
         ];

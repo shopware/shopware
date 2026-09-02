@@ -577,10 +577,9 @@ class NavigationDataLoaderTest extends TestCase
     public static function sampleDomainExceptionProvider(): iterable
     {
         // NavigationLoader delegates to AbstractNavigationRoute, whose TreeBuildingNavigationRoute decorator
-        // (registered at src/Core/Content/DependencyInjection/category.php:101) reaches NavigationRoute, and
-        // that throws this at src/Core/Content/Category/SalesChannel/NavigationRoute.php:166, :183 and :203.
-        // The factory is CategoryException::categoryNotFound(), but the class it returns is
-        // CategoryNotFoundException, which extends ShopwareHttpException directly and not CategoryException.
+        // reaches NavigationRoute, which throws this. The factory is CategoryException::categoryNotFound(),
+        // but the class it returns is CategoryNotFoundException, which extends ShopwareHttpException directly
+        // and not CategoryException.
         yield 'active category missing from the navigation tree' => [
             CategoryException::categoryNotFound('category-missing'),
         ];

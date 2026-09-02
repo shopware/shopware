@@ -437,10 +437,9 @@ class ProductListingDataLoaderTest extends TestCase
 
         yield 'product stream is empty' => [ProductStreamException::emptyProductStream('stream-empty')];
 
-        // AppScriptProductPriceCalculator decorates ProductPriceCalculator on the listing chain
-        // (src/Core/Content/DependencyInjection/product.php:490) and ScriptExecutor rewraps any Throwable an
-        // app script raises into ScriptExecutionFailedException, so no enumeration of the chain's own
-        // exception classes can cover it.
+        // AppScriptProductPriceCalculator decorates ProductPriceCalculator on the listing chain, and
+        // ScriptExecutor rewraps any Throwable an app script raises into ScriptExecutionFailedException, so
+        // no enumeration of the chain's own exception classes can cover it.
         yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
             ScriptException::scriptExecutionFailed('product-pricing', 'product-pricing.twig', new \RuntimeException('app script failed')),
         ];

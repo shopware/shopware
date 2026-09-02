@@ -311,8 +311,8 @@ class BreadcrumbDataLoaderTest extends TestCase
     public static function sampleDomainExceptionProvider(): iterable
     {
         // CategoryBreadcrumbBuilder::getProductBreadcrumbUrls() throws this when the product resolves to no
-        // category (src/Core/Content/Category/Service/CategoryBreadcrumbBuilder.php:56). BreadcrumbException
-        // extends CategoryException, which extends HttpException, which extends ShopwareHttpException.
+        // category. BreadcrumbException extends CategoryException, which extends HttpException, which
+        // extends ShopwareHttpException.
         yield 'no main category for the product' => [
             BreadcrumbException::categoryNotFoundForProduct('product-missing'),
         ];

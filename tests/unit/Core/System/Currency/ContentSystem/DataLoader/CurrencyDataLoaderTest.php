@@ -178,10 +178,8 @@ class CurrencyDataLoaderTest extends TestCase
     }
 
     /**
-     * Neither row is a reachability claim. CurrencyRoute::load() collects a cache tag and runs one
-     * sales-channel repository search, so the chain reaches no domain exception today; both rows state the
-     * loader's contract instead, that any `ShopwareHttpException` degrades because the clause names the
-     * single covering ancestor rather than an enumerated set.
+     * Neither row is a reachability claim: CurrencyRoute::load() reaches no domain exception today. Both
+     * rows state the loader's contract instead, that any `ShopwareHttpException` degrades.
      *
      * @return iterable<string, array{\Throwable}>
      */

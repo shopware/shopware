@@ -182,6 +182,9 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         createStateMapper();
 
         const wrapper = await createWrapper();
+        // `hasOrderUnsavedChanges` is a computed, which setData reaches by shadowing it through
+        // $data. The component exposes no seam to drive it from a spec.
+        // eslint-disable-next-line sw-test-rules/no-set-data
         await wrapper.setData({
             hasOrderUnsavedChanges: false,
         });
@@ -202,6 +205,9 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         createStateMapper();
 
         const wrapper = await createWrapper();
+        // `hasOrderUnsavedChanges` is a computed, which setData reaches by shadowing it through
+        // $data. The component exposes no seam to drive it from a spec.
+        // eslint-disable-next-line sw-test-rules/no-set-data
         await wrapper.setData({
             hasOrderUnsavedChanges: true,
         });

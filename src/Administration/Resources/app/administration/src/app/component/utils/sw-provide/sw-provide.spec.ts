@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper({ template = '<sw-provide />', components = {}, data = {} } = {}) {
@@ -67,7 +68,8 @@ describe('src/app/component/base/sw-provide', () => {
         });
 
         expect(wrapper.text()).toBe('bar');
-        await wrapper.setData({ foo: 'baz' });
+        wrapper.vm.foo = 'baz';
+        await nextTick();
         expect(wrapper.text()).toBe('baz');
     });
 

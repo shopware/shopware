@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-radio-field';
@@ -72,12 +73,14 @@ describe('components/form/sw-radio-field', () => {
         const wrapper = await createWrapper();
         const customSlot = wrapper.find('#custom-slot');
 
-        await wrapper.setData({ currentValue: 1 });
+        wrapper.vm.currentValue = 1;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expect(customSlot.wrapperElement).toBeEnabled();
 
-        await wrapper.setData({ currentValue: 2 });
+        wrapper.vm.currentValue = 2;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expect(customSlot.wrapperElement).toBeDisabled();
@@ -89,7 +92,8 @@ describe('components/form/sw-radio-field', () => {
         let description = wrapper.find('.sw-field__radio-description');
         expect(description.exists()).toBe(false);
 
-        await wrapper.setData({ description: 'Lorem ipsum' });
+        wrapper.vm.description = 'Lorem ipsum';
+        await nextTick();
 
         description = wrapper.find('.sw-field__radio-description');
         expect(description.exists()).toBe(true);
@@ -101,13 +105,12 @@ describe('components/form/sw-radio-field', () => {
         let optionDescription = wrapper.find('.sw-field__radio-option-description');
         expect(optionDescription.exists()).toBe(false);
 
-        await wrapper.setData({
-            options: [
-                { value: 1, name: 'option 1', description: 'option 1' },
-                { value: 2, name: 'option 2', description: 'option 2' },
-                { value: 3, name: 'option 3', description: 'option 3' },
-            ],
-        });
+        wrapper.vm.options = [
+            { value: 1, name: 'option 1', description: 'option 1' },
+            { value: 2, name: 'option 2', description: 'option 2' },
+            { value: 3, name: 'option 3', description: 'option 3' },
+        ];
+        await nextTick();
 
         optionDescription = wrapper.find('.sw-field__radio-option-description');
         expect(optionDescription.exists()).toBe(true);

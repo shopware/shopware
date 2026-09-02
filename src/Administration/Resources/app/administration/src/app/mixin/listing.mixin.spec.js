@@ -3,6 +3,7 @@
 /**
  * @sw-package framework
  */
+import { nextTick } from 'vue';
 import 'src/app/mixin/listing.mixin';
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -394,51 +395,44 @@ describe('src/app/mixin/listing.mixin.ts', () => {
     it('should set freshSearchTerm to true when "term" changes', async () => {
         expect(wrapper.vm.freshSearchTerm).toBe(false);
 
-        await wrapper.setData({
-            term: 'test',
-        });
+        wrapper.vm.term = 'test';
+        await nextTick();
 
         expect(wrapper.vm.freshSearchTerm).toBe(true);
     });
 
     it('should set freshSearchTerm to false when "term" is cleared', async () => {
-        await wrapper.setData({
-            term: 'test',
-        });
+        wrapper.vm.term = 'test';
+        await nextTick();
 
         expect(wrapper.vm.freshSearchTerm).toBe(true);
 
-        await wrapper.setData({
-            term: '',
-        });
+        wrapper.vm.term = '';
+        await nextTick();
 
         expect(wrapper.vm.freshSearchTerm).toBe(false);
     });
 
     it('should set freshSearchTerm to false when "sortBy" changes', async () => {
-        await wrapper.setData({
-            term: 'test',
-        });
+        wrapper.vm.term = 'test';
+        await nextTick();
 
         expect(wrapper.vm.freshSearchTerm).toBe(true);
 
-        await wrapper.setData({
-            sortBy: 'test',
-        });
+        wrapper.vm.sortBy = 'test';
+        await nextTick();
 
         expect(wrapper.vm.freshSearchTerm).toBe(false);
     });
 
     it('should set freshSearchTerm to false when "sortDirection" changes', async () => {
-        await wrapper.setData({
-            term: 'test',
-        });
+        wrapper.vm.term = 'test';
+        await nextTick();
 
         expect(wrapper.vm.freshSearchTerm).toBe(true);
 
-        await wrapper.setData({
-            sortDirection: 'test',
-        });
+        wrapper.vm.sortDirection = 'test';
+        await nextTick();
 
         expect(wrapper.vm.freshSearchTerm).toBe(false);
     });
@@ -475,14 +469,13 @@ describe('src/app/mixin/listing.mixin.ts', () => {
             },
         });
 
-        await wrapper.setData({
-            page: 7,
-            limit: 100,
-            naturalSorting: true,
-            sortBy: 'name',
-            sortDirection: 'ASC',
-            term: 'Fooooo',
-        });
+        wrapper.vm.page = 7;
+        wrapper.vm.limit = 100;
+        wrapper.vm.naturalSorting = true;
+        wrapper.vm.sortBy = 'name';
+        wrapper.vm.sortDirection = 'ASC';
+        wrapper.vm.term = 'Fooooo';
+        await nextTick();
 
         expect(wrapper.vm.getMainListingParams()).toEqual({
             page: 7,

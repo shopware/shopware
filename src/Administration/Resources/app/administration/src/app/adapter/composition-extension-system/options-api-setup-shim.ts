@@ -123,23 +123,21 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 expose: () => {},
             } as SetupContext;
 
-            // Re-enters the component scope so watchers and computeds the overrides create are disposed
-            // on unmount - `created()` has no active scope of its own.
-            (instance as unknown as { scope: { run: (fn: () => void) => void } }).scope.run(() => {
-                _overridesMap[componentName].forEach((override) => {
-                    const result = override(previousState as never, instance.props as never, context) as AnyRecord;
+            // Vue activates the component's effect scope around lifecycle hooks, so watchers and
+            // computeds the overrides create here are disposed on unmount without further handling.
+            _overridesMap[componentName].forEach((override) => {
+                const result = override(previousState as never, instance.props as never, context) as AnyRecord;
 
-                    if (result === undefined) {
-                        return;
-                    }
+                if (result === undefined) {
+                    return;
+                }
 
-                    Object.keys(result).forEach((key) => {
-                        bag[key] = result[key];
-                        delete (instance as unknown as { accessCache: Record<string, unknown> }).accessCache[key];
-                        // Vue memoises which bucket a key resolved from on first access. Anything that read
-                        // the key earlier - an immediate watcher, a preceding created hook - pinned it to
-                        // `data`, and setupState would never be consulted again.
-                    });
+                Object.keys(result).forEach((key) => {
+                    bag[key] = result[key];
+                    // Vue memoises which bucket a key resolved from on first access. Anything that read the
+                    // key earlier - an immediate watcher, a preceding created hook - pinned it to `data`,
+                    // and setupState would never be consulted again.
+                    delete (instance as unknown as { accessCache: Record<string, unknown> }).accessCache[key];
                 });
             });
         },

@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { computed, ref } from 'vue';
+import { computed, h, ref, watch } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { attachSetupOverrideShim } from './options-api-setup-shim';
 import { _overridesMap } from './index';
@@ -126,6 +126,98 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
 
         // The watcher fires before any created hook and pins the key to `data` in Vue's access cache.
         expect(wrapper.text()).toBe('override base');
+    });
+
+    it('reads, calls and replaces a method through previousState', async () => {
+        let originalResult = '';
+
+        _overridesMap['sw-shim-methods'] = [
+            (previousState: Record<string, { value: unknown }>) => {
+                const original = previousState.greet.value as () => string;
+                originalResult = original();
+
+                return { greet: () => `${original()} + override` };
+            },
+        ] as never;
+
+        const config = {
+            template: '<p>{{ greet() }}</p>',
+            data() {
+                return { name: 'world' };
+            },
+            methods: {
+                greet(this: { name: string }) {
+                    return `hello ${this.name}`;
+                },
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-methods', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        // Methods live on `instance.ctx`, already bound by Vue - so the original stays callable from
+        // inside the override, which is what makes a super-style call possible.
+        expect(originalResult).toBe('hello world');
+        expect(wrapper.text()).toBe('hello world + override');
+    });
+
+    it('leaves a setup() that returns a render function untouched', async () => {
+        _overridesMap['sw-shim-render'] = [() => ({ unused: computed(() => 'x') })] as never;
+
+        const config = {
+            template: '<p>ignored</p>',
+            setup() {
+                return () => h('div', { class: 'from-render' }, 'render fn');
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-render', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        // The bag cannot ride along with a render function, so the component renders without overrides
+        // instead of breaking.
+        expect(wrapper.html()).toContain('from-render');
+    });
+
+    it('disposes watchers an override creates when the component unmounts', async () => {
+        const source = ref(0);
+        const handler = jest.fn();
+
+        _overridesMap['sw-shim-scope'] = [
+            () => {
+                watch(source, handler);
+
+                return { label: computed(() => 'x') };
+            },
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            data() {
+                return { label: 'base' };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-scope', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        source.value += 1;
+        await flushPromises();
+        expect(handler).toHaveBeenCalledTimes(1);
+
+        wrapper.unmount();
+        source.value += 1;
+        await flushPromises();
+
+        // Vue activates the instance scope around lifecycle hooks; this pins that outcome, so a change
+        // there surfaces here instead of as a leak in production.
+        expect(handler).toHaveBeenCalledTimes(1);
     });
 
     it('keeps Vue resolving late-added setup keys before data and computed', async () => {

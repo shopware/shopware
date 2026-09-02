@@ -76,7 +76,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
      */
     public function getTypeName(): ?string
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, 'getTypeName', 'v6.8.0.0', self::class . '::getDocumentBaseConfig()::getTypeName()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, 'getTypeName', 'v6.8.0.0', self::class . '::getDocumentBaseConfig()::getTypeName()'));
 
         return $this->typeName;
     }
@@ -86,7 +86,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
      */
     public function setTypeName(?string $typeName): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, 'setTypeName', 'v6.8.0.0', self::class . '::getDocumentBaseConfig()::setTypeName()'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, 'setTypeName', 'v6.8.0.0', self::class . '::getDocumentBaseConfig()::setTypeName()'));
 
         $this->typeName = $typeName;
     }

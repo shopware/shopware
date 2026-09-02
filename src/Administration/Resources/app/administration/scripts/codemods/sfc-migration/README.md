@@ -223,6 +223,25 @@ the store. The codemod never emits the clean one; that migration is a human's ca
 the CMS editor state through it. Its descriptor therefore answers those members as well, which is why
 both descriptors share one member list.
 
+## Shortcuts
+
+A `shortcuts` entry named its handler as a string and the plugin resolved it off the instance, which
+is what a `<script setup>` component cannot answer. Each entry becomes a `useShortcut()` call taking
+the method itself:
+
+```js
+useShortcut('SYSTEMKEY+S', onSave, { active: () => acl.can('product.editor') });
+useShortcut('ESCAPE', onCancel);
+```
+
+The handler name is resolved against the binding map the same way a string `watch` handler is, so an
+entry naming something the component does not declare as a method is a TODO rather than a call to a
+binding that does not exist. Both the object form's `active` shapes are supported — a function, whose
+body converts like any other, and a boolean constant.
+
+Both paths register with the same registry, so an option-based and a composable shortcut compete for
+the same key on equal terms and the precedence does not change with the conversion.
+
 ## What is skipped on purpose
 
 `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,

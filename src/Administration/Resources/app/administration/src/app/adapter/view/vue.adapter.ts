@@ -65,6 +65,7 @@ import {
     MtDropdownMenuSub,
 } from '@shopware-ag/meteor-component-library';
 
+import { attachSetupOverrideShim } from '../composition-extension-system/options-api-setup-shim';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -591,6 +592,7 @@ export default class VueAdapter extends ViewAdapter {
                         if (typeof componentConfig === 'boolean') {
                             resolve(false);
                         } else {
+                            attachSetupOverrideShim(componentName, componentConfig);
                             this.resolveMixins(componentConfig);
                         }
 

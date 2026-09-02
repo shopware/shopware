@@ -9,10 +9,12 @@ use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -451,5 +453,81 @@ class EntitySearchToolTest extends TestCase
         static::assertFalse($data['success']);
         static::assertStringContainsString('unknown_entity', $data['error']);
         static::assertStringContainsString('shopware://entities', $data['error']);
+    }
+
+    public function testAMalformedCriteriaIsAnsweredWithTheParserDetail(): void
+    {
+        // Same regression as EntityAggregateTool: fromArray() rejects a
+        // malformed filter by throwing, and an escaping throwable reaches the
+        // MCP SDK's generic handler as "Error while executing tool", which a
+        // client cannot correct from. The pointer is the part it cannot infer.
+        $context = Context::createDefaultContext();
+        $definition = static::createStub(EntityDefinition::class);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+
+        $exception = new SearchRequestException();
+        $exception->add(
+            DataAbstractionLayerException::invalidFilterQuery('The filter should contain a "field".', '/filter/0/equals/field'),
+            '/filter/0/equals/field'
+        );
+
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willThrowException($exception);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool(
+            $registry,
+            $criteriaBuilder,
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
+        );
+
+        $data = json_decode(
+            ($tool)('product', '{"filter":[{"type":"equals"}]}'),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('/filter/0/equals/field', $data['error']);
+        static::assertStringContainsString('The filter should contain a "field".', $data['error']);
+    }
+
+    public function testAnUnexpectedThrowableStillPropagates(): void
+    {
+        // Only the parser exceptions are answered; a bug must still reach the
+        // log untouched rather than being flattened into a tool result.
+        $context = Context::createDefaultContext();
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willThrowException(new \RuntimeException('bug, not bad input'));
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool(
+            $registry,
+            $criteriaBuilder,
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
+        );
+
+        $this->expectExceptionObject(new \RuntimeException('bug, not bad input'));
+
+        ($tool)('product');
     }
 }

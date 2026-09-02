@@ -330,7 +330,8 @@ function buildSilentLanesIssue(issueTitle: string, silentLanes: string[], runUrl
 }
 
 function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
-  const lines = [`Run: ${runUrl}`, `Failing tests: ${group.tests.length}`, ''];
+  // the listing folds behind the count, so long updates stay scannable on the issue
+  const lines = [`Run: ${runUrl}`, '<details>', `<summary>Failing tests: ${group.tests.length}</summary>`, ''];
 
   for (const test of group.tests.slice(0, MAX_TESTS_PER_DOMAIN)) {
     lines.push(formatTest(test));
@@ -338,6 +339,8 @@ function buildDomainLines(group: DomainGroup, runUrl: string): string[] {
   if (group.tests.length > MAX_TESTS_PER_DOMAIN) {
     lines.push(`- …and ${group.tests.length - MAX_TESTS_PER_DOMAIN} more, see the run logs.`);
   }
+
+  lines.push('', '</details>');
 
   return lines;
 }

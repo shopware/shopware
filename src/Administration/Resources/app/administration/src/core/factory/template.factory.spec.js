@@ -95,4 +95,42 @@ describe('core/factory/template.factory.js - native block extension points', () 
 
         warnSpy.mockRestore();
     });
+
+    it('leaves a block with two sibling slot templates unwrapped', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-two', blocks: ['tf_two_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-two',
+            '<sw-page>{% block tf_two_block %}<template #content><b>c</b></template><template #sidebar><u>s</u></template>{% endblock %}</sw-page>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The block fills two slots of its parent, so no single position can serve both. A naive
+        // starts-with/ends-with check would place the wrapper between them and break the markup.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-two').html).toBe(
+            '<sw-page><template #content><b>c</b></template><template #sidebar><u>s</u></template></sw-page>',
+        );
+        expect(warnSpy).toHaveBeenCalledWith('TemplateFactory', expect.stringContaining('tf_two_block'));
+
+        warnSpy.mockRestore();
+    });
+
+    it('finds the end of the slot tag when an attribute value contains an angle bracket', () => {
+        registerNativeExtensionTargets({ component: 'tf-angle', blocks: ['tf_angle_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-angle',
+            '<sw-card>{% block tf_angle_block %}<template #header :show="a > 1"><b>h</b></template>{% endblock %}</sw-card>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // Scanning for the first ">" would cut the opening tag in half.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-angle').html).toBe(
+            '<sw-card><template #header :show="a > 1"><sw-block name="tf_angle_block" :data="$dataScope" :legacy-shim="false"><b>h</b></sw-block></template></sw-card>',
+        );
+    });
 });

@@ -15,6 +15,8 @@ class AccountEditOrderPage extends Page
 
     protected PaymentMethodCollection $paymentMethods;
 
+    protected ?string $selectedPaymentMethodId = null;
+
     protected PromotionCollection $activePromotions;
 
     protected ?string $deepLinkCode = null;
@@ -41,6 +43,16 @@ class AccountEditOrderPage extends Page
     public function setPaymentMethods(PaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
+    }
+
+    public function getSelectedPaymentMethodId(): ?string
+    {
+        return $this->selectedPaymentMethodId;
+    }
+
+    public function setSelectedPaymentMethodId(?string $selectedPaymentMethodId): void
+    {
+        $this->selectedPaymentMethodId = $selectedPaymentMethodId;
     }
 
     public function getDeepLinkCode(): ?string

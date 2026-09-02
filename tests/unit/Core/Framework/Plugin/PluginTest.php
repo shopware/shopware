@@ -5,13 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin;
 use SwagTestPlugin\SwagTestPlugin;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(SwagTestPlugin::class)]
+#[CoversClass(Plugin::class)]
 class PluginTest extends TestCase
 {
     private static string $swagTestPluginPath;

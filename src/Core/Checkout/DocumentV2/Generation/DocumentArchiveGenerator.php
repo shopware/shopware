@@ -171,7 +171,13 @@ final class DocumentArchiveGenerator
 
     private function createOrderPrefix(DocumentEntity $document): string
     {
-        return ($document->getOrder()?->getOrderNumber() ?? $document->getOrderId()) . '_';
+        $orderNumber = $document->getOrder()?->getOrderNumber();
+
+        if ($orderNumber !== null && $orderNumber !== '') {
+            return $orderNumber . '_';
+        }
+
+        return $this->getArchiveGroupIdentifier($document) . '_';
     }
 
     private function containsMultipleOrders(DocumentCollection $documents): bool
@@ -182,10 +188,21 @@ final class DocumentArchiveGenerator
 
         $orderIds = [];
         foreach ($documents as $document) {
-            $orderIds[$document->getOrderId()] = true;
+            $orderIds[$this->getArchiveGroupIdentifier($document)] = true;
         }
 
         return \count($orderIds) > 1;
+    }
+
+    private function getArchiveGroupIdentifier(DocumentEntity $document): string
+    {
+        $orderId = $document->getOrderId();
+
+        if ($orderId !== '') {
+            return $orderId;
+        }
+
+        return $document->getId();
     }
 
     private function createArchiveName(DocumentCollection $documents): string

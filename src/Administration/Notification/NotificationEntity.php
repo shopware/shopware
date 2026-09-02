@@ -10,6 +10,8 @@ use Shopware\Core\System\User\UserEntity;
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use Shopware\Core\Framework\Notification\NotificationEntity instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class NotificationEntity extends Entity

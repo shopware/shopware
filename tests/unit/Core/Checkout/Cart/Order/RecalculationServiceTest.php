@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -538,6 +539,70 @@ class RecalculationServiceTest extends TestCase
             ->willReturnCallback(static function (Cart $validatedCart) {
                 static::assertCount(1, $validatedCart->getErrors());
                 static::assertInstanceOf(Error::class, $validatedCart->getErrors()->first());
+
+                return [];
+            });
+
+        $recalculationService = new RecalculationService(
+            $entityRepository,
+            $orderConverter,
+            static::createStub(CartService::class),
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $processorMock,
+            $cartRuleLoader,
+            static::createStub(PromotionItemBuilder::class)
+        );
+
+        $recalculationService->addCustomLineItem($order->getId(), new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE), $this->context);
+    }
+
+    public function testKeepsTranslatedErrorOfValidatedCart(): void
+    {
+        $order = $this->orderEntity();
+
+        $entityRepository = static::createStub(EntityRepository::class);
+        $entityRepository->method('search')->willReturnOnConsecutiveCalls(
+            new EntitySearchResult('order', 1, new OrderCollection([$order]), null, new Criteria(), $this->salesChannelContext->getContext()),
+        );
+
+        $cart = new Cart('some-token');
+        $cart->addErrors(new PromotionNotEligibleError('SUMMER'));
+
+        $translatedError = new PromotionNotEligibleError('SUMMER');
+        $translatedError->setTranslatedMessage('Der Gutscheincode wurde nicht angewendet.');
+
+        $validatedCart = new Cart('reloaded-cart');
+        $validatedCart->addErrors($translatedError);
+
+        $processorMock = $this->createMock(Processor::class);
+        $processorMock
+            ->expects($this->once())
+            ->method('process')
+            ->willReturn($cart);
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
+            ->expects($this->once())
+            ->method('loadByCart')
+            ->willReturn(new RuleLoaderResult($validatedCart, new RuleCollection()));
+
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter
+            ->method('assembleSalesChannelContext')
+            ->willReturnCallback($this->assembleSalesChannelContextCallback());
+        $orderConverter
+            ->expects($this->once())
+            ->method('convertToOrder')
+            ->willReturnCallback(static function (Cart $validatedCart) {
+                static::assertCount(1, $validatedCart->getErrors());
+                static::assertSame(
+                    'Der Gutscheincode wurde nicht angewendet.',
+                    $validatedCart->getErrors()->first()?->getTranslatedMessage(),
+                );
 
                 return [];
             });

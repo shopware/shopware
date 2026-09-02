@@ -5,7 +5,9 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -67,12 +69,20 @@ class EntityReadTool extends McpToolResponse
         $definition = $this->registry->getByEntityName($entity);
         $repository = $this->registry->getRepository($entity);
 
-        $criteriaObj = $this->criteriaBuilder->fromArray(
-            $payload,
-            new Criteria([$id]),
-            $definition,
-            $context,
-        );
+        try {
+            $criteriaObj = $this->criteriaBuilder->fromArray(
+                $payload,
+                new Criteria([$id]),
+                $definition,
+                $context,
+            );
+        } catch (SearchRequestException|DataAbstractionLayerException $e) {
+            // Same guard as entity-search and entity-aggregate. It matters most
+            // here because this tool's documented use is "associations" and
+            // "includes", and `{"includes":"id"}` — a string where an array is
+            // wanted — is the shape a caller most easily gets wrong.
+            return $this->invalidCriteriaError($e);
+        }
 
         // Criteria can reference associated entities that require their own read privileges
         // (same association ACL model as the Admin API).

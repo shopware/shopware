@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
@@ -331,6 +330,28 @@ class McpToolResponseConventionTest extends TestCase
         static::assertStringContainsString('/filter/1/equals/field', $result['error']);
     }
 
+    public function testInvalidCriteriaErrorHandlesTheBaseClassThrownDirectly(): void
+    {
+        // The gap a reviewer found on this branch: RequestCriteriaBuilder throws
+        // the BASE DataAbstractionLayerException for some input errors rather
+        // than one of the InvalidFilterQuery / InvalidAggregationQuery
+        // subclasses, so catching only the children let `{"includes":"id"}`
+        // escape to the SDK's generic handler — reproduced on a live lane as
+        // `Error while executing tool`.
+        $result = json_decode(
+            (new McpToolResponseTestHelper())->callInvalidCriteriaError(
+                DataAbstractionLayerException::expectedArrayWithType('includes', 'string')
+            ),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('includes', $result['error']);
+        static::assertStringContainsString('array', $result['error']);
+    }
+
     public function testInvalidCriteriaErrorFallsBackToTheMessageWhenThereAreNoDetails(): void
     {
         $result = json_decode(
@@ -381,7 +402,7 @@ class McpToolResponseTestHelper extends McpToolResponse
         return $this->executeWithDryRun($connection, $context, $operation);
     }
 
-    public function callInvalidCriteriaError(SearchRequestException|InvalidAggregationQueryException|InvalidFilterQueryException $e): string
+    public function callInvalidCriteriaError(SearchRequestException|DataAbstractionLayerException $e): string
     {
         return $this->invalidCriteriaError($e);
     }

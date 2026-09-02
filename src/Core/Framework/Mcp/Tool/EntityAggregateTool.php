@@ -4,9 +4,8 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -47,7 +46,7 @@ class EntityAggregateTool extends McpToolResponse
 
     /**
      * @param string $entity Entity name to aggregate over, e.g. "order" or "product". See the shopware://entities resource for the full list.
-     * @param string $aggregations A JSON ARRAY of Admin API aggregation definitions, as a string. Each element needs "name", "type" and "field" — e.g. [{"name":"order_count","type":"count","field":"id"}] to count orders, or [{"name":"revenue","type":"sum","field":"amountTotal"}] to total them. A bare object rather than an array is the most common mistake and is rejected.
+     * @param string $aggregations A JSON ARRAY of Admin API aggregation definitions, as a string. Each element needs "name" and "type"; every type except "filter" also needs "field" — e.g. [{"name":"order_count","type":"count","field":"id"}] to count orders, or [{"name":"revenue","type":"sum","field":"amountTotal"}] to total them. A "filter" element takes no "field": it wraps another aggregation, so it needs "filter" (an array of filter definitions) and "aggregation" (the nested definition to apply inside it). A bare object rather than an array is the most common mistake and is rejected.
      * @param string $filters A JSON array of Admin API filter definitions, as a string, narrowing what is aggregated — e.g. [{"type":"equals","field":"stateId","value":"..."}]. Defaults to no filter.
      */
     public function __invoke(string $entity, string $aggregations, string $filters = '[]'): string
@@ -94,12 +93,12 @@ class EntityAggregateTool extends McpToolResponse
                 $definition,
                 $context,
             );
-        } catch (SearchRequestException|InvalidAggregationQueryException|InvalidFilterQueryException $e) {
+        } catch (SearchRequestException|DataAbstractionLayerException $e) {
             // Expected/business error, so it is answered rather than propagated:
             // the caller sent an aggregation this entity cannot express, and the
-            // parser already knows which element and why. Only these three are
-            // caught — anything else is unexpected and still belongs in the log
-            // untouched, per the policy in McpToolResponse.
+            // parser already knows which element and why. Scoped to this call,
+            // so an unexpected throwable from the search below still reaches the
+            // log untouched, per the policy in McpToolResponse.
             return $this->invalidCriteriaError($e);
         }
 

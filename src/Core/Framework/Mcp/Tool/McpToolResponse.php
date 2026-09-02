@@ -5,9 +5,8 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
@@ -146,8 +145,16 @@ abstract class McpToolResponse
      * `SearchRequestException` carries one entry per rejected pointer, so the
      * pointer is included: "/aggregations/0/avg/field" tells the caller which
      * element of the array it sent is wrong, which a bare message cannot.
+     *
+     * `DataAbstractionLayerException` rather than its InvalidFilterQuery /
+     * InvalidAggregationQuery subclasses, because the builder throws the BASE
+     * class directly for some input errors — `expectedArrayWithType()` does,
+     * which is what `{"includes":"id"}` produces — and catching only the
+     * children let exactly those escape. Callers scope the catch to the
+     * `fromArray()` call, so this stays criteria parsing and does not swallow
+     * DAL failures from the search or serialization that follow it.
      */
-    protected function invalidCriteriaError(SearchRequestException|InvalidAggregationQueryException|InvalidFilterQueryException $e): string
+    protected function invalidCriteriaError(SearchRequestException|DataAbstractionLayerException $e): string
     {
         if (!$e instanceof SearchRequestException) {
             return $this->error($e->getMessage());

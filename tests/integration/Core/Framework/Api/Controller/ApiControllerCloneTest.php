@@ -113,4 +113,27 @@ class ApiControllerCloneTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
     }
+
+    public function testCloneDoesNotCopyMediaFileSize(): void
+    {
+        $browser = $this->getBrowser();
+        $connection = $browser->getContainer()->get(Connection::class);
+        $testUser = TestUser::createNewTestUser($connection, ['media:create']);
+        $mediaId = $connection->fetchOne('SELECT avatar_id FROM user WHERE id = :id', ['id' => Uuid::fromHexToBytes($testUser->getUserId())]);
+        static::assertIsString($mediaId);
+        $testUser->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/clone/media/' . Uuid::fromBytesToHex($mediaId), [
+            'overwrites' => [
+                'fileName' => 'cloned-media',
+            ],
+            'cloneChildren' => false,
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $cloneId = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['id'];
+        static::assertIsString($cloneId);
+        static::assertNull($connection->fetchOne('SELECT file_size FROM media WHERE id = :id', ['id' => Uuid::fromHexToBytes($cloneId)]));
+    }
 }

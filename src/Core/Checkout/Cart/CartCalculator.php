@@ -34,11 +34,19 @@ class CartCalculator
     }
 
     /**
-     * Applies the state a cart carries once it went through a full calculation: the context hash and the
-     * reset modification flags. Only call this for a cart that the CartRuleLoader processed already,
-     * otherwise use `calculate()`.
+     * Calculates the cart stored under the token, or a new one when the token is unknown.
      */
-    public function markCalculated(Cart $cart, SalesChannelContext $context): Cart
+    public function calculateByToken(string $token, SalesChannelContext $context): Cart
+    {
+        return $this->cartMetrics->measure($context, function () use ($token, $context): Cart {
+            // validate cart against the context rules
+            $cart = $this->cartRuleLoader->loadByToken($context, $token)->getCart();
+
+            return $this->markCalculated($cart, $context);
+        });
+    }
+
+    private function markCalculated(Cart $cart, SalesChannelContext $context): Cart
     {
         $cart->setHash($this->cartContextHasher->generate($cart, $context));
 

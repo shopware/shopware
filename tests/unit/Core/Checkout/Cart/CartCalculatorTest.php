@@ -96,7 +96,7 @@ class CartCalculatorTest extends TestCase
         static::assertSame(self::EXPECTED_HASH, $calculatedCart->getHash());
     }
 
-    public function testMarkCalculatedStampsAnAlreadyCalculatedCart(): void
+    public function testCalculateByToken(): void
     {
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('19d144ffe15f4772860d59fca7f207c1');
@@ -110,8 +110,15 @@ class CartCalculatorTest extends TestCase
         );
         $context->getSalesChannel()->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
+        $cart = $this->getCart();
+
         $cartRuleLoader = $this->createMock(CartRuleLoader::class);
         $cartRuleLoader->expects($this->never())->method('loadByCart');
+        $cartRuleLoader
+            ->expects($this->once())
+            ->method('loadByToken')
+            ->with($context, 'hatoken')
+            ->willReturn(new RuleLoaderResult($cart, new RuleCollection()));
 
         $calculator = new CartCalculator(
             $cartRuleLoader,
@@ -119,12 +126,12 @@ class CartCalculatorTest extends TestCase
             new CartMetricsInstrumentor(static::createStub(Meter::class), new SalesChannelTypeResolver()),
         );
 
-        $markedCart = $calculator->markCalculated($this->getCart(), $context);
+        $calculatedCart = $calculator->calculateByToken('hatoken', $context);
 
-        static::assertSame(self::EXPECTED_HASH, $markedCart->getHash());
-        static::assertFalse($markedCart->isModified());
+        static::assertSame(self::EXPECTED_HASH, $calculatedCart->getHash());
+        static::assertFalse($calculatedCart->isModified());
 
-        foreach ($markedCart->getLineItems() as $lineItem) {
+        foreach ($calculatedCart->getLineItems() as $lineItem) {
             static::assertFalse($lineItem->isModified());
         }
     }

@@ -2,11 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartFactory;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
@@ -25,8 +22,6 @@ class CartLoadRoute extends AbstractCartLoadRoute
      * @internal
      */
     public function __construct(
-        private readonly AbstractCartPersister $persister,
-        private readonly CartFactory $cartFactory,
         private readonly CartCalculator $cartCalculator,
         private readonly TaxProviderProcessor $taxProviderProcessor
     ) {
@@ -47,27 +42,14 @@ class CartLoadRoute extends AbstractCartLoadRoute
         $token = RequestParamHelper::get($request, 'token', $context->getToken());
         $taxed = RequestParamHelper::get($request, 'taxed', false);
 
-        // the resolved cart only went through the CartRuleLoader, so it still carries the hash of its last
-        // persist, which no longer describes the cart once anything behind it changed (a reduced stock, say)
-        $cart = $cart !== null && $cart->getToken() === $token
-            ? $this->cartCalculator->markCalculated($cart, $context)
-            : $this->loadAndCalculate($token, $context);
+        if ($cart === null || $cart->getToken() !== $token) {
+            $cart = $this->cartCalculator->calculateByToken($token, $context);
+        }
 
         if ($taxed) {
             $this->taxProviderProcessor->process($cart, $context);
         }
 
         return new CartResponse($cart);
-    }
-
-    private function loadAndCalculate(string $token, SalesChannelContext $context): Cart
-    {
-        try {
-            $cart = $this->persister->load($token, $context);
-        } catch (CartTokenNotFoundException) {
-            $cart = $this->cartFactory->createNew($token);
-        }
-
-        return $this->cartCalculator->calculate($cart, $context);
     }
 }

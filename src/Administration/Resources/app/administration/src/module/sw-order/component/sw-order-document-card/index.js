@@ -186,8 +186,8 @@ export default {
                     allowResize: false,
                 },
                 {
-                    property: 'documentType.name',
-                    dataIndex: 'documentType.name',
+                    property: this.feature.isActive('DOCUMENT_GENERATION_REWORK') ? 'typeName' : 'documentType.name',
+                    dataIndex: this.feature.isActive('DOCUMENT_GENERATION_REWORK') ? 'typeName' : 'documentType.name',
                     label: 'sw-order.documentCard.labelType',
                     allowResize: false,
                 },
@@ -317,14 +317,7 @@ export default {
             this.documentService.setListener(this.convertStoreEventToVueEvent);
         },
 
-        /**
-         * @deprecated tag:v6.9.0 - The `app_provided` sentinel guard is removed with `document_type_id`.
-         */
         documentTypeLabel(document) {
-            if (document.documentType?.technicalName !== 'app_provided') {
-                return document.documentType?.name ?? '';
-            }
-
             const technicalName = document.typeName;
 
             if (!technicalName) {
@@ -586,9 +579,13 @@ export default {
                         params.deliveryDate,
                         referencedDocumentId,
                     );
-                } catch (_) {
+                } catch (err) {
                     this.createNotificationError({
-                        message: this.$t('sw-order.documentCard.error.createDocument'),
+                        message:
+                            this.documentV2Service.getErrorTranslation(
+                                err.response?.data?.errors?.[0]?.code ?? '',
+                                err.response?.data?.errors?.[0]?.meta.parameters ?? [],
+                            ) ?? this.$t('sw-order.documentCard.error.createDocument'),
                     });
 
                     this.isLoadingDocument = false;
@@ -682,9 +679,13 @@ export default {
                     params.documentMediaFileId,
                     file,
                 );
-            } catch {
+            } catch (err) {
                 this.createNotificationError({
-                    message: this.$t('sw-order.documentCard.error.uploadDocument'),
+                    message:
+                        this.documentV2Service.getErrorTranslation(
+                            err.response?.data?.errors?.[0]?.code ?? '',
+                            err.response?.data?.errors?.[0]?.meta.parameters ?? [],
+                        ) ?? this.$t('sw-order.documentCard.error.uploadDocument'),
                 });
 
                 this.isLoadingDocument = false;
@@ -737,9 +738,23 @@ export default {
                         link.dispatchEvent(new MouseEvent('click'));
                         link.remove();
                     })
-                    .catch(() => {
+                    .catch(async (err) => {
+                        let message;
+
+                        try {
+                            const errorData = await err.response?.data?.text();
+                            const errorJson = JSON.parse(errorData);
+                            message =
+                                this.documentV2Service.getErrorTranslation(
+                                    errorJson.errors?.[0]?.code ?? '',
+                                    errorJson.errors?.[0]?.meta.parameters ?? [],
+                                ) ?? this.$t('sw-order.documentCard.error.loadDocumentPreview');
+                        } catch {
+                            message = this.$t('sw-order.documentCard.error.loadDocumentPreview');
+                        }
+
                         this.createNotificationError({
-                            message: this.$t('sw-order.documentCard.error.loadDocumentPreview'),
+                            message: message,
                         });
                     })
                     .finally(() => {

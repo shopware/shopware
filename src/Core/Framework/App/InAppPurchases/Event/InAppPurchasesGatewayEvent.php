@@ -14,6 +14,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @internal
  *
  * @see InAppPurchasesGateway::process() for an example implementation
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class InAppPurchasesGatewayEvent extends Event

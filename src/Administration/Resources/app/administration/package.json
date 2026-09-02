@@ -58,7 +58,7 @@
   "dependencies": {
     "@shopware-ag/dive": "2.3.4",
     "@shopware-ag/meteor-admin-sdk": "6.14.0",
-    "@shopware-ag/meteor-component-library": "5.7.0",
+    "@shopware-ag/meteor-component-library": "5.7.1",
     "@shopware-ag/meteor-icon-kit": "5.10.0",
     "@swc/core": "1.10.7",
     "@types/fs-extra": "11.0.4",
@@ -193,7 +193,7 @@
     "eslint-plugin-sw-deprecation-rules": "file:eslint-rules/deprecation-rules",
     "eslint-plugin-sw-test-rules": "file:eslint-rules/test-rules",
     "eslint-plugin-twig-vue": "file:twigVuePlugin",
-    "eslint-plugin-vue": "9.32.0",
+    "eslint-plugin-vue": "10.10.0",
     "eslint-plugin-vuejs-accessibility": "2.4.1",
     "eventsource-polyfill": "0.9.6",
     "express": "4.22.2",
@@ -226,6 +226,7 @@
     "ts-jest": "29.4.6",
     "typescript": "5.7.3",
     "typescript-eslint": "8.56.1",
+    "vue-eslint-parser": "10.4.1",
     "vue-sfc-parser": "0.1.2",
     "vue-tsc": "3.3.7",
     "xml2js": "0.6.2"

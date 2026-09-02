@@ -18,13 +18,13 @@ class CheckoutStoreService extends ApiService {
         this.name = 'checkoutStoreService';
     }
 
-    checkout(salesChannelId: string, contextToken: string, additionalParams = {}, additionalHeaders = {}) {
+    checkout(salesChannelId: string, contextToken: string, additionalParams = {}, additionalHeaders = {}, payload = {}) {
         const route = `_proxy-order/${salesChannelId}`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken,
         };
-        return this.httpClient.post(route, {}, { ...additionalParams, headers });
+        return this.httpClient.post(route, payload, { ...additionalParams, headers });
     }
 }
 

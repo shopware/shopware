@@ -89,6 +89,9 @@ class StaticProductProcessorTest extends TestCase
 
         $ids = $criteria->getIds();
         static::assertSame($expectedIds, $ids);
+
+        static::assertTrue($criteria->hasAssociation('options'));
+        static::assertTrue($criteria->getAssociation('options')->hasAssociation('group'));
     }
 
     public function testCollectEventCanModifyCriteria(): void

@@ -612,7 +612,7 @@ export default Shopware.Component.wrapComponentConfig({
                             icon: typeof option.icon === 'string' ? option.icon : undefined,
                             cornerRadius: typeof option.cornerRadius === 'string' ? option.cornerRadius : undefined,
                             description: typeof option.description === 'string' ? option.description : undefined,
-                            disabled: option.disabled === true,
+                            disabled: typeof option.disabled === 'boolean' ? option.disabled : undefined,
                         };
                     })
                     .filter((option) => option.value.length > 0);

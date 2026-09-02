@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Validation;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\IpUtils;
 
 /**
  * @internal
@@ -20,7 +21,7 @@ final readonly class WebhookTargetValidator
     private TrustedUrlResolver $urlResolver;
 
     /**
-     * @param list<string> $allowedPrivateIpAddresses
+     * @param list<string> $allowedPrivateIpAddresses List of IP addresses or CIDR ranges (e.g. "10.0.0.0/8")
      */
     public function __construct(
         private bool $allowUnencryptedTraffic,
@@ -29,7 +30,7 @@ final readonly class WebhookTargetValidator
     ) {
         $this->allowedPrivateIpAddresses = array_values(array_filter(
             $allowedPrivateIpAddresses,
-            static fn (string $ip): bool => filter_var($ip, \FILTER_VALIDATE_IP) !== false
+            static fn (string $ip): bool => self::isValidIpOrCidr($ip)
         ));
         $this->urlResolver = $urlResolver ?? new TrustedUrlResolver(allowedPrivateIps: $this->allowedPrivateIpAddresses);
     }
@@ -53,7 +54,7 @@ final readonly class WebhookTargetValidator
         }
 
         $ipLiteral = trim($host, '[]');
-        if (filter_var($ipLiteral, \FILTER_VALIDATE_IP) !== false && !\in_array($ipLiteral, $this->allowedPrivateIpAddresses, true)) {
+        if (filter_var($ipLiteral, \FILTER_VALIDATE_IP) !== false && !IpUtils::checkIp($ipLiteral, $this->allowedPrivateIpAddresses)) {
             return null;
         }
 
@@ -69,5 +70,26 @@ final readonly class WebhookTargetValidator
     private function isAllowedScheme(string $scheme): bool
     {
         return $scheme === 'https' || ($this->allowUnencryptedTraffic && $scheme === 'http');
+    }
+
+    private static function isValidIpOrCidr(string $value): bool
+    {
+        if (filter_var($value, \FILTER_VALIDATE_IP) !== false) {
+            return true;
+        }
+
+        if (!str_contains($value, '/')) {
+            return false;
+        }
+
+        [$subnet, $prefix] = explode('/', $value, 2);
+
+        if (filter_var($subnet, \FILTER_VALIDATE_IP) === false || !ctype_digit($prefix)) {
+            return false;
+        }
+
+        $maxPrefix = filter_var($subnet, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6) !== false ? 128 : 32;
+
+        return (int) $prefix <= $maxPrefix;
     }
 }

@@ -99,6 +99,41 @@ class WebhookTargetValidatorTest extends TestCase
         static::assertNull($validator->validate('https://example.com/webhook'));
     }
 
+    public function testAllowsIpLiteralWithinConfiguredCidrRange(): void
+    {
+        $validator = new WebhookTargetValidator(false, ['10.0.0.0/8'], new TrustedUrlResolver(static fn (string $host): array => [], allowedPrivateIps: ['10.0.0.0/8']));
+
+        $target = $validator->validate('https://10.0.5.42/webhook');
+
+        static::assertNotNull($target);
+        static::assertSame('10.0.5.42', $target->host);
+        static::assertSame('10.0.5.42', $target->ip);
+    }
+
+    public function testAllowsInternalDnsRecordWithinConfiguredCidrRange(): void
+    {
+        $validator = new WebhookTargetValidator(false, ['10.0.0.0/8'], new TrustedUrlResolver(static fn (string $host): array => ['10.0.5.42'], allowedPrivateIps: ['10.0.0.0/8']));
+
+        $target = $validator->validate('https://internal.example.com/webhook');
+
+        static::assertNotNull($target);
+        static::assertSame('10.0.5.42', $target->ip);
+    }
+
+    public function testRejectsIpLiteralOutsideConfiguredCidrRange(): void
+    {
+        $validator = new WebhookTargetValidator(false, ['10.0.0.0/8'], new TrustedUrlResolver(static fn (string $host): array => [], allowedPrivateIps: ['10.0.0.0/8']));
+
+        static::assertNull($validator->validate('https://192.168.0.1/webhook'));
+    }
+
+    public function testIgnoresInvalidCidrRangeInAllowList(): void
+    {
+        $validator = new WebhookTargetValidator(false, ['10.0.0.0/64'], new TrustedUrlResolver(static fn (string $host): array => []));
+
+        static::assertNull($validator->validate('https://10.0.5.42/webhook'));
+    }
+
     /**
      * @return \Generator<string, array{records: list<string>}>
      */

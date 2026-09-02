@@ -363,14 +363,40 @@ class ConfigurationTest extends TestCase
         static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
     }
 
+    public function testAppSystemNetworkPolicyAllowsCidrRanges(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'allowed_private_ip_addresses' => ['10.0.0.0/8', 'fd00::/8'],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['10.0.0.0/8', 'fd00::/8'], $config['app_system']['allowed_private_ip_addresses']);
+    }
+
     public function testAppSystemNetworkPolicyRejectsInvalidAllowedIpAddress(): void
     {
-        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.app_system.allowed_private_ip_addresses.0": ""not-an-ip"" is not a valid IP address.'));
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.app_system.allowed_private_ip_addresses.0": ""not-an-ip"" is not a valid IP address or CIDR range.'));
 
         (new Processor())->processConfiguration(new Configuration(), [
             [
                 'app_system' => [
                     'allowed_private_ip_addresses' => ['not-an-ip'],
+                ],
+            ],
+        ]);
+    }
+
+    public function testAppSystemNetworkPolicyRejectsInvalidCidrRange(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.app_system.allowed_private_ip_addresses.0": ""10.0.0.0/64"" is not a valid IP address or CIDR range.'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'app_system' => [
+                    'allowed_private_ip_addresses' => ['10.0.0.0/64'],
                 ],
             ],
         ]);

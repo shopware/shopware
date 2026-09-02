@@ -1722,8 +1722,8 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()
                         ->cannotBeEmpty()
                         ->validate()
-                            ->ifTrue(static fn (string $value): bool => filter_var($value, \FILTER_VALIDATE_IP) === false)
-                            ->thenInvalid('"%s" is not a valid IP address.')
+                            ->ifTrue(static fn (string $value): bool => !self::isValidIpOrCidr($value))
+                            ->thenInvalid('"%s" is not a valid IP address or CIDR range.')
                         ->end()
                     ->end()
                 ->end()
@@ -1792,5 +1792,26 @@ class Configuration implements ConfigurationInterface
             ->end();
 
         return $rootNode;
+    }
+
+    private static function isValidIpOrCidr(string $value): bool
+    {
+        if (filter_var($value, \FILTER_VALIDATE_IP) !== false) {
+            return true;
+        }
+
+        if (!str_contains($value, '/')) {
+            return false;
+        }
+
+        [$subnet, $prefix] = explode('/', $value, 2);
+
+        if (filter_var($subnet, \FILTER_VALIDATE_IP) === false || !ctype_digit($prefix)) {
+            return false;
+        }
+
+        $maxPrefix = filter_var($subnet, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6) !== false ? 128 : 32;
+
+        return (int) $prefix <= $maxPrefix;
     }
 }

@@ -163,6 +163,7 @@ function renderScript(
         ...(collected.computeds.length > 0 ? ['computed'] : []),
         ...(watchers.length > 0 ? ['watch'] : []),
         ...(collected.injects.length > 0 ? ['inject'] : []),
+        ...(collected.provided.length > 0 ? ['provide'] : []),
         ...(ctx.helpers.has('nextTick') ? ['nextTick'] : []),
         ...(ctx.helpers.has('slots') ? ['useSlots'] : []),
         ...(ctx.helpers.has('attrs') ? ['useAttrs'] : []),
@@ -228,6 +229,9 @@ function renderScript(
         .map((entry) => `const ${entry.name} = ref(${snip(ctx, entry.valueNode)});`)
         .join('\n');
     const refBlock = [...ctx.templateRefs].map((refName) => `const ${refName} = ref(null);`).join('\n');
+    const provideBlock = collected.provided
+        .map((entry) => `provide('${entry.key}', ${snip(ctx, entry.valueNode)});`)
+        .join('\n');
 
     const publicNames = [
         ...collected.injects,
@@ -272,6 +276,7 @@ function renderScript(
         ...collected.computeds.map((computedEntry) => renderMember(ctx, computedEntry)),
         dataBlock || null,
         refBlock || null,
+        provideBlock || null,
         ...watchers.map((watcher) => renderWatcher(ctx, watcher)),
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
         collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
@@ -404,7 +409,10 @@ function transformScript(
 
     // Data initializers and foreign nodes are spliced in at the top level, so no function frame
     // encloses them.
-    for (const entry of collected.dataEntries) {
+    for (const entry of [
+        ...collected.dataEntries,
+        ...collected.provided,
+    ]) {
         rewriteThis(ctx, entry.valueNode, true);
     }
 

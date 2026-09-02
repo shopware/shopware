@@ -3,7 +3,7 @@
 /**
  * @sw-package after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
@@ -113,6 +113,23 @@ const defaultProps = {
 
 const buttonDeleteClassEntityListing = '.sw-entity-listing__context-menu-edit-delete';
 const buttonDeleteClassDocumentCard = '.sw-order-document-card__context-button-delete';
+
+async function getDocumentAction(wrapper, selector) {
+    const actionMenuButton = wrapper.find('.sw-order-document-card__actions-button');
+
+    if (actionMenuButton.exists()) {
+        await actionMenuButton.trigger('click');
+        await flushPromises();
+
+        return new DOMWrapper(document.body).get(selector);
+    }
+
+    return wrapper.get(selector);
+}
+
+function isDocumentActionDisabled(action) {
+    return action.attributes('aria-disabled') ?? action.attributes('disabled') ?? 'false';
+}
 
 const actionMenuStubs = {
     'mt-action-menu': {
@@ -395,19 +412,22 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 
-    it('should show the select document type modal after clicking on the create new button', async () => {
-        global.activeAclRoles = [
-            'order.editor',
-            'document.viewer',
-        ];
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should show the select document type modal after clicking on the create new button',
+        async () => {
+            global.activeAclRoles = [
+                'order.editor',
+                'document.viewer',
+            ];
 
-        wrapper = await createWrapper();
+            wrapper = await createWrapper();
 
-        const createNewButton = wrapper.find('.sw-order-document-grid-button');
-        await createNewButton.trigger('click');
+            const createNewButton = wrapper.find('.sw-order-document-grid-button');
+            await createNewButton.trigger('click');
 
-        expect(wrapper.find('sw-order-select-document-type-modal').exists()).toBeTruthy();
-    });
+            expect(wrapper.find('sw-order-select-document-type-modal').exists()).toBeTruthy();
+        },
+    );
 
     it('should show the reworked create document modal when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
@@ -441,7 +461,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show Send document modal when click on Send document option', async () => {
-        global.activeAclRoles = ['order.editor'];
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+            'api_send_email',
+        ];
 
         wrapper = await createWrapper();
 
@@ -452,7 +476,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
-        const sendDocumentButton = wrapper.find('.sw-order-document-card__context-button-send');
+        const sendDocumentButton = await getDocumentAction(wrapper, '.sw-order-document-card__context-button-send');
         await sendDocumentButton.trigger('click');
 
         const sendDocumentModal = wrapper.find('sw-order-send-document-modal');
@@ -541,17 +565,20 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         dispatchEventSpy.mockRestore();
     });
 
-    it('should render the legacy context menu actions when the feature flag is inactive', async () => {
-        wrapper = await createWrapper();
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should render the legacy context menu actions when the feature flag is inactive',
+        async () => {
+            wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+            await wrapper.setData({
+                documents: getCollection('document', [
+                    documentFixture,
+                ]),
+            });
 
-        expect(wrapper.find('sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(true);
-    });
+            expect(wrapper.find('sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(true);
+        },
+    );
 
     it('should render the reworked action menu when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
@@ -591,32 +618,35 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         dispatchEventSpy.mockRestore();
     });
 
-    it('should open an existing document through the legacy endpoint when the feature flag is inactive', async () => {
-        global.activeAclRoles = ['document.viewer'];
-        URL.createObjectURL = jest.fn().mockReturnValue('blob:legacy-document');
-        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should open an existing document through the legacy endpoint when the feature flag is inactive',
+        async () => {
+            global.activeAclRoles = ['document.viewer'];
+            URL.createObjectURL = jest.fn().mockReturnValue('blob:legacy-document');
+            const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
 
-        wrapper = await createWrapper();
+            wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+            await wrapper.setData({
+                documents: getCollection('document', [
+                    documentFixture,
+                ]),
+            });
 
-        await wrapper.find('.sw-order-document-card__context-button-open-pdf').trigger('click');
-        await flushPromises();
+            await wrapper.find('.sw-order-document-card__context-button-open-pdf').trigger('click');
+            await flushPromises();
 
-        expect(getDocumentLegacyMock).toHaveBeenCalledWith(
-            documentFixture.id,
-            documentFixture.deepLinkCode,
-            expect.any(Object),
-            true,
-            'pdf',
-        );
-        expect(getDocumentV2Mock).not.toHaveBeenCalled();
-        dispatchEventSpy.mockRestore();
-    });
+            expect(getDocumentLegacyMock).toHaveBeenCalledWith(
+                documentFixture.id,
+                documentFixture.deepLinkCode,
+                expect.any(Object),
+                true,
+                'pdf',
+            );
+            expect(getDocumentV2Mock).not.toHaveBeenCalled();
+            dispatchEventSpy.mockRestore();
+        },
+    );
 
     it('should download an existing document through the V2 endpoint when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
@@ -639,32 +669,35 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         dispatchEventSpy.mockRestore();
     });
 
-    it('should download an existing document through the legacy endpoint when the feature flag is inactive', async () => {
-        global.activeAclRoles = ['document.viewer'];
-        URL.createObjectURL = jest.fn().mockReturnValue('blob:legacy-document');
-        const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should download an existing document through the legacy endpoint when the feature flag is inactive',
+        async () => {
+            global.activeAclRoles = ['document.viewer'];
+            URL.createObjectURL = jest.fn().mockReturnValue('blob:legacy-document');
+            const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
 
-        wrapper = await createWrapper();
+            wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+            await wrapper.setData({
+                documents: getCollection('document', [
+                    documentFixture,
+                ]),
+            });
 
-        await wrapper.find('.sw-order-document-card__context-button-download-pdf').trigger('click');
-        await flushPromises();
+            await wrapper.find('.sw-order-document-card__context-button-download-pdf').trigger('click');
+            await flushPromises();
 
-        expect(getDocumentLegacyMock).toHaveBeenCalledWith(
-            documentFixture.id,
-            documentFixture.deepLinkCode,
-            expect.any(Object),
-            true,
-            'pdf',
-        );
-        expect(getDocumentV2Mock).not.toHaveBeenCalled();
-        dispatchEventSpy.mockRestore();
-    });
+            expect(getDocumentLegacyMock).toHaveBeenCalledWith(
+                documentFixture.id,
+                documentFixture.deepLinkCode,
+                expect.any(Object),
+                true,
+                'pdf',
+            );
+            expect(getDocumentV2Mock).not.toHaveBeenCalled();
+            dispatchEventSpy.mockRestore();
+        },
+    );
 
     it('should use the V2 create endpoint when the feature flag is active', async () => {
         global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
@@ -931,60 +964,66 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.find('sw-card-filter').exists()).toBeTruthy();
     });
 
-    it('should change sent status when click on "Mark as unsent" context menu', async () => {
-        global.activeAclRoles = [];
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should change sent status when click on "Mark as unsent" context menu',
+        async () => {
+            global.activeAclRoles = [];
 
-        wrapper = await createWrapper();
+            wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+            await wrapper.setData({
+                documents: getCollection('document', [
+                    documentFixture,
+                ]),
+            });
 
-        expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBe('true');
+            expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBe('true');
 
-        // Mark as sent option is disabled
-        const markSentButton = wrapper.find('.sw-order-document-card__context-button-mark-sent');
-        expect(markSentButton.attributes('disabled')).toBe('true');
+            // Mark as sent option is disabled
+            const markSentButton = wrapper.find('.sw-order-document-card__context-button-mark-sent');
+            expect(markSentButton.attributes('disabled')).toBe('true');
 
-        // Mark as unsent
-        const markUnsentButton = wrapper.find('.sw-order-document-card__context-button-mark-unsent');
-        await markUnsentButton.trigger('click');
+            // Mark as unsent
+            const markUnsentButton = wrapper.find('.sw-order-document-card__context-button-mark-unsent');
+            await markUnsentButton.trigger('click');
 
-        expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBeFalsy();
-        expect(markUnsentButton.attributes('disabled')).toBe('true');
-    });
+            expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBeFalsy();
+            expect(markUnsentButton.attributes('disabled')).toBe('true');
+        },
+    );
 
-    it('should change sent status when click on "Mark as sent" context menu', async () => {
-        global.activeAclRoles = [];
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should change sent status when click on "Mark as sent" context menu',
+        async () => {
+            global.activeAclRoles = [];
 
-        wrapper = await createWrapper();
+            wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                {
-                    ...documentFixture,
-                    sent: false,
-                },
-            ]),
-        });
+            await wrapper.setData({
+                documents: getCollection('document', [
+                    {
+                        ...documentFixture,
+                        sent: false,
+                    },
+                ]),
+            });
 
-        const spyMarkDocumentAsSent = jest.spyOn(wrapper.vm, 'markDocumentAsSent');
+            const spyMarkDocumentAsSent = jest.spyOn(wrapper.vm, 'markDocumentAsSent');
 
-        expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBe('false');
+            expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBe('false');
 
-        // Mark as unsent option is disabled
-        const markUnsentButton = wrapper.find('.sw-order-document-card__context-button-mark-unsent');
-        expect(markUnsentButton.attributes('disabled')).toBe('true');
+            // Mark as unsent option is disabled
+            const markUnsentButton = wrapper.find('.sw-order-document-card__context-button-mark-unsent');
+            expect(markUnsentButton.attributes('disabled')).toBe('true');
 
-        // Mark as unsent
-        const markSentButton = wrapper.find('.sw-order-document-card__context-button-mark-sent');
-        await markSentButton.trigger('click');
+            // Mark as unsent
+            const markSentButton = wrapper.find('.sw-order-document-card__context-button-mark-sent');
+            await markSentButton.trigger('click');
 
-        expect(spyMarkDocumentAsSent).toHaveBeenCalledTimes(1);
-        expect(markSentButton.attributes('disabled')).toBe('true');
-    });
+            expect(spyMarkDocumentAsSent).toHaveBeenCalledTimes(1);
+            expect(markSentButton.attributes('disabled')).toBe('true');
+        },
+    );
 
     it('should show Send mail modal when choosing option Create and send in Create document modal', async () => {
         global.activeAclRoles = ['order.editor'];
@@ -1267,9 +1306,9 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
+        const deleteButton = await getDocumentAction(wrapper, buttonDeleteClassDocumentCard);
         expect(deleteButton.exists()).toBe(true);
-        expect(deleteButton.attributes('disabled')).toBe('false');
+        expect(isDocumentActionDisabled(deleteButton)).toBe('false');
     });
 
     it('should disable the delete-button when attachView is true', async () => {
@@ -1291,7 +1330,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         const deleteButton = wrapper.find(buttonDeleteClassEntityListing);
         expect(deleteButton.exists()).toBe(true);
-        expect(deleteButton.attributes('disabled')).toBe('true');
+        expect(isDocumentActionDisabled(deleteButton)).toBe('true');
     });
 
     it('should have a disabled delete-button with missing permissions', async () => {
@@ -1305,9 +1344,9 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
-        const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
+        const deleteButton = await getDocumentAction(wrapper, buttonDeleteClassDocumentCard);
         expect(deleteButton.exists()).toBe(true);
-        expect(deleteButton.attributes('disabled')).toBe('true');
+        expect(isDocumentActionDisabled(deleteButton)).toBe('true');
     });
 
     it('should open the delete confirmation modal when delete button was clicked', async () => {
@@ -1323,7 +1362,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(wrapper.find('.sw-modal').exists()).toBe(false);
 
-        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+        await (await getDocumentAction(wrapper, buttonDeleteClassDocumentCard)).trigger('click');
 
         await flushPromises();
 
@@ -1353,7 +1392,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
 
-        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+        await (await getDocumentAction(wrapper, buttonDeleteClassDocumentCard)).trigger('click');
 
         await flushPromises();
 
@@ -1366,7 +1405,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should not remove the document from the list when delete return an exception', async () => {
-        global.activeAclRoles = ['document.viewer'];
+        global.activeAclRoles = ['document.deleter'];
 
         wrapper = await createWrapper();
 
@@ -1393,7 +1432,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
 
-        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
+        await (await getDocumentAction(wrapper, buttonDeleteClassDocumentCard)).trigger('click');
 
         await flushPromises();
 

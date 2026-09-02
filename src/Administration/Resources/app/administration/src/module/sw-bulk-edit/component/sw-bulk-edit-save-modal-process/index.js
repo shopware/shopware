@@ -12,6 +12,7 @@ export default {
     template,
 
     inject: {
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
         orderDocumentApiService: {},
         repositoryFactory: {},
         syncService: {},
@@ -222,6 +223,9 @@ export default {
             );
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         async createDocument(documentType, payload) {
             if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
                 return this.createDocumentV2(documentType, payload);
@@ -328,6 +332,9 @@ export default {
             return new Set(documents.map((document) => document.orderId));
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         getDocumentGenerationResult(response, documentType, requested) {
             const generatedDocuments = response?.data?.data;
 
@@ -346,6 +353,9 @@ export default {
             };
         },
 
+        /**
+         * @deprecated tag:v6.9.0 - Removed with document generation v1.
+         */
         getFailedDocumentGenerationItems(errors, documentType) {
             return Object.entries(errors).map(
                 ([

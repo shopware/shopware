@@ -48,8 +48,10 @@ function createCustomerMock() {
     };
 }
 
-async function createWrapper(propsData, customerResponse = createCustomerMock()) {
-    return mount(await wrapTestComponent('sw-order-address-selection', { sync: true }), {
+async function createWrapper(propsData, customerResponse = createCustomerMock(), { customerGet } = {}) {
+    const getCustomer = customerGet ?? jest.fn(() => Promise.resolve(customerResponse));
+
+    const wrapper = mount(await wrapTestComponent('sw-order-address-selection', { sync: true }), {
         global: {
             directives: {
                 popover: {},
@@ -118,7 +120,7 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
                         save: () => {
                             return Promise.resolve();
                         },
-                        get: () => Promise.resolve(customerResponse),
+                        get: getCustomer,
                         create: () => ({
                             _isNew: true,
                             getEntityName: () => 'customer_address',
@@ -164,6 +166,10 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
             ...propsData,
         },
     });
+
+    wrapper.vm.customerGetMock = getCustomer;
+
+    return wrapper;
 }
 
 describe('src/module/sw-order/component/sw-order-address-selection', () => {
@@ -177,6 +183,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                 isLoading: false,
                 isSavedSuccessful: false,
                 versionContext: {},
+                customer: null,
                 order: {
                     addresses: [
                         {
@@ -197,11 +204,24 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                     },
                 },
             }),
+            actions: {
+                setCustomer(customer) {
+                    this.customer = customer;
+                },
+            },
         });
     });
 
     beforeEach(async () => {
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
         wrapper = await createWrapper();
+        await flushPromises();
+    });
+
+    afterEach(async () => {
+        if (wrapper) {
+            wrapper.unmount();
+        }
     });
 
     it('should be able to edit address', async () => {
@@ -284,6 +304,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     });
 
     it('should not offer to create a new address when the customer was deleted', async () => {
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
         wrapper = await createWrapper({}, null);
         await flushPromises();
 
@@ -298,10 +319,10 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     });
 
     it('should select a newly created address after saving it', async () => {
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
         wrapper = await createWrapper({
             type: 'shipping',
         });
-
         await flushPromises();
 
         wrapper.vm.createNewCustomerAddress();
@@ -318,6 +339,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         wrapper.vm.isValidAddress = jest.fn(() => true);
 
         await wrapper.vm.onSaveAddress();
+        await flushPromises();
 
         expect(wrapper.emitted('change-address')).toEqual([
             [
@@ -329,11 +351,10 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                 },
             ],
         ]);
+        expect(wrapper.vm.customerGetMock).toHaveBeenCalledTimes(2);
     });
 
     it('should keep id on options for addresses where id is not enumerable via spread', async () => {
-        await flushPromises();
-
         const newAddressId = 'new-customer-address-without-enumerable-id';
         const draft = {
             street: 'Ada Street 1',
@@ -379,6 +400,279 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         ]);
     });
 
+    it('should share reloaded customer addresses with sibling selectors', async () => {
+        const reloadedCustomer = createCustomerMock();
+        reloadedCustomer.addresses.push({
+            street: 'Shared Street',
+            zipcode: '99999',
+            city: 'Shared City',
+            id: 'shared-new-address-id',
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
+            hash: 'sharedNew',
+            getEntityName: () => 'customer_address',
+        });
+
+        const customerGet = jest.fn().mockResolvedValueOnce(createCustomerMock()).mockResolvedValueOnce(reloadedCustomer);
+
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
+        wrapper = await createWrapper({ type: 'billing' }, createCustomerMock(), { customerGet });
+        await flushPromises();
+
+        const shippingWrapper = await createWrapper({ type: 'shipping' }, createCustomerMock(), {
+            customerGet: jest.fn(() => Promise.resolve(createCustomerMock())),
+        });
+        await flushPromises();
+
+        // Second selector skips fetch when store already has the same customer
+        expect(shippingWrapper.vm.customerGetMock).not.toHaveBeenCalled();
+        expect(shippingWrapper.vm.customer).toBe(wrapper.vm.customer);
+
+        wrapper.vm.createNewCustomerAddress();
+        Object.assign(wrapper.vm.currentAddress, {
+            id: 'shared-new-address-id',
+            street: 'Shared Street',
+            zipcode: '99999',
+            city: 'Shared City',
+            countryId: 'countryId',
+        });
+        wrapper.vm.isValidAddress = jest.fn(() => true);
+
+        await wrapper.vm.onSaveAddress();
+        await flushPromises();
+
+        expect(customerGet).toHaveBeenCalledTimes(2);
+        expect(shippingWrapper.vm.addressOptions.some((option) => option.id === 'shared-new-address-id')).toBe(true);
+
+        shippingWrapper.unmount();
+    });
+
+    it('should dedupe reloaded customer address that matches the order address hash', async () => {
+        const reloadedCustomer = createCustomerMock();
+        // Same content/hash as the current order address → must not appear twice in options
+        reloadedCustomer.addresses.push({
+            street: 'Denesik Bridge',
+            zipcode: '05132',
+            city: 'Bernierstad',
+            company: 'Muster SE',
+            department: 'People & Culture',
+            id: 'new-but-same-hash-address',
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
+            countryState: {
+                translated: {
+                    name: 'NRW',
+                },
+            },
+            hash: 'isDuplicate',
+            getEntityName: () => 'customer_address',
+        });
+
+        const customerGet = jest.fn().mockResolvedValueOnce(createCustomerMock()).mockResolvedValueOnce(reloadedCustomer);
+
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
+        wrapper = await createWrapper({}, createCustomerMock(), { customerGet });
+        await flushPromises();
+
+        wrapper.vm.createNewCustomerAddress();
+        Object.assign(wrapper.vm.currentAddress, {
+            id: 'new-but-same-hash-address',
+            street: 'Denesik Bridge',
+            zipcode: '05132',
+            city: 'Bernierstad',
+            company: 'Muster SE',
+            department: 'People & Culture',
+            countryId: 'countryId',
+        });
+        wrapper.vm.isValidAddress = jest.fn(() => true);
+
+        await wrapper.vm.onSaveAddress();
+        await flushPromises();
+
+        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
+
+        expect(optionsWithSameStreet).toHaveLength(1);
+        expect(optionsWithSameStreet[0].id).toBe('38e8895864a649a1b2ec806dad02ab87');
+        expect(wrapper.vm.addressOptions.some((option) => option.id === 'new-but-same-hash-address')).toBe(false);
+    });
+
+    it('should dedupe customer address matching order content when hash is missing', async () => {
+        await flushPromises();
+
+        wrapper.vm.customer.addresses.push({
+            street: 'Denesik Bridge',
+            zipcode: '05132',
+            city: 'Bernierstad',
+            company: 'Muster SE',
+            department: 'People & Culture',
+            id: 'same-content-without-hash',
+            countryId: undefined,
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
+            countryState: {
+                translated: {
+                    name: 'NRW',
+                },
+            },
+            getEntityName: () => 'customer_address',
+        });
+
+        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
+
+        expect(optionsWithSameStreet).toHaveLength(1);
+        expect(optionsWithSameStreet[0].id).toBe('38e8895864a649a1b2ec806dad02ab87');
+        expect(wrapper.vm.addressOptions.some((option) => option.id === 'same-content-without-hash')).toBe(false);
+    });
+
+    it('should keep selected customer address once when it matches order content', async () => {
+        const selectedCustomerAddressId = 'selected-same-content-address';
+
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
+        wrapper = await createWrapper({
+            addressId: selectedCustomerAddressId,
+        });
+        await flushPromises();
+
+        wrapper.vm.customer.addresses.push({
+            street: 'Denesik Bridge',
+            zipcode: '05132',
+            city: 'Bernierstad',
+            company: 'Muster SE',
+            department: 'People & Culture',
+            id: selectedCustomerAddressId,
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
+            countryState: {
+                translated: {
+                    name: 'NRW',
+                },
+            },
+            getEntityName: () => 'customer_address',
+        });
+
+        const optionsWithSameStreet = wrapper.vm.addressOptions.filter((option) => option.street === 'Denesik Bridge');
+
+        expect(optionsWithSameStreet).toHaveLength(1);
+        expect(optionsWithSameStreet[0].id).toBe(selectedCustomerAddressId);
+        expect(wrapper.vm.addressOptions.some((option) => option.id === '38e8895864a649a1b2ec806dad02ab87')).toBe(false);
+    });
+
+    it('should keep both options when company and department differ', async () => {
+        const selectedCustomerAddressId = 'different-company-address';
+
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
+        wrapper = await createWrapper({
+            addressId: selectedCustomerAddressId,
+            address: {
+                street: 'Denesik Bridge',
+                zipcode: '05132',
+                city: 'Bernierstad',
+                company: 'Muster SE',
+                department: 'People & Culture',
+                id: '38e8895864a649a1b2ec806dad02ab87',
+                hash: 'order-hash-a',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                countryId: 'country-order',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
+                    },
+                },
+                getEntityName: () => 'order_address',
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.customer.addresses = new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+            {
+                street: 'Denesik Bridge',
+                zipcode: '05132',
+                city: 'Bernierstad',
+                company: 'Other Company',
+                department: 'Sales',
+                id: selectedCustomerAddressId,
+                hash: 'customer-hash-b',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                countryId: 'country-customer',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
+                    },
+                },
+                getEntityName: () => 'customer_address',
+            },
+        ]);
+
+        const optionIds = wrapper.vm.addressOptions.map((option) => option.id);
+
+        expect(optionIds).toContain(selectedCustomerAddressId);
+        expect(optionIds).toContain('38e8895864a649a1b2ec806dad02ab87');
+    });
+
+    it('should keep both options when only company differs', async () => {
+        const selectedCustomerAddressId = 'no-company-customer-address';
+
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
+        wrapper = await createWrapper({
+            addressId: selectedCustomerAddressId,
+            address: {
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                street: 'Denesik Bridge',
+                zipcode: '05132',
+                city: 'Bernierstad',
+                company: 'Active Company GmbH',
+                id: '38e8895864a649a1b2ec806dad02ab87',
+                hash: 'order-with-company',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
+                    },
+                },
+                getEntityName: () => 'order_address',
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.customer.addresses = new EntityCollection('/customer_address', 'customer_address', Context.api, null, [
+            {
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                street: 'Denesik Bridge',
+                zipcode: '05132',
+                city: 'Bernierstad',
+                company: null,
+                id: selectedCustomerAddressId,
+                hash: 'customer-without-company',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
+                    },
+                },
+                getEntityName: () => 'customer_address',
+            },
+        ]);
+
+        const optionIds = wrapper.vm.addressOptions.map((option) => option.id);
+
+        expect(optionIds).toContain(selectedCustomerAddressId);
+        expect(optionIds).toContain('38e8895864a649a1b2ec806dad02ab87');
+    });
+
     it('should be able to get the options with props', async () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
@@ -402,6 +696,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
     });
 
     it('should be able to get the options with not props', async () => {
+        Shopware.Store.get('swOrderDetail').setCustomer(null);
         wrapper = await createWrapper({
             address: null,
             addressId: null,

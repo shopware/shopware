@@ -16,6 +16,7 @@ const swOrderDetailStore = Shopware.Store.register({
     state() {
         return {
             order: null as EntitySchema.order | null,
+            customer: null as EntitySchema.customer | null,
             loading: {
                 order: false, // live version id
                 recalculation: false, // custom version id
@@ -48,6 +49,10 @@ const swOrderDetailStore = Shopware.Store.register({
                 return;
             }
             this.loading[name] = data;
+        },
+
+        setCustomer(customer: EntitySchema.customer | null) {
+            this.customer = customer;
         },
 
         setOrderAddressIds(value?: OrderAddressId | null) {

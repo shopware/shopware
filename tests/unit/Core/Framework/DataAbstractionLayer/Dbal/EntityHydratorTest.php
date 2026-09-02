@@ -134,11 +134,8 @@ class EntityHydratorTest extends TestCase
             ],
         ];
 
-        $container = new ContainerBuilder();
-        $hydrator = new TranslatableTestHydrator($container);
-        $container->set(TranslatableTestHydrator::class, $hydrator);
-
-        $structs = $hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
+        $structs = $this->createTranslatableHydrator()
+            ->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
         $first = $structs->first();

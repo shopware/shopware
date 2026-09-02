@@ -16,6 +16,9 @@ export const USER_THEME_CONFIG_KEY = 'core.userTheme';
  * Preference used before the user has chosen a theme. The Administration
  * starts in light mode instead of following the operating system.
  *
+ * Mirrored by the inline pre-boot script in
+ * `Resources/shared/page-loading-screen/page-loading-screen.js`, keep both in sync.
+ *
  * @private
  */
 export const DEFAULT_THEME: Theme = 'light';

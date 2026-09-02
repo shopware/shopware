@@ -147,8 +147,8 @@ shopware:
         theme:
         asset:
         sitemap:
-        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html"]
-        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml"]
+        allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "csv", "xls", "xlsx", "html", "vtt", "srt", "sub", "ass", "ssa"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "avif", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "docx", "ico", "glb", "zip", "rar", "csv", "xls", "xlsx", "html", "xml", "vtt", "srt", "sub", "ass", "ssa"]
         private_local_download_strategy: "php"
 
     cdn:
@@ -598,3 +598,6 @@ shopware:
     product:
         search_keyword:
             relevant_keyword_count: 8
+    app_system:
+        allow_unencrypted_traffic: false
+        allowed_private_ip_addresses: []

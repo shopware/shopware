@@ -22,7 +22,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -45,12 +47,38 @@ class DocumentRouteTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    private static bool $rateLimitedKernelBooted = false;
+
+    public static function setUpBeforeClass(): void
+    {
+        DisableRateLimiterCompilerPass::disableNoLimit();
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        DisableRateLimiterCompilerPass::enableNoLimit();
+        // shut down only: the next class boots its kernel lazily inside a test context, which
+        // recompiles with the rate limiter restored
+        KernelLifecycleManager::ensureKernelShutdown();
+        self::$rateLimitedKernelBooted = false;
+    }
+
     protected function setUp(): void
     {
+        // the rate-limiter pass applies at container compile time, so this class needs a freshly
+        // compiled kernel. It is booted here rather than in setUpBeforeClass(): a deprecation
+        // triggered during a static-context kernel boot has no TestCase object on the call stack
+        // and crashes PHPUnit's event system instead of being recorded
+        if (!self::$rateLimitedKernelBooted) {
+            KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+            self::$rateLimitedKernelBooted = true;
+        }
+
         $this->ids = new IdsCollection();
 
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
         static::getContainer()->get(DocumentConfigLoader::class)->reset();
+        static::getContainer()->get('cache.rate_limiter')->clear();
 
         $this->createCustomer(null, false, ['id' => $this->ids->get('customer')]);
         $this->createCustomer(null, true, ['id' => $this->ids->get('guest')]);
@@ -186,6 +214,18 @@ class DocumentRouteTest extends TestCase
             'withValidDeepLinkCode' => true,
             'expectedException' => WrongGuestCredentialsException::class,
             'expectedErrorCode' => OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
+        ];
+
+        yield 'guest with invalid request params and invalid deep link code' => [
+            'orderCustomerId' => 'guest',
+            'loggedInCustomerId' => null,
+            'requestParameters' => [
+                'email' => 'invalid',
+                'zipcode' => 'invalid',
+            ],
+            'withValidDeepLinkCode' => false,
+            'expectedException' => DocumentException::class,
+            'expectedErrorCode' => DocumentException::DOCUMENT_NOT_FOUND,
         ];
 
         yield 'guest with correct request params and without deep link code' => [

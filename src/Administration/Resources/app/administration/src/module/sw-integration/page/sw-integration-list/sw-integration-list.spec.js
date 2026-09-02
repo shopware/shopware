@@ -8,7 +8,6 @@ async function createWrapper(privileges = [], integrations = null, options = {})
     const defaultIntegrations = integrations ?? [{ id: '44de136acf314e7184401d36406c1e90' }];
     const saveMock = options.saveMock ?? jest.fn().mockResolvedValue();
     const searchMock = options.searchMock ?? jest.fn().mockResolvedValue(defaultIntegrations);
-    const updateAdminMock = options.updateAdminMock ?? jest.fn().mockResolvedValue();
     const wrapper = mount(await wrapTestComponent('sw-integration-list', { sync: true }), {
         global: {
             provide: {
@@ -37,7 +36,6 @@ async function createWrapper(privileges = [], integrations = null, options = {})
                             secretAccessKey: 'YzFnaFprUjdaZUI4WkJsSmVOcHNOTnI5bUNqc2o4YUx0WmFIb3Y',
                         });
                     },
-                    updateAdmin: updateAdminMock,
                 },
 
                 acl: {
@@ -218,7 +216,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(modalAfterSave.exists()).toBeFalsy();
     });
 
-    it('should update the admin flag through the integration service', async () => {
+    it('should save a changed admin flag through the repository', async () => {
         const integration = {
             id: '44de136acf314e7184401d36406c1e90',
             label: 'Test integration',
@@ -229,7 +227,6 @@ describe('module/sw-integration/page/sw-integration-list', () => {
             },
         };
         const saveMock = jest.fn().mockResolvedValue();
-        const updateAdminMock = jest.fn().mockResolvedValue();
         const searchMock = jest.fn().mockResolvedValue([integration]);
 
         const wrapper = await createWrapper(
@@ -241,7 +238,6 @@ describe('module/sw-integration/page/sw-integration-list', () => {
             {
                 saveMock,
                 searchMock,
-                updateAdminMock,
             },
         );
 
@@ -249,37 +245,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await flushPromises();
 
         expect(saveMock).toHaveBeenCalledWith(integration);
-        expect(updateAdminMock).toHaveBeenCalledWith(integration.id, true);
         expect(searchMock).toHaveBeenCalledTimes(2);
-    });
-
-    it('should not update the admin flag when it was not changed', async () => {
-        const integration = {
-            id: '44de136acf314e7184401d36406c1e90',
-            label: 'Test integration',
-            admin: false,
-            aclRoles: [],
-            getOrigin: () => {
-                return { admin: false };
-            },
-        };
-        const updateAdminMock = jest.fn().mockResolvedValue();
-
-        const wrapper = await createWrapper(
-            [
-                'admin',
-                'integration.editor',
-            ],
-            [integration],
-            {
-                updateAdminMock,
-            },
-        );
-
-        await wrapper.vm.updateIntegration(integration);
-        await flushPromises();
-
-        expect(updateAdminMock).not.toHaveBeenCalled();
     });
 
     it('should be able to delete a integration', async () => {

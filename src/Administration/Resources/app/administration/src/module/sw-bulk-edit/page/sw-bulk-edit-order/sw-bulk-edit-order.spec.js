@@ -840,8 +840,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         global.activeFeatureFlags = [];
     });
 
-    // @deprecated tag:v6.8.0 - The legacy document generation flow will be removed with the rework.
-    it.deprecated('v6.8.0.0')(
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK',
         async () => {
             wrapper = await createWrapper();

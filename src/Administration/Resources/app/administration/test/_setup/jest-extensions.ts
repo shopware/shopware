@@ -13,6 +13,7 @@ type EachRegister = (name: string, callback: jest.ProvidesCallback, timeout?: nu
 // invokes as (strings, ...values). Forward every argument so interpolated values are not dropped.
 type EachArgs = [table: EachTable] | [strings: TemplateStringsArray, ...values: unknown[]];
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
+const pendingInactiveFeatureFlagsSymbol = Symbol.for('shopware.pendingInactiveFeatureFlags');
 
 function getActiveFeatureFlags(): string[] {
     return globalThis.activeFeatureFlags ?? [];
@@ -84,5 +85,34 @@ export function createActiveFeatureFlagsTest(testFunction: jest.It): jest.It['ac
     };
 }
 
+/** @private */
+export function createInactiveFeatureFlagsTest(testFunction: jest.It): jest.It['inactiveFeatureFlags'] {
+    return (featureFlags: readonly string[]) => {
+        const run = ((name: string, callback?: TestCallback, timeout?: number) => {
+            Reflect.set(globalThis, pendingInactiveFeatureFlagsSymbol, featureFlags.map(normalizeFeatureFlag));
+
+            try {
+                testFunction(name, callback as jest.ProvidesCallback, timeout);
+            } finally {
+                Reflect.deleteProperty(globalThis, pendingInactiveFeatureFlagsSymbol);
+            }
+        }) as jest.FeatureFlagTest;
+
+        run.each = ((...eachArgs: EachArgs) =>
+            (name: string, callback: jest.ProvidesCallback, timeout?: number) => {
+                Reflect.set(globalThis, pendingInactiveFeatureFlagsSymbol, featureFlags.map(normalizeFeatureFlag));
+
+                try {
+                    (testFunction.each as (...args: EachArgs) => EachRegister)(...eachArgs)(name, callback, timeout);
+                } finally {
+                    Reflect.deleteProperty(globalThis, pendingInactiveFeatureFlagsSymbol);
+                }
+            }) as jest.It['each'];
+
+        return run;
+    };
+}
+
 it.deprecated = createDeprecatedTest(it);
 it.activeFeatureFlags = createActiveFeatureFlagsTest(it);
+it.inactiveFeatureFlags = createInactiveFeatureFlagsTest(it);

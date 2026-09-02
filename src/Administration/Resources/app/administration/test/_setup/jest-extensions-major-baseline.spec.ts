@@ -50,4 +50,9 @@ describe('Jest feature flag extensions with a major baseline', () => {
         ]);
         expect(Shopware.Feature.isActive('v6.8.0.0')).toBeTruthy();
     });
+
+    it.inactiveFeatureFlags(['v6.8.0.0'])('removes a feature flag from the major baseline for one test', () => {
+        expect(globalThis.activeFeatureFlags).toEqual([]);
+        expect(Shopware.Feature.isActive('v6.8.0.0')).toBeFalsy();
+    });
 });

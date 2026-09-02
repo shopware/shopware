@@ -22,10 +22,12 @@
 const { TestEnvironment } = require('jest-environment-jsdom');
 
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
+const pendingInactiveFeatureFlagsSymbol = Symbol.for('shopware.pendingInactiveFeatureFlags');
 const defaultActiveFeatureFlagsSymbol = Symbol.for('shopware.defaultActiveFeatureFlags');
 
 class FeatureFlagTestEnvironment extends TestEnvironment {
     activeFeatureFlagsByTest = new WeakMap();
+    inactiveFeatureFlagsByTest = new WeakMap();
 
     handleTestEvent(event, state) {
         if (event.name === 'add_test') {
@@ -38,21 +40,27 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
                 this.activeFeatureFlagsByTest.set(registeredTest, featureFlags);
             }
 
+            const inactiveFeatureFlags = this.global[pendingInactiveFeatureFlagsSymbol];
+            if (inactiveFeatureFlags && registeredTest) {
+                this.inactiveFeatureFlagsByTest.set(registeredTest, inactiveFeatureFlags);
+            }
+
             return;
         }
 
         if (event.name === 'test_start') {
             const featureFlags = this.activeFeatureFlagsByTest.get(event.test);
+            const inactiveFeatureFlags = this.inactiveFeatureFlagsByTest.get(event.test) ?? [];
 
-            if (!featureFlags) {
+            if (!featureFlags && inactiveFeatureFlags.length === 0) {
                 return;
             }
 
             const defaultActiveFeatureFlags = this.global[defaultActiveFeatureFlagsSymbol] ?? [];
             const activeFeatureFlags = [
                 ...new Set([
-                    ...defaultActiveFeatureFlags,
-                    ...featureFlags,
+                    ...defaultActiveFeatureFlags.filter((flag) => !inactiveFeatureFlags.includes(flag)),
+                    ...(featureFlags ?? []),
                 ]),
             ];
 
@@ -81,7 +89,7 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
         // Past this point the event is one of test_done / test_skip / test_todo, i.e. the test is
         // finished. Only tests the helper registered flags for need restoring; everything else never
         // had them changed.
-        if (!this.activeFeatureFlagsByTest.has(event.test)) {
+        if (!this.activeFeatureFlagsByTest.has(event.test) && !this.inactiveFeatureFlagsByTest.has(event.test)) {
             return;
         }
 

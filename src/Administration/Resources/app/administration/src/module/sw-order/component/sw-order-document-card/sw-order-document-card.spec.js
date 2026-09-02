@@ -393,8 +393,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 
-    // @deprecated tag:v6.8.0 - The legacy document type modal will be removed with the rework.
-    it.deprecated('v6.8.0.0')(
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should show the select document type modal after clicking on the create new button',
         async () => {
             global.activeAclRoles = [
@@ -557,8 +557,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0 - The legacy context menu will be removed with the document rework.
-    it.deprecated('v6.8.0.0')(
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should render the legacy context menu actions when the feature flag is inactive',
         async () => {
             wrapper = await createWrapper();
@@ -616,8 +616,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0 - The legacy document endpoint will be removed with the document rework.
-    it.deprecated('v6.8.0.0')(
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should open an existing document through the legacy endpoint when the feature flag is inactive',
         async () => {
             global.activeAclRoles = ['document.viewer'];
@@ -670,8 +670,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0 - The legacy document endpoint will be removed with the document rework.
-    it.deprecated('v6.8.0.0')(
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should download an existing document through the legacy endpoint when the feature flag is inactive',
         async () => {
             global.activeAclRoles = ['document.viewer'];
@@ -1100,8 +1100,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper.vm.downloadDocument.mockRestore();
     });
 
-    // @deprecated tag:v6.8.0 - The legacy document settings modals will be removed with the rework.
-    it.deprecated('v6.8.0.0').each([
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK']).each([
         {
             technicalName: DOCUMENT_TYPES.ZUGFERD_INVOICE,
             inputSelector: '.sw-order-document-settings-invoice-modal__document-number input',
@@ -1169,31 +1169,34 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         },
     );
 
-    // @deprecated tag:v6.8.0 - The legacy document settings modal will be removed with the rework.
-    it.deprecated('v6.8.0.0')('should call downloadDocument with pdf fileType for regular invoice', async () => {
-        global.activeAclRoles = ['order.editor'];
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+        'should call downloadDocument with pdf fileType for regular invoice',
+        async () => {
+            global.activeAclRoles = ['order.editor'];
 
-        wrapper = await createWrapper();
+            wrapper = await createWrapper();
 
-        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
+            const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
 
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '1',
-                name: 'Invoice',
-                technicalName: 'invoice',
-                translated: { name: 'Invoice' },
-            },
-            showModal: true,
-        });
+            await wrapper.setData({
+                currentDocumentType: {
+                    id: '1',
+                    name: 'Invoice',
+                    technicalName: 'invoice',
+                    translated: { name: 'Invoice' },
+                },
+                showModal: true,
+            });
 
-        await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
-        await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
-        await flushPromises();
+            await wrapper.find('.sw-order-document-settings-invoice-modal__document-number input').setValue('1000');
+            await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
+            await flushPromises();
 
-        expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'pdf');
-        downloadDocumentSpy.mockRestore();
-    });
+            expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'pdf');
+            downloadDocumentSpy.mockRestore();
+        },
+    );
 
     it('should show permission tooltip message on Create document button correctly', async () => {
         global.activeAclRoles = [];

@@ -37,6 +37,9 @@ declare global {
 
             /** Activate the given feature flags for the duration of this test. */
             activeFeatureFlags(featureFlags: readonly string[]): FeatureFlagTest;
+
+            /** Deactivate the given feature flags for the duration of this test. */
+            inactiveFeatureFlags(featureFlags: readonly string[]): FeatureFlagTest;
         }
     }
 }

@@ -106,60 +106,66 @@ async function createWrapper(sequence = {}) {
 }
 
 describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
-    // @deprecated tag:v6.8.0 - The legacy multi-document configuration will be removed with the rework.
-    it.deprecated('v6.8.0.0')('should show validation if document multiple type field is empty', async () => {
-        const wrapper = await createWrapper();
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+        'should show validation if document multiple type field is empty',
+        async () => {
+            const wrapper = await createWrapper();
 
-        const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
-        await saveButton.trigger('click');
-        await flushPromises();
+            const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
+            await saveButton.trigger('click');
+            await flushPromises();
 
-        const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
-        expect(documentTypeSelect.classes()).toContain('has--error');
+            const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
+            expect(documentTypeSelect.classes()).toContain('has--error');
 
-        await wrapper.setData({
-            documentTypesSelected: ['invoice'],
-        });
+            await wrapper.setData({
+                documentTypesSelected: ['invoice'],
+            });
 
-        await saveButton.trigger('click');
+            await saveButton.trigger('click');
 
-        expect(documentTypeSelect.classes()).not.toContain('has--error');
-    });
+            expect(documentTypeSelect.classes()).not.toContain('has--error');
+        },
+    );
 
-    // @deprecated tag:v6.8.0 - The legacy multi-document configuration will be removed with the rework.
-    it.deprecated('v6.8.0.0')('should emit process-finish when document multiple type is selected', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            documentTypesSelected: [
-                'invoice',
-                'delivery_note',
-            ],
-        });
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+        'should emit process-finish when document multiple type is selected',
+        async () => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                documentTypesSelected: [
+                    'invoice',
+                    'delivery_note',
+                ],
+            });
 
-        const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
-        await saveButton.trigger('click');
-        await flushPromises();
+            const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
+            await saveButton.trigger('click');
+            await flushPromises();
 
-        expect(wrapper.emitted()['process-finish'][0]).toEqual([
-            {
-                config: {
-                    documentTypes: [
-                        {
-                            documentType: 'invoice',
-                            documentRangerType: 'document_invoice',
-                        },
-                        {
-                            documentType: 'delivery_note',
-                            documentRangerType: 'document_delivery_note',
-                        },
-                    ],
+            expect(wrapper.emitted()['process-finish'][0]).toEqual([
+                {
+                    config: {
+                        documentTypes: [
+                            {
+                                documentType: 'invoice',
+                                documentRangerType: 'document_invoice',
+                            },
+                            {
+                                documentType: 'delivery_note',
+                                documentRangerType: 'document_delivery_note',
+                            },
+                        ],
+                    },
                 },
-            },
-        ]);
-    });
+            ]);
+        },
+    );
 
-    // @deprecated tag:v6.8.0 - The legacy multi-document configuration will be removed with the rework.
-    it.deprecated('v6.8.0.0')(
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should not preselect a document type when switching back from a v2 config and require an explicit choice before saving',
         async () => {
             const wrapper = await createWrapper({

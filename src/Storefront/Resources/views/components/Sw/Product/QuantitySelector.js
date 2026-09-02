@@ -37,13 +37,16 @@ export default class ProductQuantitySelector extends ShopwareComponent {
     }
 
     step(method) {
-        if (!this.input || this.input.disabled) return;
+        if (!this.input || this.input.disabled) {
+            return;
+        }
 
         const previous = this.input.value;
 
         try {
             this.input[method]();
-        } catch {
+        } catch (error) {
+            console.error('Could not change the product quantity.', error);
             return;
         }
 
@@ -66,7 +69,9 @@ export default class ProductQuantitySelector extends ShopwareComponent {
     }
 
     updateUnit() {
-        if (!this.unit || !this.input) return;
+        if (!this.unit || !this.input) {
+            return;
+        }
 
         const quantity = Number.parseFloat(this.input.value);
 

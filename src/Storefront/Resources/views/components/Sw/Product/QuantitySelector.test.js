@@ -64,6 +64,21 @@ describe('Sw:Product:QuantitySelector', () => {
         component.destroy();
     });
 
+    it('reports native stepping errors', () => {
+        const { element, input } = createSelector();
+        const error = new Error('Unable to step input');
+        const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+        vi.spyOn(input, 'stepUp').mockImplementation(() => {
+            throw error;
+        });
+        const component = createComponent(element);
+
+        element.querySelector('.sw-product-quantity-selector__button--increase').click();
+
+        expect(consoleError).toHaveBeenCalledWith('Could not change the product quantity.', error);
+        component.destroy();
+    });
+
     it('updates the unit and live region after a typed quantity change', () => {
         const { element, input } = createSelector();
         const component = createComponent(element);

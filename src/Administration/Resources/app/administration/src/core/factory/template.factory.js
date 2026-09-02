@@ -255,6 +255,116 @@ function resolveTemplates() {
     return normalizedTemplateRegistry;
 }
 
+const SLOT_TEMPLATE_START = /^<template\s+(#|v-slot)/;
+
+/** Text of the first non-empty token, or an empty string when that token is not raw. */
+function firstRawText(output) {
+    const first = Array.isArray(output)
+        ? output.find((token) => token.type !== 'raw' || token.value.trim().length > 0)
+        : undefined;
+
+    return first && first.type === 'raw' ? first.value.trim() : '';
+}
+
+/** Index just past the `>` closing the tag that starts at `from`, ignoring quoted attribute values. */
+function findTagEnd(text, from) {
+    let quote = null;
+
+    for (let i = from; i < text.length; i += 1) {
+        const char = text[i];
+
+        if (quote) {
+            quote = char === quote ? null : quote;
+        } else if (char === '"' || char === "'") {
+            quote = char;
+        } else if (char === '>') {
+            return i + 1;
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * Checks that the first `<template>` closes only at the very end of the text.
+ *
+ * Two sibling slot templates would pass a naive start/end check, so the depth has to reach zero
+ * exactly once, at the end.
+ */
+function outerTemplateSpansText(text) {
+    let depth = 0;
+
+    for (const match of text.matchAll(/<template[\s>]|<\/template>/g)) {
+        depth += match[0].startsWith('</') ? -1 : 1;
+
+        if (depth === 0) {
+            return match.index + match[0].length === text.length;
+        }
+    }
+
+    return false;
+}
+
+/** Inserts `text` into `value` at `at`. */
+function insertAt(value, at, text) {
+    return value.slice(0, at) + text + value.slice(at);
+}
+
+/**
+ * Moves the extension point inside a block that consists of a single named slot template.
+ *
+ * Wrapping such a block from the outside would bind the slot to `sw-block` and the content would
+ * disappear. Placing the wrapper inside the template keeps the slot on the surrounding component and
+ * makes the override replace the slot's content, which is what an author expects.
+ *
+ * Only called for blocks that already start with a slot template. Returns null for any shape other
+ * than one slot template spanning the whole block.
+ */
+function wrapInsideSlotTemplate(output, openTag, closeTag) {
+    const isContent = (token) => token.type !== 'raw' || token.value.trim().length > 0;
+    const firstIndex = output.findIndex(isContent);
+    const lastIndex = output.length - 1 - [...output].reverse().findIndex(isContent);
+    const first = output[firstIndex];
+    const last = output[lastIndex];
+
+    if (last.type !== 'raw' || !last.value.trimEnd().endsWith('</template>')) {
+        return null;
+    }
+
+    const rawText = output
+        .slice(firstIndex, lastIndex + 1)
+        .reduce((text, token) => (token.type === 'raw' ? text + token.value : text), '')
+        .trim();
+
+    if (!outerTemplateSpansText(rawText)) {
+        return null;
+    }
+
+    const openTagEnd = findTagEnd(first.value, first.value.indexOf('<'));
+    const closeIndex = last.value.lastIndexOf('</template>');
+
+    if (openTagEnd === -1) {
+        return null;
+    }
+
+    const result = [...output];
+
+    // Same token: insert the closing tag first, so the earlier index stays valid.
+    if (firstIndex === lastIndex) {
+        result[firstIndex] = {
+            type: 'raw',
+            value: insertAt(insertAt(first.value, closeIndex, closeTag), openTagEnd, openTag),
+        };
+
+        return result;
+    }
+
+    result[firstIndex] = { type: 'raw', value: insertAt(first.value, openTagEnd, openTag) };
+    result[lastIndex] = { type: 'raw', value: insertAt(last.value, closeIndex, closeTag) };
+
+    return result;
+}
+
 function wrapNativeBlockTargets(tokens) {
     if (!Array.isArray(tokens)) {
         return tokens;
@@ -291,11 +401,31 @@ function wrapNativeBlockTargets(tokens) {
             return acc;
         }
 
+        const openTag = `<sw-block name="${blockName}" :data="$dataScope" :legacy-shim="false">`;
+        const closeTag = '</sw-block>';
+
+        if (SLOT_TEMPLATE_START.test(firstRawText(current.token.output))) {
+            const insideOutput = wrapInsideSlotTemplate(current.token.output, openTag, closeTag);
+
+            if (!insideOutput) {
+                Shopware.Utils.debug.warn(
+                    'TemplateFactory',
+                    `The block "${blockName}" cannot host a native extension point: its content mixes a named slot ` +
+                        'template with other content. The native override for this block is ignored.',
+                );
+                acc.push(current);
+
+                return acc;
+            }
+
+            changed = true;
+            acc.push({ ...current, token: { ...current.token, output: insideOutput } });
+
+            return acc;
+        }
+
         changed = true;
-        acc.push({ type: 'raw', value: `<sw-block name="${blockName}" :data="$dataScope" :legacy-shim="false">` }, current, {
-            type: 'raw',
-            value: '</sw-block>',
-        });
+        acc.push({ type: 'raw', value: openTag }, current, { type: 'raw', value: closeTag });
 
         return acc;
     }, []);

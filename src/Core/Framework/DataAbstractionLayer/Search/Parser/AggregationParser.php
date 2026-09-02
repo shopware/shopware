@@ -244,12 +244,17 @@ class AggregationParser
                     return null;
                 }
 
-                foreach ($aggregation['ranges'] as $range) {
-                    if (isset($range['key']) && !EntityDefinitionQueryHelper::isValidIdentifier((string) $range['key'])) {
-                        $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The range aggregation key should not contain a backtick, question mark, colon, or control character.'), '/aggregations/' . $index . '/' . $type . '/ranges');
+                $invalidRangeKeys = array_filter(
+                    (array) $aggregation['ranges'],
+                    static fn ($range): bool => \is_array($range)
+                        && isset($range['key'])
+                        && !EntityDefinitionQueryHelper::isValidIdentifier((string) $range['key'])
+                );
 
-                        return null;
-                    }
+                if ($invalidRangeKeys !== []) {
+                    $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The range aggregation key should not contain a backtick, question mark, colon, or control character.'), '/aggregations/' . $index . '/' . $type . '/ranges');
+
+                    return null;
                 }
 
                 return new RangeAggregation($name, $field, $aggregation['ranges']);

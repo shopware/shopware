@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Test\TestCaseBase;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(EnvTestBehaviour::class)]
+#[CoversTrait(EnvTestBehaviour::class)]
 class EnvTestBehaviourTest extends TestCase
 {
     use EnvTestBehaviour;

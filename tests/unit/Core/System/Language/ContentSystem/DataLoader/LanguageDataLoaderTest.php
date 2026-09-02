@@ -3,15 +3,18 @@
 namespace Shopware\Tests\Unit\Core\System\Language\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader;
 use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfig;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageException;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
 use Shopware\Core\System\Language\SalesChannel\LanguageRouteResponse;
 use Shopware\Core\Test\Generator;
@@ -110,7 +113,85 @@ class LanguageDataLoaderTest extends TestCase
         );
     }
 
-    #[TestDox('propagates an exception the language route throws')]
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the language route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenLanguageRouteThrows(\Throwable $exception): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $languageRoute = $this->createMock(AbstractLanguageRoute::class);
+        $languageRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($exception);
+
+        $dataLoader = new LanguageDataLoader($languageRoute);
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertFalse($result->hasData());
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('lets a TypeError from the language route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
+
+        $languageRoute = $this->createMock(AbstractLanguageRoute::class);
+        $languageRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $dataLoader = new LanguageDataLoader($languageRoute);
+
+        try {
+            $dataLoader->load(
+                new LoaderInputs(['associations' => []]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
+    /**
+     * Neither row is a reachability claim. LanguageRoute::load() collects a cache tag, adds the
+     * translationCode association and runs one sales-channel repository search, so the chain reaches no
+     * domain exception today; both rows state the loader's contract instead, that any
+     * `ShopwareHttpException` degrades because the clause names the single covering ancestor rather than an
+     * enumerated set.
+     *
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function sampleDomainExceptionProvider(): iterable
+    {
+        // LanguageException extends HttpException, which extends ShopwareHttpException.
+        yield 'a language domain exception, reached through HttpException' => [
+            LanguageException::invalidFieldValueType('localeId', 'string', 'int'),
+        ];
+
+        // DecorationPatternException extends ShopwareHttpException directly instead of through
+        // HttpException, so a clause narrowed to one branch of that line would let it escape.
+        yield 'a class outside the chain that extends ShopwareHttpException directly' => [
+            new DecorationPatternException(AbstractLanguageRoute::class),
+        ];
+    }
+
+    #[TestDox('propagates a RuntimeException the language route throws')]
     public function testLoadPropagatesAnExceptionTheLanguageRouteThrows(): void
     {
         $exception = new \RuntimeException('language route failed');

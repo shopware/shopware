@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -195,6 +198,86 @@ class PaymentMethodDataLoaderTest extends TestCase
         );
 
         static::assertNull($originalRequest->query->get('onlyAvailable'));
+    }
+
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the payment method route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenPaymentMethodRouteThrows(\Throwable $exception): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($exception);
+
+        $dataLoader = new PaymentMethodDataLoader($paymentMethodRoute);
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertFalse($result->hasData());
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('lets a TypeError from the payment method route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
+
+        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $dataLoader = new PaymentMethodDataLoader($paymentMethodRoute);
+
+        try {
+            $dataLoader->load(
+                new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
+    /**
+     * Sample domain exceptions, not one row per catch arm: the loader catches the single covering ancestor
+     * `ShopwareHttpException`, so no row maps to a clause of its own.
+     *
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function sampleDomainExceptionProvider(): iterable
+    {
+        // PaymentMethodRoute::load() executes the PaymentMethodRouteHook store-api route hook through
+        // ScriptExecutor (src/Core/Checkout/Payment/SalesChannel/PaymentMethodRoute.php:82), and
+        // ScriptExecutor rewraps every Throwable an app script raises into ScriptExecutionFailedException
+        // (src/Core/Framework/Script/Execution/ScriptExecutor.php:70), so no enumeration of the chain's own
+        // exception classes can cover it.
+        yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
+            ScriptException::scriptExecutionFailed('payment-method-route', 'payment-method-route.twig', new \RuntimeException('app script failed')),
+        ];
+
+        // Not a reachability claim: this row pins the clause to the ancestor rather than to the chain's own
+        // classes. DecorationPatternException extends ShopwareHttpException directly instead of through
+        // HttpException, so a clause narrowed to one branch of that line would let it escape.
+        yield 'a class outside the chain that extends ShopwareHttpException directly' => [
+            new DecorationPatternException(AbstractPaymentMethodRoute::class),
+        ];
     }
 
     private static function requirement(): DataRequirement

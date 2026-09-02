@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Shipping\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader;
@@ -14,6 +15,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -171,6 +174,86 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertFalse($capturedRequest->query->get('onlyAvailable'));
         static::assertTrue($result->hasData());
         static::assertSame($shippingMethods, $result->data);
+    }
+
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the shipping method route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenShippingMethodRouteThrows(\Throwable $exception): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($exception);
+
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertFalse($result->hasData());
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('lets a TypeError from the shipping method route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
+
+        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+
+        try {
+            $dataLoader->load(
+                new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
+    /**
+     * Sample domain exceptions, not one row per catch arm: the loader catches the single covering ancestor
+     * `ShopwareHttpException`, so no row maps to a clause of its own.
+     *
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function sampleDomainExceptionProvider(): iterable
+    {
+        // ShippingMethodRoute::load() executes the ShippingMethodRouteHook store-api route hook through
+        // ScriptExecutor (src/Core/Checkout/Shipping/SalesChannel/ShippingMethodRoute.php:85), and
+        // ScriptExecutor rewraps every Throwable an app script raises into ScriptExecutionFailedException
+        // (src/Core/Framework/Script/Execution/ScriptExecutor.php:70), so no enumeration of the chain's own
+        // exception classes can cover it.
+        yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
+            ScriptException::scriptExecutionFailed('shipping-method-route', 'shipping-method-route.twig', new \RuntimeException('app script failed')),
+        ];
+
+        // Not a reachability claim: this row pins the clause to the ancestor rather than to the chain's own
+        // classes. DecorationPatternException extends ShopwareHttpException directly instead of through
+        // HttpException, so a clause narrowed to one branch of that line would let it escape.
+        yield 'a class outside the chain that extends ShopwareHttpException directly' => [
+            new DecorationPatternException(AbstractShippingMethodRoute::class),
+        ];
     }
 
     private static function requirement(): DataRequirement

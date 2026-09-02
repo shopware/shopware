@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -59,7 +60,17 @@ class LanguageDataLoader extends AbstractContentDataLoader
             $criteria->addAssociation($association);
         }
 
-        $response = $this->languageRoute->load($request, $context, $criteria);
+        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
+        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. No domain
+        // exception is reachable through this chain today: LanguageRoute::load() collects a cache tag, adds
+        // the translationCode association and runs one sales-channel repository search. The wrap is here for
+        // uniformity across the loaders and because the reachable set is open, so a decorator or a future
+        // route change can add a class no enumeration here would name.
+        try {
+            $response = $this->languageRoute->load($request, $context, $criteria);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         // LanguageRoute handles its own caching internally
         return ContentDataLoaderResult::cachedExternally($response->getLanguages());

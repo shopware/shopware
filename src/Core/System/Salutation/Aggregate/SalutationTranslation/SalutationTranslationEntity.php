@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class SalutationTranslationEntity extends TranslationEntity
 {

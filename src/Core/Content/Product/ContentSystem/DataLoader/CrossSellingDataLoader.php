@@ -76,10 +76,11 @@ class CrossSellingDataLoader extends AbstractContentDataLoader
         $criteria = $this->buildCriteria($inputs);
 
         // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
-        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
-        // rewrap a named class into an unnamed one (AppScriptProductPriceCalculator rewraps an app-script
-        // Throwable as ScriptExecutionFailedException).
+        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. The catch is the
+        // covering ancestor rather than an enumerated set (rationale in Hydration/DataLoader/AGENTS.md); the
+        // known local throws already cross file boundaries: ProductCrossSellingRoute::loadByStream() calls
+        // ProductStreamBuilder::enrichCriteria(), so a cross selling backed by a deleted or filterless product
+        // stream surfaces as EntityNotFoundException or NoFilterException, neither visible in the route's own file.
         try {
             $response = $this->crossSellingRoute->load($productId, $request, $context, $criteria);
         } catch (ShopwareHttpException) {

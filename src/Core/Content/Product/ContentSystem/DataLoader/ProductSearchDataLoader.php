@@ -66,10 +66,12 @@ class ProductSearchDataLoader extends AbstractContentDataLoader
         $searchRequest->request->set('search', $searchTerm);
 
         // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
-        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
-        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
-        // rewrap a named class into an unnamed one (AppScriptProductPriceCalculator rewraps an app-script
-        // Throwable as ScriptExecutionFailedException).
+        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. The catch is the
+        // covering ancestor rather than an enumerated set (rationale in Hydration/DataLoader/AGENTS.md); the
+        // known local throws: a stored term that survives the empty-string check above ("0", or whitespace
+        // ProductSearchBuilder trims to empty) throws ProductException or RoutingException depending on the
+        // v6.8.0.0 flag, and a default sorting naming a deleted sorting entity surfaces as
+        // ProductException::sortingNotFoundException() out of SortingListingProcessor.
         try {
             $response = $this->searchRoute->load($searchRequest, $context, $criteria);
         } catch (ShopwareHttpException) {

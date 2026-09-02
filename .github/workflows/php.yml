@@ -427,7 +427,7 @@ jobs:
         uses: ./.github/actions/phpunit-prepare
         with:
           # PHPUnit 12 requires PHP 8.3+
-          php-version: "8.4"
+          php-version: "8.5"
           keep-composer-tools: "true"
           migration-coverage: ${{ matrix.suite == 'migration' }}
           force-phpunit-12: "true"

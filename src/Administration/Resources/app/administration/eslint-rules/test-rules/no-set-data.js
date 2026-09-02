@@ -285,12 +285,48 @@ function buildAccessor(property) {
 }
 
 /**
+ * Reads the object literal as one assignment per key.
+ *
+ * A nested object literal is refused rather than flattened into `vm.a.b = …`. `mergeDeep` merges into the
+ * existing value only when there already is one - against a `null` or absent target it assigns the whole
+ * object - so the path form throws wherever the state starts out empty, which lint cannot see. Rewriting
+ * the 201 nested calls in the Administration suite that way broke 71 tests across 29 spec files.
+ */
+function readAssignments(objectExpression) {
+    const assignments = [];
+
+    for (const property of objectExpression.properties) {
+        if (property.type !== 'Property' || property.kind !== 'init' || property.method) {
+            return { blocker: 'the object literal does not spell out plain key/value pairs' };
+        }
+
+        if (property.computed || (property.key.type !== 'Identifier' && typeof property.key.value !== 'string')) {
+            return { blocker: 'a computed key hides which state is written' };
+        }
+
+        if (property.value.type === 'ObjectExpression') {
+            return { blocker: 'a nested object literal merges into the existing value instead of replacing it' };
+        }
+
+        // `setData` reaches `$data.$refs` because it writes the object directly; `vm.$refs = …` is refused
+        // by Vue's proxy, which reserves every `$` name.
+        if (String(property.key.name ?? property.key.value).startsWith('$')) {
+            return { blocker: 'a $-prefixed key is a reserved Vue property that cannot be assigned' };
+        }
+
+        assignments.push({ accessor: buildAccessor(property), property });
+    }
+
+    return { assignments };
+}
+
+/**
  * Decides whether a `setData` call can be rewritten mechanically, and why not when it cannot.
  *
  * The rewrite is not a semantics-preserving refactor of a working call - on a native setup component the
  * call writes nothing at all. It reproduces what the spec author meant: assign this state to this value.
- * That reading only holds where the object literal spells the keys out flatly, so everything else is
- * reported without a fix.
+ * That reading only holds where the object literal spells its keys out, so everything else is reported
+ * without a fix.
  */
 function classifySetDataCall(node, sourceCode) {
     if (node.callee.object.type !== 'Identifier') {
@@ -316,21 +352,13 @@ function classifySetDataCall(node, sourceCode) {
         return { blocker: 'the argument is not an object literal' };
     }
 
-    for (const property of argument.properties) {
-        if (property.type !== 'Property' || property.kind !== 'init' || property.method) {
-            return { blocker: 'the object literal does not spell out plain key/value pairs' };
-        }
+    const read = readAssignments(argument);
 
-        if (property.computed || (property.key.type !== 'Identifier' && typeof property.key.value !== 'string')) {
-            return { blocker: 'a computed key hides which state is written' };
-        }
-
-        if (property.value.type === 'ObjectExpression') {
-            return { blocker: 'a nested object literal merges into the existing value instead of replacing it' };
-        }
+    if (read.blocker !== undefined) {
+        return { blocker: read.blocker };
     }
 
-    return { statement, indentation, properties: argument.properties };
+    return { statement, indentation, assignments: read.assignments };
 }
 
 /**
@@ -364,7 +392,19 @@ module.exports = {
             recommended: true,
         },
         fixable: 'code',
-        schema: [],
+        schema: [
+            {
+                type: 'object',
+                properties: {
+                    // Reports every spec as though its component were already a native setup SFC. Only the
+                    // one-shot codemod sets this, to rewrite the whole suite ahead of the conversions
+                    // rather than one spec at a time; `setData` on an Options API component still works,
+                    // so the rewrite is safe to run early.
+                    assumeNativeSetup: { type: 'boolean' },
+                },
+                additionalProperties: false,
+            },
+        ],
         messages: {
             silentNoOp:
                 'setData() merges into $data, which a native setup component never reads, so this write is ' +
@@ -389,8 +429,10 @@ module.exports = {
         let firstImport = null;
         let importFixEmitted = false;
 
+        const assumeNativeSetup = context.options[0]?.assumeNativeSetup === true;
+
         function mountsNativeSetupComponent() {
-            return importsVueFile || hasConvertedSibling(filename);
+            return assumeNativeSetup || importsVueFile || hasConvertedSibling(filename);
         }
 
         /**
@@ -470,9 +512,9 @@ module.exports = {
             const receiver = sourceCode.getText(node.callee.object);
             const localNextTick = nextTickLocalName ?? 'nextTick';
 
-            const assignments = classification.properties.map(
-                (property) =>
-                    `${receiver}.vm${buildAccessor(property)} = ${renderValue(property, classification.indentation)};`,
+            const assignments = classification.assignments.map(
+                ({ accessor, property }) =>
+                    `${receiver}.vm${accessor} = ${renderValue(property, classification.indentation)};`,
             );
             assignments.push(`await ${localNextTick}();`);
 

@@ -394,13 +394,43 @@ await nextTick();
             errors: [{ messageId: 'silentNoOp' }],
         },
         {
-            name: 'refuses to rewrite a nested object literal, because setData would merge it',
+            name: 'refuses a nested object literal, which merges only where a value already exists',
             filename: convertedSpec,
             code: 'await wrapper.setData({ trueSource: { mimeType: null } });',
             errors: [
                 {
                     messageId: 'silentNoOpManualRewrite',
                     data: { blocker: 'a nested object literal merges into the existing value instead of replacing it' },
+                },
+            ],
+        },
+        {
+            name: 'reports a spec whose component is untouched when assumeNativeSetup is set',
+            filename: legacySpec,
+            options: [
+                { assumeNativeSetup: true },
+            ],
+            code: `
+import { nextTick } from 'vue';
+
+await wrapper.setData({ plain: 'x' });
+            `.trim(),
+            output: `
+import { nextTick } from 'vue';
+
+wrapper.vm.plain = 'x';
+await nextTick();
+            `.trim(),
+            errors: [{ messageId: 'silentNoOp' }],
+        },
+        {
+            name: 'refuses a $-prefixed key, which Vue reserves and refuses to assign',
+            filename: convertedSpec,
+            code: 'await wrapper.setData({ $refs: refsMock });',
+            errors: [
+                {
+                    messageId: 'silentNoOpManualRewrite',
+                    data: { blocker: 'a $-prefixed key is a reserved Vue property that cannot be assigned' },
                 },
             ],
         },

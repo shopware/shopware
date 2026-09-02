@@ -11,6 +11,7 @@
         }
     ],
     "require": {
-        "shopware/platform": "6.4.*@dev"
+        "shopware/platform": "6.4.*@dev",
+        "swag/test3": "dev-codex/some-fix as 3.0.0"
     }
 }

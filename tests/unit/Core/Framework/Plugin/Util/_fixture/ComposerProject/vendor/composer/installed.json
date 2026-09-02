@@ -47,6 +47,31 @@
           "de-DE": "Test plugin"
         }
       }
+    },
+    {
+      "name": "swag/test3",
+      "type": "shopware-platform-plugin",
+      "description": "Test description",
+      "version": "dev-codex/some-fix",
+      "version_normalized": "dev-codex/some-fix",
+      "license": "MIT",
+      "authors": [
+        {
+          "name": "shopware AG",
+          "role": "Manufacturer"
+        }
+      ],
+      "require": {
+        "shopware/platform": "6.4.*@dev"
+      },
+      "install-path": "../swag/test3",
+      "extra": {
+        "shopware-plugin-class": "Swag\\Test3",
+        "label": {
+          "en-GB": "Test plugin",
+          "de-DE": "Test plugin"
+        }
+      }
     }
   ]
 }

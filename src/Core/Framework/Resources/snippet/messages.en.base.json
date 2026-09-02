@@ -19,6 +19,7 @@
         "promotion-not-eligible-already-redeemed": "The promo code \"%name%\" has already been redeemed.",
         "promotion-not-eligible-already-added": "The promotion for code \"%name%\" has already been added to your cart. A promotion can only be applied once per order.",
         "promotion-excluded": "One or more discounts have been removed from the shopping cart, due to conflicts with other discounts. Once the conditions are met again, the discounts will be applied automatically.",
+        "promotion-discount-zero-value": "The promotion \"%name%\" was redeemed, but it does not reduce the price of your cart.",
         "promotions-on-cart-price-zero-error": "Promotions \"%promotions%\" were excluded for cart because the price of the cart is zero",
         "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible.",
         "billing-address-blocked": "Billing to the selected address is not possible.",

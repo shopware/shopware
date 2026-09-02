@@ -4,7 +4,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
-import { reactive } from 'vue';
+import { reactive, nextTick } from 'vue';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
@@ -315,9 +315,8 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     it('should disable all fields when ACL rights are missing', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const formIcon = wrapper.find('.mt-icon.icon--regular-bars-square');
         expect(formIcon.classes()).toContain('is--disabled');
@@ -345,9 +344,8 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const wrapper = await createWrapper();
         await flushPromises();
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const formIcon = wrapper.find('.mt-icon.icon--regular-bars-square');
         expect(formIcon.classes()).not.toContain('is--disabled');

@@ -1,6 +1,7 @@
 /**
  * @sw-package checkout
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -84,10 +85,9 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-            total: 2,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const element = wrapper.find('sw-entity-listing-stub');
 
@@ -106,10 +106,9 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-            total: 2,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const element = wrapper.find('sw-entity-listing-stub');
 
@@ -129,10 +128,9 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-            total: 2,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const element = wrapper.find('sw-entity-listing-stub');
 
@@ -147,9 +145,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -194,9 +191,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -220,9 +216,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};

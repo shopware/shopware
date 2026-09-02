@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
@@ -97,31 +98,30 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
         },
     );
 
-    await wrapper.setData({
-        productFeatureSets: new EntityCollection(
-            null,
-            'product_feature_set',
-            Shopware.Context.api,
+    wrapper.vm.productFeatureSets = new EntityCollection(
+        null,
+        'product_feature_set',
+        Shopware.Context.api,
+        {
+            page: {},
+        },
+        [
             {
-                page: {},
+                id: 'ecf55d8cbcf5496d8e42aa146ec4ba95',
+                name: text.featureSetName,
+                description: text.featureSetDescription,
+                features: [
+                    {
+                        type: 'referencePrice',
+                        id: null,
+                        name: null,
+                        position: 0,
+                    },
+                ],
             },
-            [
-                {
-                    id: 'ecf55d8cbcf5496d8e42aa146ec4ba95',
-                    name: text.featureSetName,
-                    description: text.featureSetDescription,
-                    features: [
-                        {
-                            type: 'referencePrice',
-                            id: null,
-                            name: null,
-                            position: 0,
-                        },
-                    ],
-                },
-            ],
-        ),
-    });
+        ],
+    );
+    await nextTick();
 
     await flushPromises();
 
@@ -318,30 +318,29 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
     it('should load listing if there are templates with empty features', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            productFeatureSets: new EntityCollection(
-                null,
-                'product_feature_set',
-                Shopware.Context.api,
+        wrapper.vm.productFeatureSets = new EntityCollection(
+            null,
+            'product_feature_set',
+            Shopware.Context.api,
+            {
+                page: {},
+            },
+            [
                 {
-                    page: {},
+                    id: '3d14420686274551bdfdc88ea9672cde',
+                    name: `${text.featureSetName} in false-empty`,
+                    description: 'This empty feature set is created by deleting all features',
+                    features: {},
                 },
-                [
-                    {
-                        id: '3d14420686274551bdfdc88ea9672cde',
-                        name: `${text.featureSetName} in false-empty`,
-                        description: 'This empty feature set is created by deleting all features',
-                        features: {},
-                    },
-                    {
-                        id: 'd3fdf1478e314d809463260517ef64f0',
-                        name: `${text.featureSetName} in empty`,
-                        description: 'This empty feature set is created by being empty from the start',
-                        features: [],
-                    },
-                ],
-            ),
-        });
+                {
+                    id: 'd3fdf1478e314d809463260517ef64f0',
+                    name: `${text.featureSetName} in empty`,
+                    description: 'This empty feature set is created by being empty from the start',
+                    features: [],
+                },
+            ],
+        );
+        await nextTick();
         await flushPromises();
 
         const root = wrapper.get('.sw-settings-product-feature-sets-list');

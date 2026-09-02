@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -93,7 +94,8 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
     it('should always render order change modal with document selection', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        await wrapper.setData({ showModal: true });
+        wrapper.vm.showModal = true;
+        await nextTick();
 
         await wrapper.vm.$nextTick();
 

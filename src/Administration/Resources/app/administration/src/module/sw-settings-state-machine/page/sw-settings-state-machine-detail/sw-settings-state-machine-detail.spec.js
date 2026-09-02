@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const stateMachineRepository = {
@@ -173,9 +174,8 @@ describe('module/sw-settings-state-machine/page/sw-settings-state-machine-detail
         expect(wrapper.vm.stateMachineRepository.save).not.toHaveBeenCalled();
         expect(wrapper.vm.loadStateMachine).not.toHaveBeenCalled();
 
-        await wrapper.setData({
-            stateMachine,
-        });
+        wrapper.vm.stateMachine = stateMachine;
+        await nextTick();
 
         await wrapper.vm.onSave();
 
@@ -191,9 +191,8 @@ describe('module/sw-settings-state-machine/page/sw-settings-state-machine-detail
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.setData({
-            stateMachine,
-        });
+        wrapper.vm.stateMachine = stateMachine;
+        await nextTick();
 
         await wrapper.vm.onSave();
 

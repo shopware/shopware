@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
@@ -534,10 +535,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const input = wrapper.find('.sw-search-bar__input');
         const blurSpy = jest.spyOn(input.element, 'blur');
 
-        await wrapper.setData({
-            showTypeSelectContainer: true,
-            showResultsContainer: true,
-        });
+        wrapper.vm.showTypeSelectContainer = true;
+        wrapper.vm.showResultsContainer = true;
+        await nextTick();
 
         await input.trigger('keyup.esc');
 
@@ -1364,9 +1364,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should be able to turn on search preferences modal', async () => {
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            showSearchPreferencesModal: true,
-        });
+        wrapper.vm.showSearchPreferencesModal = true;
+        await nextTick();
 
         expect(wrapper.find('sw-search-preferences-modal-stub').exists()).toBe(true);
     });
@@ -1374,9 +1373,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should be able to turn off search preferences modal', async () => {
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            showSearchPreferencesModal: false,
-        });
+        wrapper.vm.showSearchPreferencesModal = false;
+        await nextTick();
 
         expect(wrapper.find('sw-search-preferences-modal-stub').exists()).toBe(false);
     });
@@ -1542,7 +1540,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.isComponentMounted).toBe(true);
         expect(wrapper.vm.currentSearchType).toBe('product');
 
-        await wrapper.setData({ searchTerm: '' });
+        wrapper.vm.searchTerm = '';
+        await nextTick();
         wrapper.vm.resetSearchType();
 
         expect(wrapper.vm.isComponentMounted).toBe(false);

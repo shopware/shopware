@@ -1,6 +1,7 @@
 /**
  * @sw-package checkout
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const promotionData = {
@@ -191,9 +192,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.find('.sw-promotion-v2-detail__save-action');
         expect(saveButton.attributes().disabled).toBeTruthy();
@@ -204,9 +204,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
 
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.find('.sw-promotion-v2-detail__save-action');
         expect(saveButton.attributes().disabled).toBeFalsy();

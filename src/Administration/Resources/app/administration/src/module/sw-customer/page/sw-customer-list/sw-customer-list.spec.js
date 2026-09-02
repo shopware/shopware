@@ -2,6 +2,7 @@
  * @sw-package checkout
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -215,9 +216,8 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -258,9 +258,8 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
 
         await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -282,9 +281,8 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};

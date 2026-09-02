@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 
@@ -261,7 +262,8 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         const trueSource = new File([''], 'example.jpg', { type: 'image/jpg' });
         trueSource.thumbnails = [];
 
-        await wrapper.setData({ trueSource });
+        wrapper.vm.trueSource = trueSource;
+        await nextTick();
 
         expect(wrapper.vm.sourceSet).toBe('');
     });
@@ -271,7 +273,8 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         const trueSource = new URL('https://example.com/image.jpg');
         trueSource.thumbnails = [];
 
-        await wrapper.setData({ trueSource });
+        wrapper.vm.trueSource = trueSource;
+        await nextTick();
 
         expect(wrapper.vm.sourceSet).toBe('');
     });

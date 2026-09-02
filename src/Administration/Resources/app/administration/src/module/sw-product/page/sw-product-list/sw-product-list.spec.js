@@ -4,6 +4,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -600,9 +601,8 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         // Setting `term` triggers the listing mixin's search watcher, which runs its own getList.
         // Let that settle against the real service before installing the counting mocks, so the
@@ -645,9 +645,8 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should not build query score when search ranking field is null', async () => {
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -668,9 +667,8 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
@@ -746,9 +744,8 @@ describe('module/sw-product/page/sw-product-list', () => {
         const parentId = 'parent-product-id';
         const variantId = 'variant-product-id';
 
-        await wrapper.setData({
-            term: 'SW10001',
-        });
+        wrapper.vm.term = 'SW10001';
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.filterCriteria.push(Criteria.equalsAny('manufacturer.id', [manufacturerId]));

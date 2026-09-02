@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const { Store } = Shopware;
@@ -106,7 +107,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
             'product.editor',
         ]);
 
-        await wrapper.setData({ dataSource, total: 2 });
+        wrapper.vm.dataSource = dataSource;
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const editMenuItem = wrapper.find('.sw-product-detail-reviews__action-edit');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
@@ -115,7 +118,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     it('should not be able to edit a review', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({ dataSource, total: 2 });
+        wrapper.vm.dataSource = dataSource;
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const editMenuItem = wrapper.find('.sw-product-detail-reviews__action-edit');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -126,7 +131,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
             'product.editor',
         ]);
 
-        await wrapper.setData({ dataSource, total: 2 });
+        wrapper.vm.dataSource = dataSource;
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-product-detail-reviews__action-delete');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -135,7 +142,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     it('should not be able to delete a review', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({ dataSource, total: 2 });
+        wrapper.vm.dataSource = dataSource;
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-product-detail-reviews__action-delete');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();

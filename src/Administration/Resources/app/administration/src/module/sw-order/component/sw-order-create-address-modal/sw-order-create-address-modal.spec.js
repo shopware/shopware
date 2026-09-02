@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import findByText from '../../../../../test/_helper_/find-by-text';
 
@@ -75,12 +76,11 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
     });
 
     it('should dispatch error with invalid company field', async () => {
-        await wrapper.setData({
-            addresses: [
-                { id: '12345', isNew: () => {}, getEntityName: () => 'customer_address' },
-                { id: '02', isNew: () => {}, getEntityName: () => 'customer_address' },
-            ],
-        });
+        wrapper.vm.addresses = [
+            { id: '12345', isNew: () => {}, getEntityName: () => 'customer_address' },
+            { id: '02', isNew: () => {}, getEntityName: () => 'customer_address' },
+        ];
+        await nextTick();
 
         const btn = wrapper.findAll('.sw-order-create-address-modal__edit-btn')[0];
         await btn.trigger('click');

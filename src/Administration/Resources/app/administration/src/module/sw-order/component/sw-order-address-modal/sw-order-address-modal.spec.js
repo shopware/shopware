@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -148,22 +149,21 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
     it('should switch meteor tab content when the active tab changes', async () => {
         wrapper = await createWrapper({ featureActive: true });
 
-        await wrapper.setData({
-            availableAddresses: [
-                {
-                    id: 'address-id',
-                    company: 'Test company',
-                    salutation: null,
-                    street: 'Test street',
-                    zipcode: '12345',
-                    city: 'Test city',
-                    country: {
-                        name: 'Test country',
-                    },
+        wrapper.vm.availableAddresses = [
+            {
+                id: 'address-id',
+                company: 'Test company',
+                salutation: null,
+                street: 'Test street',
+                zipcode: '12345',
+                city: 'Test city',
+                country: {
+                    name: 'Test country',
                 },
-            ],
-            selectedAddressId: 'address-id',
-        });
+            },
+        ];
+        wrapper.vm.selectedAddressId = 'address-id';
+        await nextTick();
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'addresses');
         await wrapper.vm.$nextTick();

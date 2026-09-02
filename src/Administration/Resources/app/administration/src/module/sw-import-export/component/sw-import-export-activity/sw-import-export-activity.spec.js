@@ -4,6 +4,7 @@
  * @sw-package fundamentals@after-sales
  */
 
+import { nextTick } from 'vue';
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -923,10 +924,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             state: 'succeeded',
         };
 
-        await wrapper.setData({
-            selectedLog: logEntity,
-            showDetailModal: true,
-        });
+        wrapper.vm.selectedLog = logEntity;
+        wrapper.vm.showDetailModal = true;
+        await nextTick();
         await flushPromises();
 
         const detailModal = wrapper.getComponent('.sw-import-export-activity-log-info-modal');

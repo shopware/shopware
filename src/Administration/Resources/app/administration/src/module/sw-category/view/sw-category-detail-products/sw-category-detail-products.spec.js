@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const categoryMock = {
@@ -105,9 +106,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         await wrapper
             .getComponent('.sw-category-detail-products__product-assignment-type-select')
             .vm.$emit('update:value', 'product_stream');
-        await wrapper.setData({
-            manualAssignedProductsCount: 5,
-        });
+        wrapper.vm.manualAssignedProductsCount = 5;
+        await nextTick();
 
         expect(wrapper.find('[role="banner"]').text()).toBe(
             'sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream',
@@ -126,9 +126,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     it('should try to load product stream preview when stream id is present', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            manualAssignedProductsCount: 5,
-        });
+        wrapper.vm.manualAssignedProductsCount = 5;
+        await nextTick();
 
         await wrapper
             .getComponent('.sw-category-detail-products__product-stream-select')

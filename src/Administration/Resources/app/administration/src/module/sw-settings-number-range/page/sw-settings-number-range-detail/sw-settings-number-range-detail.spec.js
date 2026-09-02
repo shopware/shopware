@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -190,9 +191,8 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         await wrapper.vm.$nextTick();
 
@@ -210,7 +210,8 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         const wrapper = await createWrapper();
 
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         const alwaysDisabledElements = [
@@ -235,7 +236,8 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
     it('should not be able to edit the number range', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         const elements = wrapper.findAllComponents('.sw-field');

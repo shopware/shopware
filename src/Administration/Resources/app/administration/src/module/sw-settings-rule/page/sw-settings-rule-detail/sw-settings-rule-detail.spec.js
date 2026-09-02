@@ -1,5 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
+import { nextTick } from 'vue';
 import { config, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
 import ShopwareError from 'src/core/data/ShopwareError';
@@ -387,9 +388,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            rule,
-        });
+        wrapper.vm.rule = rule;
+        await nextTick();
 
         wrapper.vm.$createTitle = jest.fn(() => 'Title');
         const metaInfo = wrapper.vm.$options.metaInfo.call(wrapper.vm);
@@ -892,9 +892,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         'should check for unsaved data when route updates: $name',
         async ({ from, to, discard, check }) => {
             const wrapper = await createWrapper();
-            await wrapper.setData({
-                forceDiscardChanges: discard,
-            });
+            wrapper.vm.forceDiscardChanges = discard;
+            await nextTick();
             await flushPromises();
 
             const nextMock = jest.fn();
@@ -916,9 +915,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         'should check for unsaved data when leaving route: $name',
         async ({ from, to, discard, check }) => {
             const wrapper = await createWrapper();
-            await wrapper.setData({
-                forceDiscardChanges: discard,
-            });
+            wrapper.vm.forceDiscardChanges = discard;
+            await nextTick();
             await flushPromises();
 
             const nextMock = jest.fn();
@@ -991,9 +989,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            isDisplayingSaveChangesWarning: true,
-        });
+        wrapper.vm.isDisplayingSaveChangesWarning = true;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-modal').exists()).toBe(true);
@@ -1023,10 +1020,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             params: { id: 'uuid1' },
         };
 
-        await wrapper.setData({
-            isDisplayingSaveChangesWarning: true,
-            nextRoute,
-        });
+        wrapper.vm.isDisplayingSaveChangesWarning = true;
+        wrapper.vm.nextRoute = nextRoute;
+        await nextTick();
         await flushPromises();
 
         const routerSpy = jest.spyOn(wrapper.vm.$router, 'push');
@@ -1243,7 +1239,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ conditionTree });
+        wrapper.vm.conditionTree = conditionTree;
+        await nextTick();
         expect(wrapper.vm.conditionTreeFlat).toEqual(expectedFlatConditions);
     });
 
@@ -1360,22 +1357,21 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            conditionTree: [
-                {
-                    id: 'date-range-condition-empty',
-                    type: 'dateRange',
-                    value: { fromDate: null, toDate: null },
-                    children: [],
-                },
-                {
-                    id: 'date-range-condition-partial',
-                    type: 'dateRange',
-                    value: { fromDate: '2023-01-01', toDate: null },
-                    children: [],
-                },
-            ],
-        });
+        wrapper.vm.conditionTree = [
+            {
+                id: 'date-range-condition-empty',
+                type: 'dateRange',
+                value: { fromDate: null, toDate: null },
+                children: [],
+            },
+            {
+                id: 'date-range-condition-partial',
+                type: 'dateRange',
+                value: { fromDate: '2023-01-01', toDate: null },
+                children: [],
+            },
+        ];
+        await nextTick();
 
         await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
         await flushPromises();
@@ -1401,33 +1397,32 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            conditionTree: [
-                {
-                    id: 'first-reversed',
-                    type: 'dateRange',
-                    value: { fromDate: '2023-12-31', toDate: '2023-01-01' },
-                    children: [],
-                },
-                {
-                    id: 'second-reversed',
-                    type: 'dateRange',
-                    value: { fromDate: '2024-06-01', toDate: '2024-05-01' },
-                    children: [],
-                },
-                {
-                    id: 'valid',
-                    type: 'dateRange',
-                    value: { fromDate: '2023-01-01', toDate: '2023-12-31' },
-                    children: [],
-                },
-            ],
-            conditions: [
-                { id: 'first-reversed' },
-                { id: 'second-reversed' },
-                { id: 'valid' },
-            ],
-        });
+        wrapper.vm.conditionTree = [
+            {
+                id: 'first-reversed',
+                type: 'dateRange',
+                value: { fromDate: '2023-12-31', toDate: '2023-01-01' },
+                children: [],
+            },
+            {
+                id: 'second-reversed',
+                type: 'dateRange',
+                value: { fromDate: '2024-06-01', toDate: '2024-05-01' },
+                children: [],
+            },
+            {
+                id: 'valid',
+                type: 'dateRange',
+                value: { fromDate: '2023-01-01', toDate: '2023-12-31' },
+                children: [],
+            },
+        ];
+        wrapper.vm.conditions = [
+            { id: 'first-reversed' },
+            { id: 'second-reversed' },
+            { id: 'valid' },
+        ];
+        await nextTick();
 
         await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');
         await flushPromises();

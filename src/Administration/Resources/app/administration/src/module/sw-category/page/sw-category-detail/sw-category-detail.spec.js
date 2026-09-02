@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-category/page/sw-category-detail', () => {
@@ -106,9 +107,8 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             slotConfig: '',
         };
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.getComponent('.sw-category-detail__save-action');
 
@@ -130,9 +130,8 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             slotConfig: '',
         };
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.getComponent('.sw-category-detail__save-action');
 
@@ -157,9 +156,8 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             slotConfig: '',
         };
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.getComponent('.sw-category-detail__save-action');
 
@@ -185,9 +183,8 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             slotConfig: '',
         };
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.getComponent('.sw-category-detail__save-action');
 
@@ -217,10 +214,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             serviceSalesChannels: [],
         };
 
-        await wrapper.setData({
-            isLoading: false,
-            cmsPage: null,
-        });
+        wrapper.vm.isLoading = false;
+        Shopware.Store.get('cmsPage').currentPage = null;
+        await nextTick();
 
         await wrapper.setProps({
             categoryId: 'foo',

@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -264,9 +265,8 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
 
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -307,9 +307,8 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
 
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -331,9 +330,8 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
 
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
@@ -359,9 +357,8 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
 
     it('should sort by firstName when clicking the name column', async () => {
         const wrapper = await createWrapper({ useSearchSpy: true });
-        await wrapper.setData({
-            disableRouteParams: true,
-        });
+        wrapper.vm.disableRouteParams = true;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
@@ -375,9 +372,8 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list',
         ]);
 
         await wrapper.find('.sw-data-grid__cell--1').trigger('click');
-        await wrapper.setData({
-            total: 2,
-        });
+        wrapper.vm.total = 2;
+        await nextTick();
         await flushPromises();
 
         expect(searchSpy).toHaveBeenCalledTimes(1);

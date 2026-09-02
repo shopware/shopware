@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 let repositoryFactoryCreateMock;
@@ -248,20 +249,19 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
             return { _isNew: true };
         });
 
-        await wrapper.setData({
-            thumbnailSizes: [
-                {
-                    width: 10,
-                    height: 10,
-                    deletable: true,
-                },
-                {
-                    width: 20,
-                    height: 20,
-                    deletable: false,
-                },
-            ],
-        });
+        wrapper.vm.thumbnailSizes = [
+            {
+                width: 10,
+                height: 10,
+                deletable: true,
+            },
+            {
+                width: 20,
+                height: 20,
+                deletable: false,
+            },
+        ];
+        await nextTick();
         await wrapper.vm.addThumbnail({
             width: 30,
             height: 30,
@@ -281,20 +281,19 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
     it('should not be able to add a new thumbnail size if the size already exists', async () => {
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.setData({
-            thumbnailSizes: [
-                {
-                    width: 10,
-                    height: 10,
-                    deletable: true,
-                },
-                {
-                    width: 20,
-                    height: 20,
-                    deletable: false,
-                },
-            ],
-        });
+        wrapper.vm.thumbnailSizes = [
+            {
+                width: 10,
+                height: 10,
+                deletable: true,
+            },
+            {
+                width: 20,
+                height: 20,
+                deletable: false,
+            },
+        ];
+        await nextTick();
         await wrapper.vm.addThumbnail({
             width: 10,
             height: 10,

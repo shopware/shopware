@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -219,9 +220,8 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
             singleSelect: true,
             categoriesCollection: createCategoryCollection(intitalCategories),
         });
-        await wrapper.setData({
-            selectedCategoriesTotal: 5,
-        });
+        wrapper.vm.selectedCategoriesTotal = 5;
+        await nextTick();
         await flushPromises();
 
         await wrapper.find('.sw-category-tree-field__label-more').trigger('click');

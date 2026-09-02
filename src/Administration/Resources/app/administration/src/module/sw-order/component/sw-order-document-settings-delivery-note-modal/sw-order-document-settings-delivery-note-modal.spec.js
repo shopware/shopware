@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const orderFixture = {
@@ -119,9 +120,8 @@ describe('src/module/sw-order/component/sw-order-document-settings-delivery-note
             documentComment: '',
         };
 
-        await wrapper.setData({
-            documentConfig,
-        });
+        wrapper.vm.documentConfig = documentConfig;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-order-document-settings-delivery-note-modal__document-number input').element.value).toBe(

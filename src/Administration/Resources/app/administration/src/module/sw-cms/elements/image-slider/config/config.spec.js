@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';
@@ -426,14 +427,13 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         ]);
         await flushPromises();
 
-        await wrapper.setData({
-            mediaItems: [
-                {
-                    id: '1',
-                    url: 'http://shopware.com/image1-current.jpg',
-                },
-            ],
-        });
+        wrapper.vm.mediaItems = [
+            {
+                id: '1',
+                url: 'http://shopware.com/image1-current.jpg',
+            },
+        ];
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         const previewImage = wrapper.find('.sw-cms-el-config-image-slider__settings-link-prefix');
@@ -454,7 +454,8 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         ]);
         await flushPromises();
 
-        await wrapper.setData({ mediaItems: [] });
+        wrapper.vm.mediaItems = [];
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         const previewImage = wrapper.find('.sw-cms-el-config-image-slider__settings-link-prefix');

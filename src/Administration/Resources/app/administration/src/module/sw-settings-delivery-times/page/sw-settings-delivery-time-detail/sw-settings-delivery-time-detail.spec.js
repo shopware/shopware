@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -159,9 +160,8 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         // Assume that user navigate to sw-setting-delivery-time-create page
-        await wrapper.setData({
-            deliveryTime: wrapper.vm.deliveryTimeRepository.create(),
-        });
+        wrapper.vm.deliveryTime = wrapper.vm.deliveryTimeRepository.create();
+        await nextTick();
 
         await wrapper.vm.$nextTick();
 

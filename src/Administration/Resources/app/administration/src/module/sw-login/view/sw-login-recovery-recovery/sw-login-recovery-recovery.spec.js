@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -38,10 +39,9 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.userRecoveryService.updateUserPassword = jest.fn(() => Promise.resolve());
 
-        await wrapper.setData({
-            newPassword: 'shopware',
-            newPasswordConfirm: 'shopware',
-        });
+        wrapper.vm.newPassword = 'shopware';
+        wrapper.vm.newPasswordConfirm = 'shopware';
+        await nextTick();
         await wrapper.vm.updatePassword();
 
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
@@ -90,10 +90,9 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.userRecoveryService.updateUserPassword = jest.fn(() => Promise.reject(new Error('Bad gateway')));
 
-        await wrapper.setData({
-            newPassword: 'shopware',
-            newPasswordConfirm: 'shopware',
-        });
+        wrapper.vm.newPassword = 'shopware';
+        wrapper.vm.newPasswordConfirm = 'shopware';
+        await nextTick();
         await wrapper.vm.updatePassword();
         await flushPromises();
 

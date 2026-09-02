@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const { EntityCollection } = Shopware.Data;
@@ -322,17 +323,16 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
             },
         ];
 
-        await wrapper.setData({
-            rules: new EntityCollection(
-                '/test-rule',
-                'rule',
-                null,
-                { isShopwareContext: true },
-                rulesEntities,
-                rulesEntities.length,
-                null,
-            ),
-        });
+        wrapper.vm.rules = new EntityCollection(
+            '/test-rule',
+            'rule',
+            null,
+            { isShopwareContext: true },
+            rulesEntities,
+            rulesEntities.length,
+            null,
+        );
+        await nextTick();
 
         await wrapper.setProps({
             isSetDefaultPrice: true,

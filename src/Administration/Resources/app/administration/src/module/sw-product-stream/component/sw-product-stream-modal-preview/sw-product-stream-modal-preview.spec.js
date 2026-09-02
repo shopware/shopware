@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -377,7 +378,8 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
     it('should compute previewCriteria with random sorting applied', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({ sorting: 'random' });
+        wrapper.vm.sorting = 'random';
+        await nextTick();
         const criteria = wrapper.vm.previewCriteria;
         const sortings = criteria.sortings;
         expect(sortings).toHaveLength(2);

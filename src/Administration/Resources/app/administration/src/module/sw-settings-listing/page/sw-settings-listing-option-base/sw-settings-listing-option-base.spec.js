@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -178,9 +179,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
     });
 
     it('should disable the save button if no criteria exists', async () => {
-        await wrapper.setData({
-            productSortingEntity: getProductSortingEntityWithoutCriteria(),
-        });
+        wrapper.vm.productSortingEntity = getProductSortingEntityWithoutCriteria();
+        await nextTick();
 
         const isSaveButtonDisabled = wrapper.vm.isSaveButtonDisabled;
 
@@ -200,9 +200,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
     });
 
     it('should display the fallback snippet when the entity has no name', async () => {
-        await wrapper.setData({
-            productSortingEntity: getProductSortingEntityWithoutName(),
-        });
+        wrapper.vm.productSortingEntity = getProductSortingEntityWithoutName();
+        await nextTick();
 
         const displayValue = wrapper.vm.smartBarHeading;
 
@@ -292,9 +291,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
     });
 
     it('should show alert on locked product sorting', async () => {
-        await wrapper.setData({
-            productSortingEntity: getLockedProductSorting(),
-        });
+        wrapper.vm.productSortingEntity = getLockedProductSorting();
+        await nextTick();
 
         const alert = wrapper.find('.sw-settings-listing-base__locked-info');
 

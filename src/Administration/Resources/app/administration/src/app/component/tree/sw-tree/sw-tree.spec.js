@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import getTreeItems from './fixtures/treeItems';
 
@@ -173,9 +174,8 @@ describe('src/app/component/tree/sw-tree', () => {
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeFalsy();
 
-        await wrapper.setData({
-            checkedElementsCount: 2,
-        });
+        wrapper.vm.checkedElementsCount = 2;
+        await nextTick();
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeTruthy();
     });
@@ -185,9 +185,8 @@ describe('src/app/component/tree/sw-tree', () => {
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeFalsy();
 
-        await wrapper.setData({
-            checkedElementsCount: 2,
-        });
+        wrapper.vm.checkedElementsCount = 2;
+        await nextTick();
 
         await flushPromises();
 
@@ -203,9 +202,8 @@ describe('src/app/component/tree/sw-tree', () => {
             allowDeleteCategories: false,
         });
 
-        await wrapper.setData({
-            checkedElementsCount: 2,
-        });
+        wrapper.vm.checkedElementsCount = 2;
+        await nextTick();
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').attributes().disabled).toBeDefined();
     });

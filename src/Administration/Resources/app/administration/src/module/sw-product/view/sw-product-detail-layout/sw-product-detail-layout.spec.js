@@ -146,9 +146,8 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     it('should turn on layout modal', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            showLayoutModal: true,
-        });
+        wrapper.vm.showLayoutModal = true;
+        await nextTick();
 
         const layoutModal = wrapper.find('sw-cms-layout-modal-stub');
 
@@ -158,9 +157,8 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     it('should turn off layout modal', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            showLayoutModal: false,
-        });
+        wrapper.vm.showLayoutModal = false;
+        await nextTick();
 
         const layoutModal = wrapper.find('sw-cms-layout-modal-stub');
 

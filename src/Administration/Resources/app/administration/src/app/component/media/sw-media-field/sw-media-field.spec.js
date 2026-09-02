@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 describe('src/app/component/media/sw-media-field', () => {
@@ -75,9 +76,8 @@ describe('src/app/component/media/sw-media-field', () => {
     it('should stop propagation when sw-popover content is clicked', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            showPicker: true,
-        });
+        wrapper.vm.showPicker = true;
+        await nextTick();
 
         const stopPropagation = jest.fn();
         await wrapper.find('.sw-media-field__actions_bar').trigger('click', {
@@ -124,7 +124,8 @@ describe('src/app/component/media/sw-media-field', () => {
 
     it('returns empty config when not inside a modal', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ showPicker: true });
+        wrapper.vm.showPicker = true;
+        await nextTick();
 
         wrapper.element.closest = jest.fn(() => null);
         expect(wrapper.vm.popoverConfig).toEqual({});
@@ -132,7 +133,8 @@ describe('src/app/component/media/sw-media-field', () => {
 
     it('returns modal targetSelector when picker open inside modal', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ showPicker: true });
+        wrapper.vm.showPicker = true;
+        await nextTick();
 
         const el = wrapper.element;
         el.closest = jest.fn((selector) => (selector === '.mt-modal' ? el : null));
@@ -145,7 +147,8 @@ describe('src/app/component/media/sw-media-field', () => {
 
     it('should render sw-upload-listener with correct upload tag and auto-upload', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ showPicker: true });
+        wrapper.vm.showPicker = true;
+        await nextTick();
 
         const uploadListener = wrapper.find('sw-upload-listener-stub');
 
@@ -156,7 +159,9 @@ describe('src/app/component/media/sw-media-field', () => {
 
     it('should set media id and close picker when upload finishes', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ showPicker: true, showUploadField: true });
+        wrapper.vm.showPicker = true;
+        wrapper.vm.showUploadField = true;
+        await nextTick();
 
         const targetId = 'new-media-id-123';
         wrapper.vm.exposeNewId({ targetId });

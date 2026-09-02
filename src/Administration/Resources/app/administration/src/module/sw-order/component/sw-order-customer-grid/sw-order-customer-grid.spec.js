@@ -1,5 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -573,9 +574,8 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         Shopware.Store.get('swOrder').setCartToken('HE6KD7HOCC3TCS0AX903KCA6JHXCTXU2');
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            customerDraft: null,
-        });
+        wrapper.vm.customerDraft = null;
+        await nextTick();
 
         const handleSelectCustomerSpy = jest.spyOn(wrapper.vm, 'handleSelectCustomer');
 

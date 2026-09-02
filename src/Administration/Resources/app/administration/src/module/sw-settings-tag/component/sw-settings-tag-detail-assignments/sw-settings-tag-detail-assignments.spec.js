@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -321,9 +322,8 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         await parentComponent.vm.removeAssignment('products', '0', { id: '0' });
         await parentComponent.vm.addAssignment('products', '3', { id: '3' });
 
-        await wrapper.setData({
-            showSelected: true,
-        });
+        wrapper.vm.showSelected = true;
+        await nextTick();
 
         await wrapper.vm.$nextTick();
 

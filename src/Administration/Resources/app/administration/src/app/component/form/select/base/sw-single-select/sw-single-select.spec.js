@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createSingleSelect(customOptions) {
@@ -140,7 +141,8 @@ describe('components/sw-single-select', () => {
         await flushPromises();
 
         await swSingleSelect.find('.sw-select__selection').trigger('click');
-        await swSingleSelect.setData({ searchTerm: 'Entry 3' });
+        swSingleSelect.vm.searchTerm = 'Entry 3';
+        await nextTick();
         swSingleSelect.vm.search();
 
         expect(swSingleSelect.vm.searchTerm).toBe('Entry 3');

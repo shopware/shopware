@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -138,7 +139,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     });
 
     it('should allow to set the password', async () => {
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         expect(wrapper.vm.user.password).toBe('');
 
         const fieldPassword = wrapper.findByLabel('sw-users-permissions.users.user-detail.labelPassword');
@@ -149,13 +151,15 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     });
 
     it('should not be an admin by default', async () => {
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         expect(wrapper.vm.user.admin).toBeUndefined();
     });
 
     it('should be active by default', async () => {
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         expect(wrapper.vm.user.active).toBe(true);
     });

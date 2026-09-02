@@ -3,6 +3,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
@@ -445,11 +446,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
         const sendDocumentButton = wrapper.find('.sw-order-document-card__context-button-send');
@@ -465,11 +465,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         const columns = wrapper.findAll('.sw-data-grid__cell--header');
         // 5 data columns + 1 action column
@@ -488,15 +487,14 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                {
-                    ...documentFixture,
-                    documentMediaFile: { fileExtension: 'pdf' },
-                    documentA11yMediaFile: null,
-                },
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            {
+                ...documentFixture,
+                documentMediaFile: { fileExtension: 'pdf' },
+                documentA11yMediaFile: null,
+            },
+        ]);
+        await nextTick();
 
         expect(wrapper.find('.sw-order-document-card__context-button-download-all-formats').exists()).toBe(false);
     });
@@ -508,23 +506,22 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const dispatchEventSpy = jest.spyOn(HTMLAnchorElement.prototype, 'dispatchEvent').mockImplementation(() => true);
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                {
-                    ...documentFixture,
-                    documentFiles: [
-                        {
-                            documentFormat: 'html',
-                        },
-                        {
-                            documentFormat: 'pdf',
-                        },
-                    ],
-                    documentMediaFile: null,
-                    documentA11yMediaFile: null,
-                },
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            {
+                ...documentFixture,
+                documentFiles: [
+                    {
+                        documentFormat: 'html',
+                    },
+                    {
+                        documentFormat: 'pdf',
+                    },
+                ],
+                documentMediaFile: null,
+                documentA11yMediaFile: null,
+            },
+        ]);
+        await nextTick();
 
         await wrapper.find('.sw-order-document-card__actions-button').trigger('click');
         await flushPromises();
@@ -544,11 +541,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it('should render the legacy context menu actions when the feature flag is inactive', async () => {
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         expect(wrapper.find('sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(true);
     });
@@ -558,11 +554,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         await wrapper.find('.sw-order-document-card__actions-button').trigger('click');
 
@@ -577,11 +572,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         await wrapper.find('.sw-order-document-card__context-button-open-format').trigger('click');
         await flushPromises();
@@ -598,11 +592,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         await wrapper.find('.sw-order-document-card__context-button-open-pdf').trigger('click');
         await flushPromises();
@@ -625,11 +618,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         await wrapper.find('.sw-order-document-card__context-button-download-format').trigger('click');
         await flushPromises();
@@ -646,11 +638,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         await wrapper.find('.sw-order-document-card__context-button-download-pdf').trigger('click');
         await flushPromises();
@@ -888,11 +879,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
         // 4 data columns + 1 action column
@@ -922,11 +912,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             },
         });
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         expect(wrapper.find('sw-card-filter').exists()).toBeTruthy();
     });
@@ -936,11 +925,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBe('true');
 
@@ -961,14 +949,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                {
-                    ...documentFixture,
-                    sent: false,
-                },
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            {
+                ...documentFixture,
+                sent: false,
+            },
+        ]);
+        await nextTick();
 
         const spyMarkDocumentAsSent = jest.spyOn(wrapper.vm, 'markDocumentAsSent');
 
@@ -1172,9 +1159,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.vm.documentCriteria.term).toBeNull();
         expect(wrapper.vm.documentCriteria.queries).toEqual([]);
 
-        await wrapper.setData({
-            term: '1000',
-        });
+        wrapper.vm.term = '1000';
+        await nextTick();
 
         expect(wrapper.vm.documentCriteria.term).toBe('1000');
         expect(wrapper.vm.documentCriteria.queries).toEqual([
@@ -1217,11 +1203,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it('should render the only pdf on available formats column', async () => {
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                { ...documentFixture, documentMediaFile: { fileExtension: 'pdf' }, documentA11yMediaFile: null },
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            { ...documentFixture, documentMediaFile: { fileExtension: 'pdf' }, documentA11yMediaFile: null },
+        ]);
+        await nextTick();
 
         await flushPromises();
 
@@ -1234,19 +1219,18 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it('should render html and pdf on available formats column', async () => {
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                {
-                    ...documentFixture,
-                    documentMediaFile: {
-                        fileExtension: 'pdf',
-                    },
-                    documentA11yMediaFile: {
-                        fileExtension: 'html',
-                    },
+        wrapper.vm.documents = getCollection('document', [
+            {
+                ...documentFixture,
+                documentMediaFile: {
+                    fileExtension: 'pdf',
                 },
-            ]),
-        });
+                documentA11yMediaFile: {
+                    fileExtension: 'html',
+                },
+            },
+        ]);
+        await nextTick();
 
         await flushPromises();
 
@@ -1261,11 +1245,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
         expect(deleteButton.exists()).toBe(true);
@@ -1283,11 +1266,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             'sw.order.detail.documents',
         );
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         const deleteButton = wrapper.find(buttonDeleteClassEntityListing);
         expect(deleteButton.exists()).toBe(true);
@@ -1299,11 +1281,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
         expect(deleteButton.exists()).toBe(true);
@@ -1315,11 +1296,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         expect(wrapper.find('.sw-modal').exists()).toBe(false);
 
@@ -1343,11 +1323,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         documentSearchMock.mockResolvedValue(getCollection('document', []));
 
@@ -1370,11 +1349,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         wrapper = await createWrapper();
 
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
+        wrapper.vm.documents = getCollection('document', [
+            documentFixture,
+        ]);
+        await nextTick();
 
         documentDeleteMock.mockRejectedValue({
             response: {

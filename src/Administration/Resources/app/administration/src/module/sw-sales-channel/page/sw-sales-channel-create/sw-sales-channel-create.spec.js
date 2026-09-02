@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(options = {}) {
@@ -81,9 +82,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
         const { wrapper } = await createWrapper();
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         expect(saveButton.props('disabled')).toBe(true);
     });
@@ -92,9 +92,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-create', () => {
         global.activeAclRoles = ['sales_channel.creator'];
         const { wrapper } = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 

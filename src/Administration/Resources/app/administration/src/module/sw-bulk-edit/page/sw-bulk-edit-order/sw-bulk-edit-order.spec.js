@@ -3,6 +3,7 @@
 /**
  * @sw-package checkout
  */
+import { nextTick } from 'vue';
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import Criteria from 'src/core/data/criteria.data';
@@ -579,9 +580,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper = await createWrapper();
 
         Shopware.Store.get('swBulkEdit').selectedIds = [];
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.selectedIds).toHaveLength(0);

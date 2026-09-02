@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -36,9 +37,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     it('should add the privilege attribute to some shortcut-overview-items', async () => {
         const { wrapper } = await createWrapper();
 
-        await wrapper.setData({
-            showShortcutOverviewModal: true,
-        });
+        wrapper.vm.showShortcutOverviewModal = true;
+        await nextTick();
 
         const privilegeSystemClearCacheItems = wrapper.findAll(
             'sw-shortcut-overview-item-stub[privilege="system.clear_cache"]',
@@ -54,9 +54,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     it('should only show shortcuts for the current platform', async () => {
         const { wrapper } = await createWrapper('MacIntel');
 
-        await wrapper.setData({
-            showShortcutOverviewModal: true,
-        });
+        wrapper.vm.showShortcutOverviewModal = true;
+        await nextTick();
 
         const generalShortcuts = wrapper.vm.sections.generalShortcuts;
 
@@ -87,9 +86,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     it('should show general shortcuts as the first section', async () => {
         const { wrapper } = await createWrapper();
 
-        await wrapper.setData({
-            showShortcutOverviewModal: true,
-        });
+        wrapper.vm.showShortcutOverviewModal = true;
+        await nextTick();
 
         const generalShortcuts = wrapper.vm.sections.generalShortcuts;
         const sections = wrapper.findAll('.sw-shortcut-overview__section');
@@ -130,9 +128,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     it('should show accessibility shortcuts in a separate section', async () => {
         const { wrapper } = await createWrapper();
 
-        await wrapper.setData({
-            showShortcutOverviewModal: true,
-        });
+        wrapper.vm.showShortcutOverviewModal = true;
+        await nextTick();
 
         const accessibilityShortcuts = wrapper.vm.sections.accessibility;
 
@@ -180,9 +177,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
     it('should show the footer actions', async () => {
         const { wrapper } = await createWrapper();
 
-        await wrapper.setData({
-            showShortcutOverviewModal: true,
-        });
+        wrapper.vm.showShortcutOverviewModal = true;
+        await nextTick();
 
         const disableShortcutsToggle = wrapper.find('mt-switch-stub');
         const closeButton = wrapper.find('mt-button-stub');

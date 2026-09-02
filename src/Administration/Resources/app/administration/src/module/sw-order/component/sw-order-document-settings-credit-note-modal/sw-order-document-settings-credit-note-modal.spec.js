@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { DOCUMENT_TYPES } from '../../order.types';
 
@@ -440,9 +441,8 @@ describe('sw-order-document-settings-credit-note-modal', () => {
             documentDate: '2024/01/01',
         };
 
-        await wrapper.setData({
-            documentConfig,
-        });
+        Object.assign(wrapper.vm.documentConfig, documentConfig);
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-order-document-settings-credit-note-modal__document-number input').element.value).toBe(

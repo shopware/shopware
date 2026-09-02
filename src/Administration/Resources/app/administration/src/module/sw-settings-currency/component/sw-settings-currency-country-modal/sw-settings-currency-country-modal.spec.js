@@ -2,6 +2,7 @@
  * @sw-package fundamentals@framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -40,9 +41,8 @@ async function createWrapper() {
 describe('module/sw-settings-currency/component/sw-settings-currency-country-modal', () => {
     it('should disable already assigned countries', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            assignedCountryIds: ['countryId1'],
-        });
+        wrapper.vm.assignedCountryIds = ['countryId1'];
+        await nextTick();
 
         expect(wrapper.vm.shouldDisableCountry({ id: 'countryId1' })).toBe(true);
         expect(wrapper.vm.shouldDisableCountry({ id: 'countryId2' })).toBe(false);
@@ -56,9 +56,8 @@ describe('module/sw-settings-currency/component/sw-settings-currency-country-mod
                 countryId: 'countryId1',
             },
         });
-        await wrapper.setData({
-            assignedCountryIds: ['countryId1'],
-        });
+        wrapper.vm.assignedCountryIds = ['countryId1'];
+        await nextTick();
 
         expect(wrapper.vm.shouldDisableCountry({ id: 'countryId1' })).toBe(false);
         expect(wrapper.vm.shouldDisableCountry({ id: 'countryId2' })).toBe(false);

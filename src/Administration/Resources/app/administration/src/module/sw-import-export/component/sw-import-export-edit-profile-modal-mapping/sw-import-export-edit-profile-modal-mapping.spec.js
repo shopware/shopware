@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { MtSearch } from '@shopware-ag/meteor-component-library';
 
@@ -323,9 +324,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             expect(button.attributes('disabled')).toBeUndefined();
         });
 
-        await wrapper.setData({
-            searchTerm: 'search term',
-        });
+        wrapper.vm.searchTerm = 'search term';
+        await nextTick();
 
         const disabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .mt-button');
 

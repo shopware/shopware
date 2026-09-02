@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const salesChannels = [
@@ -241,9 +242,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
 
-        await wrapper.setData({
-            liveSearchResults: mockResults.nothing.result,
-        });
+        wrapper.vm.liveSearchResults = mockResults.nothing.result;
+        await nextTick();
         await flushPromises();
         const resultHeadline = wrapper.find('.sw-settings-search-live-search__no-result .mt-empty-state__headline');
         expect(resultHeadline.text()).toBe('sw-settings-search.liveSearchTab.textNoResult');
@@ -265,9 +265,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
 
-        await wrapper.setData({
-            liveSearchResults: mockResults.oneResult.result,
-        });
+        wrapper.vm.liveSearchResults = mockResults.oneResult.result;
+        await nextTick();
         await flushPromises();
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
@@ -296,9 +295,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
 
-        await wrapper.setData({
-            liveSearchResults: mockResults.multipleResults.result,
-        });
+        wrapper.vm.liveSearchResults = mockResults.multipleResults.result;
+        await nextTick();
         await flushPromises();
 
         const tableBody = wrapper.find('.sw-data-grid__body');

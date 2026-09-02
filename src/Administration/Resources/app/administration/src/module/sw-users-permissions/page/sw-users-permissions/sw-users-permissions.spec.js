@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
@@ -46,9 +47,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
     });
 
     it('should finish saving correctly', async () => {
-        await wrapper.setData({
-            isSaveSuccessful: true,
-        });
+        wrapper.vm.isSaveSuccessful = true;
+        await nextTick();
 
         wrapper.vm.onSaveFinish();
 

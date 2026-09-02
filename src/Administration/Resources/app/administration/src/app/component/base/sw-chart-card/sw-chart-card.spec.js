@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { h } from 'vue';
+import { h, nextTick } from 'vue';
 
 const extendedRanges = [
     {
@@ -178,7 +178,8 @@ describe('src/app/component/base/sw-chart-card', () => {
         const expectedEvent = 'sw-chart-card-range-update';
         const expectedValue = '7Days';
         const wrapper = await createWrapper();
-        await wrapper.setData({ selectedRange: expectedValue });
+        wrapper.vm.selectedRange = expectedValue;
+        await nextTick();
 
         wrapper.vm.dispatchRangeUpdate();
 
@@ -197,7 +198,8 @@ describe('src/app/component/base/sw-chart-card', () => {
         });
         expect(wrapper.vm.selectedRange).toStrictEqual(defaultRange);
 
-        await wrapper.setData({ selectedRange: expectedRange });
+        wrapper.vm.selectedRange = expectedRange;
+        await nextTick();
         wrapper.vm.dispatchRangeUpdate();
 
         expect(wrapper.emitted()).toHaveProperty(expectedEvent);

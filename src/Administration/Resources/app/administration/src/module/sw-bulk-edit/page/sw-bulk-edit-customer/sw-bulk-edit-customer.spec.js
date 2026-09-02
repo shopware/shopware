@@ -3,6 +3,7 @@
 /**
  * @sw-package checkout
  */
+import { nextTick } from 'vue';
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
@@ -300,9 +301,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         wrapper = await createWrapper();
 
         Shopware.Store.get('swBulkEdit').selectedIds = [];
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.customer.messageEmptyTitle');
     });

@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { createPinia } from 'pinia';
 
@@ -116,9 +117,8 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
         const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
         expect(documentTypeSelect.classes()).toContain('has--error');
 
-        await wrapper.setData({
-            documentTypesSelected: ['invoice'],
-        });
+        wrapper.vm.documentTypesSelected = ['invoice'];
+        await nextTick();
 
         await saveButton.trigger('click');
 
@@ -127,12 +127,11 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
 
     it('should emit process-finish when document multiple type is selected', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            documentTypesSelected: [
-                'invoice',
-                'delivery_note',
-            ],
-        });
+        wrapper.vm.documentTypesSelected = [
+            'invoice',
+            'delivery_note',
+        ];
+        await nextTick();
 
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
         await saveButton.trigger('click');
@@ -252,10 +251,9 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
-            await wrapper.setData({
-                documentTypeSelected: 'invoice',
-                fileFormatsSelected: ['pdf'],
-            });
+            wrapper.vm.documentTypeSelected = 'invoice';
+            wrapper.vm.fileFormatsSelected = ['pdf'];
+            await nextTick();
 
             expect(wrapper.vm.fileFormatOptions.map((format) => format.value)).toEqual([
                 'pdf',
@@ -292,13 +290,12 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             const wrapper = await createWrapper();
             await flushPromises();
 
-            await wrapper.setData({
-                documentTypeSelected: 'invoice',
-                fileFormatsSelected: [
-                    'pdf',
-                    'zugferd_xml',
-                ],
-            });
+            wrapper.vm.documentTypeSelected = 'invoice';
+            wrapper.vm.fileFormatsSelected = [
+                'pdf',
+                'zugferd_xml',
+            ];
+            await nextTick();
 
             const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
             await saveButton.trigger('click');

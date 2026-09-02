@@ -3,6 +3,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AppAclService from 'src/app/service/app-acl.service';
@@ -638,9 +639,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         wrapper = await createWrapper({
             aclPrivileges: ['users_and_permissions.editor'],
         });
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         let verifyUserModal = wrapper.find('sw-verify-user-modal-stub');
         expect(verifyUserModal.exists()).toBeFalsy();
@@ -681,9 +681,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 isNew: true,
             },
         );
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const title = wrapper.find('h2');
         expect(title.text()).toBe('sw-users-permissions.roles.general.labelCreateNewRole');
@@ -696,9 +695,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 isNew: true,
             },
         );
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         let title = wrapper.find('h2');
@@ -721,9 +719,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         wrapper = await createWrapper({
             aclPrivileges: [],
         });
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         expect(saveButton.attributes().disabled).toBeDefined();
@@ -733,9 +730,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         wrapper = await createWrapper({
             aclPrivileges: ['users_and_permissions.editor'],
         });
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
         expect(saveButton.attributes().disabled).toBeUndefined();

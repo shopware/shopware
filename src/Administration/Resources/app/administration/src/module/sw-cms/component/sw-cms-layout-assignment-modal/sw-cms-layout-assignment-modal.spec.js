@@ -3,6 +3,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
@@ -813,9 +814,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').trigger('click');
 
         // Set new sales channel id
-        await wrapper.setData({
-            shopPageSalesChannelId: 'storefront_id',
-        });
+        wrapper.vm.shopPageSalesChannelId = 'storefront_id';
+        await nextTick();
 
         // Trigger sales channel select change
         await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
@@ -835,9 +835,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         await flushPromises();
 
         // Set new sales channel id
-        await wrapper.setData({
-            shopPageSalesChannelId: 'storefront_id',
-        });
+        wrapper.vm.shopPageSalesChannelId = 'storefront_id';
+        await nextTick();
 
         // Trigger sales channel select change
         await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
@@ -859,9 +858,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             await wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').trigger('click');
 
             // Set new sales channel id
-            await wrapper.setData({
-                shopPageSalesChannelId: 'headless_id',
-            });
+            wrapper.vm.shopPageSalesChannelId = 'headless_id';
+            await nextTick();
 
             // Trigger sales channel select change
             await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');
@@ -883,9 +881,8 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
             await flushPromises();
 
             // Set new sales channel id
-            await wrapper.setData({
-                shopPageSalesChannelId: 'headless_id',
-            });
+            wrapper.vm.shopPageSalesChannelId = 'headless_id';
+            await nextTick();
 
             // Trigger sales channel select change
             await wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').trigger('change');

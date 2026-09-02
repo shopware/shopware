@@ -143,7 +143,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ hasOrderDeepEdit: true });
+        wrapper.vm.hasOrderDeepEdit = true;
+        await nextTick();
 
         const next = jest.fn();
         wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm, {}, {}, next);
@@ -183,7 +184,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     it('should contain manual label', async () => {
         wrapper = await createWrapper();
-        await wrapper.setData({ identifier: '1' });
+        wrapper.vm.identifier = '1';
+        await nextTick();
 
         Shopware.Store.get('swOrderDetail').order = {
             orderNumber: 1,

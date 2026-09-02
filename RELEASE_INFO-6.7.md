@@ -6,12 +6,23 @@
 
 When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.
 
+### `translation:install --all` no longer installs pseudo-locales
+
+`--all` now covers every configured locale except the pseudo-locales. A pseudo-locale such as `ach-UG` exists for in-context proofreading and translatability audits, not as a language a shop offers, and installing it created an active "Acholi (Pseudo Language)" alongside the real ones.
+
+It stays installable by naming it explicitly, which is how the audits it exists for ask for it:
+
+```
+translation:install --locales=ach-UG
+```
+
+Installations that ran `--all` before this change and do not want the pseudo-language can remove it in the administration, or through `DELETE /api/_action/translation/{locale}` to drop its files as well.
+
 ### `system:install` dispatches `SystemInstallCompletedEvent`
 
 `Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
 
 When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
-
 ### New document lifecycle business events
 
 Two new events give extensions a hook into the document lifecycle without polling or fetching the document to discover its type, number, order and file:
@@ -113,7 +124,15 @@ Two consequences for operators:
 - `translation:install` now exits with a non-zero code when none of the requested locales can be installed — that is, when neither the repository offers them nor the filesystem carries them. Previously it printed "All translations are already up to date." and exited `0`. Scripts that check the exit code are affected. The install route already answered such a request with an error.
 - A requested locale that the repository does not offer and that has no files on the filesystem is reported and left out rather than installed as a language without translations. `POST /api/_action/translation/install` keeps reporting those locales in its `unavailable` list, but a locale whose files were provisioned offline no longer appears there, because it can be installed. Its `skipped` list now names the requested locales that were installed without a download, instead of every locale in the local metadata that was not updated.
 
+### Product breadcrumbs work with categories hidden from navigation
+
+Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
+
 ## API
+
+### Store API currency headers validate sales channel availability
+
+Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
 
 ### Store API context token response header is restricted on cacheable reads
 

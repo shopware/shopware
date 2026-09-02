@@ -256,7 +256,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(BaseSalesChannelContextFactory::class)
         ->args([
             service('sales_channel.repository'),
-            service('currency.repository'),
             service('customer_group.repository'),
             service('country.repository'),
             service('tax.repository'),

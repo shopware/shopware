@@ -5,13 +5,23 @@ General styling for cms sections
 */
 
 .cms-section {
-    // Deviation from trunk: trunk removes clipping entirely because it also adds
-    // `.cms-section .full-width { @include make-container(); --bs-gutter-x: 0; }`,
-    // which does not exist on 6.6.x. On 6.6.x `.cms-section-sidebar` is itself the
-    // `.row`, so a full-width section would overflow the viewport by the row's
-    // negative margins. Clip on the x axis only, so focus rings can still escape
-    // vertically (the point of this PR).
-    overflow-x: clip;
+    // Deviation from trunk (#17650 removes the clipping entirely). Trunk can do that
+    // because it already has `.cms-section .full-width { @include make-container(); --bs-gutter-x: 0; }`
+    // (#16238), which does not exist on 6.6.x. Here `.cms-section-sidebar` is itself the
+    // `.row` (see section/cms-section-sidebar.html.twig), so a full-width sidebar section
+    // would overflow the viewport by the row's negative margins (horizontal page scrollbar).
+    // Keep the 6.6.x clipping as the fallback and relax it to the x axis only where
+    // `overflow: clip` exists (Safari 16+, Chrome 90+, Firefox 81+): .browserslistrc still
+    // targets Safari/iOS 12+, where `clip` is invalid and would silently fall back to
+    // `visible`. Both longhands are required inside @supports — with `overflow-y` left at
+    // `hidden` nothing escapes vertically, and a bare cascade fallback would end up as
+    // `hidden`/`visible` on old Safari, which coerces to a scroll container.
+    overflow: hidden;
+
+    @supports (overflow: clip) {
+        overflow-x: clip;
+        overflow-y: visible;
+    }
 
     &.bg-image {
         background-repeat: no-repeat;

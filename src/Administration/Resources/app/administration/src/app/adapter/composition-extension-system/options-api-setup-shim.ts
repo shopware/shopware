@@ -135,6 +135,10 @@ export function attachSetupOverrideShim(componentName: string, config: Component
 
                     Object.keys(result).forEach((key) => {
                         bag[key] = result[key];
+                        delete (instance as unknown as { accessCache: Record<string, unknown> }).accessCache[key];
+                        // Vue memoises which bucket a key resolved from on first access. Anything that read
+                        // the key earlier - an immediate watcher, a preceding created hook - pinned it to
+                        // `data`, and setupState would never be consulted again.
                     });
                 });
             });

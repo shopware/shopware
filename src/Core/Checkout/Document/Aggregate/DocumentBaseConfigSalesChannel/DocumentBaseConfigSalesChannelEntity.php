@@ -23,6 +23,9 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
 
     protected string $documentTypeId;
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-duplicate-field - Will be removed. Use the typeName property of the documentBaseConfig instead.
+     */
     protected ?string $typeName = null;
 
     protected ?DocumentTypeEntity $documentType = null;
@@ -52,7 +55,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentBaseConfig()?->getTypeName() instead.
      */
     public function getDocumentTypeId(): string
     {
@@ -60,25 +63,31 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentBaseConfig()?->setTypeName() instead.
      */
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-duplicate-field - Will be removed. Use getDocumentBaseConfig()?->getTypeName() instead.
+     */
     public function getTypeName(): ?string
     {
         return $this->typeName;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-duplicate-field - Will be removed. Use getDocumentBaseConfig()?->setTypeName() instead.
+     */
     public function setTypeName(?string $typeName): void
     {
         $this->typeName = $typeName;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentBaseConfig()?->getTypeName() instead.
      */
     public function getDocumentType(): ?DocumentTypeEntity
     {
@@ -86,7 +95,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentBaseConfig()?->setTypeName() instead.
      */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {

@@ -172,6 +172,29 @@ const ROUTE_WATCH_FIXTURE = runtimeFixture(
     `,
 );
 
+const SHORTCUT_FIXTURE = runtimeFixture(
+    'sw-runtime-shortcut',
+    `
+        export default {
+            data() {
+                return { enabled: false };
+            },
+            shortcuts: {
+                ESCAPE: { active() { return this.enabled; }, method: 'onEsc' },
+                F: 'onFocus',
+            },
+            methods: {
+                onEsc() {
+                    globalThis.__runtimeEquivalenceProbe.push('esc');
+                },
+                onFocus() {
+                    globalThis.__runtimeEquivalenceProbe.push('focus');
+                },
+            },
+        };
+    `,
+);
+
 const CLASS_THIS_FIXTURE = runtimeFixture(
     'sw-runtime-class-this',
     `
@@ -370,5 +393,6 @@ export {
     PROP_INJECT_DATA_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
+    SHORTCUT_FIXTURE,
     SIBLING_DATA_FIXTURE,
 };

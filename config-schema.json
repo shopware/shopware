@@ -335,6 +335,19 @@
                             "minimum": 1,
                             "default": 5,
                             "description": "Consecutive first-attempt transient failures that trip HEALTHY into DEGRADED."
+                        },
+                        "non_transient_threshold_count": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 3,
+                            "description": "Consecutive auth rejections (401/403) that suspend the webhook."
+                        },
+                        "max_suspended_days": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 14,
+                            "default": 7,
+                            "description": "Days a webhook may stay SUSPENDED before it retires to DISABLED."
                         }
                     },
                     "description": "@experimental stableVersion:v6.8.0 feature:WEBHOOKS_REWORK Endpoint health settings."

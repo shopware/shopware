@@ -233,14 +233,8 @@ class WebhookDeliveryService
 
     private function handleFailure(string $webhookId, OutboxEntry $entry, ?DeliveryResponse $response): void
     {
-        $persisted = $this->persistFailureOutcome($entry, $response);
-        if (!$persisted) {
-            $this->logger->warning('Lease lost while recording webhook failure for event {eventId}', [
-                'eventId' => $entry->webhookEventId,
-                'webhookId' => $webhookId,
-                'sequence' => $entry->sequence,
-                'executionCount' => $entry->executionCount,
-            ]);
+        if (!$this->persistFailureOutcome($entry, $response)) {
+            $this->logLeaseLost($webhookId, $entry);
 
             return;
         }
@@ -284,10 +278,10 @@ class WebhookDeliveryService
             ? $this->retryAfterHeader($result)
             : null;
 
-        $this->placeInFlightRow($webhookId, $entry, $response, $classification, $state, $retryAfter);
+        $this->placeFailedRow($webhookId, $entry, $response, $classification, $state, $retryAfter);
     }
 
-    private function placeInFlightRow(
+    private function placeFailedRow(
         string $webhookId,
         OutboxEntry $entry,
         DeliveryResponse $response,
@@ -295,20 +289,16 @@ class WebhookDeliveryService
         EndpointState $state,
         ?string $retryAfter,
     ): void {
-        if (!$classification->isTransient()) {
+        // Payload-specific failures, and unfollowed redirects on a healthy endpoint, are final for this row.
+        if (!$classification->isTransient() || ($state === EndpointState::Healthy && $classification === ErrorClassification::TransientRedirect)) {
             $this->webhookOutboxStore->markFailed($entry, $response);
 
             return;
         }
 
-        if ($state === EndpointState::Degraded) {
+        // Inside an incident the ladder owns re-timing: the row is re-held, not retried.
+        if ($state !== EndpointState::Healthy) {
             $this->webhookOutboxStore->markPaused($entry, $response);
-
-            return;
-        }
-
-        if ($classification === ErrorClassification::TransientRedirect) {
-            $this->webhookOutboxStore->markFailed($entry, $response);
 
             return;
         }

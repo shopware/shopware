@@ -553,8 +553,8 @@ class WebhookOutboxStore
      */
     public function releaseOneTrialLocked(string $webhookId): bool
     {
-        $row = $this->connection->fetchAssociative(
-            'SELECT d.id, d.webhook_event_log_id
+        $deliveryId = $this->connection->fetchOne(
+            'SELECT d.id
              FROM webhook_delivery d
              JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
              WHERE d.webhook_id = :id AND d.delivery_status = :paused
@@ -570,30 +570,26 @@ class WebhookOutboxStore
             ]
         );
 
-        if ($row === false) {
+        if ($deliveryId === false) {
             return false;
         }
 
         $now = $this->clock->now();
-        $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->connection->executeStatement(
-            'UPDATE webhook_delivery
-             SET delivery_status = :pendingRetry, next_retry_at = :now, updated_at = :now
-             WHERE id = :deliveryId',
+            'UPDATE webhook_delivery d
+             JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+             SET d.delivery_status = :pendingRetry,
+                 d.next_retry_at    = :now,
+                 d.updated_at       = :now,
+                 el.delivery_status = :pendingRetry,
+                 el.timestamp       = :ts
+             WHERE d.id = :deliveryId',
             [
                 'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
-                'now' => $nowFormatted,
-                'deliveryId' => $row['id'],
-            ]
-        );
-
-        $this->connection->executeStatement(
-            'UPDATE webhook_event_log SET delivery_status = :pendingRetry, timestamp = :ts WHERE id = :elId',
-            [
-                'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                'now' => $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'ts' => $now->getTimestamp(),
-                'elId' => $row['webhook_event_log_id'],
+                'deliveryId' => $deliveryId,
             ]
         );
 

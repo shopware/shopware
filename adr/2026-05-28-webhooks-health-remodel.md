@@ -194,7 +194,7 @@ flowchart TD
 - **Every arrival at HEALTHY resumes the held rows** (age-filtered) — ladder, manual, API, or app reset. No held row outlives recovery.
 - **New events while SUSPENDED are shed: no row, no write.** DEGRADED keeps new work, SUSPENDED sheds it — that asymmetry *is* the difference between the states, and shedding costs zero I/O. Apps bound the shed window via `suspended_since` on `GET /state`.
 - **Order is never broken; a gap can exist.** Held rows resume ahead of newer traffic (FIFO — first in, first out — by row id). After recovery the receiver sees pre-suspension events, a gap (the shed window), then live traffic. Shed events consumed no sequence numbers, so the gap shows only on `/state`; the Admin notification marks trip and recovery.
-- **The transport doesn't change.** `paused` is simply not claimable; held rows re-enter only via a single-row release or the bulk resume — one atomic SQL statement per flip. The transport persists what the gate decided; there is no second decision.
+- **The transport doesn't change.** `paused` is simply not claimable; held rows re-enter only via a single-row release or the bulk resume — one transaction per flip. The transport persists what the gate decided; there is no second decision.
 - **Two timing races heal themselves.** A row landing claimable on a just-suspended webhook delivers once, its result counting like any other. A row landing `paused` on a just-recovered webhook is resumed by the health tick within a minute.
 
 A delivery already in flight (`running`) when the state changes:
@@ -202,7 +202,7 @@ A delivery already in flight (`running`) when the state changes:
 | Situation | What happens |
 |:---|:---|
 | Worker mid-delivery during a transition | The HTTP call just finishes; its result is recorded like any other — or ignored if its row is already gone. |
-| Crash leftover re-queued on a now-SUSPENDED webhook | Must not simply deliver — the health tick cancels it; only the one deliberately released row may be in flight. |
+| Crash leftover re-queued on a now-SUSPENDED webhook | Must not simply deliver — crash recovery cancels it before it can be claimed, and the health tick cancels any surplus claimable row; only the one deliberately released row may be in flight. |
 | Webhook goes DISABLED | Everything undelivered — queued, held, mid-flight — is cancelled; an operator's kill also stops a still-deliverable backlog. A worker finishing late writes into a deleted row and changes nothing. |
 
 **Cost — why the flip is expensive, and why it is bounded.** The flip is a bulk write holding row locks until commit; while locked, every other query touching those rows waits, so the lock-hold time directly stalls the webhook pipeline. It writes *two* tables, because `delivery_status` lives on both `webhook_delivery` and the wide `webhook_event_log` (`fetchDue` reads `el.delivery_status`). `webhook_event_log` also stores the request/response payloads (~3 KB/row), so once it outgrows MySQL's buffer pool (the memory for hot pages) its write dominates. Measured (pause flip, MySQL 8.4, 128 MB buffer pool):

@@ -77,10 +77,8 @@ class EntityReadTool extends McpToolResponse
                 $context,
             );
         } catch (SearchRequestException|DataAbstractionLayerException $e) {
-            // Same guard as entity-search and entity-aggregate. It matters most
-            // here because this tool's documented use is "associations" and
-            // "includes", and `{"includes":"id"}` — a string where an array is
-            // wanted — is the shape a caller most easily gets wrong.
+            // Scoped to this call on purpose: a DAL failure from the read
+            // below is a bug, not bad input, and must still reach the log.
             return $this->invalidCriteriaError($e);
         }
 

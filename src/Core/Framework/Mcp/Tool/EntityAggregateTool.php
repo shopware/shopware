@@ -94,11 +94,8 @@ class EntityAggregateTool extends McpToolResponse
                 $context,
             );
         } catch (SearchRequestException|DataAbstractionLayerException $e) {
-            // Expected/business error, so it is answered rather than propagated:
-            // the caller sent an aggregation this entity cannot express, and the
-            // parser already knows which element and why. Scoped to this call,
-            // so an unexpected throwable from the search below still reaches the
-            // log untouched, per the policy in McpToolResponse.
+            // Scoped to this call on purpose: a DAL failure from the search
+            // below is a bug, not bad input, and must still reach the log.
             return $this->invalidCriteriaError($e);
         }
 

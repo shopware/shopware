@@ -184,6 +184,8 @@ function renderScript(
     const importBlock = [
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
+        ctx.helpers.has('createTitle') ? "import useCreateTitle from 'src/app/composables/use-create-title';" : null,
+        collected.metaInfoFn ? "import useMetaInfo from 'src/app/composables/use-meta-info';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
         ...composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`),
     ]
@@ -196,6 +198,7 @@ function renderScript(
             'route',
             'slots',
             'attrs',
+            'createTitle',
         ] as const
     )
         .filter((helper) => ctx.helpers.has(helper))
@@ -273,6 +276,7 @@ function renderScript(
         dataBlock || null,
         refBlock || null,
         ...watchers.map((watcher) => renderWatcher(ctx, watcher)),
+        collected.metaInfoFn ? `useMetaInfo(${arrowText(ctx, collected.metaInfoFn)});` : null,
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
         collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
         ...siteTodos.map(todoBlock),

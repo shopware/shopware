@@ -450,7 +450,11 @@ class RecalculationService
 
             // validate cart against the context rules
             $validatedCart = $this->cartRuleLoader->loadByCart($live, $cart, $behavior)->getCart();
-            $validatedCart->addErrors(...$cart->getErrors()->filter(static fn (Error $error) => !$error->isPersistent()));
+            $validatedIds = $validatedCart->getErrors()->map(static fn (Error $error) => $error->getId());
+
+            $validatedCart->addErrors(...$cart->getErrors()->filter(
+                static fn (Error $error) => !$error->isPersistent() && !\in_array($error->getId(), $validatedIds, true)
+            ));
 
             return $validatedCart;
         });

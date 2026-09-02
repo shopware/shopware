@@ -154,6 +154,33 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame($tree, $result->data);
     }
 
+    #[TestDox('does not resolve an uppercase built-in alias')]
+    public function testLoadDoesNotResolveUppercaseAliasAsBuiltinAlias(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId('0123456789abcdef0123456789abcdef');
+
+        // NavigationAliasResolver::resolve() matches its alias constants case-sensitively (a `match` against
+        // the lowercase literal 'main-navigation'), so 'MAIN-NAVIGATION' falls through its default arm
+        // unchanged. The value is then normalized to lowercase, which is not a valid uuid, so the loader
+        // degrades to notFound() without reaching the navigation loader. Normalizing before alias resolution
+        // would instead resolve the sales channel's navigation category set above and call the loader.
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader->expects($this->never())->method('load');
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => 'MAIN-NAVIGATION']),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
     #[TestDox('resolves main-navigation alias to sales channel navigation category ID')]
     public function testLoadResolvesMainNavigationAliasToNavigationCategoryId(): void
     {

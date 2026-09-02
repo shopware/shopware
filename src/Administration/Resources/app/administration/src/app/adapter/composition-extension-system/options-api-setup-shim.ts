@@ -15,6 +15,7 @@ import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
 
 type AnyRecord = Record<string, unknown>;
+type SetupResult = AnyRecord | ((...args: unknown[]) => unknown) | undefined;
 
 // Hands the object created in setup() over to created(). Keyed per instance because the config is
 // shared by every instance of the component.
@@ -30,11 +31,22 @@ export function attachSetupOverrideShim(componentName: string, config: Component
         return;
     }
 
-    // Returns an empty object on purpose. Vue keeps a live reference to it as `setupState`, which is
-    // what later lets created() write into it. The overrides cannot run here - `data` and `computed`
-    // do not exist yet, so previousState would be empty.
-    config.setup = () => {
-        const bag: AnyRecord = {};
+    const originalSetup = config.setup;
+
+    // Vue keeps a live reference to whatever setup() returns as `setupState`, which is what later lets
+    // created() write into it. The overrides cannot run here - `data` and `computed` do not exist yet,
+    // so previousState would be empty. An existing setup() keeps its own return value as the starting
+    // content instead of being replaced.
+    config.setup = function shimSetup(props: Record<string, unknown>, context: SetupContext) {
+        const originalResult = (originalSetup ? originalSetup.call(this, props, context) : undefined) as SetupResult;
+
+        // A setup() returning a render function cannot carry the bag. Leave it untouched; the created
+        // hook then finds no bag and bails out, so the component keeps working without the overrides.
+        if (typeof originalResult === 'function') {
+            return originalResult;
+        }
+
+        const bag: AnyRecord = originalResult ?? {};
         const instance = getCurrentInstance();
 
         if (instance) {

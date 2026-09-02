@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { attachSetupOverrideShim } from './options-api-setup-shim';
 import { _overridesMap } from './index';
@@ -76,6 +76,27 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
 
         // Would stay at "override 1" if the setter wrote into the override's own result instead of data.
         expect(wrapper.text()).toBe('override 42');
+    });
+
+    it('keeps an existing setup() of the component instead of replacing it', async () => {
+        _overridesMap['sw-shim-existing-setup'] = [
+            () => ({ fromOverride: computed(() => 'override') }),
+        ] as never;
+
+        const config = {
+            template: '<p>{{ fromSetup }}|{{ fromOverride }}</p>',
+            setup() {
+                return { fromSetup: ref('own setup') };
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-existing-setup', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        // Would render only "|override" if the shim had overwritten config.setup.
+        expect(wrapper.text()).toBe('own setup|override');
     });
 
     it('keeps Vue resolving late-added setup keys before data and computed', async () => {

@@ -1008,13 +1008,13 @@ class DataAbstractionLayerException extends HttpException
     public static function invalidIdentifier(string $identifier): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            return new \InvalidArgumentException('Backtick not allowed in identifier');
+            return new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier');
         }
 
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DBAL_INVALID_IDENTIFIER,
-            'Backtick not allowed in identifier "{{ identifier }}"',
+            'Backtick, question mark, colon, or control character not allowed in identifier "{{ identifier }}"',
             ['identifier' => $identifier]
         );
     }

@@ -248,6 +248,25 @@ class AggregationParser
                     return null;
                 }
 
+                foreach ($aggregation['ranges'] as $range) {
+                    if (!isset($range['key'])) {
+                        continue;
+                    }
+
+                    $key = (string) $range['key'];
+
+                    if (
+                        str_contains($key, '?')
+                        || str_contains($key, ':')
+                        // https://www.php.net/manual/en/regexp.reference.unicode.php
+                        || preg_match('/\p{Cc}/u', $key) === 1
+                    ) {
+                        $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The range aggregation key should not contain a question mark, colon, or control character.'), '/aggregations/' . $index . '/' . $type . '/ranges');
+
+                        return null;
+                    }
+                }
+
                 return new RangeAggregation($name, $field, $aggregation['ranges']);
             case 'entity':
                 if (!isset($aggregation['definition'])) {

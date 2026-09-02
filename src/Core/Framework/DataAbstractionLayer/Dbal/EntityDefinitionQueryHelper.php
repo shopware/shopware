@@ -40,7 +40,13 @@ class EntityDefinitionQueryHelper
 
     public static function escape(string $string): string
     {
-        if (str_contains($string, '`')) {
+        if (
+            str_contains($string, '`')
+            || str_contains($string, '?')
+            || str_contains($string, ':')
+            // https://www.php.net/manual/en/regexp.reference.unicode.php
+            || preg_match('/\p{Cc}/u', $string) === 1
+        ) {
             throw DataAbstractionLayerException::invalidIdentifier($string);
         }
 

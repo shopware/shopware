@@ -5,12 +5,12 @@ const { RuleTester } = require('eslint');
 const rule = require('./no-set-data');
 
 /**
- * The rule resolves component names against the file system, so the cases need a real package on disk.
+ * The rule looks for a converted component beside the spec, so the cases need real files on disk.
  *
- * It is built at module load because `ruleTester.run()` collects its cases before any Jest hook runs, and
- * in a temporary directory so no fixture `.vue` file ends up under `eslint-rules/`, where the repository
- * lint and the native setup transform would both pick it up. The path is fixed rather than unique, and
- * cleared on the way in, so each run starts from an empty tree without a teardown hook.
+ * They are written at module load because `ruleTester.run()` collects its cases before any Jest hook
+ * runs, and in a temporary directory so no fixture `.vue` file ends up under `eslint-rules/`, where the
+ * repository lint and the native setup transform would both pick it up. The path is fixed rather than
+ * unique, and cleared on the way in, so each run starts from an empty tree without a teardown hook.
  */
 const packageRoot = path.join(os.tmpdir(), 'sw-no-set-data-fixture');
 const componentDirectory = path.join(packageRoot, 'src/app/component');
@@ -18,9 +18,11 @@ const componentDirectory = path.join(packageRoot, 'src/app/component');
 fs.rmSync(packageRoot, { recursive: true, force: true });
 fs.mkdirSync(path.join(componentDirectory, 'sw-converted'), { recursive: true });
 fs.mkdirSync(path.join(componentDirectory, 'sw-legacy'), { recursive: true });
-fs.writeFileSync(path.join(packageRoot, 'package.json'), '{}');
+fs.mkdirSync(path.join(packageRoot, 'src/app/mixin'), { recursive: true });
 fs.writeFileSync(path.join(componentDirectory, 'sw-converted/index.vue'), '');
 fs.writeFileSync(path.join(componentDirectory, 'sw-legacy/index.js'), '');
+// A converted component whose directory no spec beside it is named after.
+fs.writeFileSync(path.join(packageRoot, 'src/app/mixin/index.vue'), '');
 
 const convertedSpec = path.join(componentDirectory, 'sw-converted/sw-converted.spec.js');
 const nestedConvertedSpec = path.join(componentDirectory, 'sw-converted/sw-converted.spec/rendering.spec.js');
@@ -115,18 +117,16 @@ await wrapper.setData({ label: 'a' });
             `.trim(),
         },
         {
-            name: 'spares the unconverted one when a spec mounts both',
-            filename: convertedSpec,
+            name: 'is not gated by an index.vue in a directory the spec is not named after',
+            filename: path.join(packageRoot, 'src/app/mixin/listing.mixin.spec.js'),
             code: `
-const converted = mount(await wrapTestComponent('sw-converted'));
-const legacy = mount(await wrapTestComponent('sw-legacy'));
-
-await legacy.setData({ plain: 'x' });
+const wrapper = mount(await wrapTestComponent('sw-converted'));
+await wrapper.setData({ plain: 'x' });
             `.trim(),
         },
         {
-            name: 'ignores a spec outside any package',
-            filename: path.join(os.tmpdir(), 'sw-no-set-data-orphan.spec.js'),
+            name: 'ignores a spec with no component beside it',
+            filename: path.join(packageRoot, 'src/app/component/sw-absent/sw-absent.spec.js'),
             code: "await wrapper.setData({ plain: 'written' });",
         },
     ],

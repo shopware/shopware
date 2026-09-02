@@ -6,120 +6,12 @@ const fs = require('fs');
 const path = require('path');
 
 const VUE_SUFFIX = '.vue';
-const OVERRIDE_SUFFIX = '.override.vue';
-const IGNORED_DIRECTORY_NAMES = new Set([
-    'node_modules',
-    '.git',
-]);
-
-/**
- * Native setup component names mapped to the directories that declare them, keyed by `src` root.
- *
- * Built once per root per ESLint process. The names come from a `readdir` rather than from
- * `test/_helper_/componentWrapper/component-imports.js`, which is generated and git-ignored and so is
- * missing in a fresh checkout.
- */
-const componentIndexCache = new Map();
-
-/**
- * Derives the component name a native setup SFC registers under.
- *
- * Mirrors `inferShopwareSetupFromFilename` in build/vue-setup-transform: the name is the filename without
- * its `.vue` suffix, or the directory name for an index file.
- */
-function deriveComponentName(vueFilePath) {
-    const file = path.basename(vueFilePath);
-
-    if (file === `index${VUE_SUFFIX}`) {
-        return path.basename(path.dirname(vueFilePath));
-    }
-
-    return file.slice(0, -VUE_SUFFIX.length);
-}
-
-/**
- * Indexes every native setup base component below `srcRoot`.
- *
- * Overrides are skipped: an `.override.vue` targets a base component the scan already finds under its
- * own name, and a spec never mounts the override directly.
- */
-function indexNativeSetupComponents(srcRoot) {
-    const cached = componentIndexCache.get(srcRoot);
-
-    if (cached) {
-        return cached;
-    }
-
-    const index = new Map();
-    const pending = [srcRoot];
-
-    while (pending.length > 0) {
-        const directory = pending.pop();
-        let entries;
-
-        try {
-            entries = fs.readdirSync(directory, { withFileTypes: true });
-        } catch {
-            continue;
-        }
-
-        for (const entry of entries) {
-            if (entry.isDirectory()) {
-                if (!IGNORED_DIRECTORY_NAMES.has(entry.name)) {
-                    pending.push(path.join(directory, entry.name));
-                }
-
-                continue;
-            }
-
-            if (!entry.name.endsWith(VUE_SUFFIX) || entry.name.endsWith(OVERRIDE_SUFFIX)) {
-                continue;
-            }
-
-            const componentName = deriveComponentName(path.join(directory, entry.name));
-
-            if (!index.has(componentName)) {
-                index.set(componentName, new Set());
-            }
-
-            index.get(componentName).add(directory);
-        }
-    }
-
-    componentIndexCache.set(srcRoot, index);
-
-    return index;
-}
-
-/**
- * Walks up from a spec to the `src` directory of the npm package that owns it.
- *
- * Only that one package is indexed, so a spec in a satellite package (the Storefront's Administration
- * extension) does not resolve `wrapTestComponent()` names that live in the core Administration package.
- * Those specs fall back to the `.vue`-import and sibling-file signals.
- */
-function findSrcRoot(filename) {
-    let directory = path.dirname(filename);
-
-    for (;;) {
-        if (fs.existsSync(path.join(directory, 'package.json')) && fs.existsSync(path.join(directory, 'src'))) {
-            return path.join(directory, 'src');
-        }
-
-        const parent = path.dirname(directory);
-
-        if (parent === directory) {
-            return null;
-        }
-
-        directory = parent;
-    }
-}
 
 /**
  * Derives the component a spec belongs to from its own path.
  *
- * `sw-thing/sw-thing.spec.js` and `sw-thing/sw-thing.spec/rendering.spec.js` both belong to `sw-thing`.
+ * `sw-thing/sw-thing.spec.js` and `sw-thing/sw-thing.spec/rendering.spec.js` both belong to `sw-thing`,
+ * declared in the `sw-thing` directory.
  */
 function deriveSpecSubject(filename) {
     const directory = path.dirname(filename);
@@ -128,17 +20,35 @@ function deriveSpecSubject(filename) {
     if (specDirectory.endsWith('.spec')) {
         return {
             componentName: specDirectory.slice(0, -'.spec'.length),
-            directories: [path.dirname(directory)],
+            directory: path.dirname(directory),
         };
     }
 
-    const file = path.basename(filename);
-    const componentName = file.replace(/\.spec\.(js|ts)$/, '');
-
     return {
-        componentName,
-        directories: [directory],
+        componentName: path.basename(filename).replace(/\.spec\.(js|ts)$/, ''),
+        directory,
     };
+}
+
+/**
+ * Whether the component a spec is named after has been converted to a native setup SFC.
+ *
+ * Administration specs live in the directory of the code they test, so a converted component turns up as
+ * `<dir>/index.vue` or `<dir>/<name>.vue` right beside the spec - both of which the transform registers
+ * under the name the spec is derived from. `index.vue` counts only when the directory carries that name,
+ * so `app/mixin/listing.mixin.spec.js` is not gated by an unrelated `app/mixin/index.vue`.
+ */
+function hasConvertedSibling(filename) {
+    const subject = deriveSpecSubject(filename);
+
+    if (fs.existsSync(path.join(subject.directory, `${subject.componentName}${VUE_SUFFIX}`))) {
+        return true;
+    }
+
+    return (
+        path.basename(subject.directory) === subject.componentName &&
+        fs.existsSync(path.join(subject.directory, `index${VUE_SUFFIX}`))
+    );
 }
 
 const MOUNT_FUNCTIONS = new Set([
@@ -271,12 +181,6 @@ function findAssignedExpression(variable) {
     return { expression: expression ?? write?.writeExpr ?? null, key };
 }
 
-function isVueFileImport(variable) {
-    return (variable?.defs ?? []).some(
-        (definition) => definition.type === 'ImportBinding' && String(definition.parent.source.value).endsWith(VUE_SUFFIX),
-    );
-}
-
 /**
  * Traces a wrapper expression back to the component `mount()` received.
  *
@@ -356,21 +260,8 @@ function describeMountArgument(node, scope, sourceCode, depth) {
         case 'ObjectExpression':
             return describeComponentLiteral(node);
 
-        case 'CallExpression':
-            return node.callee.type === 'Identifier' &&
-                node.callee.name === 'wrapTestComponent' &&
-                node.arguments[0]?.type === 'Literal' &&
-                typeof node.arguments[0].value === 'string'
-                ? { kind: 'named', name: node.arguments[0].value }
-                : UNTRACED;
-
         case 'Identifier': {
             const variable = lookUpVariable(scope, node.name);
-
-            if (isVueFileImport(variable)) {
-                return { kind: 'nativeSetup' };
-            }
-
             const assigned = findAssignedExpression(variable);
 
             return assigned.expression === null
@@ -451,13 +342,16 @@ function classifySetDataCall(node, sourceCode) {
  * frozen `EMPTY_OBJ` whose mutation would have raised. The spec then fails on a later assertion, or keeps
  * passing while asserting nothing.
  *
- * A spec counts as mounting a native setup component when it imports a `.vue` file, when it passes a name
- * to `wrapTestComponent()` that resolves to a `.vue` file, or when the component it is named after is a
- * `.vue` file in its own directory. Within such a spec an individual call is spared only when its wrapper
- * traces back to a component that provably is not native setup - an Options API literal, or a
- * `wrapTestComponent()` name with no `.vue` behind it. A spec that mounts an inline host and registers the
- * converted component as one of its children is the common shape here: `setData` on the host is correct
- * and stays correct.
+ * A spec counts as mounting a native setup component when the component it is named after is a `.vue`
+ * file in its own directory, or when it imports a `.vue` file directly. Within such a spec an individual
+ * call is spared when its wrapper traces back to an Options API component literal: mounting an inline host
+ * that registers the converted component as one of its children is the common shape, and `setData` on the
+ * host is correct and stays correct.
+ *
+ * A spec that mounts some *other* component - not the one it is named after - is therefore not covered
+ * until its own component is converted too. Resolving those names would mean indexing every `.vue` file
+ * under `src`, and across the Administration suite it buys nothing: every `setData` call sits either on
+ * the spec's own component or on an inline host.
  *
  * @type {import('eslint').Rule.RuleModule}
  */
@@ -489,58 +383,28 @@ module.exports = {
         const sourceCode = context.sourceCode ?? context.getSourceCode();
 
         const setDataCalls = [];
-        const wrappedComponentNames = new Set();
         let importsVueFile = false;
         let vueImport = null;
         let nextTickLocalName = null;
         let firstImport = null;
         let importFixEmitted = false;
 
-        function resolveComponentIndex() {
-            const srcRoot = findSrcRoot(filename);
-
-            return srcRoot === null ? null : indexNativeSetupComponents(srcRoot);
-        }
-
-        function mountsNativeSetupComponent(index) {
-            if (importsVueFile) {
-                return true;
-            }
-
-            if (index === null) {
-                return false;
-            }
-
-            for (const componentName of wrappedComponentNames) {
-                if (index.has(componentName)) {
-                    return true;
-                }
-            }
-
-            const subject = deriveSpecSubject(filename);
-            const declaringDirectories = index.get(subject.componentName);
-
-            return declaringDirectories !== undefined && subject.directories.some((d) => declaringDirectories.has(d));
+        function mountsNativeSetupComponent() {
+            return importsVueFile || hasConvertedSibling(filename);
         }
 
         /**
-         * Whether this one call is on a wrapper that demonstrably holds something other than a native setup
-         * component, in a spec that mounts one elsewhere.
+         * Whether this one call is on a wrapper that demonstrably holds an Options API component, in a spec
+         * that mounts a native setup one elsewhere.
          */
-        function targetsAnUnconvertedComponent(node, index) {
+        function targetsAnUnconvertedComponent(node) {
             const receiver = node.callee.object;
 
             if (receiver.type !== 'Identifier') {
                 return false;
             }
 
-            const traced = traceWrapper(receiver, sourceCode.getScope(receiver), sourceCode);
-
-            if (traced.kind === 'optionsApi') {
-                return true;
-            }
-
-            return traced.kind === 'named' && index !== null && !index.has(traced.name);
+            return traceWrapper(receiver, sourceCode.getScope(receiver), sourceCode).kind === 'optionsApi';
         }
 
         /**
@@ -660,34 +524,18 @@ module.exports = {
             },
 
             CallExpression(node) {
-                if (node.callee.type === 'Identifier' && node.callee.name === 'wrapTestComponent') {
-                    const [componentName] = node.arguments;
-
-                    if (componentName?.type === 'Literal' && typeof componentName.value === 'string') {
-                        wrappedComponentNames.add(componentName.value);
-                    }
-
-                    return;
-                }
-
                 if (node.callee.type === 'MemberExpression' && node.callee.property.name === 'setData') {
                     setDataCalls.push(node);
                 }
             },
 
             'Program:exit': function reportCollectedCalls() {
-                if (setDataCalls.length === 0) {
-                    return;
-                }
-
-                const index = resolveComponentIndex();
-
-                if (!mountsNativeSetupComponent(index)) {
+                if (setDataCalls.length === 0 || !mountsNativeSetupComponent()) {
                     return;
                 }
 
                 for (const node of setDataCalls) {
-                    if (targetsAnUnconvertedComponent(node, index)) {
+                    if (targetsAnUnconvertedComponent(node)) {
                         continue;
                     }
 

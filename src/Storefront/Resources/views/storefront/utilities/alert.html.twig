@@ -96,7 +96,7 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
 #}
 
 {% if ariaLive is not defined %}
-    {% set ariaLive = 'polite' %}
+    {% set ariaLive = type in ['danger', 'warning'] ? 'assertive' : 'polite' %}
 {% endif %}
 
 {% block utilities_alert %}
@@ -121,15 +121,15 @@ The role="alert" and aria-live attributes are then set by JavaScript to trigger 
                     {{ sw_icon_cache_disable() }}
                 {% endif %}
                 {% if type == 'danger' %}
-                    {% sw_icon 'blocked' style { ariaHidden: true } %}
+                    {% sw_icon 'blocked' %}
                 {% elseif type == 'warning' %}
-                    {% sw_icon 'warning' style { ariaHidden: true } %}
+                    {% sw_icon 'warning' %}
                 {% elseif type == 'info' %}
-                    {% sw_icon 'info' style { ariaHidden: true } %}
+                    {% sw_icon 'info' %}
                 {% elseif type == 'success' %}
-                    {% sw_icon 'checkmark-circle' style { ariaHidden: true } %}
+                    {% sw_icon 'checkmark-circle' %}
                 {% else %}
-                    {% sw_icon 'alert' style { ariaHidden: true } %}
+                    {% sw_icon 'alert' %}
                 {% endif %}
                 {% if iconCache == false and iconCacheSystem === true %}
                     {{ sw_icon_cache_enable() }}

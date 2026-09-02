@@ -275,11 +275,10 @@ function wrapNativeBlockTargets(tokens) {
         }
 
         token.token.__swBlockHosted = true;
-        acc.push(
-            { type: 'raw', value: `<sw-block name="${blockName}" :data="$dataScope" :legacy-shim="false">` },
-            token,
-            { type: 'raw', value: '</sw-block>' },
-        );
+        acc.push({ type: 'raw', value: `<sw-block name="${blockName}" :data="$dataScope" :legacy-shim="false">` }, token, {
+            type: 'raw',
+            value: '</sw-block>',
+        });
 
         return acc;
     }, []);

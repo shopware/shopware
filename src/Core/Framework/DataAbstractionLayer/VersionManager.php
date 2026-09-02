@@ -51,6 +51,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -269,6 +271,8 @@ class VersionManager
             }
         }
 
+        $this->validateOverwriteWriteProtection($definition, $behavior->getOverwrites(), $context->getContext());
+
         $data = array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -286,6 +290,42 @@ class VersionManager
     }
 
     /**
+     * @param array<string, mixed> $overwrites
+     */
+    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context): void
+    {
+        foreach ($overwrites as $propertyName => $value) {
+            $field = $definition->getFields()->get($propertyName);
+            $writeProtection = $field?->getFlag(WriteProtected::class);
+
+            if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
+                continue;
+            }
+
+            $message = 'This field is write-protected.';
+            $allowedScopes = implode(' or ', $writeProtection->getAllowedScopes());
+
+            if ($allowedScopes !== '') {
+                $message .= ' (Got: "%s" scope and "%s" is required)';
+            }
+
+            throw DataAbstractionLayerException::invalidWriteConstraintViolation(
+                new ConstraintViolationList([
+                    new ConstraintViolation(
+                        \sprintf($message, $context->getScope(), $allowedScopes),
+                        $message,
+                        [$context->getScope(), $allowedScopes],
+                        $value,
+                        $propertyName,
+                        $value
+                    ),
+                ]),
+                '/' . $propertyName
+            );
+        }
+    }
+
+    /**
      * @param array<string, array<string, mixed|null>|null> $data
      *
      * @return array<string, array<string, mixed|null>|string|null>
@@ -299,7 +339,7 @@ class VersionManager
 
         foreach ($fields as $field) {
             $writeProtection = $field->getFlag(WriteProtected::class);
-            if ($writeProtection && !$writeProtection->isAllowed(Context::SYSTEM_SCOPE)) {
+            if ($writeProtection && !$writeProtection->isAllowed($context->getScope())) {
                 continue;
             }
 

@@ -92,4 +92,56 @@ class ApiControllerCloneTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
     }
+
+    public function testCloneDoesNotAllowOverwritingWriteProtectedFields(): void
+    {
+        $browser = $this->getBrowser();
+        $testUser = TestUser::createNewTestUser(
+            $browser->getContainer()->get(Connection::class),
+            ['user:create']
+        );
+        $testUser->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/clone/user/' . $testUser->getUserId(), [
+            'overwrites' => [
+                'admin' => true,
+                'email' => Uuid::randomHex() . '@example.com',
+                'firstName' => 'Test',
+                'lastName' => 'User',
+                'password' => 'shopware',
+                'username' => Uuid::randomHex(),
+            ],
+            'cloneChildren' => false,
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+    }
+
+    public function testCloneDoesNotCopyWriteProtectedFields(): void
+    {
+        $browser = $this->getBrowser();
+        $connection = $browser->getContainer()->get(Connection::class);
+        $sourceUser = TestUser::createNewTestUser($connection);
+        $connection->update('user', ['admin' => true], ['id' => Uuid::fromHexToBytes($sourceUser->getUserId())]);
+
+        TestUser::createNewTestUser($connection, ['user:create'])->authorizeBrowser($browser);
+
+        $browser->jsonRequest('POST', '/api/_action/clone/user/' . $sourceUser->getUserId(), [
+            'overwrites' => [
+                'email' => Uuid::randomHex() . '@example.com',
+                'firstName' => 'Test',
+                'lastName' => 'User',
+                'password' => 'shopware',
+                'username' => Uuid::randomHex(),
+            ],
+            'cloneChildren' => false,
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $cloneId = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['id'];
+        static::assertIsString($cloneId);
+        static::assertSame('0', $connection->fetchOne('SELECT admin FROM user WHERE id = :id', ['id' => Uuid::fromHexToBytes($cloneId)]));
+    }
 }

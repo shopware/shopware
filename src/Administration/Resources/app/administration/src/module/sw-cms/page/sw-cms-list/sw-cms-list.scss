@@ -21,7 +21,6 @@
         }
     }
 
-    // @deprecated tag:v6.9.0 - Will be removed together with the sw_cms_list_sidebar blocks.
     .sw-cms-list__sidebar {
         width: 180px;
         padding-top: 64px;
@@ -30,15 +29,6 @@
 
         @media screen and (max-width: 1400px) {
             display: none;
-        }
-    }
-
-    .sw-cms-list__type-nav-horizontal {
-        margin-bottom: var(--scale-size-40);
-
-        // sw-tabs renders this area even when no tab content exists
-        .sw-tabs__custom-content {
-            padding: 0;
         }
     }
 

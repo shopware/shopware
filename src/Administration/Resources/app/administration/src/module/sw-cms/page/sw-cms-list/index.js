@@ -85,7 +85,7 @@ export default {
             const sortByAllPagesOption = {
                 value: '',
                 name: this.$t('sw-cms.sorting.labelSortByAllPages'),
-                active: this.activePageTypeTab === 'all-pages',
+                active: true,
             };
 
             return this.cmsPageTypeService.getTypes().reduce(
@@ -93,7 +93,6 @@ export default {
                     accumulator.push({
                         value: pageType.name,
                         name: this.$t(pageType.title),
-                        active: this.activePageTypeTab === pageType.name,
                     });
 
                     return accumulator;
@@ -104,13 +103,6 @@ export default {
 
         activePageTypeTab() {
             return this.currentPageType || 'all-pages';
-        },
-
-        // plugins overriding the sidebar blocks ship markup built for the vertical sidebar
-        hasPageTypeSidebarOverride() {
-            return Shopware.Template.getTemplateOverrides('sw-cms-list').some((override) =>
-                /\{%\s*block\s+sw_cms_list_sidebar/.test(override.raw ?? ''),
-            );
         },
 
         cmsListPageTypeTabs() {

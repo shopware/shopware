@@ -53,7 +53,7 @@ async function createWrapper(
                     },
                     'sw-tabs': {
                         name: 'sw-tabs',
-                        template: '<div class="sw-tabs"><slot></slot><slot name="content"></slot></div>',
+                        template: '<div class="sw-tabs"><slot name="content"></slot></div>',
                     },
                     'mt-tabs': {
                         name: 'mt-tabs',
@@ -277,12 +277,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             {
                 name: 'page',
                 value: 'page',
-                active: false,
             },
             {
                 name: 'landingpage',
                 value: 'landingpage',
-                active: false,
             },
         ]);
     });
@@ -303,7 +301,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         expect(tabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
         expect(tabs.props('defaultItem')).toBe('all-pages');
-        expect(tabs.props('vertical')).toBe(false);
+        expect(tabs.props('vertical')).toBe(true);
         expect(tabs.props('items')).toEqual([
             expect.objectContaining({
                 label: 'sw-cms.sorting.labelSortByAllPages',
@@ -322,29 +320,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             }),
         ]);
         expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
-
-        const horizontalWrapper = wrapper.find('.sw-cms-list__type-nav-horizontal');
-        expect(horizontalWrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
-        expect(wrapper.find('.sw-cms-list__sidebar').exists()).toBe(false);
-    });
-
-    it('should render the sidebar instead of the horizontal tabs when a plugin overrides the sidebar blocks', async () => {
-        const overridesSpy = jest.spyOn(Shopware.Template, 'getTemplateOverrides').mockReturnValue([
-            {
-                index: 0,
-                raw: '{% block sw_cms_list_sidebar_tabs %}<div class="plugin-tabs"></div>{% endblock %}',
-            },
-        ]);
-
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        const sidebar = wrapper.find('.sw-cms-list__sidebar');
-        expect(sidebar.exists()).toBe(true);
-        expect(sidebar.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
-        expect(wrapper.find('.sw-cms-list__type-nav-horizontal').exists()).toBe(false);
-
-        overridesSpy.mockRestore();
     });
 
     it('should size the card view pagination steps and skeletons like the card view limit', async () => {
@@ -358,25 +333,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await flushPromises();
 
         expect(wrapper.findAllComponents({ name: 'sw-skeleton' })).toHaveLength(9);
-    });
-
-    it('should mark the active page type when the major feature flag is inactive', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
-        wrapper.vm.onSortPageType('page');
-        await flushPromises();
-
-        const tabBars = wrapper.findAllComponents({ name: 'sw-tabs' });
-        expect(tabBars).toHaveLength(1);
-
-        const activeStates = tabBars[0].findAll('sw-tabs-item-stub').map((item) => item.attributes('active'));
-        expect(activeStates).toEqual([
-            'false',
-            'true',
-            'false',
-        ]);
     });
 
     it('should filter by page type when a meteor tab item is clicked', async () => {

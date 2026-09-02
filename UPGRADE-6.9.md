@@ -36,13 +36,13 @@ Every v1 extension point has a v2 counterpart:
 Register a type class and a data provider as tagged services, and ship a Twig template named after the technical name. Templates are resolved by convention. A database row is no longer needed:
 
 ```php
-class WarrantyDocumentType extends AbstractDocumentType // tag: shopware.document_v2.type
+readonly class WarrantyDocumentType extends AbstractDocumentType // tag: shopware.document_v2.type
 {
     public function getTechnicalName(): string { return 'swag_warranty'; }
     public function getSupportedFormats(): array { return ['html', 'pdf']; }
 }
 
-class WarrantyDataProvider extends AbstractDocumentDataProvider // tag: shopware.document_v2.provider
+readonly class WarrantyDataProvider extends AbstractDocumentDataProvider // tag: shopware.document_v2.provider
 {
     public function getKey(): string { return 'swag_warranty'; }
     public function supports(string $documentType): bool { return $documentType === 'swag_warranty'; }
@@ -57,7 +57,7 @@ Template: `Resources/views/documents/swag_warranty.html.twig`. Apps achieve the 
 Register an additional data provider that supports the existing type with its own unique key. All providers matching a type run once per generation, and every format is rendered from the combined data:
 
 ```php
-class WarrantyInfoProvider extends AbstractDocumentDataProvider
+readonly class WarrantyInfoProvider extends AbstractDocumentDataProvider
 {
     public function getKey(): string { return 'swag_warranty_info'; }
     public function supports(string $documentType): bool { return $documentType === 'invoice'; }
@@ -71,6 +71,7 @@ class WarrantyInfoProvider extends AbstractDocumentDataProvider
     {
         return new WarrantyInfoRenderData(/* ... */);
     }
+}
 ```
 
 The public properties of the returned DTO are available in the document templates through the `config` variable. Apps enrich data through the `document-generation` script hook instead.

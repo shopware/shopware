@@ -27,6 +27,8 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._btnMinus = this.el.querySelector('.js-btn-minus');
         this._unitLabel = this.el.querySelector('.js-quantity-selector-unit');
         this._purchaseLimitFetched = false;
+        this._committedValue = this._input.value;
+        this._isCommitting = false;
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
@@ -71,16 +73,77 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._btnPlus.addEventListener('click', this._stepUp.bind(this));
         this._btnMinus.addEventListener('click', this._stepDown.bind(this));
 
-        // prevent default submit on
-        this._input.addEventListener('keydown', (event) => {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                this._triggerChange();
-                return false;
-            }
-        });
+        this._input.addEventListener('keydown', this._onKeyDown.bind(this));
+        this._input.addEventListener('change', this._onChange.bind(this));
+        this._input.addEventListener('blur', this._onBlur.bind(this));
+    }
 
-        this._input.addEventListener('change', this._updateUnitLabel.bind(this));
+    /**
+     * Withhold `change` events that are emitted while the user is still editing.
+     *
+     * The native stepping of `input[type=number]` emits a `change` event on every single
+     * arrow key press. Form level listeners such as the `FormAutoSubmitPlugin` treat each of
+     * those as a completed edit and submit, which reloads the page underneath a keyboard or
+     * screen reader user while they are still choosing a value. Those events are held back
+     * until the edit is finished, which is either on blur or on `Enter`.
+     *
+     * The input only keeps the focus for edits made with the keyboard. Typing a value emits
+     * `change` on blur, when the focus has already moved on, and the `[+]` and `[-]` buttons
+     * trigger the event themselves. Both still pass through immediately.
+     *
+     * @param {Event} event
+     *
+     * @private
+     */
+    _onChange(event) {
+        const isEditing = !this._isCommitting && document.activeElement === this._input;
+
+        if (isEditing) {
+            event.stopPropagation();
+        } else {
+            this._committedValue = this._input.value;
+        }
+
+        this._updateUnitLabel();
+    }
+
+    /**
+     * Commit the current value on `Enter`, so a keyboard user does not have to leave the
+     * input to apply it.
+     *
+     * @param {KeyboardEvent} event
+     *
+     * @private
+     */
+    _onKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            this._commit();
+        }
+    }
+
+    /**
+     * @private
+     */
+    _onBlur() {
+        this._commit();
+    }
+
+    /**
+     * Pass on a value the user is done editing, even when the input still holds the focus.
+     *
+     * @param {'up'|'down'|undefined} btn
+     *
+     * @private
+     */
+    _commit(btn) {
+        if (this._input.value === this._committedValue) {
+            return;
+        }
+
+        this._isCommitting = true;
+        this._triggerChange(btn);
+        this._isCommitting = false;
     }
 
     /**
@@ -114,7 +177,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         const before = this._input.value;
         this._input.stepUp();
         if (this._input.value !== before) {
-            this._triggerChange('up');
+            this._commit('up');
         }
     }
 
@@ -127,7 +190,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         const before = this._input.value;
         this._input.stepDown();
         if (this._input.value !== before) {
-            this._triggerChange('down');
+            this._commit('down');
         }
     }
 
@@ -276,7 +339,7 @@ export default class QuantitySelectorPlugin extends Plugin {
 
         if (steppedValue !== currentValue) {
             this._input.value = steppedValue;
-            this._triggerChange();
+            this._commit();
             this._dispatchFormEvent('QuantitySelector/StockAdjusted', { quantity: steppedValue });
         }
     }

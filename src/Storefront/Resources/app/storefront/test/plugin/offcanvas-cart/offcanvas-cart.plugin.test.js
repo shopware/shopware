@@ -158,6 +158,29 @@ describe('OffCanvasCartPlugin tests', () => {
         expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
     });
 
+    test('does not fire a request for a change the quantity selector withholds', async () => {
+        const el = document.querySelector('.header-cart');
+
+        // Open offcanvas cart with click
+        el.dispatchEvent(new Event('click', {
+            bubbles: true,
+        }));
+
+        await new Promise(process.nextTick);
+
+        const quantityInput = document.querySelector('.js-offcanvas-cart-change-quantity-number');
+
+        // The `QuantitySelectorPlugin` keeps `change` events on the input while the user is
+        // still picking a value, so they must not reach the listener of this plugin.
+        quantityInput.addEventListener('change', event => event.stopPropagation());
+        quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+        await jest.advanceTimersByTime(800);
+        await new Promise(process.nextTick);
+
+        expect(fireRequestSpy).not.toHaveBeenCalled();
+    });
+
     test('change product quantity should not send too many requests when spamming the number input', async () => {
         const el = document.querySelector('.header-cart');
 

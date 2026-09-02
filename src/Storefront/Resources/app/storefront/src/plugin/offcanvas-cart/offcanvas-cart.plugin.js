@@ -108,7 +108,10 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         if (numberInputs) {
             numberInputs.forEach((input) => {
-                input.addEventListener('change', Debouncer.debounce(
+                // The listener belongs on the form and not on the input itself. The
+                // `QuantitySelectorPlugin` holds `change` events back while the user is still
+                // picking a value, which only keeps them away from listeners further up.
+                input.form?.addEventListener('change', Debouncer.debounce(
                     this._onChangeProductQuantity.bind(this),
                     this.options.changeQuantityInputDelay,
                 ));

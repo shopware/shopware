@@ -847,6 +847,7 @@
       },
       "quantitySelect": {
         "legend": "Product Quantity: Enter the desired amount or use the buttons to increase or decrease the quantity.",
+        "cartUpdateHint": "Changing the quantity updates the cart.",
         "areaLiveText": "Quantity of %product% set to %quantity%.",
         "label": "Quantity",
         "labelWithProduct": "Quantity of %product%",

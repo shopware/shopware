@@ -91,27 +91,6 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('degrades an empty-string navigationId to notFound without calling the listing route')]
-    public function testLoadDegradesEmptyStringNavigationIdWithoutCallingRoute(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-
-        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
-        $listingRoute->expects($this->never())->method('load');
-
-        $loader = new ProductListingDataLoader($listingRoute);
-        $result = $loader->load(
-            new LoaderInputs(['property' => '', 'associations' => []]),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
     #[TestDox('lowercases navigationId before passing it to the listing route')]
     public function testLoadCallsListingRouteWithLowercasedNavigationId(): void
     {
@@ -229,38 +208,6 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame(['manufacturer', 'cover'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('builds a criteria carrying no associations when none are configured')]
-    public function testLoadBuildsEmptyCriteriaWhenNoAssociationsConfigured(): void
-    {
-        $navigationId = Uuid::randomHex();
-
-        $context = Generator::generateSalesChannelContext();
-
-        /** @var Criteria|null $capturedCriteria */
-        $capturedCriteria = null;
-        $listingResult = static::createStub(ProductListingResult::class);
-        $response = static::createStub(ProductListingRouteResponse::class);
-        $response->method('getResult')->willReturn($listingResult);
-
-        $this->listingRoute
-            ->method('load')
-            ->willReturnCallback(static function (string $catId, Request $req, $ctx, Criteria $criteria) use (&$capturedCriteria, $response): ProductListingRouteResponse {
-                $capturedCriteria = $criteria;
-
-                return $response;
-            });
-
-        $this->loader->load(
-            new LoaderInputs(['property' => $navigationId, 'associations' => []]),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertSame([], array_keys($capturedCriteria->getAssociations()));
-    }
-
     #[TestDox('appends the resolved associationOverride entries after the configured associations')]
     public function testAssociationOverrideEntriesFollowConfiguredAssociationsInCriteria(): void
     {
@@ -321,6 +268,59 @@ class ProductListingDataLoaderTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
         static::assertSame(['manufacturer', 'cover', 'media'], array_keys($capturedCriteria->getAssociations()));
+    }
+
+    #[TestDox('degrades an empty-string navigationId to notFound without calling the listing route')]
+    public function testLoadDegradesEmptyStringNavigationIdWithoutCallingRoute(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
+        $listingRoute->expects($this->never())->method('load');
+
+        $loader = new ProductListingDataLoader($listingRoute);
+        $result = $loader->load(
+            new LoaderInputs(['property' => '', 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('builds a criteria carrying no associations when none are configured')]
+    public function testLoadBuildsEmptyCriteriaWhenNoAssociationsConfigured(): void
+    {
+        $navigationId = Uuid::randomHex();
+
+        $context = Generator::generateSalesChannelContext();
+
+        /** @var Criteria|null $capturedCriteria */
+        $capturedCriteria = null;
+        $listingResult = static::createStub(ProductListingResult::class);
+        $response = static::createStub(ProductListingRouteResponse::class);
+        $response->method('getResult')->willReturn($listingResult);
+
+        $this->listingRoute
+            ->method('load')
+            ->willReturnCallback(static function (string $catId, Request $req, $ctx, Criteria $criteria) use (&$capturedCriteria, $response): ProductListingRouteResponse {
+                $capturedCriteria = $criteria;
+
+                return $response;
+            });
+
+        $this->loader->load(
+            new LoaderInputs(['property' => $navigationId, 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertSame([], array_keys($capturedCriteria->getAssociations()));
     }
 
     #[TestDox('returns notFound result when the navigation ID input is unresolved')]
@@ -399,9 +399,8 @@ class ProductListingDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #1 ($navigationId) must be of type string, null given');
 
-        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
+        $listingRoute = static::createStub(AbstractProductListingRoute::class);
         $listingRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 

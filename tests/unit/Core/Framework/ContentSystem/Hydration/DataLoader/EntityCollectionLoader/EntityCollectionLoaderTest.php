@@ -54,6 +54,21 @@ class EntityCollectionLoaderTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
+    #[TestDox('resolves the sales-channel collection class for a config naming an entity with a variant')]
+    public function testResolveProducedTypeReturnsSalesChannelCollection(): void
+    {
+        $loader = new EntityCollectionLoader(
+            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
+            $this->createDefinitionRegistry(new ProductDefinition()),
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        static::assertSame(
+            SalesChannelProductCollection::class,
+            $loader->resolveProducedType(new EntityLoaderConfig('product', 'productIds', [])),
+        );
+    }
+
     #[TestDox('declares the sales-channel collection class and entity generic for an entity with a sales-channel definition')]
     public function testProducibleTypesDeclaresSalesChannelCollectionForEntityWithVariant(): void
     {
@@ -87,21 +102,6 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame([MediaEntity::class], $capabilities[0]->genericParameters);
     }
 
-    #[TestDox('resolves the sales-channel collection class for a config naming an entity with a variant')]
-    public function testResolveProducedTypeReturnsSalesChannelCollection(): void
-    {
-        $loader = new EntityCollectionLoader(
-            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
-            $this->createDefinitionRegistry(new ProductDefinition()),
-            static::createStub(EntityCacheTagResolver::class),
-        );
-
-        static::assertSame(
-            SalesChannelProductCollection::class,
-            $loader->resolveProducedType(new EntityLoaderConfig('product', 'productIds', [])),
-        );
-    }
-
     #[TestDox('returns cached collection with resolved tags for all loaded entities')]
     public function testLoadReturnsCachedCollectionWithResolvedTagsForAllEntities(): void
     {
@@ -130,44 +130,6 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertContains('tag-' . $id1, $result->getCacheTags());
         static::assertContains('tag-' . $id2, $result->getCacheTags());
         static::assertCount(2, $result->getCacheTags());
-    }
-
-    #[TestDox('falls back to plain repository when sales channel repository is not found')]
-    public function testLoadFallsBackToPlainRepositoryWhenSalesChannelRepoNotFound(): void
-    {
-        $categoryId = $this->ids->get('category');
-        $entity = $this->createEntityWithId($categoryId);
-        $collection = new EntityCollection([$entity]);
-
-        $plainRepo = new StaticEntityRepository([$collection]);
-
-        $container = new Container();
-        $container->set('category.repository', $plainRepo);
-
-        $definition = static::createStub(EntityDefinition::class);
-        $definition->method('getEntityName')->willReturn('category');
-
-        $defRegistry = new DefinitionInstanceRegistry($container, [], []);
-        $defRegistry->register($definition);
-
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn('category-route-' . $categoryId);
-
-        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $scDefRegistry->method('getSalesChannelRepository')
-            ->willThrowException(new SalesChannelRepositoryNotFoundException('category'));
-
-        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
-        $result = $loader->load(
-            self::inputs('category', [$categoryId]),
-            self::requirement(),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertTrue($result->isCacheAware());
-        static::assertSame(['category-route-' . $categoryId], $result->getCacheTags());
-        static::assertInstanceOf(EntityCollection::class, $result->data);
     }
 
     #[TestDox('lowercases entity IDs before loading')]
@@ -331,6 +293,44 @@ class EntityCollectionLoaderTest extends TestCase
         );
 
         static::assertFalse($result->isCacheAware());
+        static::assertInstanceOf(EntityCollection::class, $result->data);
+    }
+
+    #[TestDox('falls back to plain repository when sales channel repository is not found')]
+    public function testLoadFallsBackToPlainRepositoryWhenSalesChannelRepoNotFound(): void
+    {
+        $categoryId = $this->ids->get('category');
+        $entity = $this->createEntityWithId($categoryId);
+        $collection = new EntityCollection([$entity]);
+
+        $plainRepo = new StaticEntityRepository([$collection]);
+
+        $container = new Container();
+        $container->set('category.repository', $plainRepo);
+
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('category');
+
+        $defRegistry = new DefinitionInstanceRegistry($container, [], []);
+        $defRegistry->register($definition);
+
+        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
+        $cacheTagResolver->method('resolve')->willReturn('category-route-' . $categoryId);
+
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->method('getSalesChannelRepository')
+            ->willThrowException(new SalesChannelRepositoryNotFoundException('category'));
+
+        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
+        $result = $loader->load(
+            self::inputs('category', [$categoryId]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertTrue($result->isCacheAware());
+        static::assertSame(['category-route-' . $categoryId], $result->getCacheTags());
         static::assertInstanceOf(EntityCollection::class, $result->data);
     }
 

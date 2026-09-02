@@ -59,35 +59,45 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame([], $capabilities[0]->configTemplate);
     }
 
-    #[TestDox('loads service menu categories flattened from navigation tree')]
-    public function testLoadReturnsFlattenedCategoryCollection(): void
-    {
-        $serviceCategoryId = Uuid::randomHex();
-        $categoryA = new CategoryEntity();
-        $categoryA->setId('category-alice');
-        $categoryA->setUniqueIdentifier('category-alice');
-        $categoryB = new CategoryEntity();
-        $categoryB->setId('category-bob');
-        $categoryB->setUniqueIdentifier('category-bob');
-
-        $tree = new Tree(null, [
-            new TreeItem($categoryA, []),
-            new TreeItem($categoryB, []),
-        ]);
-
+    /**
+     * @param ?string $expectedRootId the id the navigation loader is called with, or null to resolve through
+     *                                the `service-navigation` alias against a configured service category
+     * @param list<string> $categoryIds
+     */
+    #[DataProvider('resolvedRootIdProvider')]
+    #[TestDox('loads the navigation tree flattened into a cached CategoryCollection when $_dataName')]
+    public function testLoadResolvesRootIdAndFlattensNavigationTree(
+        string $configuredRootId,
+        ?string $expectedRootId,
+        array $categoryIds
+    ): void {
         $context = Generator::generateSalesChannelContext();
-        $context->getSalesChannel()->setServiceCategoryId($serviceCategoryId);
+
+        if ($expectedRootId === null) {
+            $expectedRootId = Uuid::randomHex();
+            $context->getSalesChannel()->setServiceCategoryId($expectedRootId);
+        }
+
+        $categories = [];
+        $treeItems = [];
+        foreach ($categoryIds as $categoryId) {
+            $category = new CategoryEntity();
+            $category->setId($categoryId);
+            $category->setUniqueIdentifier($categoryId);
+            $categories[] = $category;
+            $treeItems[] = new TreeItem($category, []);
+        }
 
         $navigationLoader = static::createMock(NavigationLoaderInterface::class);
         $navigationLoader
             ->expects($this->once())
             ->method('load')
-            ->with($serviceCategoryId, $context, $serviceCategoryId, 1)
-            ->willReturn($tree);
+            ->with($expectedRootId, $context, $expectedRootId, 1)
+            ->willReturn(new Tree(null, $treeItems));
 
         $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
         $result = $dataLoader->load(
-            new LoaderInputs(['rootId' => 'service-navigation']),
+            new LoaderInputs(['rootId' => $configuredRootId]),
             self::requirement(),
             $context,
             new Request(),
@@ -95,79 +105,54 @@ class ServiceMenuDataLoaderTest extends TestCase
 
         static::assertTrue($result->hasData());
         static::assertInstanceOf(CategoryCollection::class, $result->data);
-        static::assertCount(2, $result->data);
-        static::assertSame($categoryA, $result->data->first());
-        static::assertSame($categoryB, $result->data->last());
+        static::assertCount(\count($categoryIds), $result->data);
+        // Identity and order together: the flattening keeps every tree item's category, in tree order.
+        static::assertSame($categories, array_values($result->data->getElements()));
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('uses explicit rootId input instead of the service-navigation alias')]
-    public function testLoadUsesExplicitRootIdInput(): void
+    /**
+     * Every row drives the same path: alias resolution, lowercase normalization, the uuid guard, the
+     * navigation loader call, and category extraction. They differ only in the resolved id and the size of
+     * the resulting collection.
+     *
+     * @return iterable<string, array{string, ?string, list<string>}>
+     */
+    public static function resolvedRootIdProvider(): iterable
     {
-        $rootId = Uuid::randomHex();
-        $category = new CategoryEntity();
-        $category->setId('category-alice');
-        $category->setUniqueIdentifier('category-alice');
+        yield 'the service-navigation alias resolves to the configured service category' => [
+            'service-navigation',
+            null,
+            ['category-alice', 'category-bob'],
+        ];
 
-        $tree = new Tree(null, [new TreeItem($category, [])]);
+        // An explicit input is handed back unchanged by the resolver's default arm, so it reaches the
+        // navigation loader instead of the alias default.
+        $explicitRootId = Uuid::randomHex();
+        yield 'an explicit rootId input is used instead of the service-navigation alias' => [
+            $explicitRootId,
+            $explicitRootId,
+            ['category-alice'],
+        ];
 
-        $context = Generator::generateSalesChannelContext();
-
-        $navigationLoader = static::createMock(NavigationLoaderInterface::class);
-        $navigationLoader
-            ->expects($this->once())
-            ->method('load')
-            ->with($rootId, $context, $rootId, 1)
-            ->willReturn($tree);
-
-        $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
-        $result = $dataLoader->load(
-            new LoaderInputs(['rootId' => $rootId]),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertTrue($result->hasData());
-        static::assertInstanceOf(CategoryCollection::class, $result->data);
-        static::assertCount(1, $result->data);
-    }
-
-    #[TestDox('lowercases an uppercase configured rootId instead of rejecting it')]
-    public function testLoadLowercasesUppercaseRootIdBeforeCallingNavigationLoader(): void
-    {
         // A literal fixture, not Uuid::randomHex(): a random hex value can consist only of digits, in which
-        // case uppercasing it is a no-op and the test would pass even with the normalization removed. This
-        // value is guaranteed to contain alphabetic hex nibbles.
-        $rootId = '0123456789abcdef0123456789abcdef';
-        $category = new CategoryEntity();
-        $category->setId('category-alice');
-        $category->setUniqueIdentifier('category-alice');
+        // case uppercasing it is a no-op and the row would pass even with the normalization removed. This
+        // value is guaranteed to contain alphabetic hex nibbles. Uuid::fromHexToBytes() calls @hex2bin(),
+        // which accepts uppercase hex, so an uppercase configured rootId reached NavigationRoute and worked.
+        // Uuid::VALID_PATTERN is lowercase-only, so a guard on the raw value would degrade an id that works.
+        $uppercaseRootId = '0123456789abcdef0123456789abcdef';
+        yield 'an uppercase configured rootId is lowercased instead of rejected' => [
+            strtoupper($uppercaseRootId),
+            $uppercaseRootId,
+            ['category-alice'],
+        ];
 
-        $tree = new Tree(null, [new TreeItem($category, [])]);
-
-        $context = Generator::generateSalesChannelContext();
-
-        // Uuid::fromHexToBytes() calls @hex2bin(), which accepts uppercase hex, so an uppercase configured
-        // rootId reached NavigationRoute and worked. Uuid::VALID_PATTERN is lowercase-only, so a guard on the
-        // raw value would degrade an id that works.
-        $navigationLoader = static::createMock(NavigationLoaderInterface::class);
-        $navigationLoader
-            ->expects($this->once())
-            ->method('load')
-            ->with($rootId, $context, $rootId, 1)
-            ->willReturn($tree);
-
-        $dataLoader = new ServiceMenuDataLoader($navigationLoader, new NavigationAliasResolver());
-        $result = $dataLoader->load(
-            new LoaderInputs(['rootId' => strtoupper($rootId)]),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertTrue($result->hasData());
-        static::assertInstanceOf(CategoryCollection::class, $result->data);
-        static::assertCount(1, $result->data);
+        yield 'the navigation tree has no items' => [
+            'service-navigation',
+            null,
+            [],
+        ];
     }
 
     #[TestDox('treats an uppercase rendering of the built-in service-navigation alias as unrecognized, not as the alias')]
@@ -196,28 +181,6 @@ class ServiceMenuDataLoaderTest extends TestCase
         );
 
         static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('returns empty cached category collection when tree has no items')]
-    public function testLoadReturnsEmptyCachedCollectionWhenTreeHasNoItems(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-        $context->getSalesChannel()->setServiceCategoryId(Uuid::randomHex());
-
-        $this->navigationLoader->method('load')->willReturn(new Tree(null, []));
-
-        $result = $this->dataLoader->load(
-            new LoaderInputs(['rootId' => 'service-navigation']),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertTrue($result->hasData());
-        static::assertInstanceOf(CategoryCollection::class, $result->data);
-        static::assertCount(0, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
     }
@@ -324,9 +287,8 @@ class ServiceMenuDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #4 ($depth) must be of type int, null given');
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $navigationLoader
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 

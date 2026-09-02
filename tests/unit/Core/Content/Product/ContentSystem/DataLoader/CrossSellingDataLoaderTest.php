@@ -309,9 +309,8 @@ class CrossSellingDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #1 ($productId) must be of type string, null given');
 
-        $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $crossSellingRoute = static::createStub(AbstractProductCrossSellingRoute::class);
         $crossSellingRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 

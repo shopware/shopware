@@ -119,9 +119,8 @@ class LanguageDataLoaderTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $languageRoute = $this->createMock(AbstractLanguageRoute::class);
+        $languageRoute = static::createStub(AbstractLanguageRoute::class);
         $languageRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($exception);
 
@@ -146,14 +145,15 @@ class LanguageDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
 
-        $languageRoute = $this->createMock(AbstractLanguageRoute::class);
+        $languageRoute = static::createStub(AbstractLanguageRoute::class);
         $languageRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 
         $dataLoader = new LanguageDataLoader($languageRoute);
 
+        // expectExceptionObject() compares class, message and code, not object identity; this test
+        // asserts the same instance propagated out of load() unmodified, which that helper can't express.
         try {
             $dataLoader->load(
                 new LoaderInputs(['associations' => []]),

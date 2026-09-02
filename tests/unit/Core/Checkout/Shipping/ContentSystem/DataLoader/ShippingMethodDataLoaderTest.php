@@ -182,9 +182,8 @@ class ShippingMethodDataLoaderTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($exception);
 
@@ -209,9 +208,8 @@ class ShippingMethodDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
 
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
         $shippingMethodRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 

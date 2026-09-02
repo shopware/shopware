@@ -413,6 +413,8 @@ class EntityLoaderTest extends TestCase
             throw $typeError;
         });
 
+        // expectExceptionObject() compares class, message and code, not identity. This test asserts the
+        // *same instance* propagated out of load() unmodified, which that helper cannot express.
         try {
             $this->loadEntity($loader, 'product', $this->ids->get('product'));
 

@@ -206,9 +206,8 @@ class PaymentMethodDataLoaderTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($exception);
 
@@ -233,9 +232,8 @@ class PaymentMethodDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
 
-        $paymentMethodRoute = $this->createMock(AbstractPaymentMethodRoute::class);
+        $paymentMethodRoute = static::createStub(AbstractPaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 

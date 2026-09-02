@@ -341,9 +341,8 @@ class ProductSearchDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
 
-        $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
+        $searchRoute = static::createStub(AbstractProductSearchRoute::class);
         $searchRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 

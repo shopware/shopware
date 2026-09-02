@@ -267,8 +267,9 @@ class ProductSuggestDataLoaderTest extends TestCase
         static::assertSame(['manufacturer', 'cover', 'media'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('returns notFound result when the search term resolves to an empty string')]
-    public function testLoadReturnsNotFoundWhenSearchTermIsEmptyString(): void
+    #[DataProvider('unusableSearchTermProvider')]
+    #[TestDox('returns notFound result without calling the suggest route when the search term is $_dataName')]
+    public function testLoadReturnsNotFoundWhenSearchTermIsUnusable(?string $searchTerm): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -277,28 +278,7 @@ class ProductSuggestDataLoaderTest extends TestCase
 
         $loader = new ProductSuggestDataLoader($suggestRoute);
         $result = $loader->load(
-            new LoaderInputs(['searchTermProperty' => '', 'associations' => []]),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('returns notFound result when the search term input is unresolved')]
-    public function testLoadReturnsNotFoundWhenSearchTermInputIsUnresolved(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-
-        $suggestRoute = $this->createMock(AbstractProductSuggestRoute::class);
-        $suggestRoute->expects($this->never())->method('load');
-
-        $loader = new ProductSuggestDataLoader($suggestRoute);
-        $result = $loader->load(
-            new LoaderInputs(['searchTermProperty' => null, 'associations' => []]),
+            new LoaderInputs(['searchTermProperty' => $searchTerm, 'associations' => []]),
             self::requirement(),
             $context,
             new Request(),
@@ -341,9 +321,8 @@ class ProductSuggestDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
 
-        $suggestRoute = $this->createMock(AbstractProductSuggestRoute::class);
+        $suggestRoute = static::createStub(AbstractProductSuggestRoute::class);
         $suggestRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 
@@ -361,6 +340,16 @@ class ProductSuggestDataLoaderTest extends TestCase
         } catch (\TypeError $caught) {
             static::assertSame($typeError, $caught);
         }
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function unusableSearchTermProvider(): iterable
+    {
+        yield 'resolved to an empty string' => [''];
+
+        yield 'an unresolved input' => [null];
     }
 
     /**

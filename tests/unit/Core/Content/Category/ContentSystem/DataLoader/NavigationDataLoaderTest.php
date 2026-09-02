@@ -154,33 +154,6 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame($tree, $result->data);
     }
 
-    #[TestDox('does not resolve an uppercase built-in alias')]
-    public function testLoadDoesNotResolveUppercaseAliasAsBuiltinAlias(): void
-    {
-        $context = Generator::generateSalesChannelContext();
-        $context->getSalesChannel()->setNavigationCategoryId('0123456789abcdef0123456789abcdef');
-
-        // NavigationAliasResolver::resolve() matches its alias constants case-sensitively (a `match` against
-        // the lowercase literal 'main-navigation'), so 'MAIN-NAVIGATION' falls through its default arm
-        // unchanged. The value is then normalized to lowercase, which is not a valid uuid, so the loader
-        // degrades to notFound() without reaching the navigation loader. Normalizing before alias resolution
-        // would instead resolve the sales channel's navigation category set above and call the loader.
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
-        $navigationLoader->expects($this->never())->method('load');
-
-        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $result = $dataLoader->load(
-            new LoaderInputs(['rootId' => 'MAIN-NAVIGATION']),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
     #[TestDox('resolves main-navigation alias to sales channel navigation category ID')]
     public function testLoadResolvesMainNavigationAliasToNavigationCategoryId(): void
     {
@@ -208,6 +181,29 @@ class NavigationDataLoaderTest extends TestCase
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
+    }
+
+    #[TestDox('returns cachedExternally result with empty cache tags')]
+    public function testLoadReturnsCachedExternallyResult(): void
+    {
+        $rootId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+
+        $context = Generator::generateSalesChannelContext();
+
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
+        $navigationLoader->method('load')->willReturn($tree);
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => null]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
     /**
@@ -286,29 +282,6 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame($tree, $result->data);
     }
 
-    #[TestDox('returns cachedExternally result with empty cache tags')]
-    public function testLoadReturnsCachedExternallyResult(): void
-    {
-        $rootId = Uuid::randomHex();
-        $tree = new Tree(null, []);
-
-        $context = Generator::generateSalesChannelContext();
-
-        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
-        $navigationLoader->method('load')->willReturn($tree);
-        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-
-        $result = $dataLoader->load(
-            new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => null]),
-            self::requirement(),
-            $context,
-            new Request(),
-        );
-
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
     #[TestDox('passes configured depth to navigation loader')]
     public function testLoadPassesConfiguredDepthToNavigationLoader(): void
     {
@@ -360,6 +333,81 @@ class NavigationDataLoaderTest extends TestCase
 
         static::assertTrue($result->hasData());
         static::assertSame($tree, $result->data);
+    }
+
+    #[TestDox('falls back to the sales channel navigation depth when the config declares none')]
+    public function testLoadFallsBackToSalesChannelDepthWhenConfigDeclaresNone(): void
+    {
+        $rootId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryDepth(4);
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($rootId, $context, $rootId, 4)
+            ->willReturn($tree);
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $inputs = $this->resolve(new NavigationLoaderConfig(rootId: $rootId), []);
+
+        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
+
+        static::assertSame($tree, $result->data);
+    }
+
+    #[TestDox('an explicitly configured depth still wins over the sales channel setting')]
+    public function testLoadPrefersConfiguredDepthOverSalesChannelDepth(): void
+    {
+        $rootId = Uuid::randomHex();
+        $tree = new Tree(null, []);
+
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryDepth(4);
+
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($rootId, $context, $rootId, 1)
+            ->willReturn($tree);
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $inputs = $this->resolve(new NavigationLoaderConfig(rootId: $rootId, depth: 1), []);
+
+        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
+
+        static::assertSame($tree, $result->data);
+    }
+
+    #[TestDox('does not resolve an uppercase built-in alias')]
+    public function testLoadDoesNotResolveUppercaseAliasAsBuiltinAlias(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId('0123456789abcdef0123456789abcdef');
+
+        // NavigationAliasResolver::resolve() matches its alias constants case-sensitively (a `match` against
+        // the lowercase literal 'main-navigation'), so 'MAIN-NAVIGATION' falls through its default arm
+        // unchanged. The value is then normalized to lowercase, which is not a valid uuid, so the loader
+        // degrades to notFound() without reaching the navigation loader. Normalizing before alias resolution
+        // would instead resolve the sales channel's navigation category set above and call the loader.
+        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader->expects($this->never())->method('load');
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+        $result = $dataLoader->load(
+            new LoaderInputs(['rootId' => 'MAIN-NAVIGATION']),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
     #[TestDox('uses rootId as activeId when the active property is unresolved')]
@@ -440,54 +488,6 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame($tree, $result->data);
     }
 
-    #[TestDox('falls back to the sales channel navigation depth when the config declares none')]
-    public function testLoadFallsBackToSalesChannelDepthWhenConfigDeclaresNone(): void
-    {
-        $rootId = Uuid::randomHex();
-        $tree = new Tree(null, []);
-
-        $context = Generator::generateSalesChannelContext();
-        $context->getSalesChannel()->setNavigationCategoryDepth(4);
-
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
-        $navigationLoader
-            ->expects($this->once())
-            ->method('load')
-            ->with($rootId, $context, $rootId, 4)
-            ->willReturn($tree);
-
-        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $inputs = $this->resolve(new NavigationLoaderConfig(rootId: $rootId), []);
-
-        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
-
-        static::assertSame($tree, $result->data);
-    }
-
-    #[TestDox('an explicitly configured depth still wins over the sales channel setting')]
-    public function testLoadPrefersConfiguredDepthOverSalesChannelDepth(): void
-    {
-        $rootId = Uuid::randomHex();
-        $tree = new Tree(null, []);
-
-        $context = Generator::generateSalesChannelContext();
-        $context->getSalesChannel()->setNavigationCategoryDepth(4);
-
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
-        $navigationLoader
-            ->expects($this->once())
-            ->method('load')
-            ->with($rootId, $context, $rootId, 1)
-            ->willReturn($tree);
-
-        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-        $inputs = $this->resolve(new NavigationLoaderConfig(rootId: $rootId, depth: 1), []);
-
-        $result = $dataLoader->load($inputs, self::requirement(), $context, new Request());
-
-        static::assertSame($tree, $result->data);
-    }
-
     #[TestDox('returns notFound result when an alias does not resolve because the sales channel has no such category')]
     public function testLoadReturnsNotFoundWhenAliasDoesNotResolve(): void
     {
@@ -538,36 +538,6 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('lets a TypeError from the navigation loader propagate instead of degrading')]
-    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
-    {
-        $rootId = Uuid::randomHex();
-        $context = Generator::generateSalesChannelContext();
-
-        $typeError = new \TypeError('Argument #4 ($depth) must be of type int, null given');
-
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
-        $navigationLoader
-            ->expects($this->once())
-            ->method('load')
-            ->willThrowException($typeError);
-
-        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
-
-        try {
-            $dataLoader->load(
-                new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => null]),
-                self::requirement(),
-                $context,
-                new Request(),
-            );
-
-            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
-        } catch (\TypeError $caught) {
-            static::assertSame($typeError, $caught);
-        }
-    }
-
     /**
      * Sample domain exceptions, not one row per catch arm: the loader catches the single covering ancestor
      * `ShopwareHttpException`, so no row maps to a clause of its own.
@@ -589,6 +559,35 @@ class NavigationDataLoaderTest extends TestCase
         yield 'a class outside the chain that extends ShopwareHttpException directly' => [
             new DecorationPatternException(NavigationLoaderInterface::class),
         ];
+    }
+
+    #[TestDox('lets a TypeError from the navigation loader propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $rootId = Uuid::randomHex();
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #4 ($depth) must be of type int, null given');
+
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
+        $navigationLoader
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $dataLoader = new NavigationDataLoader($navigationLoader, $this->aliasResolver);
+
+        try {
+            $dataLoader->load(
+                new LoaderInputs(['rootId' => $rootId, 'depth' => 2, 'activeProperty' => null]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
     }
 
     /**

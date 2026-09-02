@@ -313,9 +313,8 @@ class ProductReviewDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #1 ($productId) must be of type string, null given');
 
-        $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+        $productReviewRoute = static::createStub(AbstractProductReviewRoute::class);
         $productReviewRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 

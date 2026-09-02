@@ -109,22 +109,6 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame('category', $this->capturedRequest->query->get('type'));
     }
 
-    #[TestDox('lowercases entity ID before passing it to the breadcrumb route')]
-    public function testLoadCallsBreadcrumbRouteWithLowercasedEntityId(): void
-    {
-        $entityId = Uuid::randomHex();
-
-        $this->loader->load(
-            self::inputs(strtoupper($entityId)),
-            self::requirement(),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertInstanceOf(Request::class, $this->capturedRequest);
-        static::assertSame($entityId, $this->capturedRequest->attributes->get('id'));
-    }
-
     #[TestDox('reads entity ID from the element property the config names')]
     public function testLoadReadsEntityIdFromCustomProperty(): void
     {
@@ -194,54 +178,32 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertFalse($this->capturedRequest->query->has('referrerCategoryId'));
     }
 
-    #[TestDox('returns notFound result when the entity ID input is unresolved')]
-    public function testLoadReturnsNotFoundWhenEntityIdInputIsUnresolved(): void
+    #[TestDox('lowercases entity ID before passing it to the breadcrumb route')]
+    public function testLoadCallsBreadcrumbRouteWithLowercasedEntityId(): void
     {
-        $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
-        $breadcrumbRoute->expects($this->never())->method('load');
-        $loader = new BreadcrumbDataLoader($breadcrumbRoute);
+        $entityId = Uuid::randomHex();
 
-        $result = $loader->load(
-            self::inputs(null),
+        $this->loader->load(
+            self::inputs(strtoupper($entityId)),
             self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
 
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        static::assertInstanceOf(Request::class, $this->capturedRequest);
+        static::assertSame($entityId, $this->capturedRequest->attributes->get('id'));
     }
 
-    #[TestDox('returns notFound result when the resolved entity ID is not a valid uuid')]
-    public function testLoadReturnsNotFoundWhenEntityIdIsNotValidUuid(): void
+    #[DataProvider('invalidEntityIdInputProvider')]
+    #[TestDox('returns notFound result without calling the breadcrumb route when $_dataName')]
+    public function testLoadReturnsNotFoundForInvalidInput(LoaderInputs $inputs): void
     {
         $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
         $breadcrumbRoute->expects($this->never())->method('load');
         $loader = new BreadcrumbDataLoader($breadcrumbRoute);
 
         $result = $loader->load(
-            self::inputs('{{productId}}'),
-            self::requirement(),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('returns notFound result when a resolved referrer category ID is not a valid uuid')]
-    public function testLoadReturnsNotFoundWhenReferrerCategoryIdIsNotValidUuid(): void
-    {
-        $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
-        $breadcrumbRoute->expects($this->never())->method('load');
-        $loader = new BreadcrumbDataLoader($breadcrumbRoute);
-
-        // The entity ID is a valid uuid, so only the referrer can carry this test to notFound.
-        $result = $loader->load(
-            self::inputs(Uuid::randomHex(), referrerCategoryProperty: '{{categoryId}}'),
+            $inputs,
             self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
@@ -280,9 +242,8 @@ class BreadcrumbDataLoaderTest extends TestCase
     {
         $typeError = new \TypeError('Argument #2 ($salesChannelContext) must be of type SalesChannelContext, null given');
 
-        $breadcrumbRoute = $this->createMock(AbstractBreadcrumbRoute::class);
+        $breadcrumbRoute = static::createStub(AbstractBreadcrumbRoute::class);
         $breadcrumbRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 
@@ -329,6 +290,25 @@ class BreadcrumbDataLoaderTest extends TestCase
         // classes, using a class the breadcrumb chain does not produce.
         yield 'a class outside the chain that extends ShopwareHttpException directly' => [
             new DecorationPatternException(AbstractBreadcrumbRoute::class),
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{LoaderInputs}>
+     */
+    public static function invalidEntityIdInputProvider(): iterable
+    {
+        yield 'the entity ID input is unresolved' => [
+            self::inputs(null),
+        ];
+
+        yield 'the resolved entity ID is not a valid uuid' => [
+            self::inputs('{{productId}}'),
+        ];
+
+        // The entity ID is a valid uuid, so only the referrer can carry this row to notFound.
+        yield 'a resolved referrer category ID is not a valid uuid' => [
+            self::inputs(Uuid::randomHex(), referrerCategoryProperty: '{{categoryId}}'),
         ];
     }
 

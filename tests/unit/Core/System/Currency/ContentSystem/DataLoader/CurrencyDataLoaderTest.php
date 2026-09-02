@@ -128,9 +128,8 @@ class CurrencyDataLoaderTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $currencyRoute = $this->createMock(AbstractCurrencyRoute::class);
+        $currencyRoute = static::createStub(AbstractCurrencyRoute::class);
         $currencyRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($exception);
 
@@ -155,9 +154,8 @@ class CurrencyDataLoaderTest extends TestCase
 
         $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
 
-        $currencyRoute = $this->createMock(AbstractCurrencyRoute::class);
+        $currencyRoute = static::createStub(AbstractCurrencyRoute::class);
         $currencyRoute
-            ->expects($this->once())
             ->method('load')
             ->willThrowException($typeError);
 

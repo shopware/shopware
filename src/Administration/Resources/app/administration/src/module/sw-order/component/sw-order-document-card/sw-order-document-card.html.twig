@@ -122,7 +122,16 @@
             {% endblock %}
 
             {% block sw_order_document_card_grid_column_type %}
-            <template #[`column-documentType.name`]="{ item }">
+            <template
+                v-if="!feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                #[`column-documentType.name`]="{ item }"
+            >
+                {{ documentTypeLabel(item) }}
+            </template>
+            <template
+                v-else
+                #column-typeName="{ item }"
+            >
                 {{ documentTypeLabel(item) }}
             </template>
             {% endblock %}

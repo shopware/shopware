@@ -98,45 +98,60 @@ final class WeatherLoader extends AbstractContentDataLoader
 
 `WeatherLoaderConfig` above holds plain strings, not entity ids, so it needs neither of the checks below. A loader whose `PropertyReference` config key does resolve to an entity id needs both.
 
-A `PropertyReference` value arrives as whatever string the stored map holds, including an unsubstituted template placeholder such as `{{productId}}` left literal on a layout that never bound the property. `LoaderInputResolver::dereference()` only type-checks the value as a string, so a placeholder passes through untouched. Guard the value with `Uuid::isValid()` before using it as an id, and wrap any route call the loader makes in a `try`/`catch` for the domain exceptions that route can throw:
+A `PropertyReference` value arrives as whatever string the stored map holds, including an unsubstituted template placeholder such as `{{productId}}` left literal on a layout that never bound the property. `LoaderInputResolver::dereference()` only type-checks the value as a string, so a placeholder passes through untouched. Guard the value with `Uuid::isValid()` before using it as an id, and wrap the collaborator call in a `try`/`catch (ShopwareHttpException)`:
 
 ```php
-public function configSpecification(): LoaderConfigSpecification
+/**
+ * @extends AbstractContentDataLoader<SalesChannelProductEntity>
+ */
+final class ProductDetailLoader extends AbstractContentDataLoader
 {
-    return new LoaderConfigSpecification([
-        new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'productId'),
-    ]);
-}
+    public function __construct(private readonly AbstractProductDetailRoute $productRoute) {}
 
-public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
-{
-    $productId = $inputs->stringOrNull('property');
+    public static function getRequirementType(): string
+    { return 'my_product'; /* Must match serializer's getSource() */ }
 
-    if ($productId === null) {
-        return ContentDataLoaderResult::notFound();
+    public function configSpecification(): LoaderConfigSpecification
+    {
+        return new LoaderConfigSpecification([
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'productId'),
+        ]);
     }
 
-    $productId = u($productId)->lower()->toString();
+    public function load(LoaderInputs $inputs, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        $productId = $inputs->stringOrNull('property');
 
-    // Uuid::isValid() runs after the lowercase: Uuid::VALID_PATTERN is lowercase-only, so guarding the
-    // raw value would reject a legitimate uppercase id. An unsubstituted placeholder such as
-    // "{{productId}}" passes LoaderInputResolver::dereference()'s string type check untouched, so it
-    // reaches here as-is and fails this guard instead of the route's own id lookup.
-    if (!Uuid::isValid($productId)) {
-        return ContentDataLoaderResult::notFound();
+        if ($productId === null) {
+            return ContentDataLoaderResult::notFound();
+        }
+
+        $productId = u($productId)->lower()->toString();
+
+        // Uuid::isValid() runs after the lowercase: Uuid::VALID_PATTERN is lowercase-only, so guarding the
+        // raw value would reject a legitimate uppercase id. An unsubstituted placeholder such as
+        // "{{productId}}" passes LoaderInputResolver::dereference()'s string type check untouched, so it
+        // reaches here as-is and fails this guard instead of the route's own id lookup.
+        if (!Uuid::isValid($productId)) {
+            return ContentDataLoaderResult::notFound();
+        }
+
+        try {
+            $response = $this->productRoute->load($productId, $request, $context, new Criteria());
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
+
+        // A Store API route returns a StoreApiResponse that wraps the struct rather than being one, and
+        // cachedExternally() takes a Struct, so unwrap the response before handing the value over.
+        return ContentDataLoaderResult::cachedExternally($response->getProduct());
     }
-
-    try {
-        $product = $this->productRoute->load($productId, $context);
-    } catch (EntityNotFoundException) {
-        return ContentDataLoaderResult::notFound();
-    }
-
-    return ContentDataLoaderResult::cachedExternally($product);
 }
 ```
 
-The catch clause names the exceptions the specific route can throw, found by tracing its call chain, not every exception the route's own file mentions in a `throw`. A route that delegates to a collaborator can throw from inside that collaborator with no `throw` visible in the route file itself.
+The catch is deliberately broad, and enumerating the classes the route's chain can throw is the wrong instinct. The reachable set is open: a route delegates to collaborators that throw with no `throw` visible in the route's own file. And a decorator can rewrap a class the clause names into one it does not, so no amount of tracing makes an enumeration complete: `AppScriptProductPriceCalculator` decorates `ProductPriceCalculator` on every product-pricing chain and hands each `\Throwable` an app script raises to `ScriptExecutor`, which rethrows it as `ScriptExecutionFailedException`.
+
+`ShopwareHttpException` is the common ancestor of the Shopware exception classes these chains are known to reach, so one clause covers the cases catalogued here. It is a deliberate boundary rather than a proof of exhaustiveness: `ExtensionDispatcher::publish()` rethrows whatever a listener throws (`src/Core/Framework/Extensions/ExtensionDispatcher.php:69`), and a listener is third-party code. Classes outside the boundary propagate by design, including `\JsonException`, `\AssertionError`, and Doctrine DBAL exceptions: degrading those blanks the element and hides a defect in the loader, where an error report is what a developer needs.
 
 ## Cache Awareness
 

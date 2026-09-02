@@ -17,8 +17,10 @@ use Shopware\Core\Content\ProductStream\ProductStreamException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,8 +91,8 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('degrades an empty-string navigationId via uuid validation, not the null-input check')]
-    public function testLoadDegradesEmptyStringNavigationIdViaUuidValidation(): void
+    #[TestDox('degrades an empty-string navigationId to notFound without calling the listing route')]
+    public function testLoadDegradesEmptyStringNavigationIdWithoutCallingRoute(): void
     {
         $context = Generator::generateSalesChannelContext();
 
@@ -363,8 +365,8 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[DataProvider('catchArmProvider')]
-    #[TestDox('returns notFound result when the listing route throws $_dataName')]
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the listing route throws the Shopware exception $_dataName')]
     public function testLoadReturnsNotFoundWhenListingRouteThrows(\Throwable $exception): void
     {
         $navigationId = Uuid::randomHex();
@@ -389,10 +391,43 @@ class ProductListingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
+    #[TestDox('lets a TypeError from the listing route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $navigationId = Uuid::randomHex();
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #1 ($navigationId) must be of type string, null given');
+
+        $listingRoute = $this->createMock(AbstractProductListingRoute::class);
+        $listingRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $loader = new ProductListingDataLoader($listingRoute);
+
+        try {
+            $loader->load(
+                new LoaderInputs(['property' => $navigationId, 'associations' => []]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
     /**
+     * Sample domain exceptions off the listing chain, not one row per catch arm: the loader catches the
+     * single covering ancestor `ShopwareHttpException`, so no row maps to a clause of its own.
+     *
      * @return iterable<string, array{\Throwable}>
      */
-    public static function catchArmProvider(): iterable
+    public static function sampleDomainExceptionProvider(): iterable
     {
         yield 'category not found' => [ProductException::categoryNotFound('category-missing')];
 
@@ -401,6 +436,21 @@ class ProductListingDataLoaderTest extends TestCase
         yield 'product stream has no filters' => [ProductStreamException::noFilters('stream-no-filters')];
 
         yield 'product stream is empty' => [ProductStreamException::emptyProductStream('stream-empty')];
+
+        // AppScriptProductPriceCalculator decorates ProductPriceCalculator on the listing chain
+        // (src/Core/Content/DependencyInjection/product.php:490) and ScriptExecutor rewraps any Throwable an
+        // app script raises into ScriptExecutionFailedException, so no enumeration of the chain's own
+        // exception classes can cover it.
+        yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
+            ScriptException::scriptExecutionFailed('product-pricing', 'product-pricing.twig', new \RuntimeException('app script failed')),
+        ];
+
+        // This loader forwards the incoming Request, so CompressedCriteriaListingProcessor reads the
+        // client-supplied `_criteria` query parameter and CompressedCriteriaDecoder rejects a malformed one.
+        // The search and suggest loaders build a fresh Request, so this class is not reachable there.
+        yield 'malformed compressed criteria request parameter' => [
+            DataAbstractionLayerException::invalidCompressedCriteriaParameter('Invalid JSON data'),
+        ];
     }
 
     /**

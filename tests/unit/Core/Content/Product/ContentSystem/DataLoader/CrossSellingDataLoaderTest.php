@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -273,8 +274,8 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[DataProvider('catchArmProvider')]
-    #[TestDox('returns notFound result when the cross-selling route throws $_dataName')]
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the cross-selling route throws the Shopware exception $_dataName')]
     public function testLoadReturnsNotFoundWhenCrossSellingRouteThrows(\Throwable $exception): void
     {
         $productId = Uuid::randomHex();
@@ -300,16 +301,57 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
+    #[TestDox('lets a TypeError from the cross-selling route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $productId = Uuid::randomHex();
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #1 ($productId) must be of type string, null given');
+
+        $crossSellingRoute = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $crossSellingRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $loader = new CrossSellingDataLoader($crossSellingRoute);
+
+        try {
+            $loader->load(
+                new LoaderInputs(['property' => $productId, 'associations' => []]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
     /**
+     * Sample domain exceptions off the cross-selling chain, not one row per catch arm: the loader catches the
+     * single covering ancestor `ShopwareHttpException`, so no row maps to a clause of its own.
+     *
      * @return iterable<string, array{\Throwable}>
      */
-    public static function catchArmProvider(): iterable
+    public static function sampleDomainExceptionProvider(): iterable
     {
         yield 'product stream not found' => [ProductStreamException::productStreamNotFound('stream-missing')];
 
         yield 'product stream has no filters' => [ProductStreamException::noFilters('stream-no-filters')];
 
         yield 'product stream is empty' => [ProductStreamException::emptyProductStream('stream-empty')];
+
+        // AppScriptProductPriceCalculator decorates ProductPriceCalculator on the cross-selling chain
+        // (src/Core/Content/DependencyInjection/product.php:490) and ScriptExecutor rewraps any Throwable an
+        // app script raises into ScriptExecutionFailedException, so no enumeration of the chain's own
+        // exception classes can cover it.
+        yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
+            ScriptException::scriptExecutionFailed('product-pricing', 'product-pricing.twig', new \RuntimeException('app script failed')),
+        ];
     }
 
     /**

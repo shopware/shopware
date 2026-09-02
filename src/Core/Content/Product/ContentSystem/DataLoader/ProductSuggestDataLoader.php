@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
-use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
@@ -14,7 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -66,12 +65,14 @@ class ProductSuggestDataLoader extends AbstractContentDataLoader
         $searchRequest = new Request();
         $searchRequest->request->set('search', $searchTerm);
 
-        // A "0" search term fails RequestParamHelper's falsy check inside the route, and a stale default-sorting
-        // reference is a domain outcome routed through SortingListingProcessor; ProductException::missingRequestParameter()
-        // returns RoutingException while flag v6.8.0.0 is inactive, hence the union.
+        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
+        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
+        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
+        // rewrap a named class into an unnamed one (AppScriptProductPriceCalculator rewraps an app-script
+        // Throwable as ScriptExecutionFailedException).
         try {
             $response = $this->suggestRoute->load($searchRequest, $context, $criteria);
-        } catch (ProductException|RoutingException) {
+        } catch (ShopwareHttpException) {
             return ContentDataLoaderResult::notFound();
         }
 

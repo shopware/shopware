@@ -391,13 +391,6 @@ The class `.sw-extension-store-landing-page__wrapper-label` no longer exists; `.
 The empty states of Extensions > My extensions and the Shopware Store activation page render `mt-empty-state`. The Twig blocks and snippet keys are unchanged, but overrides that build on the previous markup need to adapt: the listing empty state is no longer a `sw-meteor-card`, and on the activation page the "Now available" badge (`.sw-extension-store-landing-page__wrapper-label`) and the `sw-label` of the success and error states no longer exist.
 
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
-### CMS layout listing page type tabs moved
-
-The page type tabs of the layout listing (Content > Layouts) render horizontally above the listing in the new blocks `sw_cms_list_listing_page_type_tabs` / `sw_cms_list_listing_page_type_mt_tabs`.
-
-The sidebar blocks `sw_cms_list_sidebar`, `sw_cms_list_sidebar_tabs` and `sw_cms_list_sidebar_mt_tabs` are deprecated for removal in v6.9.0. While a plugin overrides one of them, the listing renders the previous left sidebar with its unchanged block content instead of the horizontal tabs, so existing overrides — replacing or extending via `{% parent %}` — keep working unchanged until they migrate to the new blocks.
-
-For custom styles and end-to-end selectors: the tab bar is `.sw-cms-list__type-nav-horizontal` (`.sw-cms-list__type-nav` only exists inside the deprecated sidebar), and `.sw-cms-list__actions-mode` is now a `<button>` (`mt-button`) instead of a `div[role="button"]`.
 
 ## Storefront
 

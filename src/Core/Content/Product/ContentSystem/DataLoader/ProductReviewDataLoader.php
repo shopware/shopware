@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
-use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
@@ -16,6 +14,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -66,11 +66,29 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
 
         $productId = u($productId)->lower()->toString();
 
+        // A PropertyReference value passes LoaderInputResolver::dereference()'s string type check untouched, so
+        // an unsubstituted template placeholder (e.g. "{{productId}}" left literal on a layout not rooted on a
+        // product) reaches here as-is. Anything but an id therefore degrades rather than reaching
+        // Uuid::fromHexToBytes() when the review route's `product.id` equals filter is parsed
+        // (src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php:302). The guard runs after
+        // the lowercase because Uuid::VALID_PATTERN is lowercase-only and would reject an uppercase id.
+        if (!Uuid::isValid($productId)) {
+            return ContentDataLoaderResult::notFound();
+        }
+
         $criteria = $this->buildCriteria($inputs);
 
+        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
+        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
+        // covering ancestor rather than an enumerated set: the reachable set is open, and a decorator can
+        // rewrap a named class into an unnamed one. ProductReviewRoute itself throws
+        // ProductException::reviewNotActive() when the sales channel has reviews switched off
+        // (src/Core/Content/Product/SalesChannel/Review/ProductReviewRoute.php:59), and the deprecated
+        // ReviewNotActiveExeption extends ShopwareHttpException directly rather than through ProductException,
+        // so both branches of that inheritance line are covered by the single ancestor.
         try {
             $response = $this->productReviewRoute->load($productId, $request, $context, $criteria);
-        } catch (ProductException|ReviewNotActiveExeption) {
+        } catch (ShopwareHttpException) {
             return ContentDataLoaderResult::notFound();
         }
 

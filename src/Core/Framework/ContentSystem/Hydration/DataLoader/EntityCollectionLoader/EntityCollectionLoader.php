@@ -22,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundExc
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -127,9 +129,38 @@ class EntityCollectionLoader extends AbstractContentDataLoader
 
         $entityIds = \array_map(static fn (string $entityId) => u($entityId)->lower()->toString(), $entityIds);
 
-        $entities = $this->loadEntities($entityName, $entityIds, $inputs->stringList('associations'), $context);
+        // A PropertyReference value passes LoaderInputResolver::dereference()'s list<string> type check
+        // untouched, so an unsubstituted template placeholder left literal in the stored list reaches here
+        // as-is. Anything but an id therefore degrades rather than reaching Uuid::fromHexToBytes() in
+        // EntityDefinitionQueryHelper::addIdCondition()
+        // (src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php:612), where every
+        // criteria id below is converted. One bad entry degrades the whole element rather than being filtered
+        // out: the guard rejects only malformed strings, so a bad entry means broken authoring rather than a
+        // missing entity, and a silently shortened collection would hide it. The guard runs after the
+        // lowercase because Uuid::VALID_PATTERN is lowercase-only and would reject a legitimate uppercase id.
+        foreach ($entityIds as $entityId) {
+            if (!Uuid::isValid($entityId)) {
+                return ContentDataLoaderResult::notFound();
+            }
+        }
 
-        $definition = $this->definitionRegistry->getByEntityName($entityName);
+        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
+        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
+        // covering ancestor rather than an enumerated set: the reachable set is open, and this loader searches
+        // an arbitrary registered entity, so the repositories and their decorators it can reach are not
+        // enumerable from here at all.
+        try {
+            $entities = $this->loadEntities($entityName, $entityIds, $inputs->stringList('associations'), $context);
+
+            // The has() check above only proves the entity name is in the registry's map
+            // (DefinitionInstanceRegistry::has() is an isset on it); getByEntityName() still throws
+            // DefinitionNotFoundException when the mapped definition service is absent from the container, so
+            // it sits inside the catch rather than after it.
+            $definition = $this->definitionRegistry->getByEntityName($entityName);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
+
         $tags = [];
 
         foreach ($entities as $entity) {
@@ -145,10 +176,21 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         return ContentDataLoaderResult::cached($entities, ...$tags);
     }
 
+    /**
+     * The definition lookup degrades here rather than propagating: resolveDefinition() reaches the
+     * sales-channel registry, whose getByEntityName() throws DefinitionNotFoundException when the mapped
+     * definition service is absent from the container, and rethrows a base-registry miss as a
+     * ContentSystemException. resolveDefinition() itself stays throwing, because resolveProducedType() is an
+     * introspection path that must fail hard on an unknown entity.
+     */
     private function emptyCollectionResult(string $entityName): ContentDataLoaderResult
     {
-        /** @var class-string<EntityCollection<Entity>> $collectionClass */
-        $collectionClass = $this->resolveDefinition($entityName)->getCollectionClass();
+        try {
+            /** @var class-string<EntityCollection<Entity>> $collectionClass */
+            $collectionClass = $this->resolveDefinition($entityName)->getCollectionClass();
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         return ContentDataLoaderResult::cached(new $collectionClass());
     }

@@ -19,7 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundExc
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -125,13 +127,39 @@ class EntityLoader extends AbstractContentDataLoader
         }
 
         $entityId = u($entityId)->lower()->toString();
-        $entity = $this->loadEntity($entityName, $entityId, $inputs->stringList('associations'), $context);
 
-        if ($entity === null) {
+        // A PropertyReference value passes LoaderInputResolver::dereference()'s string type check untouched, so
+        // an unsubstituted template placeholder (e.g. "{{productId}}" left literal on a layout not rooted on
+        // that entity) reaches here as-is. Anything but an id therefore degrades rather than reaching
+        // Uuid::fromHexToBytes() in EntityDefinitionQueryHelper::addIdCondition()
+        // (src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php:612), where the
+        // criteria id below is converted. The guard runs after the lowercase because Uuid::VALID_PATTERN is
+        // lowercase-only and would reject an uppercase id.
+        if (!Uuid::isValid($entityId)) {
             return ContentDataLoaderResult::notFound();
         }
 
-        $definition = $this->definitionRegistry->getByEntityName($entityName);
+        // A failure Shopware modelled as an HTTP outcome degrades the element; anything beneath that line,
+        // such as a \TypeError, an \AssertionError, or a database driver failure, propagates. Catch the
+        // covering ancestor rather than an enumerated set: the reachable set is open, and this loader searches
+        // an arbitrary registered entity, so the repositories and their decorators it can reach are not
+        // enumerable from here at all.
+        try {
+            $entity = $this->loadEntity($entityName, $entityId, $inputs->stringList('associations'), $context);
+
+            if ($entity === null) {
+                return ContentDataLoaderResult::notFound();
+            }
+
+            // The has() check above only proves the entity name is in the registry's map
+            // (DefinitionInstanceRegistry::has() is an isset on it); getByEntityName() still throws
+            // DefinitionNotFoundException when the mapped definition service is absent from the container, so
+            // it sits inside the catch rather than after it.
+            $definition = $this->definitionRegistry->getByEntityName($entityName);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
+
         $cacheTag = $this->cacheTagResolver->resolve($definition, $entityId);
 
         if ($cacheTag === null) {

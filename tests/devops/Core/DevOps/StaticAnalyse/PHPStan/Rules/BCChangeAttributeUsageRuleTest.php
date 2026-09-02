@@ -154,7 +154,7 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
             ],
             [
                 'ClassHierarchyChange on "InvalidHierarchyChange": non-deprecated method "overriddenWithoutDeprecation()" must not call parent:: because its parent hierarchy will change.',
-                334,
+                335,
             ],
             [
                 'ClassHierarchyChange on "InvalidHierarchyChange": inherited public method "providedByTrait()" from "OldHierarchyParent" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
@@ -162,7 +162,7 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
             ],
             [
                 'NamespaceChange on "NamespaceChangeWithWrongLocation": newLocation "Shopware\\Core\\Some\\Other\\Location" must be the fully qualified class name ending in "NamespaceChangeWithWrongLocation". A namespace move keeps the class name.',
-                374,
+                376,
             ],
         ]);
     }

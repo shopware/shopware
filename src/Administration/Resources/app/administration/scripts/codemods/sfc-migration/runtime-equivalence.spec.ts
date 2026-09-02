@@ -10,6 +10,7 @@ import {
     CREATED_ASYNC_FIXTURE,
     CREATED_EARLY_RETURN_FIXTURE,
     CREATED_LOCAL_COLLISION_FIXTURE,
+    CREATED_HOOK_ORDER_FIXTURE,
     CREATED_ONCE_FIXTURE,
     CREATED_REJECT_FIXTURE,
     CREATED_THROW_FIXTURE,
@@ -278,6 +279,30 @@ describe('SFC migration runtime equivalence', () => {
             expect(generatedProbe.events).toEqual(originalEvents);
             expect(generatedProbe.events).toHaveLength(1);
         }
+    });
+
+    it("runs created before the component's own beforeMount hook", async () => {
+        const result = await convertFixture(CREATED_HOOK_ORDER_FIXTURE);
+
+        expect(result.outcome).toBe('full');
+
+        const originalProbe = setProbe();
+
+        mountOriginal(CREATED_HOOK_ORDER_FIXTURE);
+        await flushPromises();
+        const originalEvents = [...originalProbe.events];
+
+        const generatedProbe = setProbe();
+
+        mountGenerated(CREATED_HOOK_ORDER_FIXTURE, result);
+        await flushPromises();
+
+        expect(originalEvents).toEqual([
+            'created',
+            'beforeMount',
+            'mounted',
+        ]);
+        expect(generatedProbe.events).toEqual(originalEvents);
     });
 
     it('preserves created early returns or keeps them out of full conversion', async () => {

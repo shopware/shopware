@@ -68,16 +68,16 @@ final readonly class DocumentTemplateRenderer
             ...$additionalParameters,
         ];
 
-        $parameterEvent = new DocumentTemplateRendererParameterEvent($parameters);
-        $this->eventDispatcher->dispatch($parameterEvent);
-        $parameters['extensions'] = $parameterEvent->getExtensions();
-
         $this->translator->injectSettings(
             $salesChannelId,
             $languageId,
             $locale,
             $context,
         );
+
+        $parameterEvent = new DocumentTemplateRendererParameterEvent($parameters);
+        $this->eventDispatcher->dispatch($parameterEvent);
+        $parameters['extensions'] = $parameterEvent->getExtensions();
 
         try {
             $this->templateFinder->reset();

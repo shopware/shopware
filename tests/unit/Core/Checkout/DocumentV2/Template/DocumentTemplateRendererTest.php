@@ -219,16 +219,24 @@ class DocumentTemplateRendererTest extends TestCase
     public function testRenderDispatchesTheV1ParameterEventWithTheTemplateScope(): void
     {
         $captured = null;
+        $sequence = [];
+
+        $translator = static::createStub(AbstractTranslator::class);
+        $translator->method('injectSettings')
+            ->willReturnCallback(function () use (&$sequence): void {
+                $sequence[] = 'injectSettings';
+            });
 
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             DocumentTemplateRendererParameterEvent::class,
-            static function (DocumentTemplateRendererParameterEvent $event) use (&$captured): void {
+            static function (DocumentTemplateRendererParameterEvent $event) use (&$captured, &$sequence): void {
                 $captured = $event->getParameters();
+                $sequence[] = 'listener';
             },
         );
 
-        $renderer = $this->createRenderer($this->createTwig('rendered'), null, $eventDispatcher);
+        $renderer = $this->createRenderer($this->createTwig('rendered'), null, $eventDispatcher, $translator);
         $input = $this->createRenderInput();
 
         $renderer->render(
@@ -244,6 +252,7 @@ class DocumentTemplateRendererTest extends TestCase
         static::assertSame('rootDir', $captured['rootDir']);
         static::assertSame('counter', $captured['pagination']);
         static::assertInstanceOf(SalesChannelContext::class, $captured['context']);
+        static::assertSame(['injectSettings', 'listener'], $sequence);
     }
 
     public function testRenderPassesExtensionsFromTheV1ParameterEventIntoTheTemplate(): void
@@ -288,6 +297,7 @@ class DocumentTemplateRendererTest extends TestCase
         TwigEnvironment $twig,
         ?string $businessTimeZone,
         ?EventDispatcherInterface $eventDispatcher = null,
+        ?AbstractTranslator $translator = null,
     ): DocumentTemplateRenderer {
         $templateFinder = static::createStub(TemplateFinder::class);
         $templateFinder->method('find')->willReturnArgument(0);
@@ -304,7 +314,7 @@ class DocumentTemplateRendererTest extends TestCase
         return new DocumentTemplateRenderer(
             $templateFinder,
             $twig,
-            static::createStub(AbstractTranslator::class),
+            $translator ?? static::createStub(AbstractTranslator::class),
             $contextFactory,
             $eventDispatcher ?? new EventDispatcher(),
             'rootDir',

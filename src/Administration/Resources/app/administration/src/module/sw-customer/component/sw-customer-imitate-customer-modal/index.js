@@ -35,7 +35,7 @@ export default {
         return {
             salesChannelDomains: [],
             imitateCustomerTokens: {},
-            isLoading: true,
+            isLoading: false,
         };
     },
 

@@ -19,7 +19,6 @@ class Migration1788337044RemoveTypeNameFromDocumentBaseConfigSalesChannel extend
 
     public function update(Connection $connection): void
     {
-
     }
 
     public function updateDestructive(Connection $connection): void

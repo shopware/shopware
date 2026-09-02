@@ -122,6 +122,7 @@
             {% endblock %}
 
             {% block sw_order_document_card_grid_column_type %}
+            {# @deprecated tag:v6.9.0 - CSS class "sw-data-grid__cell--documentType-name" is deprecated, use "sw-data-grid__cell--typeName" instead #}
             <template
                 v-if="!feature.isActive('DOCUMENT_GENERATION_REWORK')"
                 #[`column-documentType.name`]="{ item }"

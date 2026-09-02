@@ -38,8 +38,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
-use Shopware\Core\Framework\Webhook\Subscriber\AppSuspensionClockSubscriber;
-use Shopware\Core\Framework\Webhook\Subscriber\ReactivateWebhooksOnAppReregistrationSubscriber;
+use Shopware\Core\Framework\Webhook\Subscriber\AppLifecycleWebhookHealthSubscriber;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\Subscriber\WebhookActiveFlipSubscriber;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
@@ -290,19 +289,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
-    $services->set(ReactivateWebhooksOnAppReregistrationSubscriber::class)
+    $services->set(AppLifecycleWebhookHealthSubscriber::class)
         ->args([
             service(WebhookHealthService::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(WebhookActiveFlipSubscriber::class)
-        ->args([
-            service(WebhookHealthService::class),
-        ])
-        ->tag('kernel.event_subscriber');
-
-    $services->set(AppSuspensionClockSubscriber::class)
         ->args([
             service(WebhookHealthService::class),
         ])

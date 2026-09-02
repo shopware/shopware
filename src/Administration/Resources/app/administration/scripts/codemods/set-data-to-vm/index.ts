@@ -1,14 +1,9 @@
 /**
  * Rewrites `await wrapper.setData({...})` to direct `wrapper.vm` assignments across the spec suite.
  *
- * `setData` merges into `$data`, which a native setup component never reads, so every call becomes a
- * silent no-op the day its component is converted. `sw-test-rules/no-set-data` reports those and fixes
- * them one spec at a time, gated on whether that spec's component is already a `.vue` file. This runs the
- * same fixer over the whole suite at once with the gate forced open, so the rewrite can land ahead of the
- * conversions instead of trailing them.
- *
- * The rewrite is safe to run early: assigning through `wrapper.vm` works on an Options API component too,
- * where Vue's public instance proxy routes the write into `$data`.
+ * `sw-test-rules/no-set-data` reports every call and fixes what it can, but it is a warning in the
+ * repository config while the suite still holds calls it cannot rewrite. This runs the same fixer as an
+ * error over the spec tree, and reports what is left for a hand rewrite.
  *
  * Usage, from src/Administration/Resources/app/administration:
  *
@@ -44,12 +39,7 @@ function createESLint(fix: boolean): ESLint {
                 // ESLint would call them all unused and strip them as part of `--fix`.
                 linterOptions: { reportUnusedDisableDirectives: 'off' },
                 plugins: { 'sw-test-rules': { rules: { 'no-set-data': noSetDataRule } } },
-                rules: {
-                    'sw-test-rules/no-set-data': [
-                        'error',
-                        { assumeNativeSetup: true },
-                    ],
-                },
+                rules: { 'sw-test-rules/no-set-data': 'error' },
             },
         ],
         fix,

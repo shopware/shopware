@@ -190,24 +190,22 @@ class EntityCollectionLoaderTest extends TestCase
     #[TestDox('declares exactly the required config keys the serializer needs to decode a config (drift guard)')]
     public function testConfigSpecificationRequiredKeysMatchSerializerRequiredKeys(): void
     {
-        $loader = $this->createMinimalLoader();
-
-        $requiredKeys = $loader->configSpecification()->requiredKeys();
+        $requiredKeys = $this->createMinimalLoader()->configSpecification()->requiredKeys();
         sort($requiredKeys);
 
-        static::assertSame(['entity', 'property'], $requiredKeys);
-
-        // Drive decode() purely from the keys the specification declares required: if the specification drops a
-        // key the serializer requires (or decode() gains a new required key), decode() throws and this fails.
-        // The serializer delegates to EntityLoaderConfigSerializer, so a required key added for the entity source
-        // reaches entity_collection too. EntityCollectionLoaderConfigSerializerTest pins necessity (decode rejects
-        // either key's absence).
+        // The assertSame runs last so a dropped required key fails at decode() instead of being pre-empted by it.
+        // EntityCollectionLoaderConfigSerializerTest pins necessity (decode rejects either key's absence).
         $input = [];
         foreach ($requiredKeys as $key) {
-            $input[$key] = 'product';
+            $input[$key] = $key . '-value';
         }
 
-        (new EntityCollectionLoaderConfigSerializer(new EntityLoaderConfigSerializer()))->decode($input);
+        $config = (new EntityCollectionLoaderConfigSerializer(new EntityLoaderConfigSerializer()))->decode($input);
+
+        static::assertInstanceOf(EntityLoaderConfig::class, $config);
+        static::assertSame('entity-value', $config->entity);
+        static::assertSame('property-value', $config->property);
+        static::assertSame(['entity', 'property'], $requiredKeys);
     }
 
     #[TestDox('skips bare EntityCollection definitions but keeps enumerating the rest')]

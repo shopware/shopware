@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY } from './index';
 
@@ -491,9 +492,8 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     it('should contain field "display divergent delivery address" in invoice form field', async () => {
         const wrapper = await createWrapper({}, ['document.editor']);
 
-        await wrapper.setData({
-            isShowDivergentDeliveryAddress: true,
-        });
+        wrapper.vm.isShowDivergentDeliveryAddress = true;
+        await nextTick();
         await flushPromises();
 
         const displayDivergentDeliveryAddress = wrapper.findComponent(

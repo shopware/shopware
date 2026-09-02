@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const defaultData = {
@@ -196,7 +197,8 @@ describe('app/mixin/generic-condition', () => {
     ])('should validate if field has between operator: $name', async ({ type, operator, expected }) => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({ operator });
+        wrapper.vm.operator = operator;
+        await nextTick();
 
         expect(wrapper.vm.isBetweenDateField({ type })).toBe(expected);
     });

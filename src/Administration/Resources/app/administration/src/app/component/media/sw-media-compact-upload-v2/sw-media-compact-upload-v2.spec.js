@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 describe('src/app/component/media/sw-media-compact-upload-v2', () => {
@@ -87,9 +88,8 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
     });
 
     it('should contain url upload form when input type is url-upload', async () => {
-        await wrapper.setData({
-            inputType: 'file-upload',
-        });
+        wrapper.vm.inputType = 'file-upload';
+        await nextTick();
 
         let urlForm = wrapper.find('.sw-media-upload-v2__url-form');
         let uploadBtn = wrapper.find('.sw-media-upload-v2__button.upload');
@@ -97,9 +97,8 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
         expect(urlForm.exists()).toBeFalsy();
         expect(uploadBtn.exists()).toBeTruthy();
 
-        await wrapper.setData({
-            inputType: 'url-upload',
-        });
+        wrapper.vm.inputType = 'url-upload';
+        await nextTick();
 
         urlForm = wrapper.find('.sw-media-upload-v2__url-form');
         uploadBtn = wrapper.find('.sw-media-upload-v2__button.upload');

@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -97,9 +98,8 @@ async function createWrapper(privileges = [], props = {}) {
 describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     it('should have all fields disabled', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            isProcessLoading: false,
-        });
+        wrapper.vm.isProcessLoading = false;
+        await nextTick();
 
         await flushPromises();
 
@@ -136,9 +136,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         const wrapper = await createWrapper([
             'shipping.editor',
         ]);
-        await wrapper.setData({
-            isProcessLoading: false,
-        });
+        wrapper.vm.isProcessLoading = false;
+        await nextTick();
 
         await flushPromises();
 

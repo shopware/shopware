@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -209,9 +210,8 @@ describe('module/sw-customer/page/sw-customer-create', () => {
     it('should not render sw-customer-base-form and sw-customer-address-form if customer is null', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-        await wrapper.setData({
-            customer: null,
-        });
+        wrapper.vm.customer = null;
+        await nextTick();
 
         expect(wrapper.find('sw-customer-base-form-stub').exists()).toBeFalsy();
         expect(wrapper.find('sw-customer-address-form-stub').exists()).toBeFalsy();

@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(customOptions = {}) {
@@ -66,7 +67,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
         });
         await flushPromises();
 
-        await wrapper.setData({ showModal: true });
+        wrapper.vm.showModal = true;
+        await nextTick();
         await flushPromises();
         await wrapper.vm.$nextTick();
 
@@ -110,9 +112,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should show file extension input when URL has no extension', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'https://example.com/image',
-        });
+        wrapper.vm.url = 'https://example.com/image';
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-media-url-form__extension-input').exists()).toBeTruthy();
@@ -120,9 +121,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should not show file extension input when URL has extension', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'https://example.com/image.jpg',
-        });
+        wrapper.vm.url = 'https://example.com/image.jpg';
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-media-url-form__extension-input').exists()).toBeFalsy();
@@ -130,9 +130,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should emit media-url-form-submit event with correct data when valid URL is submitted', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'https://example.com/image.jpg',
-        });
+        wrapper.vm.url = 'https://example.com/image.jpg';
+        await nextTick();
         await flushPromises();
 
         const submitButton = wrapper.find('.sw-media-url-form__submit-button');
@@ -148,9 +147,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should not emit media-url-form-submit event when URL is invalid', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'invalid-url',
-        });
+        wrapper.vm.url = 'invalid-url';
+        await nextTick();
         await flushPromises();
 
         const submitButton = wrapper.find('.sw-media-url-form__submit-button');
@@ -161,9 +159,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should show error message when URL is invalid', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'invalid-url',
-        });
+        wrapper.vm.url = 'invalid-url';
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-media-url-form__url-input').attributes('error')).toBeDefined();
@@ -184,9 +181,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should disable submit button when URL is invalid', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'invalid-url',
-        });
+        wrapper.vm.url = 'invalid-url';
+        await nextTick();
         await flushPromises();
 
         const submitButton = wrapper.find('.sw-media-url-form__submit-button');
@@ -195,9 +191,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should enable submit button when URL is valid', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'https://example.com/image.jpg',
-        });
+        wrapper.vm.url = 'https://example.com/image.jpg';
+        await nextTick();
         await flushPromises();
 
         const submitButton = wrapper.find('.sw-media-url-form__submit-button');
@@ -206,9 +201,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should handle file extension from URL correctly', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'https://example.com/image.jpg',
-        });
+        wrapper.vm.url = 'https://example.com/image.jpg';
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.extensionFromUrl).toBe('jpg');
@@ -216,10 +210,9 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should handle file extension from input when URL has no extension', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: 'https://example.com/image',
-            extensionFromInput: 'png',
-        });
+        wrapper.vm.url = 'https://example.com/image';
+        wrapper.vm.extensionFromInput = 'png';
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.fileExtension).toBe('png');
@@ -227,9 +220,8 @@ describe('src/app/component/media/sw-media-url-form', () => {
 
     it('should handle empty URL input', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            url: '',
-        });
+        wrapper.vm.url = '';
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.hasInvalidInput).toBeFalsy();

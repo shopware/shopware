@@ -1,7 +1,7 @@
 /**
  * @sw-package discovery
  */
-import { toRaw } from 'vue';
+import { toRaw, nextTick } from 'vue';
 import { createWrapper, EntityCollection, registerCmsPageStore } from './fixtures';
 
 describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
@@ -20,15 +20,14 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
     it('should contain content for sorting when defaultSorting is deactivated', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            productSortings: [
-                {
-                    id: 'foo_id',
-                    key: 'foo',
-                    priority: 2,
-                },
-            ],
-        });
+        wrapper.vm.productSortings = [
+            {
+                id: 'foo_id',
+                key: 'foo',
+                priority: 2,
+            },
+        ];
+        await nextTick();
 
         const showSortingSwitchField = wrapper.find(
             'input[aria-label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]',
@@ -52,9 +51,8 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
     it('should hide the sorting grid when no product sortings are selected', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            productSortings: [],
-        });
+        wrapper.vm.productSortings = [];
+        await nextTick();
 
         expect(wrapper.find('sw-cms-el-config-product-listing-config-sorting-grid-stub').exists()).toBeFalsy();
     });
@@ -101,20 +99,19 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({});
 
-        await wrapper.setData({
-            productSortings: [
-                {
-                    id: 'foo_id',
-                    key: 'foo',
-                    priority: 2,
-                },
-                {
-                    id: 'bar_id',
-                    key: 'bar',
-                    priority: 5,
-                },
-            ],
-        });
+        wrapper.vm.productSortings = [
+            {
+                id: 'foo_id',
+                key: 'foo',
+                priority: 2,
+            },
+            {
+                id: 'bar_id',
+                key: 'bar',
+                priority: 5,
+            },
+        ];
+        await nextTick();
 
         await wrapper.vm.$nextTick();
 
@@ -253,9 +250,8 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
 
         const originalRaw = toRaw(wrapper.vm.element.config.availableSortings.value);
 
-        await wrapper.setData({
-            productSortings: [{ id: 'foo_id', key: 'foo', priority: 2 }],
-        });
+        wrapper.vm.productSortings = [{ id: 'foo_id', key: 'foo', priority: 2 }];
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expect(toRaw(wrapper.vm.element.config.availableSortings.value)).not.toBe(originalRaw);
@@ -278,9 +274,8 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
             },
         ];
 
-        await wrapper.setData({
-            productSortings: before,
-        });
+        wrapper.vm.productSortings = before;
+        await nextTick();
 
         const after = wrapper.vm.transformProductSortings();
 

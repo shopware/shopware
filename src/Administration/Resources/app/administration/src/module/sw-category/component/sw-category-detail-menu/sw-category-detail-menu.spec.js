@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper({ mediaRepositoryMock = undefined } = {}) {
@@ -115,7 +116,8 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should open media modal', async () => {
         const { wrapper } = await createWrapper();
 
-        await wrapper.setData({ showMediaModal: true });
+        wrapper.vm.showMediaModal = true;
+        await nextTick();
 
         const mediaModal = wrapper.find('.sw-media-modal-v2');
 
@@ -133,7 +135,8 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
     it('should be able to change category media', async () => {
         const { wrapper, repositorySpy } = await createWrapper({ mediaRepositoryMock: { id: 'id' } });
 
-        await wrapper.setData({ showMediaModal: true });
+        wrapper.vm.showMediaModal = true;
+        await nextTick();
         const button = wrapper.find('.sw-media-modal-v2 button');
         await button.trigger('click');
 

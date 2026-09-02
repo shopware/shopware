@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const set = {
@@ -241,9 +242,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
 
         await flushPromises();
 
-        await wrapper.setData({
-            deleteCustomField: deleteCustomField,
-        });
+        wrapper.vm.deleteCustomField = deleteCustomField;
+        await nextTick();
 
         await flushPromises();
 

@@ -3,6 +3,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
@@ -202,9 +203,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should be able to sort the items', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const tree = wrapper.find('.sw-tree');
         expect(tree.attributes().sortable).toBeDefined();
@@ -213,9 +213,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not be able to sort the items', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         await wrapper.setProps({
             allowEdit: false,
@@ -227,9 +226,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should be able to delete the items in sw-tree', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const tree = wrapper.find('.sw-tree');
         expect(tree.attributes()['allow-delete-categories']).toBeDefined();
@@ -238,9 +236,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not be able to delete the items in sw-tree', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         await wrapper.setProps({
             allowDelete: false,
@@ -253,9 +250,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should be able to create new categories in sw-tree-item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
         expect(treeItem.attributes()['allow-new-categories']).toBeDefined();
@@ -264,9 +260,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not be able to create new categories in sw-tree-item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         await wrapper.setProps({
             allowCreate: false,
@@ -279,9 +274,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should be able to delete categories in sw-tree-item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
         expect(treeItem.attributes()['allow-delete-categories']).toBeDefined();
@@ -290,9 +284,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not be able to delete categories in sw-tree-item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         await wrapper.setProps({
             allowDelete: false,
@@ -305,9 +298,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should show the checkbox in sw-tree-item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
         expect(treeItem.attributes()['display-checkbox']).toBeDefined();
@@ -316,9 +308,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not show the checkbox in sw-tree-item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         await wrapper.setProps({
             allowEdit: false,
@@ -331,9 +322,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should show the custom tooltip text in sw-tree-item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         await wrapper.setProps({
             allowEdit: false,
@@ -346,9 +336,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not show the custom tooltip text in sw-tree-item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const treeItem = wrapper.find('sw-tree-item-stub');
         expect(treeItem.attributes()['context-menu-tooltip-text']).toBeUndefined();
@@ -357,9 +346,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should get right category url', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const itemUrl = wrapper.vm.getCategoryUrl({ id: '1a2b' });
         expect(itemUrl).toBe('#/category/detail/1a2b');
@@ -368,9 +356,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should get wrong category url', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const itemUrl = wrapper.vm.getCategoryUrl({ id: '1a2b' });
         expect(itemUrl).not.toBe('#/detail/1a2b');
@@ -420,9 +407,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             const wrapper = await createWrapper();
             wrapper.vm.createNotificationError = jest.fn();
 
-            await wrapper.setData({
-                isLoadingInitialData: false,
-            });
+            wrapper.vm.isLoadingInitialData = false;
+            await nextTick();
 
             const category = {
                 id: '1a',
@@ -448,9 +434,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const entryPoint = {
             serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }],
@@ -478,9 +463,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper();
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         const category = {
             id: '1a',
@@ -500,9 +484,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should be able to set elements count when delete category is checked', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
         wrapper.vm.$refs.categoryTree.checkedElementsCount = 2;
 
         const category = {
@@ -526,9 +509,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not allow checked elements count to become negative when deleting the last checked category', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoadingInitialData: false,
-        });
+        wrapper.vm.isLoadingInitialData = false;
+        await nextTick();
 
         wrapper.vm.$refs.categoryTree.checkedElementsCount = 0;
 
@@ -715,9 +697,8 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         const wrapper = await createWrapper(categories);
 
-        await wrapper.setData({
-            loadedCategories: loadedCategories,
-        });
+        wrapper.vm.loadedCategories = loadedCategories;
+        await nextTick();
 
         const initialLoadedCategoryCount = Object.values(wrapper.vm.loadedCategories).length;
 

@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -821,9 +822,8 @@ describe('components/data-grid/sw-data-grid', () => {
             curentGridState[item.id] = item;
         });
 
-        await wrapper.setData({
-            selection: curentGridState,
-        });
+        wrapper.vm.selection = curentGridState;
+        await nextTick();
 
         const header = wrapper.find('.sw-data-grid__header');
         const selectionAll = header.find(
@@ -850,9 +850,8 @@ describe('components/data-grid/sw-data-grid', () => {
             curentGridState[item.id] = item;
         });
 
-        await wrapper.setData({
-            selection: curentGridState,
-        });
+        wrapper.vm.selection = curentGridState;
+        await nextTick();
 
         await wrapper.vm.$nextTick();
 

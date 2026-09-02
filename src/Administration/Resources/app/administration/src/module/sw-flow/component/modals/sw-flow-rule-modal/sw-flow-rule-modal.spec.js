@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -265,13 +266,12 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            conditions: [
-                {
-                    type: 'cartLineItemProductStates',
-                },
-            ],
-        });
+        wrapper.vm.conditions = [
+            {
+                type: 'cartLineItemProductStates',
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         const banner = wrapper.find('.sw-flow-rule-modal__product-type-warning');

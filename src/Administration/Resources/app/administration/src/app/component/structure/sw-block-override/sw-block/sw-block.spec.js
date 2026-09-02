@@ -2,6 +2,7 @@
  * @sw-package framework
  * @group disabledCompat
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
 import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
@@ -47,9 +48,8 @@ async function createWrapper({
     );
 
     async function toggleExtensions() {
-        await wrapper.setData({
-            renderExtensions: !wrapper.vm.renderExtensions,
-        });
+        wrapper.vm.renderExtensions = !wrapper.vm.renderExtensions;
+        await nextTick();
     }
 
     return {
@@ -320,9 +320,12 @@ describe('sw-block', () => {
 
         // Each setData triggers a reactive re-render that causes sw-block's computed
         // to run again. With the old push(), each run added a stale entry.
-        await wrapper.setData({ label: 'a' });
-        await wrapper.setData({ label: 'ab' });
-        await wrapper.setData({ label: 'abc' });
+        wrapper.vm.label = 'a';
+        await nextTick();
+        wrapper.vm.label = 'ab';
+        await nextTick();
+        wrapper.vm.label = 'abc';
+        await nextTick();
 
         // Unmount then remount the extension to create a fresh sw-block-parent
         // instance that runs setup() and pops from providedParents.
@@ -345,9 +348,12 @@ describe('sw-block', () => {
 
         const domNodeBefore = wrapper.find('.default-content').element;
 
-        await wrapper.setData({ label: 'a' });
-        await wrapper.setData({ label: 'ab' });
-        await wrapper.setData({ label: 'abc' });
+        wrapper.vm.label = 'a';
+        await nextTick();
+        wrapper.vm.label = 'ab';
+        await nextTick();
+        wrapper.vm.label = 'abc';
+        await nextTick();
 
         expect(wrapper.find('.default-content').element).toBe(domNodeBefore);
         expect(wrapper.find('.default-content').text()).toBe('abc');
@@ -456,7 +462,8 @@ describe('sw-block', () => {
                 },
             );
 
-            await wrapper.setData({ blockName: 'changed-block-name' });
+            wrapper.vm.blockName = 'changed-block-name';
+            await nextTick();
 
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[sw-block]'));
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('"name" prop changed'));

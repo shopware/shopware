@@ -3,6 +3,7 @@
 /**
  * @sw-package inventory
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
@@ -266,10 +267,9 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
     it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-        await wrapper.setData({
-            isLoading: false,
-            propertiesAvailable: true,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.propertiesAvailable = true;
+        await nextTick();
 
         const tabs = wrapper.getComponent({ name: 'sw-tabs' });
 
@@ -283,10 +283,9 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
     it('should render meteor tabs when the major feature flag is active', async () => {
         const wrapper = await createWrapper({ featureActive: true });
         await flushPromises();
-        await wrapper.setData({
-            isLoading: false,
-            propertiesAvailable: true,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.propertiesAvailable = true;
+        await nextTick();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
@@ -312,10 +311,9 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
     it('should switch active tab when meteor tabs emits a new active item', async () => {
         const wrapper = await createWrapper({ featureActive: true });
         await flushPromises();
-        await wrapper.setData({
-            isLoading: false,
-            propertiesAvailable: true,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.propertiesAvailable = true;
+        await nextTick();
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'digital');
         await wrapper.vm.$nextTick();
@@ -326,11 +324,10 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
     it('should display a customized empty state if there are neither variants nor properties', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            groups: [{}],
-            propertiesAvailable: false,
-            isLoading: false,
-        });
+        wrapper.vm.groups = [{}];
+        wrapper.vm.propertiesAvailable = false;
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         await flushPromises();
 
@@ -368,9 +365,8 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
 
     it('should split the product states string into an array', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            activeTab: 'is-foo,is-bar',
-        });
+        wrapper.vm.activeTab = 'is-foo,is-bar';
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.currentProductStates).toEqual([
@@ -445,7 +441,8 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         const wrapper = await createWrapper();
         const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');
 
-        await wrapper.setData({ limit: 5 });
+        wrapper.vm.limit = 5;
+        await nextTick();
 
         // Mock repository to return paginated data
         wrapper.vm.groupRepository.search = jest
@@ -494,7 +491,8 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         const wrapper = await createWrapper();
         const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');
 
-        await wrapper.setData({ limit: 5 });
+        wrapper.vm.limit = 5;
+        await nextTick();
 
         wrapper.vm.groupRepository.search = jest.fn().mockResolvedValueOnce({
             total: 3,

@@ -3,6 +3,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 function mockCriteria() {
@@ -252,9 +253,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
             products: productsMock,
         });
 
-        await wrapper.setData({
-            searchTerm: 'Awesome Product',
-        });
+        wrapper.vm.searchTerm = 'Awesome Product';
+        await nextTick();
 
         wrapper.vm.productVisibilityRepository.delete = jest.fn(() => Promise.reject(new Error('Error')));
         wrapper.vm.createNotificationError = jest.fn();
@@ -283,9 +283,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await flushPromises();
         wrapper.vm.getProducts = jest.fn();
 
-        await wrapper.setData({
-            page: 2,
-        });
+        wrapper.vm.page = 2;
+        await nextTick();
 
         expect(wrapper.vm.page).toBe(2);
 
@@ -321,7 +320,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper, getCreateButton } = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ products: [], searchTerm: null });
+        wrapper.vm.products = [];
+        wrapper.vm.searchTerm = null;
+        await nextTick();
 
         expect(getCreateButton().attributes('disabled')).toBeUndefined();
     });
@@ -330,7 +331,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper, getCreateButton } = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ products: [], searchTerm: null });
+        wrapper.vm.products = [];
+        wrapper.vm.searchTerm = null;
+        await nextTick();
 
         expect(getCreateButton().attributes('disabled')).toBeDefined();
     });
@@ -340,10 +343,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper, getCreateButton } = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            products: productsMock,
-            searchTerm: 'Awesome Product',
-        });
+        wrapper.vm.products = productsMock;
+        wrapper.vm.searchTerm = 'Awesome Product';
+        await nextTick();
 
         expect(getCreateButton().attributes('disabled')).toBeUndefined();
     });
@@ -352,10 +354,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper, getCreateButton } = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            products: productsMock,
-            searchTerm: 'Awesome Product',
-        });
+        wrapper.vm.products = productsMock;
+        wrapper.vm.searchTerm = 'Awesome Product';
+        await nextTick();
 
         expect(getCreateButton().attributes('disabled')).toBeDefined();
     });
@@ -365,7 +366,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper, getEntityListing } = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ products: productsMock });
+        wrapper.vm.products = productsMock;
+        await nextTick();
 
         expect(getEntityListing().props('allowDelete')).toBe(true);
     });
@@ -374,7 +376,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper, getEntityListing } = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ products: productsMock });
+        wrapper.vm.products = productsMock;
+        await nextTick();
 
         expect(getEntityListing().props('allowDelete')).toBe(false);
     });
@@ -384,7 +387,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper, getEntityListing } = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ products: productsMock });
+        wrapper.vm.products = productsMock;
+        await nextTick();
 
         expect(getEntityListing().props('allowEdit')).toBe(true);
     });
@@ -393,7 +397,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const { wrapper, getEntityListing } = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ products: productsMock });
+        wrapper.vm.products = productsMock;
+        await nextTick();
 
         expect(getEntityListing().props('allowEdit')).toBe(false);
     });
@@ -415,7 +420,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await flushPromises();
         wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
-        await wrapper.setData({ products: productsMock });
+        wrapper.vm.products = productsMock;
+        await nextTick();
         await wrapper.vm.onAddProducts([
             { id: '103', active: true, productNumber: '003' },
         ]);

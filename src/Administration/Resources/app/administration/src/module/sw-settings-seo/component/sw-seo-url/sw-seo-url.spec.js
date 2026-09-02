@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 // from Defaults.php
@@ -91,7 +92,8 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     });
 
     it('sales channel switch should not be disabled', async () => {
-        await wrapper.setData({ showEmptySeoUrlError: false });
+        wrapper.vm.showEmptySeoUrlError = false;
+        await nextTick();
 
         expect(wrapper.find('sw-sales-channel-switch-stub').attributes().disabled).toBeUndefined();
     });
@@ -115,7 +117,9 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             ],
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
-        await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
+        wrapper.vm.showEmptySeoUrlError = false;
+        wrapper.vm.currentSalesChannelId = STOREFRONT_SALES_CHANNEL_ID;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         await wrapper.vm.refreshCurrentSeoUrl();
@@ -143,7 +147,9 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             ],
             salesChannelId: 'a-sales-channel-without-seo-urls',
         });
-        await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
+        wrapper.vm.showEmptySeoUrlError = false;
+        wrapper.vm.currentSalesChannelId = STOREFRONT_SALES_CHANNEL_ID;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         await wrapper.vm.refreshCurrentSeoUrl();
@@ -212,7 +218,9 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             ],
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
-        await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
+        wrapper.vm.showEmptySeoUrlError = false;
+        wrapper.vm.currentSalesChannelId = STOREFRONT_SALES_CHANNEL_ID;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         await wrapper.vm.refreshCurrentSeoUrl();
@@ -297,7 +305,9 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
             ],
             salesChannelId: STOREFRONT_SALES_CHANNEL_ID,
         });
-        await wrapper.setData({ showEmptySeoUrlError: false, currentSalesChannelId: STOREFRONT_SALES_CHANNEL_ID });
+        wrapper.vm.showEmptySeoUrlError = false;
+        wrapper.vm.currentSalesChannelId = STOREFRONT_SALES_CHANNEL_ID;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         await wrapper.vm.refreshCurrentSeoUrl();

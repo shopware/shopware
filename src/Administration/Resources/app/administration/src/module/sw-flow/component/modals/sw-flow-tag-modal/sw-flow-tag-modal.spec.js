@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -167,9 +168,8 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
             expect(wrapper.find(elementClass).classes()).toContain('has--error');
         });
 
-        await wrapper.setData({
-            tagCollection: getTagCollection([{ name: 'new', id: '124' }]),
-        });
+        wrapper.vm.tagCollection = getTagCollection([{ name: 'new', id: '124' }]);
+        await nextTick();
 
         const entitySelect = wrapper.find('.sw-single-select__selection');
         await entitySelect.trigger('click');

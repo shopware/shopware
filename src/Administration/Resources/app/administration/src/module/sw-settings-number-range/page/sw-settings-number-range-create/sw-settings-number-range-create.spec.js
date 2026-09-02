@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(
@@ -147,9 +148,8 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            hasProductNumberRange: true,
-        });
+        wrapper.vm.hasProductNumberRange = true;
+        await nextTick();
 
         const criteria = wrapper.vm.numberRangeTypeCriteria.filters.find((c) => c.field === 'global');
         expect(criteria.value).toBe(false);
@@ -158,7 +158,8 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
     it('should be able show product warning alert when number range is global', async () => {
         const wrapper = await createWrapper();
         const loadSalesChannelsSpy = jest.spyOn(wrapper.vm, 'loadSalesChannels');
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         const selectType = wrapper.find('.sw-number-range-detail__select-type');

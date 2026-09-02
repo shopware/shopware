@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const orderFixture = {
@@ -157,9 +158,8 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
             documentDate: '2024/01/01',
         };
 
-        await wrapper.setData({
-            documentConfig,
-        });
+        Object.assign(wrapper.vm.documentConfig, documentConfig);
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-order-document-settings-storno-modal__document-number input').element.value).toBe(

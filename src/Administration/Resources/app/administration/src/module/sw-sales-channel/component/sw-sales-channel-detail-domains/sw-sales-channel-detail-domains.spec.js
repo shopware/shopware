@@ -4,6 +4,7 @@
  * @sw-package discovery
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { MtUrlField } from '@shopware-ag/meteor-component-library';
 
@@ -196,9 +197,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     it('should sort all domains descending', async () => {
         const wrapper = await createWrapper({}, getExampleDomains());
 
-        await wrapper.setData({
-            sortDirection: 'DESC',
-        });
+        wrapper.vm.sortDirection = 'DESC';
+        await nextTick();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
@@ -222,9 +222,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     it('should sort by currency', async () => {
         const wrapper = await createWrapper({}, getExampleDomains());
 
-        await wrapper.setData({
-            sortBy: 'currencyId',
-        });
+        wrapper.vm.sortBy = 'currencyId';
+        await nextTick();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
@@ -410,10 +409,12 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         const testedDomain = exampleDomains[0];
         const wrapper = await createWrapper({}, exampleDomains);
 
-        await wrapper.setData({ currentDomainBackup: exampleDomains[0] });
+        wrapper.vm.currentDomainBackup = exampleDomains[0];
+        await nextTick();
         expect(wrapper.vm.isOriginalUrl(testedDomain.url)).toBeTruthy();
 
-        await wrapper.setData({ currentDomainBackup: exampleDomains[1] });
+        wrapper.vm.currentDomainBackup = exampleDomains[1];
+        await nextTick();
         expect(wrapper.vm.isOriginalUrl(testedDomain.url)).toBeFalsy();
     });
 
@@ -433,10 +434,9 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
         wrapper.vm.isOriginalUrl = jest.fn(() => true);
         wrapper.vm.verifyUrl = jest.fn();
-        await wrapper.setData({
-            currentDomain: testedDomain,
-            currentDomainBackup: testedDomain,
-        });
+        wrapper.vm.currentDomain = testedDomain;
+        wrapper.vm.currentDomainBackup = testedDomain;
+        await nextTick();
 
         await wrapper.vm.onClickAddNewDomain();
 

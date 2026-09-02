@@ -3,6 +3,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import '../../mixin/sw-cms-state.mixin';
 
@@ -270,7 +271,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
             expect(wrapper.find('.sw-confirm-modal').exists()).toBe(false);
 
-            await wrapper.setData({ showModal: true });
+            wrapper.vm.showModal = true;
+            await nextTick();
 
             expect(wrapper.find('.sw-confirm-modal').exists()).toBe(true);
         });
@@ -545,7 +547,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             };
             const wrapper = await createWrapper();
 
-            await wrapper.setData({ showModal: true });
+            wrapper.vm.showModal = true;
+            await nextTick();
             expect(wrapper.vm.showModal).toBe(true);
 
             await wrapper.vm.onInheritanceRestore();
@@ -769,7 +772,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             Shopware.Store.get('swCategoryDetail').category = contentEntity;
             const wrapper = await createWrapper();
 
-            await wrapper.setData({ showModal: true });
+            wrapper.vm.showModal = true;
+            await nextTick();
 
             await wrapper.find('.confirm-btn').trigger('click');
 
@@ -782,7 +786,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             Shopware.Store.get('swCategoryDetail').category = {};
             const wrapper = await createWrapper();
 
-            await wrapper.setData({ showModal: true });
+            wrapper.vm.showModal = true;
+            await nextTick();
             expect(wrapper.vm.showModal).toBe(true);
 
             await wrapper.find('.cancel-btn').trigger('click');
@@ -794,7 +799,8 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             Shopware.Store.get('swCategoryDetail').category = {};
             const wrapper = await createWrapper();
 
-            await wrapper.setData({ showModal: true });
+            wrapper.vm.showModal = true;
+            await nextTick();
             expect(wrapper.vm.showModal).toBe(true);
 
             await wrapper.find('.close-btn').trigger('click');

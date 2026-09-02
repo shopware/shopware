@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const testEntityName = 'custom_test_entity';
@@ -125,9 +126,8 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         expect(wrapper.find('mt-empty-state').exists()).toBe(false);
 
-        await wrapper.setData({
-            customEntityInstances: false,
-        });
+        wrapper.vm.customEntityInstances = false;
+        await nextTick();
 
         expect(wrapper.vm.customEntityInstances).toBe(false);
 

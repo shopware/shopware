@@ -8,7 +8,7 @@ import 'src/app/component/form/sw-password-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 
 async function createWrapper({ provide, ...additionalOptions } = {}) {
     return mount(await wrapTestComponent('sw-password-field-deprecated', { sync: true }), {
@@ -80,9 +80,8 @@ describe('components/form/sw-password-field', () => {
 
         expect(input.attributes().type).toBe('password');
 
-        await wrapper.setData({
-            showPassword: true,
-        });
+        wrapper.vm.showPassword = true;
+        await nextTick();
 
         await input.setValue('Very secret password');
 

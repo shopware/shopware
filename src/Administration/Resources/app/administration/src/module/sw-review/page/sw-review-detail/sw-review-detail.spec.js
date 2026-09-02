@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/placeholder.mixin';
 import 'src/app/mixin/salutation.mixin';
@@ -105,7 +106,8 @@ describe('module/sw-review/page/sw-review-detail', () => {
         global.activeAclRoles = ['review.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-review-detail__save-action');
@@ -115,7 +117,8 @@ describe('module/sw-review/page/sw-review-detail', () => {
 
     it('should not be able to edit review fields', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         const languageField = wrapper.find('.sw-review__language-select');
@@ -131,7 +134,8 @@ describe('module/sw-review/page/sw-review-detail', () => {
         global.activeAclRoles = ['review.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         const languageField = wrapper.find('.sw-review__language-select');

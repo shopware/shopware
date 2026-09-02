@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -87,7 +88,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should have all fields disabled', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ total: 2 });
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -102,7 +104,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         const wrapper = await createWrapper([
             'shipping.editor',
         ]);
-        await wrapper.setData({ total: 2 });
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -119,7 +122,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
             'shipping.editor',
             'shipping.deleter',
         ]);
-        await wrapper.setData({ total: 2 });
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -136,7 +140,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
             'shipping.deleter',
             'shipping.creator',
         ]);
-        await wrapper.setData({ total: 2 });
+        wrapper.vm.total = 2;
+        await nextTick();
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -149,9 +154,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -192,9 +196,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -216,9 +219,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};

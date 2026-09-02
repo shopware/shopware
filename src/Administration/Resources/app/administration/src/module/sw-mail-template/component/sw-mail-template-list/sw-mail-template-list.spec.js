@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const createWrapper = async (privileges = []) => {
@@ -165,9 +166,8 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
 
     it('should return three skeletons when there are no mail templates', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            mailTemplates: null,
-        });
+        wrapper.vm.mailTemplates = null;
+        await nextTick();
         const amountOfSkeletons = wrapper.vm.skeletonItemAmount;
 
         expect(amountOfSkeletons).toBe(3);

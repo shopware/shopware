@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -122,9 +123,8 @@ describe('module/sw-settings-media/page/sw-settings-media', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            isSaveSuccessful: true,
-        });
+        wrapper.vm.isSaveSuccessful = true;
+        await nextTick();
 
         wrapper.vm.saveFinish();
 

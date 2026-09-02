@@ -4,6 +4,7 @@
  * @sw-package discovery
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const mockSave = jest.fn(() => Promise.resolve());
@@ -206,9 +207,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         const wrapper = await createWrapper();
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         expect(saveButton.props('disabled')).toBe(true);
     });
@@ -217,9 +217,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         global.activeAclRoles = ['sales_channel.editor'];
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 
@@ -231,9 +230,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
             'sales_channel.editor',
         ]);
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         wrapper.vm.salesChannel.analytics.trackingId = null;
 
@@ -248,9 +246,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         global.activeAclRoles = ['sales_channel.editor'];
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const analyticsId = wrapper.vm.updateAnalytics();
 
@@ -320,16 +317,15 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     it('should provide agentic commerce export config accessor for child views', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            agenticCommerceExportConfig: [
-                {
-                    provider: 'open-ai',
-                    elements: [],
-                    values: {},
-                    isLoading: false,
-                },
-            ],
-        });
+        wrapper.vm.agenticCommerceExportConfig = [
+            {
+                provider: 'open-ai',
+                elements: [],
+                values: {},
+                isLoading: false,
+            },
+        ];
+        await nextTick();
 
         const provide = wrapper.vm.$options.provide.call(wrapper.vm);
 
@@ -724,23 +720,22 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            agenticCommerceExportConfig: [
-                {
-                    provider: 'open-ai',
-                    elements: [
-                        {
-                            name: 'core.openAiProductExport.returnPolicyUrl',
-                            config: { required: true },
-                        },
-                    ],
-                    values: { 'core.openAiProductExport.returnPolicyUrl': 'https://example.com/returns' },
-                    errors: {},
-                    isLoaded: true,
-                    isLoading: false,
-                },
-            ],
-        });
+        wrapper.vm.agenticCommerceExportConfig = [
+            {
+                provider: 'open-ai',
+                elements: [
+                    {
+                        name: 'core.openAiProductExport.returnPolicyUrl',
+                        config: { required: true },
+                    },
+                ],
+                values: { 'core.openAiProductExport.returnPolicyUrl': 'https://example.com/returns' },
+                errors: {},
+                isLoaded: true,
+                isLoading: false,
+            },
+        ];
+        await nextTick();
 
         expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);
         expect(wrapper.vm.agenticCommerceExportConfig[0].errors).toEqual({});
@@ -750,23 +745,22 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            agenticCommerceExportConfig: [
-                {
-                    provider: 'open-ai',
-                    elements: [
-                        {
-                            name: 'core.openAiProductExport.returnPolicyUrl',
-                            config: { required: true },
-                        },
-                    ],
-                    values: {},
-                    errors: {},
-                    isLoaded: true,
-                    isLoading: false,
-                },
-            ],
-        });
+        wrapper.vm.agenticCommerceExportConfig = [
+            {
+                provider: 'open-ai',
+                elements: [
+                    {
+                        name: 'core.openAiProductExport.returnPolicyUrl',
+                        config: { required: true },
+                    },
+                ],
+                values: {},
+                errors: {},
+                isLoaded: true,
+                isLoading: false,
+            },
+        ];
+        await nextTick();
 
         const result = wrapper.vm.validateAgenticCommerceExportConfig();
 
@@ -787,24 +781,23 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await flushPromises();
         mockSave.mockClear();
 
-        await wrapper.setData({
-            isLoading: true,
-            agenticCommerceExportConfig: [
-                {
-                    provider: 'open-ai',
-                    elements: [
-                        {
-                            name: 'core.openAiProductExport.returnPolicyUrl',
-                            config: { required: true },
-                        },
-                    ],
-                    values: {},
-                    errors: {},
-                    isLoaded: true,
-                    isLoading: false,
-                },
-            ],
-        });
+        wrapper.vm.isLoading = true;
+        wrapper.vm.agenticCommerceExportConfig = [
+            {
+                provider: 'open-ai',
+                elements: [
+                    {
+                        name: 'core.openAiProductExport.returnPolicyUrl',
+                        config: { required: true },
+                    },
+                ],
+                values: {},
+                errors: {},
+                isLoaded: true,
+                isLoading: false,
+            },
+        ];
+        await nextTick();
 
         await wrapper.vm.onSave();
         await flushPromises();
@@ -932,31 +925,30 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         });
         await flushPromises();
 
-        await wrapper.setData({
-            agenticCommerceExportConfig: [
-                {
-                    provider: 'open-ai',
-                    elements: [
-                        {
-                            name: 'core.openAiProductExport.returnPolicyUrl',
-                            config: { required: true },
-                        },
-                    ],
-                    values: {},
-                    errors: {},
-                    isLoaded: true,
-                    isLoading: false,
-                },
-                {
-                    provider: 'google',
-                    elements: [],
-                    values: {},
-                    errors: {},
-                    isLoaded: true,
-                    isLoading: false,
-                },
-            ],
-        });
+        wrapper.vm.agenticCommerceExportConfig = [
+            {
+                provider: 'open-ai',
+                elements: [
+                    {
+                        name: 'core.openAiProductExport.returnPolicyUrl',
+                        config: { required: true },
+                    },
+                ],
+                values: {},
+                errors: {},
+                isLoaded: true,
+                isLoading: false,
+            },
+            {
+                provider: 'google',
+                elements: [],
+                values: {},
+                errors: {},
+                isLoaded: true,
+                isLoading: false,
+            },
+        ];
+        await nextTick();
 
         expect(wrapper.vm.productExport.provider).toBe('google');
         expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);

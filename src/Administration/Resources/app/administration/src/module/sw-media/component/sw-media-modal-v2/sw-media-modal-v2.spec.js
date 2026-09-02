@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper({ featureActive = false } = {}) {
@@ -108,9 +109,8 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
 
         const tabs = wrapper.findComponent({ name: 'mt-tabs' });
 
-        await wrapper.setData({
-            selection: [{ id: 'selected-media' }],
-        });
+        wrapper.vm.selection = [{ id: 'selected-media' }];
+        await nextTick();
         await tabs.vm.$emit('new-item-active', 'upload');
         await wrapper.vm.$nextTick();
 
@@ -123,9 +123,8 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
     it('should disable the library item in meteor tabs when uploads exist', async () => {
         wrapper = await createWrapper({ featureActive: true });
 
-        await wrapper.setData({
-            uploads: [{ id: 'uploaded-media' }],
-        });
+        wrapper.vm.uploads = [{ id: 'uploaded-media' }];
+        await nextTick();
 
         expect(wrapper.vm.mediaModalTabs[0].disabled).toBe(true);
     });

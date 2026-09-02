@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -84,9 +85,8 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
     });
 
     it('should prevent selection', async () => {
-        await wrapper.setData({
-            preventSelection: true,
-        });
+        wrapper.vm.preventSelection = true;
+        await nextTick();
         jest.spyOn(wrapper.vm, 'addOptionCount');
 
         wrapper.vm.onOptionSelect();
@@ -127,9 +127,8 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
     });
 
     it('should be able to select options once again when the add only toggle get changed', async () => {
-        await wrapper.setData({
-            displayTree: true,
-        });
+        wrapper.vm.displayTree = true;
+        await nextTick();
 
         const selectionOptionsMock = jest.fn();
         jest.spyOn(wrapper.vm, 'selectOptions');

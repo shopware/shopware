@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -58,7 +59,8 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
 
     it('handleSelection: should not emit an redirect when user has not select an mailAgent', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ mailAgent: '' });
+        wrapper.vm.mailAgent = '';
+        await nextTick();
 
         expect(wrapper.emitted('frw-redirect')).toBeUndefined();
 
@@ -69,7 +71,8 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
 
     it('handleSelection: should emit redirect to mailer settings when user has select an smtp mailAgent', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ mailAgent: 'smtp' });
+        wrapper.vm.mailAgent = 'smtp';
+        await nextTick();
 
         expect(wrapper.emitted('frw-redirect')).toBeUndefined();
 
@@ -82,7 +85,8 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
 
     it('handleSelection: should emit redirect to paypal when user has select an local mailAgent', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ mailAgent: 'local' });
+        wrapper.vm.mailAgent = 'local';
+        await nextTick();
 
         expect(wrapper.emitted('frw-redirect')).toBeUndefined();
 

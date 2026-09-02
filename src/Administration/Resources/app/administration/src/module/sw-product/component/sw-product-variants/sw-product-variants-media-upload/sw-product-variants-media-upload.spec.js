@@ -4,6 +4,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -109,9 +110,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     });
 
     it('should contain file upload', async () => {
-        await wrapper.setData({
-            inputType: 'file-upload',
-        });
+        wrapper.vm.inputType = 'file-upload';
+        await nextTick();
 
         const urlForm = wrapper.find('.sw-media-upload-v2__url-form');
         const uploadBtn = wrapper.find('.sw-media-upload-v2__button.upload');

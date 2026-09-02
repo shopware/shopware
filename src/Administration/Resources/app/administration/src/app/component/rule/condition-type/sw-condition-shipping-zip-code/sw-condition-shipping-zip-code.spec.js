@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 
@@ -58,9 +59,8 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                 },
             },
         });
-        await wrapper.setData({
-            isNumeric: true,
-        });
+        wrapper.vm.isNumeric = true;
+        await nextTick();
         await flushPromises();
         const swNumberFields = wrapper.findAll('.mt-number-field');
 
@@ -79,9 +79,8 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                 },
             },
         });
-        await wrapper.setData({
-            isNumeric: false,
-        });
+        wrapper.vm.isNumeric = false;
+        await nextTick();
         await flushPromises();
 
         const tagList = wrapper.find('.sw-tagged-field__tag-list');

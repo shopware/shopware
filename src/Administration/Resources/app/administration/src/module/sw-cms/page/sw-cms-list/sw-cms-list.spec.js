@@ -3,6 +3,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -567,19 +568,18 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            pages: [
-                {
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.pages = [
+            {
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
 
         await wrapper.vm.$nextTick();
 
@@ -598,19 +598,18 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper(['user_config:read']);
         await flushPromises();
 
-        await wrapper.setData({
-            pages: [
-                {
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.pages = [
+            {
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
 
         const createButton = wrapper.findByText('button', 'sw-cms.general.createNewLayout');
         expect(createButton.attributes('disabled') !== undefined).toBe(true);
@@ -620,19 +619,18 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            pages: [
-                {
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.pages = [
+            {
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
 
         const createButton = wrapper.findByText('button', 'sw-cms.general.createNewLayout');
         expect(createButton.attributes('disabled')).toBeUndefined();
@@ -650,21 +648,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         await wrapper.find('.sw-data-grid__actions-menu').trigger('click');
@@ -692,21 +689,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         await wrapper.find('.sw-data-grid__actions-menu').trigger('click');
@@ -733,21 +729,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         await wrapper.find('.sw-data-grid__actions-menu').trigger('click');
@@ -774,21 +769,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         await wrapper.find('.sw-data-grid__actions-menu').trigger('click');
@@ -812,21 +806,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         ]);
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -845,21 +838,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         ]);
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -878,21 +870,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         ]);
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -911,21 +902,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         ]);
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -966,10 +956,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             },
         };
 
-        await wrapper.setData({
-            isLoading: false,
-            pages,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = pages;
+        await nextTick();
         await flushPromises();
 
         const contextMenuItemDelete = wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-delete');
@@ -981,21 +970,20 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                translated: {
+                    name: 'CMS Page 1',
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         const contextMenuItemDelete = wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-delete');
@@ -1166,9 +1154,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -1214,9 +1201,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -1240,9 +1226,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -1266,22 +1251,21 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [],
-                    landingPages: [],
+        wrapper.vm.isLoading = false;
+        wrapper.vm.pages = [
+            {
+                id: '1a',
+                sections: [],
+                categories: [],
+                products: [],
+                landingPages: [],
+                name: 'CMS Page 1',
+                translated: {
                     name: 'CMS Page 1',
-                    translated: {
-                        name: 'CMS Page 1',
-                    },
                 },
-            ],
-        });
+            },
+        ];
+        await nextTick();
         await flushPromises();
 
         await wrapper.find('.sw-data-grid__actions-menu').trigger('click');

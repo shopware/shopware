@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const uploadTaskMock = {
@@ -108,7 +109,8 @@ describe('components/utils/sw-duplicated-media-v2', () => {
 
     it('should keep the existing file', async () => {
         wrapper.vm.defaultOption = 'Keep';
-        await wrapper.setData({ failedUploadTasks: [uploadTaskMock] });
+        wrapper.vm.failedUploadTasks = [uploadTaskMock];
+        await nextTick();
 
         await wrapper.vm.solveDuplicate();
         await wrapper.vm.$nextTick();
@@ -120,7 +122,8 @@ describe('components/utils/sw-duplicated-media-v2', () => {
 
     it('should replace the file on the server with the local file', async () => {
         wrapper.vm.defaultOption = 'Replace';
-        await wrapper.setData({ failedUploadTasks: [uploadTaskMock] });
+        wrapper.vm.failedUploadTasks = [uploadTaskMock];
+        await nextTick();
         await flushPromises();
 
         const radio = wrapper.find('input[type="radio"]');

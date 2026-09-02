@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -85,7 +86,8 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         const customProduct = buildProduct();
 
         wrapper = await createWrapper();
-        await wrapper.setData({ product: customProduct });
+        Shopware.Store.get('swProductDetail').product = customProduct;
+        await nextTick();
         await flushPromises();
 
         expect(customProduct.crossSellings[0].assignedProducts).toStrictEqual([

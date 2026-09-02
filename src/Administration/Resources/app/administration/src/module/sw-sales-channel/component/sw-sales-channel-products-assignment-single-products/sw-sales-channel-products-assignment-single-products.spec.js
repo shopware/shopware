@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 let productData = [];
@@ -178,9 +179,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             return Promise.resolve();
         });
 
-        await wrapper.setData({
-            page: 2,
-        });
+        wrapper.vm.page = 2;
+        await nextTick();
 
         expect(wrapper.vm.page).toBe(2);
 

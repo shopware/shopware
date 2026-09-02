@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const { Module } = Shopware;
@@ -306,9 +307,8 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should call the api get default folder if default folder id exists', async () => {
         const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
-        await wrapper.setData({
-            lastDefaultFolderId: '',
-        });
+        wrapper.vm.lastDefaultFolderId = '';
+        await nextTick();
 
         wrapper.vm.mediaDefaultFolderRepository.get = jest.fn(() => Promise.resolve({}));
         wrapper.vm.moduleFactory.getModuleByEntityName = jest.fn(() => Promise.resolve({}));

@@ -275,9 +275,8 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     it('should not be able to save own user', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.find('.sw-profile__save-action');
 
@@ -291,10 +290,9 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         ]);
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-            isUserLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.isUserLoading = false;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-profile__save-action');
@@ -380,7 +378,8 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         const wrapper = await createWrapper();
         const mediaId = '2142';
 
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         wrapper.vm.setMediaItem({ targetId: mediaId });

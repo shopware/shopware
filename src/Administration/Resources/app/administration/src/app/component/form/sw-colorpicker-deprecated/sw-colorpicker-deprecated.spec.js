@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalProps = {}) {
@@ -69,19 +70,17 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should be a number multiplied by 100', async () => {
-        await wrapper.setData({
-            alphaValue: 0.5,
-        });
+        wrapper.vm.alphaValue = 0.5;
+        await nextTick();
 
         expect(wrapper.vm.integerAlpha).toBe(50);
     });
 
     it('should compute the correct alpha slider background', async () => {
-        await wrapper.setData({
-            hueValue: 50,
-            saturationValue: 30,
-            luminanceValue: 80,
-        });
+        wrapper.vm.hueValue = 50;
+        wrapper.vm.saturationValue = 30;
+        wrapper.vm.luminanceValue = 80;
+        await nextTick();
 
         expect(wrapper.vm.sliderBackground).toBe(
             "linear-gradient(90deg, hsla(50, 30%, 80%, 0), hsl(50, 30%, 80%)), url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' width='100%25' height='100%25'%3E%3Crect width='10' height='10' x='00' y='00' fill='%23cdd5db' /%3E%3Crect width='10' height='10' x='10' y='10' fill='%23cdd5db' /%3E%3C/svg%3E\")",
@@ -127,19 +126,17 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should be the correct selector background', async () => {
-        await wrapper.setData({
-            hueValue: 154,
-        });
+        wrapper.vm.hueValue = 154;
+        await nextTick();
 
         expect(wrapper.vm.selectorBackground).toBe('hsl(154, 100%, 50%)');
     });
 
     it('should be the correct red value', async () => {
-        await wrapper.setData({
-            hueValue: 153,
-            saturationValue: 78,
-            luminanceValue: 57,
-        });
+        wrapper.vm.hueValue = 153;
+        wrapper.vm.saturationValue = 78;
+        wrapper.vm.luminanceValue = 57;
+        await nextTick();
 
         expect(wrapper.vm.redValue).toBe(60);
     });
@@ -173,32 +170,29 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should be the correct green value', async () => {
-        await wrapper.setData({
-            hueValue: 153,
-            saturationValue: 78,
-            luminanceValue: 57,
-        });
+        wrapper.vm.hueValue = 153;
+        wrapper.vm.saturationValue = 78;
+        wrapper.vm.luminanceValue = 57;
+        await nextTick();
 
         expect(wrapper.vm.greenValue).toBe(231);
     });
 
     it('should be the correct blue value', async () => {
-        await wrapper.setData({
-            hueValue: 153,
-            saturationValue: 78,
-            luminanceValue: 57,
-        });
+        wrapper.vm.hueValue = 153;
+        wrapper.vm.saturationValue = 78;
+        wrapper.vm.luminanceValue = 57;
+        await nextTick();
 
         expect(wrapper.vm.blueValue).toBe(154);
     });
 
     it('should be the correct rgb value', async () => {
-        await wrapper.setData({
-            hueValue: 85,
-            saturationValue: 80,
-            luminanceValue: 55,
-            alphaValue: 0.67,
-        });
+        wrapper.vm.hueValue = 85;
+        wrapper.vm.saturationValue = 80;
+        wrapper.vm.luminanceValue = 55;
+        wrapper.vm.alphaValue = 0.67;
+        await nextTick();
 
         expect(wrapper.vm.rgbValue).toBe('rgba(156, 232, 48, 0.67)');
     });
@@ -248,33 +242,30 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should be the correct hsl value', async () => {
-        await wrapper.setData({
-            hueValue: 176,
-            saturationValue: 66,
-            luminanceValue: 40,
-        });
+        wrapper.vm.hueValue = 176;
+        wrapper.vm.saturationValue = 66;
+        wrapper.vm.luminanceValue = 40;
+        await nextTick();
 
         expect(wrapper.vm.hslValue).toBe('hsl(176, 66%, 40%)');
     });
 
     it('should be the correct hsla value', async () => {
-        await wrapper.setData({
-            hueValue: 40,
-            saturationValue: 33,
-            luminanceValue: 13,
-            alphaValue: 0.5,
-        });
+        wrapper.vm.hueValue = 40;
+        wrapper.vm.saturationValue = 33;
+        wrapper.vm.luminanceValue = 13;
+        wrapper.vm.alphaValue = 0.5;
+        await nextTick();
 
         expect(wrapper.vm.hslValue).toBe('hsla(40, 33%, 13%, 0.5)');
     });
 
     it('should set the correct hsla values', async () => {
-        await wrapper.setData({
-            hueValue: 40,
-            saturationValue: 50,
-            luminanceValue: 87,
-            alphaValue: 0.77,
-        });
+        wrapper.vm.hueValue = 40;
+        wrapper.vm.saturationValue = 50;
+        wrapper.vm.luminanceValue = 87;
+        wrapper.vm.alphaValue = 0.77;
+        await nextTick();
 
         wrapper.vm.setHslaValues(145, 40, 946, 0.74);
 
@@ -285,21 +276,19 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should be the correct hex value', async () => {
-        await wrapper.setData({
-            hueValue: 341,
-            saturationValue: 46,
-            luminanceValue: 84,
-        });
+        wrapper.vm.hueValue = 341;
+        wrapper.vm.saturationValue = 46;
+        wrapper.vm.luminanceValue = 84;
+        await nextTick();
 
         expect(wrapper.vm.hexValue).toBe('#e9c3cf');
     });
 
     it('should validate the hex input', async () => {
-        await wrapper.setData({
-            hueValue: 275,
-            saturationValue: 55,
-            luminanceValue: 89,
-        });
+        wrapper.vm.hueValue = 275;
+        wrapper.vm.saturationValue = 55;
+        wrapper.vm.luminanceValue = 89;
+        await nextTick();
         wrapper.vm.hexValue = 'qwertz';
         await flushPromises();
 
@@ -307,28 +296,25 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should be the correct hex-alpha value', async () => {
-        await wrapper.setData({
-            hueValue: 341,
-            saturationValue: 46,
-            luminanceValue: 84,
-            alphaValue: 0.4,
-        });
+        wrapper.vm.hueValue = 341;
+        wrapper.vm.saturationValue = 46;
+        wrapper.vm.luminanceValue = 84;
+        wrapper.vm.alphaValue = 0.4;
+        await nextTick();
 
         expect(wrapper.vm.hexValue).toBe('#e9c3cf66');
     });
 
     it('selector should have the right x co-ordinate', async () => {
-        await wrapper.setData({
-            saturationValue: 63,
-        });
+        wrapper.vm.saturationValue = 63;
+        await nextTick();
 
         expect(wrapper.vm.selectorPositionX).toBe('calc(63% - 9px)');
     });
 
     it('selector should have the right y co-ordinate', async () => {
-        await wrapper.setData({
-            luminanceValue: 32,
-        });
+        wrapper.vm.luminanceValue = 32;
+        await nextTick();
 
         expect(wrapper.vm.selectorPositionY).toBe('calc(68% - 9px)');
     });
@@ -338,11 +324,10 @@ describe('components/form/sw-colorpicker', () => {
             colorOutput: 'rgb',
         });
 
-        await wrapper.setData({
-            hueValue: 180,
-            saturationValue: 50,
-            luminanceValue: 40,
-        });
+        wrapper.vm.hueValue = 180;
+        wrapper.vm.saturationValue = 50;
+        wrapper.vm.luminanceValue = 40;
+        await nextTick();
 
         expect(wrapper.vm.colorValue).toBe('rgb(51, 153, 153)');
     });
@@ -352,11 +337,10 @@ describe('components/form/sw-colorpicker', () => {
             colorOutput: 'hsl',
         });
 
-        await wrapper.setData({
-            hueValue: 0,
-            saturationValue: 81,
-            luminanceValue: 72,
-        });
+        wrapper.vm.hueValue = 0;
+        wrapper.vm.saturationValue = 81;
+        wrapper.vm.luminanceValue = 72;
+        await nextTick();
 
         expect(wrapper.vm.colorValue).toBe('hsl(0, 81%, 72%)');
     });
@@ -366,11 +350,10 @@ describe('components/form/sw-colorpicker', () => {
             colorOutput: 'hex',
         });
 
-        await wrapper.setData({
-            hueValue: 149,
-            saturationValue: 55,
-            luminanceValue: 63,
-        });
+        wrapper.vm.hueValue = 149;
+        wrapper.vm.saturationValue = 55;
+        wrapper.vm.luminanceValue = 63;
+        await nextTick();
 
         expect(wrapper.vm.colorValue).toBe('#6dd59f');
     });
@@ -380,11 +363,10 @@ describe('components/form/sw-colorpicker', () => {
             colorOutput: 'auto',
         });
 
-        await wrapper.setData({
-            hueValue: 149,
-            saturationValue: 55,
-            luminanceValue: 63,
-        });
+        wrapper.vm.hueValue = 149;
+        wrapper.vm.saturationValue = 55;
+        wrapper.vm.luminanceValue = 63;
+        await nextTick();
 
         expect(wrapper.vm.colorValue).toBe('#6dd59f');
     });
@@ -394,12 +376,11 @@ describe('components/form/sw-colorpicker', () => {
             colorOutput: 'auto',
         });
 
-        await wrapper.setData({
-            hueValue: 149,
-            saturationValue: 55,
-            luminanceValue: 63,
-            alphaValue: 0.87,
-        });
+        wrapper.vm.hueValue = 149;
+        wrapper.vm.saturationValue = 55;
+        wrapper.vm.luminanceValue = 63;
+        wrapper.vm.alphaValue = 0.87;
+        await nextTick();
 
         expect(wrapper.vm.colorValue).toBe('rgba(109, 213, 159, 0.87)');
     });
@@ -419,7 +400,8 @@ describe('components/form/sw-colorpicker', () => {
     });
 
     it('should show only the input field without colorpicker', async () => {
-        await wrapper.setData({ visible: false });
+        wrapper.vm.visible = false;
+        await nextTick();
         const colorpicker = wrapper.find('.sw-colorpicker__colorpicker');
 
         expect(colorpicker.exists()).toBe(false);
@@ -449,9 +431,8 @@ describe('components/form/sw-colorpicker', () => {
             colorOutput: 'rgb',
         });
 
-        await wrapper.setData({
-            visible: true,
-        });
+        wrapper.vm.visible = true;
+        await nextTick();
 
         expect(wrapper.vm.colorValue).toBe('rgb(18, 49, 35)');
     });
@@ -578,9 +559,8 @@ describe('components/form/sw-colorpicker', () => {
         wrapper = await createWrapper();
         const moveSelectorSpy = jest.spyOn(wrapper.vm, 'moveSelector');
 
-        await wrapper.setData({
-            visible: true,
-        });
+        wrapper.vm.visible = true;
+        await nextTick();
         await flushPromises();
 
         const colorPicker = wrapper.find('.sw-colorpicker__colorpicker-selection');
@@ -595,9 +575,8 @@ describe('components/form/sw-colorpicker', () => {
 
         const removeDragging = jest.spyOn(wrapper.vm, 'removeDragging');
 
-        await wrapper.setData({
-            visible: true,
-        });
+        wrapper.vm.visible = true;
+        await nextTick();
         await flushPromises();
 
         const colorPicker = wrapper.find('.sw-colorpicker__colorpicker-selection');
@@ -716,10 +695,9 @@ describe('components/form/sw-colorpicker', () => {
         async (clientX, clientY, left, top, expectedSaturationValue, expectedLuminanceValue) => {
             wrapper = await createWrapper();
 
-            await wrapper.setData({
-                visible: true,
-                isDragging: true,
-            });
+            wrapper.vm.visible = true;
+            wrapper.vm.isDragging = true;
+            await nextTick();
             await flushPromises();
 
             const event = {

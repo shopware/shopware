@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -71,24 +72,23 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
     });
 
     it('should be able to change search preference', async () => {
-        await wrapper.setData({
-            searchPreferences: [
-                {
-                    entityName: 'product',
-                    _searchable: false,
-                    fields: [
-                        {
-                            fieldName: 'name',
-                            _searchable: false,
-                        },
-                        {
-                            fieldName: 'productNumber',
-                            _searchable: false,
-                        },
-                    ],
-                },
-            ],
-        });
+        wrapper.vm.searchPreferences = [
+            {
+                entityName: 'product',
+                _searchable: false,
+                fields: [
+                    {
+                        fieldName: 'name',
+                        _searchable: false,
+                    },
+                    {
+                        fieldName: 'productNumber',
+                        _searchable: false,
+                    },
+                ],
+            },
+        ];
+        await nextTick();
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
@@ -114,24 +114,23 @@ describe('src/app/component/modal/sw-search-preferences-modal', () => {
     });
 
     it('should not be able to change search preference', async () => {
-        await wrapper.setData({
-            searchPreferences: [
-                {
-                    entityName: 'product',
-                    _searchable: false,
-                    fields: [
-                        {
-                            fieldName: 'name',
-                            _searchable: true,
-                        },
-                        {
-                            fieldName: 'productNumber',
-                            _searchable: false,
-                        },
-                    ],
-                },
-            ],
-        });
+        wrapper.vm.searchPreferences = [
+            {
+                entityName: 'product',
+                _searchable: false,
+                fields: [
+                    {
+                        fieldName: 'name',
+                        _searchable: true,
+                    },
+                    {
+                        fieldName: 'productNumber',
+                        _searchable: false,
+                    },
+                ],
+            },
+        ];
+        await nextTick();
 
         wrapper.vm.searchPreferences[0]._searchable = true;
         wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);

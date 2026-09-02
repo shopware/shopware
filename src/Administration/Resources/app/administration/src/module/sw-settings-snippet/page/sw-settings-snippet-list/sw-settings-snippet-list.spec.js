@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 
@@ -253,7 +254,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
         const roles = role.split(', ');
 
         const wrapper = await createWrapper(roles);
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         await flushPromises();
 

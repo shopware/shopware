@@ -1,6 +1,7 @@
 /**
  * @sw-package checkout
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const documentTypesFixtures = [
@@ -65,14 +66,13 @@ describe('sw-bulk-edit-order-documents', () => {
     });
 
     it('should disable document types correctly', async () => {
-        await wrapper.setData({
-            documentTypes: [
-                {
-                    name: 'Invoice',
-                    technicalName: 'invoice',
-                },
-            ],
-        });
+        wrapper.vm.documentTypes = [
+            {
+                name: 'Invoice',
+                technicalName: 'invoice',
+            },
+        ];
+        await nextTick();
         await wrapper.setProps({
             documents: {
                 disabled: true,

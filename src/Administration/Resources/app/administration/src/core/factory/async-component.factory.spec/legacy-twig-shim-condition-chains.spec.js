@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import {
     ComponentFactory,
@@ -63,7 +64,8 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         expect(wrapper.find('.true-case').exists()).toBe(false);
         expect(wrapper.find('.false-case').exists()).toBe(true);
 
-        await wrapper.setData({ isConditionTrue: true });
+        wrapper.vm.isConditionTrue = true;
+        await nextTick();
 
         expect(wrapper.find('.true-case').exists()).toBe(true);
         expect(wrapper.find('.false-case').exists()).toBe(false);
@@ -150,20 +152,21 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
 
         expectOnlyBranch(wrapper, branches, '.fallback-condition');
 
-        await wrapper.setData({ condition2: true });
+        wrapper.vm.condition2 = true;
+        await nextTick();
         await settleLegacyChain(wrapper);
 
         expectOnlyBranch(wrapper, branches, '.condition-two');
 
-        await wrapper.setData({ condition1: true });
+        wrapper.vm.condition1 = true;
+        await nextTick();
         await settleLegacyChain(wrapper);
 
         expectOnlyBranch(wrapper, branches, '.condition-one');
 
-        await wrapper.setData({
-            condition1: false,
-            condition2: false,
-        });
+        wrapper.vm.condition1 = false;
+        wrapper.vm.condition2 = false;
+        await nextTick();
         await settleLegacyChain(wrapper);
 
         expectOnlyBranch(wrapper, branches, '.fallback-condition');
@@ -210,7 +213,8 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         expect(wrapper.find('.condition-two').exists()).toBe(true);
         expect(wrapper.find('.native-fallback-condition').exists()).toBe(false);
 
-        await wrapper.setData({ condition2: false });
+        wrapper.vm.condition2 = false;
+        await nextTick();
         await settleLegacyChain(wrapper);
 
         expect(wrapper.find('.condition-one').exists()).toBe(false);
@@ -266,23 +270,22 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         await settleLegacyChain(wrapper);
         expectOnlyBranch(wrapper, branches, '.plugin-two');
 
-        await wrapper.setData({ condition1: true });
+        wrapper.vm.condition1 = true;
+        await nextTick();
         await settleLegacyChain(wrapper);
 
         expectOnlyBranch(wrapper, branches, '.native-one');
 
-        await wrapper.setData({
-            condition1: false,
-            condition2: true,
-        });
+        wrapper.vm.condition1 = false;
+        wrapper.vm.condition2 = true;
+        await nextTick();
         await settleLegacyChain(wrapper);
 
         expectOnlyBranch(wrapper, branches, null);
 
-        await wrapper.setData({
-            condition2: false,
-            conditionFromPlugin: false,
-        });
+        wrapper.vm.condition2 = false;
+        wrapper.vm.conditionFromPlugin = false;
+        await nextTick();
         await settleLegacyChain(wrapper);
 
         expectOnlyBranch(wrapper, branches, null);
@@ -335,7 +338,8 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
 
         expectOnlyBranch(wrapper, branches, '.plugin-two-fallback');
 
-        await wrapper.setData({ conditionFromPluginOne: true });
+        wrapper.vm.conditionFromPluginOne = true;
+        await nextTick();
         await settleLegacyChain(wrapper);
 
         expectOnlyBranch(wrapper, branches, '.plugin-one-condition');

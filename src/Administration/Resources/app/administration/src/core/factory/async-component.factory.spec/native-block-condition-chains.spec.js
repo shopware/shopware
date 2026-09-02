@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import {
     ComponentFactory,
     expectOnlyBranch,
@@ -97,21 +98,22 @@ describe('core/factory/async-component.factory.ts - native block condition chain
 
         expectOnlyBranch(wrapper, branches, '.condition-three');
 
-        await wrapper.setData({ condition2: true });
+        wrapper.vm.condition2 = true;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expectOnlyBranch(wrapper, branches, '.condition-two');
 
-        await wrapper.setData({ condition1: true });
+        wrapper.vm.condition1 = true;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expectOnlyBranch(wrapper, branches, '.condition-one');
 
-        await wrapper.setData({
-            condition1: false,
-            condition2: false,
-            condition3: false,
-        });
+        wrapper.vm.condition1 = false;
+        wrapper.vm.condition2 = false;
+        wrapper.vm.condition3 = false;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expectOnlyBranch(wrapper, branches, null);
@@ -222,15 +224,15 @@ describe('core/factory/async-component.factory.ts - native block condition chain
 
         expectOnlyBranch(wrapper, branches, '.restart');
 
-        await wrapper.setData({
-            showRestart: false,
-            showRestartAlternative: true,
-        });
+        wrapper.vm.showRestart = false;
+        wrapper.vm.showRestartAlternative = true;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expectOnlyBranch(wrapper, branches, '.alternative');
 
-        await wrapper.setData({ showRestartAlternative: false });
+        wrapper.vm.showRestartAlternative = false;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expectOnlyBranch(wrapper, branches, '.restart-fallback');
@@ -271,7 +273,8 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expectOnlyBranch(wrapper, branches, '.extension-fallback');
         expect(legacyConditionContext[chainKey]).toBeDefined();
 
-        await wrapper.setData({ showBaseCondition: true });
+        wrapper.vm.showBaseCondition = true;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expectOnlyBranch(wrapper, branches, '.base-condition');

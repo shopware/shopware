@@ -335,13 +335,12 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            groupIds: [
-                'sizeId',
-                'colorId',
-            ],
-            properties: propertiesMock,
-        });
+        wrapper.vm.groupIds = [
+            'sizeId',
+            'colorId',
+        ];
+        wrapper.vm.properties = propertiesMock;
+        await nextTick();
 
         const valueContainers = wrapper.findAll('.sw-product-properties-list__column-values').filter((container) => {
             return container.findAll('sw-label-stub').length > 0;
@@ -499,9 +498,8 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            propertiesAvailable: true,
-        });
+        wrapper.vm.propertiesAvailable = true;
+        await nextTick();
         wrapper.vm.updateNewProperties = jest.fn();
 
         wrapper.vm.turnOnAddPropertiesModal();
@@ -599,10 +597,9 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            searchTerm: 'Size',
-            properties: propertiesMock,
-        });
+        wrapper.vm.searchTerm = 'Size';
+        wrapper.vm.properties = propertiesMock;
+        await nextTick();
 
         const createButton = wrapper.findByText('button', 'sw-product.properties.buttonAddProperty');
 
@@ -614,10 +611,9 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            searchTerm: 'Size',
-            properties: propertiesMock,
-        });
+        wrapper.vm.searchTerm = 'Size';
+        wrapper.vm.properties = propertiesMock;
+        await nextTick();
 
         const createButton = wrapper.findByText('button', 'sw-product.properties.buttonAddProperty');
         expect(createButton.attributes('disabled')).toBeDefined();

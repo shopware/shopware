@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FileValidationService from 'src/app/service/file-validation.service';
@@ -229,9 +230,8 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
             documentDate: '2024/03/01',
         };
 
-        await wrapper.setData({
-            documentConfig,
-        });
+        wrapper.vm.documentConfig = documentConfig;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-order-document-settings-modal__document-number input').element.value).toBe(
@@ -265,9 +265,8 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
             documentDate: '',
         };
 
-        await wrapper.setData({
-            documentConfig,
-        });
+        wrapper.vm.documentConfig = documentConfig;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.find('.sw-order-document-settings-modal__document-number input').element.value).toBe(

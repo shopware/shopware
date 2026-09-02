@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const defaultCategoryId = 'default-category-id';
@@ -267,9 +268,8 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
 
     it.each(productMocks)('should select the given item and load all variables correctly', async (product) => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const productIndex = productMocks.indexOf(product);
         const expected = productMocks[productIndex];
@@ -289,9 +289,8 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         'should set and unset the selectedPageObject correctly, when selecting a column',
         async (product) => {
             const wrapper = await createWrapper();
-            await wrapper.setData({
-                isLoading: false,
-            });
+            wrapper.vm.isLoading = false;
+            await nextTick();
 
             const productIndex = productMocks.indexOf(product);
             const expected = productMocks[productIndex];

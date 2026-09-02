@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 const createMultiSelect = async (customOptions) => {
@@ -221,7 +222,8 @@ describe('components/sw-multi-select', () => {
         const swMultiSelect = await createMultiSelect();
 
         await swMultiSelect.find('.sw-select__selection').trigger('click');
-        await swMultiSelect.setData({ searchTerm: 'Entry 3' });
+        swMultiSelect.vm.searchTerm = 'Entry 3';
+        await nextTick();
 
         expect(swMultiSelect.vm.searchTerm).toBe('Entry 3');
     });

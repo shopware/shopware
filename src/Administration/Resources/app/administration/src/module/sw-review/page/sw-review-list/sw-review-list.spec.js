@@ -1,6 +1,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 Shopware.Service().register('filterService', () => {
@@ -79,7 +80,8 @@ async function createWrapper() {
 describe('module/sw-review/page/sw-review-list', () => {
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ total: 2 });
+        wrapper.vm.total = 2;
+        await nextTick();
         await wrapper.vm.$nextTick();
         await flushPromises();
 
@@ -91,7 +93,8 @@ describe('module/sw-review/page/sw-review-list', () => {
         global.activeAclRoles = ['review.deleter'];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({ total: 2 });
+        wrapper.vm.total = 2;
+        await nextTick();
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('sw-entity-listing-stub');
@@ -100,7 +103,8 @@ describe('module/sw-review/page/sw-review-list', () => {
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ total: 2 });
+        wrapper.vm.total = 2;
+        await nextTick();
         await flushPromises();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');
@@ -111,7 +115,8 @@ describe('module/sw-review/page/sw-review-list', () => {
         global.activeAclRoles = ['review.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({ total: 2 });
+        wrapper.vm.total = 2;
+        await nextTick();
         await flushPromises();
 
         const editMenuItem = wrapper.find('sw-entity-listing-stub');

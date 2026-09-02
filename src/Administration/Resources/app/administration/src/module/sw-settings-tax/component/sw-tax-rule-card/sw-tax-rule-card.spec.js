@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -102,7 +103,8 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         const wrapper = await createWrapper(privileges);
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({ taxRules });
+        wrapper.vm.taxRules = taxRules;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         return { wrapper };

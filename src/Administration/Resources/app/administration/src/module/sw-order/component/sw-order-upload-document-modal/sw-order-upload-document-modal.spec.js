@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import component from './index';
 
@@ -222,7 +223,8 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
             type: 'application/pdf',
         };
 
-        await wrapper.setData({ selectedDocumentFile: file });
+        wrapper.vm.selectedDocumentFile = file;
+        await nextTick();
         await flushPromises();
 
         await wrapper.find('.sw-order-upload-document-modal__upload-button').trigger('click');
@@ -261,7 +263,8 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
             type: 'application/pdf',
         };
 
-        await wrapper.setData({ selectedDocumentFile: file });
+        wrapper.vm.selectedDocumentFile = file;
+        await nextTick();
         await flushPromises();
 
         await wrapper.find('.sw-order-upload-document-modal__upload-button-send').trigger('click');

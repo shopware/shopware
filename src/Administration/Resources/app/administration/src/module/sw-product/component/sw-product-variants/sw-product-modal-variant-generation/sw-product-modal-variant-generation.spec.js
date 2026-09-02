@@ -3,6 +3,7 @@
 /**
  * @sw-package buyers-experience
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -338,9 +339,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper({ featureActive: true });
         await flushPromises();
 
-        await wrapper.setData({
-            variantsNumber: 2,
-        });
+        wrapper.vm.variantsNumber = 2;
+        await nextTick();
 
         expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')).toEqual([
             {
@@ -362,9 +362,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper({ featureActive: true });
         await flushPromises();
 
-        await wrapper.setData({
-            variantsNumber: 2,
-        });
+        wrapper.vm.variantsNumber = 2;
+        await nextTick();
 
         wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'prices');
         await wrapper.vm.$nextTick();
@@ -1012,15 +1011,14 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
     it('should prevent uploads of duplicates files on all variants', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            downloadFilesForAllVariants: [
-                {
-                    id: 'random-id',
-                    fileName: 'example',
-                    fileExtension: 'jpg',
-                },
-            ],
-        });
+        wrapper.vm.downloadFilesForAllVariants = [
+            {
+                id: 'random-id',
+                fileName: 'example',
+                fileExtension: 'jpg',
+            },
+        ];
+        await nextTick();
         wrapper.vm.mediaRepository.get = jest.fn().mockReturnValueOnce(
             Promise.resolve({
                 id: 'random-id',
@@ -1270,21 +1268,18 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
     it('should add option count when change the isAddOnly', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            isAddOnly: true,
-        });
+        wrapper.vm.isAddOnly = true;
+        await nextTick();
 
         const addOriginalConfiguratorSettings = jest.spyOn(wrapper.vm, 'addOriginalConfiguratorSettings');
-        await wrapper.setData({
-            isAddOnly: false,
-        });
+        wrapper.vm.isAddOnly = false;
+        await nextTick();
 
         expect(addOriginalConfiguratorSettings).toHaveBeenCalled();
 
         const emptyConfiguratorSettings = jest.spyOn(wrapper.vm, 'emptyConfiguratorSettings');
-        await wrapper.setData({
-            isAddOnly: true,
-        });
+        wrapper.vm.isAddOnly = true;
+        await nextTick();
 
         expect(emptyConfiguratorSettings).toHaveBeenCalled();
     });
@@ -1292,88 +1287,87 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
     it('should add origin configuration when cancel modal', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            originalConfiguratorSettings: new EntityCollection(
-                'product-configurator-settings',
-                '/product-configurator-settings',
-                Shopware.Context.api,
-                null,
-                [
-                    {
-                        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                        productId: 'e8751848318b4564a4c48bd2bba570b2',
-                        productVersionId: null,
+        wrapper.vm.originalConfiguratorSettings = new EntityCollection(
+            'product-configurator-settings',
+            '/product-configurator-settings',
+            Shopware.Context.api,
+            null,
+            [
+                {
+                    versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                    productId: 'e8751848318b4564a4c48bd2bba570b2',
+                    productVersionId: null,
+                    mediaId: null,
+                    optionId: 'e10fed21a07149958427cb5339ee4c31',
+                    creationState: 'is-download',
+                    price: null,
+                    position: 0,
+                    customFields: null,
+                    createdAt: '2022-09-26T06:33:59.508+00:00',
+                    updatedAt: null,
+                    apiAlias: null,
+                    id: '529991749890466e9ff44982bff96305',
+                    option: {
+                        groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                        name: 'Tower',
+                        position: 1,
+                        colorHexCode: null,
                         mediaId: null,
-                        optionId: 'e10fed21a07149958427cb5339ee4c31',
-                        creationState: 'is-download',
-                        price: null,
-                        position: 0,
                         customFields: null,
-                        createdAt: '2022-09-26T06:33:59.508+00:00',
-                        updatedAt: null,
-                        apiAlias: null,
-                        id: '529991749890466e9ff44982bff96305',
-                        option: {
-                            groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                        createdAt: '2022-09-26T06:32:18.221+00:00',
+                        updatedAt: '2022-09-26T06:33:59.512+00:00',
+                        translated: {
                             name: 'Tower',
                             position: 1,
-                            colorHexCode: null,
-                            mediaId: null,
-                            customFields: null,
-                            createdAt: '2022-09-26T06:32:18.221+00:00',
-                            updatedAt: '2022-09-26T06:33:59.512+00:00',
-                            translated: {
-                                name: 'Tower',
-                                position: 1,
-                                customFields: {},
-                            },
-                            apiAlias: null,
-                            id: 'e10fed21a07149958427cb5339ee4c31',
-                            translations: [],
-                            productConfiguratorSettings: [],
-                            productProperties: [],
-                            productOptions: [],
+                            customFields: {},
                         },
-                    },
-                    {
-                        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                        productId: 'e8751848318b4564a4c48bd2bba570b2',
-                        productVersionId: null,
-                        mediaId: null,
-                        optionId: 'd6e90b99fe4842d487b53b59e50491a5',
-                        creationState: 'is-physical',
-                        price: null,
-                        position: 0,
-                        customFields: null,
-                        createdAt: '2022-09-26T06:32:43.994+00:00',
-                        updatedAt: null,
                         apiAlias: null,
-                        id: '12bbe30fa2ef4f1d83d0899db1c6d450',
-                        option: {
-                            groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                        id: 'e10fed21a07149958427cb5339ee4c31',
+                        translations: [],
+                        productConfiguratorSettings: [],
+                        productProperties: [],
+                        productOptions: [],
+                    },
+                },
+                {
+                    versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                    productId: 'e8751848318b4564a4c48bd2bba570b2',
+                    productVersionId: null,
+                    mediaId: null,
+                    optionId: 'd6e90b99fe4842d487b53b59e50491a5',
+                    creationState: 'is-physical',
+                    price: null,
+                    position: 0,
+                    customFields: null,
+                    createdAt: '2022-09-26T06:32:43.994+00:00',
+                    updatedAt: null,
+                    apiAlias: null,
+                    id: '12bbe30fa2ef4f1d83d0899db1c6d450',
+                    option: {
+                        groupId: 'a63105d31de248c09726b0ad32cd5d15',
+                        name: 'HQ',
+                        position: 1,
+                        colorHexCode: null,
+                        mediaId: null,
+                        customFields: null,
+                        createdAt: '2022-09-26T06:32:22.274+00:00',
+                        updatedAt: null,
+                        translated: {
                             name: 'HQ',
                             position: 1,
-                            colorHexCode: null,
-                            mediaId: null,
-                            customFields: null,
-                            createdAt: '2022-09-26T06:32:22.274+00:00',
-                            updatedAt: null,
-                            translated: {
-                                name: 'HQ',
-                                position: 1,
-                                customFields: {},
-                            },
-                            apiAlias: null,
-                            id: 'd6e90b99fe4842d487b53b59e50491a4',
-                            translations: [],
-                            productConfiguratorSettings: [],
-                            productProperties: [],
-                            productOptions: [],
+                            customFields: {},
                         },
+                        apiAlias: null,
+                        id: 'd6e90b99fe4842d487b53b59e50491a4',
+                        translations: [],
+                        productConfiguratorSettings: [],
+                        productProperties: [],
+                        productOptions: [],
                     },
-                ],
-            ),
-        });
+                },
+            ],
+        );
+        await nextTick();
 
         const removeDuplicateEntries = jest.spyOn(wrapper.vm, 'removeDuplicateEntries');
         wrapper.vm.onModalCancel();

@@ -4,6 +4,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 function getMedias() {
@@ -540,7 +541,8 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
 
     it('productVariantCriteria ignores empty terms from leading whitespace', async () => {
         global.activeAclRoles = [];
-        await wrapper.setData({ searchTerm: ' red' });
+        wrapper.vm.searchTerm = ' red';
+        await nextTick();
 
         const criteria = wrapper.vm.productVariantCriteria;
 

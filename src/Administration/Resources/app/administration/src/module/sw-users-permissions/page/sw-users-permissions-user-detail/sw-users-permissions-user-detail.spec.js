@@ -3,6 +3,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -214,7 +215,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should contain all fields', async () => {
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         const fieldFirstName = wrapper.findComponent('.sw-settings-user-detail__grid-firstName');
@@ -466,7 +468,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 },
             },
         });
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.user.password).toBeUndefined();
@@ -489,7 +492,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 },
             },
         });
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.user.password).toBeUndefined();
@@ -518,7 +522,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 },
             },
         });
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.user.password).toBeUndefined();
@@ -541,7 +546,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 },
             },
         });
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.user.password).toBeUndefined();
@@ -567,7 +573,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const mediaItem = { id: mediaId };
 
         wrapper = await createWrapper('users_and_permissions.editor');
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         wrapper.vm.onDropMedia(mediaItem);
@@ -583,7 +590,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const mediaItem = { id: mediaId };
 
         wrapper = await createWrapper('users_and_permissions.editor');
-        await wrapper.setData({ isLoading: false });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.mediaDefaultFolderId).toBe('1234');

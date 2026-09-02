@@ -3,6 +3,7 @@
 /**
  * @sw-package after-sales
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -294,7 +295,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should be able to add an item to the attachment', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ mailTemplateMedia: [] });
+        wrapper.vm.mailTemplateMedia = [];
+        await nextTick();
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
         expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
@@ -304,7 +306,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         const originalLanguageId = Shopware.Context.api.languageId;
 
         const wrapper = await createWrapper();
-        await wrapper.setData({ mailTemplateMedia: [] });
+        wrapper.vm.mailTemplateMedia = [];
+        await nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
 
         // Add media
@@ -374,7 +377,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should be return if the user upload duplicated the attachment', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({ mailTemplate: mailTemplateMock });
+        wrapper.vm.mailTemplate = mailTemplateMock;
+        await nextTick();
         const mediaLengthBeforeTest = wrapper.vm.mailTemplate.media.length;
 
         expect(
@@ -426,10 +430,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('all fields should be disabled without edit permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            isLoading: false,
-            mailTemplateMedia: [mailTemplateMediaMock],
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.mailTemplateMedia = [mailTemplateMediaMock];
+        await nextTick();
 
         [
             {
@@ -495,10 +498,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('all fields should be enabled with edit permission', async () => {
         const wrapper = await createWrapper(['mail_templates.editor']);
-        await wrapper.setData({
-            mailTemplateMedia: [mailTemplateMediaMock],
-            isLoading: false,
-        });
+        wrapper.vm.mailTemplateMedia = [mailTemplateMediaMock];
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         [
@@ -591,7 +593,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     it('should not be able to show preview if html content is empty', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({ mailTemplate: mailTemplateTypeMock });
+        wrapper.vm.mailTemplate = { ...mailTemplateMock, ...mailTemplateTypeMock };
+        await nextTick();
 
         const previewButton = wrapper.find('.sw-mail-template-detail__show-preview-sidebar button');
 
@@ -609,9 +612,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     it('should use one shared sales channel value for send and preview', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            testMailSalesChannelId: 'sales-channel-id-1',
-        });
+        wrapper.vm.testMailSalesChannelId = 'sales-channel-id-1';
+        await nextTick();
 
         expect(wrapper.vm.testMailSalesChannelId).toBe('sales-channel-id-1');
     });

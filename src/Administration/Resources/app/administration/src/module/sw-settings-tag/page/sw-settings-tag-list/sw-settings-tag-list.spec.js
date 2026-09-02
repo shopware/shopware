@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -256,16 +257,14 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
     it('should use tag api service for duplicate filter', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            sortBy: 'products',
-        });
+        wrapper.vm.sortBy = 'products';
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.total).toBe(2);
 
-        await wrapper.setData({
-            duplicateFilter: true,
-        });
+        wrapper.vm.duplicateFilter = true;
+        await nextTick();
 
         wrapper.vm.onFilter();
         await wrapper.vm.$nextTick();
@@ -306,15 +305,13 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         expect(0).toEqual(wrapper.vm.filterCount);
 
-        await wrapper.setData({
-            emptyFilter: true,
-        });
+        wrapper.vm.emptyFilter = true;
+        await nextTick();
 
         expect(1).toEqual(wrapper.vm.filterCount);
 
-        await wrapper.setData({
-            duplicateFilter: true,
-        });
+        wrapper.vm.duplicateFilter = true;
+        await nextTick();
 
         expect(2).toEqual(wrapper.vm.filterCount);
     });

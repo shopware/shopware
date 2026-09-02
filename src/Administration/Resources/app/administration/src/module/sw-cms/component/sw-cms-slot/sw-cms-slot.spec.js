@@ -3,6 +3,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
@@ -428,9 +429,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         'should not toggle the element settings modal without defaultConfig and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
-            await wrapper.setData({
-                showElementSettings: actualShowElementSettings,
-            });
+            wrapper.vm.showElementSettings = actualShowElementSettings;
+            await nextTick();
             await wrapper.setProps({
                 element: {
                     type: 'without_default_config',
@@ -451,9 +451,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         'should not toggle the element settings modal with a locked element and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
-            await wrapper.setData({
-                showElementSettings: actualShowElementSettings,
-            });
+            wrapper.vm.showElementSettings = actualShowElementSettings;
+            await nextTick();
             await wrapper.setProps({
                 element: {
                     type: 'with_locked',
@@ -474,9 +473,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         'should show the element settings modal with a defaultConfig, no locked element and showElementSettings is %s',
         async (actualShowElementSettings) => {
             const wrapper = await createWrapper();
-            await wrapper.setData({
-                showElementSettings: actualShowElementSettings,
-            });
+            wrapper.vm.showElementSettings = actualShowElementSettings;
+            await nextTick();
             await wrapper.setProps({
                 showElementSettings: false,
                 element: {
@@ -498,10 +496,9 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
                 type: 'with_config_and_unlocked',
             },
         });
-        await wrapper.setData({
-            showElementSettings: true,
-            isElementSettingsInitialized: true,
-        });
+        wrapper.vm.showElementSettings = true;
+        wrapper.vm.isElementSettingsInitialized = true;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.showElementSettings).toBe(true);
@@ -517,10 +514,9 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
                 type: 'with_config_and_unlocked',
             },
         });
-        await wrapper.setData({
-            showElementSettings: false,
-            isElementSettingsInitialized: true,
-        });
+        wrapper.vm.showElementSettings = false;
+        wrapper.vm.isElementSettingsInitialized = true;
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.showElementSettings).toBe(false);
@@ -556,10 +552,9 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             },
         });
 
-        await wrapper.setData({
-            showElementSettings: true,
-            isElementSettingsInitialized: true,
-        });
+        wrapper.vm.showElementSettings = true;
+        wrapper.vm.isElementSettingsInitialized = true;
+        await nextTick();
         await flushPromises();
 
         await wrapper.vm.onCloseSettingsModal();

@@ -726,10 +726,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should save preferences only when units have changed', async () => {
-        await wrapper.setData({
-            previousLengthUnit: 'cm',
-            previousWeightUnit: 'kg',
-        });
+        wrapper.vm.previousLengthUnit = 'cm';
+        wrapper.vm.previousWeightUnit = 'kg';
+        await nextTick();
 
         await wrapper.vm.saveProduct();
 
@@ -739,10 +738,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should not save preferences when units have not changed', async () => {
-        await wrapper.setData({
-            previousLengthUnit: 'mm',
-            previousWeightUnit: 'kg',
-        });
+        wrapper.vm.previousLengthUnit = 'mm';
+        wrapper.vm.previousWeightUnit = 'kg';
+        await nextTick();
 
         await wrapper.vm.saveProduct();
 
@@ -752,10 +750,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should handle errors when saving preferences', async () => {
-        await wrapper.setData({
-            previousLengthUnit: 'cm',
-            previousWeightUnit: 'kg',
-        });
+        wrapper.vm.previousLengthUnit = 'cm';
+        wrapper.vm.previousWeightUnit = 'kg';
+        await nextTick();
 
         Shopware.Service('userConfigService').upsert.mockRejectedValue(new Error('Save failed'));
 

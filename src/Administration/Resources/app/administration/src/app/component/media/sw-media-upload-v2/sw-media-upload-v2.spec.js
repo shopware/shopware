@@ -3,6 +3,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import FileValidationService from 'src/app/service/file-validation.service';
 
@@ -166,9 +167,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setProps({
             variant: 'compact',
         });
-        await wrapper.setData({
-            isUploadUrlFeatureEnabled: true,
-        });
+        wrapper.vm.isUploadUrlFeatureEnabled = true;
+        await nextTick();
         await flushPromises();
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button-context-menu');
@@ -180,9 +180,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             variant: 'compact',
             disabled: true,
         });
-        await wrapper.setData({
-            isUploadUrlFeatureEnabled: true,
-        });
+        wrapper.vm.isUploadUrlFeatureEnabled = true;
+        await nextTick();
         await flushPromises();
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button-context-menu');
@@ -190,9 +189,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('context button switch mode should be enabled', async () => {
-        await wrapper.setData({
-            isUploadUrlFeatureEnabled: true,
-        });
+        wrapper.vm.isUploadUrlFeatureEnabled = true;
+        await nextTick();
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
         expect(switchModeButton.exists()).toBeTruthy();
@@ -202,9 +200,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setProps({
             disabled: true,
         });
-        await wrapper.setData({
-            isUploadUrlFeatureEnabled: true,
-        });
+        wrapper.vm.isUploadUrlFeatureEnabled = true;
+        await nextTick();
         await flushPromises();
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
@@ -391,10 +388,9 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('context button switch mode should change input type when clicking on menu item', async () => {
-        await wrapper.setData({
-            isUploadUrlFeatureEnabled: true,
-            inputType: 'file-upload',
-        });
+        wrapper.vm.isUploadUrlFeatureEnabled = true;
+        wrapper.vm.inputType = 'file-upload';
+        await nextTick();
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
         expect(switchModeButton.exists()).toBeTruthy();
@@ -429,10 +425,9 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('should show media form when select upload by url option', async () => {
-        await wrapper.setData({
-            isUploadUrlFeatureEnabled: true,
-            inputType: 'file-upload',
-        });
+        wrapper.vm.isUploadUrlFeatureEnabled = true;
+        wrapper.vm.inputType = 'file-upload';
+        await nextTick();
         await flushPromises();
 
         expect(wrapper.vm.inputType).toBe('file-upload');
@@ -634,9 +629,8 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         wrapper.vm.mediaRepository.save = jest.fn();
         wrapper.vm.mediaService.addUpload = jest.fn();
 
-        await wrapper.setData({
-            isUploadUrlFeatureEnabled: true,
-        });
+        wrapper.vm.isUploadUrlFeatureEnabled = true;
+        await nextTick();
 
         const contextButton = await wrapper.find('.sw-media-upload-v2__switch-mode');
         await contextButton.trigger('click');

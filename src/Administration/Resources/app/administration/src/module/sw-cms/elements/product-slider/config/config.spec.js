@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 
@@ -348,9 +349,8 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            showProductStreamPreview: true,
-        });
+        wrapper.vm.showProductStreamPreview = true;
+        await nextTick();
 
         await wrapper.vm.$nextTick();
 

@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -239,20 +240,19 @@ describe('src/module/sw-settings-measurement/page/sw-settings-measurement', () =
     });
 
     it('should update defaultDisplayUnits and selected units when measurement system units are changed and back', async () => {
-        await wrapper.setData({
-            defaultDisplayUnits: new EntityCollection(
-                '/measurement-display-unit',
-                'measurement_display_unit',
-                null,
-                { isShopwareContext: true },
-                [
-                    { id: 'cm', type: 'length', measurementSystemId: 'metric', shortName: 'cm', default: false },
-                    { id: 'g', type: 'weight', measurementSystemId: 'metric', shortName: 'g', default: false },
-                ],
-                2,
-                null,
-            ),
-        });
+        wrapper.vm.defaultDisplayUnits = new EntityCollection(
+            '/measurement-display-unit',
+            'measurement_display_unit',
+            null,
+            { isShopwareContext: true },
+            [
+                { id: 'cm', type: 'length', measurementSystemId: 'metric', shortName: 'cm', default: false },
+                { id: 'g', type: 'weight', measurementSystemId: 'metric', shortName: 'g', default: false },
+            ],
+            2,
+            null,
+        );
+        await nextTick();
 
         expect(wrapper.vm.defaultDisplayUnits).toBeInstanceOf(EntityCollection);
         expect(wrapper.vm.defaultDisplayUnits.getIds()).toEqual(

@@ -1,6 +1,7 @@
 /**
  * @sw-package discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 
@@ -51,9 +52,8 @@ describe('components/media/sw-media-modal-move', () => {
     it('removes parent folder if current folder is root folder', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            parentFolder: createFolderEntity(),
-        });
+        wrapper.vm.parentFolder = createFolderEntity();
+        await nextTick();
         wrapper.vm.fetchParentFolder = jest.fn();
 
         await wrapper.vm.updateParentFolder(rootFolderObject);

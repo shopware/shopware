@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], fieldType = null, conditionType = '', entity = '', render = false) {
@@ -379,9 +380,8 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
             },
         });
 
-        await wrapper.setData({
-            searchTerm: 'test',
-        });
+        wrapper.vm.searchTerm = 'test';
+        await nextTick();
 
         await flushPromises();
 
@@ -404,9 +404,8 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
             },
         });
 
-        await wrapper.setData({
-            searchTerm: 'test',
-        });
+        wrapper.vm.searchTerm = 'test';
+        await nextTick();
 
         await flushPromises();
 

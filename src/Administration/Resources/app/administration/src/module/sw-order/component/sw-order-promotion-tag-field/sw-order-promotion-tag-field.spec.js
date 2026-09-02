@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 /**
@@ -92,9 +93,8 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
             preventDefault: jest.fn(),
         };
 
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
+        wrapper.vm.newTagName = 'SUMMER-SALE';
+        await nextTick();
 
         wrapper.vm.performAddTag(event);
 
@@ -117,9 +117,8 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
             ],
         });
 
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
+        wrapper.vm.newTagName = 'SUMMER-SALE';
+        await nextTick();
 
         wrapper.vm.performAddTag({
             key: 'Enter',
@@ -133,9 +132,8 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
     it('should not add a promotion code tag when the trigger key does not match', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
+        wrapper.vm.newTagName = 'SUMMER-SALE';
+        await nextTick();
 
         wrapper.vm.performAddTag({
             key: 'Escape',
@@ -151,9 +149,8 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
             disabled: true,
         });
 
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-        });
+        wrapper.vm.newTagName = 'SUMMER-SALE';
+        await nextTick();
 
         wrapper.vm.performAddTag({
             key: 'Enter',
@@ -217,10 +214,9 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
     it('should show the typed code while the field has focus', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-            hasFocus: true,
-        });
+        wrapper.vm.newTagName = 'SUMMER-SALE';
+        wrapper.vm.hasFocus = true;
+        await nextTick();
 
         expect(wrapper.find('.sw-tagged-field__input').classes()).not.toContain('sw-tagged-field__input--hidden');
     });
@@ -228,10 +224,9 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
     it('should hide an unsubmitted code when the field loses focus', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            newTagName: 'SUMMER-SALE',
-            hasFocus: false,
-        });
+        wrapper.vm.newTagName = 'SUMMER-SALE';
+        wrapper.vm.hasFocus = false;
+        await nextTick();
 
         expect(wrapper.find('.sw-tagged-field__input').classes()).toContain('sw-tagged-field__input--hidden');
     });

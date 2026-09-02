@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
@@ -190,9 +191,8 @@ describe('module/sw-property/page/sw-property-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -237,9 +237,8 @@ describe('module/sw-property/page/sw-property-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -263,9 +262,8 @@ describe('module/sw-property/page/sw-property-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            term: 'foo',
-        });
+        wrapper.vm.term = 'foo';
+        await nextTick();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};

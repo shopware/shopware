@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
 
@@ -120,9 +121,8 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         wrapper.vm.createNotificationSuccess = jest.fn();
 
         // First time call the update progress
-        await wrapper.setData({
-            offset: 0,
-        });
+        wrapper.vm.offset = 0;
+        await nextTick();
 
         const rebuildButton = wrapper.find('.sw-settings-search__search-index-rebuild-button');
         await rebuildButton.trigger('click');
@@ -138,18 +138,16 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         expect(response.finish).toBeFalsy();
 
         // Second call with offset 51
-        await wrapper.setData({
-            offset: response.offset.offset,
-        });
+        wrapper.vm.offset = response.offset.offset;
+        await nextTick();
         response = await wrapper.vm.productIndexService.index(wrapper.vm.offset);
         await flushPromises();
         expect(response.offset.offset).toBe(60);
         expect(response.finish).toBeFalsy();
 
         // Third call with offset 60
-        await wrapper.setData({
-            offset: response.offset.offset,
-        });
+        wrapper.vm.offset = response.offset.offset;
+        await nextTick();
         response = await wrapper.vm.productIndexService.index(wrapper.vm.offset);
         await flushPromises();
 
@@ -165,9 +163,8 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         wrapper.vm.createNotificationSuccess = jest.fn();
         expect(wrapper.vm.isRebuildSuccess).toBeFalsy();
 
-        await wrapper.setData({
-            offset: 60,
-        });
+        wrapper.vm.offset = 60;
+        await nextTick();
         await wrapper.vm.updateProgress();
 
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({

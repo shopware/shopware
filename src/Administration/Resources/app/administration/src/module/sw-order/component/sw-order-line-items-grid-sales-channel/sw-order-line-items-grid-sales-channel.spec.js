@@ -1,5 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
@@ -338,9 +339,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
             },
         });
 
-        await wrapper.setData({
-            searchTerm: 'item product',
-        });
+        wrapper.vm.searchTerm = 'item product';
+        await nextTick();
         const productItem = wrapper.find('.sw-data-grid__row--0');
         const productLabel = productItem.find('.sw-data-grid__cell--label');
 

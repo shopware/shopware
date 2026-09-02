@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@discovery
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 function getSnippetSets() {
@@ -215,9 +216,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         const wrapper = await createWrapper(roles);
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await flushPromises();
 
         const [
@@ -246,10 +246,9 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         ]);
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-            isAddedSnippet: true,
-        });
+        wrapper.vm.isLoading = false;
+        wrapper.vm.isAddedSnippet = true;
+        await nextTick();
         await flushPromises();
 
         const translationKeyInput = wrapper.find('input[name="sw-field--translationKey"]');

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -64,18 +65,17 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
     it('should enable the context menu delete item', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            records: [
-                {
-                    name: 'name',
-                    shortCode: 'shortCode',
-                },
-                {
-                    name: 'name',
-                    shortCode: 'shortCode',
-                },
-            ],
-        });
+        wrapper.vm.records = [
+            {
+                name: 'name',
+                shortCode: 'shortCode',
+            },
+            {
+                name: 'name',
+                shortCode: 'shortCode',
+            },
+        ];
+        await nextTick();
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
         const firstRowActions = firstRow.find('.sw-data-grid__cell--actions');
@@ -92,18 +92,17 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
             allowDelete: false,
         });
 
-        await wrapper.setData({
-            records: [
-                {
-                    name: 'name',
-                    shortCode: 'shortCode',
-                },
-                {
-                    name: 'name',
-                    shortCode: 'shortCode',
-                },
-            ],
-        });
+        wrapper.vm.records = [
+            {
+                name: 'name',
+                shortCode: 'shortCode',
+            },
+            {
+                name: 'name',
+                shortCode: 'shortCode',
+            },
+        ];
+        await nextTick();
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
         const firstRowActions = firstRow.find('.sw-data-grid__cell--actions');

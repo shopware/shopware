@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 
@@ -125,14 +126,13 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
     it('should emit products data when clicking Add Products button to assign product individually', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            singleProducts: [
-                {
-                    id: '1',
-                    name: 'Test product',
-                },
-            ],
-        });
+        wrapper.vm.singleProducts = [
+            {
+                id: '1',
+                name: 'Test product',
+            },
+        ];
+        await nextTick();
 
         await wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts').trigger('click');
 
@@ -155,9 +155,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         ];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            categoryProducts: products,
-        });
+        wrapper.vm.categoryProducts = products;
+        await nextTick();
 
         const assignButton = wrapper.findByText('button', 'sw-sales-channel.detail.products.buttonAddProducts');
         await assignButton.trigger('click');
@@ -168,28 +167,27 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
     it('should remove duplicated products before emitting', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            singleProducts: [
-                {
-                    name: 'Test product 1',
-                    id: '1',
-                },
-                {
-                    name: 'Test product 2',
-                    id: '2',
-                },
-            ],
-            groupProducts: [
-                {
-                    name: 'Test product 2',
-                    id: '2',
-                },
-                {
-                    name: 'Test product 3',
-                    id: '3',
-                },
-            ],
-        });
+        wrapper.vm.singleProducts = [
+            {
+                name: 'Test product 1',
+                id: '1',
+            },
+            {
+                name: 'Test product 2',
+                id: '2',
+            },
+        ];
+        wrapper.vm.groupProducts = [
+            {
+                name: 'Test product 2',
+                id: '2',
+            },
+            {
+                name: 'Test product 3',
+                id: '3',
+            },
+        ];
+        await nextTick();
 
         expect(wrapper.vm.products).toEqual([
             {

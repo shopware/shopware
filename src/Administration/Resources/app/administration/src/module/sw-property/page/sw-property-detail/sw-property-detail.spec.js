@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -59,9 +60,8 @@ describe('module/sw-property/page/sw-property-detail', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
 
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 
@@ -76,9 +76,8 @@ describe('module/sw-property/page/sw-property-detail', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            isLoading: false,
-        });
+        wrapper.vm.isLoading = false;
+        await nextTick();
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-property-detail__save-action');

@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -165,9 +166,8 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({
-            showCoverLabel: false,
-        });
+        wrapper.vm.showCoverLabel = false;
+        await nextTick();
 
         await wrapper.vm.$nextTick();
         expect(wrapper.find('.is--cover').exists()).toBeFalsy();

@@ -2,6 +2,10 @@
 
 ## Core
 
+### Composer inline aliases resolve to the aliased plugin version
+
+When a composer-managed plugin is required with a root-level inline alias (e.g. `"swag/paypal": "dev-bugfix as 10.8.1"`), `plugin:refresh` now stores the aliased version (`10.8.1`) instead of the raw branch version (`dev-bugfix`). Previously the branch version was written to the plugin table, where `version_compare` treats it as older than any release, so the next plugin update re-ran every version-gated update step of the plugin — re-running destructive migrations and resetting plugin configuration. Plugin update logic that compares `$updateContext->getCurrentPluginVersion()` against release versions now works for installations that pin such aliased dev branches.
+
 ### State machine transitions resolve deterministically
 
 When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.

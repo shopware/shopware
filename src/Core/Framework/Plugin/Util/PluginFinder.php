@@ -97,9 +97,13 @@ class PluginFinder
 
     private function isPluginComposerValid(CompletePackageInterface $package): bool
     {
-        return isset($package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
-            && $package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== ''
-            && !empty($package->getExtra()['label']);
+        $extra = $package->getExtra();
+        $label = $extra['label'] ?? null;
+
+        return isset($extra[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
+            && $extra[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== ''
+            && \is_array($label)
+            && $label !== [];
     }
 
     private function getPluginNameFromPackage(CompletePackageInterface $pluginPackage): string

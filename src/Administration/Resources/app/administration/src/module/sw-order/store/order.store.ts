@@ -36,6 +36,7 @@ function mergeEmptyAndExistingLineItems(emptyLineItems: LineItem[], lineItems: L
 interface SwOrderState {
     cart: Cart;
     disabledAutoPromotion: boolean;
+    sendOrderConfirmationMail: boolean;
     promotionCodes: PromotionCodeTag[];
     defaultSalesChannel: Entity<'sales_channel'> | null;
     context: SalesChannelContext;
@@ -86,6 +87,7 @@ const swOrderStore = Shopware.Store.register({
         },
         promotionCodes: [],
         disabledAutoPromotion: false,
+        sendOrderConfirmationMail: true,
     }),
 
     getters: {
@@ -156,6 +158,10 @@ const swOrderStore = Shopware.Store.register({
 
         setDisabledAutoPromotion(disabledAutoPromotion: boolean) {
             this.disabledAutoPromotion = disabledAutoPromotion;
+        },
+
+        setSendOrderConfirmationMail(sendOrderConfirmationMail: boolean) {
+            this.sendOrderConfirmationMail = sendOrderConfirmationMail;
         },
 
         selectExistingCustomer({ customer }: { customer: Entity<'customer'> | null }) {
@@ -232,8 +238,24 @@ const swOrderStore = Shopware.Store.register({
             return Service('contextStoreService').getSalesChannelContext(salesChannelId, contextToken);
         },
 
-        saveOrder({ salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
-            return Service('checkoutStoreService').checkout(salesChannelId, contextToken);
+        saveOrder({
+            salesChannelId,
+            contextToken,
+            sendMail,
+        }: {
+            salesChannelId: string;
+            contextToken: string;
+            sendMail?: boolean;
+        }) {
+            return Service('checkoutStoreService').checkout(
+                salesChannelId,
+                contextToken,
+                {},
+                {},
+                {
+                    sendOrderConfirmationMail: sendMail ?? this.sendOrderConfirmationMail,
+                },
+            );
         },
 
         removeLineItems({

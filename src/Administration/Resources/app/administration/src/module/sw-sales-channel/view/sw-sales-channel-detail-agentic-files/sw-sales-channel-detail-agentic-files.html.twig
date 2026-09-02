@@ -74,7 +74,10 @@
                     {{ $t('global.default.edit') }}
                 </sw-context-menu-item>
 
-                <sw-context-menu-item @click="onToggleEnabled(item)">
+                <sw-context-menu-item
+                    :disabled="!acl.can('sales_channel.editor')"
+                    @click="onToggleEnabled(item)"
+                >
                     {{ getToggleLabel(item) }}
                 </sw-context-menu-item>
             </template>

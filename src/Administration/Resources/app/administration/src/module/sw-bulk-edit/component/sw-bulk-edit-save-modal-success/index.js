@@ -4,7 +4,7 @@
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
 import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
-import { DOCUMENT_TYPES } from '../../../sw-order/order.types';
+import { DOCUMENT_TYPES } from '../../../sw-order/service/documentV2.service';
 
 const { Criteria } = Shopware.Data;
 const documentTypeOrder = [
@@ -20,6 +20,7 @@ export default {
 
     inject: {
         repositoryFactory: {},
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
         orderDocumentApiService: {},
         documentV2ApiService: {
             default: null,

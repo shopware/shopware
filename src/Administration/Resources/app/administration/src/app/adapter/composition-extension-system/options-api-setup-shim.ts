@@ -7,6 +7,8 @@
  * The whole module works around one ordering constraint: only a `setup()` return value outranks
  * `data` and `computed` in Vue's instance proxy, but `setup()` runs before either of them exists.
  * So the slot is reserved in `setup()` and filled in `created()`.
+ *
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 
 import { getCurrentInstance } from 'vue';

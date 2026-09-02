@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -64,7 +65,18 @@ class ProductSuggestDataLoader extends AbstractContentDataLoader
         $searchRequest = new Request();
         $searchRequest->request->set('search', $searchTerm);
 
-        $response = $this->suggestRoute->load($searchRequest, $context, $criteria);
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: a stored term of "0" survives the empty-string check above but fails
+        // ProductSuggestRoute's falsy check, throwing ProductException or RoutingException depending on the
+        // v6.8.0.0 flag, and a default sorting naming a deleted sorting entity surfaces as
+        // ProductException::sortingNotFoundException() out of SortingListingProcessor.
+        try {
+            $response = $this->suggestRoute->load($searchRequest, $context, $criteria);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         return ContentDataLoaderResult::cachedExternally($response->getListingResult());
     }

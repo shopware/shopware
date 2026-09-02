@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\Enti
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -26,7 +27,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\Test\Generator;
@@ -326,7 +329,7 @@ class EntityLoaderTest extends TestCase
     {
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $loader = $this->createLoaderWithSalesChannelRepo('product', new EntityCollection(), $cacheTagResolver);
-        $result = $this->loadEntity($loader, 'product', 'product-id');
+        $result = $this->loadEntity($loader, 'product', $this->ids->get('product'));
 
         $this->assertNotFoundResult($result);
     }
@@ -340,9 +343,113 @@ class EntityLoaderTest extends TestCase
         $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $loader = new EntityLoader($scDefRegistry, $defRegistry, static::createStub(EntityCacheTagResolver::class));
 
-        $result = $this->loadEntity($loader, 'ghost', 'some-id');
+        // A valid uuid, so the entity-registration short-circuit is the only thing this can be proving.
+        $result = $this->loadEntity($loader, 'ghost', $this->ids->get('ghost'));
 
         $this->assertNotFoundResult($result);
+    }
+
+    #[TestDox('returns notFound result without reaching a repository when the resolved property is not a valid uuid')]
+    public function testLoadReturnsNotFoundWhenPropertyIsNotValidUuid(): void
+    {
+        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->expects($this->never())->method('getSalesChannelRepository');
+
+        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
+        $defRegistry->expects($this->never())->method('getRepository');
+
+        $loader = new EntityLoader($scDefRegistry, $defRegistry, static::createStub(EntityCacheTagResolver::class));
+
+        $result = $this->loadEntity($loader, 'product', '{{productId}}');
+
+        $this->assertNotFoundResult($result);
+    }
+
+    #[TestDox('degrades to notFound when the post-load definition lookup throws')]
+    public function testLoadReturnsNotFoundWhenDefinitionLookupThrows(): void
+    {
+        $productId = $this->ids->get('product');
+        $scRepo = new StaticSalesChannelRepository([
+            new EntityCollection([$this->createEntityWithId($productId)]),
+        ]);
+
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
+
+        // has() is an isset on the registry's entity-name map, so it stays true while the mapped definition
+        // service is absent from the container, which is the state getByEntityName() reports by throwing.
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
+        $defRegistry->method('getByEntityName')
+            ->willThrowException(DataAbstractionLayerException::definitionNotFound('product'));
+
+        $loader = new EntityLoader($scDefRegistry, $defRegistry, static::createStub(EntityCacheTagResolver::class));
+
+        $result = $this->loadEntity($loader, 'product', $productId);
+
+        $this->assertNotFoundResult($result);
+    }
+
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the repository throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenRepositoryThrows(\Throwable $exception): void
+    {
+        $loader = $this->createLoaderWithCallableRepo('product', static function () use ($exception): never {
+            throw $exception;
+        });
+
+        $result = $this->loadEntity($loader, 'product', $this->ids->get('product'));
+
+        $this->assertNotFoundResult($result);
+    }
+
+    #[TestDox('lets a TypeError from the repository propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $typeError = new \TypeError('Argument #1 ($criteria) must be of type Criteria, null given');
+
+        $loader = $this->createLoaderWithCallableRepo('product', static function () use ($typeError): never {
+            throw $typeError;
+        });
+
+        // expectExceptionObject() compares class, message and code, not identity. This test asserts the
+        // *same instance* propagated out of load() unmodified, which that helper cannot express.
+        try {
+            $this->loadEntity($loader, 'product', $this->ids->get('product'));
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
+    /**
+     * Sample domain exceptions, not one row per catch arm: the loader catches the single covering ancestor
+     * `ShopwareHttpException`, so no row maps to a clause of its own. This loader searches an arbitrary
+     * registered entity, so the reachable set cannot be enumerated from the loader at all.
+     *
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function sampleDomainExceptionProvider(): iterable
+    {
+        // EntityDefinitionQueryHelper::addIdCondition() converts every criteria id with Uuid::fromHexToBytes().
+        // The guard above keeps a malformed id away from it; this row states that a repository reaching it
+        // anyway still degrades. InvalidUuidException extends ShopwareHttpException directly.
+        yield 'an id the DAL rejects when building the criteria condition' => [
+            UuidException::invalidUuid('not-a-uuid'),
+        ];
+
+        // DataAbstractionLayerException extends HttpException, which extends ShopwareHttpException.
+        yield 'a DAL failure reached through HttpException' => [
+            DataAbstractionLayerException::invalidCriteriaIds(['bad-id'], 'reason'),
+        ];
+
+        // Not a reachability claim: this row pins the clause to the ancestor rather than to any one branch of
+        // the inheritance line.
+        yield 'a class outside the chain that extends ShopwareHttpException directly' => [
+            new DecorationPatternException(EntityLoader::class),
+        ];
     }
 
     private function assertNotFoundResult(ContentDataLoaderResult $result): void

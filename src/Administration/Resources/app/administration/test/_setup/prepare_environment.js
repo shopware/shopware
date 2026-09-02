@@ -145,8 +145,51 @@ function assertFeatureServiceNotShadowed(wrapper) {
     }
 }
 
+/**
+ * Fails a `setData()` call on a native setup component, where it writes nothing.
+ *
+ * `setData` is `mergeDeep(vm.$data, data)`, and a native setup component keeps its state in `setupState`
+ * with nothing bridging the two. The write lands in an object the component never reads. It does not
+ * raise on its own either: the global Meteor SDK mixin gives every component a real `data()`, so `$data`
+ * is never the frozen `EMPTY_OBJ` whose mutation would have thrown. Unguarded, the spec fails several
+ * lines later on an assertion with nothing pointing at the cause, or keeps passing while asserting
+ * nothing.
+ */
+function guardSetDataAgainstNativeSetup(wrapper) {
+    const setData = wrapper.setData.bind(wrapper);
+
+    wrapper.setData = (data) => {
+        const setupState = wrapper.vm?.$?.setupState ?? {};
+        const keys = Object.keys(data ?? {});
+        // A `setup()` return lands in `setupState` the same way a native setup binding does, so a key
+        // found there is dead whether or not the component is an SFC. A component that mixes `data()`
+        // with `setup()` keeps working for the keys that really are in `data()`.
+        const deadKeys = setupState.__isScriptSetup === true ? keys : keys.filter((key) => key in setupState);
+
+        if (deadKeys.length === 0) {
+            return setData(data);
+        }
+
+        // A component built by `wrapTestComponent` carries a `name`, suffixed to stop vue-test-utils
+        // looping on it; an SFC imported straight from its file carries the compiler's filename `__name`.
+        const options = wrapper.vm?.$options ?? {};
+        const componentName = (options.name ?? options.__name ?? 'a native setup component').replace(/__wrapped$/, '');
+
+        throw new Error(
+            `setData() does nothing on ${componentName}: it keeps ${deadKeys.join(', ')} in setupState, ` +
+                'while setData merges into $data, and nothing bridges the two. This write is discarded ' +
+                'and every assertion after it runs against unchanged state. Assign the state directly ' +
+                `instead:\n\n${[
+                    ...deadKeys.map((key) => `    wrapper.vm.${key} = <value>;`),
+                    '    await nextTick();',
+                ].join('\n')}`,
+        );
+    };
+}
+
 config.plugins.VueWrapper.install((wrapper) => {
     assertFeatureServiceNotShadowed(wrapper);
+    guardSetDataAgainstNativeSetup(wrapper);
 
     // add `findByText` to the global config
     wrapper.findByText = (selector, text) => findByText(wrapper, selector, text);

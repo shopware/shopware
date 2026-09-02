@@ -61,7 +61,7 @@
 
                                 {{ revocationSnippetKey|trans({
                                     '%url%': path(cmsPath, { id: config('core.basicInformation.revocationPage') }),
-                                    '%revocationModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.revocationPage') }) ~ '">',
+                                    '%revocationModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.revocationPage') }) ~ '">',
                                     '%revocationModalTagClose%': '</button>'
                                 })|raw }}
                             </p>
@@ -87,7 +87,7 @@
                                            class="checkout-confirm-tos-label custom-control-label">
                                         {{ tosSnippetKey|trans({
                                             '%url%': path(cmsPath, { id: config('core.basicInformation.tosPage') }),
-                                            '%tosModalTagOpen%': '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+                                            '%tosModalTagOpen%': '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
                                             '%tosModalTagClose%': '</button>',
                                             '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
                                             '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,

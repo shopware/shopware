@@ -1,3 +1,4 @@
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
 
@@ -9,9 +10,14 @@ const { Defaults, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-const COUNTRY_DEPENDENT_FIELDS = [
-    'countryStateId',
-    'zipcode',
+const COUNTRY_DEPENDENT_FIELDS = {
+    countryStateId: 'forceStateInRegistration',
+    zipcode: 'postalCodeRequired',
+};
+
+const MANAGED_REQUIRED_FIELDS = [
+    'company',
+    ...Object.keys(COUNTRY_DEPENDENT_FIELDS),
 ];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -159,9 +165,7 @@ export default {
         isBusinessAccountType: {
             immediate: true,
             handler(newVal) {
-                const definition = EntityDefinition.get(this.address.getEntityName());
-
-                definition.properties.company.flags.required = newVal;
+                this.setFieldRequired('company', newVal);
             },
         },
 
@@ -173,35 +177,52 @@ export default {
             this.customer.company = newVal;
         },
 
-        'country.forceStateInRegistration': {
+        country: {
             immediate: true,
-            handler(newVal) {
-                this.setFieldRequired('countryStateId', newVal);
-            },
-        },
+            handler(country, previousCountry) {
+                Object.entries(COUNTRY_DEPENDENT_FIELDS).forEach(
+                    ([
+                        field,
+                        countryProperty,
+                    ]) => {
+                        const isRequired = Boolean(country?.[countryProperty]);
 
-        'country.postalCodeRequired': {
-            immediate: true,
-            handler(newVal) {
-                this.setFieldRequired('zipcode', newVal);
+                        this.setFieldRequired(field, isRequired);
+
+                        if (!isRequired && previousCountry !== undefined) {
+                            this.removeRequiredFieldError(field);
+                        }
+                    },
+                );
             },
         },
     },
 
     beforeUnmount() {
-        COUNTRY_DEPENDENT_FIELDS.forEach((field) => this.setFieldRequired(field, false));
+        MANAGED_REQUIRED_FIELDS.forEach((field) => this.setFieldRequired(field, false));
     },
 
     methods: {
         setFieldRequired(field, isRequired) {
-            const required = Boolean(isRequired);
-            const entityName = this.address.getEntityName();
+            const property = EntityDefinition.get(this.address.getEntityName()).properties[field];
 
-            if (!required) {
-                Shopware.Store.get('error').removeApiError(`${entityName}.${this.address.id}.${field}`);
+            if (!property?.flags) {
+                return;
             }
 
-            EntityDefinition.get(entityName).properties[field].flags.required = required;
+            property.flags.required = Boolean(isRequired);
+        },
+
+        removeRequiredFieldError(field) {
+            const entityName = this.address.getEntityName();
+            const errorStore = Shopware.Store.get('error');
+            const error = errorStore.getApiErrorFromPath(entityName, this.address.id, [field]);
+
+            if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
+                return;
+            }
+
+            errorStore.removeApiError(`${entityName}.${this.address.id}.${field}`);
         },
 
         getCountryStates() {

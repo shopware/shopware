@@ -1,4 +1,5 @@
 import { required } from 'src/core/service/validation.service';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
@@ -110,8 +111,22 @@ export default {
         },
     },
 
+    watch: {
+        currentAddress(newValue, oldValue) {
+            if (newValue || !oldValue) {
+                return;
+            }
+
+            this.clearAddressErrors(oldValue);
+        },
+    },
+
     created() {
         this.createdComponent();
+    },
+
+    beforeUnmount() {
+        this.clearAddressErrors(this.currentAddress);
     },
 
     methods: {
@@ -245,19 +260,21 @@ export default {
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
-                const expression = `customer_address.${address.id}.${field}`;
+                if (ignoreFields.includes(field)) {
+                    return;
+                }
 
-                if (ignoreFields.includes(field) || required(address[field])) {
-                    errorStore.removeApiError(expression);
+                if (required(address[field])) {
+                    this.removeRequiredFieldError(address.id, field);
                     return;
                 }
 
                 isValid = false;
 
                 errorStore.addApiError({
-                    expression,
+                    expression: `customer_address.${address.id}.${field}`,
                     error: new ShopwareError({
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
                     }),
                 });
             });
@@ -278,7 +295,6 @@ export default {
                 this.$route.query.detailId = null;
             }
 
-            this.clearAddressErrors(this.currentAddress);
             this.currentAddress = null;
         },
 
@@ -287,7 +303,29 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').removeApiError(`customer_address.${address.id}`);
+            const errorStore = Shopware.Store.get('error');
+            const addressErrors = errorStore.getErrorsForEntity('customer_address', address.id);
+
+            if (!addressErrors) {
+                return;
+            }
+
+            Object.keys(addressErrors).forEach((field) => this.removeRequiredFieldError(address.id, field));
+
+            if (Object.keys(addressErrors).length === 0) {
+                errorStore.removeApiError(`customer_address.${address.id}`);
+            }
+        },
+
+        removeRequiredFieldError(addressId, field) {
+            const errorStore = Shopware.Store.get('error');
+            const error = errorStore.getApiErrorFromPath('customer_address', addressId, [field]);
+
+            if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
+                return;
+            }
+
+            errorStore.removeApiError(`customer_address.${addressId}.${field}`);
         },
 
         // customer.addresses only holds the first page, so prefer the records the grid currently shows

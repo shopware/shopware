@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 
 /**
  * @sw-package checkout
@@ -203,11 +204,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        jest.restoreAllMocks();
-        Shopware.Store.get('error').resetApiErrors();
     });
 
     it('should be able to edit address', async () => {
@@ -434,8 +430,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await flushPromises();
 
         const errorStore = Shopware.Store.get('error');
-        jest.spyOn(errorStore, 'addApiError');
-        jest.spyOn(errorStore, 'removeApiError');
         jest.spyOn(Shopware.EntityDefinition, 'getRequiredFields').mockReturnValue({
             firstName: {},
             lastName: {},
@@ -448,49 +442,110 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             getEntityName: () => 'customer_address',
         };
 
-        const isValid = wrapper.vm.isValidAddress(address);
+        errorStore.addApiError({
+            expression: 'customer_address.new-address-id.lastName',
+            error: new ShopwareError({ code: EntityValidationService.ERROR_CODE_REQUIRED }),
+        });
 
-        expect(isValid).toBe(false);
-        expect(errorStore.addApiError).toHaveBeenCalledWith(
-            expect.objectContaining({ expression: 'customer_address.new-address-id.firstName' }),
-        );
-        expect(errorStore.removeApiError).toHaveBeenCalledWith('customer_address.new-address-id.lastName');
+        expect(wrapper.vm.isValidAddress(address)).toBe(false);
+
+        expect(errorStore.getApiError(address, 'firstName')).toBeInstanceOf(ShopwareError);
+        expect(errorStore.getApiError(address, 'lastName')).toBeNull();
     });
 
-    it('should not leave any warnings on the order page when closing the address modal', async () => {
+    it('should keep a server reported error when validating an address', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        jest.spyOn(Shopware.EntityDefinition, 'getRequiredFields').mockReturnValue({
+            firstName: {},
+            lastName: {},
+        });
+
+        const address = {
+            id: 'new-address-id',
+            firstName: '',
+            lastName: 'Lovelace',
+            getEntityName: () => 'customer_address',
+        };
+
+        errorStore.addApiError({
+            expression: 'customer_address.new-address-id.lastName',
+            error: new ShopwareError({ code: 'LAST_NAME_IS_TOO_LONG' }),
+        });
+
+        expect(wrapper.vm.isValidAddress(address)).toBe(false);
+
+        expect(errorStore.getApiError(address, 'lastName')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should not leave any warnings on the order page when the address modal is closed', async () => {
         await flushPromises();
 
         const errorStore = Shopware.Store.get('error');
 
-        [
-            'firstName',
-            'zipcode',
-        ].forEach((field) => {
-            errorStore.addApiError({
-                expression: `customer_address.new-address-id.${field}`,
-                error: new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' }),
-            });
-        });
-
         wrapper.vm.currentAddress = {
-            id: 'new-address-id',
+            id: 'closed-address-id',
             getEntityName: () => 'customer_address',
         };
 
-        wrapper.vm.closeAddressModal();
+        await expect(wrapper.vm.onSaveAddress()).rejects.toBeUndefined();
 
-        expect(errorStore.getErrorsForEntity('customer_address', 'new-address-id')).toBeNull();
-        expect(wrapper.vm.currentAddress).toBeNull();
+        expect(errorStore.getErrorsForEntity('customer_address', 'closed-address-id')).not.toBeNull();
+
+        wrapper.vm.currentAddress = null;
+        await flushPromises();
+
+        expect(errorStore.getErrorsForEntity('customer_address', 'closed-address-id')).toBeNull();
+    });
+
+    it('should keep a server reported error when the address modal is closed', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        const address = { id: 'kept-address-id', getEntityName: () => 'customer_address' };
+
+        errorStore.addApiError({
+            expression: 'customer_address.kept-address-id.additionalAddressLine1',
+            error: new ShopwareError({ code: 'ADDITIONAL_ADDR1_IS_TOO_LONG' }),
+        });
+
+        wrapper.vm.currentAddress = address;
+        await flushPromises();
+
+        wrapper.vm.currentAddress = null;
+        await flushPromises();
+
+        expect(errorStore.getApiError(address, 'additionalAddressLine1')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should clear pending required field errors when the component is torn down', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        const address = { id: 'torn-down-address-id', getEntityName: () => 'customer_address' };
+
+        errorStore.addApiError({
+            expression: 'customer_address.torn-down-address-id.firstName',
+            error: new ShopwareError({ code: EntityValidationService.ERROR_CODE_REQUIRED }),
+        });
+
+        wrapper.vm.currentAddress = address;
+        await flushPromises();
+
+        wrapper.unmount();
+
+        expect(errorStore.getApiError(address, 'firstName')).toBeNull();
     });
 
     it('should show a notification when trying to save an invalid address', async () => {
         await flushPromises();
 
-        jest.spyOn(wrapper.vm, 'isValidAddress').mockReturnValue(false);
         const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
 
         wrapper.vm.currentAddress = {
             id: 'new-address-id',
+            firstName: '',
             getEntityName: () => 'customer_address',
         };
 

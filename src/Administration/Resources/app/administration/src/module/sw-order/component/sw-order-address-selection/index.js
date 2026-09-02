@@ -1,4 +1,5 @@
 import { required } from 'src/core/service/validation.service';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
 
@@ -156,10 +157,22 @@ export default {
             },
             immediate: true,
         },
+
+        currentAddress(newValue, oldValue) {
+            if (newValue || !oldValue) {
+                return;
+            }
+
+            this.clearAddressErrors(oldValue);
+        },
     },
 
     created() {
         this.createdComponent();
+    },
+
+    beforeUnmount() {
+        this.clearAddressErrors(this.currentAddress);
     },
 
     methods: {
@@ -246,19 +259,21 @@ export default {
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
-                const expression = `${entityName}.${address.id}.${field}`;
+                if (ignoreFields.includes(field)) {
+                    return;
+                }
 
-                if (ignoreFields.includes(field) || required(address[field])) {
-                    errorStore.removeApiError(expression);
+                if (required(address[field])) {
+                    this.removeRequiredFieldError(address, field);
                     return;
                 }
 
                 isValid = false;
 
                 errorStore.addApiError({
-                    expression,
+                    expression: `${entityName}.${address.id}.${field}`,
                     error: new ShopwareError({
-                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
                     }),
                 });
             });
@@ -266,17 +281,36 @@ export default {
             return isValid;
         },
 
-        closeAddressModal() {
-            this.clearAddressErrors(this.currentAddress);
-            this.currentAddress = null;
-        },
-
         clearAddressErrors(address) {
             if (!address) {
                 return;
             }
 
-            Shopware.Store.get('error').removeApiError(`${address.getEntityName()}.${address.id}`);
+            const entityName = address.getEntityName();
+            const errorStore = Shopware.Store.get('error');
+            const addressErrors = errorStore.getErrorsForEntity(entityName, address.id);
+
+            if (!addressErrors) {
+                return;
+            }
+
+            Object.keys(addressErrors).forEach((field) => this.removeRequiredFieldError(address, field));
+
+            if (Object.keys(addressErrors).length === 0) {
+                errorStore.removeApiError(`${entityName}.${address.id}`);
+            }
+        },
+
+        removeRequiredFieldError(address, field) {
+            const entityName = address.getEntityName();
+            const errorStore = Shopware.Store.get('error');
+            const error = errorStore.getApiErrorFromPath(entityName, address.id, [field]);
+
+            if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
+                return;
+            }
+
+            errorStore.removeApiError(`${entityName}.${address.id}.${field}`);
         },
 
         onChangeDefaultAddress(data) {

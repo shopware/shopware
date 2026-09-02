@@ -150,10 +150,6 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        Shopware.Store.get('error').resetApiErrors();
-    });
-
     it('should show text on last name column  when edit mode is off', async () => {
         const lastNameCell = wrapper.find('td');
 
@@ -255,9 +251,56 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         expect(errorStore.getErrorsForEntity('customer_address', '1')).not.toBeNull();
 
         wrapper.vm.onCloseAddressModal();
+        await flushPromises();
 
         expect(errorStore.getErrorsForEntity('customer_address', '1')).toBeNull();
         expect(wrapper.vm.currentAddress).toBeNull();
+    });
+
+    it('should keep a server reported error when closing the address modal', async () => {
+        const errorStore = Shopware.Store.get('error');
+        const entityMock = {
+            getEntityName: () => 'customer_address',
+            id: '2',
+        };
+
+        errorStore.addApiError({
+            expression: 'customer_address.2.additionalAddressLine1',
+            error: new ShopwareError({ code: 'ADDITIONAL_ADDR1_IS_TOO_LONG' }),
+        });
+
+        await wrapper.setData({ currentAddress: { id: '2' } });
+
+        wrapper.vm.onCloseAddressModal();
+        await flushPromises();
+
+        expect(errorStore.getApiError(entityMock, 'additionalAddressLine1')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should clear pending required field errors when the view is torn down', async () => {
+        const errorStore = Shopware.Store.get('error');
+        const entityMock = {
+            getEntityName: () => 'customer_address',
+            id: '3',
+        };
+
+        await wrapper.setData({
+            currentAddress: {
+                id: '3',
+                lastName: 'Wiegand',
+                firstName: 'Daisha',
+                city: 'Lake Waldo',
+                customerId: '1',
+            },
+        });
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(errorStore.getApiError(entityMock, 'street')).toBeInstanceOf(ShopwareError);
+
+        wrapper.unmount();
+
+        expect(errorStore.getApiError(entityMock, 'street')).toBeNull();
     });
 
     it('should clone address line correctly', async () => {

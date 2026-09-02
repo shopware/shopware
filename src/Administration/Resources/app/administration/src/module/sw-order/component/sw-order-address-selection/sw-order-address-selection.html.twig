@@ -4,7 +4,7 @@
     <sw-modal
         v-if="currentAddress"
         :title="modalTitle"
-        @modal-close="closeAddressModal"
+        @modal-close="currentAddress = null"
     >
         {% block sw_order_address_modal_content %}
         <sw-customer-address-form
@@ -28,7 +28,7 @@
                 size="small"
                 variant="secondary"
                 data-analytics-id="sw-order-address-selection.cancel"
-                @click="closeAddressModal"
+                @click="currentAddress = null"
             >
                 {{ $t('global.default.cancel') }}
             </mt-button>

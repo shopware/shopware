@@ -99,6 +99,35 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         expect(wrapper.text()).toBe('own setup|override');
     });
 
+    it('applies the override even when an immediate watcher read the key first', async () => {
+        _overridesMap['sw-shim-watch'] = [
+            (previousState: Record<string, { value: unknown }>) => ({
+                label: computed(() => `override ${String(previousState.label.value)}`),
+            }),
+        ] as never;
+
+        const config = {
+            template: '<p>{{ label }}</p>',
+            data() {
+                return { label: 'base' };
+            },
+            watch: {
+                label: {
+                    immediate: true,
+                    handler() {},
+                },
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-watch', config);
+
+        const wrapper = mount(config as never);
+        await flushPromises();
+
+        // The watcher fires before any created hook and pins the key to `data` in Vue's access cache.
+        expect(wrapper.text()).toBe('override base');
+    });
+
     it('keeps Vue resolving late-added setup keys before data and computed', async () => {
         const bag: Record<string, unknown> = {};
 

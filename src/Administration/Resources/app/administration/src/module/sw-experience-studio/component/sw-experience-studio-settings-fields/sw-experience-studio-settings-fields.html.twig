@@ -98,7 +98,7 @@
                                             v-if="option.cornerRadius"
                                             class="sw-experience-studio-settings-fields__corner-radius-preview"
                                             :style="{ borderRadius: option.cornerRadius }"
-                                        />
+                                        ></span>
                                         <mt-icon
                                             v-else
                                             :name="option.icon || 'regular-square'"
@@ -213,13 +213,13 @@
                                             :title="option.label"
                                             @click="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, option.value)"
                                         >
-                                        <span
-                                            v-if="option.cornerRadius"
-                                            class="sw-experience-studio-settings-fields__corner-radius-preview"
-                                            :style="{ borderRadius: option.cornerRadius }"
-                                        />
-                                        <mt-icon
-                                            v-else
+                                            <span
+                                                v-if="option.cornerRadius"
+                                                class="sw-experience-studio-settings-fields__corner-radius-preview"
+                                                :style="{ borderRadius: option.cornerRadius }"
+                                            ></span>
+                                            <mt-icon
+                                                v-else
                                                 :name="option.icon || 'regular-square'"
                                                 size="16px"
                                             />
@@ -317,13 +317,13 @@
                                     :title="option.label"
                                     @click="onUpdateRadioPanelProperty(field.key, option.value)"
                                 >
-                                        <span
-                                            v-if="option.cornerRadius"
-                                            class="sw-experience-studio-settings-fields__corner-radius-preview"
-                                            :style="{ borderRadius: option.cornerRadius }"
-                                        />
-                                        <mt-icon
-                                            v-else
+                                    <span
+                                        v-if="option.cornerRadius"
+                                        class="sw-experience-studio-settings-fields__corner-radius-preview"
+                                        :style="{ borderRadius: option.cornerRadius }"
+                                    ></span>
+                                    <mt-icon
+                                        v-else
                                         :name="option.icon || 'regular-square'"
                                         size="16px"
                                     />

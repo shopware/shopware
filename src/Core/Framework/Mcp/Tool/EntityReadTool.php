@@ -42,6 +42,11 @@ class EntityReadTool extends McpToolResponse
     ) {
     }
 
+    /**
+     * @param string $entity Entity name to read, e.g. "order" or "product". See the shopware://entities resource for the full list.
+     * @param string $id The entity's UUID (32-character hex). To find a record by any other field, use shopware-entity-search instead.
+     * @param string $criteria A JSON OBJECT of Admin API criteria, as a string — most usefully "associations" to include related data, e.g. {"associations":{"lineItems":{}}} on an order, and "includes" to trim the response. Defaults to no criteria.
+     */
     public function __invoke(string $entity, string $id, string $criteria = '{}'): string
     {
         $context = $this->contextProvider->getContext();

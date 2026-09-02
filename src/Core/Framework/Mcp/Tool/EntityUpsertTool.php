@@ -35,6 +35,11 @@ class EntityUpsertTool extends McpToolResponse
     ) {
     }
 
+    /**
+     * @param string $entity Entity name to write, e.g. "product" or "category". See the shopware://entities resource for the full list.
+     * @param string $payload A JSON OBJECT of the entity's fields, as a string. Include "id" to UPDATE that record, omit it to CREATE one — e.g. {"id":"...","name":"Summer Sale"} renames an existing category. shopware-entity-schema lists the field names and which are required.
+     * @param bool $dryRun Validate without writing. Leave true first, then call again with false to persist.
+     */
     public function __invoke(string $entity, string $payload, bool $dryRun = true): string
     {
         $context = $this->contextProvider->getContext();

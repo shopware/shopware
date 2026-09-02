@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
@@ -121,6 +124,49 @@ abstract class McpToolResponse
     protected function error(string $message): string
     {
         return Json::encode(['success' => false, 'error' => $message]);
+    }
+
+    /**
+     * Renders a criteria-parsing failure as an error the caller can act on.
+     *
+     * `RequestCriteriaBuilder::fromArray()` rejects a malformed criteria,
+     * filter or aggregation payload by throwing, and an escaping throwable
+     * reaches the SDK's generic handler as "Error while executing tool" — a
+     * message that says only that something went wrong. For a human reading a
+     * log that is merely unhelpful; for an AI client it is a dead end, because
+     * the retry it attempts next is uninformed by anything the server knows.
+     *
+     * Measured on shopware/shopware-mcp-evals run 33598354019: three fixtures
+     * selected shopware-entity-aggregate correctly, were told on the first
+     * attempt that "aggregations must be a JSON array of aggregation
+     * definitions" — which is this repo's own message and is genuinely
+     * useful — and then received "Error while executing tool" three times in a
+     * row for the follow-up calls. The detail existed and was being dropped.
+     *
+     * `SearchRequestException` carries one entry per rejected pointer, so the
+     * pointer is included: "/aggregations/0/avg/field" tells the caller which
+     * element of the array it sent is wrong, which a bare message cannot.
+     */
+    protected function invalidCriteriaError(SearchRequestException|InvalidAggregationQueryException|InvalidFilterQueryException $e): string
+    {
+        if (!$e instanceof SearchRequestException) {
+            return $this->error($e->getMessage());
+        }
+
+        $details = [];
+        foreach ($e->getErrors() as $error) {
+            $pointer = $error['source']['pointer'];
+            $details[] = $pointer === '' ? $error['detail'] : \sprintf('%s: %s', $pointer, $error['detail']);
+        }
+
+        // An empty exception is not thrown by tryToThrow(), but getErrors() is a
+        // generator over caller-supplied state and a message with nothing after
+        // the colon would be worse than the generic one it replaces.
+        if ($details === []) {
+            return $this->error($e->getMessage());
+        }
+
+        return $this->error(\sprintf('Invalid criteria: %s', \implode('; ', $details)));
     }
 
     /**

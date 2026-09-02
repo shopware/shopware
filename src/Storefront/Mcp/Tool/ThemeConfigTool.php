@@ -46,6 +46,12 @@ class ThemeConfigTool extends McpToolResponse
     ) {
     }
 
+    /**
+     * @param string $salesChannelId The sales channel's UUID, or its name as shown in the admin, e.g. "Storefront". See the shopware://sales-channels resource.
+     * @param string $action "get" to read the current theme config, "update" to change it.
+     * @param string $config A JSON OBJECT of theme config values to write, as a string — keyed by config field name, e.g. {"sw-color-brand-primary":{"value":"#189eff"}}. Only read by action "update"; call "get" first to see the field names and their current shape.
+     * @param bool $dryRun Preview the change without writing. Leave true first, then call again with false to persist.
+     */
     public function __invoke(
         string $salesChannelId = '',
         string $action = 'get',

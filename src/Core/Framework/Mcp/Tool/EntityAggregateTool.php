@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -42,6 +45,11 @@ class EntityAggregateTool extends McpToolResponse
     ) {
     }
 
+    /**
+     * @param string $entity Entity name to aggregate over, e.g. "order" or "product". See the shopware://entities resource for the full list.
+     * @param string $aggregations A JSON ARRAY of Admin API aggregation definitions, as a string. Each element needs "name", "type" and "field" — e.g. [{"name":"order_count","type":"count","field":"id"}] to count orders, or [{"name":"revenue","type":"sum","field":"amountTotal"}] to total them. A bare object rather than an array is the most common mistake and is rejected.
+     * @param string $filters A JSON array of Admin API filter definitions, as a string, narrowing what is aggregated — e.g. [{"type":"equals","field":"stateId","value":"..."}]. Defaults to no filter.
+     */
     public function __invoke(string $entity, string $aggregations, string $filters = '[]'): string
     {
         $context = $this->contextProvider->getContext();
@@ -79,12 +87,21 @@ class EntityAggregateTool extends McpToolResponse
             $payload['filter'] = $filterDefs;
         }
 
-        $criteriaObj = $this->criteriaBuilder->fromArray(
-            $payload,
-            new Criteria(),
-            $definition,
-            $context,
-        );
+        try {
+            $criteriaObj = $this->criteriaBuilder->fromArray(
+                $payload,
+                new Criteria(),
+                $definition,
+                $context,
+            );
+        } catch (SearchRequestException|InvalidAggregationQueryException|InvalidFilterQueryException $e) {
+            // Expected/business error, so it is answered rather than propagated:
+            // the caller sent an aggregation this entity cannot express, and the
+            // parser already knows which element and why. Only these three are
+            // caught — anything else is unexpected and still belongs in the log
+            // untouched, per the policy in McpToolResponse.
+            return $this->invalidCriteriaError($e);
+        }
 
         // Aggregations and filters can reference associated entities that require their own
         // read privileges (same association ACL model as the Admin API).

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -75,6 +76,8 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
      */
     public function getTypeName(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, 'getTypeName', 'v6.8.0.0', self::class . '::getDocumentBaseConfig()::getTypeName()'));
+
         return $this->typeName;
     }
 
@@ -83,6 +86,8 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
      */
     public function setTypeName(?string $typeName): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, 'setTypeName', 'v6.8.0.0', self::class . '::getDocumentBaseConfig()::setTypeName()'));
+
         $this->typeName = $typeName;
     }
 

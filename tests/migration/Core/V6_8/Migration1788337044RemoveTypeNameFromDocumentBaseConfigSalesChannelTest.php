@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_8\Migration1788337044RemoveTypeNameFromDocumentBaseConfigSalesChannel;
 
+/**
+ * @internal
+ */
 #[Package('after-sales')]
 #[CoversClass(Migration1788337044RemoveTypeNameFromDocumentBaseConfigSalesChannel::class)]
 class Migration1788337044RemoveTypeNameFromDocumentBaseConfigSalesChannelTest extends TestCase
@@ -31,9 +34,8 @@ class Migration1788337044RemoveTypeNameFromDocumentBaseConfigSalesChannelTest ex
         $this->ensureTemplateDataColumnExists();
 
         $migration = new Migration1788337044RemoveTypeNameFromDocumentBaseConfigSalesChannel();
-
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+        $migration->updateDestructive($this->connection);
+        $migration->updateDestructive($this->connection);
 
         static::assertFalse(TableHelper::columnExists($this->connection, 'document_base_config_sales_channel', 'type_name'));
     }

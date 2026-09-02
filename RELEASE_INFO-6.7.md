@@ -143,6 +143,10 @@ The list, detail and preview routes under `/api/_action/sales-channel-file/{file
 `CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
 ## Administration
 
+### Runtime guards for deprecated Administration APIs
+
+Deprecated Administration APIs can now call `Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)`. Usage emits a development warning before the matching major feature flag is active and throws when the flag is active. Extension authors should migrate away from deprecated APIs before testing against the next-major feature flags.
+
 ### Shipping prices can be linked to the tax rate
 
 The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.

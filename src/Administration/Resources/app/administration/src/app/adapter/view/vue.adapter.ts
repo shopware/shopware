@@ -191,12 +191,11 @@ export default class VueAdapter extends ViewAdapter {
          * @deprecated tag:v6.8.0 - Will be removed, use $t instead.
          */
         this.app.config.globalProperties.$tc = function (...args: Parameters<typeof i18n.global.t>) {
-            if (window._features_.V6_8_0_0) {
-                console.warn(
-                    'Deprecation Warning',
-                    'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
-                );
-            }
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'The $tc function is deprecated and will be removed in v6.8.0. Please use $t instead.',
+            );
+
             return i18n.global.t(...fixI18NParametersOrder(args));
         } as typeof i18n.global.t;
 

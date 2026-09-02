@@ -172,6 +172,24 @@ const ROUTE_WATCH_FIXTURE = runtimeFixture(
     `,
 );
 
+const PUBLISH_DATA_FIXTURE = runtimeFixture(
+    'sw-runtime-publish-data',
+    `
+        export default {
+            data() {
+                return { entry: 'before' };
+            },
+            created() {
+                Shopware.ExtensionAPI.publishData({
+                    id: 'sw-runtime-publish-data__entry',
+                    path: 'entry',
+                    scope: this,
+                });
+            },
+        };
+    `,
+);
+
 const CLASS_THIS_FIXTURE = runtimeFixture(
     'sw-runtime-class-this',
     `
@@ -368,6 +386,7 @@ export {
     MODULE_BINDING_FIXTURE,
     PARAMETERIZED_DATA_FIXTURE,
     PROP_INJECT_DATA_FIXTURE,
+    PUBLISH_DATA_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
     SIBLING_DATA_FIXTURE,

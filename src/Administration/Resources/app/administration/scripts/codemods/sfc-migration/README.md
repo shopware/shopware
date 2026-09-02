@@ -223,6 +223,29 @@ the store. The codemod never emits the clean one; that migration is a human's ca
 the CMS editor state through it. Its descriptor therefore answers those members as well, which is why
 both descriptors share one member list.
 
+## ExtensionAPI.publishData()
+
+The one call the codemod rewrites rather than an option. It takes the instance as `scope` so it can
+read the published value by path, write app updates back through that path, and park its teardown on
+a member a global mixin owns — none of which a `<script setup>` component provides.
+
+```js
+usePublishedData('sw-product-detail__product', product);
+```
+
+The call is rewritten where it stands. Every composable API `usePublishedData()` needs is available
+inside a lifecycle hook as well as at setup top level, so nothing is hoisted and the order the
+component published its data sets in is preserved.
+
+Recognised only in its one production shape: a single object argument with a string `id`, a
+single-segment string `path` naming a data or computed member, `scope: this`, and optionally
+`deprecated` / `deprecationMessage` / `showDoubleRegistrationError`. A multi-segment path addressed
+something *inside* the published value, which a ref cannot express as its own source, so it stays a
+TODO along with every other shape.
+
+Because the replacement covers the whole call including its `scope: this`, the range is recorded in
+`ctx.rewrittenRanges` and the `this` rewrite skips it.
+
 ## What is skipped on purpose
 
 `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,

@@ -17,7 +17,7 @@ Module.register('sw-manufacturer', {
     type: 'core',
     name: 'manufacturer',
     title: 'sw-manufacturer.general.mainMenuItemGeneral',
-    description: 'Manages the manufacturer of the application',
+    description: 'sw-manufacturer.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',

@@ -72,6 +72,7 @@ parameters:
         # domain by domain append their enabled test namespaces to this list
         createMockWithoutExpectationsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
+            - 'Shopware\Tests\DevOps\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)

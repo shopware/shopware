@@ -42,6 +42,7 @@ interface LineItem {
     payload: Record<string, unknown> | null;
     quantity: number;
     identifier: string;
+    referencedId?: string | null;
     _isNew: boolean;
     price: CalculatedPrice | null;
     children?: LineItem[];

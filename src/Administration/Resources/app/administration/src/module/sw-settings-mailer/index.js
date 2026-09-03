@@ -12,7 +12,7 @@ Shopware.Module.register('sw-settings-mailer', {
     name: 'settings-mailer',
     title: 'sw-settings-mailer.general.mainMenuItemGeneral',
     description: 'sw-settings-mailer.general.description',
-    color: '#9AA8B5',
+    color: 'var(--color-icon-secondary-default)',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
 

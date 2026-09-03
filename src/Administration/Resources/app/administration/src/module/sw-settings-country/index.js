@@ -46,7 +46,7 @@ Module.register('sw-settings-country', {
     name: 'settings-country',
     title: 'sw-settings-country.general.mainMenuItemGeneral',
     description: 'Country section in the settings module',
-    color: '#9AA8B5',
+    color: 'var(--color-icon-secondary-default)',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'country',

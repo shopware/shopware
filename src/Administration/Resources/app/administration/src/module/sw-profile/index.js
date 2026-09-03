@@ -29,7 +29,7 @@ Module.register('sw-profile', {
     name: 'profile',
     title: 'sw-profile.general.headlineProfile',
     description: 'sw-profile.general.description',
-    color: '#9AA8B5',
+    color: 'var(--color-icon-secondary-default)',
     icon: 'regular-user',
     entity: 'user',
 

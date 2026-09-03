@@ -14,4 +14,4 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
-    description: "Hydrated product that provides the purchase quantity constraints; resolved from the current product context."
+    description: "Hydrated product that provides the purchase quantity constraints; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page; in that case, the component renders a fallback message."

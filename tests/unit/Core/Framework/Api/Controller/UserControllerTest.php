@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\UserController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -40,6 +42,43 @@ class UserControllerTest extends TestCase
         $controller = $this->createController(userRepository: $userRepository, userDefinition: $userDefinition);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $controller->updateMe($context, $request, $responseFactory)->getStatusCode());
+    }
+
+    /**
+     * updateMe() must reject any field outside the self-service profile allow-list before the
+     * SYSTEM_SCOPE write, including escalation-relevant ones such as `admin` and `aclRoles`. The
+     * nested avatarMedia association guard needs the real DAL definition and is covered by the
+     * integration test.
+     *
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('forbiddenUpdateMePayloadProvider')]
+    public function testUpdateMeRejectsFieldsOutsideProfileAllowList(array $payload): void
+    {
+        static::expectExceptionObject(ApiException::missingPrivileges(['user:update']));
+
+        $context = Context::createDefaultContext(new AdminApiSource('user-id'));
+        $request = Request::create('/', Request::METHOD_PATCH, $payload);
+
+        $this->createController()->updateMe($context, $request, $this->createMock(ResponseFactoryInterface::class));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function forbiddenUpdateMePayloadProvider(): iterable
+    {
+        yield 'disallowed top-level admin flag' => [[
+            'admin' => true,
+        ]];
+
+        yield 'disallowed acl role assignment' => [[
+            'aclRoles' => [['id' => 'role-id']],
+        ]];
+
+        yield 'field outside the profile allow-list' => [[
+            'title' => 'Dr.',
+        ]];
     }
 
     private function createController(?EntityRepository $userRepository = null, ?UserDefinition $userDefinition = null): UserController

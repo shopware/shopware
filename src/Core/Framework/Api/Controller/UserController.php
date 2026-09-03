@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -77,8 +78,13 @@ class UserController extends AbstractController
 
         $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
-        if (!empty(array_diff(array_keys($request->request->all()), $allowedChanges))) {
+        $changes = $request->request->all();
+        if (!empty(array_diff(array_keys($changes), $allowedChanges))) {
             throw ApiException::missingPrivileges(['user:update']);
+        }
+
+        if (isset($changes['avatarMedia'])) {
+            $this->assertAvatarMediaWritesNoAssociations($changes['avatarMedia']);
         }
 
         return $context->scope(
@@ -239,6 +245,30 @@ class UserController extends AbstractController
         });
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $roleId, $request, $context);
+    }
+
+    /**
+     * The write runs in SYSTEM_SCOPE, where ACL and write-protection are off, so a nested media
+     * association (e.g. user, avatarUsers) could set a protected field like `admin` on a user.
+     */
+    private function assertAvatarMediaWritesNoAssociations(mixed $avatarMedia): void
+    {
+        if (!\is_array($avatarMedia)) {
+            return;
+        }
+
+        $avatarField = $this->userDefinition->getField('avatarMedia');
+        if (!$avatarField instanceof AssociationField) {
+            return;
+        }
+
+        $mediaDefinition = $avatarField->getReferenceDefinition();
+
+        foreach (array_keys($avatarMedia) as $field) {
+            if ($mediaDefinition->getField((string) $field) instanceof AssociationField) {
+                throw ApiException::missingPrivileges(['user:update']);
+            }
+        }
     }
 
     private function validateScope(Request $request): void

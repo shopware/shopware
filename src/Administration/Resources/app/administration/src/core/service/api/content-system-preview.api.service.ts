@@ -30,14 +30,6 @@ class ContentSystemPreviewApiService extends ApiService {
         this.name = 'contentSystemPreviewService';
     }
 
-    previewEntity(payload: ContentSystemPreviewRequestPayload): Promise<Record<string, unknown>> {
-        return this.httpClient
-            .post<Record<string, unknown>>('/_action/content-system/preview/entity', payload, {
-                headers: this.getBasicHeaders(),
-            })
-            .then((response) => ApiService.handleResponse<Record<string, unknown>>(response));
-    }
-
     previewEntityUrl(payload: ContentSystemPreviewRequestPayload): Promise<string> {
         return this.httpClient
             .post<{ url?: string }>('/_action/content-system/preview/entity/url', payload, {

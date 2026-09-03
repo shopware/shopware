@@ -13,8 +13,9 @@ use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
@@ -35,39 +36,52 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(ContentPreviewPageBuilder::class)]
 class ContentPreviewPageBuilderTest extends TestCase
 {
-    #[TestDox('renders the decoded layout through the pipeline in full mode and returns the page and synthesized context')]
-    public function testBuildRendersDecodedLayoutThroughThePipeline(): void
+    #[TestDox('checks the decoded stored tree and hands the same tree to the pipeline in full mode, returning the render result and synthesized context')]
+    public function testBuildChecksStoredTreeAndRendersItThroughThePipeline(): void
     {
-        $decodedElement = new ContentElement('e1', 'Sw:Content:Heading');
         $specification = $this->specification();
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $contentPage = new ContentPage('preview-layout', [$decodedElement], 'preview', null);
+        $renderResult = new RenderResult([], LayoutReference::create('preview-layout', 'preview', null), null);
+        $stored = [new StoredElement('e1', 'Sw:Content:Heading')];
+
+        // Both halves read the decoded stored tree: the check takes it directly, and the pipeline takes it
+        // wrapped in a preview-labelled RenderableLayout, lowering it itself once its stored steps have run.
+        $checker = static::createMock(DraftLayoutChecker::class);
+        $checker->expects($this->once())
+            ->method('check')
+            ->with(static::identicalTo($stored))
+            ->willReturn(new ConstraintViolationList());
 
         $pipeline = static::createMock(ContentPipeline::class);
-        $pipeline->expects($this->once())
+        $pipeline->expects($this->atLeastOnce())
             ->method('load')
             ->with(
-                static::callback(static fn (RenderableLayout $layout): bool => $layout->elements === [$decodedElement]
-                    && $layout->reference->name === 'preview'
-                    && $layout->reference->version === null),
+                static::callback(static function (RenderableLayout $layout) use ($stored): bool {
+                    static::assertSame($stored, $layout->elements);
+                    static::assertSame('preview', $layout->reference->name);
+                    static::assertNull($layout->reference->version);
+
+                    return true;
+                }),
                 static::identicalTo($specification),
                 static::isInstanceOf(RenderingCacheContext::class),
                 RenderingMode::FULL,
+                false,
                 static::identicalTo($salesChannelContext),
             )
-            ->willReturn($contentPage);
+            ->willReturn($renderResult);
 
         $builder = new ContentPreviewPageBuilder(
             $this->contextService($salesChannelContext),
             $this->resolverReturning($specification),
-            $this->decoderReturning([$decodedElement]),
-            $this->checker(new ConstraintViolationList()),
+            $this->decoderReturning($stored),
+            $checker,
             $pipeline,
         );
 
         $result = $builder->build($this->request(), Context::createDefaultContext());
 
-        static::assertSame($contentPage, $result['contentPage']);
+        static::assertSame($renderResult, $result['result']);
         static::assertSame($salesChannelContext, $result['salesChannelContext']);
     }
 
@@ -81,7 +95,7 @@ class ContentPreviewPageBuilderTest extends TestCase
         $builder = new ContentPreviewPageBuilder(
             $this->contextService(Generator::generateSalesChannelContext()),
             $this->resolverReturning($this->specification()),
-            $this->decoderReturning([new ContentElement('e1', 'Sw:Unknown:Widget')]),
+            $this->decoderReturning([new StoredElement('e1', 'Sw:Unknown:Widget')]),
             $this->checker($violations),
             static::createStub(ContentPipeline::class),
         );
@@ -164,7 +178,7 @@ class ContentPreviewPageBuilderTest extends TestCase
     }
 
     /**
-     * @param list<ContentElement> $elements
+     * @param list<StoredElement> $elements
      */
     private function decoderReturning(array $elements): DraftLayoutDecoder
     {

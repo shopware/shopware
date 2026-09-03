@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\SalesChannel;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Cache\CacheFinalizer;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
@@ -21,11 +22,21 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]
 class ContentRoute extends AbstractContentRoute
 {
+    /**
+     * Field selection is not part of the content-route contract. The parameter list is repeated in
+     * {@see ContentPreviewController}, which makes the same refusal on its own admission surface: every
+     * surface admitting a content request refuses the parameter, whatever response class it builds. A shared
+     * holder would have to be a service, and neither surface takes one for this.
+     */
+    private const FIELD_SELECTION_PARAMETERS = ['includes', 'excludes'];
+
     /**
      * @internal
      *
@@ -49,6 +60,8 @@ class ContentRoute extends AbstractContentRoute
 
     public function load(string $path, Request $request, SalesChannelContext $context): AbstractContentRouteResponse
     {
+        $this->rejectFieldSelection($request);
+
         $resolved = $this->specificationResolver->resolve($path, $request, $context);
         $specification = $resolved->specification;
 
@@ -68,16 +81,29 @@ class ContentRoute extends AbstractContentRoute
         $cacheContext = new RenderingCacheContext();
         $cacheContext->addTags($specification->cacheTags);
 
-        $contentPage = $this->contentPipeline->load(
+        $result = $this->contentPipeline->load(
             RenderableLayout::fromEntity($layoutEntity),
             $specification,
             $cacheContext,
             $this->responseFactory->getRenderingMode(),
+            $this->responseFactory->collectsValueIndex(),
             $context,
         );
 
         $this->cacheFinalizer->finalize($request, $cacheContext);
 
-        return $this->responseFactory->createResponse($contentPage);
+        return $this->responseFactory->createResponse($result);
+    }
+
+    /**
+     * All three bags, because the framework's field-selection helper reads all three.
+     */
+    private function rejectFieldSelection(Request $request): void
+    {
+        foreach (self::FIELD_SELECTION_PARAMETERS as $parameter) {
+            if ($request->attributes->has($parameter) || $request->query->has($parameter) || $request->request->has($parameter)) {
+                throw ContentSystemException::fieldSelectionNotSupported($parameter);
+            }
+        }
     }
 }

@@ -7,10 +7,11 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -48,22 +49,28 @@ class CurrencyDataLoader extends AbstractContentDataLoader
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
-
         $criteria = new Criteria();
 
-        if ($config instanceof CurrencyLoaderConfig) {
-            foreach ($config->associations as $association) {
-                $criteria->addAssociation($association);
-            }
+        foreach ($inputs->stringList('associations') as $association) {
+            $criteria->addAssociation($association);
         }
 
-        $response = $this->currencyRoute->load($request, $context, $criteria);
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // No domain exception is reachable through this chain today (CurrencyRoute::load() collects a cache
+        // tag and runs one sales-channel repository search); the wrap is uniform across the loaders because
+        // the reachable set is open.
+        try {
+            $response = $this->currencyRoute->load($request, $context, $criteria);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         // CurrencyRoute handles its own caching internally
         return ContentDataLoaderResult::cachedExternally($response->getCurrencies());

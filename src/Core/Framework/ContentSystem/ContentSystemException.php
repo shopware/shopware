@@ -2,10 +2,20 @@
 
 namespace Shopware\Core\Framework\ContentSystem;
 
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
+use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -22,8 +32,10 @@ class ContentSystemException extends HttpException
     public const CONFIG_SERIALIZER_NOT_REGISTERED = 'CONTENT_SYSTEM__CONFIG_SERIALIZER_NOT_REGISTERED';
     public const INVALID_FIELD_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_TYPE';
     public const INVALID_FIELD_VALUE_TYPE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE';
+    public const INVALID_FIELD_VALUE_RANGE = 'CONTENT_SYSTEM__INVALID_FIELD_VALUE_RANGE';
     public const ELEMENT_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_NOT_FOUND';
-    public const PATH_INTEGRITY_VIOLATION = 'CONTENT_SYSTEM__PATH_INTEGRITY_VIOLATION';
+    public const DUPLICATE_ELEMENT_ID = 'CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID';
+    public const CONTEXT_DELIVERY_MISSING = 'CONTENT_SYSTEM__CONTEXT_DELIVERY_MISSING';
     public const NO_FACTORY_CAN_HANDLE = 'CONTENT_SYSTEM__NO_FACTORY_CAN_HANDLE';
     public const INVALID_ENTITY_PATH = 'CONTENT_SYSTEM__INVALID_ENTITY_PATH';
     public const CONTEXT_PATH_NOT_RESOLVABLE = 'CONTENT_SYSTEM__CONTEXT_PATH_NOT_RESOLVABLE';
@@ -32,6 +44,7 @@ class ContentSystemException extends HttpException
     public const CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE = 'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE';
     public const PROPERTY_ALIAS_WITH_DOT_NOTATION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION';
     public const PROPERTY_ALIAS_COLLISION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
+    public const PROVIDER_DELIVERY_COLLISION = 'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION';
     public const ROUTES_ALREADY_LOADED = 'CONTENT_SYSTEM__ROUTES_ALREADY_LOADED';
     public const MISSING_EXTENDS_ANNOTATION = 'CONTENT_SYSTEM__MISSING_EXTENDS_ANNOTATION';
     public const UNSUPPORTED_TYPE_NODE = 'CONTENT_SYSTEM__UNSUPPORTED_TYPE_NODE';
@@ -54,6 +67,7 @@ class ContentSystemException extends HttpException
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
     public const PREVIEW_PAYLOAD_STORE_FAILED = 'CONTENT_SYSTEM__PREVIEW_PAYLOAD_STORE_FAILED';
+    public const PREVIEW_PAYLOAD_INVALID = 'CONTENT_SYSTEM__PREVIEW_PAYLOAD_INVALID';
     public const UNKNOWN_ROOT_SOURCE = 'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE';
     public const ROOT_SOURCE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ROOT_SOURCE_RESOLUTION_UNSUPPORTED';
     public const NONE_SOURCE_NOT_RENDERABLE = 'CONTENT_SYSTEM__NONE_SOURCE_NOT_RENDERABLE';
@@ -73,19 +87,37 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
+    public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
+    public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
+    public const LOADER_INPUT_NOT_DECLARED = 'CONTENT_SYSTEM__LOADER_INPUT_NOT_DECLARED';
+    public const LOADER_INPUT_UNRESOLVED = 'CONTENT_SYSTEM__LOADER_INPUT_UNRESOLVED';
+    public const LOADER_INPUT_TYPE_MISMATCH = 'CONTENT_SYSTEM__LOADER_INPUT_TYPE_MISMATCH';
+    public const LOADER_CONFIG_KEY_WITHOUT_PROPERTY = 'CONTENT_SYSTEM__LOADER_CONFIG_KEY_WITHOUT_PROPERTY';
+    public const RESOLVED_VALUE_INDEX_MISSING = 'CONTENT_SYSTEM__RESOLVED_VALUE_INDEX_MISSING';
+    public const FIELD_SELECTION_NOT_SUPPORTED = 'CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED';
+    public const UNSUPPORTED_PROPERTY_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_PROPERTY_VALUE_TYPE';
+    public const INVALID_ELEMENT_ID = 'CONTENT_SYSTEM__INVALID_ELEMENT_ID';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault; the
-     * diagnostics layer maps only these per element to an `invalid_config` violation and lets every other code
-     * propagate, so an internal fault is never relabelled as the client's mistake.
+     * diagnostics layer and the draft decode path map only these per element to a client-facing 400 and let
+     * every other code propagate, so an internal fault is never relabelled as the client's mistake.
+     *
+     * {@see INVALID_MAP_KEY} is one of them because a JSON object member named "5" arrives as an integer PHP
+     * array key: a numeric property, data-requirement, slot or context key is a malformed payload the client
+     * sent, which is why the DAL write path already rejects it as a layout write rejection rather than a fault.
      */
     public const CLIENT_DEFECT_CODES = [
         self::DATA_LOADER_NOT_REGISTERED,
         self::CONFIG_SERIALIZER_NOT_REGISTERED,
         self::UNKNOWN_LOADER_ENTITY,
         self::INVALID_FIELD_VALUE_TYPE,
+        self::INVALID_FIELD_VALUE_RANGE,
         self::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
         self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
+        self::PROVIDER_DELIVERY_COLLISION,
+        self::INVALID_MAP_KEY,
+        self::INVALID_ELEMENT_ID,
     ];
 
     public static function isClientDefect(\Throwable $exception): bool
@@ -104,13 +136,58 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function configSerializerNotRegistered(string $source): self
+    // $elementId names the element whose data requirement or specification wiring named the unregistered
+    // source, so a client can remove the stale wiring deliberately rather than guessing which element to fix.
+    // Optional because not every throw site holds an element id; a caller that does re-throws with it added.
+    public static function configSerializerNotRegistered(string $source, ?string $elementId = null): self
     {
+        $message = 'Config serializer for source "{{ source }}" is not registered';
+        if ($elementId !== null) {
+            $message .= '. Element ID: "{{ elementId }}"';
+        }
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CONFIG_SERIALIZER_NOT_REGISTERED,
-            'Config serializer for source "{{ source }}" is not registered',
-            ['source' => $source]
+            $message,
+            ['source' => $source, 'elementId' => $elementId]
+        );
+    }
+
+    /**
+     * An element id outside the value domain the decode gate admits. Two values are excluded: the reserved
+     * literal {@see VirtualRootWrapper::VIRTUAL_ROOT_ID}, which an authored element carrying it would collide
+     * with on every wrapping render, and a string PHP casts to an integer array key, which puts an integer key
+     * into {@see ResolvedValueIndexFactory}'s string-keyed assignments map — encoding as a JSON list once those
+     * keys happen to run 0..n-1, and as a map with integer-looking members otherwise.
+     *
+     * A 500 while still in CLIENT_DEFECT_CODES, the same split {@see invalidFieldValueType()} and
+     * {@see invalidMapKey()} take, because a decode-time throw has four audiences and this status answers only
+     * the last of them:
+     *
+     * - the DAL write wraps every {@see ContentSystemException} into a `WriteConstraintViolationException`
+     *   ({@see StoredElementListFieldSerializer::normalize()}), and that is a 400 whatever the code says —
+     *   catalogue membership decides nothing here;
+     * - the strict draft decode ({@see DraftLayoutDecoder::decode()}) re-raises a catalogued code as
+     *   `invalidLayoutStructure`, a 400, and lets an uncatalogued one propagate;
+     * - the lintable decode the diagnose route runs ({@see DraftLayoutDecoder::decodeLintable()}) collects a
+     *   catalogued code as an `invalid_config` violation and answers 200;
+     * - the stored-column read catches nothing, so this status IS the response. A rejected id there means
+     *   corrupt stored data — an internal fault, on the same argument {@see duplicateElementId()} makes,
+     *   though that one is deliberately outside the catalogue while this one is in it.
+     *
+     * A fifth audience would make this status wrong: an HTTP route decoding REQUEST data through
+     * {@see StoredElementCodec::decode()} directly, with neither draft wrapper. The client would have caused
+     * the rejection and would see a server error. No such caller exists; adding one means giving it a wrapper,
+     * not changing this status.
+     */
+    public static function invalidElementId(string $id, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_ELEMENT_ID,
+            'Element id "{{ id }}" is not accepted: {{ reason }}.',
+            ['id' => $id, 'reason' => $reason]
         );
     }
 
@@ -134,6 +211,16 @@ class ContentSystemException extends HttpException
         );
     }
 
+    public static function invalidFieldValueRange(string $fieldName, int $minimum, int $actual): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_VALUE_RANGE,
+            'Field {{ fieldName }} expected a minimum of {{ minimum }}, got {{ actual }}',
+            ['fieldName' => $fieldName, 'minimum' => $minimum, 'actual' => $actual]
+        );
+    }
+
     public static function invalidLoaderConfig(string $source, \Throwable $previous): self
     {
         return new self(
@@ -142,6 +229,52 @@ class ContentSystemException extends HttpException
             'Invalid configuration for data loader source "{{ source }}": {{ reason }}',
             ['source' => $source, 'reason' => $previous->getMessage()],
             $previous,
+        );
+    }
+
+    /**
+     * The four loader-input faults below are loader authoring bugs, never client-supplied layout defects, and
+     * are therefore deliberately absent from CLIENT_DEFECT_CODES.
+     *
+     * @param list<string> $declaredKeys
+     */
+    public static function loaderInputNotDeclared(string $key, array $declaredKeys): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOADER_INPUT_NOT_DECLARED,
+            'Loader input "{{ key }}" was never declared in the loader\'s configSpecification(). Declared inputs: "{{ declaredKeys }}"',
+            ['key' => $key, 'declaredKeys' => implode('", "', $declaredKeys)]
+        );
+    }
+
+    public static function loaderInputUnresolved(string $key): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOADER_INPUT_UNRESOLVED,
+            'Loader input "{{ key }}" is unresolved. Declare a default for it or read it through a nullable accessor',
+            ['key' => $key]
+        );
+    }
+
+    public static function loaderInputTypeMismatch(string $key, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOADER_INPUT_TYPE_MISMATCH,
+            'Loader input "{{ key }}" was read as {{ expectedType }}, but resolved to {{ actualType }}',
+            ['key' => $key, 'expectedType' => $expectedType, 'actualType' => $actualType]
+        );
+    }
+
+    public static function loaderConfigKeyWithoutProperty(string $configClass, string $key): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LOADER_CONFIG_KEY_WITHOUT_PROPERTY,
+            'Config class "{{ configClass }}" has no public property for the declared config key "{{ key }}"',
+            ['configClass' => $configClass, 'key' => $key]
         );
     }
 
@@ -155,6 +288,23 @@ class ContentSystemException extends HttpException
         );
     }
 
+    /**
+     * A breakpoint key no {@see Breakpoint} case declares. It carries INVALID_MAP_KEY like every other
+     * malformed wiring key, but not {@see invalidMapKey()}'s message: that one reads "key must be string",
+     * which is false here — an unknown breakpoint key is a perfectly good string that names nothing.
+     *
+     * @param list<string> $allowed
+     */
+    public static function unknownStyleBreakpoint(string $option, string $breakpoint, array $allowed): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_MAP_KEY,
+            'Style option "{{ option }}" has no breakpoint "{{ breakpoint }}"; expected one of {{ allowed }}.',
+            ['option' => $option, 'breakpoint' => $breakpoint, 'allowed' => implode(', ', $allowed)]
+        );
+    }
+
     public static function invalidMapValue(string $mapType, string $key, string $expectedType, string $actualType): self
     {
         return new self(
@@ -162,6 +312,21 @@ class ContentSystemException extends HttpException
             self::INVALID_MAP_VALUE,
             '{{ mapType }} value for "{{ key }}" must be {{ expectedType }}, got {{ actualType }}',
             ['mapType' => $mapType, 'key' => $key, 'expectedType' => $expectedType, 'actualType' => $actualType]
+        );
+    }
+
+    /**
+     * A producer defect rather than client input, so it is a 500 and deliberately absent from
+     * {@see self::CLIENT_DEFECT_CODES}: whatever filled the property handed over a value type the rendered
+     * model does not admit, which no layout a client can send produces on its own.
+     */
+    public static function unsupportedPropertyValueType(string $key, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNSUPPORTED_PROPERTY_VALUE_TYPE,
+            'Rendered element property "{{ key }}" holds a value of unsupported type {{ actualType }}; permitted are scalars, null, arrays of those, Struct, DateTimeInterface and BackedEnum',
+            ['key' => $key, 'actualType' => $actualType]
         );
     }
 
@@ -197,13 +362,71 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function pathIntegrityViolation(string $reason): self
+    /**
+     * A served layout is stored data, not client input, so a corrupt one is an internal fault rather than a
+     * client defect: deliberately absent from {@see self::CLIENT_DEFECT_CODES}. Element ids are unique across
+     * a forest by contract, and the DAL write enforces it through `StoredTree::validate()`. The read path runs
+     * no validation, so a raw-SQL or migration write, or a preparation listener replacing the stored tree, can
+     * put a repeated id in front of a consumer whose correctness depends on the invariant — and so can a
+     * finalization listener replacing the rendered tree, which is why the rendered forest is checked as well
+     * as the stored one.
+     */
+    public static function duplicateElementId(string $elementId): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::PATH_INTEGRITY_VIOLATION,
-            'Path integrity violation: {{ reason }}',
-            ['reason' => $reason]
+            self::DUPLICATE_ELEMENT_ID,
+            'Served forest is corrupt: element ID "{{ elementId }}" appears more than once, and element IDs must be unique across a forest. Re-save the layout through the DAL write, which rejects a repeated ID, and make sure no rendering listener that replaces the tree introduces one.',
+            ['elementId' => $elementId]
+        );
+    }
+
+    /**
+     * An internal fault, never client input: a context delivery index is total over the forest it was built
+     * from, so a missing element id means the index and the tree being rendered came from different forests.
+     * Deliberately not a 404 and deliberately absent from {@see self::CLIENT_DEFECT_CODES} — no layout a
+     * client can send produces this.
+     */
+    public static function contextDeliveryMissing(string $elementId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONTEXT_DELIVERY_MISSING,
+            'No context delivery recorded for element "{{ elementId }}"; the delivery index was built from a different forest',
+            ['elementId' => $elementId]
+        );
+    }
+
+    /**
+     * An internal fault, never a client defect: the pipeline builds a resolved-value index whenever the served
+     * format asks for one, and every format that reads the index asks, so a render result reaching an
+     * index-reading encoder without one is a broken wiring invariant. Deliberately absent from
+     * {@see self::CLIENT_DEFECT_CODES} — a served layout is stored data, not client input.
+     */
+    public static function resolvedValueIndexMissing(string $layoutId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::RESOLVED_VALUE_INDEX_MISSING,
+            'The render result for layout "{{ layoutId }}" carries no resolved-value index, but the format being served requires one.',
+            ['layoutId' => $layoutId]
+        );
+    }
+
+    /**
+     * The 400 for a content request carrying `includes` or `excludes`. Field selection is not part of the
+     * content-route contract, so the parameter is refused by name rather than stripped and served around.
+     *
+     * Deliberately absent from {@see CLIENT_DEFECT_CODES}: that list classifies defects in client-supplied
+     * layout data, and diagnostics never sees this rejection.
+     */
+    public static function fieldSelectionNotSupported(string $parameter): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::FIELD_SELECTION_NOT_SUPPORTED,
+            'Field selection is not supported by this route. Remove the "{{ parameter }}" parameter from the request.',
+            ['parameter' => $parameter]
         );
     }
 
@@ -293,6 +516,32 @@ class ContentSystemException extends HttpException
             self::PROPERTY_ALIAS_COLLISION,
             'Property key "{{ propertyKey }}" is used by both context "{{ firstContext }}" and "{{ secondContext }}". Each propertyAlias must be unique within an element.',
             ['propertyKey' => $propertyKey, 'firstContext' => $firstContext, 'secondContext' => $secondContext]
+        );
+    }
+
+    /**
+     * The 400 for two providers of one element that deliver to children under the same child-facing key.
+     *
+     * The child-facing key is the key the distributor matches children on: an authored provider's is
+     * `distributionConfig->getConsumerAlias() ?? providerKey`, a redistribute consumer's derived provider's
+     * is `consumerAlias ?? contextKey`. Two providers sharing it both deliver to the same children and the
+     * later one silently wins by iteration order, so the serving path and the write gate reject the layout
+     * instead.
+     *
+     * $first and $second name the colliding providers: the provider map key for an authored provider, the
+     * consumer context key for a derived one.
+     *
+     * $elementId is the element that DECLARES both providers. It is carried as data only and has no
+     * placeholder in the message: {@see LayoutDiagnostics::analyze()} reads it back to stamp the
+     * violation with the declaring element rather than the element it happens to be looping over.
+     */
+    public static function providerDeliveryCollision(string $childKey, string $first, string $second, string $elementId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROVIDER_DELIVERY_COLLISION,
+            'Child-facing key "{{ childKey }}" is used by both "{{ first }}" and "{{ second }}". Each child-facing key must be unique within an element.',
+            ['childKey' => $childKey, 'first' => $first, 'second' => $second, 'elementId' => $elementId]
         );
     }
 
@@ -522,6 +771,26 @@ class ContentSystemException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::PREVIEW_PAYLOAD_STORE_FAILED,
             'Could not store the content preview payload.'
+        );
+    }
+
+    /**
+     * The server fault for a redeemed preview token whose stored envelope is not a preview request. The store
+     * writes the envelope from an already-validated DTO and the mint request rejects everything the envelope
+     * cannot hold, so a malformed hit is server-side state — cache corruption, or a DTO field-set change
+     * deployed inside the five-minute TTL — and never something the redeeming caller sent. The redemption
+     * route refuses it rather than substituting a default and rendering silently emptied data. A token that
+     * addresses no entry is a separate case: `load()` answers `null` and the route reports a 404. The sibling
+     * precedent for the status is {@see previewPayloadStoreFailed()}. Deliberately not in CLIENT_DEFECT_CODES:
+     * that list is only for element-tree config defects the diagnostics kernel catches per element.
+     */
+    public static function previewPayloadInvalid(string $field, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PREVIEW_PAYLOAD_INVALID,
+            'The stored preview payload field "{{ field }}" must be {{ expectedType }}, got {{ actualType }}.',
+            ['field' => $field, 'expectedType' => $expectedType, 'actualType' => $actualType]
         );
     }
 
@@ -770,6 +1039,46 @@ class ContentSystemException extends HttpException
         );
     }
 
+    /**
+     * The internal 500 for a PCRE failure while tokenizing a box-spacing style value into its four sides —
+     * a malformed-UTF-8 subject, or a backtrack/recursion limit on a large one. BoxSpacingNormalizer throws
+     * instead of substituting a plausible-looking split, because a substituted split is indistinguishable
+     * from a real one and would be stored as if it were the authored value.
+     *
+     * The value is identified by its byte length and a content fingerprint rather than echoed: the message
+     * must stay bounded, and the very inputs that reach this path may not be valid UTF-8 to begin with.
+     */
+    public static function boxSpacingTokenizationFailed(string $operation, string $value, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::BOX_SPACING_TOKENIZATION_FAILED,
+            'Could not {{ operation }} a box-spacing value: {{ reason }}. Value length: {{ length }} bytes, fingerprint: {{ fingerprint }}.',
+            [
+                'operation' => $operation,
+                'reason' => $reason,
+                'length' => (string) \strlen($value),
+                'fingerprint' => Hasher::hash($value),
+            ]
+        );
+    }
+
+    /**
+     * The write validator found no decoded tree for a command that writes the layout column. The field
+     * serializer memoizes one for every such command before the validation event fires, so the absence is a
+     * broken write-path invariant rather than a defect in the caller's payload: falling back to a second
+     * decode here would validate a tree other than the one being stored, and do it silently.
+     */
+    public static function layoutWriteMemoMissing(string $entityName, string $writePath): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_WRITE_MEMO_MISSING,
+            'No decoded layout tree was memoized for the "{{ entityName }}" write at "{{ writePath }}".',
+            ['entityName' => $entityName, 'writePath' => $writePath]
+        );
+    }
+
     // The assignment-mismatch write violation, shared by the Core entity-assignment validator and the Storefront
     // header/footer validator: both reject a content-layout assignment whose bound layout's immutable root source
     // is a different page kind, with the identical ConstraintViolation shape. $assignmentType is the entity type
@@ -788,5 +1097,32 @@ class ContentSystemException extends HttpException
             null,
             $exception->getErrorCode(),
         );
+    }
+
+    // The layout column's write rejection, built the same way as the assignment-mismatch violation above and
+    // wrapped for the DAL: the layout field serializer decodes the payload at the write boundary, and the
+    // decode's defects are reported to the caller as a structured refusal of that payload rather than as an
+    // unstructured 500. Most of them are the caller's input — an unknown key, a malformed container, a value
+    // of the wrong type. Not all: CONFIG_SERIALIZER_NOT_REGISTERED, raised by DataLoaderConfigSerializerProvider
+    // for a loader source with no registered serializer, signals a missing registration, an internal fault the
+    // caller cannot have caused. It is reported here the same way regardless — it is already a CLIENT_DEFECT_CODE
+    // and encode() has always wrapped it too, and telling the caller which loader source the tree named is more
+    // use than a 500 either way. $defect is the decode failure, whose message and error code the violation
+    // carries; $fieldKey is the written field, $value the payload it rejected, and $writePath the command's path
+    // the DAL reports the violation under.
+    public static function layoutWriteRejection(self $defect, string $fieldKey, mixed $value, string $writePath): WriteConstraintViolationException
+    {
+        $violation = new ConstraintViolation(
+            $defect->getMessage(),
+            $defect->getMessage(),
+            [],
+            null,
+            '/' . $fieldKey,
+            $value,
+            null,
+            $defect->getErrorCode(),
+        );
+
+        return new WriteConstraintViolationException(new ConstraintViolationList([$violation]), $writePath);
     }
 }

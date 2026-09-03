@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
-use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -39,13 +39,16 @@ class ContentSystemPreviewController extends StorefrontController
         Request $request,
         SalesChannelContext $salesChannelContext,
     ): Response {
-        $payloadData = $this->payloadStore->load($token);
+        // Strict at consumption: the store returns null only for a token with no entry, and refuses a stored
+        // entry that is not a preview envelope with its own 500 rather than handing back an emptied one. The
+        // 500 is deliberate — only a validated envelope is ever written, so a malformed hit is server-side
+        // state and not something this caller sent.
+        $payload = $this->payloadStore->load($token);
 
-        if ($payloadData === null) {
+        if ($payload === null) {
             throw $this->createNotFoundException('Preview token not found or expired.');
         }
 
-        $payload = $this->deserializePayload($payloadData);
         $previewState = $this->previewPageBuilder->build($payload, $salesChannelContext->getContext());
         $resolvedSalesChannelContext = $previewState['salesChannelContext'];
         $themeId = $this->resolveThemeId($resolvedSalesChannelContext->getSalesChannelId());
@@ -59,7 +62,7 @@ class ContentSystemPreviewController extends StorefrontController
         }
 
         $response = $this->renderStorefront('@Storefront/storefront/page/content/preview.html.twig', [
-            'contentPage' => $previewState['contentPage'],
+            'contentPage' => ContentPage::fromRenderResult($previewState['result']),
             'headerParameters' => [],
         ]);
 
@@ -70,29 +73,6 @@ class ContentSystemPreviewController extends StorefrontController
         $response->headers->set(PlatformRequest::HEADER_FRAME_OPTIONS, 'ALLOWALL');
 
         return $response;
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function deserializePayload(array $payload): ContentPreviewRequest
-    {
-        return new ContentPreviewRequest(
-            layout: \is_array($payload['layout'] ?? null) ? $payload['layout'] : [],
-            entityType: (string) ($payload['entityType'] ?? ''),
-            entityId: (string) ($payload['entityId'] ?? ''),
-            salesChannelId: (string) ($payload['salesChannelId'] ?? ''),
-            languageId: $this->nullableString($payload['languageId'] ?? null),
-            currencyId: $this->nullableString($payload['currencyId'] ?? null),
-            domainId: $this->nullableString($payload['domainId'] ?? null),
-            customerId: $this->nullableString($payload['customerId'] ?? null),
-            queryParameters: \is_array($payload['queryParameters'] ?? null) ? $payload['queryParameters'] : [],
-        );
-    }
-
-    private function nullableString(mixed $value): ?string
-    {
-        return \is_string($value) && $value !== '' ? $value : null;
     }
 
     private function resolveThemeId(string $salesChannelId): ?string

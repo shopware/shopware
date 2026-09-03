@@ -3,19 +3,21 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Shipping\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader;
 use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfig;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Script\ScriptException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,14 +28,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ShippingMethodDataLoader::class)]
 class ShippingMethodDataLoaderTest extends TestCase
 {
-    private AbstractShippingMethodRoute&Stub $shippingMethodRoute;
-
     private ShippingMethodDataLoader $dataLoader;
 
     protected function setUp(): void
     {
-        $this->shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
-        $this->dataLoader = new ShippingMethodDataLoader($this->shippingMethodRoute);
+        $this->dataLoader = new ShippingMethodDataLoader(static::createStub(AbstractShippingMethodRoute::class));
     }
 
     #[TestDox('returns shipping_method source type identifier')]
@@ -59,14 +58,18 @@ class ShippingMethodDataLoaderTest extends TestCase
         $shippingMethods = new ShippingMethodCollection();
         $response = $this->createShippingMethodRouteResponse($shippingMethods);
 
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig();
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $this->shippingMethodRoute->method('load')->willReturn($response);
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute->method('load')->willReturn($response);
 
-        $result = $this->dataLoader->load($element, $requirement, $context, new Request());
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertTrue($result->hasData());
         static::assertSame($shippingMethods, $result->data);
@@ -74,121 +77,184 @@ class ShippingMethodDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('sets onlyAvailable true on cloned request when using default config')]
+    #[TestDox('sets onlyAvailable true on cloned request when the onlyAvailable input is true')]
     public function testLoadSetsOnlyAvailableTrueByDefaultOnClonedRequest(): void
     {
         $shippingMethods = new ShippingMethodCollection();
         $response = $this->createShippingMethodRouteResponse($shippingMethods);
 
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig();
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
-        $shippingMethodRoute
-            ->expects($this->atLeastOnce())
-            ->method('load')
-            ->with(
-                static::callback(function (Request $clonedRequest): bool {
-                    static::assertTrue($clonedRequest->query->get('onlyAvailable'));
+        $capturedRequest = null;
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute->method('load')->willReturnCallback(
+            function (Request $clonedRequest) use (&$capturedRequest, $response): ShippingMethodRouteResponse {
+                $capturedRequest = $clonedRequest;
 
-                    return true;
-                }),
-                static::anything(),
-                static::anything()
-            )
-            ->willReturn($response);
+                return $response;
+            }
+        );
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertTrue($capturedRequest->query->get('onlyAvailable'));
+        static::assertTrue($result->hasData());
+        static::assertSame($shippingMethods, $result->data);
     }
 
-    #[TestDox('adds associations from ShippingMethodLoaderConfig to criteria')]
+    #[TestDox('adds the associations input to criteria')]
     public function testLoadAddsAssociationsFromConfigToCriteria(): void
     {
         $shippingMethods = new ShippingMethodCollection();
         $response = $this->createShippingMethodRouteResponse($shippingMethods);
 
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig(associations: ['country', 'translations']);
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
 
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
-        $shippingMethodRoute
-            ->expects($this->once())
-            ->method('load')
-            ->with(
-                static::anything(),
-                static::anything(),
-                static::callback(function (Criteria $criteria): bool {
-                    static::assertContains('country', array_keys($criteria->getAssociations()));
-                    static::assertContains('translations', array_keys($criteria->getAssociations()));
+        $capturedCriteria = null;
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute->method('load')->willReturnCallback(
+            function (Request $clonedRequest, SalesChannelContext $context, Criteria $criteria) use (&$capturedCriteria, $response): ShippingMethodRouteResponse {
+                $capturedCriteria = $criteria;
 
-                    return true;
-                })
-            )
-            ->willReturn($response);
+                return $response;
+            }
+        );
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load($element, $requirement, $context, new Request());
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => ['country', 'translations'], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertContains('country', array_keys($capturedCriteria->getAssociations()));
+        static::assertContains('translations', array_keys($capturedCriteria->getAssociations()));
+        static::assertTrue($result->hasData());
+        static::assertSame($shippingMethods, $result->data);
     }
 
-    #[TestDox('sets onlyAvailable false on cloned request when config has onlyAvailable false')]
+    #[TestDox('sets onlyAvailable false on cloned request when the onlyAvailable input is false')]
     public function testLoadSetsOnlyAvailableFalseOnClonedRequest(): void
     {
         $shippingMethods = new ShippingMethodCollection();
         $response = $this->createShippingMethodRouteResponse($shippingMethods);
 
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $config = new ShippingMethodLoaderConfig(onlyAvailable: false);
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $config);
         $context = Generator::generateSalesChannelContext();
         $originalRequest = new Request();
 
-        $shippingMethodRoute = $this->createMock(AbstractShippingMethodRoute::class);
-        $shippingMethodRoute
-            ->expects($this->once())
-            ->method('load')
-            ->with(
-                static::callback(function (Request $clonedRequest) use ($originalRequest): bool {
-                    static::assertNotSame($originalRequest, $clonedRequest);
-                    static::assertFalse($clonedRequest->query->get('onlyAvailable'));
+        $capturedRequest = null;
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute->method('load')->willReturnCallback(
+            function (Request $clonedRequest) use (&$capturedRequest, $response): ShippingMethodRouteResponse {
+                $capturedRequest = $clonedRequest;
 
-                    return true;
-                }),
-                static::anything(),
-                static::anything()
-            )
-            ->willReturn($response);
+                return $response;
+            }
+        );
 
         $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
-        $dataLoader->load($element, $requirement, $context, $originalRequest);
-    }
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => false]),
+            self::requirement(),
+            $context,
+            $originalRequest,
+        );
 
-    #[TestDox('loads shipping methods without associations and defaults onlyAvailable to true when config is not a ShippingMethodLoaderConfig instance')]
-    public function testLoadWithNonShippingMethodLoaderConfigSkipsConfigSpecificLogic(): void
-    {
-        $shippingMethods = new ShippingMethodCollection();
-        $response = $this->createShippingMethodRouteResponse($shippingMethods);
-
-        $element = new ContentElement(id: 'element-id', component: 'test');
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('shippingMethodKey', 'shipping_method', $wrongConfig);
-        $context = Generator::generateSalesChannelContext();
-        $originalRequest = new Request();
-
-        $this->shippingMethodRoute
-            ->method('load')
-            ->willReturn($response);
-
-        $result = $this->dataLoader->load($element, $requirement, $context, $originalRequest);
-
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertNotSame($originalRequest, $capturedRequest);
+        static::assertFalse($capturedRequest->query->get('onlyAvailable'));
         static::assertTrue($result->hasData());
         static::assertSame($shippingMethods, $result->data);
+    }
+
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the shipping method route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenShippingMethodRouteThrows(\Throwable $exception): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->method('load')
+            ->willThrowException($exception);
+
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+        $result = $dataLoader->load(
+            new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertFalse($result->hasData());
+        static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('lets a TypeError from the shipping method route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
+
+        $shippingMethodRoute = static::createStub(AbstractShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $dataLoader = new ShippingMethodDataLoader($shippingMethodRoute);
+
+        try {
+            $dataLoader->load(
+                new LoaderInputs(['associations' => [], 'onlyAvailable' => true]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
+    /**
+     * Sample domain exceptions, not one row per catch arm: the loader catches the single covering ancestor
+     * `ShopwareHttpException`, so no row maps to a clause of its own.
+     *
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function sampleDomainExceptionProvider(): iterable
+    {
+        // ShippingMethodRoute::load() executes the ShippingMethodRouteHook store-api route hook through
+        // ScriptExecutor, which rewraps every Throwable an app script raises into
+        // ScriptExecutionFailedException, so no enumeration of the chain's own exception classes can cover it.
+        yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
+            ScriptException::scriptExecutionFailed('shipping-method-route', 'shipping-method-route.twig', new \RuntimeException('app script failed')),
+        ];
+
+        // Not a reachability claim: this row pins the clause to the ancestor rather than to the chain's own
+        // classes. DecorationPatternException extends ShopwareHttpException directly instead of through
+        // HttpException, so a clause narrowed to one branch of that line would let it escape.
+        yield 'a class outside the chain that extends ShopwareHttpException directly' => [
+            new DecorationPatternException(AbstractShippingMethodRoute::class),
+        ];
+    }
+
+    private static function requirement(): DataRequirement
+    {
+        return new DataRequirement('shippingMethodKey', 'shipping_method', new ShippingMethodLoaderConfig());
     }
 
     private function createShippingMethodRouteResponse(ShippingMethodCollection $shippingMethods): ShippingMethodRouteResponse

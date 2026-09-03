@@ -1,5 +1,5 @@
-import type { ContentElementNode } from '../../types/content-element.types';
-import { castContentElementNodes } from '../../util/content-element-label.util';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
+import type { ContentLayoutEntity } from '../../util/content-layout-repository.util';
 
 import template from './sw-experience-studio-sidebar-tree.html.twig';
 import './sw-experience-studio-sidebar-tree.scss';
@@ -35,7 +35,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         layout: {
-            type: Object,
+            type: Object as PropType<ContentLayoutEntity | null>,
             required: false,
             default: null,
         },
@@ -45,7 +45,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: null,
         },
         validateMoveTarget: {
-            type: Function,
+            type: Function as unknown as PropType<((payload: MoveElementPayload) => boolean) | null>,
             required: false,
             default: null,
         },
@@ -61,9 +61,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         layoutElements(): ContentElementNode[] {
-            const layout = this.layout as Entity<'content_layout'> | null;
-
-            return castContentElementNodes(layout?.layout);
+            return this.layout?.layout ?? [];
         },
 
         hasElements(): boolean {
@@ -130,21 +128,20 @@ export default Shopware.Component.wrapComponentConfig({
 
         rootDropConfig() {
             return {
-                dragGroup: this.$options.constants.DRAG_GROUP,
+                dragGroup: (this.$options.constants as { DRAG_GROUP: string }).DRAG_GROUP,
                 data: {
                     newParentElementId: null,
                     newSlotName: null,
                     newIndex: null,
                 },
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 validateDrop: this.validateMoveDrop,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 onDrop: this.onRootDrop,
             };
         },
 
-        onRootDrop(
-            dragData: { elementId: string } | null,
-            dropData: Omit<MoveElementPayload, 'elementId'> | null,
-        ): void {
+        onRootDrop(dragData: { elementId: string } | null, dropData: Omit<MoveElementPayload, 'elementId'> | null): void {
             if (!dragData || !dropData) {
                 return;
             }

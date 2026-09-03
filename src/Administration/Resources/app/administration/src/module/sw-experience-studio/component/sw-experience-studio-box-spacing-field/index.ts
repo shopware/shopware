@@ -1,9 +1,4 @@
-import {
-    parseBoxSpacing,
-    serializeBoxSpacing,
-    type BoxSpacingSide,
-    type BoxSpacingSides,
-} from '../../util/box-spacing.util';
+import { parseBoxSpacing, serializeBoxSpacing, type BoxSpacingSide } from '../../util/box-spacing.util';
 import template from './sw-experience-studio-box-spacing-field.html.twig';
 import './sw-experience-studio-box-spacing-field.scss';
 
@@ -53,7 +48,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            sides: parseBoxSpacing('') as BoxSpacingSides,
+            sides: parseBoxSpacing(''),
             isLinked: false,
             lastEmittedValue: null as string | null,
         };
@@ -117,11 +112,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (!this.isLinked) {
-                const syncValue = this.sides.top
-                    || this.sides.right
-                    || this.sides.bottom
-                    || this.sides.left
-                    || '';
+                const syncValue = this.sides.top || this.sides.right || this.sides.bottom || this.sides.left || '';
 
                 this.sides = {
                     top: syncValue,

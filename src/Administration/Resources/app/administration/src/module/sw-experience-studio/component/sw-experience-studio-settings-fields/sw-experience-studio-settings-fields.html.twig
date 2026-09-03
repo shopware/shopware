@@ -98,7 +98,7 @@
                                             v-if="option.cornerRadius"
                                             class="sw-experience-studio-settings-fields__corner-radius-preview"
                                             :style="{ borderRadius: option.cornerRadius }"
-                                        />
+                                        ></span>
                                         <mt-icon
                                             v-else
                                             :name="option.icon || 'regular-square'"
@@ -213,13 +213,13 @@
                                             :title="option.label"
                                             @click="onUpdateResponsiveViewportProperty(field.key, field.property, field, viewport, option.value)"
                                         >
-                                        <span
-                                            v-if="option.cornerRadius"
-                                            class="sw-experience-studio-settings-fields__corner-radius-preview"
-                                            :style="{ borderRadius: option.cornerRadius }"
-                                        />
-                                        <mt-icon
-                                            v-else
+                                            <span
+                                                v-if="option.cornerRadius"
+                                                class="sw-experience-studio-settings-fields__corner-radius-preview"
+                                                :style="{ borderRadius: option.cornerRadius }"
+                                            ></span>
+                                            <mt-icon
+                                                v-else
                                                 :name="option.icon || 'regular-square'"
                                                 size="16px"
                                             />
@@ -317,13 +317,13 @@
                                     :title="option.label"
                                     @click="onUpdateRadioPanelProperty(field.key, option.value)"
                                 >
-                                        <span
-                                            v-if="option.cornerRadius"
-                                            class="sw-experience-studio-settings-fields__corner-radius-preview"
-                                            :style="{ borderRadius: option.cornerRadius }"
-                                        />
-                                        <mt-icon
-                                            v-else
+                                    <span
+                                        v-if="option.cornerRadius"
+                                        class="sw-experience-studio-settings-fields__corner-radius-preview"
+                                        :style="{ borderRadius: option.cornerRadius }"
+                                    ></span>
+                                    <mt-icon
+                                        v-else
                                         :name="option.icon || 'regular-square'"
                                         size="16px"
                                     />
@@ -343,14 +343,14 @@
                         />
 
                         <sw-entity-multi-id-select
-                            v-else-if="getControlType(field.property) === 'entity-multi' && getEntityName(field.property)"
+                            v-else-if="getControlType(field.property) === 'entity-multi' && getEntityName(field.property) && getEntityMultiCodec(field)"
                             v-bind="getControlProps(field.property)"
                             :repository="getEntityRepository(getEntityName(field.property))"
                             :label="field.property.title"
                             :help-text="getPropertyHelpText(field.property)"
-                            :value="getRawPropertyValue(field.key)"
+                            :value="getEntityMultiValue(field.key)"
                             :disabled="!allowEdit || undefined"
-                            @update:value="onUpdateField(field.key, $event)"
+                            @update:value="onUpdateEntityMultiField(field, $event)"
                         />
 
                         <sw-media-field

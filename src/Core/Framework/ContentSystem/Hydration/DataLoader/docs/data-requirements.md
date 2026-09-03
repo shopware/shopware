@@ -29,7 +29,7 @@ Don't use data requirements when:
 
 Each data requirement is an object with these fields:
 
-- `key` (optional) - Identifies this data requirement. After loading, the data is stored on the element under this key. If omitted, the object's key name in the `dataRequirements` map is used.
+- `key` (optional) - Names this data requirement. It does NOT place the loaded value: the element property the data lands under is the object's key name in the `dataRequirements` map, always. `Layout/Codec/StoredElementCodec::decodeDataRequirements()` keys the decoded map by the map key and `Rendering/RenderedElementFactory::create()` mints from those map keys, so an inner `key` differing from its map key changes nothing about placement. Omitted, it falls back to the map key.
 - `source` (required) - Loader identifier (e.g., `"entity"`, `"entity_collection"`, `"product_listing"`, `"navigation"`)
 - `config` (optional) - Loader-specific configuration object
 

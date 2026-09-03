@@ -7,8 +7,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Dto\StyleOptionSpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -91,6 +94,49 @@ class StyleOptionSpecificationDtoTest extends TestCase
         static::assertSame($expected, $dto->toStyleOptionSpecification('x', 'core')->breakpointAware());
     }
 
+    #[DataProvider('carriesKindProvider')]
+    #[TestDox('carries kind $_dataName onto the specification')]
+    public function testCarriesKindOntoSpecification(mixed $rawKind, ?string $expected): void
+    {
+        $dto = new StyleOptionSpecificationDto('string', null, null, null, null, null, null, $rawKind);
+
+        static::assertSame($expected, $dto->toStyleOptionSpecification('padding', 'core')->kind());
+    }
+
+    /**
+     * @return iterable<string, array{mixed, string|null}>
+     */
+    public static function carriesKindProvider(): iterable
+    {
+        yield 'box-spacing' => [StyleOptionSpecification::KIND_BOX_SPACING, StyleOptionSpecification::KIND_BOX_SPACING];
+        yield 'absent (null)' => [null, null];
+    }
+
+    #[DataProvider('acceptedKindProvider')]
+    #[TestDox('accepts kind $_dataName without a violation')]
+    public function testAcceptsDeclaredKind(mixed $rawKind): void
+    {
+        static::assertCount(0, $this->validate(new StyleOptionSpecificationDto('string', null, null, null, null, null, null, $rawKind)));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function acceptedKindProvider(): iterable
+    {
+        yield 'box-spacing' => [StyleOptionSpecification::KIND_BOX_SPACING];
+        yield 'absent (null)' => [null];
+    }
+
+    #[TestDox('rejects an unknown kind, attributing the violation to the kind field')]
+    public function testRejectsUnknownKind(): void
+    {
+        $violations = $this->validate(new StyleOptionSpecificationDto('string', null, null, null, null, null, null, 'inline-spacing'));
+
+        static::assertCount(1, $violations);
+        static::assertSame('kind', $violations->get(0)->getPropertyPath());
+    }
+
     /**
      * @return iterable<string, array{mixed, bool}>
      */
@@ -119,5 +165,10 @@ class StyleOptionSpecificationDtoTest extends TestCase
     {
         yield 'positive integer passes through' => [64, 64];
         yield 'non-integer narrows to null and the default cap applies' => ['64', StyleOptionValueType::DEFAULT_STRING_MAX_LENGTH];
+    }
+
+    private function validate(StyleOptionSpecificationDto $dto): ConstraintViolationListInterface
+    {
+        return Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator()->validate($dto);
     }
 }

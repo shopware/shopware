@@ -4,9 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribut
 
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @internal
- */
 #[Package('framework')]
 enum DistributionStrategy: string
 {

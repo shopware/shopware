@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @internal
- */
 #[Package('framework')]
 abstract class AbstractContentSystemElementTypeLoader
 {

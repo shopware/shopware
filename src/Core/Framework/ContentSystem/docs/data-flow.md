@@ -7,28 +7,28 @@ graph LR
     REQ(["GET /store-api/content/{path}"]) --> A
 
     A["Layout Loading<br/>fetch assigned layout"]
-    B["Placeholder Replacement<br/>{{productId}} → UUID"]
 
-    subgraph HYDR["Hydration &nbsp;(FULL mode only)"]
+    subgraph FULLONLY["FULL mode only"]
         direction TB
+        B["Placeholder Replacement<br/>{{productId}} → UUID"]
         C["Data Loading<br/>load required entities"]
         D["Context Distribution<br/>share data down the tree"]
+        B -- "resolved values" --> C
         C -- "loaded data" --> D
     end
 
-    E["Rendering<br/>build the response"]
+    E["Response Encoding<br/>build the response"]
     RES(["Full · Decomposed<br/>Skeleton · Data"])
 
     A -- "layout tree" --> B
-    B -- "resolved values" --> C
-    D -- "hydrated tree" --> E
+    D -- "rendered tree" --> E
     E --> RES
-    B -. "skeleton:<br/>skip hydration" .-> E
+    A -. "skeleton: skip placeholders,<br/>data loading and context" .-> E
 
     classDef io fill:#e3f2fd,stroke:#1565c0,stroke-width:1px,color:#0d47a1
     classDef step fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20
     classDef hydr fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#e65100
     class REQ,RES io
-    class A,B,E step
-    class C,D hydr
+    class A,E step
+    class B,C,D hydr
 ```

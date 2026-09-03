@@ -6,14 +6,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -22,125 +25,83 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 #[CoversClass(LayoutDefaultSeeder::class)]
 class LayoutDefaultSeederTest extends TestCase
 {
-    #[TestDox('seeds a missing primitive default and ignores reference properties on a content element')]
+    #[TestDox('seeds a missing primitive default and ignores reference properties on a stored element')]
     public function testSeedsPrimitiveDefaultIgnoringReferences(): void
     {
-        $element = new ContentElement('el', 'Sw:Block');
+        $seeded = $this->seeder()->seed([StoredElementBuilder::create('Sw:Block', 'el')->build()]);
 
-        $this->seeder()->seed([$element]);
-
-        static::assertSame(['headline' => 'Default headline'], $element->getProperties());
+        static::assertSame(['headline' => 'Default headline'], $this->rawProperties($seeded[0]));
     }
 
-    #[TestDox('does not overwrite an authored primitive value on a content element')]
+    #[TestDox('does not overwrite an authored primitive value on a stored element')]
     public function testKeepsAuthoredValue(): void
     {
-        $element = new ContentElement('el', 'Sw:Block', [], ['headline' => 'Authored']);
+        $element = StoredElementBuilder::create('Sw:Block', 'el')->withProperty('headline', 'Authored')->build();
 
-        $this->seeder()->seed([$element]);
+        $seeded = $this->seeder()->seed([$element]);
 
-        static::assertSame('Authored', $element->getProperty('headline'));
+        static::assertSame(['headline' => 'Authored'], $this->rawProperties($seeded[0]));
+    }
+
+    #[TestDox('keeps an authored null rather than replacing it with the type default')]
+    public function testKeepsAuthoredNull(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el')->withProperty('headline', null)->build();
+
+        $seeded = $this->seeder()->seed([$element]);
+
+        static::assertSame(['headline' => null], $this->rawProperties($seeded[0]));
     }
 
     #[TestDox('seeds primitive defaults on slot descendants')]
     public function testSeedsSlotDescendants(): void
     {
-        $child = new ContentElement('child', 'Sw:Block');
-        $root = new ContentElement('root', 'Sw:Block', [], [], ['content' => new SlotContent([$child])]);
+        $root = StoredElementBuilder::create('Sw:Block', 'root')
+            ->withSlot('content', [StoredElementBuilder::create('Sw:Block', 'child')->build()])
+            ->build();
 
-        $this->seeder()->seed([$root]);
+        $seeded = $this->seeder()->seed([$root]);
 
-        static::assertSame('Default headline', $child->getProperty('headline'));
+        static::assertSame(['headline' => 'Default headline'], $this->rawProperties($seeded[0]->slots['content'][0]));
     }
 
     #[TestDox('leaves a node whose component type is not registered untouched')]
     public function testNoOpsOnUnregisteredComponent(): void
     {
-        $element = new ContentElement('el', 'Sw:Unregistered');
+        $seeded = $this->seeder()->seed([StoredElementBuilder::create('Sw:Unregistered', 'el')->build()]);
 
-        $this->seeder()->seed([$element]);
-
-        static::assertSame([], $element->getProperties());
+        static::assertSame([], $this->rawProperties($seeded[0]));
     }
 
-    #[TestDox('seeds a missing primitive default into a raw element array and recurses raw slots')]
-    public function testSeedsRawArrayNodesAndRecursesSlots(): void
+    /**
+     * @return array<string, mixed>
+     */
+    private function rawProperties(mixed $element): array
     {
-        $forest = [[
-            'id' => 'root',
-            'component' => 'Sw:Block',
-            'properties' => [],
-            'slots' => [
-                'content' => [
-                    ['id' => 'child', 'component' => 'Sw:Block', 'properties' => []],
-                ],
-            ],
-        ]];
+        static::assertInstanceOf(StoredElement::class, $element);
 
-        $expected = [[
-            'id' => 'root',
-            'component' => 'Sw:Block',
-            'properties' => ['headline' => 'Default headline'],
-            'slots' => [
-                'content' => [
-                    ['id' => 'child', 'component' => 'Sw:Block', 'properties' => ['headline' => 'Default headline']],
-                ],
-            ],
-        ]];
-
-        static::assertSame($expected, $this->seeder()->seed($forest));
-    }
-
-    #[TestDox('leaves a malformed scalar properties value untouched (no silent transform)')]
-    public function testSeedRawArrayLeavesScalarPropertiesUntouched(): void
-    {
-        $forest = [['id' => 'el', 'component' => 'Sw:Block', 'properties' => 'oops']];
-
-        static::assertSame($forest, $this->seeder()->seed($forest));
-    }
-
-    #[TestDox('leaves a malformed list-shaped properties value untouched rather than mixing key types')]
-    public function testSeedRawArrayLeavesListShapedPropertiesUntouched(): void
-    {
-        $forest = [['id' => 'el', 'component' => 'Sw:Block', 'properties' => ['first', 'second']]];
-
-        static::assertSame($forest, $this->seeder()->seed($forest));
-    }
-
-    #[TestDox('leaves a raw node without a string component untouched')]
-    public function testSeedRawArrayLeavesNonStringComponentUntouched(): void
-    {
-        $forest = [['id' => 'el', 'slots' => []]];
-
-        static::assertSame($forest, $this->seeder()->seed($forest));
-    }
-
-    #[TestDox('does not add a properties key to a registered component that has no primitive defaults')]
-    public function testSeedRawArrayAddsNoPropertiesKeyWhenTypeHasNoDefaults(): void
-    {
-        $forest = [['id' => 'el', 'component' => 'Sw:NoDefaults']];
-
-        static::assertSame($forest, $this->seeder()->seed($forest));
-    }
-
-    #[TestDox('leaves a raw slot whose value is not a list untouched')]
-    public function testSeedRawArrayLeavesNonListSlotValueUntouched(): void
-    {
-        $forest = [['id' => 'el', 'component' => 'Sw:NoDefaults', 'slots' => ['content' => 'not-a-list']]];
-
-        static::assertSame($forest, $this->seeder()->seed($forest));
+        return array_map(static fn (StoredValue $value): mixed => $value->jsonSerialize(), $element->properties());
     }
 
     private function seeder(): LayoutDefaultSeeder
     {
+        // 'product' carries a non-null default on a non-primitive type so the exclusion is isolated to
+        // isPrimitive() rather than being ambiguous with the "default is null" guard PrimitiveDefaultProvider
+        // also checks.
         $specs = [
-            'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Block')
-                ->primitive('headline', 'string', default: 'Default headline')
-                ->reference('product', SalesChannelProductEntity::class)
-                ->build(),
-            'Sw:NoDefaults' => ContentSystemElementTypeSpecificationBuilder::create('Sw:NoDefaults')
-                ->primitive('label', 'string')
-                ->build(),
+            'Sw:Block' => new ContentSystemElementTypeSpecification(
+                'Sw:Block',
+                'Sw:Block',
+                '',
+                null,
+                null,
+                new CopilotSpecification('', []),
+                [
+                    'headline' => new PropertySpecification('prop', new PropertyType('string', false, null, 'Default headline'), false, '', '', null),
+                    'product' => new PropertySpecification('prop', new PropertyType(SalesChannelProductEntity::class, false, null, 'ignored-default'), false, '', '', null),
+                ],
+                [],
+            ),
         ];
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);

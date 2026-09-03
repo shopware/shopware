@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Output\Format;
 
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentSkeletonElement;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentSkeletonPage;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRouteResponse;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentSkeletonRouteResponse;
@@ -21,8 +23,18 @@ class SkeletonResponseFactory extends AbstractResponseFactory
         return RenderingMode::SKELETON;
     }
 
-    public function createResponse(ContentPage $contentPage): AbstractContentRouteResponse
+    public function collectsValueIndex(): bool
     {
-        return new ContentSkeletonRouteResponse($contentPage->getContentSkeletonPage());
+        return false;
+    }
+
+    public function createResponse(RenderResult $result): AbstractContentRouteResponse
+    {
+        return new ContentSkeletonRouteResponse(new ContentSkeletonPage(
+            $result->reference->id,
+            ContentSkeletonElement::fromRendered($result->tree),
+            $result->reference->name,
+            $result->reference->version,
+        ));
     }
 }

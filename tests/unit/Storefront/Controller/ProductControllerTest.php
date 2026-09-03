@@ -24,6 +24,8 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoaded
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\ContentSystem\LayoutReference;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -117,7 +119,9 @@ class ProductControllerTest extends TestCase
 
         $this->productPageLoaderMock->method('load')->willReturn($productPage);
 
-        $contentPage = new ContentPage('layout-id', [], 'PDP layout', null);
+        $contentPage = ContentPage::fromRenderResult(
+            new RenderResult([], LayoutReference::create('layout-id', 'PDP layout', null), null)
+        );
         $this->controller->contentPage = $contentPage;
 
         $response = $this->controller->index(static::createStub(SalesChannelContext::class), new Request());

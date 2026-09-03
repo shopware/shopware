@@ -4,52 +4,40 @@
     "paths": [],
     "components": {
         "schemas": {
-            "ContentSlotContent": {
-                "type": "object",
-                "description": "Container for content elements within a named slot",
-                "properties": {
-                    "elements": {
-                        "type": "array",
-                        "items": { "$ref": "#/components/schemas/ContentElement" }
-                    },
-                    "apiAlias": {
-                        "type": "string",
-                        "enum": ["content_element_slot_content"]
-                    }
-                },
-                "required": ["apiAlias", "elements"]
-            },
             "ContentElement": {
                 "type": "object",
-                "description": "Content element node in layout tree",
+                "description": "A node of the full format's element tree: the rendered element with its property values merged into one flat map. Key order on the wire is `id`, `component`, `properties`, `slots`, `style`, with `apiAlias` last at every depth.",
+                "required": ["id", "component", "properties", "apiAlias"],
                 "properties": {
                     "id": {
                         "type": "string",
-                        "description": "Unique element identifier"
+                        "description": "Unique element identifier, carried through from the stored element."
                     },
                     "component": {
                         "type": "string",
-                        "description": "Element component type (e.g., Sw:Grid, Sw:Content:Text, Sw:Product:Card)"
+                        "description": "Element component type (e.g. Sw:Grid:Container, Sw:Content:Text, Sw:Product:Card)."
                     },
                     "properties": {
-                        "type": "object",
-                        "description": "Element properties keyed by property name. An empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
-                        "additionalProperties": true
-                    },
-                    "slots": {
-                        "description": "Named slots containing child elements",
+                        "description": "Element properties keyed by property name, always present. The map draws no distinction between a statically authored value, a value a data loader produced and a value delivered by context. An empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
                         "oneOf": [
                             {
                                 "type": "array",
-                                "maxItems": 0
+                                "maxItems": 0,
+                                "description": "The empty properties map, serialized as `[]`."
                             },
                             {
                                 "type": "object",
-                                "additionalProperties": {
-                                    "$ref": "#/components/schemas/ContentSlotContent"
-                                }
+                                "additionalProperties": true
                             }
                         ]
+                    },
+                    "slots": {
+                        "type": "object",
+                        "description": "Child element subtrees keyed by slot name. Each slot name maps DIRECTLY to an ordered list of child elements — there is no wrapper object and no per-slot alias. Omitted entirely when the element has no slots, never serialized as an empty container.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": { "$ref": "#/components/schemas/ContentElement" }
+                        }
                     },
                     "style": {
                         "type": "object",
@@ -63,10 +51,10 @@
                     },
                     "apiAlias": {
                         "type": "string",
-                        "enum": ["content_element"]
+                        "enum": ["content_element"],
+                        "description": "Present on every node at every depth, written last."
                     }
-                },
-                "required": ["apiAlias", "id", "component"]
+                }
             }
         }
     }

@@ -53,7 +53,10 @@ const experienceStudioStyleOptionStore = Shopware.Store.register({
                 const styleOptions = await service.getStyleOptions();
                 const nextMap: Record<string, ContentSystemStyleOptionSpecification> = {};
 
-                for (const [name, option] of Object.entries(styleOptions)) {
+                for (const [
+                    name,
+                    option,
+                ] of Object.entries(styleOptions)) {
                     nextMap[name] = option;
                 }
 

@@ -176,9 +176,6 @@
             <file>src/Core/Framework/ContentSystem/Layout/Element/Context/ContextConsumer.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Element/Context/ContextProvider.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Element/DataRequirement/DataRequirement.php</file>
-            <file>src/Core/Framework/ContentSystem/Layout/Element/Slot/SlotContent.php</file>
-            <file>src/Core/Framework/ContentSystem/Output/Struct/ContentDataPage.php</file>
-            <file>src/Core/Framework/ContentSystem/Output/Struct/ContentDecomposedPage.php</file>
             <file>src/Core/Framework/ContentSystem/Output/Struct/ContentSkeletonPage.php</file>
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentRouteResponse.php</file>
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDataRouteResponse.php</file>

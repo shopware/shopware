@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route returns content layout data in the configured output format.
+ *
+ * @internal
  */
 #[Package('framework')]
 abstract class AbstractContentRoute

@@ -9,10 +9,11 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -49,28 +50,31 @@ class ShippingMethodDataLoader extends AbstractContentDataLoader
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
-
         $criteria = new Criteria();
-        $onlyAvailable = true;
 
-        if ($config instanceof ShippingMethodLoaderConfig) {
-            foreach ($config->associations as $association) {
-                $criteria->addAssociation($association);
-            }
-            $onlyAvailable = $config->onlyAvailable;
+        foreach ($inputs->stringList('associations') as $association) {
+            $criteria->addAssociation($association);
         }
 
         // Clone request to set onlyAvailable parameter
         $clonedRequest = clone $request;
-        $clonedRequest->query->set('onlyAvailable', $onlyAvailable);
+        $clonedRequest->query->set('onlyAvailable', $inputs->bool('onlyAvailable'));
 
-        $response = $this->shippingMethodRoute->load($clonedRequest, $context, $criteria);
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: ShippingMethodRoute runs the ShippingMethodRouteHook app scripts through
+        // ScriptExecutor, which rewraps any Throwable they raise as ScriptExecutionFailedException.
+        try {
+            $response = $this->shippingMethodRoute->load($clonedRequest, $context, $criteria);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         // ShippingMethodRoute handles its own caching internally
         return ContentDataLoaderResult::cachedExternally($response->getShippingMethods());

@@ -7,7 +7,8 @@
 Type spec `properties` = schema for hydrated API output, NOT storage format
 - FQCN-typed property → filled by pipeline (data loader or context)
 - Primitive-typed property → set statically at design time
-- Shared key links: type spec property key = dataRequirements key = acceptsContext key = setProperty() key
+- The storage format is published too, on the same endpoint: the `storageSchema` fold derived by `StoredSchemaResolver` (see below). `properties` is not it
+- Shared key links: type spec property key = dataRequirements key = acceptsContext key = the key `Rendering/RenderedElementFactory` writes the resolved value under
 
 ## Source Code References
 
@@ -16,6 +17,7 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 - **Loaders**: `Loader/AbstractContentSystemElementTypeLoader` (base contract), `Loader/YamlTypeLoader` (filesystem; also exposes `loadOverlayFromDirectory(directory, source, prefix): array<string, ContentSystemElementTypeSpecification>`, a registry-independent single-directory load keyed by resolved type name, see [Binding/docs/inline-bindings.md](../../Binding/docs/inline-bindings.md)), `Loader/DatabaseTypeLoader` (app types, prod only), `Loader/ElementTypeNameResolver` (path → name)
 - **Serializer**: `Serialization/ElementTypeSpecificationSerializer` (YAML ↔ DTO)
 - **API Endpoint**: `Api/Controller/InfoController::getContentSystemElementTypes()` (`GET /api/_info/content-system-element-types.json`)
+- **Storage schema**: `StoredSchemaResolver::resolve(ContentSystemElementTypeSpecification): array<string, array{kind, type, required, default?}>` — the per-type `storageSchema` fold on that endpoint, keyed by STORED key. See [docs/introspection.md#storageschema](docs/introspection.md#storageschema) for the three kinds, their precedence, and the typing rules
 - **App Integration**: `App/Lifecycle/Persister/ContentSystemElementTypePersister`, `App/Validation/ContentSystemElementTypeAppValidator`, `App/Lifecycle/Handler/ContentSystemElementTypeLifecycleHandler` (persists app types on install/update)
 - **Collision Detection**: `Validation/ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types)
 - **Type Map Bridge**: `Schema/ContentSystemDataLoaderMap` — connects FQCNs to loader sources

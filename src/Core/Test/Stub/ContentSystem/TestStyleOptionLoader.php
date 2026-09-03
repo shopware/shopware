@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Log\Package;
  * flat write→DB→decode round-trip end-to-end — no shipped core option is flat. Wired only in the test
  * environment via the content_system.style_option_loader tag in services_test.php.
  *
- * @internal
- *
  * @final
  */
 #[Package('framework')]

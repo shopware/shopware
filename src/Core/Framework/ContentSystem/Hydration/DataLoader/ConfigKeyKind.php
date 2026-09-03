@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The semantics of one config key of a {@see LoaderConfigSpecification}: what the stored value names.
- *
- * @internal
  */
 #[Package('framework')]
 enum ConfigKeyKind: string

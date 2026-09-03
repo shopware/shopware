@@ -21,7 +21,7 @@ An option name is the **Store-API wire key** taken directly from the kebab-case 
 
 **Rules:**
 - One option per YAML file
-- Filenames must be kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`
+- Filenames must be kebab-case and start with a letter: `[a-z][a-z0-9]*(-[a-z0-9]+)*` (`YamlStyleOptionLoader::NAME_PATTERN`). An all-numeric name would coerce to an int array key on read and could never round-trip
 - Both `.yaml` and `.yml` extensions accepted
 
 ## Collision Detection

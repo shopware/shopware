@@ -24,7 +24,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
                 { name: 'type-7', label: 'Text', icon: null, category: 'content' },
                 { name: 'type-6', label: 'Unknown', icon: null, category: null },
             ],
-            categoryOrder: ['layout', 'content', 'commerce'],
+            categoryOrder: [
+                'layout',
+                'content',
+                'commerce',
+            ],
             fallbackCategoryKey: 'other',
             normalizeCategoryKey: methods.normalizeCategoryKey,
             categoryHeadlineSnippetKey: methods.categoryHeadlineSnippetKey,
@@ -40,7 +44,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-pic
         expect(groups[0].key).toBe('layout');
         expect(groups[1].key).toBe('content');
         expect(groups[1].headlineSnippetKey).toBe('sw-experience-studio.detail.elementPicker.categoryHeadlines.content');
-        expect(groups[1].elements.map((element) => element.name)).toEqual(['type-2', 'type-5', 'type-7']);
+        expect(groups[1].elements.map((element) => element.name)).toEqual([
+            'type-2',
+            'type-5',
+            'type-7',
+        ]);
         expect(groups[2].key).toBe('commerce');
         expect(groups[3].key).toBe('media');
         expect(groups[4].key).toBe('other');

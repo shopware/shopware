@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -124,6 +125,103 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertNull($response['seoUrls']);
 
         static::assertNull($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
+    }
+
+    public function testContentRouteEnrichesSeoUrlsOnASeoAwareEntityHeldByARenderedElementProperty(): void
+    {
+        $this->createContentLayoutConsumingTheCategory();
+
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+
+        $full = $this->contentRouteJson('content');
+
+        // Presence first: the seo-aware category really is the value of the root's `category` property, so the
+        // enrichment asserted below is read off the entity a rendered element carries and not off some other
+        // part of the body. `StoreApiSeoResolver` reaches it only by descending `RenderedElement`, because the
+        // response's own struct is a `ContentPage` whose sole other vars are the layout's id, name and version.
+        static::assertIsArray($full['elements'][0]['properties'] ?? null);
+        $fullCategory = $full['elements'][0]['properties']['category'] ?? null;
+        static::assertIsArray($fullCategory);
+        static::assertSame($this->ids->get('category'), $fullCategory['id'] ?? null);
+
+        static::assertIsArray($fullCategory['seoUrls'] ?? null);
+        static::assertCount(1, $fullCategory['seoUrls']);
+        static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $fullCategory['seoUrls'][0]['routeName']);
+        static::assertSame($this->ids->get('category'), $fullCategory['seoUrls'][0]['foreignKey']);
+        static::assertSame('foo', $fullCategory['seoUrls'][0]['pathInfo']);
+
+        $decomposed = $this->contentRouteJson('content-decomposed');
+
+        // The decomposed format serves the same entity through a ref rather than inline, so it is reached the
+        // way a client reaches it: the element's assignment entry names a ref, and the ref keys the data map.
+        static::assertIsArray($decomposed['assignments'][$this->ids->get('content-root')] ?? null);
+        $ref = $decomposed['assignments'][$this->ids->get('content-root')]['category'] ?? null;
+        static::assertIsString($ref);
+
+        static::assertIsArray($decomposed['data'] ?? null);
+        static::assertArrayHasKey($ref, $decomposed['data']);
+        $decomposedCategory = $decomposed['data'][$ref];
+        static::assertIsArray($decomposedCategory);
+        static::assertSame($this->ids->get('category'), $decomposedCategory['id'] ?? null);
+
+        static::assertIsArray($decomposedCategory['seoUrls'] ?? null);
+        static::assertCount(1, $decomposedCategory['seoUrls']);
+        static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $decomposedCategory['seoUrls'][0]['routeName']);
+        static::assertSame($this->ids->get('category'), $decomposedCategory['seoUrls'][0]['foreignKey']);
+        static::assertSame('foo', $decomposedCategory['seoUrls'][0]['pathInfo']);
+    }
+
+    /**
+     * A single-element layout assigned to the fixture category, whose root consumes the category root source's
+     * page-level `category` context undotted and unaliased. An unaliased consumer takes the delivered value as
+     * it stands, so the hydrated — and seo-aware — `CategoryEntity` becomes the value of the root's `category`
+     * property rather than a scalar off it. No shipped element type declares an entity-typed property that a
+     * data loader could fill with a product, so the page-level context is the only shipped way to put a
+     * seo-aware entity on a rendered property.
+     */
+    private function createContentLayoutConsumingTheCategory(): void
+    {
+        $context = Context::createDefaultContext();
+
+        static::getContainer()->get('content_layout.repository')->create([[
+            'id' => $this->ids->create('content-layout'),
+            'name' => 'store-api-seo-resolver',
+            'version' => '1.0.0',
+            'rootSource' => 'category',
+            'layout' => [[
+                'id' => $this->ids->create('content-root'),
+                'component' => 'Sw:Grid:Container',
+                'properties' => [],
+                'acceptsContext' => [
+                    'category' => ['type' => 'single', 'required' => false],
+                ],
+            ]],
+        ]], $context);
+
+        static::getContainer()->get('category_content_layout.repository')->create([[
+            'id' => $this->ids->create('content-assignment'),
+            'categoryId' => $this->ids->get('category'),
+            'salesChannelId' => null,
+            'contentLayoutId' => $this->ids->get('content-layout'),
+        ]], $context);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function contentRouteJson(string $format): array
+    {
+        $this->browser->request('GET', '/store-api/' . $format . '/category/' . $this->ids->get('category'));
+
+        $response = $this->browser->getResponse();
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+
+        $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($body);
+
+        return $body;
     }
 
     private function createData(): void

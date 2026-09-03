@@ -6,9 +6,9 @@ Server-side structural edits to a layout tree. Each operation takes a whole tree
 
 An operation is a pure transform over the element tree:
 
-1. It receives the entire draft tree (`list<ContentElement>`).
-2. It applies one structural change by reconstructing only the nodes on the path to the change (immutable path-copying), through the `ContentElement` constructor. Untouched subtrees are reused by reference, which is safe because nothing is mutated.
-3. It returns a new tree. The input tree, its elements, and its slots are never mutated.
+1. It receives the entire draft tree (`Layout/StoredTree`).
+2. It applies one structural change through that tree's own algebra (`remove`, `insertAtRoot`, `insertIntoSlot`, `replace`), each returning a new `StoredTree`. Every walked node is rebuilt (`withSlots()` never returns `$this`); only a subtree handed in whole is placed by reference.
+3. It returns a new tree. The input cannot be mutated at all: `StoredTree` and `StoredElement` are `final readonly`.
 
 Because the operation never mutates shared state, the same draft can be diffed against the result, and the result fed straight back into the next operation.
 
@@ -25,9 +25,9 @@ Because the operation never mutates shared state, the same draft can be diffed a
 Every operation reports four things alongside the new tree:
 
 - **affected** (`list<string>`) - element ids whose resolution may have changed. A conservative highlight hint for the editor, not a correctness claim; the diagnostics pass is the authority.
-- **orphaned** (`list<ContentElement>`) - subtrees the operation detached (for example, a replace dropping the children of a slot the new type does not have). Returned so the caller can re-place them; never discarded.
+- **orphaned** (`list<StoredElement>`) - subtrees the operation detached (for example, a replace dropping the children of a slot the new type does not have). Returned so the caller can re-place them; never discarded.
 - **droppedWiring** (`list<string>`) - wiring keys the operation could not re-home (for example, a replace to a type without that reference property, or the data-requirement and accepted-context keys an unwrapped container consumed). Reported so the caller can re-wire; never silently re-mapped.
-- **droppedProperties** (`array<string, mixed>`) - static property values the operation could not carry over (a replace whose new type cannot hold them — key absent, or a value the new type's property type rejects — or an unwrap that removes the container holding them), keyed by property key. Reported so the caller can re-apply them; never silently discarded.
+- **droppedProperties** (`array<string, StoredValue>`) - static property values the operation could not carry over (a replace whose new type cannot hold them — key absent, or a value the new type's property type rejects — or an unwrap that removes the container), keyed by property key. Reported so the caller can re-apply them; never silently discarded.
 
 The contract is that no structural edit silently loses content or wiring: anything an operation cannot keep is handed back through `orphaned`, `droppedWiring`, or `droppedProperties`.
 
@@ -57,7 +57,7 @@ All nine live in `Op/` and extend `AbstractLayoutMutation`:
 ## Key Classes
 
 - `LayoutMutation` - The operation contract: `apply()` returns the new tree; `affected()`, `orphaned()`, `droppedWiring()`, `droppedProperties()` report what changed. Single-use, `apply()` runs before any reporter is read.
-- `AbstractLayoutMutation` - Shared structural machinery: the path-copying tree surgery, element location, fresh-element scaffolding, and the uniform `400` for structural impossibilities.
+- `AbstractLayoutMutation` - What `StoredTree` does not carry: the report stash, the typed view of element location, fresh-element scaffolding, and the uniform `400` for structural impossibilities.
 - `MutationPipeline` - Apply, diagnose, assemble. The shared stateless runner for every operation, over an already-decoded tree (`Api/DraftLayoutDecoder` decodes the request draft upstream). Never persists.
 - `PersistedLayoutMutator` - The persisted counterpart to `MutationPipeline`: it commits one operation to a stored `content_layout`. Loads by id (404 if absent), guards an optimistic-concurrency token against the row's `updatedAt` (409 on a stale token, without writing), applies the operation, and persists the mutated tree, whose write runs the resolvability gates. The response diagnostics are derived from the loaded layout's single `root_source` (resolved via `Adapter/RootSourceRegistry`), consistent with what the gate enforces. Detached content (`orphaned`), dropped wiring (`droppedWiring`), and dropped property values (`droppedProperties`) are committed-out of the tree but returned in the result so the caller can re-place the subtrees with `AttachElement`, re-wire the keys, or re-apply the values; nothing is silently lost.
 - `MutationResult` - The outcome: new layout, per-affected-element resolutions, diagnostics report, affected ids, orphaned subtrees, dropped wiring, and dropped property values.

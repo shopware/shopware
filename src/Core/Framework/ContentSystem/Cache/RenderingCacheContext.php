@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
  * Passed through the pipeline and filled by data loaders.
  * Routes read the final state to determine caching behavior.
  *
- * @internal
- *
  * @final
  */
 #[Package('framework')]

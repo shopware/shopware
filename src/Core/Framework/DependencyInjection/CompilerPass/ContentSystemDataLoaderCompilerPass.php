@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -15,8 +17,12 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * Fails the container build when a tagged data loader cannot satisfy the introspection contract: the class must
  * extend AbstractContentDataLoader with a resolvable `@extends` annotation, its source name must not be reserved
  * (`loader`/`config`), and its declared configSpecification() must have unique keys, types from the
- * ConfigKeySpecification::TYPES set, string-typed reference kinds, coherent defaults (never on a required key),
- * and no reserved key name.
+ * ConfigKeySpecification::TYPES set, string-typed reference kinds, referenced types from the
+ * ConfigKeySpecification::REFERENCED_TYPES set and only on a reference kind, coherent defaults (never on a
+ * required key), coherent merges (a `list<string>` reference key merging into a declared `list<string>` literal
+ * key, with at most one merger key claiming any given target), and no reserved key name. It also fails the build
+ * when the tagged class is PHP-abstract despite a concrete service definition, when two loaders declare the same
+ * source, and when a loader's source has no `content_system.config_serializer` declaring it.
  *
  * @internal
  */
@@ -34,11 +40,20 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
     {
         $loaders = $container->findTaggedServiceIds('content_system.data_loader');
 
+        $loaderSources = [];
+
         foreach ($loaders as $serviceId => $tags) {
-            $class = $container->getDefinition($serviceId)->getClass();
+            $definition = $container->getDefinition($serviceId);
+            $class = $definition->getClass();
 
             if ($class === null || !class_exists($class)) {
                 // No resolvable class to introspect; leave it for Symfony's own service validation.
+                continue;
+            }
+
+            if ($definition->isAbstract()) {
+                // findTaggedServiceIds() returns abstract definitions too, and such a definition is a parent template
+                // rather than a service, so there is no loader here to hold to the introspection contract.
                 continue;
             }
 
@@ -46,11 +61,76 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
                 throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'content_system.data_loader', AbstractContentDataLoader::class);
             }
 
+            if ((new \ReflectionClass($class))->isAbstract()) {
+                // The two abstractness checks are independent: Definition::isAbstract() above reports only the Symfony
+                // definition flag, while this one catches a PHP-abstract class registered under a concrete definition,
+                // whose still-abstract members would raise a PHP Error at the static calls below.
+                throw DependencyInjectionException::dataLoaderClassIsAbstract($serviceId, $class);
+            }
+
             /** @var class-string<AbstractContentDataLoader<Struct>> $class */
             $class::extendsDescriptor();
 
             $this->validateSourceName($class);
             $this->validateConfigSpecification($class);
+
+            $source = $class::getRequirementType();
+            $priorLoader = $loaderSources[$source] ?? null;
+
+            if ($priorLoader !== null) {
+                throw DependencyInjectionException::dataLoaderDuplicateSource($class, $priorLoader, $source);
+            }
+
+            $loaderSources[$source] = $class;
+        }
+
+        $this->validateConfigSerializerCoverage($container, $loaderSources);
+    }
+
+    /**
+     * DataLoaderConfigSerializerProvider::encode()/decode() throw when a source has no registered serializer, and
+     * both the layout-write path and every FULL-mode render reach that call: a loader without a serializer breaks
+     * at the first write of a layout using it and at every full-mode render of one. Failing the container build
+     * instead puts the failure in front of whoever forgot the registration.
+     *
+     * Only this direction is checked. A serializer registered under a source no loader declares is a dead service,
+     * not a defect, so failing a third party's build over one would prevent nothing.
+     *
+     * @param array<string, class-string<AbstractContentDataLoader<Struct>>> $loaderSources
+     */
+    private function validateConfigSerializerCoverage(ContainerBuilder $container, array $loaderSources): void
+    {
+        $serializedSources = [];
+
+        foreach (array_keys($container->findTaggedServiceIds('content_system.config_serializer')) as $serviceId) {
+            $definition = $container->getDefinition($serviceId);
+            $class = $definition->getClass();
+
+            if ($class === null || !class_exists($class)) {
+                // No resolvable class to introspect, exactly as the loader loop above treats the same condition.
+                continue;
+            }
+
+            if ($definition->isAbstract()) {
+                // findTaggedServiceIds() returns abstract definitions too, and getSource() may still be abstract on
+                // such a class, where a static call raises a PHP Error instead of a readable build failure.
+                continue;
+            }
+
+            if (!is_subclass_of($class, AbstractContentDataLoaderConfigSerializer::class)) {
+                // Not a serializer, so it declares no source; whether the tag itself is legal is not this check's call.
+                continue;
+            }
+
+            $serializedSources[$class::getSource()] = true;
+        }
+
+        foreach ($loaderSources as $source => $loaderClass) {
+            if (isset($serializedSources[$source])) {
+                continue;
+            }
+
+            throw DependencyInjectionException::dataLoaderSourceWithoutConfigSerializer($loaderClass, $source);
         }
     }
 
@@ -90,8 +170,11 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
 
             $this->validateKeyType($class, $key);
             $this->validateKeyKindType($class, $key);
+            $this->validateKeyReferencedType($class, $key);
             $this->validateKeyDefault($class, $key);
         }
+
+        $this->validateMerges($class, $specification);
     }
 
     /**
@@ -120,6 +203,77 @@ final class ContentSystemDataLoaderCompilerPass implements CompilerPassInterface
         }
 
         throw DependencyInjectionException::dataLoaderConfigKeyInvalidType($class, $key->name, $key->kind->value, $key->type);
+    }
+
+    /**
+     * @param class-string<AbstractContentDataLoader<Struct>> $class
+     */
+    private function validateKeyReferencedType(string $class, ConfigKeySpecification $key): void
+    {
+        if (!\in_array($key->referencedType, ConfigKeySpecification::REFERENCED_TYPES, true)) {
+            throw DependencyInjectionException::dataLoaderConfigKeyUnknownReferencedType($class, $key->name, $key->referencedType, ConfigKeySpecification::REFERENCED_TYPES);
+        }
+
+        if ($key->kind === ConfigKeyKind::PropertyReference) {
+            return;
+        }
+
+        if ($key->referencedType === 'string') {
+            return;
+        }
+
+        throw DependencyInjectionException::dataLoaderConfigKeyReferencedTypeMisplaced($class, $key->name, $key->kind->value);
+    }
+
+    /**
+     * A merge target is another key of the same specification, so this runs over the whole specification rather
+     * than per key.
+     *
+     * @param class-string<AbstractContentDataLoader<Struct>> $class
+     */
+    private function validateMerges(string $class, LoaderConfigSpecification $specification): void
+    {
+        $byName = [];
+        foreach ($specification->keys as $key) {
+            $byName[$key->name] = $key;
+        }
+
+        $claimedBy = [];
+        foreach ($specification->keys as $key) {
+            if ($key->mergesInto === null) {
+                continue;
+            }
+
+            if ($key->kind !== ConfigKeyKind::PropertyReference) {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('only a propertyReference key can merge into another key, this one has kind "%s"', $key->kind->value));
+            }
+
+            if ($key->referencedType !== 'list<string>') {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('a merging key must reference a "list<string>" value, this one references "%s"', $key->referencedType));
+            }
+
+            if ($key->mergesInto === $key->name) {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, 'a key cannot merge into itself');
+            }
+
+            $target = $byName[$key->mergesInto] ?? null;
+
+            if ($target === null) {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('the merge target "%s" is not declared in the same specification', $key->mergesInto));
+            }
+
+            if ($target->kind !== ConfigKeyKind::Literal || $target->type !== 'list<string>') {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('the merge target "%s" must be a literal key of type "list<string>", got kind "%s" of type "%s"', $target->name, $target->kind->value, $target->type));
+            }
+
+            $priorClaimant = $claimedBy[$key->mergesInto] ?? null;
+
+            if ($priorClaimant !== null) {
+                throw DependencyInjectionException::dataLoaderConfigKeyInvalidMerge($class, $key->name, \sprintf('the merge target "%s" is already claimed by key "%s"; at most one merger key may target a given key', $key->mergesInto, $priorClaimant));
+            }
+
+            $claimedBy[$key->mergesInto] = $key->name;
+        }
     }
 
     /**

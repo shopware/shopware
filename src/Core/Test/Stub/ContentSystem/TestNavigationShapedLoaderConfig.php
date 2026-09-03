@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * The config object of {@see TestNavigationShapedLoader}: an entity name and one optional defaulted property
  * reference. It carries no required property reference, which is what makes the loader never gate.
- *
- * @internal
  */
 #[Package('framework')]
 final readonly class TestNavigationShapedLoaderConfig extends AbstractContentDataLoaderConfig

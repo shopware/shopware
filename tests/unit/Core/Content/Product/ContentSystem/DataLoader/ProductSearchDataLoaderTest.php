@@ -9,16 +9,18 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfig;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -58,11 +60,6 @@ class ProductSearchDataLoaderTest extends TestCase
     #[TestDox('returns search listing result as data and marks result as cache-aware with no tags')]
     public function testLoadReturnsCachedExternallyResultWithSearchData(): void
     {
-        $config = new ProductSearchLoaderConfig();
-        $requirement = new DataRequirement('search', 'product_search', $config);
-        $element = ContentElementBuilder::create('search')
-            ->withProperty('searchTerm', 'shoes')
-            ->build();
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
@@ -74,7 +71,12 @@ class ProductSearchDataLoaderTest extends TestCase
             ->method('load')
             ->willReturn($response);
 
-        $result = $this->loader->load($element, $requirement, $context, $request);
+        $result = $this->loader->load(
+            new LoaderInputs(['searchTermProperty' => 'shoes', 'associations' => []]),
+            self::requirement(),
+            $context,
+            $request,
+        );
 
         static::assertSame($listingResult, $result->data);
         static::assertTrue($result->isCacheAware());
@@ -84,11 +86,6 @@ class ProductSearchDataLoaderTest extends TestCase
     #[TestDox('sets search term on cloned request POST body for route consumption')]
     public function testLoadSetsSearchTermOnClonedRequestBody(): void
     {
-        $config = new ProductSearchLoaderConfig();
-        $requirement = new DataRequirement('search', 'product_search', $config);
-        $element = ContentElementBuilder::create('search')
-            ->withProperty('searchTerm', 'running shoes')
-            ->build();
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
@@ -106,7 +103,12 @@ class ProductSearchDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, $request);
+        $this->loader->load(
+            new LoaderInputs(['searchTermProperty' => 'running shoes', 'associations' => []]),
+            self::requirement(),
+            $context,
+            $request,
+        );
 
         static::assertInstanceOf(Request::class, $capturedRequest);
         static::assertSame('running shoes', $capturedRequest->request->get('search'));
@@ -116,11 +118,6 @@ class ProductSearchDataLoaderTest extends TestCase
     #[TestDox('does not leak original request query parameters into the route request')]
     public function testLoadDoesNotLeakOriginalRequestQueryParams(): void
     {
-        $config = new ProductSearchLoaderConfig();
-        $requirement = new DataRequirement('search', 'product_search', $config);
-        $element = ContentElementBuilder::create('search')
-            ->withProperty('searchTerm', 'shoes')
-            ->build();
         $context = Generator::generateSalesChannelContext();
         $request = new Request(['limit' => '24', 'p' => '3', 'order' => 'price-asc']);
 
@@ -138,21 +135,21 @@ class ProductSearchDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, $request);
+        $this->loader->load(
+            new LoaderInputs(['searchTermProperty' => 'shoes', 'associations' => []]),
+            self::requirement(),
+            $context,
+            $request,
+        );
 
         static::assertInstanceOf(Request::class, $capturedRequest);
         static::assertSame('shoes', $capturedRequest->request->get('search'));
         static::assertSame([], $capturedRequest->query->all());
     }
 
-    #[TestDox('reads search term from custom property name when configured')]
+    #[TestDox('dereferences the element property the config names into the search term')]
     public function testLoadUsesCustomSearchTermPropertyFromConfig(): void
     {
-        $config = new ProductSearchLoaderConfig(searchTermProperty: 'query');
-        $requirement = new DataRequirement('search', 'product_search', $config);
-        $element = ContentElementBuilder::create('search')
-            ->withProperty('query', 'blue shirt')
-            ->build();
         $context = Generator::generateSalesChannelContext();
 
         $listingResult = static::createStub(ProductListingResult::class);
@@ -169,20 +166,50 @@ class ProductSearchDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, new Request());
+        $inputs = $this->resolve(
+            new ProductSearchLoaderConfig(searchTermProperty: 'query'),
+            ['query' => 'blue shirt'],
+        );
+
+        $this->loader->load($inputs, self::requirement(), $context, new Request());
 
         static::assertInstanceOf(Request::class, $capturedRequest);
         static::assertSame('blue shirt', $capturedRequest->request->get('search'));
     }
 
-    #[TestDox('adds config associations to criteria when loading search')]
+    #[TestDox('resolves an unset searchTermProperty to the declared searchTerm default')]
+    public function testUnsetSearchTermPropertyResolvesToDeclaredSearchTermDefault(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $listingResult = static::createStub(ProductListingResult::class);
+        $response = static::createStub(ProductSearchRouteResponse::class);
+        $response->method('getListingResult')->willReturn($listingResult);
+
+        /** @var Request|null $capturedRequest */
+        $capturedRequest = null;
+        $this->searchRoute
+            ->method('load')
+            ->willReturnCallback(static function (Request $req) use (&$capturedRequest, $response): ProductSearchRouteResponse {
+                $capturedRequest = $req;
+
+                return $response;
+            });
+
+        $inputs = $this->resolve(
+            new ProductSearchLoaderConfig(),
+            ['searchTerm' => 'winter jacket'],
+        );
+
+        $this->loader->load($inputs, self::requirement(), $context, new Request());
+
+        static::assertInstanceOf(Request::class, $capturedRequest);
+        static::assertSame('winter jacket', $capturedRequest->request->get('search'));
+    }
+
+    #[TestDox('adds every configured association to the criteria')]
     public function testLoadAddsConfigAssociationsToCriteria(): void
     {
-        $config = new ProductSearchLoaderConfig(associations: ['manufacturer', 'cover']);
-        $requirement = new DataRequirement('search', 'product_search', $config);
-        $element = ContentElementBuilder::create('search')
-            ->withProperty('searchTerm', 'shoes')
-            ->build();
         $context = Generator::generateSalesChannelContext();
 
         $listingResult = static::createStub(ProductListingResult::class);
@@ -199,22 +226,20 @@ class ProductSearchDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, new Request());
+        $this->loader->load(
+            new LoaderInputs(['searchTermProperty' => 'shoes', 'associations' => ['manufacturer', 'cover']]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertArrayHasKey('manufacturer', $capturedCriteria->getAssociations());
-        static::assertArrayHasKey('cover', $capturedCriteria->getAssociations());
+        static::assertSame(['manufacturer', 'cover'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('merges element associations property into criteria when it is an array of strings')]
+    #[TestDox('appends the associations element property after the configured associations by default')]
     public function testLoadMergesElementAssociationsIntoCriteria(): void
     {
-        $config = new ProductSearchLoaderConfig(associations: ['manufacturer']);
-        $requirement = new DataRequirement('search', 'product_search', $config);
-        $element = ContentElementBuilder::create('search')
-            ->withProperty('searchTerm', 'shoes')
-            ->withProperty('associations', ['cover', 'media'])
-            ->build();
         $context = Generator::generateSalesChannelContext();
 
         $listingResult = static::createStub(ProductListingResult::class);
@@ -231,40 +256,20 @@ class ProductSearchDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, new Request());
+        $inputs = $this->resolve(
+            new ProductSearchLoaderConfig(associations: ['manufacturer']),
+            ['searchTerm' => 'winter jacket', 'associations' => ['cover', 'media']],
+        );
+
+        $this->loader->load($inputs, self::requirement(), $context, new Request());
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertArrayHasKey('manufacturer', $capturedCriteria->getAssociations());
-        static::assertArrayHasKey('cover', $capturedCriteria->getAssociations());
-        static::assertArrayHasKey('media', $capturedCriteria->getAssociations());
+        static::assertSame(['manufacturer', 'cover', 'media'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('returns notFound result when config is not a ProductSearchLoaderConfig instance')]
-    public function testLoadReturnsNotFoundWhenConfigIsWrongType(): void
+    #[TestDox('returns notFound result when the search term resolves to an empty string')]
+    public function testLoadReturnsNotFoundWhenSearchTermIsEmptyString(): void
     {
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('search', 'product_search', $wrongConfig);
-        $element = ContentElementBuilder::create('search')->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
-        $searchRoute->expects($this->never())->method('load');
-
-        $loader = new ProductSearchDataLoader($searchRoute);
-        $result = $loader->load($element, $requirement, $context, new Request());
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('returns notFound result when search term element property is an empty string')]
-    public function testLoadReturnsNotFoundWhenSearchTermPropertyIsEmptyString(): void
-    {
-        $config = new ProductSearchLoaderConfig();
-        $element = ContentElementBuilder::create('search')
-            ->withProperty('searchTerm', '')
-            ->build();
         $context = Generator::generateSalesChannelContext();
 
         $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
@@ -272,21 +277,20 @@ class ProductSearchDataLoaderTest extends TestCase
 
         $loader = new ProductSearchDataLoader($searchRoute);
         $result = $loader->load(
-            $element,
-            new DataRequirement('search', 'product_search', $config),
+            new LoaderInputs(['searchTermProperty' => '', 'associations' => []]),
+            self::requirement(),
             $context,
-            new Request()
+            new Request(),
         );
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
     }
 
-    #[DataProvider('guardsInvalidSearchTermProvider')]
-    #[TestDox('returns notFound result when searchTerm is invalid: $_dataName')]
-    public function testLoadReturnsNotFoundWhenSearchTermPropertyIsInvalid(ContentElement $element): void
+    #[TestDox('returns notFound result when the search term input is unresolved')]
+    public function testLoadReturnsNotFoundWhenSearchTermInputIsUnresolved(): void
     {
-        $config = new ProductSearchLoaderConfig();
         $context = Generator::generateSalesChannelContext();
 
         $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
@@ -294,27 +298,105 @@ class ProductSearchDataLoaderTest extends TestCase
 
         $loader = new ProductSearchDataLoader($searchRoute);
         $result = $loader->load(
-            $element,
-            new DataRequirement('search', 'product_search', $config),
+            new LoaderInputs(['searchTermProperty' => null, 'associations' => []]),
+            self::requirement(),
             $context,
-            new Request()
+            new Request(),
         );
 
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the search route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenSearchRouteThrows(\Throwable $exception): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
+        $searchRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($exception);
+
+        $loader = new ProductSearchDataLoader($searchRoute);
+        $result = $loader->load(
+            new LoaderInputs(['searchTermProperty' => 'shoes', 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('lets a TypeError from the search route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
+
+        $searchRoute = static::createStub(AbstractProductSearchRoute::class);
+        $searchRoute
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $loader = new ProductSearchDataLoader($searchRoute);
+
+        try {
+            $loader->load(
+                new LoaderInputs(['searchTermProperty' => 'shoes', 'associations' => []]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
     }
 
     /**
-     * @return iterable<string, array{ContentElement}>
+     * Sample domain exceptions off the search chain, not one row per catch arm: the loader catches the
+     * single covering ancestor `ShopwareHttpException`, so no row maps to a clause of its own.
+     *
+     * @return iterable<string, array{\Throwable}>
      */
-    public static function guardsInvalidSearchTermProvider(): iterable
+    public static function sampleDomainExceptionProvider(): iterable
     {
-        yield 'non-string value triggers guard' => [
-            ContentElementBuilder::create('search')->withProperty('searchTerm', 42)->build(),
+        // Reachable via CompositeListingProcessor::prepare() -> SortingListingProcessor::prepare() when
+        // the configured default sorting id points to a deleted sorting entity; SortingListingProcessor
+        // itself calls the factory with an empty key. Not flag-dependent.
+        yield 'default sorting entity missing' => [ProductException::sortingNotFoundException('')];
+
+        // Flag-off form of ProductException::missingRequestParameter('search'), thrown directly rather than
+        // via the factory so this row holds regardless of v6.8.0.0 state.
+        yield 'missing search parameter, flag-off form' => [RoutingException::missingRequestParameter('search')];
+
+        // AppScriptProductPriceCalculator decorates ProductPriceCalculator on the search chain, and
+        // ScriptExecutor rewraps any Throwable an app script raises into ScriptExecutionFailedException, so
+        // no enumeration of the chain's own exception classes can cover it.
+        yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
+            ScriptException::scriptExecutionFailed('product-pricing', 'product-pricing.twig', new \RuntimeException('app script failed')),
         ];
-        yield 'missing property triggers guard' => [
-            ContentElementBuilder::create('search')->build(),
-        ];
+    }
+
+    /**
+     * @param array<string, mixed> $properties
+     */
+    private function resolve(ProductSearchLoaderConfig $config, array $properties): LoaderInputs
+    {
+        return (new LoaderInputResolver())->resolve($this->loader->configSpecification(), $config, $properties);
+    }
+
+    private static function requirement(): DataRequirement
+    {
+        return new DataRequirement('search', 'product_search', new ProductSearchLoaderConfig());
     }
 }

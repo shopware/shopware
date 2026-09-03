@@ -14,15 +14,15 @@ use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -64,11 +64,6 @@ class ProductReviewDataLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
 
-        $config = new ProductReviewLoaderConfig();
-        $requirement = new DataRequirement('reviews', 'product_review', $config);
-        $element = ContentElementBuilder::create('product-reviews')
-            ->withProperty('productId', $productId)
-            ->build();
         $context = Generator::generateSalesChannelContext();
         $request = new Request();
 
@@ -84,7 +79,12 @@ class ProductReviewDataLoaderTest extends TestCase
             ->willReturn($response);
 
         $loader = new ProductReviewDataLoader($productReviewRoute);
-        $result = $loader->load($element, $requirement, $context, $request);
+        $result = $loader->load(
+            new LoaderInputs(['property' => $productId, 'associations' => []]),
+            self::requirement(),
+            $context,
+            $request,
+        );
 
         static::assertSame($reviewResult, $result->data);
         static::assertTrue($result->isCacheAware());
@@ -97,11 +97,6 @@ class ProductReviewDataLoaderTest extends TestCase
         $productId = Uuid::randomHex();
         $upperCaseId = strtoupper($productId);
 
-        $config = new ProductReviewLoaderConfig();
-        $requirement = new DataRequirement('reviews', 'product_review', $config);
-        $element = ContentElementBuilder::create('product-reviews')
-            ->withProperty('productId', $upperCaseId)
-            ->build();
         $context = Generator::generateSalesChannelContext();
 
         $reviewResult = static::createStub(EntitySearchResult::class);
@@ -117,22 +112,21 @@ class ProductReviewDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, new Request());
+        $this->loader->load(
+            new LoaderInputs(['property' => $upperCaseId, 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertSame($productId, $capturedProductId);
     }
 
-    #[TestDox('reads productId from custom property name when configured')]
+    #[TestDox('dereferences the element property the config names into the product ID')]
     public function testLoadUsesCustomPropertyNameFromConfig(): void
     {
-        $productId = Uuid::randomHex();
-
-        $config = new ProductReviewLoaderConfig(property: 'reviewProductId');
-        $requirement = new DataRequirement('reviews', 'product_review', $config);
-        $element = ContentElementBuilder::create('product-reviews')
-            ->withProperty('reviewProductId', $productId)
-            ->build();
         $context = Generator::generateSalesChannelContext();
+        $productId = Uuid::randomHex();
 
         $capturedProductId = null;
         $reviewResult = static::createStub(EntitySearchResult::class);
@@ -147,21 +141,46 @@ class ProductReviewDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, new Request());
+        $inputs = $this->resolve(
+            new ProductReviewLoaderConfig(property: 'reviewProductId'),
+            ['reviewProductId' => $productId],
+        );
+
+        $this->loader->load($inputs, self::requirement(), $context, new Request());
 
         static::assertSame($productId, $capturedProductId);
     }
 
-    #[TestDox('adds config associations to criteria when loading reviews')]
+    #[TestDox('resolves an unset property to the declared productId default')]
+    public function testUnsetPropertyResolvesToDeclaredProductIdDefault(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $productId = Uuid::randomHex();
+
+        $reviewResult = static::createStub(EntitySearchResult::class);
+        $response = static::createStub(ProductReviewRouteResponse::class);
+        $response->method('getResult')->willReturn($reviewResult);
+
+        $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+        $productReviewRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with($productId, static::isInstanceOf(Request::class), $context, static::isInstanceOf(Criteria::class))
+            ->willReturn($response);
+
+        $loader = new ProductReviewDataLoader($productReviewRoute);
+        $inputs = $this->resolve(new ProductReviewLoaderConfig(), ['productId' => $productId]);
+
+        $result = $loader->load($inputs, self::requirement(), $context, new Request());
+
+        static::assertSame($reviewResult, $result->data);
+    }
+
+    #[TestDox('adds every configured association to the criteria')]
     public function testLoadAddsConfigAssociationsToCriteria(): void
     {
         $productId = Uuid::randomHex();
 
-        $config = new ProductReviewLoaderConfig(associations: ['customer', 'product']);
-        $requirement = new DataRequirement('reviews', 'product_review', $config);
-        $element = ContentElementBuilder::create('product-reviews')
-            ->withProperty('productId', $productId)
-            ->build();
         $context = Generator::generateSalesChannelContext();
 
         /** @var Criteria|null $capturedCriteria */
@@ -178,25 +197,22 @@ class ProductReviewDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, new Request());
+        $this->loader->load(
+            new LoaderInputs(['property' => $productId, 'associations' => ['customer', 'product']]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertArrayHasKey('customer', $capturedCriteria->getAssociations());
-        static::assertArrayHasKey('product', $capturedCriteria->getAssociations());
+        static::assertSame(['customer', 'product'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('merges element associations property into criteria when it is an array of strings')]
+    #[TestDox('appends the associations element property after the configured associations by default')]
     public function testLoadMergesElementAssociationsIntoCriteria(): void
     {
-        $productId = Uuid::randomHex();
-
-        $config = new ProductReviewLoaderConfig(associations: ['customer']);
-        $requirement = new DataRequirement('reviews', 'product_review', $config);
-        $element = ContentElementBuilder::create('product-reviews')
-            ->withProperty('productId', $productId)
-            ->withProperty('associations', ['product', 'media'])
-            ->build();
         $context = Generator::generateSalesChannelContext();
+        $productId = Uuid::randomHex();
 
         /** @var Criteria|null $capturedCriteria */
         $capturedCriteria = null;
@@ -212,38 +228,20 @@ class ProductReviewDataLoaderTest extends TestCase
                 return $response;
             });
 
-        $this->loader->load($element, $requirement, $context, new Request());
+        $inputs = $this->resolve(
+            new ProductReviewLoaderConfig(associations: ['customer']),
+            ['productId' => $productId, 'associations' => ['product', 'salesChannel']],
+        );
+
+        $this->loader->load($inputs, self::requirement(), $context, new Request());
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertArrayHasKey('customer', $capturedCriteria->getAssociations());
-        static::assertArrayHasKey('product', $capturedCriteria->getAssociations());
-        static::assertArrayHasKey('media', $capturedCriteria->getAssociations());
+        static::assertSame(['customer', 'product', 'salesChannel'], array_keys($capturedCriteria->getAssociations()));
     }
 
-    #[TestDox('returns notFound result when config is not a ProductReviewLoaderConfig instance')]
-    public function testLoadReturnsNotFoundWhenConfigIsWrongType(): void
+    #[TestDox('returns notFound result when the product ID input is unresolved')]
+    public function testLoadReturnsNotFoundWhenProductIdInputIsUnresolved(): void
     {
-        $wrongConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $requirement = new DataRequirement('reviews', 'product_review', $wrongConfig);
-        $element = ContentElementBuilder::create('product-reviews')->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
-        $productReviewRoute->expects($this->never())->method('load');
-
-        $loader = new ProductReviewDataLoader($productReviewRoute);
-        $result = $loader->load($element, $requirement, $context, new Request());
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[DataProvider('guardsInvalidProductIdProvider')]
-    #[TestDox('returns notFound result when productId is invalid: $_dataName')]
-    public function testLoadReturnsNotFoundWhenProductIdPropertyIsInvalid(ContentElement $element): void
-    {
-        $config = new ProductReviewLoaderConfig();
         $context = Generator::generateSalesChannelContext();
 
         $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
@@ -251,10 +249,10 @@ class ProductReviewDataLoaderTest extends TestCase
 
         $loader = new ProductReviewDataLoader($productReviewRoute);
         $result = $loader->load(
-            $element,
-            new DataRequirement('reviews', 'product_review', $config),
+            new LoaderInputs(['property' => null, 'associations' => []]),
+            self::requirement(),
             $context,
-            new Request()
+            new Request(),
         );
 
         static::assertNull($result->data);
@@ -262,62 +260,116 @@ class ProductReviewDataLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
+    #[TestDox('returns notFound result when the resolved property is not a valid uuid')]
+    public function testLoadReturnsNotFoundWhenPropertyIsNotValidUuid(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+        $productReviewRoute->expects($this->never())->method('load');
+
+        $loader = new ProductReviewDataLoader($productReviewRoute);
+        $result = $loader->load(
+            new LoaderInputs(['property' => '{{productId}}', 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the review route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenReviewRouteThrows(\Throwable $exception): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $productReviewRoute = $this->createMock(AbstractProductReviewRoute::class);
+        $productReviewRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($exception);
+
+        $loader = new ProductReviewDataLoader($productReviewRoute);
+        $result = $loader->load(
+            new LoaderInputs(['property' => Uuid::randomHex(), 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('lets a TypeError from the review route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #1 ($productId) must be of type string, null given');
+
+        $productReviewRoute = static::createStub(AbstractProductReviewRoute::class);
+        $productReviewRoute
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $loader = new ProductReviewDataLoader($productReviewRoute);
+
+        try {
+            $loader->load(
+                new LoaderInputs(['property' => Uuid::randomHex(), 'associations' => []]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
     /**
-     * @return iterable<string, array{ContentElement}>
+     * Sample domain exceptions off the review chain, not one row per catch arm: the loader catches the single
+     * covering ancestor `ShopwareHttpException`, so no row maps to a clause of its own.
+     *
+     * @return iterable<string, array{\Throwable}>
      */
-    public static function guardsInvalidProductIdProvider(): iterable
+    public static function sampleDomainExceptionProvider(): iterable
     {
-        yield 'non-string value triggers guard' => [
-            ContentElementBuilder::create('product-reviews')->withProperty('productId', 42)->build(),
+        // ProductReviewRoute throws this when the sales channel has reviews switched off. ProductException
+        // extends HttpException, which extends ShopwareHttpException.
+        yield 'reviews switched off for the sales channel' => [
+            new ProductException(403, 'PRODUCT__REVIEW_NOT_ACTIVE', 'Reviews not activated'),
         ];
-        yield 'missing property triggers guard' => [
-            ContentElementBuilder::create('product-reviews')->build(),
+
+        // The deprecated legacy class the loader used to name in its catch clause. It extends
+        // ShopwareHttpException directly rather than through ProductException, so a clause narrowed to one
+        // branch of that line would let it escape.
+        yield 'the deprecated legacy ReviewNotActiveExeption' => [new ReviewNotActiveExeption()];
+
+        // Not a reachability claim: this row pins the clause to the ancestor rather than to the chain's own
+        // classes, using a class the review chain does not produce.
+        yield 'a class outside the chain that extends ShopwareHttpException directly' => [
+            new DecorationPatternException(AbstractProductReviewRoute::class),
         ];
     }
 
-    #[TestDox('returns notFound result when review route throws ProductException for review not active')]
-    public function testLoadReturnsNotFoundWhenProductExceptionReviewNotActiveIsThrown(): void
+    /**
+     * @param array<string, mixed> $properties
+     */
+    private function resolve(ProductReviewLoaderConfig $config, array $properties): LoaderInputs
     {
-        $productId = Uuid::randomHex();
-
-        $config = new ProductReviewLoaderConfig();
-        $requirement = new DataRequirement('reviews', 'product_review', $config);
-        $element = ContentElementBuilder::create('product-reviews')
-            ->withProperty('productId', $productId)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $this->productReviewRoute
-            ->method('load')
-            ->willThrowException(new ProductException(403, 'PRODUCT__REVIEW_NOT_ACTIVE', 'Reviews not activated'));
-
-        $result = $this->loader->load($element, $requirement, $context, new Request());
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        return (new LoaderInputResolver())->resolve($this->loader->configSpecification(), $config, $properties);
     }
 
-    #[TestDox('returns notFound result when review route throws legacy ReviewNotActiveExeption')]
-    public function testLoadReturnsNotFoundWhenLegacyReviewNotActiveExeptionIsThrown(): void
+    private static function requirement(): DataRequirement
     {
-        $productId = Uuid::randomHex();
-
-        $config = new ProductReviewLoaderConfig();
-        $requirement = new DataRequirement('reviews', 'product_review', $config);
-        $element = ContentElementBuilder::create('product-reviews')
-            ->withProperty('productId', $productId)
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $this->productReviewRoute
-            ->method('load')
-            ->willThrowException(new ReviewNotActiveExeption());
-
-        $result = $this->loader->load($element, $requirement, $context, new Request());
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
+        return new DataRequirement('reviews', 'product_review', new ProductReviewLoaderConfig());
     }
 }

@@ -1,8 +1,10 @@
 import createWizardComponent from './index';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-create-wizard', () => {
-    const methods = (createWizardComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
-    const computed = (createWizardComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
+    const methods = (createWizardComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
+        .methods;
+    const computed = (createWizardComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> })
+        .computed;
 
     it('is completable only with trimmed name and selected type', () => {
         const vm = {

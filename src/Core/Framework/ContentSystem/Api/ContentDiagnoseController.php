@@ -19,6 +19,8 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 /**
  * No SalesChannelContext is built; diagnosis needs only the admin Context, passed straight through.
  *
+ * @internal
+ *
  * @final
  */
 #[Package('framework')]
@@ -30,8 +32,8 @@ class ContentDiagnoseController
      */
     public function __construct(
         private readonly DraftLayoutDecoder $decoder,
-        private readonly LayoutDiagnostics $diagnostics,
         private readonly RootSourceRegistry $rootSourceRegistry,
+        private readonly LayoutDiagnostics $diagnostics,
     ) {
     }
 
@@ -44,6 +46,7 @@ class ContentDiagnoseController
         [$tree, $decodeViolations] = $this->decoder->decodeLintable($payload->layout);
 
         $rootContext = $this->rootSourceRegistry->resolveGated($payload->rootSource, $context);
+
         $analysis = $this->diagnostics->analyze($tree, $rootContext);
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);

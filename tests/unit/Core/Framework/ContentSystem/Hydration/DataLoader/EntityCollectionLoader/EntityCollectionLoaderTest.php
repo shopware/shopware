@@ -16,9 +16,12 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -26,10 +29,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
@@ -50,6 +54,21 @@ class EntityCollectionLoaderTest extends TestCase
     {
         parent::setUp();
         $this->ids = new IdsCollection();
+    }
+
+    #[TestDox('resolves the sales-channel collection class for a config naming an entity with a variant')]
+    public function testResolveProducedTypeReturnsSalesChannelCollection(): void
+    {
+        $loader = new EntityCollectionLoader(
+            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
+            $this->createDefinitionRegistry(new ProductDefinition()),
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        static::assertSame(
+            SalesChannelProductCollection::class,
+            $loader->resolveProducedType(new EntityLoaderConfig('product', 'productIds', [])),
+        );
     }
 
     #[TestDox('declares the sales-channel collection class and entity generic for an entity with a sales-channel definition')]
@@ -83,6 +102,110 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertCount(1, $capabilities);
         static::assertSame(MediaCollection::class, $capabilities[0]->producedType);
         static::assertSame([MediaEntity::class], $capabilities[0]->genericParameters);
+    }
+
+    #[TestDox('returns cached collection with resolved tags for all loaded entities')]
+    public function testLoadReturnsCachedCollectionWithResolvedTagsForAllEntities(): void
+    {
+        $id1 = $this->ids->get('product-one');
+        $id2 = $this->ids->get('product-two');
+
+        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
+        $cacheTagResolver->method('resolve')
+            ->willReturnCallback(static fn (EntityDefinition $def, string $id) => 'tag-' . $id);
+
+        $loader = $this->createLoaderWithSalesChannelRepo(
+            'product',
+            new EntityCollection([$this->createEntityWithId($id1), $this->createEntityWithId($id2)]),
+            $cacheTagResolver,
+        );
+
+        $result = $loader->load(
+            self::inputs('product', [$id1, $id2]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertTrue($result->isCacheAware());
+        static::assertInstanceOf(EntityCollection::class, $result->data);
+        static::assertContains('tag-' . $id1, $result->getCacheTags());
+        static::assertContains('tag-' . $id2, $result->getCacheTags());
+        static::assertCount(2, $result->getCacheTags());
+    }
+
+    #[TestDox('lowercases entity IDs before loading')]
+    public function testLoadLowercasesEntityIds(): void
+    {
+        $productId = $this->ids->get('product');
+        $upperCaseId = strtoupper($productId);
+
+        /** @var Criteria|null $capturedCriteria */
+        $capturedCriteria = null;
+
+        $loader = $this->createLoaderWithCallableRepo('product', static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
+            $capturedCriteria = $criteria;
+
+            return new EntityCollection();
+        });
+
+        $loader->load(
+            self::inputs('product', [$upperCaseId]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertSame([$productId], $capturedCriteria->getIds());
+    }
+
+    #[TestDox('adds associations from config to criteria when loading entities')]
+    public function testLoadAddsAssociationsToCriteria(): void
+    {
+        $productId = $this->ids->get('product');
+
+        /** @var Criteria|null $capturedCriteria */
+        $capturedCriteria = null;
+
+        $loader = $this->createLoaderWithCallableRepo('product', static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
+            $capturedCriteria = $criteria;
+
+            return new EntityCollection();
+        });
+
+        $loader->load(
+            self::inputs('product', [$productId], ['manufacturer', 'cover']),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertArrayHasKey('manufacturer', $capturedCriteria->getAssociations());
+        static::assertArrayHasKey('cover', $capturedCriteria->getAssociations());
+        static::assertCount(2, $capturedCriteria->getAssociations());
+    }
+
+    #[TestDox('declares exactly the required config keys the serializer needs to decode a config (drift guard)')]
+    public function testConfigSpecificationRequiredKeysMatchSerializerRequiredKeys(): void
+    {
+        $requiredKeys = $this->createMinimalLoader()->configSpecification()->requiredKeys();
+        sort($requiredKeys);
+
+        // The assertSame runs last so a dropped required key fails at decode() instead of being pre-empted by it.
+        // EntityCollectionLoaderConfigSerializerTest pins necessity (decode rejects either key's absence).
+        $input = [];
+        foreach ($requiredKeys as $key) {
+            $input[$key] = $key . '-value';
+        }
+
+        $config = (new EntityCollectionLoaderConfigSerializer(new EntityLoaderConfigSerializer()))->decode($input);
+
+        static::assertInstanceOf(EntityLoaderConfig::class, $config);
+        static::assertSame('entity-value', $config->entity);
+        static::assertSame('property-value', $config->property);
+        static::assertSame(['entity', 'property'], $requiredKeys);
     }
 
     #[TestDox('skips bare EntityCollection definitions but keeps enumerating the rest')]
@@ -125,8 +248,8 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame(MediaCollection::class, $capabilities[0]->producedType);
     }
 
-    #[TestDox('resolves the sales-channel collection class for a config naming an entity with a variant')]
-    public function testResolveProducedTypeReturnsSalesChannelCollection(): void
+    #[TestDox('returns the declared sales-channel collection class when no IDs are provided')]
+    public function testEmptyCollectionPathReturnsDeclaredProducedType(): void
     {
         $loader = new EntityCollectionLoader(
             $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
@@ -134,10 +257,104 @@ class EntityCollectionLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        static::assertSame(
-            SalesChannelProductCollection::class,
-            $loader->resolveProducedType(new EntityLoaderConfig('product', 'productIds', [])),
+        $result = $loader->load(
+            self::inputs('product', null),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
         );
+
+        static::assertInstanceOf(SalesChannelProductCollection::class, $result->data);
+        static::assertSame($loader->producibleTypes()[0]->producedType, $result->data::class);
+    }
+
+    /**
+     * @param list<string>|null $entityIds
+     */
+    #[DataProvider('emptyCollectionProvider')]
+    #[TestDox('returns a cached empty collection when $_dataName')]
+    public function testLoadReturnsCachedEmptyCollection(?array $entityIds): void
+    {
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('product');
+        $definition->method('getCollectionClass')->willReturn(EntityCollection::class);
+
+        $loader = $this->createLoaderWithDefinition($definition);
+
+        $result = $loader->load(
+            self::inputs('product', $entityIds),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertInstanceOf(EntityCollection::class, $result->data);
+        static::assertCount(0, $result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('returns uncacheable result when cache tag resolver returns null for an entity')]
+    public function testLoadReturnsUncacheableWhenCacheTagResolverReturnsNull(): void
+    {
+        $productId = $this->ids->get('uncacheable-product');
+
+        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
+        $cacheTagResolver->method('resolve')->willReturn(null);
+
+        $loader = $this->createLoaderWithSalesChannelRepo(
+            'product',
+            new EntityCollection([$this->createEntityWithId($productId)]),
+            $cacheTagResolver,
+        );
+
+        $result = $loader->load(
+            self::inputs('product', [$productId]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertFalse($result->isCacheAware());
+        static::assertInstanceOf(EntityCollection::class, $result->data);
+    }
+
+    #[TestDox('falls back to plain repository when sales channel repository is not found')]
+    public function testLoadFallsBackToPlainRepositoryWhenSalesChannelRepoNotFound(): void
+    {
+        $categoryId = $this->ids->get('category');
+        $entity = $this->createEntityWithId($categoryId);
+        $collection = new EntityCollection([$entity]);
+
+        $plainRepo = new StaticEntityRepository([$collection]);
+
+        $container = new Container();
+        $container->set('category.repository', $plainRepo);
+
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('category');
+
+        $defRegistry = new DefinitionInstanceRegistry($container, [], []);
+        $defRegistry->register($definition);
+
+        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
+        $cacheTagResolver->method('resolve')->willReturn('category-route-' . $categoryId);
+
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->method('getSalesChannelRepository')
+            ->willThrowException(new SalesChannelRepositoryNotFoundException('category'));
+
+        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
+        $result = $loader->load(
+            self::inputs('category', [$categoryId]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertTrue($result->isCacheAware());
+        static::assertSame(['category-route-' . $categoryId], $result->getCacheTags());
+        static::assertInstanceOf(EntityCollection::class, $result->data);
     }
 
     #[TestDox('throws when resolving a config that names an unknown entity')]
@@ -164,223 +381,6 @@ class EntityCollectionLoaderTest extends TestCase
         $this->createMinimalLoader()->resolveProducedType(new StubLoaderConfig());
     }
 
-    #[TestDox('returns the declared sales-channel collection class when no IDs are provided')]
-    public function testEmptyCollectionPathReturnsDeclaredProducedType(): void
-    {
-        $loader = new EntityCollectionLoader(
-            $this->createSalesChannelDefinitionRegistry(new SalesChannelProductDefinition()),
-            $this->createDefinitionRegistry(new ProductDefinition()),
-            static::createStub(EntityCacheTagResolver::class),
-        );
-
-        $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertInstanceOf(SalesChannelProductCollection::class, $result->data);
-        static::assertSame($loader->producibleTypes()[0]->producedType, $result->data::class);
-    }
-
-    #[TestDox('returns cached collection with resolved tags for all loaded entities')]
-    public function testLoadReturnsCachedCollectionWithResolvedTagsForAllEntities(): void
-    {
-        $id1 = 'product-one';
-        $id2 = 'product-two';
-
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')
-            ->willReturnCallback(static fn (EntityDefinition $def, string $id) => 'tag-' . $id);
-
-        $loader = $this->createLoaderWithSalesChannelRepo(
-            'product',
-            new EntityCollection([$this->createEntityWithId($id1), $this->createEntityWithId($id2)]),
-            $cacheTagResolver,
-        );
-
-        $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$id1, $id2])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertTrue($result->isCacheAware());
-        static::assertInstanceOf(EntityCollection::class, $result->data);
-        static::assertContains('tag-' . $id1, $result->getCacheTags());
-        static::assertContains('tag-' . $id2, $result->getCacheTags());
-        static::assertCount(2, $result->getCacheTags());
-    }
-
-    #[TestDox('falls back to plain repository when sales channel repository is not found')]
-    public function testLoadFallsBackToPlainRepositoryWhenSalesChannelRepoNotFound(): void
-    {
-        $categoryId = 'category-id';
-        $entity = $this->createEntityWithId($categoryId);
-        $collection = new EntityCollection([$entity]);
-
-        $plainRepo = new StaticEntityRepository([$collection]);
-
-        $definition = static::createStub(EntityDefinition::class);
-        $definition->method('getEntityName')->willReturn('category');
-
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn('category-route-' . $categoryId);
-
-        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $scDefRegistry->method('getSalesChannelRepository')
-            ->willThrowException(new SalesChannelRepositoryNotFoundException('category'));
-
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('has')->willReturn(true);
-        $defRegistry->method('getRepository')->willReturn($plainRepo);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
-
-        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
-        $result = $loader->load(
-            ContentElementBuilder::create('category-grid')->withProperty('categoryIds', [$categoryId])->build(),
-            new DataRequirement('categories', 'entity_collection', new EntityLoaderConfig('category', 'categoryIds', [])),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertTrue($result->isCacheAware());
-        static::assertSame(['category-route-' . $categoryId], $result->getCacheTags());
-        static::assertInstanceOf(EntityCollection::class, $result->data);
-    }
-
-    #[TestDox('lowercases entity IDs before loading')]
-    public function testLoadLowercasesEntityIds(): void
-    {
-        $productId = $this->ids->get('product');
-        $upperCaseId = strtoupper($productId);
-
-        /** @var Criteria|null $capturedCriteria */
-        $capturedCriteria = null;
-
-        $loader = $this->createLoaderWithCallableRepo('product', static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
-            $capturedCriteria = $criteria;
-
-            return new EntityCollection();
-        });
-
-        $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$upperCaseId])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertSame([$productId], $capturedCriteria->getIds());
-    }
-
-    #[TestDox('adds associations from config to criteria when loading entities')]
-    public function testLoadAddsAssociationsToCriteria(): void
-    {
-        $productId = $this->ids->get('product');
-
-        /** @var Criteria|null $capturedCriteria */
-        $capturedCriteria = null;
-
-        $loader = $this->createLoaderWithCallableRepo('product', static function (Criteria $criteria) use (&$capturedCriteria): EntityCollection {
-            $capturedCriteria = $criteria;
-
-            return new EntityCollection();
-        });
-
-        $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', ['manufacturer', 'cover'])),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertArrayHasKey('manufacturer', $capturedCriteria->getAssociations());
-        static::assertArrayHasKey('cover', $capturedCriteria->getAssociations());
-        static::assertCount(2, $capturedCriteria->getAssociations());
-    }
-
-    #[TestDox('returns cached empty collection when property is null on element')]
-    public function testLoadReturnsCachedEmptyWhenPropertyIsNull(): void
-    {
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        // element has no 'productIds' property → getProperty returns null
-        $element = ContentElementBuilder::create('product-grid')->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $loader = $this->createLoaderWithDefinition('product', EntityCollection::class);
-        $result = $loader->load($element, $requirement, $context, new Request());
-
-        static::assertInstanceOf(EntityCollection::class, $result->data);
-        static::assertCount(0, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('returns cached empty collection when entity IDs contain no valid strings')]
-    public function testLoadReturnsCachedEmptyWhenEntityIdsContainNoStrings(): void
-    {
-        $config = new EntityLoaderConfig('product', 'productIds', []);
-        $requirement = new DataRequirement('products', 'entity_collection', $config);
-        // non-string values get filtered out
-        $element = ContentElementBuilder::create('product-grid')
-            ->withProperty('productIds', [123, null, true])
-            ->build();
-        $context = Generator::generateSalesChannelContext();
-
-        $loader = $this->createLoaderWithDefinition('product', EntityCollection::class);
-        $result = $loader->load($element, $requirement, $context, new Request());
-
-        static::assertInstanceOf(EntityCollection::class, $result->data);
-        static::assertCount(0, $result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
-    #[TestDox('returns uncacheable result when cache tag resolver returns null for an entity')]
-    public function testLoadReturnsUncacheableWhenCacheTagResolverReturnsNull(): void
-    {
-        $productId = 'uncacheable-product';
-
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn(null);
-
-        $loader = $this->createLoaderWithSalesChannelRepo(
-            'product',
-            new EntityCollection([$this->createEntityWithId($productId)]),
-            $cacheTagResolver,
-        );
-
-        $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertFalse($result->isCacheAware());
-        static::assertInstanceOf(EntityCollection::class, $result->data);
-    }
-
-    #[DataProvider('returnsNullDataProvider')]
-    #[TestDox('returns null data when $_dataName')]
-    public function testLoadReturnsNullData(DataRequirement $requirement, ContentElement $element): void
-    {
-        $loader = $this->createMinimalLoader();
-        $context = Generator::generateSalesChannelContext();
-
-        $result = $loader->load($element, $requirement, $context, new Request());
-
-        static::assertNull($result->data);
-        static::assertTrue($result->isCacheAware());
-        static::assertSame([], $result->getCacheTags());
-    }
-
     #[TestDox('returns notFound instead of throwing when the configured entity is not registered')]
     public function testLoadReturnsNotFoundForUnregisteredEntity(): void
     {
@@ -392,9 +392,10 @@ class EntityCollectionLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
+        // A valid uuid, so the entity-registration short-circuit is the only thing this can be proving.
         $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('ghostIds', ['id-1'])->build(),
-            new DataRequirement('ghosts', 'entity_collection', new EntityLoaderConfig('ghost', 'ghostIds', [])),
+            self::inputs('ghost', [$this->ids->get('ghost')]),
+            self::requirement(),
             Generator::generateSalesChannelContext(),
             new Request(),
         );
@@ -404,37 +405,263 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    /**
-     * @return iterable<string, array{DataRequirement, ContentElement}>
-     */
-    public static function returnsNullDataProvider(): iterable
+    #[TestDox('degrades the whole element to notFound without reaching a repository when one ID in the list is not a valid uuid')]
+    public function testLoadReturnsNotFoundWhenOneEntityIdIsNotValidUuid(): void
     {
-        yield 'config is not an EntityLoaderConfig' => [
-            new DataRequirement('products', 'entity_collection', new StubLoaderConfig()),
-            ContentElementBuilder::create('product-grid')->build(),
+        $scDefRegistry = $this->createMock(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->expects($this->never())->method('getSalesChannelRepository');
+
+        $defRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
+        $defRegistry->expects($this->never())->method('getRepository');
+
+        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, static::createStub(EntityCacheTagResolver::class));
+
+        // Two of the three entries are ids the DAL would accept. Filtering the bad one out and loading the
+        // remainder would reach a repository, so the never() expectations are what pin whole-element
+        // degradation rather than a shortened collection.
+        $result = $loader->load(
+            self::inputs('product', [$this->ids->get('product-one'), '{{productId}}', $this->ids->get('product-two')]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('degrades to notFound when the post-load definition lookup throws')]
+    public function testLoadReturnsNotFoundWhenDefinitionLookupThrows(): void
+    {
+        $productId = $this->ids->get('product');
+        $scRepo = new StaticSalesChannelRepository([
+            new EntityCollection([$this->createEntityWithId($productId)]),
+        ]);
+
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
+
+        // has() is an isset on the registry's entity-name map, so it stays true while the mapped definition
+        // service is absent from the container, which is the state getByEntityName() reports by throwing.
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
+        $defRegistry->method('getByEntityName')
+            ->willThrowException(DataAbstractionLayerException::definitionNotFound('product'));
+
+        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, static::createStub(EntityCacheTagResolver::class));
+
+        $result = $loader->load(
+            self::inputs('product', [$productId]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('degrades the empty-list path to notFound when the sales-channel definition lookup throws')]
+    public function testEmptyCollectionPathDegradesWhenSalesChannelDefinitionLookupThrows(): void
+    {
+        // resolveDefinition() prefers the sales-channel registry when its has() answers true, and that
+        // getByEntityName() throws when the mapped definition service is absent from the container.
+        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $scDefRegistry->method('has')->willReturn(true);
+        $scDefRegistry->method('getByEntityName')
+            ->willThrowException(DataAbstractionLayerException::definitionNotFound('product'));
+
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
+
+        $loader = new EntityCollectionLoader($scDefRegistry, $defRegistry, static::createStub(EntityCacheTagResolver::class));
+
+        $result = $loader->load(
+            self::inputs('product', null),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('degrades the empty-list path to notFound when the base definition lookup rethrows an unknown entity')]
+    public function testEmptyCollectionPathDegradesWhenBaseDefinitionLookupRethrows(): void
+    {
+        // The base-registry miss inside resolveDefinition() is rethrown as
+        // ContentSystemException::unknownLoaderEntity(), which extends HttpException and therefore
+        // ShopwareHttpException. has() answering true is what carries execution past the registration
+        // short-circuit and into the empty-list path.
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
+        $defRegistry->method('getByEntityName')
+            ->willThrowException(DataAbstractionLayerException::definitionNotFound('product'));
+
+        $loader = new EntityCollectionLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            $defRegistry,
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        $result = $loader->load(
+            self::inputs('product', []),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the repository throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenRepositoryThrows(\Throwable $exception): void
+    {
+        $loader = $this->createLoaderWithCallableRepo('product', static function () use ($exception): never {
+            throw $exception;
+        });
+
+        $result = $loader->load(
+            self::inputs('product', [$this->ids->get('product')]),
+            self::requirement(),
+            Generator::generateSalesChannelContext(),
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('lets a TypeError from the repository propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $typeError = new \TypeError('Argument #1 ($criteria) must be of type Criteria, null given');
+
+        $loader = $this->createLoaderWithCallableRepo('product', static function () use ($typeError): never {
+            throw $typeError;
+        });
+
+        try {
+            $loader->load(
+                self::inputs('product', [$this->ids->get('product')]),
+                self::requirement(),
+                Generator::generateSalesChannelContext(),
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
+    #[TestDox('lets a TypeError from the empty-path definition lookup propagate instead of degrading')]
+    public function testEmptyCollectionPathLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        // Enters through the empty path (no entity ids), not the non-empty repository path the sibling
+        // propagation test above uses: emptyCollectionResult() has its own catch (ShopwareHttpException) site,
+        // separate from the one around loadEntities(), and only this path proves that catch also lets a
+        // non-ShopwareHttpException through instead of degrading.
+        $typeError = new \TypeError('Argument #1 ($entityName) must be of type string, null given');
+
+        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $defRegistry->method('has')->willReturn(true);
+        $defRegistry->method('getByEntityName')->willThrowException($typeError);
+
+        $loader = new EntityCollectionLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            $defRegistry,
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        try {
+            $loader->load(
+                self::inputs('product', null),
+                self::requirement(),
+                Generator::generateSalesChannelContext(),
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
+    /**
+     * Sample domain exceptions, not one row per catch arm: the loader catches the single covering ancestor
+     * `ShopwareHttpException`, so no row maps to a clause of its own. This loader searches an arbitrary
+     * registered entity, so the reachable set cannot be enumerated from the loader at all.
+     *
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function sampleDomainExceptionProvider(): iterable
+    {
+        // EntityDefinitionQueryHelper::addIdCondition() converts every criteria id with Uuid::fromHexToBytes().
+        // The guard above keeps a malformed id away from it; this row states that a repository reaching it
+        // anyway still degrades. InvalidUuidException extends ShopwareHttpException directly.
+        yield 'an id the DAL rejects when building the criteria condition' => [
+            UuidException::invalidUuid('not-a-uuid'),
         ];
 
-        yield 'property value is not an array' => [
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', 'not-an-array')->build(),
+        // DataAbstractionLayerException extends HttpException, which extends ShopwareHttpException.
+        yield 'a DAL failure reached through HttpException' => [
+            DataAbstractionLayerException::invalidCriteriaIds(['bad-id'], 'reason'),
+        ];
+
+        // Not a reachability claim: this row pins the clause to the ancestor rather than to any one branch of
+        // the inheritance line.
+        yield 'a class outside the chain that extends ShopwareHttpException directly' => [
+            new DecorationPatternException(EntityCollectionLoader::class),
         ];
     }
 
     /**
-     * @param class-string<EntityCollection<Entity>> $collectionClass
+     * @return iterable<string, array{list<string>|null}>
      */
-    private function createLoaderWithDefinition(string $entityName, string $collectionClass): EntityCollectionLoader
+    public static function emptyCollectionProvider(): iterable
     {
-        $definition = static::createStub(EntityDefinition::class);
-        $definition->method('getCollectionClass')->willReturn($collectionClass);
+        yield 'the property input is unresolved' => [null];
+        yield 'the property input resolves to an empty list' => [[]];
+    }
 
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('has')->willReturn(true);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
+    /**
+     * @param list<string>|null $entityIds
+     * @param list<string> $associations
+     */
+    private static function inputs(string $entityName, ?array $entityIds, array $associations = []): LoaderInputs
+    {
+        return new LoaderInputs([
+            'entity' => $entityName,
+            'property' => $entityIds,
+            'associations' => $associations,
+        ]);
+    }
 
+    private static function requirement(): DataRequirement
+    {
+        return new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', []));
+    }
+
+    /**
+     * The registry genuinely depends on $definition's own getEntityName(): has()/getByEntityName() only
+     * resolve the entity name it was registered under, so a mis-read entity name fails has() -> notFound
+     * rather than being masked by an unconditional stub.
+     */
+    private function createLoaderWithDefinition(EntityDefinition $definition): EntityCollectionLoader
+    {
         return new EntityCollectionLoader(
             static::createStub(SalesChannelDefinitionInstanceRegistry::class),
-            $defRegistry,
+            $this->createDefinitionRegistry($definition),
             static::createStub(EntityCacheTagResolver::class),
         );
     }
@@ -455,11 +682,7 @@ class EntityCollectionLoaderTest extends TestCase
         $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('has')->willReturn(true);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
-
-        return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
+        return new EntityCollectionLoader($scDefRegistry, $this->createDefinitionRegistry($definition), $cacheTagResolver);
     }
 
     private function createLoaderWithCallableRepo(string $entityName, callable $callback): EntityCollectionLoader
@@ -475,21 +698,16 @@ class EntityCollectionLoaderTest extends TestCase
         $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
         $scDefRegistry->method('getSalesChannelRepository')->willReturn($scRepo);
 
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('has')->willReturn(true);
-        $defRegistry->method('getByEntityName')->willReturn($definition);
-
-        return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
+        return new EntityCollectionLoader($scDefRegistry, $this->createDefinitionRegistry($definition), $cacheTagResolver);
     }
 
     private function createMinimalLoader(): EntityCollectionLoader
     {
-        $scDefRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
-        $defRegistry = static::createStub(DefinitionInstanceRegistry::class);
-        $defRegistry->method('has')->willReturn(true);
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-
-        return new EntityCollectionLoader($scDefRegistry, $defRegistry, $cacheTagResolver);
+        return new EntityCollectionLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(EntityCacheTagResolver::class),
+        );
     }
 
     private function createDefinitionRegistry(EntityDefinition ...$definitions): DefinitionInstanceRegistry

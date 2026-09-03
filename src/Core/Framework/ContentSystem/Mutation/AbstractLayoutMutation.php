@@ -5,14 +5,21 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * The mutation-side helpers that {@see StoredTree} does not carry: the report stash, the typed view over
+ * {@see StoredTree::locate()}, and the element-level primitives the ops share. The tree algebra itself —
+ * find, remove, insert, replace — lives on {@see StoredTree} and is called there directly.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -24,7 +31,7 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     protected array $affected = [];
 
     /**
-     * @var list<ContentElement>
+     * @var list<StoredElement>
      */
     protected array $orphaned = [];
 
@@ -34,11 +41,9 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     protected array $droppedWiring = [];
 
     /**
-     * @var array<string, mixed>
+     * @var array<string, StoredValue>
      */
     protected array $droppedProperties = [];
-
-    private ?PrimitiveDefaultProvider $primitiveDefaultProvider = null;
 
     public function affected(): array
     {
@@ -61,172 +66,77 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     }
 
     /**
-     * @param list<ContentElement> $tree
+     * The typed view of {@see StoredTree::locate()}: the same coordinates, as objects the ops can destructure
+     * by name. The array the tree returns stays the single source; this adds no rule of its own.
      */
-    protected function findNode(array $tree, string $id): ?ContentElement
+    protected function locate(StoredTree $tree, string $id): ?ElementLocation
     {
-        foreach ($tree as $node) {
-            if ($node->getId() === $id) {
-                return $node;
-            }
+        $located = $tree->locate($id);
 
-            $found = $this->findNode($this->childList($node), $id);
-
-            if ($found !== null) {
-                return $found;
-            }
+        if ($located === null) {
+            return null;
         }
 
-        return null;
+        $parentId = $located['parentId'];
+        $slot = $located['slot'];
+
+        // The tree reports both coordinates or neither: a root carries no parent and no slot.
+        if ($parentId === null || $slot === null) {
+            return new ElementLocation($located['element'], $located['index']);
+        }
+
+        return new ElementLocation($located['element'], $located['index'], new ParentSlot($parentId, $slot));
     }
 
     /**
-     * @param list<ContentElement> $tree
-     */
-    protected function locate(array $tree, string $id): ?ElementLocation
-    {
-        foreach (array_values($tree) as $index => $node) {
-            if ($node->getId() === $id) {
-                return new ElementLocation($node, $index);
-            }
-        }
-
-        foreach ($tree as $node) {
-            $nested = $this->locateInParent($node, $id);
-
-            if ($nested !== null) {
-                return $nested;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return list<string> the id of $node plus every descendant id
-     */
-    protected function subtreeIds(ContentElement $node): array
-    {
-        $ids = [$node->getId()];
-
-        foreach ($this->childList($node) as $child) {
-            foreach ($this->subtreeIds($child) as $id) {
-                $ids[] = $id;
-            }
-        }
-
-        return $ids;
-    }
-
-    /**
-     * @param list<ContentElement> $tree
+     * The id of $node plus every descendant id. {@see StoredTree::ids()} is forest-scoped and emits a node's id
+     * ahead of each slot's children depth-first, which is exactly this order, so a one-node forest reproduces
+     * it. Kept as one helper rather than repeated at every call site: wrapping a node in a throwaway tree is an
+     * idiom, not a rename.
      *
-     * @return list<ContentElement>
+     * @return list<string>
      */
-    protected function removeSubtree(array $tree, string $id): array
+    protected function subtreeIds(StoredElement $node): array
     {
-        $out = [];
+        return (new StoredTree([$node]))->ids();
+    }
 
-        foreach ($tree as $node) {
-            if ($node->getId() === $id) {
-                continue;
-            }
+    /**
+     * Deep copy of $node with a freshly minted id on every node in it. The copiers carry every field the clone
+     * keeps, so only the id and the rebuilt slots are named here.
+     */
+    protected function cloneWithNewIds(StoredElement $node): StoredElement
+    {
+        $slots = [];
 
-            $out[] = $this->rebuildNode($node, $this->mapSlots($node, fn (array $children): array => $this->removeSubtree($children, $id)));
+        foreach ($node->slots as $name => $children) {
+            $slots[$name] = array_values(array_map($this->cloneWithNewIds(...), $children));
         }
 
-        return $out;
+        return $node->withId(Uuid::randomHex())->withSlots($slots);
     }
 
     /**
-     * @param list<ContentElement> $tree
-     * @param list<ContentElement> $nodes
-     *
-     * @return list<ContentElement>
+     * @param array<string, list<StoredElement>> $slots
      */
-    protected function insertAtRoot(array $tree, ?int $index, array $nodes): array
+    protected function scaffoldElement(AbstractContentSystemElementTypeRegistry $registry, string $type, array $slots = []): StoredElement
     {
-        return $this->spliceList($tree, $index, $nodes);
+        return new StoredElement(Uuid::randomHex(), $type, [], $this->primitiveDefaults($registry, $type), $slots);
     }
 
     /**
-     * @param list<ContentElement> $tree
-     * @param list<ContentElement> $nodes
+     * The type's primitive property defaults to seed into a stored element, keyed by property key and wrapped
+     * for storage. The single rule lives in {@see PrimitiveDefaultProvider}, shared with the write-boundary
+     * seeder so a type's defaults are defined once; the wrapping is applied here, at the one place a mutation
+     * puts a raw default into a stored element.
      *
-     * @return list<ContentElement>
-     */
-    protected function insertIntoSlot(array $tree, string $parentId, string $slot, ?int $index, array $nodes): array
-    {
-        $out = [];
-
-        foreach ($tree as $node) {
-            if ($node->getId() === $parentId) {
-                $out[] = $this->spliceIntoNodeSlot($node, $slot, $index, $nodes);
-
-                continue;
-            }
-
-            $out[] = $this->rebuildNode($node, $this->mapSlots($node, fn (array $children): array => $this->insertIntoSlot($children, $parentId, $slot, $index, $nodes)));
-        }
-
-        return $out;
-    }
-
-    /**
-     * @param list<ContentElement> $tree
-     *
-     * @return list<ContentElement>
-     */
-    protected function replaceNode(array $tree, string $id, ContentElement $replacement): array
-    {
-        $out = [];
-
-        foreach ($tree as $node) {
-            if ($node->getId() === $id) {
-                $out[] = $replacement;
-
-                continue;
-            }
-
-            $out[] = $this->rebuildNode($node, $this->mapSlots($node, fn (array $children): array => $this->replaceNode($children, $id, $replacement)));
-        }
-
-        return $out;
-    }
-
-    protected function cloneWithNewIds(ContentElement $node): ContentElement
-    {
-        return new ContentElement(
-            Uuid::randomHex(),
-            $node->getComponent(),
-            $node->getDataRequirements(),
-            $node->getProperties(),
-            $this->mapSlots($node, fn (array $children): array => array_values(array_map($this->cloneWithNewIds(...), $children))),
-            $node->getContextDefinitions(),
-            $node->getStyle(),
-            $node->getAttributedSpecifications(),
-        );
-    }
-
-    /**
-     * @param array<string, SlotContent> $slots
-     */
-    protected function scaffoldElement(AbstractContentSystemElementTypeRegistry $registry, string $type, array $slots = []): ContentElement
-    {
-        return new ContentElement(Uuid::randomHex(), $type, [], $this->primitiveDefaults($registry, $type), $slots);
-    }
-
-    /**
-     * The type's primitive property defaults to seed into a stored element, keyed by property key. The single rule
-     * lives in {@see PrimitiveDefaultProvider}, shared with the write-boundary seeder so a type's defaults are
-     * defined once. The provider is stateless; a mutation is not a DI service, so it is instantiated once per
-     * mutation instance and memoized rather than injected.
-     *
-     * @return array<string, string|int|float|bool>
+     * @return array<string, StoredValue>
      */
     protected function primitiveDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array
     {
-        return ($this->primitiveDefaultProvider ??= new PrimitiveDefaultProvider())->forType($registry, $type);
+        $defaults = (new PrimitiveDefaultProvider())->forType($registry, $type);
+
+        return array_map(StoredValue::fromDecoded(...), $defaults);
     }
 
     protected function requireRegistered(AbstractContentSystemElementTypeRegistry $registry, string $type): void
@@ -241,8 +151,8 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     /**
      * The type's default binding specification (`byType($type)` filtered by `isDefault()`), read as zero, one, or
      * more: zero returns null (nothing to fill-apply), one is returned, more than one throws — never a first-wins
-     * pick. Shared by {@see \Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement} and
-     * {@see \Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement}, the two ops that auto-apply a
+     * pick. Shared by {@see InsertElement} and
+     * {@see ReplaceElement}, the two ops that auto-apply a
      * type's default at scaffold.
      */
     protected function resolveDefaultSpecification(AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, string $type): ?BindingSpecification
@@ -267,99 +177,18 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     }
 
     /**
-     * @return list<ContentElement> every direct child of $node across all its slots, in slot order
+     * @return list<StoredElement> every direct child of $node across all its slots, in slot order
      */
-    protected function childList(ContentElement $node): array
+    protected function childList(StoredElement $node): array
     {
         $children = [];
 
-        foreach ($node->getSlots() as $slotContent) {
-            foreach (array_values($slotContent->getElements()) as $child) {
+        foreach ($node->slots as $slotChildren) {
+            foreach ($slotChildren as $child) {
                 $children[] = $child;
             }
         }
 
         return $children;
-    }
-
-    private function locateInParent(ContentElement $parent, string $id): ?ElementLocation
-    {
-        foreach ($parent->getSlots() as $slotName => $slotContent) {
-            foreach (array_values($slotContent->getElements()) as $index => $child) {
-                if ($child->getId() === $id) {
-                    return new ElementLocation($child, $index, new ParentSlot($parent->getId(), $slotName));
-                }
-            }
-        }
-
-        foreach ($this->childList($parent) as $child) {
-            $nested = $this->locateInParent($child, $id);
-
-            if ($nested !== null) {
-                return $nested;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param list<ContentElement> $nodes
-     */
-    private function spliceIntoNodeSlot(ContentElement $parent, string $slot, ?int $index, array $nodes): ContentElement
-    {
-        $slots = $parent->getSlots();
-        $existing = isset($slots[$slot]) ? array_values($slots[$slot]->getElements()) : [];
-        $slots[$slot] = new SlotContent($this->spliceList($existing, $index, $nodes));
-
-        return $this->rebuildNode($parent, $slots);
-    }
-
-    /**
-     * @param list<ContentElement> $list
-     * @param list<ContentElement> $nodes
-     *
-     * @return list<ContentElement>
-     */
-    private function spliceList(array $list, ?int $index, array $nodes): array
-    {
-        if ($index === null || $index < 0 || $index >= \count($list)) {
-            return array_values([...$list, ...$nodes]);
-        }
-
-        return array_values([...\array_slice($list, 0, $index), ...$nodes, ...\array_slice($list, $index)]);
-    }
-
-    /**
-     * @param callable(list<ContentElement>): list<ContentElement> $transform
-     *
-     * @return array<string, SlotContent>
-     */
-    private function mapSlots(ContentElement $node, callable $transform): array
-    {
-        $slots = [];
-
-        foreach ($node->getSlots() as $name => $slotContent) {
-            $slots[$name] = new SlotContent($transform(array_values($slotContent->getElements())));
-        }
-
-        return $slots;
-    }
-
-    /**
-     * @param array<string, SlotContent> $newSlots
-     */
-    private function rebuildNode(ContentElement $node, array $newSlots): ContentElement
-    {
-        return new ContentElement(
-            $node->getId(),
-            $node->getComponent(),
-            $node->getDataRequirements(),
-            $node->getProperties(),
-            $newSlots,
-            $node->getContextDefinitions(),
-            $node->getStyle(),
-            $node->getAttributedSpecifications(),
-        );
     }
 }

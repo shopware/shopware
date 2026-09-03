@@ -1,8 +1,8 @@
 import template from './sw-experience-studio-preview.html.twig';
-import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
-import type { ContentElementNode } from 'src/module/sw-experience-studio/types/content-element.types';
-import { sanitizeContentElementLayoutForWrite } from 'src/module/sw-experience-studio/util/content-element.util';
+import type { ContentLayoutEntity } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import './sw-experience-studio-preview.scss';
+
+const { cloneDeep } = Shopware.Utils.object;
 
 type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
 
@@ -47,7 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         layout: {
-            type: Object,
+            type: Object as PropType<ContentLayoutEntity | null>,
             required: false,
             default: null,
         },
@@ -75,11 +75,6 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
-        },
-        styleOptions: {
-            type: Object as PropType<Record<string, ContentSystemStyleOptionSpecification>>,
-            required: false,
-            default: () => ({}),
         },
     },
 
@@ -364,9 +359,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             return new Promise((resolve) => {
                 let timeoutId: number | null = null;
+                let onMessage: ((event: MessageEvent) => void) | null = null;
 
                 const finish = (result: PreviewScrollPosition | null): void => {
-                    window.removeEventListener('message', onMessage);
+                    if (onMessage) {
+                        window.removeEventListener('message', onMessage);
+                    }
 
                     if (timeoutId !== null) {
                         window.clearTimeout(timeoutId);
@@ -375,7 +373,7 @@ export default Shopware.Component.wrapComponentConfig({
                     resolve(result);
                 };
 
-                const onMessage = (event: MessageEvent): void => {
+                onMessage = (event: MessageEvent): void => {
                     if (!this.isTrustedPreviewMessage(event)) {
                         return;
                     }
@@ -383,10 +381,10 @@ export default Shopware.Component.wrapComponentConfig({
                     const payload = event.data as PreviewMessagePayload;
 
                     if (
-                        payload?.type !== 'scroll-position'
-                        || payload.requestId !== requestId
-                        || typeof payload.top !== 'number'
-                        || typeof payload.left !== 'number'
+                        payload?.type !== 'scroll-position' ||
+                        payload.requestId !== requestId ||
+                        typeof payload.top !== 'number' ||
+                        typeof payload.left !== 'number'
                     ) {
                         return;
                     }
@@ -400,18 +398,22 @@ export default Shopware.Component.wrapComponentConfig({
                 window.addEventListener('message', onMessage);
                 timeoutId = window.setTimeout(() => finish(null), 250);
 
-                activeFrameWindow.postMessage({
-                    source: 'sw-experience-studio-admin',
-                    type: 'capture-scroll',
-                    requestId,
-                }, activeOrigin);
+                activeFrameWindow.postMessage(
+                    {
+                        source: 'sw-experience-studio-admin',
+                        type: 'capture-scroll',
+                        requestId,
+                    },
+                    activeOrigin,
+                );
             });
         },
 
         restoreFrameScrollPosition(frame: 'a' | 'b', scrollPosition: PreviewScrollPosition): Promise<void> {
-            const frameElement = frame === 'a'
-                ? this.$refs.iframeA as HTMLIFrameElement | null
-                : this.$refs.iframeB as HTMLIFrameElement | null;
+            const frameElement =
+                frame === 'a'
+                    ? (this.$refs.iframeA as HTMLIFrameElement | null)
+                    : (this.$refs.iframeB as HTMLIFrameElement | null);
 
             const frameWindow = frameElement?.contentWindow;
             const frameOrigin = this.getFrameOrigin(frame);
@@ -425,9 +427,12 @@ export default Shopware.Component.wrapComponentConfig({
 
             return new Promise((resolve) => {
                 let timeoutId: number | null = null;
+                let onMessage: ((event: MessageEvent) => void) | null = null;
 
                 const finish = (): void => {
-                    window.removeEventListener('message', onMessage);
+                    if (onMessage) {
+                        window.removeEventListener('message', onMessage);
+                    }
 
                     if (timeoutId !== null) {
                         window.clearTimeout(timeoutId);
@@ -436,15 +441,15 @@ export default Shopware.Component.wrapComponentConfig({
                     resolve();
                 };
 
-                const onMessage = (event: MessageEvent): void => {
+                onMessage = (event: MessageEvent): void => {
                     const payload = event.data as PreviewMessagePayload;
 
                     if (
-                        event.source !== frameWindow
-                        || event.origin !== frameOrigin
-                        || payload?.source !== 'sw-experience-studio-preview'
-                        || payload?.type !== 'scroll-restored'
-                        || payload.requestId !== requestId
+                        event.source !== frameWindow ||
+                        event.origin !== frameOrigin ||
+                        payload?.source !== 'sw-experience-studio-preview' ||
+                        payload?.type !== 'scroll-restored' ||
+                        payload.requestId !== requestId
                     ) {
                         return;
                     }
@@ -455,13 +460,16 @@ export default Shopware.Component.wrapComponentConfig({
                 window.addEventListener('message', onMessage);
                 timeoutId = window.setTimeout(() => finish(), 250);
 
-                frameWindow.postMessage({
-                    source: 'sw-experience-studio-admin',
-                    type: 'restore-scroll',
-                    requestId,
-                    top: scrollPosition.top,
-                    left: scrollPosition.left,
-                }, frameOrigin);
+                frameWindow.postMessage(
+                    {
+                        source: 'sw-experience-studio-admin',
+                        type: 'restore-scroll',
+                        requestId,
+                        top: scrollPosition.top,
+                        left: scrollPosition.left,
+                    },
+                    frameOrigin,
+                );
             });
         },
 
@@ -479,7 +487,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         async loadPreview(): Promise<void> {
             const previewService = Shopware.Service('contentSystemPreviewService') as ContentSystemPreviewService;
-            const layout = this.layout as Entity<'content_layout'> | null;
+            const layout = this.layout;
             const salesChannelId = this.salesChannelId as string | null;
             const entityType = this.entityType as string | null;
             const entityId = this.entityId as string | null;
@@ -499,11 +507,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.previewLoadError = null;
 
             try {
-                const styleOptions = this.styleOptions as Record<string, ContentSystemStyleOptionSpecification>;
-                const previewLayout = sanitizeContentElementLayoutForWrite(
-                    serializedLayout as ContentElementNode[],
-                    styleOptions,
-                );
+                // Working-tree layout data crossing an outbound boundary is cloned at the call site.
+                const previewLayout = cloneDeep(serializedLayout);
 
                 const previewUrl = await previewService.previewEntityUrl({
                     layout: previewLayout,

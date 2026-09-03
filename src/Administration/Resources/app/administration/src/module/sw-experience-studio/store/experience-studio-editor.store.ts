@@ -1,6 +1,6 @@
 import { EXPERIENCE_STUDIO_MAX_HISTORY_SIZE } from '../constant/experience-studio-history.constant';
 import type { EditorHistoryEntry } from '../types/editor-history.types';
-import type { ContentElementNode } from '../types/content-element.types';
+import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { createEditorHistoryEntry, trimHistoryStack } from '../util/editor-history.util';
 
 type ExperienceStudioEditorState = {
@@ -50,10 +50,7 @@ const experienceStudioEditorStore = Shopware.Store.register({
             this.future = [];
         },
 
-        undo(
-            currentLayout: ContentElementNode[],
-            currentSelectedElementId: string | null,
-        ): EditorHistoryEntry | null {
+        undo(currentLayout: ContentElementNode[], currentSelectedElementId: string | null): EditorHistoryEntry | null {
             const previousEntry = this.past.pop();
 
             if (!previousEntry) {
@@ -66,10 +63,7 @@ const experienceStudioEditorStore = Shopware.Store.register({
             return previousEntry;
         },
 
-        redo(
-            currentLayout: ContentElementNode[],
-            currentSelectedElementId: string | null,
-        ): EditorHistoryEntry | null {
+        redo(currentLayout: ContentElementNode[], currentSelectedElementId: string | null): EditorHistoryEntry | null {
             const nextEntry = this.future.pop();
 
             if (!nextEntry) {

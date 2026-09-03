@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
-use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\Output\RenderResult;
 use Shopware\Core\Framework\ContentSystem\RenderableLayout;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Context;
@@ -20,6 +20,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class ContentPreviewPageBuilder
 {
@@ -36,7 +39,7 @@ class ContentPreviewPageBuilder
     }
 
     /**
-     * @return array{contentPage: ContentPage, salesChannelContext: SalesChannelContext}
+     * @return array{result: RenderResult, salesChannelContext: SalesChannelContext}
      */
     public function build(ContentPreviewRequest $payload, Context $context): array
     {
@@ -61,28 +64,30 @@ class ContentPreviewPageBuilder
             $salesChannelContext,
         );
 
-        $elements = $this->decoder->decode($payload->layout);
+        $stored = $this->decoder->decode($payload->layout);
 
-        $violations = $this->layoutValidator->check($elements);
+        $violations = $this->layoutValidator->check($stored);
         if ($violations->count() > 0) {
             throw ContentSystemException::elementTypesInvalid($violations);
         }
 
         $renderableLayout = RenderableLayout::create(
             LayoutReference::create(Uuid::randomHex(), 'preview', null),
-            $elements,
+            $stored,
         );
 
-        $contentPage = $this->contentPipeline->load(
+        $result = $this->contentPipeline->load(
             $renderableLayout,
             $specification,
             new RenderingCacheContext(),
             RenderingMode::FULL,
+            // The preview serves the full format, which carries its property values inline.
+            false,
             $salesChannelContext,
         );
 
         return [
-            'contentPage' => $contentPage,
+            'result' => $result,
             'salesChannelContext' => $salesChannelContext,
         ];
     }

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -109,6 +110,27 @@ class ContentLayoutWriteValidatorTest extends TestCase
             static::assertStringContainsString('Sw:Test:DefinitelyUnregistered', $exception->getMessage());
             static::assertStringContainsString('is not a registered element type', $exception->getMessage());
         }
+    }
+
+    #[TestDox('rejects a layout whose element carries the reserved virtual-root id and stores no row')]
+    public function testRejectsReservedElementIdOnWrite(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+
+        $payload = $this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId);
+        $payload['layout'] = [
+            ['id' => VirtualRootWrapper::VIRTUAL_ROOT_ID, 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
+        ];
+
+        try {
+            $this->repository()->create([$payload], $context);
+            static::fail('Expected the decode gate to reject the reserved virtual-root id.');
+        } catch (WriteException $exception) {
+            static::assertSame(ContentSystemException::INVALID_ELEMENT_ID, iterator_to_array($exception->getErrors(), false)[0]['code']);
+        }
+
+        static::assertNull($this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
     }
 
     #[TestDox('bypasses every check when the write context carries the skip flag')]

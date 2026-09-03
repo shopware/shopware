@@ -7,16 +7,17 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Slot\SlotContent;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 
 /**
  * @internal
@@ -25,50 +26,47 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(UnwrapElement::class)]
 class UnwrapElementTest extends TestCase
 {
-    use AssertsImmutableInput;
-
     #[TestDox('replaces the container with its slot children at the root')]
     public function testUnwrapReplacesContainerWithChildren(): void
     {
-        $tree = [new ContentElement('container', 'Sw:Container', [], [], [
-            'content' => new SlotContent([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]),
-        ])];
+        $tree = new StoredTree([new StoredElement('container', 'Sw:Container', [], [], [
+            'content' => [new StoredElement('a', 'Sw:Block'), new StoredElement('b', 'Sw:Block')],
+        ])]);
 
         $result = (new UnwrapElement('container'))->apply($tree);
 
-        static::assertSame(['a', 'b'], array_map(static fn (ContentElement $e): string => $e->getId(), $result));
+        static::assertSame(['a', 'b'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots));
     }
 
     #[TestDox('hoists the children into the parent slot at the container position')]
     public function testUnwrapHoistsIntoParentSlotAtPosition(): void
     {
-        $tree = [new ContentElement('parent', 'Sw:Block', [], [], [
-            'content' => new SlotContent([
-                new ContentElement('x', 'Sw:Block'),
-                new ContentElement('container', 'Sw:Container', [], [], [
-                    'items' => new SlotContent([new ContentElement('a', 'Sw:Block'), new ContentElement('b', 'Sw:Block')]),
+        $tree = new StoredTree([new StoredElement('parent', 'Sw:Block', [], [], [
+            'content' => [
+                new StoredElement('x', 'Sw:Block'),
+                new StoredElement('container', 'Sw:Container', [], [], [
+                    'items' => [new StoredElement('a', 'Sw:Block'), new StoredElement('b', 'Sw:Block')],
                 ]),
-                new ContentElement('y', 'Sw:Block'),
-            ]),
-        ])];
+                new StoredElement('y', 'Sw:Block'),
+            ],
+        ])]);
 
         $result = (new UnwrapElement('container'))->apply($tree);
 
-        $children = array_values($result[0]->getSlots()['content']->getElements());
-        static::assertSame(['x', 'a', 'b', 'y'], array_map(static fn (ContentElement $e): string => $e->getId(), $children));
+        static::assertSame(['x', 'a', 'b', 'y'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots[0]->slots['content']));
     }
 
     #[TestDox('reports the whole hoisted forest as affected, including grandchildren that lose the container scope')]
     public function testUnwrapAffectedAreHoistedSubtrees(): void
     {
-        $tree = [new ContentElement('container', 'Sw:Container', [], [], [
-            'content' => new SlotContent([
-                new ContentElement('a', 'Sw:Block', [], [], [
-                    'inner' => new SlotContent([new ContentElement('grandchild', 'Sw:Block')]),
+        $tree = new StoredTree([new StoredElement('container', 'Sw:Container', [], [], [
+            'content' => [
+                new StoredElement('a', 'Sw:Block', [], [], [
+                    'inner' => [new StoredElement('grandchild', 'Sw:Block')],
                 ]),
-                new ContentElement('b', 'Sw:Block'),
-            ]),
-        ])];
+                new StoredElement('b', 'Sw:Block'),
+            ],
+        ])]);
 
         $unwrap = new UnwrapElement('container');
         $unwrap->apply($tree);
@@ -79,12 +77,12 @@ class UnwrapElementTest extends TestCase
     #[TestDox('reports the removed containers own static properties and consumed wiring, not its provided context')]
     public function testUnwrapReportsContainerOwnConfig(): void
     {
-        $container = new ContentElement(
+        $container = new StoredElement(
             'container',
             'Sw:Container',
-            ['hero' => new DataRequirement('hero', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))],
-            ['title' => 'Section', 'spacing' => 3],
-            ['content' => new SlotContent([new ContentElement('kid', 'Sw:Block')])],
+            ['hero' => new DataRequirement('hero', 'entity', new StubLoaderConfig())],
+            ['title' => StoredValue::ofString('Section'), 'spacing' => StoredValue::ofInt(3)],
+            ['content' => [new StoredElement('kid', 'Sw:Block')]],
             new ContextDefinitions(
                 ['themeProvider' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
                 ['theme' => new ContextConsumer(ContextType::Single, true)],
@@ -92,34 +90,37 @@ class UnwrapElementTest extends TestCase
         );
 
         $unwrap = new UnwrapElement('container');
-        $unwrap->apply([$container]);
+        $unwrap->apply(new StoredTree([$container]));
 
-        static::assertSame(['title' => 'Section', 'spacing' => 3], $unwrap->droppedProperties());
+        static::assertSame(
+            ['title' => 'Section', 'spacing' => 3],
+            array_map(static fn (StoredValue $value): mixed => $value->jsonSerialize(), $unwrap->droppedProperties())
+        );
         static::assertSame(['hero', 'theme'], $unwrap->droppedWiring());
     }
 
     #[TestDox('flattens children across all container slots in slot order')]
     public function testUnwrapFlattensAllSlots(): void
     {
-        $tree = [new ContentElement('container', 'Sw:Container', [], [], [
-            'header' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
-            'body' => new SlotContent([new ContentElement('b', 'Sw:Block')]),
-        ])];
+        $tree = new StoredTree([new StoredElement('container', 'Sw:Container', [], [], [
+            'header' => [new StoredElement('a', 'Sw:Block')],
+            'body' => [new StoredElement('b', 'Sw:Block')],
+        ])]);
 
         $result = (new UnwrapElement('container'))->apply($tree);
 
-        static::assertSame(['a', 'b'], array_map(static fn (ContentElement $e): string => $e->getId(), $result));
+        static::assertSame(['a', 'b'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots));
     }
 
     #[TestDox('removes an empty container and hoists nothing')]
     public function testUnwrapEmptyContainerJustRemovesIt(): void
     {
-        $tree = [new ContentElement('container', 'Sw:Container'), new ContentElement('keep', 'Sw:Block')];
+        $tree = new StoredTree([new StoredElement('container', 'Sw:Container'), new StoredElement('keep', 'Sw:Block')]);
 
         $unwrap = new UnwrapElement('container');
         $result = $unwrap->apply($tree);
 
-        static::assertSame(['keep'], array_map(static fn (ContentElement $e): string => $e->getId(), $result));
+        static::assertSame(['keep'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots));
         static::assertSame([], $unwrap->affected());
     }
 
@@ -129,19 +130,6 @@ class UnwrapElementTest extends TestCase
         $unwrap = new UnwrapElement('ghost');
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
-        $unwrap->apply([new ContentElement('other', 'Sw:Block')]);
-    }
-
-    #[TestDox('does not mutate the input tree')]
-    public function testUnwrapDoesNotMutateInput(): void
-    {
-        $tree = [new ContentElement('container', 'Sw:Container', [], ['title' => 'Section'], [
-            'content' => new SlotContent([new ContentElement('a', 'Sw:Block')]),
-        ])];
-        $before = $this->snapshotTree($tree);
-
-        (new UnwrapElement('container'))->apply($tree);
-
-        $this->assertInputTreeUnmutated($before, $tree);
+        $unwrap->apply(new StoredTree([new StoredElement('other', 'Sw:Block')]));
     }
 }

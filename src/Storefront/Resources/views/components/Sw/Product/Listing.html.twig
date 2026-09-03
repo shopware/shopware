@@ -4,9 +4,6 @@
 
 {% props
     listing = null,
-    totalCount = null,
-    currentSorting = null,
-    availableSortings = null,
     showSorting = true,
     showLayoutSwitch = true,
     slots = [],
@@ -16,9 +13,9 @@
     defaultSorting = null,
 %}
 
-{% set totalCount = totalCount ?? listing.total ?? 0 %}
-{% set currentSorting = currentSorting ?? listing.sorting %}
-{% set availableSortings = availableSortings ?? listing.availableSortings %}
+{% set totalCount = listing.total ?? 0 %}
+{% set currentSorting = listing.sorting %}
+{% set availableSortings = listing.availableSortings %}
 
 {% set listingCVA = cva({
     base: 'sw-product-listing',

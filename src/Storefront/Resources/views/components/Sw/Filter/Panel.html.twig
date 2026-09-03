@@ -4,7 +4,6 @@
 
 {% props
     productListing = null,
-    filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'],
     showPriceFilter = true,
     showRatingFilter = true,
     showManufacturerFilter = true,
@@ -16,6 +15,8 @@
     navigationId = null,
     propertyAllowList = null,
 %}
+
+{% set filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'] %}
 
 {% set filterPanelOptions = {
     visibleFilterCount: visibleFilterCount,

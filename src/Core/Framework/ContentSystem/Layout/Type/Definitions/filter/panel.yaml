@@ -97,7 +97,7 @@ properties:
     description: "Comma-separated property_group ids whose filters the panel offers. Empty offers every filterable group of the matching products."
     required: false
     adminUI:
-      component: "entity-multi-id-select"
+      component: "entity-multi"
       entity: "property_group"
       panel: "filter"
       helpText: "Restrict the property filters to the groups that matter on this page, for example only colour and size."

@@ -180,7 +180,6 @@ class CustomerEntity extends Entity implements \Stringable
     {
         $company = trim($this->company ?? '');
 
-        // $accountType is a typed property without a default, so it is only read once a company is available
         if ($company !== '' && $this->getAccountType() === self::ACCOUNT_TYPE_BUSINESS) {
             return $company;
         }

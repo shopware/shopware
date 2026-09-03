@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory suffix="Entity.php">src/Boilerplate</directory>
+            <directory suffix=".php">src/Tooling</directory>
+            <file>src/SingleExcluded.php</file>
+        </exclude>
+    </source>
+</phpunit>

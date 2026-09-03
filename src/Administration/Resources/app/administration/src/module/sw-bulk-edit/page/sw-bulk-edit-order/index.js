@@ -16,6 +16,7 @@ export default {
     inject: [
         'bulkEditApiFactory',
         'repositoryFactory',
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
         'orderDocumentApiService',
         'feature',
     ],

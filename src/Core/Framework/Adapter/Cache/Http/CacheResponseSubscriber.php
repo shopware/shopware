@@ -34,6 +34,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     private const POLICY_AREA_STORE_API = 'store_api';
 
     /**
+     * Tells clients which query parameter differences may be ignored when matching a request against
+     * an already stored response, both in the HTTP cache and in the Speculation Rules prefetch/prerender cache.
+     */
+    private const HEADER_NO_VARY_SEARCH = 'No-Vary-Search';
+
+    /**
      * @internal
      */
     public function __construct(
@@ -262,11 +268,19 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $policy = $this->policyProvider->getPolicy($route, $area, $cacheable, $cacheAttribute, $enforceNoStore);
 
-        // reset existing cache-control to avoid mixing policies
+        // reset existing cache headers to avoid mixing policies, the resolved policy is the only source
+        // of truth for both of them
         $response->headers->remove('cache-control');
+        $response->headers->remove(self::HEADER_NO_VARY_SEARCH);
 
         // apply resolved policy to response
         $response->setCache($policy->cacheControl->toArray());
+
+        // `No-Vary-Search` only has a meaning for responses a client may actually store, an uncacheable
+        // response has nothing to match a later request against
+        if ($cacheable && $policy->noVarySearch !== null) {
+            $response->headers->set(self::HEADER_NO_VARY_SEARCH, $policy->noVarySearch);
+        }
     }
 
     /**

@@ -1178,6 +1178,10 @@
                                             "stale_while_revalidate": { "type": "integer", "minimum": 0 },
                                             "stale_if_error": { "type": "integer", "minimum": 0 }
                                         }
+                                    },
+                                    "no_vary_search": {
+                                        "type": "string",
+                                        "title": "Verbatim value of the \"No-Vary-Search\" header, e.g. \"key-order\""
                                     }
                                 }
                             }

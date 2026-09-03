@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<NumberRangeSalesChannelEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class NumberRangeSalesChannelCollection extends EntityCollection

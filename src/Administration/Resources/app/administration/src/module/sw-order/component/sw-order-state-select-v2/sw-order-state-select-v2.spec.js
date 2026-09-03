@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils';
  */
 
 describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
-    async function createWrapper() {
+    async function createWrapper(additionalStubs = {}) {
         return mount(await wrapTestComponent('sw-order-state-select-v2', { sync: true }), {
             global: {
                 stubs: {
@@ -14,6 +14,7 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
                     'sw-select-result': true,
                     'sw-select-result-list': true,
                     'sw-select-base': true,
+                    ...additionalStubs,
                 },
             },
             props: {
@@ -81,5 +82,33 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         });
 
         expect(singleSelect.props('placeholder')).toBe('Open');
+    });
+
+    it('should not render a clear button, because a state cannot be unset', async () => {
+        const wrapper = await createWrapper({
+            'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
+            'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+            'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+            'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
+            'sw-help-text': true,
+            'sw-ai-copilot-badge': true,
+            'sw-inheritance-switch': true,
+            'sw-loader': true,
+        });
+
+        await wrapper.setProps({
+            transitionOptions: [
+                {
+                    disabled: false,
+                    id: 'do_pay',
+                    name: 'In progress',
+                    stateName: 'in_progress',
+                },
+            ],
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select__select-indicator-expand').exists()).toBe(true);
+        expect(wrapper.find('.sw-select__select-indicator-clear').exists()).toBe(false);
     });
 });

@@ -31,11 +31,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(typeof importExportProfileMappingService.validate).toBe('function');
     });
 
-    // Guards the assumption withRequiredProductType() relies on: the entity schema mock is a 6.7
-    // snapshot in which product.type is optional. Once the mock is regenerated from a v6.8 instance
-    // this fails, and the v6.8 variants below should assert against the real schema instead.
-    it('pins the product type flag in the entity schema mock', () => {
-        expect(Shopware.EntityDefinition.get('product').properties.type.flags.required).toBeUndefined();
+    it('uses the product type requirement for the active schema', () => {
+        expect(Shopware.EntityDefinition.get('product').properties.type.flags.required).toBe(
+            Shopware.Feature.isActive('v6.8.0.0') ? true : undefined,
+        );
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the optional product type mapping.

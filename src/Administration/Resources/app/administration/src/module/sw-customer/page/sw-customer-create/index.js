@@ -91,6 +91,12 @@ export default {
                     this.customer.boundSalesChannelId = salesChannelId;
                 }
             });
+
+            this.loadLanguage(salesChannelId).then((languageId) => {
+                if (this.customer) {
+                    this.customer.languageId = languageId;
+                }
+            });
         },
 
         'customer.accountType'(value) {
@@ -127,6 +133,7 @@ export default {
             this.customer.password = '';
             this.customer.vatIds = [];
             this.customer.salutationId = defaultSalutationId;
+            this.customer.languageId = Shopware.Context.api.languageId;
             this.address.salutationId = defaultSalutationId;
         },
 

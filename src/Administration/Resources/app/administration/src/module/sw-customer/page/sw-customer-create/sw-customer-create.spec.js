@@ -198,6 +198,34 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         expect(context.languageId).toEqual(Shopware.Context.api.languageId);
     });
 
+    it('should default the customer language to the API context language', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.customer.languageId).toBe(Shopware.Context.api.languageId);
+    });
+
+    it('should update the customer language when the sales channel changes', async () => {
+        const languageRepositorySearchIdsMock = jest.fn(() =>
+            Promise.resolve({
+                total: 1,
+                data: ['salesChannelLanguageId'],
+            }),
+        );
+        const wrapper = await createWrapper({ languageRepositorySearchIdsMock });
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: {
+                ...wrapper.vm.customer,
+                salesChannelId: 'a7921464677a4ef591683d144beecd24',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.customer.languageId).toBe('salesChannelLanguageId');
+    });
+
     it('should get default salutation is value not specified', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

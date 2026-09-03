@@ -239,6 +239,34 @@ describe('components/sw-entity-single-select', () => {
         expect(singleSelection).toBeNull();
     });
 
+    it('does not clear an unresolved selection when disabled', async () => {
+        const repository = {
+            get: jest.fn().mockResolvedValue(null),
+        };
+        const wrapper = await createEntitySingleSelect({
+            props: {
+                value: 'unresolved-id',
+                disabled: true,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => repository,
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledWith(
+            'unresolved-id',
+            expect.any(Object),
+            expect.any(Object),
+            undefined,
+        );
+        expect(wrapper.emitted('update:value')).toBeUndefined();
+    });
+
     it('should have disabled state results according to function', async () => {
         const wrapper = await createEntitySingleSelect({
             props: {

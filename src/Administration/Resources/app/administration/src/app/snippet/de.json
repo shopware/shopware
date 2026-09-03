@@ -68,7 +68,16 @@
       "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
     },
     "sw-desktop": {
-      "stagingBarText": "Der Shop befindet sich im Staging-Modus."
+      "stagingBarText": "Der Shop befindet sich im Staging-Modus.",
+      "theme": {
+        "changed": "Erscheinungsbild zu \"{theme}\" geändert",
+        "saveError": "Erscheinungsbild konnte nicht gewechselt werden",
+        "names": {
+          "system": "System",
+          "light": "Hell",
+          "dark": "Dunkel"
+        }
+      }
     },
     "sw-skip-link": {
       "label": "Navigation überspringen"
@@ -1550,6 +1559,10 @@
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
     "functionSpecialShortcutOpenFilters": "Filter öffnen",
     "keyboardShortcutSpecialShortcutOpenFilters": "O F",
+    "functionSpecialShortcutToggleNavigation": "Navigation ein- oder ausklappen",
+    "keyboardShortcutSpecialShortcutToggleNavigation": "S",
+    "functionSpecialShortcutCycleTheme": "Erscheinungsbild wechseln",
+    "keyboardShortcutSpecialShortcutCycleTheme": "C T",
     "functionSpecialShortcutShortcutListing": "Tastenkürzel",
     "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
     "functionSpecialShortcutSaveDetailView": "Aktuelle Ansicht speichern",

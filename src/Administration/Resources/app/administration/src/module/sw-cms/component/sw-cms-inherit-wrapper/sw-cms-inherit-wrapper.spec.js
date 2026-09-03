@@ -67,7 +67,10 @@ async function createWrapper(props = {}, options = {}, route = categoryDetailCms
                                 {{ isInherited ? 'Remove' : 'Restore' }}
                             </button>
                         `,
-                        props: ['isInherited', 'disabled'],
+                        props: [
+                            'isInherited',
+                            'disabled',
+                        ],
                     },
                     'mt-icon': {
                         template: '<i class="mt-icon" :name="name"></i>',

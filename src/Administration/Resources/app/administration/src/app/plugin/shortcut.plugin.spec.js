@@ -685,4 +685,125 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).toHaveBeenCalledTimes(1);
     });
+    it('should not trigger a single key shortcut while a navigation shortcut sequence is typed', async () => {
+        const onToggleMock = jest.fn();
+        const shortcutFactory = Shopware.Application.getContainer('factory').shortcut;
+        shortcutFactory.register('GS', '/sw/settings/index');
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                S: 'onToggle',
+            },
+            methods: {
+                onToggle() {
+                    onToggleMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'g',
+        });
+        await wrapper.trigger('keydown', {
+            key: 's',
+        });
+
+        expect(onToggleMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 'x',
+        });
+        await wrapper.trigger('keydown', {
+            key: 's',
+        });
+
+        expect(onToggleMock).toHaveBeenCalledTimes(1);
+
+        shortcutFactory.getShortcutRegistry().clear();
+        wrapper.unmount();
+    });
+
+    it('should not trigger a single key shortcut when a modifier key is pressed', async () => {
+        const onToggleMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                S: 'onToggle',
+            },
+            methods: {
+                onToggle() {
+                    onToggleMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 's',
+            metaKey: true,
+        });
+        await wrapper.trigger('keydown', {
+            key: 's',
+            ctrlKey: true,
+        });
+
+        expect(onToggleMock).not.toHaveBeenCalled();
+
+        wrapper.unmount();
+    });
+
+    it('should not trigger shortcuts from inside a meteor modal', async () => {
+        const onToggleMock = jest.fn();
+
+        const modal = document.createElement('div');
+        modal.className = 'mt-modal';
+        document.body.appendChild(modal);
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                S: 'onToggle',
+            },
+            methods: {
+                onToggle() {
+                    onToggleMock();
+                },
+            },
+        });
+
+        const event = new KeyboardEvent('keydown', { key: 's', bubbles: true });
+        Object.defineProperty(event, 'target', { value: modal, enumerable: true });
+
+        document.dispatchEvent(event);
+
+        expect(onToggleMock).not.toHaveBeenCalled();
+
+        document.body.removeChild(modal);
+        wrapper.unmount();
+    });
+
+    it('should ignore repeated keydown events while a key is held', async () => {
+        const onToggleMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                S: 'onToggle',
+            },
+            methods: {
+                onToggle() {
+                    onToggleMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 's',
+        });
+        await wrapper.trigger('keydown', {
+            key: 's',
+            repeat: true,
+        });
+
+        expect(onToggleMock).toHaveBeenCalledTimes(1);
+
+        wrapper.unmount();
+    });
 });

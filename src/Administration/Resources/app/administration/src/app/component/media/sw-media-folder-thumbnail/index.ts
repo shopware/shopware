@@ -11,7 +11,7 @@ import './sw-media-folder-thumbnail.scss';
 /**
  * @private
  */
-export default {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -27,5 +27,22 @@ export default {
                 ].includes(value);
             },
         },
+
+        // Strokes the default variant in this color with a tinted fill, back variants ignore it
+        color: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
-};
+
+    computed: {
+        isColored(): boolean {
+            return !!this.color;
+        },
+
+        colorStyle(): Record<string, string> | null {
+            return this.isColored ? { '--sw-media-folder-thumbnail-color': this.color } : null;
+        },
+    },
+});

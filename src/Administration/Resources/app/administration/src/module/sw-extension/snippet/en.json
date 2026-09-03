@@ -144,7 +144,9 @@
       "activationDescriptionTitleFirst": "Explore and buy extensions easily -",
       "activationDescriptionTitleSecond": "right from within your own Shopware shop.",
       "activationDescriptionTitleDescription": "Activate the Shopware Store and get access to loads of helpful extensions and modern themes that can be integrated into your shop seemlessly - without any programming skills.",
-      "activate": "Activate"
+      "activate": "Activate",
+      "airGappedTitle": "This installation is air-gapped",
+      "airGappedDescription": "The Shopware Store is disabled because this shop cannot reach Shopware-operated cloud services."
     },
     "title": "Store",
     "descriptionTextModule": "Manage your extensions",
@@ -348,6 +350,10 @@
         "alertExtensionManagement": {
           "title": "Runtime extension management disabled",
           "description": "The runtime extension management is disabled in this installation. You can only change the settings of the extensions in the administration."
+        },
+        "alertAirGapped": {
+          "title": "This installation is air-gapped",
+          "description": "The Shopware Store, in-app updates, and Shopware-operated cloud services are disabled. You can still activate, deactivate, and zip-install locally provisioned extensions."
         }
       },
       "sw-extension-removal-modal": {

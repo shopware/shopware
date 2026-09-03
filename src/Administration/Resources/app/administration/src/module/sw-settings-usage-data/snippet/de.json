@@ -3,7 +3,9 @@
     "general": {
       "mainMenuItemGeneral": "Datenschutzeinstellungen",
       "textHeadline": "Datenschutzeinstellungen",
-      "description": "Lege Deine Datenschutzeinstellungen fest."
+      "description": "Lege Deine Datenschutzeinstellungen fest.",
+      "airGappedTitle": "Diese Installation ist air-gapped",
+      "airGappedDescription": "Einwilligungen für Nutzungsdaten und Produktanalysen sind nicht verfügbar, weil dieser Shop Shopware-Cloud-Dienste nicht erreichen kann."
     },
     "errors": {
       "consent-update-error": "Beim Aktualisieren Deiner Einwilligung \"{consent}\" ist ein Fehler aufgetreten."

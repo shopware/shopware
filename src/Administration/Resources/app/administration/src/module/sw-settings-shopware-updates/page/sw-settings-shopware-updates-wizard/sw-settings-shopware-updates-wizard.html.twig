@@ -56,7 +56,8 @@
                 v-if="!isLoading && !updateInfo.version"
                 :centered="true"
                 :icon="$route.meta.$module.icon"
-                :headline="$t('sw-settings-shopware-updates.general.emptyState')"
+                :headline="emptyStateHeadline"
+                :description="emptyStateDescription"
             />
 
             <sw-modal

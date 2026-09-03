@@ -36,13 +36,19 @@
         {% endblock %}
 
         {% block sw_extension_my_extensions_index_smart_bar_tabs_recommendation %}
-        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.recommendation' }">
+        <sw-tabs-item
+            v-if="!airGapped"
+            :route="{ name: 'sw.extension.my-extensions.recommendation' }"
+        >
             {{ $t('sw-extension.my-extensions.tabs.recommendation') }}
         </sw-tabs-item>
         {% endblock %}
 
         {% block sw_extension_my_extensions_index_smart_bar_tabs_account %}
-        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.account' }">
+        <sw-tabs-item
+            v-if="!airGapped"
+            :route="{ name: 'sw.extension.my-extensions.account' }"
+        >
             {{ $t('sw-extension.my-extensions.tabs.shopwareAccount') }}
         </sw-tabs-item>
         {% endblock %}

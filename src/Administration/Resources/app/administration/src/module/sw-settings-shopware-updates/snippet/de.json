@@ -5,6 +5,8 @@
       "title": "Shopware-Aktualisierung ({version})",
       "emptyTitle": "Shopware-Aktualisierungen",
       "emptyState": "Du bist auf dem aktuellsten Stand.",
+      "airGappedTitle": "Diese Installation ist air-gapped",
+      "airGappedDescription": "In-App-Aktualisierungen sind deaktiviert, weil dieser Shop die Shopware-Update-Hosts nicht erreichen kann.",
       "checkForUpdates": "Nach Aktualisierungen suchen",
       "currentVersion": "Aktuelle Version:"
     },

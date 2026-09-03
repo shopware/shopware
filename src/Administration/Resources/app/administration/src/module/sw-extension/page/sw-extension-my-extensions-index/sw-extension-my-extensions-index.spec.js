@@ -59,6 +59,7 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
                     config: {
                         settings: {
                             disableExtensionManagement: false,
+                            airGapped: false,
                         },
                     },
                 },
@@ -74,6 +75,7 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
 
     afterEach(() => {
         Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
+        Shopware.Store.get('context').app.config.settings.airGapped = false;
         global.activeAclRoles = [];
     });
 
@@ -90,6 +92,15 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(false);
+    });
+
+    it('keeps the upload button when the installation is air-gapped', async () => {
+        global.activeAclRoles = ['system.plugin_upload'];
+        Shopware.Store.get('context').app.config.settings.airGapped = true;
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(true);
+        expect(wrapper.findAll('sw-tabs-item-stub')).toHaveLength(2);
     });
 
     it('upload button should be not there when missing plugin_upload acl', async () => {

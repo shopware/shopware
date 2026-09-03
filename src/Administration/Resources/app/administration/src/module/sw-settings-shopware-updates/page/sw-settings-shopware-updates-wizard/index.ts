@@ -1,3 +1,4 @@
+import { isAirGapped } from 'src/core/helper/air-gapped.helper';
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 import useSession from 'src/app/composables/use-session';
@@ -97,6 +98,20 @@ export default Component.wrapComponentConfig({
             return !(this.displayIncompatiblePluginsWarning || this.displayUnknownPluginsWarning);
         },
 
+        airGapped() {
+            return isAirGapped();
+        },
+
+        emptyStateHeadline() {
+            return this.airGapped
+                ? this.$t('sw-settings-shopware-updates.general.airGappedTitle')
+                : this.$t('sw-settings-shopware-updates.general.emptyState');
+        },
+
+        emptyStateDescription() {
+            return this.airGapped ? this.$t('sw-settings-shopware-updates.general.airGappedDescription') : '';
+        },
+
         optionDeactivateIncompatibleTranslation() {
             const deactivateIncompatTrans = this.$t('sw-settings-shopware-updates.plugins.actions.deactivateIncompatible');
             const isRecommended =
@@ -129,6 +144,11 @@ export default Component.wrapComponentConfig({
         },
 
         createdComponent() {
+            if (this.airGapped) {
+                this.isLoading = false;
+                return;
+            }
+
             void this.updateService.checkForUpdates().then((response) => {
                 this.updateInfo = response;
 

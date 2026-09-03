@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Consent;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\InstanceService;
@@ -53,6 +54,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             static::createStub(InstanceService::class),
             'APP_URL',
+            new AirGappedMode(false),
         );
 
         $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
@@ -78,6 +80,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             static::createStub(InstanceService::class),
             'APP_URL',
+            new AirGappedMode(false),
         );
 
         $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
@@ -99,6 +102,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             static::createStub(InstanceService::class),
             'APP_URL',
+            new AirGappedMode(false),
         );
 
         $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
@@ -120,6 +124,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             static::createStub(InstanceService::class),
             'APP_URL',
+            new AirGappedMode(false),
         );
 
         $reporter->reportRevokedConsent(new ConsentRevokedEvent(BackendData::NAME, 'system', 'system', 'actor'));
@@ -145,6 +150,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $instanceService,
             'APP_URL',
+            new AirGappedMode(false),
         );
 
         $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
@@ -168,6 +174,7 @@ class ConsentReporterTest extends TestCase
             ]),
             static::createStub(InstanceService::class),
             'APP_URL',
+            new AirGappedMode(false),
         );
 
         $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
@@ -190,6 +197,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             static::createStub(InstanceService::class),
             'APP_URL',
+            new AirGappedMode(false),
         );
 
         $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
@@ -206,6 +214,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             static::createStub(InstanceService::class),
             'APP_URL',
+            new AirGappedMode(false),
         );
 
         $reporter->reportAcceptedConsent(new ConsentAcceptedEvent('other-consent', 'system', 'system', 'actor'));

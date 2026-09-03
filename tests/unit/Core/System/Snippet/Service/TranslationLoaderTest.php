@@ -17,6 +17,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -574,6 +576,14 @@ class TranslationLoaderTest extends TestCase
         static::assertTrue($loader->hasTranslationFiles('es-ES'));
     }
 
+    public function testDownloadThrowsWhenAirGapped(): void
+    {
+        $loader = $this->getTranslationLoader(new AirGappedMode(true));
+
+        $this->expectExceptionObject(FrameworkException::airGapped());
+        $loader->download('es-ES');
+    }
+
     public function testHasTranslationFilesReturnsFalseForMalformedLocale(): void
     {
         $loader = $this->getTranslationLoader();
@@ -583,7 +593,7 @@ class TranslationLoaderTest extends TestCase
         static::assertFalse($loader->hasTranslationFiles('_not-a-locale_'));
     }
 
-    private function getTranslationLoader(): TranslationLoader
+    private function getTranslationLoader(?AirGappedMode $airGappedMode = null): TranslationLoader
     {
         return new TranslationLoader(
             translationWriter: $this->flysystem,
@@ -593,6 +603,7 @@ class TranslationLoaderTest extends TestCase
             client: $this->client,
             config: $this->config,
             eventDispatcher: $this->eventDispatcher,
+            airGappedMode: $airGappedMode ?? new AirGappedMode(false),
         );
     }
 

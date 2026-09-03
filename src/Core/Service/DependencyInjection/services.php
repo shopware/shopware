@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Service\AllServiceInstaller;
@@ -99,6 +100,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.service_registry.url'),
             env('APP_URL'),
             service('service_registry.http_client'),
+            service(AirGappedMode::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
@@ -259,6 +261,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PermissionsService::class),
             service(Client::class),
             service(RequirementsValidator::class),
+            service(AirGappedMode::class),
         ]);
 
     $services->set(ServiceLifecycleSubscriber::class)

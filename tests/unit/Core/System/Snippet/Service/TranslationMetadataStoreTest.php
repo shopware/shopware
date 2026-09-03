@@ -12,6 +12,7 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
@@ -285,6 +286,29 @@ class TranslationMetadataStoreTest extends TestCase
         static::assertFalse($byLocale['it-IT']['isPseudoLanguage']);
     }
 
+    public function testGetTranslationListDoesNotFetchRemoteWhenAirGapped(): void
+    {
+        $client = $this->createMock(ClientInterface::class);
+        $client->expects($this->never())->method('request');
+
+        $store = new TranslationMetadataStore(
+            $this->config,
+            $client,
+            $this->filesystem,
+            new ArrayAdapter(),
+            new AirGappedMode(true),
+        );
+        $store->save($this->getMetadataCollection());
+
+        $byLocale = array_column($store->getTranslationList(), null, 'locale');
+
+        static::assertArrayHasKey('it-IT', $byLocale);
+        static::assertFalse($byLocale['it-IT']['updateAvailable']);
+        static::assertArrayHasKey('ro-RO', $byLocale);
+        static::assertNull($byLocale['ro-RO']['progress']);
+        static::assertFalse($byLocale['ro-RO']['updateAvailable']);
+    }
+
     public function testGetTranslationListDegradesWhenRemoteMetadataUnavailable(): void
     {
         $client = static::createStub(ClientInterface::class);
@@ -339,7 +363,7 @@ class TranslationMetadataStoreTest extends TestCase
         // The list path fetches the remote metadata once and serves the second call from the cache.
         $client->expects($this->once())->method('request')->willReturn($response);
 
-        $store = new TranslationMetadataStore($this->config, $client, $this->filesystem, new ArrayAdapter());
+        $store = new TranslationMetadataStore($this->config, $client, $this->filesystem, new ArrayAdapter(), new AirGappedMode(false));
 
         $store->getTranslationList();
         $store->getTranslationList();
@@ -347,7 +371,7 @@ class TranslationMetadataStoreTest extends TestCase
 
     private function getTranslationMetadataStore(): TranslationMetadataStore
     {
-        return new TranslationMetadataStore($this->config, $this->client, $this->filesystem, new ArrayAdapter());
+        return new TranslationMetadataStore($this->config, $this->client, $this->filesystem, new ArrayAdapter(), new AirGappedMode(false));
     }
 
     /**

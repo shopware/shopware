@@ -55,6 +55,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature\Command\FeatureDisableCommand;
 use Shopware\Core\Framework\Feature\Command\FeatureDumpCommand;
@@ -954,4 +955,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(EnvIntOrNullProcessor::class)
         ->tag('container.env_var_processor');
+
+    $services->set(AirGappedMode::class)
+        ->args([
+            param('shopware.deployment.air_gapped'),
+        ]);
 };

@@ -2,6 +2,20 @@
 
 ## Features
 
+### Air-gapped deployment mode
+
+Operators can disable Shopware-operated outbound HTTP with one `shopware.yaml` flag:
+
+```yaml
+shopware:
+    deployment:
+        air_gapped: true
+```
+
+When enabled, Shopware does not call the Store, in-app updates, remote translations, usage-data gateway, Services registry, or product-analytics gateway. Existing fine-grained flags stay independently usable. Local plugin lifecycle (activate, deactivate, zip install) is unchanged.
+
+Clear the container cache after changing the value. Provision translation files locally if extra locales are required (`translation:install --offline` or `shopware.translation.use_local_filesystem`). Merchant integrations such as payments, apps, SMTP, and object storage are not affected.
+
 ### Document generation v2 (experimental)
 
 Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.

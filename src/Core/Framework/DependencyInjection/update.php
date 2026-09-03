@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
@@ -52,6 +53,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.shopware_version'),
             param('kernel.project_dir'),
             service(ClockInterface::class),
+            service(AirGappedMode::class),
         ]);
 
     $services->set(ExtensionCompatibility::class)

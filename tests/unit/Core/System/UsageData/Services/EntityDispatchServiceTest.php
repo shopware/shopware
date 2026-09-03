@@ -11,6 +11,7 @@ use Shopware\Core\Content\Rule\Aggregate\RuleTag\RuleTagDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
@@ -83,6 +84,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-03'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchCollectEntityDataMessage();
@@ -111,6 +113,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::UNSET, null),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchCollectEntityDataMessage();
@@ -138,6 +141,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-03'),
             false,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchCollectEntityDataMessage();
@@ -167,6 +171,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-03'),
             true,
+            new AirGappedMode(false),
         );
 
         static::assertNull($appConfig->get('usageData-entitySync-lastRun-product'));
@@ -229,6 +234,7 @@ class EntityDispatchServiceTest extends TestCase
             $systemConfigService,
             $consentService,
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -273,6 +279,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-03'),
             true,
+            new AirGappedMode(false),
         );
 
         // first run
@@ -317,6 +324,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $consentService,
             true,
+            new AirGappedMode(false),
         );
 
         // first run
@@ -361,6 +369,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-03'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -406,6 +415,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-03'),
             true,
+            new AirGappedMode(false),
         );
         $storedScLastRunDatetime = new \DateTimeImmutable($lastScRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
@@ -449,6 +459,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-03'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -468,6 +479,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-02'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -493,6 +505,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::UNSET, null),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -518,6 +531,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-02'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('old-shop-id'));
@@ -542,6 +556,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-02'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -577,6 +592,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-02'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -616,6 +632,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-02'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages(new CollectEntityDataMessage('current-shop-id'));
@@ -697,6 +714,7 @@ class EntityDispatchServiceTest extends TestCase
             new StaticSystemConfigService([]),
             $this->createConsentService(ConsentStatus::ACCEPTED, '2026-03-02'),
             true,
+            new AirGappedMode(false),
         );
 
         $entityDispatchService->resetLastRunDateForAllEntities();

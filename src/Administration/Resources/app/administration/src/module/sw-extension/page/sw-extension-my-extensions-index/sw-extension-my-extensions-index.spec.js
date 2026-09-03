@@ -100,7 +100,9 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(true);
-        expect(wrapper.findAll('sw-tabs-item-stub')).toHaveLength(2);
+        expect(wrapper.vm.airGapped).toBe(true);
+        expect(wrapper.html()).not.toContain('sw.extension.my-extensions.recommendation');
+        expect(wrapper.html()).not.toContain('sw.extension.my-extensions.account');
     });
 
     it('upload button should be not there when missing plugin_upload acl', async () => {

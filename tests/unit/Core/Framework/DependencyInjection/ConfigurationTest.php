@@ -289,7 +289,11 @@ class ConfigurationTest extends TestCase
 
     public function testDeploymentAirGappedDefaultsToFalse(): void
     {
-        $config = (new Processor())->processConfiguration(new Configuration(), []);
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'deployment' => [],
+            ],
+        ]);
 
         static::assertFalse($config['deployment']['air_gapped']);
     }

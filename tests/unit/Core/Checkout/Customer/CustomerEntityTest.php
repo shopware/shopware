@@ -136,7 +136,7 @@ class CustomerEntityTest extends TestCase
         static::assertSame('salutation-id', $customer->getSalutationId());
         static::assertSame('Ada', $customer->getFirstName());
         static::assertSame('Lovelace', $customer->getLastName());
-        static::assertSame('Analytical Engines', (string) $customer);
+        static::assertSame('Ada Lovelace', (string) $customer);
         static::assertSame('Analytical Engines', $customer->getCompany());
         static::assertSame('ada@example.com', $customer->getEmail());
         static::assertSame('Dr.', $customer->getTitle());
@@ -196,64 +196,6 @@ class CustomerEntityTest extends TestCase
 
         $customer->setLegacyEncoder('md5');
         static::assertTrue($customer->hasLegacyPassword());
-    }
-
-    #[DataProvider('nameProvider')]
-    public function testToString(string $accountType, string $firstName, string $lastName, ?string $company, string $expected): void
-    {
-        $customer = new CustomerEntity();
-        $customer->setAccountType($accountType);
-        $customer->setFirstName($firstName);
-        $customer->setLastName($lastName);
-
-        if ($company !== null) {
-            $customer->setCompany($company);
-        }
-
-        static::assertSame($expected, (string) $customer);
-    }
-
-    public function testToStringWithoutAccountTypeUsesThePersonName(): void
-    {
-        $customer = new CustomerEntity();
-        $customer->setFirstName('Ada');
-        $customer->setLastName('Lovelace');
-
-        static::assertSame('Ada Lovelace', (string) $customer);
-    }
-
-    /**
-     * @return \Generator<string, array{string, string, string, string|null, string}>
-     */
-    public static function nameProvider(): \Generator
-    {
-        yield 'private account uses the person name' => [
-            CustomerEntity::ACCOUNT_TYPE_PRIVATE, 'Ada', 'Lovelace', null, 'Ada Lovelace',
-        ];
-
-        yield 'private account ignores the company' => [
-            CustomerEntity::ACCOUNT_TYPE_PRIVATE, 'Ada', 'Lovelace', 'Analytical Engines', 'Ada Lovelace',
-        ];
-
-        yield 'business account uses the company' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', 'Analytical Engines', 'Analytical Engines',
-        ];
-
-        yield 'business account without a company falls back to the person name' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', null, 'Ada Lovelace',
-        ];
-
-        yield 'business account with a blank company falls back to the person name' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', '   ', 'Ada Lovelace',
-        ];
-
-        yield 'business account without a person name uses the company' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', 'Analytical Engines', 'Analytical Engines',
-        ];
-
-        yield 'empty person name is not padded with a space' => [
-            CustomerEntity::ACCOUNT_TYPE_PRIVATE, '', '', null, '',
-        ];
     }
 
     /**

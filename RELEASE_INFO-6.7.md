@@ -123,11 +123,9 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
-### Business customers are identified by their company name
+### Invoice buyer names no longer repeat the company name
 
-`CustomerEntity::__toString()` now returns the company name for customers whose `accountType` is `business`. It falls back to the person name when no company is set. Read `firstName` and `lastName` directly if you need the contact person instead of the account holder.
-
-Invoice buyer names no longer repeat the company name when the person name and the company name are identical, and no longer start with a `-` when only a company name is present.
+The buyer name on documents rendered through `DocumentV2` no longer repeats the company name when the person name and the company name are identical, and no longer starts with a `-` when only a company name is present.
 
 ### `JsonField::addPropertyMapping()` for entity extensions
 

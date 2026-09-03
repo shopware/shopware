@@ -107,7 +107,7 @@ async function createWrapper(sequence = {}) {
 
 describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should show validation if document multiple type field is empty',
         async () => {
             const wrapper = await createWrapper();
@@ -130,7 +130,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     );
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should emit process-finish when document multiple type is selected',
         async () => {
             const wrapper = await createWrapper();
@@ -165,7 +165,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     );
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should not preselect a document type when switching back from a v2 config and require an explicit choice before saving',
         async () => {
             const wrapper = await createWrapper({

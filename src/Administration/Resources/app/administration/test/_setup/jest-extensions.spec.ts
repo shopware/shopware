@@ -3,10 +3,9 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { createActiveFeatureFlagsTest, createDeprecatedTest, createInactiveFeatureFlagsTest } from './jest-extensions';
+import { createActiveFeatureFlagsTest, createDeprecatedTest } from './jest-extensions';
 
 const pendingFeatureFlagsSymbol = Symbol.for('shopware.pendingActiveFeatureFlags');
-const pendingInactiveFeatureFlagsSymbol = Symbol.for('shopware.pendingInactiveFeatureFlags');
 
 const defaultActiveFeatureFlags =
     (Reflect.get(globalThis, Symbol.for('shopware.defaultActiveFeatureFlags')) as string[] | undefined) ?? [];
@@ -166,19 +165,6 @@ describe('Jest feature flag extensions', () => {
         createActiveFeatureFlagsTest(testFunction)(['v6.8.0.0'])('feature test', jest.fn());
 
         expect(registeredFeatureFlags).toEqual(['V6_8_0_0']);
-    });
-
-    it('publishes inactive feature flags for a test', () => {
-        let registeredFeatureFlags: string[] = [];
-        const testFunction = jest.fn(() => {
-            registeredFeatureFlags = Reflect.get(globalThis, pendingInactiveFeatureFlagsSymbol) as string[];
-        }) as unknown as jest.It;
-
-        createInactiveFeatureFlagsTest(testFunction)(['v6.8.0.0'])('feature test', jest.fn());
-
-        expect(testFunction).toHaveBeenCalledWith('feature test', expect.any(Function), undefined);
-        expect(registeredFeatureFlags).toEqual(['V6_8_0_0']);
-        expect(Reflect.has(globalThis, pendingInactiveFeatureFlagsSymbol)).toBeFalsy();
     });
 
     it('publishes feature flags for every row of a table', () => {

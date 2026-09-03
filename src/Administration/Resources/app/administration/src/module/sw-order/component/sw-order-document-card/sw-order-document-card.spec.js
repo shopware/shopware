@@ -394,7 +394,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should show the select document type modal after clicking on the create new button',
         async () => {
             global.activeAclRoles = [
@@ -558,7 +558,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     );
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should render the legacy context menu actions when the feature flag is inactive',
         async () => {
             wrapper = await createWrapper();
@@ -617,7 +617,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     );
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should open an existing document through the legacy endpoint when the feature flag is inactive',
         async () => {
             global.activeAclRoles = ['document.viewer'];
@@ -671,7 +671,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     );
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should download an existing document through the legacy endpoint when the feature flag is inactive',
         async () => {
             global.activeAclRoles = ['document.viewer'];
@@ -1101,7 +1101,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK']).each([
+    it.deprecated('DOCUMENT_GENERATION_REWORK').each([
         {
             technicalName: DOCUMENT_TYPES.ZUGFERD_INVOICE,
             inputSelector: '.sw-order-document-settings-invoice-modal__document-number input',
@@ -1170,7 +1170,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     );
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should call downloadDocument with pdf fileType for regular invoice',
         async () => {
             global.activeAclRoles = ['order.editor'];

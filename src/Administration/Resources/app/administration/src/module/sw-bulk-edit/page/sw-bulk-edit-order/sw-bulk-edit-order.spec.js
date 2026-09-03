@@ -841,7 +841,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
-    it.inactiveFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK',
         async () => {
             wrapper = await createWrapper();

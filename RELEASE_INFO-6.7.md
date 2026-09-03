@@ -16,7 +16,7 @@ A document type (invoice, cancellation invoice, delivery note, credit note) can 
 
 ZUGFeRD is no longer a document type of its own. It is a file format of the invoice, cancellation invoice, and credit note types. Mail attachments and the archive download include all generated formats by default, Flow Builder mail actions can select specific formats.
 
-Each generation snapshots the order into a dedicated order version. A document always renders the order state at generation time. Generated files receive unique, readable filenames with configurable per-format infixes.
+Each generation snapshots the order into a dedicated order version. A document always renders the order state at generation time. Generated files receive unique, readable filenames with configurable per-format infixes. Infixes that would give two formats with the same file extension the same filename are rejected on write with the violation code `DOCUMENT_BASE_CONFIG_DUPLICATE_FILENAME_INFIX`. An empty sales-channel infix inherits the global one, as the prefix and suffix do.
 
 #### Opting in
 

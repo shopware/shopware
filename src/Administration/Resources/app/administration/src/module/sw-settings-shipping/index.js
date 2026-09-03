@@ -28,7 +28,7 @@ Module.register('sw-settings-shipping', {
     name: 'settings-shipping',
     title: 'sw-settings-shipping.general.mainMenuItemGeneral',
     description: 'sw-settings-shipping.general.descriptionTextModule',
-    color: 'var(--color-icon-secondary-default)',
+    color: '#848A96',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'shipping_method',

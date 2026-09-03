@@ -12,7 +12,7 @@ Shopware.Module.register('sw-extension-sdk', {
     title: 'sw-extension-sdk.general.mainMenuItemGeneral',
     description: 'sw-extension-sdk.general.moduleDescription',
     icon: 'regular-view-grid',
-    color: 'var(--color-icon-secondary-default)',
+    color: '#848A96',
     routePrefixPath: 'extension',
 
     routes: {
@@ -36,7 +36,7 @@ Shopware.Module.register('sw-extension-sdk', {
             id: 'sw-extension-sdk',
             label: 'sw-extension-sdk.general.mainMenuItemGeneral',
             icon: 'regular-view-grid',
-            color: 'var(--color-icon-secondary-default)',
+            color: '#848A96',
             position: 110,
         },
     ],

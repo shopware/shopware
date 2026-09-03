@@ -12,7 +12,7 @@ Module.register('sw-settings-store', {
     name: 'settings-store',
     title: 'sw-settings-store.general.mainMenuItemGeneral',
     description: 'sw-settings-store.general.description',
-    color: 'var(--color-icon-secondary-default)',
+    color: '#848A96',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
 

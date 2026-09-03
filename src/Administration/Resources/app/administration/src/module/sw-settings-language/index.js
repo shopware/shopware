@@ -17,7 +17,7 @@ Module.register('sw-settings-language', {
     name: 'settings-language',
     title: 'sw-settings-language.general.mainMenuItemGeneral',
     description: 'Language section in the settings module',
-    color: 'var(--color-icon-secondary-default)',
+    color: '#848A96',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'language',

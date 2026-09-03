@@ -31,7 +31,7 @@ Shopware.Module.register('sw-settings-services', {
     name: 'services',
     title: 'sw-settings-services.general.title',
     description: 'sw-settings-services.general.description',
-    color: 'var(--color-icon-secondary-default)',
+    color: '#848A96',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'store_settings',

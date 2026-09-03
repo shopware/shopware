@@ -38,7 +38,7 @@ Module.register('sw-mail-template', {
     description: 'Manages the mail templates of the application',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-icon-secondary-default)',
+    color: '#848A96',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'mail_template',

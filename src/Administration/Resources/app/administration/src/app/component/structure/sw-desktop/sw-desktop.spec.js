@@ -46,7 +46,7 @@ const routes = [
             $module: {
                 entity: 'product',
                 icon: 'default-symbol-products',
-                color: '#00B472',
+                color: '#46954B',
                 title: 'sw-product.general.mainMenuItemGeneral',
                 name: 'product',
                 routes: { index: { name: 'sw.product.index' } },
@@ -63,7 +63,7 @@ const routes = [
             $module: {
                 entity: 'product',
                 icon: 'default-symbol-products',
-                color: '#00B472',
+                color: '#46954B',
                 title: 'sw-product.general.mainMenuItemGeneral',
                 name: 'product',
                 routes: {
@@ -98,7 +98,7 @@ const routes = [
             $module: {
                 entity: 'product',
                 icon: 'default-symbol-products',
-                color: '#00B472',
+                color: '#46954B',
                 title: 'sw-product.general.mainMenuItemGeneral',
                 name: 'product',
                 routes: {
@@ -221,7 +221,7 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(onUpdateSearchFrequently).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata).toHaveBeenCalledTimes(1);
         expect(getModuleMetadata.mock.results[0].value).toEqual({
-            color: '#00B472',
+            color: '#46954B',
             entity: 'product',
             icon: 'default-symbol-products',
             name: 'product',
@@ -244,7 +244,7 @@ describe('src/app/component/structure/sw-desktop', () => {
         expect(getModuleMetadata.mock.results[0].value).toEqual({
             name: 'product',
             icon: 'default-symbol-products',
-            color: '#00B472',
+            color: '#46954B',
             entity: 'product',
             route: { name: 'sw.product.create' },
             action: true,

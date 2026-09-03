@@ -22,7 +22,7 @@ Module.register('sw-settings-logging', {
     name: 'settings-logging',
     title: 'sw-settings-logging.general.mainMenuItemGeneral',
     description: 'Log viewer',
-    color: 'var(--color-icon-secondary-default)',
+    color: '#848A96',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'log_entry',

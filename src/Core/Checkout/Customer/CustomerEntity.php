@@ -178,7 +178,13 @@ class CustomerEntity extends Entity implements \Stringable
 
     public function __toString(): string
     {
-        return $this->getFirstName() . ' ' . $this->getLastName();
+        $company = trim($this->company ?? '');
+
+        if ($company !== '' && $this->getAccountType() === self::ACCOUNT_TYPE_BUSINESS) {
+            return $company;
+        }
+
+        return trim($this->getFirstName() . ' ' . $this->getLastName());
     }
 
     public function getGroupId(): string

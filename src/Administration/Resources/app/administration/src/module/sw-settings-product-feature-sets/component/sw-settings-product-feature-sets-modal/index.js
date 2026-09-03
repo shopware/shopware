@@ -4,7 +4,7 @@
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
 
-const { Context } = Shopware;
+const { Context, Locale } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -31,6 +31,7 @@ export default {
             selectedFeatureType: null,
             showPageOne: true,
             term: '',
+            customFieldSearchTerm: '',
             showCustomField: false,
             showPropertyGroups: false,
             showProductInfo: false,
@@ -117,7 +118,7 @@ export default {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 10);
             criteria.addSorting(Criteria.sort('type', 'DESC'));
 
             const featureIds = this.getFeaturesIds('customField');
@@ -125,7 +126,39 @@ export default {
                 criteria.addFilter(Criteria.not('AND', [Criteria.equalsAny('id', featureIds)]));
             }
 
+            if (this.customFieldSearchTerm) {
+                criteria.addFilter(Criteria.multi('OR', this.customFieldSearchFilters));
+            }
+
             return criteria;
+        },
+
+        /**
+         * The grid renders the translated `config.label` of a custom field, but a plain term search only matches the
+         * technical `name`, because `custom_field` has no searchable label field. Search both, so a merchant can find
+         * a custom field by the label they see.
+         */
+        customFieldSearchFilters() {
+            const term = this.customFieldSearchTerm;
+            const filters = [Criteria.contains('name', term)];
+
+            // The rendered label is read from the current locale with the fallback locale as backup, so both have to
+            // be covered even when they are not part of the locale registry.
+            const locales = new Set([
+                Shopware.Store.get('session').currentLocale,
+                Shopware.Context.app.fallbackLocale,
+                ...Locale.getLocaleRegistry().keys(),
+            ]);
+
+            locales.forEach((locale) => {
+                if (!locale) {
+                    return;
+                }
+
+                filters.push(Criteria.contains(`config.label.${locale}`, term));
+            });
+
+            return filters;
         },
 
         propertyGroupCriteria() {
@@ -220,7 +253,6 @@ export default {
                 this.features = this.productFeatureSet.features;
             }
 
-            this.customFieldCriteria.setLimit(10);
             this.propertyGroupCriteria.setLimit(10);
 
             this.getCustomFieldList();
@@ -229,7 +261,7 @@ export default {
         },
 
         onSearchCustomFields() {
-            this.customFieldCriteria.setTerm(this.term);
+            this.customFieldSearchTerm = this.term;
             this.getCustomFieldList();
         },
 

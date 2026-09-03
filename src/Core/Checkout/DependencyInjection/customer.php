@@ -345,6 +345,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerProfileValidationFactory::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
+            service(SystemConfigService::class),
         ]);
 
     $services->set(ChangePasswordRoute::class)

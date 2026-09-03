@@ -24,12 +24,14 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -56,6 +58,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -83,6 +86,14 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             $validation->add('company', new NotBlank());
+
+            if (!$this->systemConfigService->getBool('core.loginRegistration.nameFieldsRequiredForCompanyAccounts', $context->getSalesChannelId())) {
+                // a company account is identified by its company name, so the contact person is optional
+                $validation
+                    ->set('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
+                    ->set('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
+            }
+
             $billingAddress = $customer->getDefaultBillingAddress();
             if ($billingAddress) {
                 $this->addVatIdsValidation($validation, $billingAddress);

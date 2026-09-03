@@ -452,6 +452,17 @@ class RegisterRoute extends AbstractRegisterRoute
         return $validation;
     }
 
+    /**
+     * A company account is identified by its company name, so the contact person is optional.
+     * `set` replaces every constraint for the property, so the length limits are re-added.
+     */
+    private static function makePersonNameOptional(DataValidationDefinition $validation): void
+    {
+        $validation
+            ->set('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
+            ->set('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
+    }
+
     private function getCustomerCreateValidationDefinition(bool $isGuest, DataBag $data, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->accountValidationFactory->create($context);
@@ -470,6 +481,11 @@ class RegisterRoute extends AbstractRegisterRoute
                 $this->passwordValidationFactory->create($context)
             );
             $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
+        }
+
+        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && !$this->systemConfigService->getBool('core.loginRegistration.nameFieldsRequiredForCompanyAccounts', $context->getSalesChannelId())) {
+            self::makePersonNameOptional($validation);
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

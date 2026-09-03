@@ -10,7 +10,6 @@
     showScrollbar = true,
     itemSizing = 'fixed',
     scrollBehaviour = 'snap',
-    slots = [],
 %}
 
 {% set titleId = 'sw-product-slider-title-' ~ random() %}
@@ -81,6 +80,7 @@
                         :iconOnly="true"
                         aria-label="{{ 'listing.productSliderScrollBackward'|trans|striptags }}"
                         hidden="hidden"
+                        tabindex="-1"
                     >
                         <twig:Sw:Icon name="arrow-head-left" size="sm" />
                     </twig:Sw:Button>
@@ -91,6 +91,7 @@
                         :iconOnly="true"
                         aria-label="{{ 'listing.productSliderScrollForward'|trans|striptags }}"
                         hidden="hidden"
+                        tabindex="-1"
                     >
                         <twig:Sw:Icon name="arrow-head-right" size="sm" />
                     </twig:Sw:Button>

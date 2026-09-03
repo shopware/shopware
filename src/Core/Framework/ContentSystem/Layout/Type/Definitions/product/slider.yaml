@@ -17,10 +17,10 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection
     required: true
     title: "Products"
-    description: "The products shown in the slider."
+    description: "The products shown in the slider. Required because without products the slider will show an empty state."
     resolvedBy: productIds
     adminUI:
-      component: "sw-entity-multi-id-select"
+      component: "entity-multi"
       entity: "product"
 
   title:

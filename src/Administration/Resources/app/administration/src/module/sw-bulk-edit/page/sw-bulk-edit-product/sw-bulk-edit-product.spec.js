@@ -1153,7 +1153,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('#00B472');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('#46954B');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-products');
 
         wrapper.vm.setRouteMetaModule.mockRestore();

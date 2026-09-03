@@ -12,7 +12,7 @@ Module.register('sw-landing-page', {
     title: 'sw-landing-page.general.mainMenuItemIndex',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#00B472',
+    color: '#46954B',
     icon: 'regular-products',
     favicon: 'icon-module-products.svg',
     entity: 'landing_page',

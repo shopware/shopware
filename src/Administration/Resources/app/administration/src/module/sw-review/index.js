@@ -18,7 +18,7 @@ Module.register('sw-review', {
     description: 'sw-review.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#00B472',
+    color: '#46954B',
     icon: 'regular-products',
     favicon: 'icon-module-products.svg',
     entity: 'product_review',
@@ -47,7 +47,7 @@ Module.register('sw-review', {
         {
             id: 'sw-review',
             label: 'sw-review.general.mainMenuItemList',
-            color: '#00B472',
+            color: '#46954B',
             path: 'sw.review.index',
             icon: 'regular-products',
             parent: 'sw-catalogue',

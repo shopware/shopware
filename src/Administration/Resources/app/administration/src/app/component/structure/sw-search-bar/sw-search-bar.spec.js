@@ -822,7 +822,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should search for module and action with a default module', async () => {
         register('sw-order', {
             title: 'Orders',
-            color: '#886FE9',
+            color: '#8258FF',
             icon: 'regular-shopping-bag',
             entity: 'order',
 
@@ -883,7 +883,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should search for module and action with config module', async () => {
         register('sw-category', {
             title: 'Categories',
-            color: '#00B472',
+            color: '#46954B',
             icon: 'regular-products',
             entity: 'category',
 
@@ -1012,7 +1012,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
-                color: '#886FE9',
+                color: '#8258FF',
                 icon: 'regular-shopping-bag',
                 entity: term,
 
@@ -1070,7 +1070,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
-                color: '#886FE9',
+                color: '#8258FF',
                 icon: 'regular-shopping-bag',
                 entity: term,
 
@@ -1122,7 +1122,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(module.total).toBe(1);
 
             expect(module.entities[0].icon).toBe('regular-shopping-bag');
-            expect(module.entities[0].color).toBe('#886FE9');
+            expect(module.entities[0].color).toBe('#8258FF');
             expect(module.entities[0].label).toBe(`${term}s`);
             expect(module.entities[0].entity).toBe(term);
             expect(module.entities[0].route.name).toBe(`sw.${term}.index`);
@@ -1748,7 +1748,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const term = 'customer';
         register(`sw-${term}`, {
             title: `${term}s`,
-            color: '#886FE9',
+            color: '#8258FF',
             icon: 'regular-shopping-bag',
             entity: term,
 
@@ -1996,7 +1996,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it('should use the module color for the module filter icons when the preference is enabled', async () => {
             register('sw-order', {
                 title: 'Orders',
-                color: '#886FE9',
+                color: '#8258FF',
                 icon: 'regular-shopping-bag',
                 entity: 'order',
 
@@ -2012,16 +2012,16 @@ describe('src/app/component/structure/sw-search-bar', () => {
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(wrapper.vm.getTypeIconColor('order')).toBe('#886FE9');
+            expect(wrapper.vm.getTypeIconColor('order')).toBe('#8258FF');
         });
 
         it('should fall back to the color of the current module when the search type is not an entity', async () => {
             useModuleIconColors().enabled.value = true;
             wrapper = await createWrapper({ initialSearchType: 'theme' });
             await flushPromises();
-            wrapper.vm.$route.meta = { $module: { color: '#FF5EA1' } };
+            wrapper.vm.$route.meta = { $module: { color: '#E70870' } };
 
-            expect(wrapper.vm.getEntityIconColor('theme')).toBe('#FF5EA1');
+            expect(wrapper.vm.getEntityIconColor('theme')).toBe('#E70870');
             expect(wrapper.vm.getEntityIconColor('unknown')).toBe('#5C738A');
         });
 
@@ -2039,7 +2039,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it('should paint the search type button in the module color when the preference is enabled', async () => {
             register('sw-order', {
                 title: 'Orders',
-                color: '#886FE9',
+                color: '#8258FF',
                 icon: 'regular-shopping-bag',
                 entity: 'order',
 
@@ -2057,9 +2057,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
             const button = wrapper.find('.sw-search-bar__type--v2');
 
-            expect(wrapper.vm.searchTypeColor).toBe('#886FE9');
+            expect(wrapper.vm.searchTypeColor).toBe('#8258FF');
             expect(button.classes()).toContain('is--module-colored');
-            expect(button.attributes('style')).toContain('--sw-search-bar-type-color: #886FE9');
+            expect(button.attributes('style')).toContain('--sw-search-bar-type-color: #8258FF');
         });
     });
 });

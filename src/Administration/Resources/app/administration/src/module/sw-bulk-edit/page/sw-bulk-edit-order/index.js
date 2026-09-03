@@ -311,7 +311,7 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = '#886FE9';
+            this.$route.meta.$module.color = '#8258FF';
             this.$route.meta.$module.icon = 'regular-shopping-bag';
         },
 

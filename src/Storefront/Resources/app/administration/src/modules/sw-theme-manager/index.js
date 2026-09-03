@@ -34,7 +34,7 @@ Module.register('sw-theme-manager', {
     description: 'sw-theme-manager.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#FF5EA1',
+    color: '#E70870',
     icon: 'regular-content',
     favicon: 'icon-module-content.svg',
     entity: 'theme',
@@ -61,7 +61,7 @@ Module.register('sw-theme-manager', {
         {
             id: 'sw-theme-manager',
             label: 'sw-theme-manager.general.mainMenuItemGeneral',
-            color: '#FF5EA1',
+            color: '#E70870',
             icon: 'default-object-image',
             path: 'sw.theme.manager.index',
             privilege: 'theme.viewer',

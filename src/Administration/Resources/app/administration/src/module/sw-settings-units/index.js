@@ -16,7 +16,7 @@ Module.register('sw-settings-units', {
     name: 'settings-units',
     title: 'sw-settings-units.general.mainMenuItemGeneral',
     description: 'Units section in the settings module',
-    color: 'var(--color-icon-secondary-default)',
+    color: '#848A96',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'units',

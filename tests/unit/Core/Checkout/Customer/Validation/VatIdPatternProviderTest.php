@@ -55,31 +55,11 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 
-    public function testGetStateByEuVatIdReturnsTheMemberStateItBelongsTo(): void
-    {
-        $provider = $this->createProvider([
-            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE\d{10}'],
-            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
-        ]);
-
-        static::assertSame('NL', $provider->getStateByEuVatId('NL123456789B01'));
-    }
-
-    public function testGetStateByEuVatIdReturnsNullForANonEuVatId(): void
-    {
-        $provider = $this->createProvider([
-            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE\d{10}'],
-            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
-        ]);
-
-        static::assertNull($provider->getStateByEuVatId('CHE123456789'));
-    }
-
-    public function testGetStateByEuVatIdReturnsNullWhenNoCountryHasAPattern(): void
+    public function testAVatIdHasNoCountryWhenNoCountryHasAPattern(): void
     {
         $provider = $this->createProvider([]);
 
-        static::assertNull($provider->getStateByEuVatId('NL123456789B01'));
+        static::assertNull($provider->getCountryIdForVatIds(['NL123456789B01']));
     }
 
     public function testTheCountryOfAVatIdListIsTheStateOfItsFirstEntry(): void
@@ -131,8 +111,8 @@ class VatIdPatternProviderTest extends TestCase
 
         $provider = new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
 
-        static::assertSame('NL', $provider->getStateByEuVatId('NL123456789B01'));
-        static::assertSame('NL', $provider->getStateByEuVatId('NL987654321B02'));
+        static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds(['NL123456789B01']));
+        static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds(['NL987654321B02']));
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 

@@ -125,11 +125,7 @@
 
         {% block layout_head_canonical %}
             {% if page.metaInformation.canonical %}
-                {% if app.request.query.get('p') %}
-                    <link rel="canonical" href="{{ page.metaInformation.canonical }}?p={{ app.request.query.get('p') }}" />
-                {% else %}
-                    <link rel="canonical" href="{{ page.metaInformation.canonical }}">
-                {% endif %}
+                <link rel="canonical" href="{{ page.metaInformation.canonical }}">
             {% endif %}
         {% endblock %}
 

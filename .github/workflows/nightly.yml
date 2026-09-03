@@ -38,7 +38,7 @@ jobs:
         run: |
           ./vendor/bin/phpunit --log-junit junit.xml --testsuite redis
       - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: junit-phpunit-redis-${{ strategy.job-index }}
@@ -63,6 +63,7 @@ jobs:
     secrets: inherit
     with:
       profile: nightly
+      currents: ${{ github.event_name == 'schedule' }}
       # Major acceptance tests are run by the dedicated nightly-major workflow while the next
       # major is prepared. Once they are green, drop this line to fold them back into nightly.
       major: exclude
@@ -98,7 +99,10 @@ jobs:
   # turn red PHPUnit arms (redis, integration.yml, php.yml) into one domain-grouped tracking issue,
   # aggregated from the junit-phpunit-* artifacts those jobs upload on scheduled failures
   report-phpunit-failures:
-    if: always() && github.event_name == 'schedule' && (needs.redis.result == 'failure' || needs.integration.result == 'failure' || needs.php.result == 'failure')
+    # maintenance-branch nightlies arrive as bot workflow_dispatch (schedule only fires on the default
+    # branch), so do not gate on the event; the aggregation script skips branches that are neither
+    # trunk nor maintenance-shaped, keeping manual test dispatches out of the tracking issues
+    if: always() && github.ref_type != 'tag' && (needs.redis.result == 'failure' || needs.integration.result == 'failure' || needs.php.result == 'failure')
     needs:
       - redis
       - integration
@@ -108,7 +112,7 @@ jobs:
       contents: read
       issues: write
     with:
-      report-title: "[nightly] Nightly PHPUnit failures"
+      report-title: "[nightly] Nightly test failures"
 
   # we need this for our LTS, because gh only runs scheduled for the default branch
   nightly-other-branches:

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * The generation pipeline resolves the referenced document, fills
  * ProviderInput::$resolvedReference and persists the resolved reference id.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 interface ReferencesDocument

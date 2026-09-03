@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('fundamentals@after-sales')]
+#[Package('fundamentals@discovery')]
 class LanguageRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

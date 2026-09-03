@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
@@ -68,7 +70,8 @@ use Shopware\Core\Content\Flow\Rule\OrderStatusRule;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
 use Shopware\Core\Content\Flow\Rule\OrderTrackingCodeRule;
 use Shopware\Core\Content\Flow\Rule\OrderTransactionStatusRule;
-use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
+use Shopware\Core\Content\Flow\Telemetry\FlowMetricsInstrumentor;
+use Shopware\Core\Content\Flow\Telemetry\TriggerGroupResolver;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider;
@@ -78,6 +81,7 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider;
+use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
@@ -85,6 +89,7 @@ use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -158,6 +163,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ExtensionDispatcher::class),
             service('logger'),
             tagged_iterator('flow.action', 'key'),
+            service(FlowMetricsInstrumentor::class),
+        ]);
+
+    $services->set(TriggerGroupResolver::class);
+
+    $services->set(FlowMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(TriggerGroupResolver::class),
         ]);
 
     $services->set(AddOrderTagAction::class)
@@ -221,6 +235,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(GenerateDocumentAction::class)
         ->args([
             service(DocumentGenerator::class),
+            service(DocumentV2Generator::class),
             service('logger'),
         ])
         ->tag('flow.action', ['priority' => 620, 'key' => 'action.generate.document']);
@@ -344,7 +359,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document.repository'),
             service('event_dispatcher'),
-            service(MailAttachmentsBuilder::class),
+            service(DocumentResolver::class),
+            service(DocumentFileResolver::class),
         ])
         ->tag('flow.storer');
 

@@ -15,7 +15,7 @@ use Shopware\Core\Migration\V6_7\Migration1763377575SendEmailAfterPasswordChange
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('after-sales')]
 #[CoversClass(Migration1763377575SendEmailAfterPasswordChangeFlow::class)]
 class Migration1763377575SendEmailAfterPasswordChangeFlowTest extends TestCase
 {

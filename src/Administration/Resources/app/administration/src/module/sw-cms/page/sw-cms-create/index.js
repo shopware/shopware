@@ -40,7 +40,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.Store.get('adminMenu').collapseSidebar();
             this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;

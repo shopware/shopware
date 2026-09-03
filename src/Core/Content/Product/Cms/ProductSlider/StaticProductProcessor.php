@@ -48,6 +48,7 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = new Criteria($products->getArrayValue());
+        $criteria->addAssociation('options.group');
 
         $this->eventDispatcher->dispatch(new ProductSliderStaticCriteriaEvent($slot, $criteria, $resolverContext->getSalesChannelContext()));
 

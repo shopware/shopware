@@ -5,7 +5,7 @@ import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import { DOCUMENT_MAIL_TEMPLATE_MAPPING } from './index';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 /**
  * @sw-package checkout
@@ -527,6 +527,31 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             deepLinkCode: '12345',
             fileExtension: 'html',
         });
+    });
+
+    it('should fall back to the V2 html document file for a11y links', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            document: {
+                ...mockDocuments[0],
+                documentA11yMediaFile: null,
+                documentFiles: [
+                    {
+                        documentFormat: 'html',
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.a11yDocuments).toEqual([
+            {
+                documentId: mockDocuments[0].id,
+                deepLinkCode: '12345',
+                fileExtension: 'html',
+            },
+        ]);
     });
 
     describe('auto select mail template by document type', () => {

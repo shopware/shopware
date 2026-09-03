@@ -318,7 +318,7 @@ class ZugferdBuilderTest extends TestCase
     {
         if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
             $quantity = number_format($lineItem->getQuantity(), 2, '.', '');
-            $unitPrice = number_format($lineItem->getUnitPrice() / 1.19, 2, '.', '');
+            $unitPrice = number_format($lineItem->getUnitPrice() / 1.19, 4, '.', '');
             $totalPrice = number_format($lineItem->getTotalPrice() / 1.19, 2, '.', '');
 
             static::assertStringContainsString("LineID>{$this->getPosition($lineItem)}<", $xmlContent);

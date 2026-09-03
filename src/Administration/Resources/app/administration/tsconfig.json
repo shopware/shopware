@@ -1,9 +1,20 @@
 {
+  // Extends the extension-tooling preset so the Administration and its
+  // extensions share one strictness core and cannot drift apart. Every key
+  // below is a deliberate host divergence from that baseline.
+  "extends": "./extension-tooling/tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2023",
-    "lib": ["ES2020", "DOM", "ES2023"],
+    // No ESNext/Bundler migration yet: jest and ts-node consume this config.
+    // "node" resolution must be set explicitly — the inherited "Bundler" is
+    // invalid together with commonjs (TS5095).
     "module": "commonjs",
+    "moduleResolution": "node",
+    // Kept verbatim (the base adds DOM.Iterable, which would change DOM
+    // collection typings across the codebase).
+    "lib": ["ES2020", "DOM", "ES2023"],
     "baseUrl": "./",
+    // "paths" replaces the base's wholesale by design — the admin resolves
+    // vue/src from node_modules and baseUrl, not through the preset mappings.
     "paths": {
       "src": ["src"],
       "@shopware-ag/dive/quickview": ["./node_modules/@shopware-ag/dive/build/plugins/quickview/index.d.ts"],
@@ -13,18 +24,15 @@
       "@tiptap/vue-3": ["./node_modules/@tiptap/vue-3/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/vue-3/dist/index.d.ts"],
       "@tiptap/extension-link": ["./node_modules/@tiptap/extension-link/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/extension-link/dist/index.d.ts"],
     },
+    // The base empties "types" so extension programs stay runner-free; the
+    // admin program does include its specs and needs the jest globals.
     "types": [
       "vite/client",
       "jest"
     ],
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "noEmit": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
+    // Divergence from the base preset: the native-setup tooling imports .ts files
+    // with explicit extensions (e.g. build/vue-setup-transform), which the base does not allow.
+    "allowImportingTsExtensions": true,
     "noErrorTruncation": false,
   },
   "include": [
@@ -32,12 +40,20 @@
     "./src/**/*",
     "./vite.config.mts",
     "./build/vite-plugins/**/*",
+    "./build/vue-setup-transform/**/*",
     "./build/plugins.vite.ts",
     "./eslint-rules/**/*.ts",
+    "./scripts/codemods/**/*.ts",
+    "./scripts/extensionTooling/**/*.ts",
     "./test/**/*.d.ts",
     "./test/**/*.ts",
     "./twigVuePlugin/**/*.ts"
   ],
-  "exclude": ["node_modules"],
-  "files": ["node_modules/jest-expect-message/types/index.d.ts"]
+  // The sourcemap fixtures are standalone ESM scripts run via jiti/node (import.meta, top-level await),
+  // not part of the admin's commonjs compilation - keep them out of the type-check program.
+  "exclude": ["node_modules", "build/vite-plugins/**/fixtures/**", "scripts/codemods/**/__fixtures__/**"],
+  "files": [
+    "node_modules/jest-expect-message/types/index.d.ts",
+    "build/vue-setup-transform/shopware-setup-macros.d.ts"
+  ]
 }

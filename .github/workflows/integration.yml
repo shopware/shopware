@@ -105,6 +105,7 @@ jobs:
           test-testsuite: ${{ matrix.test.testsuite }}
       - name: Upload test results to Codecov
         uses: ./.github/actions/phpunit-upload
+        continue-on-error: true
         # !cancelled(): junit test results must upload even when the run failed.
         # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
         # failed), because then checkout never ran either and this local action cannot resolve.
@@ -112,7 +113,7 @@ jobs:
         with:
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: junit-phpunit-${{ strategy.job-index }}
@@ -182,16 +183,16 @@ jobs:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
+        uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
+        uses: github/codeql-action/autobuild@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
+        uses: github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
 
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
@@ -240,7 +241,17 @@ jobs:
 
       - name: Run integration tests
         if: inputs.profile == 'nightly'
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "integration" --stop-on-error --stop-on-failure
+
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-blue-green-67-68
+          path: junit.xml
+          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
 
       - name: Install Shopware in previous major version
         if: inputs.profile != 'nightly'
@@ -329,7 +340,17 @@ jobs:
 
       - name: Run integration tests in previous major version
         if: inputs.profile == 'nightly'
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "integration" --stop-on-error --stop-on-failure
+
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-blue-green-66-67
+          path: junit.xml
+          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
 
       - name: Run blue-green check
         if: inputs.profile != 'nightly'
@@ -404,7 +425,17 @@ jobs:
         run: bin/console dal:refresh:index
 
       - name: Run integration tests
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "integration" --stop-on-error --stop-on-failure
+
+      - name: Upload junit report for the failure tracking issue
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-phpunit-update-66-67
+          path: junit.xml
+          # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
+          if-no-files-found: ignore
+          overwrite: true
 
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations

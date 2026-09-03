@@ -456,6 +456,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
             service('event_dispatcher'),
             service('logger'),
+            service(SystemConfigService::class),
+            service(ProductCloseoutFilterFactory::class),
         ])
         ->tag('shopware.cms.product_slider.processor');
 
@@ -527,6 +529,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SystemConfigService::class),
             service('product_sorting.repository'),
+            service('event_dispatcher'),
         ])
         ->tag('shopware.listing.processor');
 
@@ -791,6 +794,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductListingLoader::class),
             service(ProductCloseoutFilterFactory::class),
             service(CacheTagCollector::class),
+            service(Connection::class),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)

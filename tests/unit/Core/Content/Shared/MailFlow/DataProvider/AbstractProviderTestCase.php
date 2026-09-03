@@ -30,7 +30,7 @@ abstract class AbstractProviderTestCase extends TestCase
             ->willReturn($repository);
 
         $provider = $this->createProvider(
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $container,
         );
 
@@ -45,7 +45,7 @@ abstract class AbstractProviderTestCase extends TestCase
     {
         $repository = static::createStub(EntityRepository::class);
 
-        $container = $this->createMock(ContainerInterface::class);
+        $container = static::createStub(ContainerInterface::class);
         $container
             ->method('get')
             ->willReturn($repository);
@@ -70,8 +70,8 @@ abstract class AbstractProviderTestCase extends TestCase
     final public function testLoadsExpectedAssociations(): void
     {
         $provider = $this->createProvider(
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(ContainerInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
         );
 
         $criteria = $provider->getCriteria('some-id', Context::createDefaultContext());

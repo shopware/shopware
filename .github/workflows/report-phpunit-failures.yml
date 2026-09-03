@@ -1,9 +1,11 @@
 name: Report PHPUnit failures
 
-# Files (or updates) a tracking issue from the junit.xml artifacts of a failed scheduled
-# PHPUnit run, grouped by owning domain. Called by nightly.yml and nightly-major.yml;
+# Files (or updates) one flat tracking issue per owning domain from the junit.xml
+# artifacts of a failed nightly run (scheduled on trunk, bot-dispatched on maintenance branches) — deliberately no parent issue, flat
+# per-domain issues only. Called by nightly.yml and nightly-major.yml;
 # the PHPUnit jobs of the run (redis, integration.yml, integration-major.yml, php.yml)
-# upload the `junit-phpunit-*` artifacts this consumes.
+# upload the `junit-phpunit-*` artifacts this consumes, the Jest jobs upload
+# `jest-*-results` junit artifacts (routed by @sw-package instead of #[Package]).
 
 on:
   workflow_call:
@@ -15,6 +17,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write # octo-sts, for the project status writes
   issues: write
 
 jobs:
@@ -22,9 +25,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: lts/*
 
@@ -32,6 +35,11 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: junit-phpunit-*
+          path: ${{ runner.temp }}/junit-reports
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: jest-*-results
           path: ${{ runner.temp }}/junit-reports
 
       - name: Build issue payload
@@ -42,15 +50,87 @@ jobs:
             "$RUNNER_TEMP/junit-reports" \
             "$RUNNER_TEMP/phpunit-failure-issue-payload.json"
 
+      # Issues created with the workflow token trigger no other workflows, and the project
+      # auto-add leaves the Status field empty, so reporter-created issues never enter the
+      # domain triage boards. The script therefore sets the board's intake status itself,
+      # with a token from the ManageProjects identity; without that token it logs and skips.
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ManageProjects
+
       - name: Create or update tracking issues
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           ISSUE_PAYLOAD_FILE: ${{ runner.temp }}/phpunit-failure-issue-payload.json
+          STS_TOKEN: ${{ steps.sts.outputs.token }}
         with:
           script: |
             const fs = require('node:fs');
             const payload = JSON.parse(fs.readFileSync(process.env.ISSUE_PAYLOAD_FILE, 'utf8'));
             const { owner, repo } = context.repo;
+
+            const projects = process.env.STS_TOKEN ? getOctokit(process.env.STS_TOKEN) : null;
+
+            // The intake column is named differently per board (Pending Refinement, For
+            // Refinement, To be refined, Pending Triage, Backlog, ...); prefer a refine-named
+            // option, then a triage-named one, and fall back to the leftmost option, which is
+            // the intake lane on every board by convention.
+            const intakeOption = (options) =>
+              options.find((candidate) => /refine/i.test(candidate.name))
+                ?? options.find((candidate) => /triage/i.test(candidate.name))
+                ?? options[0];
+
+            const setIntakeStatus = async (item, issueNumber) => {
+              const { node } = await projects.graphql(`query($id: ID!) {
+                node(id: $id) { ... on ProjectV2 { field(name: "Status") { ... on ProjectV2SingleSelectField { id options { id name } } } } }
+              }`, { id: item.project.id });
+              const option = intakeOption(node?.field?.options ?? []);
+              if (!option) {
+                core.info(`Project "${item.project.title}" has no status options; issue #${issueNumber} left as is`);
+                return;
+              }
+              await projects.graphql(`mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+                updateProjectV2ItemFieldValue(input: {projectId: $project, itemId: $item, fieldId: $field, value: {singleSelectOptionId: $option}}) { projectV2Item { id } }
+              }`, { project: item.project.id, item: item.id, field: node.field.id, option: option.id });
+              core.info(`Set "${option.name}" on project "${item.project.title}" for issue #${issueNumber}`);
+            };
+
+            // Put the issue into the triage lane of every domain project the auto-add bot
+            // attached it to: an item without a Status is invisible on the domain boards.
+            const ensureTriageStatus = async (issue) => {
+              if (!projects) {
+                core.warning(`No project token available: triage status not set for issue #${issue.number}`);
+                return;
+              }
+              // the auto-add bot attaches project items asynchronously; poll briefly
+              for (let attempt = 0; attempt < 6; attempt++) {
+                const { node } = await projects.graphql(`query($id: ID!) {
+                  node(id: $id) {
+                    ... on Issue {
+                      projectItems(first: 10) {
+                        nodes {
+                          id
+                          project { id title }
+                          fieldValueByName(name: "Status") { ... on ProjectV2ItemFieldSingleSelectValue { name } }
+                        }
+                      }
+                    }
+                  }
+                }`, { id: issue.node_id });
+                const items = node?.projectItems?.nodes ?? [];
+                if (items.length > 0) {
+                  for (const item of items.filter((candidate) => !candidate.fieldValueByName)) {
+                    await setIntakeStatus(item, issue.number);
+                  }
+                  return;
+                }
+                await new Promise((resolve) => setTimeout(resolve, 10000));
+              }
+              core.warning(`No project items appeared for issue #${issue.number}; triage status not set`);
+            };
 
             const openIssues = await github.paginate(github.rest.issues.listForRepo, {
               owner,
@@ -89,31 +169,12 @@ jobs:
               return created.data;
             };
 
-            const parent = await upsert(payload.parent, []);
-
-            const subIssues = await github.paginate('GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues', {
-              owner,
-              repo,
-              issue_number: parent.number,
-              per_page: 100,
-            });
-            const linkedIds = new Set(subIssues.map((issue) => issue.id));
-
-            for (const domain of payload.domains) {
-              const issue = await upsert(domain, domain.label ? [domain.label] : []);
-
-              if (linkedIds.has(issue.id)) {
-                continue;
-              }
+            for (const issue of payload.issues) {
+              const upserted = await upsert(issue, issue.label ? [issue.label] : []);
               try {
-                await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/sub_issues', {
-                  owner,
-                  repo,
-                  issue_number: parent.number,
-                  sub_issue_id: issue.id,
-                  replace_parent: true,
-                });
+                // also heals commented issues whose status is still empty
+                await ensureTriageStatus(upserted);
               } catch (error) {
-                core.warning(`Could not link #${issue.number} as sub-issue of #${parent.number}: ${error.message}`);
+                core.warning(`Could not set the triage status for issue #${upserted.number}: ${error.message}`);
               }
             }

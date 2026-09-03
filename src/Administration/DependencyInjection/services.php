@@ -4,8 +4,11 @@ namespace Shopware\Administration\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Administration\Command\CheckExtensionsCommand;
 use Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand;
 use Shopware\Administration\Command\DeleteExtensionLocalPublicFilesCommand;
+use Shopware\Administration\Command\GenerateEntitySchemaTypesCommand;
+use Shopware\Administration\Command\SetupExtensionToolingCommand;
 use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Controller\AdminProductStreamController;
@@ -73,6 +76,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(CheckExtensionsCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
+    $services->set(SetupExtensionToolingCommand::class)
+        ->args([
+            service('kernel'),
+        ])
+        ->tag('console.command');
+
+    $services->set(GenerateEntitySchemaTypesCommand::class)
+        ->tag('console.command');
+
     $services->set(AdminExtensionApiController::class)
         ->public()
         ->args([
@@ -100,7 +118,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service('parameter_bag'),
             service('shopware.filesystem.asset'),
-            env('SERVICE_REGISTRY_URL'),
+            param('shopware.service_registry.url'),
             service('language.repository'),
             service(SymfonyBearerTokenValidator::class),
             env('PRODUCT_ANALYTICS_GATEWAY_URL'),
@@ -176,7 +194,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('kernel'),
             service(Connection::class),
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service(TranslationConfig::class),
             service(TranslationLoader::class),
             service(HtmlSanitizer::class),

@@ -55,6 +55,7 @@ class DefinitionValidator
         'product.cheapestPriceContainer',
         'product.cheapest_price',
         'product.cheapest_price_accessor',
+        'sales_channel_domain.external_storefront_language_id',
     ];
 
     /**
@@ -102,6 +103,7 @@ class DefinitionValidator
     private const TABLES_WITHOUT_DEFINITION = [
         'admin_elasticsearch_index_task',
         'app_config',
+        'app_feature',
         'cart',
         'deleted_apps',
         'migration',
@@ -214,6 +216,16 @@ class DefinitionValidator
 
             $violations[$definitionClass] = [];
 
+            if (!$schema->hasTable($definition->getEntityName())) {
+                $violations[$definitionClass][] = \sprintf(
+                    'Table "%s" referenced by definition but not found in schema',
+                    $definition->getEntityName()
+                );
+                $violations = array_merge_recursive($violations, $this->checkEntityNameConstant($definition));
+
+                continue;
+            }
+
             $violations = array_merge_recursive($violations, $this->validateSchema($definition, $schema));
 
             $violations = array_merge_recursive($violations, $this->validatePrimaryKeyConsistency($definition, $schema));
@@ -319,6 +331,8 @@ class DefinitionValidator
         $fields = $definition->getFields();
 
         $notices = [];
+        $parentClass = $reflection->getParentClass();
+
         foreach ($reflection->getProperties() as $property) {
             $key = $definition->getEntityName() . '.' . $property->getName();
             if ($this->isIgnoredField($key)) {
@@ -339,7 +353,6 @@ class DefinitionValidator
                 $notices[] = \sprintf('Field %s in entity struct should not be private in %s, as it needs to be accessible by the DAL, see https://developer.shopware.com/docs/guides/plugins/plugins/framework/data-handling/add-custom-complex-data.html#entity-class', $property->getName(), $definition->getClass());
             }
 
-            $parentClass = $reflection->getParentClass();
             if (!$parentClass) {
                 continue;
             }
@@ -1292,10 +1305,7 @@ class DefinitionValidator
         $definitionClass = $definition->getClass();
         // Definition has constant ENTITY_NAME and is not empty
         if (!\defined($definitionClass . '::ENTITY_NAME') || \constant($definitionClass . '::ENTITY_NAME') === '') {
-            $violations = array_merge_recursive(
-                $violations,
-                [$definitionClass => [\sprintf('ENTITY_NAME constant Missing in %s', $definitionClass)]]
-            );
+            return [$definitionClass => [\sprintf('ENTITY_NAME constant Missing in %s', $definitionClass)]];
         }
 
         // GetEntityName returns same Value as ENTITY_NAME
@@ -1353,7 +1363,15 @@ class DefinitionValidator
             return $associationViolations;
         }
 
+        if (!$schema->hasTable($reference->getEntityName())) {
+            return $associationViolations;
+        }
+
         $fks = $schema->getTable($reference->getEntityName())->getForeignKeys();
+
+        $deleteFlag = $association->getFlag(CascadeDelete::class)
+            ?? $association->getFlag(RestrictDelete::class)
+            ?? $association->getFlag(SetNullOnDelete::class);
 
         foreach ($fks as $fk) {
             if ($fk->getReferencedTableName()->toString() !== $definition->getEntityName()
@@ -1361,10 +1379,6 @@ class DefinitionValidator
             ) {
                 continue;
             }
-
-            $deleteFlag = $association->getFlag(CascadeDelete::class)
-                ?? $association->getFlag(RestrictDelete::class)
-                ?? $association->getFlag(SetNullOnDelete::class);
 
             if (!$deleteFlag instanceof Flag) {
                 continue;

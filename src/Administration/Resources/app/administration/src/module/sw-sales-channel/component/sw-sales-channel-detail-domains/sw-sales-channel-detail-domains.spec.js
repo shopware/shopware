@@ -57,6 +57,7 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     'mt-url-field': MtUrlField,
                     'sw-sales-channel-measurement': true,
+                    'mt-checkbox': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -600,5 +601,24 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
                 weight: 'kilogram',
             },
         });
+    });
+
+    it('should only show the external storefront checkbox for a headless sales channel', async () => {
+        // the checkbox is gated on this computed via v-if in the template
+        const headlessWrapper = await createWrapper({
+            salesChannel: {
+                typeId: Shopware.Defaults.apiSalesChannelTypeId,
+                domains: [],
+            },
+        });
+        expect(headlessWrapper.vm.salesChannelIsHeadless).toBe(true);
+
+        const storefrontWrapper = await createWrapper({
+            salesChannel: {
+                typeId: 'some-storefront-type-id',
+                domains: [],
+            },
+        });
+        expect(storefrontWrapper.vm.salesChannelIsHeadless).toBe(false);
     });
 });

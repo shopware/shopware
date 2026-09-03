@@ -9,19 +9,32 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
+    /**
+     * @deprecated tag:v6.8.0 - Type will change to ?string.
+     */
     protected string $orderId;
 
+    /**
+     * @deprecated tag:v6.8.0 - Type will change to ?string.
+     */
     protected string $orderVersionId;
 
     protected string $documentTypeId;
+
+    protected ?string $typeName = null;
 
     protected ?string $documentMediaFileId = null;
 
@@ -69,21 +82,25 @@ class DocumentEntity extends Entity
         $this->order = $order;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderVersionId(): string
     {
-        return $this->orderVersionId;
+        return $this->orderVersionId ?? '';
     }
 
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'orderVersionId', newType: '?string', description: 'Will accept null for documents without order.')]
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'Will return null for documents without order.')]
     public function getOrderId(): string
     {
-        return $this->orderId;
+        return $this->orderId ?? '';
     }
 
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'orderId', newType: '?string', description: 'Will accept null for documents without order.')]
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;
@@ -125,24 +142,46 @@ class DocumentEntity extends Entity
         $this->deepLinkCode = $deepLinkCode;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentType(): ?DocumentTypeEntity
     {
         return $this->documentType;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
         $this->documentType = $documentType;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentTypeId(): string
     {
         return $this->documentTypeId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
+    }
+
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
     }
 
     public function getReferencedDocumentId(): ?string
@@ -185,21 +224,33 @@ class DocumentEntity extends Entity
         $this->static = $static;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     */
     public function getDocumentMediaFile(): ?MediaEntity
     {
         return $this->documentMediaFile;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     */
     public function setDocumentMediaFile(?MediaEntity $documentMediaFile): void
     {
         $this->documentMediaFile = $documentMediaFile;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     */
     public function getDocumentMediaFileId(): ?string
     {
         return $this->documentMediaFileId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     */
     public function setDocumentMediaFileId(?string $documentMediaFileId): void
     {
         $this->documentMediaFileId = $documentMediaFileId;
@@ -215,21 +266,33 @@ class DocumentEntity extends Entity
         return $this->documentNumber;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     */
     public function getDocumentA11yMediaFileId(): ?string
     {
         return $this->documentA11yMediaFileId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     */
     public function setDocumentA11yMediaFileId(?string $mediaFileId): void
     {
         $this->documentA11yMediaFileId = $mediaFileId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     */
     public function getDocumentA11yMediaFile(): ?MediaEntity
     {
         return $this->documentA11yMediaFile;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     */
     public function setDocumentA11yMediaFile(?MediaEntity $mediaEntity): void
     {
         $this->documentA11yMediaFile = $mediaEntity;

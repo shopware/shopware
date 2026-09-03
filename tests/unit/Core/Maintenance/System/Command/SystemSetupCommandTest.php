@@ -148,6 +148,7 @@ class SystemSetupCommandTest extends TestCase
         static::assertIsString($envContent);
         $env = (new Dotenv())->parse($envContent);
 
+        /** @phpstan-ignore require.fileNotFound (Although the existence of the file is checked above, PHPStan will only consider files, that always exist. See https://github.com/phpstan/phpstan/issues/12417) */
         $envLocal = require __DIR__ . '/.env.local.php';
         static::assertSame($env, $envLocal);
     }

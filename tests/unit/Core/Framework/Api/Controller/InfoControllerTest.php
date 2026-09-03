@@ -81,6 +81,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns the complete admin config payload with all expected keys and values')]
     public function testConfig(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->setEnvVars([
             'APP_URL' => 'https://app.url',
         ]);
@@ -324,6 +326,8 @@ class InfoControllerTest extends TestCase
     #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testConfigHidesWebhookTransportWhenWebhookReworkIsInactive(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $content = $this->createController(['webhook', 'async', 'low_priority'])
             ->config(Context::createDefaultContext(), Request::create('http://localhost'))
             ->getContent();
@@ -336,6 +340,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigKeepsWebhookTransportWhenWebhookReworkIsActive(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $content = $this->createController(['webhook', 'async', 'low_priority'])
             ->config(Context::createDefaultContext(), Request::create('http://localhost'))
             ->getContent();
@@ -348,6 +354,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigExtension(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, static function (AdminInfoConfigEvent $event): void {
             $event->addConfig('foo', 'bar');
         });
@@ -384,6 +392,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('preserves floating-point precision in message stats response')]
     public function testMessageStatsPreservesFloatingPointPrecision(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $this->statsService->method('getStats')->willReturn(
             new MessageStatsResponseEntity(
                 true,
@@ -405,6 +415,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('encodes the folded per-type binding specification set as a JSON object when the type has none')]
     public function testContentSystemElementTypesEncodesEmptyBindingSpecificationsAsObject(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $spec = $this->alertTypeSpecification();
 
         $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
@@ -454,6 +466,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns empty types array when no element types are registered')]
     public function testContentSystemElementTypesReturnsEmptyWhenNoTypesRegistered(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn([]);
 
@@ -470,6 +484,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('encodes an empty style option set as a JSON object, not an array')]
     public function testContentSystemStyleOptionsEncodesEmptySetAsObject(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('allResolved')->willReturn([]);
 

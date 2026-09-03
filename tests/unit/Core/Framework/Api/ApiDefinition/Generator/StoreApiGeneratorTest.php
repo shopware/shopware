@@ -24,6 +24,7 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Plu
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SalesChannelSimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SEOUrlDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
+use Symfony\Component\ErrorHandler\ErrorHandler;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -138,7 +139,7 @@ class StoreApiGeneratorTest extends TestCase
             null
         );
         $entities = $schema['components']['schemas'];
-        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayNotHasKey('Simple', $entities);
         static::assertArrayHasKey('infoConfigResponse', $entities);
     }
 
@@ -185,7 +186,25 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayNotHasKey('anyOf', $entities['relationship']);
     }
 
-    public function testOnlyPhpGeneratedSchemaRetainsJsonApiComponent(): void
+    public function testStoreApiDoesNotAddUnusedGeneratedComponents(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+        $components = $schema['components'];
+
+        static::assertArrayNotHasKey('contentType', $components['parameters'] ?? []);
+        static::assertArrayNotHasKey('accept', $components['parameters'] ?? []);
+        static::assertArrayHasKey('swLanguageId', $components['parameters'] ?? []);
+
+        static::assertArrayNotHasKey(204, $components['responses'] ?? []);
+        static::assertArrayHasKey('ApiKey', $components['securitySchemes'] ?? []);
+    }
+
+    public function testUnreferencedPhpGeneratedStoreApiSchemaIsNotEmitted(): void
     {
         $definitionRegistry = new StaticDefinitionInstanceRegistry(
             [SalesChannelSimpleDefinition::class],
@@ -199,7 +218,40 @@ class StoreApiGeneratorTest extends TestCase
             null
         );
 
-        static::assertArrayHasKey('SimpleJsonApi', $schema['components']['schemas']);
+        static::assertArrayNotHasKey('Simple', $schema['components']['schemas'] ?? []);
+        static::assertArrayNotHasKey('SimpleJsonApi', $schema['components']['schemas'] ?? []);
+    }
+
+    public function testTransitivelyReferencedPhpGeneratedStoreApiSchemaIsEmitted(): void
+    {
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures/BundleWithPhpGeneratedSchemaReference'],
+            ],
+            new BundleSchemaPathCollection([]),
+        );
+        $definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                DefinitionWithAssociations::class,
+                SimpleDefinition::class,
+                SEOUrlDefinition::class,
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $schema = $generator->generate(
+            $definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        );
+
+        static::assertArrayHasKey('TestEntityWithAssociations', $schema['components']['schemas']);
+        static::assertArrayHasKey('Simple', $schema['components']['schemas']);
+        static::assertArrayNotHasKey('SEOUrl', $schema['components']['schemas']);
     }
 
     public function testJsonOwnedSchemaDoesNotContainJsonApiComponent(): void
@@ -894,13 +946,31 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayNotHasKey('phpOnlyField', $entities['JsonOverrideEntity']['properties']);
     }
 
-    public function testPhpSchemaIsKeptWhenNoJsonSchemaExists(): void
+    public function testSchemaIsGeneratedWhenNoDefinitionContributesAPhpSchema(): void
+    {
+        $definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [DefinitionWithJsonOverride::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $schema = ErrorHandler::call(fn (): array => $this->generator->generate(
+            $definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            null
+        ));
+
+        static::assertArrayHasKey('JsonOverrideEntity', $schema['components']['schemas']);
+        static::assertArrayHasKey('jsonOnlyField', $schema['components']['schemas']['JsonOverrideEntity']['properties']);
+    }
+
+    public function testPhpSchemaIsSkippedWhenNoJsonPathReferencesIt(): void
     {
         $schema = $this->generateSchema($this->generator, null);
 
         $entities = $schema['components']['schemas'];
-        static::assertArrayHasKey('Simple', $entities);
-        static::assertArrayHasKey('stringField', $entities['Simple']['properties']);
+        static::assertArrayNotHasKey('Simple', $entities);
     }
 
     public function testJsonSchemaOverridesPhpSchemaInCustomBundle(): void

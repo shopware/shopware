@@ -33,31 +33,7 @@ class CookieGroupCollectListenerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->listener = new AppCookieCollectListener(
-            static::getContainer()->get('app.repository'),
-            static::getContainer()->get('payment_method.repository'),
-        );
-    }
-
-    public function testItFiltersCookiesOfInactivePaymentMethods(): void
-    {
-        $this->loadAppsFromDir(__DIR__ . '/_fixtures/conditionalCookie');
-
-        $event = new CookieGroupCollectEvent(
-            new CookieGroupCollection(),
-            new Request(),
-            Generator::generateSalesChannelContext()
-        );
-        ($this->listener)($event);
-
-        $firstGroup = $event->cookieGroupCollection->first();
-        static::assertNotNull($firstGroup);
-        $entries = $firstGroup->getEntries();
-        static::assertNotNull($entries);
-        static::assertCount(1, $entries);
-        static::assertNotNull($entries->get('swag-app-always'));
-        static::assertNull($entries->get('swag-app-payment'));
-        static::assertNull($entries->get('swag-app-any-payment'));
+        $this->listener = new AppCookieCollectListener(static::getContainer()->get('app.repository'));
     }
 
     public function testSingleCookie(): void

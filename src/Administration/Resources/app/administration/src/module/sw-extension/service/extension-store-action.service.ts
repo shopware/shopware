@@ -1,4 +1,5 @@
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import type { ContextStore } from 'src/app/store/context.store';
 import type { BasicHeaders } from 'src/core/service/api.service';
@@ -111,7 +112,7 @@ interface Extension {
  * @private
  */
 export default class ExtensionStoreActionService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService) {
+    constructor(httpClient: HttpClient, loginService: LoginService) {
         super(httpClient, loginService, 'extension', 'application/json');
         this.name = 'extensionStoreActionService';
     }

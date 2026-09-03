@@ -186,6 +186,13 @@ export default {
 
         storefrontSalesChannelDomainCriteria() {
             const criteria = new Criteria(1, 25);
+            criteria.addAssociation('salesChannel');
+            criteria.addFilter(
+                Criteria.multi('or', [
+                    Criteria.not('and', [Criteria.equals('salesChannel.typeId', Defaults.apiSalesChannelTypeId)]),
+                    Criteria.equals('isExternalStorefront', true),
+                ]),
+            );
 
             return criteria.addFilter(Criteria.equals('salesChannelId', this.productExport.storefrontSalesChannelId));
         },
@@ -767,7 +774,10 @@ export default {
             this.productExport.salesChannelDomain = null;
             this.loadStorefrontDomains(storefrontSalesChannelId);
 
-            this.salesChannelRepository.get(storefrontSalesChannelId).then((entity) => {
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('language');
+
+            this.salesChannelRepository.get(storefrontSalesChannelId, Context.api, criteria).then((entity) => {
                 if (!entity) {
                     return;
                 }
@@ -780,7 +790,22 @@ export default {
                 this.salesChannel.navigationCategoryId = entity.navigationCategoryId;
                 this.salesChannel.navigationCategoryVersionId = entity.navigationCategoryVersionId;
                 this.salesChannel.customerGroupId = entity.customerGroupId;
+
+                this.addLanguageToSalesChannel(entity.language);
             });
+        },
+
+        /**
+         * The server-side SalesChannelValidator rejects a languageId that is
+         * not part of the sales channel's language list, so the adopted
+         * storefront language has to be added to the language association.
+         */
+        addLanguageToSalesChannel(language) {
+            if (!language || this.salesChannel.languages?.has(language.id) !== false) {
+                return;
+            }
+
+            this.salesChannel.languages.add(language);
         },
 
         onStorefrontDomainSelectionChange(storefrontSalesChannelDomainId) {

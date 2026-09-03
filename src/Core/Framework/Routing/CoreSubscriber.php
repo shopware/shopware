@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ResponseHook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -40,7 +41,7 @@ readonly class CoreSubscriber implements EventSubscriberInterface
 
     public function initializeCspNonce(RequestEvent $event): void
     {
-        $nonce = base64_encode(random_bytes(8));
+        $nonce = Random::getBase64UrlString(24);
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_CSP_NONCE, $nonce);
     }
 

@@ -16,7 +16,9 @@ export default {
     inject: [
         'bulkEditApiFactory',
         'repositoryFactory',
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
         'orderDocumentApiService',
+        'feature',
     ],
 
     mixins: [
@@ -77,6 +79,22 @@ export default {
             const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
 
             return hasFieldsChanged || hasCustomFieldsChanged;
+        },
+
+        hasInvalidDocumentGenerationConfig() {
+            if (!this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return false;
+            }
+
+            const orderDocuments = Shopware.Store.get('swBulkEdit').orderDocuments;
+
+            return Object.values(orderDocuments).some((document) => {
+                if (!document?.isChanged || Array.isArray(document.value)) {
+                    return false;
+                }
+
+                return !(document.value?.fileFormats?.length > 0);
+            });
         },
 
         restrictedFields() {

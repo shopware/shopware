@@ -79,6 +79,7 @@ use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
+use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Shopware\Storefront\Framework\Media\Validator\StorefrontMediaDocumentValidator;
@@ -240,6 +241,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('session.factory'),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(DoubleSubmitGuard::class)
+        ->args([
+            service('lock.factory'),
+            service('cache.double_submit'),
+            service('logger'),
+        ]);
 
     $services->set(StorefrontScriptResponseFactoryFacadeHookFactory::class)
         ->public()

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -80,10 +79,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
     public function testUploadExtensionsWithInvalidFileAndDeleteFileException(): void
     {
-        $fileSystemMock = $this->createFileSystemMock();
-        if (!$fileSystemMock instanceof MockObject) {
-            static::fail('Filesystem mock is not a mock object');
-        }
+        $fileSystemMock = $this->createMock(Filesystem::class);
 
         $fileSystemMock->expects($this->once())
             ->method('remove')
@@ -373,6 +369,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         if ($expectCallRemove) {
             $fileSystem->expects($this->once())->method('remove');
+        } else {
+            $fileSystem->expects($this->never())->method('remove');
         }
 
         return $fileSystem;

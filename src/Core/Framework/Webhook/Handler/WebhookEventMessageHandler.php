@@ -4,18 +4,15 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 
 use GuzzleHttp\Exception\BadResponseException;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\Exception\AppNotFoundException;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
-use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
+use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -31,7 +28,7 @@ final readonly class WebhookEventMessageHandler
      */
     public function __construct(
         private WebhookClient $webhookClient,
-        private RelatedWebhooks $relatedWebhooks,
+        private WebhookHealthService $webhookHealthService,
         private WebhookOutboxStore $webhookOutboxStore,
         private WebhookDeliveryService $webhookDeliveryService,
         private LoggerInterface $logger,
@@ -67,8 +64,6 @@ final readonly class WebhookEventMessageHandler
             return;
         }
 
-        $context = Context::createDefaultContext();
-
         $entry = $this->webhookOutboxStore->markRunning($message->getWebhookEventId());
         // Already transitioned, could be due to worker contention. Skip this delivery.
         if ($entry === null) {
@@ -82,10 +77,7 @@ final readonly class WebhookEventMessageHandler
         if ($result->successful()) {
             // a stale-success on a stolen lease must not reset error_count.
             if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
-                try {
-                    $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
-                } catch (AppNotFoundException|WriteTypeIntendException) {
-                }
+                $this->webhookHealthService->resetErrorCount($message->getWebhookId());
             }
 
             return;

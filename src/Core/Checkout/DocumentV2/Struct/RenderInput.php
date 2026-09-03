@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
+use Shopware\Core\Checkout\DocumentV2\DocumentSourceEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * It bundles the order snapshot, the final document number and all provider DTOs so renderers
  * can consume prepared data without reloading or recalculating it.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 final readonly class RenderInput
@@ -27,7 +27,7 @@ final readonly class RenderInput
     public function __construct(
         public string $documentType,
         public string $documentNumber,
-        public OrderEntity $order,
+        public DocumentSourceEntity $order,
         private array $data = [],
     ) {
         if (\preg_match(self::DOCUMENT_TYPE_PATTERN, $this->documentType) !== 1) {

@@ -26,113 +26,15 @@
 
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
             <file>src/Core/Content/Resources/config/routes_test.php</file>
-            <directory suffix="Definition.php">src/Administration/Notification/</directory>
-            <directory suffix="Entity.php">src/Administration/Notification/</directory>
-            <directory suffix="Event.php">src/Administration/Notification/</directory>
-            <directory suffix="Field.php">src/Administration/Notification/</directory>
-            <directory suffix="Struct.php">src/Administration/Notification/</directory>
-            <directory suffix="Collection.php">src/Administration/Notification/</directory>
-
-            <directory suffix="Definition.php">src/Administration/Snippet/</directory>
-            <directory suffix="Entity.php">src/Administration/Snippet/</directory>
-            <directory suffix="Event.php">src/Administration/Snippet/</directory>
-            <directory suffix="Field.php">src/Administration/Snippet/</directory>
-            <directory suffix="Struct.php">src/Administration/Snippet/</directory>
-            <directory suffix="Collection.php">src/Administration/Snippet/</directory>
-
-            <!-- Scoped to the boilerplate-bearing directories on purpose: a blanket src/Core/ suffix
-                 match also swept migrations and framework classes whose NAME happens to end in a DAL
-                 suffix (e.g. Migration...Field, MigrationCollection), which PHPUnit 12 then reports as
-                 invalid #[CoversClass] targets. src/Core/Migration and src/Core/Framework/Migration are
-                 deliberately NOT listed. -->
-            <directory suffix="Definition.php">src/Core/Checkout/</directory>
-            <directory suffix="Definition.php">src/Core/Content/</directory>
-            <directory suffix="Definition.php">src/Core/Framework/</directory>
-            <directory suffix="Definition.php">src/Core/System/</directory>
-
-            <directory suffix="Entity.php">src/Core/Checkout/</directory>
-            <directory suffix="Entity.php">src/Core/Content/</directory>
-            <directory suffix="Entity.php">src/Core/Framework/</directory>
-            <directory suffix="Entity.php">src/Core/System/</directory>
-
-            <directory suffix="Event.php">src/Core/Checkout/</directory>
-            <directory suffix="Event.php">src/Core/Content/</directory>
-            <directory suffix="Event.php">src/Core/Framework/</directory>
-            <directory suffix="Event.php">src/Core/Maintenance/</directory>
-            <directory suffix="Event.php">src/Core/Service/</directory>
-            <directory suffix="Event.php">src/Core/System/</directory>
-
-            <directory suffix="Field.php">src/Core/Content/</directory>
-            <directory suffix="Field.php">src/Core/Framework/</directory>
-            <directory suffix="Field.php">src/Core/System/</directory>
-
-            <directory suffix="Struct.php">src/Core/Checkout/</directory>
-            <directory suffix="Struct.php">src/Core/Content/</directory>
-            <directory suffix="Struct.php">src/Core/Framework/</directory>
-            <directory suffix="Struct.php">src/Core/System/</directory>
-
-            <directory suffix="Collection.php">src/Core/Checkout/</directory>
-            <directory suffix="Collection.php">src/Core/Content/</directory>
-            <directory suffix="Collection.php">src/Core/Installer/</directory>
-            <directory suffix="Collection.php">src/Core/System/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Adapter/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Api/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/App/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/DataAbstractionLayer/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Event/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Gateway/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/JWT/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Log/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/MessageQueue/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Notification/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Plugin/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Rule/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Script/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Store/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Struct/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Telemetry/</directory>
-            <directory suffix="Collection.php">src/Core/Framework/Webhook/</directory>
 
             <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
             <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
-            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
-            <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Checkout</directory>
-            <directory suffix="Entity.php">src/Storefront/Checkout</directory>
-            <directory suffix="Event.php">src/Storefront/Checkout</directory>
-            <directory suffix="Field.php">src/Storefront/Checkout</directory>
-            <directory suffix="Struct.php">src/Storefront/Checkout</directory>
-            <directory suffix="Collection.php">src/Storefront/Checkout</directory>
-            <directory suffix="Event.php">src/Storefront/Event</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Framework</directory>
-            <directory suffix="Entity.php">src/Storefront/Framework</directory>
-            <directory suffix="Event.php">src/Storefront/Framework</directory>
-            <directory suffix="Field.php">src/Storefront/Framework</directory>
-            <directory suffix="Struct.php">src/Storefront/Framework</directory>
-            <directory suffix="Collection.php">src/Storefront/Framework</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Page</directory>
-            <directory suffix="Entity.php">src/Storefront/Page</directory>
-            <directory suffix="Event.php">src/Storefront/Page</directory>
-            <directory suffix="Field.php">src/Storefront/Page</directory>
-            <directory suffix="Struct.php">src/Storefront/Page</directory>
-            <directory suffix="Collection.php">src/Storefront/Page</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Entity.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Event.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Field.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Struct.php">src/Storefront/Pagelet</directory>
-            <directory suffix="Collection.php">src/Storefront/Pagelet</directory>
-
-            <directory suffix="Definition.php">src/Storefront/Theme</directory>
-            <directory suffix="Entity.php">src/Storefront/Theme</directory>
-            <directory suffix="Event.php">src/Storefront/Theme</directory>
-            <directory suffix="Field.php">src/Storefront/Theme</directory>
-            <directory suffix="Struct.php">src/Storefront/Theme</directory>
-            <directory suffix="Collection.php">src/Storefront/Theme</directory>
+            <!-- Static-analysis tooling; the Danger rules stay covered by their unit tests. -->
+            <directory suffix=".php">src/Core/DevOps/StaticAnalyze/PHPStan</directory>
+            <file>src/Core/DevOps/StaticAnalyze/StaticAnalyzeKernel.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/console-application.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php</file>
+            <file>src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php</file>
 
             <directory suffix="Definition.php">src/Storefront/ContentSystem</directory>
             <directory suffix="Entity.php">src/Storefront/ContentSystem</directory>
@@ -141,11 +43,99 @@
 
             <!-- All fixtures, stubs, traits used for tests -->
             <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/DevOps/Test</directory>
-            <directory suffix=".php">src/Core/Framework/Test</directory>
+            <!-- Only the test fixtures under DevOps/Test; the tooling classes stay covered by their unit tests. -->
+            <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
+            <!-- src/Core/Framework/Test: shipped test support; only the classes with dedicated
+                 unit tests (MemoryAdapterFactory, EnvTestBehaviour, ReflectionHelper) count toward coverage -->
+            <directory suffix=".php">src/Core/Framework/Test/Api</directory>
+            <directory suffix=".php">src/Core/Framework/Test/App</directory>
+            <directory suffix=".php">src/Core/Framework/Test/DataAbstractionLayer</directory>
+            <directory suffix=".php">src/Core/Framework/Test/DependencyInjection</directory>
+            <directory suffix=".php">src/Core/Framework/Test/Logging</directory>
+            <directory suffix=".php">src/Core/Framework/Test/MessageQueue</directory>
+            <directory suffix=".php">src/Core/Framework/Test/Migration</directory>
+            <directory suffix=".php">src/Core/Framework/Test/Plugin</directory>
+            <directory suffix=".php">src/Core/Framework/Test/RateLimiter</directory>
+            <directory suffix=".php">src/Core/Framework/Test/Script</directory>
+            <directory suffix=".php">src/Core/Framework/Test/Seo</directory>
+            <directory suffix=".php">src/Core/Framework/Test/Store</directory>
+            <directory suffix=".php">src/Core/Framework/Test/Telemetry</directory>
+            <directory suffix=".php">src/Core/Framework/Test/Webhook</directory>
+            <file>src/Core/Framework/Test/RemoveDeprecatedServicesPass.php</file>
+            <file>src/Core/Framework/Test/TestBundle.php</file>
+            <file>src/Core/Framework/Test/TestCacheClearer.php</file>
+            <file>src/Core/Framework/Test/TestKernel.php</file>
+            <file>src/Core/Framework/Test/TestSessionStorage.php</file>
+            <file>src/Core/Framework/Test/TestSessionStorageFactory.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/AdminApiTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/AdminFunctionalTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/BasicTestDataBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/CacheTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/CountryAddToSalesChannelTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/DatabaseTransactionBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/EventDispatcherBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/EventDispatcherWrapper.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/FilesystemBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/IntegrationTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/KernelLifecycleManager.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/KernelTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/MailTemplateTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/QueueTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/RequestStackTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/SalesChannelApiTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/SalesChannelFunctionalTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/SessionTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/TaxAddToSalesChannelTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseBase/TranslationTestBehaviour.php</file>
+            <file>src/Core/Framework/Test/TestCaseHelper/AssertResponseHelper.php</file>
+            <file>src/Core/Framework/Test/TestCaseHelper/CallableClass.php</file>
+            <file>src/Core/Framework/Test/TestCaseHelper/ExtensionHelper.php</file>
+            <file>src/Core/Framework/Test/TestCaseHelper/StopWorkerWhenIdleListener.php</file>
+            <file>src/Core/Framework/Test/TestCaseHelper/StoreApiSessionListener.php</file>
+            <file>src/Core/Framework/Test/TestCaseHelper/TestBrowser.php</file>
+            <file>src/Core/Framework/Test/TestCaseHelper/TestUser.php</file>
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/Migration/Traits</directory>
-            <directory suffix=".php">src/Core/Test</directory>
+            <directory suffix=".php">src/Core/Test/Annotation</directory>
+            <directory suffix=".php">src/Core/Test/Constraint</directory>
+            <directory suffix=".php">src/Core/Test/Integration</directory>
+            <!-- src/Core/Test/Stub: shipped test doubles; only the stubs with dedicated unit tests count toward coverage -->
+            <directory suffix=".php">src/Core/Test/Stub/Checkout</directory>
+            <directory suffix=".php">src/Core/Test/Stub/Flow</directory>
+            <directory suffix=".php">src/Core/Test/Stub/Framework/Adapter</directory>
+            <directory suffix=".php">src/Core/Test/Stub/Framework/DataAbstractionLayer</directory>
+            <directory suffix=".php">src/Core/Test/Stub/Installer</directory>
+            <directory suffix=".php">src/Core/Test/Stub/MessageBus</directory>
+            <directory suffix=".php">src/Core/Test/Stub/Redis</directory>
+            <directory suffix=".php">src/Core/Test/Stub/Rule</directory>
+            <directory suffix=".php">src/Core/Test/Stub/Symfony</directory>
+            <directory suffix=".php">src/Core/Test/Stub/System</directory>
+            <directory suffix=".php">src/Core/Test/Stub/SystemConfigService</directory>
+            <directory suffix=".php">src/Core/Test/Stub/Translator</directory>
+            <file>src/Core/Test/Stub/DataAbstractionLayer/StaticDefinitionInstanceRegistry.php</file>
+            <file>src/Core/Test/Stub/DataAbstractionLayer/StaticEntityRepository.php</file>
+            <file>src/Core/Test/Stub/DataAbstractionLayer/StaticEntityWriter.php</file>
+            <file>src/Core/Test/Stub/DataAbstractionLayer/StaticEntityWriterGateway.php</file>
+            <file>src/Core/Test/Stub/DataAbstractionLayer/StaticSalesChannelRepository.php</file>
+            <file>src/Core/Test/Stub/Doctrine/FailingDeleteConnection.php</file>
+            <file>src/Core/Test/Stub/Doctrine/FakeConnection.php</file>
+            <file>src/Core/Test/Stub/Doctrine/FakeQueryBuilder.php</file>
+            <file>src/Core/Test/Stub/Doctrine/TestExceptionFactory.php</file>
+            <file>src/Core/Test/Stub/EventDispatcher/AssertingEventDispatcher.php</file>
+            <file>src/Core/Test/Stub/Framework/BundleFixture.php</file>
+            <file>src/Core/Test/Stub/Framework/Util/InMemoryUtilFilesystem.php</file>
+            <file>src/Core/Test/Stub/Framework/Util/NullRawDefinitionHtmlPurifierConfig.php</file>
+            <file>src/Core/Test/Stub/Framework/Util/StaticHtmlPurifierConfigProvider.php</file>
+            <file>src/Core/Test/AppSystemTestBehaviour.php</file>
+            <file>src/Core/Test/FixtureLoader.php</file>
+            <file>src/Core/Test/Generator.php</file>
+            <file>src/Core/Test/TestBuilderTrait.php</file>
+            <file>src/Core/Test/TestDefaults.php</file>
+            <!-- phpunit runtime bootstrap and outbound IO, exercised by every CI run and not unit-testable:
+                 the extensions wire subscribers before the framework is up, the gateway talks to Datadog -->
+            <file>src/Core/Test/PHPUnit/Extension/DatabaseDiff/DatabaseDiffExtension.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/DatadogExtension.php</file>
+            <file>src/Core/Test/PHPUnit/Extension/Datadog/Gateway/DatadogGateway.php</file>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
 

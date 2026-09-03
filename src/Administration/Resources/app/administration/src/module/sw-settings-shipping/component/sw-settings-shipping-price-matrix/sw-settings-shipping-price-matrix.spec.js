@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 /**
  * @sw-package checkout
  */
-const createWrapper = async () => {
+const createWrapper = async (stubOverrides = {}) => {
     return mount(
         await wrapTestComponent('sw-settings-shipping-price-matrix', {
             sync: true,
@@ -20,9 +20,11 @@ const createWrapper = async () => {
 
                     'sw-price-rule-modal': true,
                     'mt-number-field': true,
+                    'sw-price-field': true,
                     'sw-inheritance-switch': true,
                     'sw-inherit-wrapper': true,
                     'sw-single-select': true,
+                    ...stubOverrides,
                 },
             },
             props: {
@@ -77,10 +79,15 @@ const createWrapper = async () => {
 
 describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matrix', () => {
     beforeEach(async () => {
-        Shopware.Store.get('swShippingDetail').shippingMethod = [
-            { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
-            { id: 'dollar', translated: { name: 'Dollar' } },
-            { id: 'pound', translated: { name: 'Pound' } },
+        Shopware.Store.get('swShippingDetail').shippingMethod = {
+            id: 'shippingMethodId',
+            taxType: 'auto',
+            taxId: null,
+            prices: [],
+        };
+        Shopware.Store.get('swShippingDetail').currencies = [
+            { id: 'euro', isoCode: 'EUR', factor: 1, translated: { name: 'Euro' }, isSystemDefault: true },
+            { id: 'dollar', isoCode: 'USD', factor: 2, translated: { name: 'Dollar' }, salesChannels: [{}] },
         ];
     });
 
@@ -93,9 +100,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.hasAssociation('conditions')).toBeFalsy();
     });
 
-    it('should have price and deprecated shipping filter option', async () => {
-        global.activeFeatureFlags = [];
-
+    // @deprecated tag:v6.8.0 - The test will be removed with the shippingRuleFilterCriteria shipping option.
+    it.deprecated('v6.8.0.0')('should have price and deprecated shipping filter option', async () => {
         const wrapper = await createWrapper();
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
 
@@ -105,9 +111,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(shippingRuleFilterCriteria.filters[0].queries[2].value).toBeNull();
     });
 
-    it('should have price filter option', async () => {
-        global.activeFeatureFlags = ['v6.8.0.0'];
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should have price filter option', async () => {
         const wrapper = await createWrapper();
 
         // shippingRuleFilterCriteria is deprecated and will be removed. Use ruleFilterCriteria instead
@@ -128,6 +132,132 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         expect(wrapper.vm.showAllPrices).toBeTruthy();
         expect(wrapper.vm.prices).toHaveLength(2);
+    });
+
+    describe('linked gross/net prices', () => {
+        it('should expose the fixed tax rate so linked prices can be calculated', async () => {
+            const wrapper = await createWrapper();
+            const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
+
+            shippingMethod.taxType = 'fixed';
+            shippingMethod.taxId = 'taxId';
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.taxRateId).toBe('taxId');
+        });
+
+        it.each([
+            ['auto'],
+            ['highest'],
+        ])('should not expose a tax rate id for the "%s" tax type', async (taxType) => {
+            const wrapper = await createWrapper();
+            const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
+
+            shippingMethod.taxType = taxType;
+            shippingMethod.taxId = 'taxId';
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.taxRateId).toBeNull();
+        });
+
+        it('should link gross and net for a newly initialised currency price', async () => {
+            const wrapper = await createWrapper();
+            const shippingPrice = {};
+
+            wrapper.vm.initCurrencyPrice(shippingPrice);
+
+            expect(shippingPrice.currencyPrice).toEqual([
+                {
+                    currencyId: 'euro',
+                    gross: 0,
+                    linked: true,
+                    net: 0,
+                },
+            ]);
+        });
+
+        it('should keep the linked state when inheritance is removed for a currency', async () => {
+            const wrapper = await createWrapper();
+            const shippingPrice = wrapper.vm.priceGroup.prices[0];
+            const dollar = { id: 'dollar', factor: 2 };
+
+            wrapper.vm.setPrice(shippingPrice, dollar, { gross: 30, net: 28.04, linked: true });
+
+            expect(shippingPrice.currencyPrice).toContainEqual({
+                currencyId: 'dollar',
+                gross: 30,
+                net: 28.04,
+                linked: true,
+            });
+        });
+
+        it('should default to unlinked when the removed inheritance carries no linked state', async () => {
+            const wrapper = await createWrapper();
+            const shippingPrice = wrapper.vm.priceGroup.prices[0];
+            const dollar = { id: 'dollar', factor: 2 };
+
+            wrapper.vm.setPrice(shippingPrice, dollar, { gross: 30, net: 28.04 });
+
+            expect(shippingPrice.currencyPrice).toContainEqual({
+                currencyId: 'dollar',
+                gross: 30,
+                net: 28.04,
+                linked: false,
+            });
+        });
+
+        it('should carry the linked state over to converted currency prices', async () => {
+            const wrapper = await createWrapper();
+            const dollar = { id: 'dollar', factor: 2 };
+
+            expect(wrapper.vm.convertPrice({ gross: 30, net: 28.04, linked: true }, dollar)).toEqual({
+                currencyId: 'dollar',
+                gross: 60,
+                net: 56.08,
+                linked: true,
+            });
+
+            expect(wrapper.vm.convertPrice({ gross: 30, net: 28.04, linked: false }, dollar)).toEqual({
+                currencyId: 'dollar',
+                gross: 60,
+                net: 56.08,
+                linked: false,
+            });
+        });
+
+        it('should render a linkable price field per currency wired to the tax rate', async () => {
+            const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
+            shippingMethod.taxType = 'fixed';
+            shippingMethod.taxId = 'taxId';
+
+            const wrapper = await createWrapper({
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                'sw-price-field': await wrapTestComponent('sw-price-field', { sync: true }),
+            });
+            await flushPromises();
+
+            const priceField = wrapper.findComponent('.sw-price-field');
+
+            expect(priceField.exists()).toBe(true);
+            expect(priceField.props('taxRate')).toEqual({ id: 'taxId' });
+            expect(priceField.props('currency')).toMatchObject({ id: 'euro' });
+            expect(priceField.props('value')).toEqual([
+                {
+                    currencyId: 'euro',
+                    gross: 0,
+                    linked: false,
+                    net: 0,
+                },
+            ]);
+
+            // the lock toggle is what lets a merchant link gross and net
+            expect(priceField.find('.sw-price-field__lock').exists()).toBe(true);
+
+            // the field names stay stable so existing selectors keep working
+            expect(wrapper.find('[name="sw-field--priceId1-euro-gross"]').exists()).toBe(true);
+            expect(wrapper.find('[name="sw-field--priceId1-euro-net"]').exists()).toBe(true);
+        });
     });
 
     it('should add new price', async () => {

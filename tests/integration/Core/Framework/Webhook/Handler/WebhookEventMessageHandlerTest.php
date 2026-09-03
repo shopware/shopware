@@ -809,13 +809,11 @@ class WebhookEventMessageHandlerTest extends TestCase
     }
 
     /**
-     * After a successful delivery, error_count should be reset to 0 on the webhook
-     * and all related webhooks (same event, url, live config).
+     * After a successful delivery, error_count should be reset to 0 on the webhook.
      */
-    public function testSuccessResetsErrorCountOnWebhookAndRelated(): void
+    public function testSuccessResetsErrorCount(): void
     {
         $webhookId = Uuid::randomHex();
-        $relatedWebhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
         $appRepository = static::getContainer()->get('app.repository');
@@ -846,16 +844,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        // Create a related webhook (same event + url) via DBAL so it shares the same event/url
         $connection = static::getContainer()->get(Connection::class);
-        $connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($relatedWebhookId),
-            'name' => 'hook1-related',
-            'event_name' => 'order',
-            'url' => 'https://test.com',
-            'error_count' => 7,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
@@ -878,16 +867,10 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-        // Verify the primary webhook's error_count is reset to 0
         $webhookRepository = static::getContainer()->get('webhook.repository');
         $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(0, $webhook->getErrorCount());
-
-        // Verify the related webhook's error_count is also reset to 0
-        $relatedWebhook = $webhookRepository->search(new Criteria([$relatedWebhookId]), Context::createDefaultContext())->getEntities()->first();
-        static::assertInstanceOf(WebhookEntity::class, $relatedWebhook);
-        static::assertSame(0, $relatedWebhook->getErrorCount());
     }
 
     /**
@@ -1118,7 +1101,6 @@ class WebhookEventMessageHandlerTest extends TestCase
     public function testDeliverySuccessResetsPerWebhookErrorCount(): void
     {
         $webhookId = Uuid::randomHex();
-        $relatedWebhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
 
         $appRepository = static::getContainer()->get('app.repository');
@@ -1150,14 +1132,6 @@ class WebhookEventMessageHandlerTest extends TestCase
         ]], Context::createDefaultContext());
 
         $connection = static::getContainer()->get(Connection::class);
-        $connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($relatedWebhookId),
-            'name' => 'hook1-related',
-            'event_name' => 'order',
-            'url' => 'https://example.com/hook',
-            'error_count' => 7,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
@@ -1178,21 +1152,14 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200, [], '{"ok": true}'));
 
-        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookId, $relatedWebhookId): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookId): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $errorCount = (int) $connection->fetchOne(
                 'SELECT error_count FROM webhook WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($webhookId)]
             );
-            static::assertSame(0, $errorCount, 'Primary webhook error_count should be reset to 0');
-
-            // Related webhooks (same event+URL) also have their error_count reset — matches trunk behavior via RelatedWebhooks
-            $relatedErrorCount = (int) $connection->fetchOne(
-                'SELECT error_count FROM webhook WHERE id = :id',
-                ['id' => Uuid::fromHexToBytes($relatedWebhookId)]
-            );
-            static::assertSame(0, $relatedErrorCount, 'Related webhook error_count should also be reset (RelatedWebhooks behavior)');
+            static::assertSame(0, $errorCount, 'error_count should be reset to 0');
         });
     }
 

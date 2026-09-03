@@ -346,6 +346,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->translator->expects($this->never())->method('trans');
         $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $request = Request::create('/installer/database-information', 'POST');
 
@@ -365,6 +366,7 @@ class DatabaseConfigurationControllerTest extends TestCase
     {
         $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $request = Request::create('/installer/database-information', 'POST');
 
@@ -390,6 +392,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->translator->expects($this->never())->method('trans');
         $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $request = Request::create('/installer/database-information', 'POST');
 

@@ -18,6 +18,9 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @phpstan-type Candidate array{infixes: array<string, string>, overridden: list<string>, salesChannelConfig: string|null}
+ * @phpstan-type Collision array{infix: string, extension: string, formats: list<string>, configs: list<string>}
  */
 #[Package('after-sales')]
 class DocumentBaseConfigValidator implements EventSubscriberInterface
@@ -118,81 +121,153 @@ class DocumentBaseConfigValidator implements EventSubscriberInterface
         ['typeName' => $typeName, 'global' => $global, 'storedInfixes' => $storedInfixes] = $scope;
         $infixes = $this->decodeInfixes($writesInfixes ? $command->getPayload()['filename_infixes'] : $storedInfixes);
 
+        $extensionByFormat = $this->sharedExtensions($typeName);
+        if ($extensionByFormat === []) {
+            return;
+        }
+
+        $candidates = $global
+            ? $this->globalCandidates($infixes, $typeName, $command)
+            : [self::candidate(DocumentConfigLoader::mergeFilenameInfixes($this->fetchGlobalInfixes($typeName, $command), $infixes))];
+
+        foreach ($this->collisions($candidates, $extensionByFormat) as $format => $collision) {
+            $violations->add($this->duplicateFilenameInfix($command, $format, $collision));
+        }
+    }
+
+    /**
+     * @return array<string, string> the formats whose file extension another format of the type shares
+     */
+    private function sharedExtensions(string $typeName): array
+    {
         $rendererRegistry = ($this->documentRendererRegistry)();
         $extensionByFormat = [];
+
         foreach ($this->documentTypeRegistry->getSupportedFormats($typeName) as $format) {
             $extension = $rendererRegistry->getFileExtension($format);
+
             if ($extension !== null) {
                 $extensionByFormat[$format] = $extension;
             }
         }
 
-        if (\count(array_unique($extensionByFormat)) === \count($extensionByFormat)) {
-            return;
+        $formatsPerExtension = array_count_values($extensionByFormat);
+
+        return array_filter($extensionByFormat, static fn (string $extension): bool => $formatsPerExtension[$extension] > 1);
+    }
+
+    /**
+     * @param array<string, string> $infixes
+     *
+     * @return list<Candidate>
+     */
+    private function globalCandidates(array $infixes, string $typeName, WriteCommand $command): array
+    {
+        $candidates = [self::candidate($infixes)];
+
+        foreach ($this->fetchAssignedSalesChannelConfigs($typeName, $command) as $salesChannelConfig) {
+            $overrides = $this->decodeInfixes($salesChannelConfig['filename_infixes']);
+
+            $candidates[] = self::candidate(
+                DocumentConfigLoader::mergeFilenameInfixes($infixes, $overrides),
+                array_keys($overrides),
+                (string) $salesChannelConfig['name'],
+            );
         }
 
-        if (!$global) {
-            $infixes = DocumentConfigLoader::mergeFilenameInfixes($this->fetchGlobalInfixes($typeName, $command), $infixes);
-        }
+        return $candidates;
+    }
 
-        $candidates = [['infixes' => $infixes, 'overridden' => [], 'salesChannelConfig' => null]];
-        if ($global) {
-            foreach ($this->fetchAssignedSalesChannelConfigs($typeName, $command) as $salesChannelConfig) {
-                $overrides = $this->decodeInfixes($salesChannelConfig['filename_infixes']);
-                $candidates[] = [
-                    'infixes' => DocumentConfigLoader::mergeFilenameInfixes($infixes, $overrides),
-                    'overridden' => array_keys($overrides),
-                    'salesChannelConfig' => (string) $salesChannelConfig['name'],
-                ];
-            }
-        }
+    /**
+     * @param array<string, string> $infixes
+     * @param list<string> $overridden
+     *
+     * @return Candidate
+     */
+    private static function candidate(array $infixes, array $overridden = [], ?string $salesChannelConfig = null): array
+    {
+        return ['infixes' => $infixes, 'overridden' => $overridden, 'salesChannelConfig' => $salesChannelConfig];
+    }
 
-        $clashes = [];
-        foreach ($candidates as ['infixes' => $effectiveInfixes, 'overridden' => $overriddenFormats, 'salesChannelConfig' => $salesChannelConfigName]) {
-            $formatsByFilename = [];
-            foreach ($extensionByFormat as $format => $extension) {
-                $formatsByFilename[mb_strtolower(($effectiveInfixes[$format] ?? '') . '.' . $extension)][] = $format;
-            }
+    /**
+     * @param list<Candidate> $candidates
+     * @param array<string, string> $extensionByFormat
+     *
+     * @return array<string, Collision>
+     */
+    private function collisions(array $candidates, array $extensionByFormat): array
+    {
+        $collisions = [];
 
-            foreach ($formatsByFilename as $clashingFormats) {
-                if (\count($clashingFormats) < 2) {
-                    continue;
-                }
+        foreach ($candidates as $candidate) {
+            foreach ($this->collidingFormats($candidate['infixes'], $extensionByFormat) as $group) {
+                foreach (array_diff($group, $candidate['overridden']) as $format) {
+                    $collision = $collisions[$format] ?? [
+                        'infix' => $candidate['infixes'][$format] ?? '',
+                        'extension' => $extensionByFormat[$format],
+                        'formats' => [],
+                        'configs' => [],
+                    ];
 
-                foreach (array_diff($clashingFormats, $overriddenFormats) as $format) {
-                    $clash = $clashes[$format] ?? ['formats' => [], 'configs' => []];
-                    $clash['formats'] = array_values(array_unique([...$clash['formats'], ...array_diff($clashingFormats, [$format])]));
-                    if ($salesChannelConfigName !== null) {
-                        $clash['configs'] = array_values(array_unique([...$clash['configs'], $salesChannelConfigName]));
+                    $collision['formats'] = array_values(array_unique([...$collision['formats'], ...array_diff($group, [$format])]));
+
+                    if ($candidate['salesChannelConfig'] !== null) {
+                        $collision['configs'] = array_values(array_unique([...$collision['configs'], $candidate['salesChannelConfig']]));
                     }
-                    $clashes[$format] = $clash;
+
+                    $collisions[$format] = $collision;
                 }
             }
         }
 
-        foreach ($clashes as $format => $clash) {
-            $parameters = [
-                '{{ infix }}' => $infixes[$format] ?? '',
-                '{{ format }}' => $format,
-                '{{ formats }}' => implode(', ', $clash['formats']),
-                '{{ extension }}' => $extensionByFormat[$format],
-            ];
-            $messageTemplate = 'The filename infix "{{ infix }}" for "{{ format }}" produces the same ".{{ extension }}" filename as: {{ formats }}';
-            if ($clash['configs'] !== []) {
-                $parameters['{{ configs }}'] = implode(', ', $clash['configs']);
-                $messageTemplate .= ' in the sales channel configuration: {{ configs }}';
-            }
+        return $collisions;
+    }
 
-            $violations->add(new ConstraintViolation(
-                message: str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate . '.'),
-                messageTemplate: $messageTemplate . '.',
-                parameters: $parameters,
-                root: null,
-                propertyPath: $command->getPath() . '/filenameInfixes/' . $format,
-                invalidValue: $parameters['{{ infix }}'],
-                code: self::DUPLICATE_FILENAME_INFIX,
-            ));
+    /**
+     * @param array<string, string> $infixes
+     * @param array<string, string> $extensionByFormat
+     *
+     * @return list<list<string>> formats that render to the same filename
+     */
+    private function collidingFormats(array $infixes, array $extensionByFormat): array
+    {
+        $formatsByFilename = [];
+
+        foreach ($extensionByFormat as $format => $extension) {
+            $formatsByFilename[mb_strtolower(($infixes[$format] ?? '') . '.' . $extension)][] = $format;
         }
+
+        return array_values(array_filter($formatsByFilename, static fn (array $formats): bool => \count($formats) > 1));
+    }
+
+    /**
+     * @param Collision $collision
+     */
+    private function duplicateFilenameInfix(WriteCommand $command, string $format, array $collision): ConstraintViolation
+    {
+        $parameters = [
+            '{{ infix }}' => $collision['infix'],
+            '{{ format }}' => $format,
+            '{{ formats }}' => implode(', ', $collision['formats']),
+            '{{ extension }}' => $collision['extension'],
+        ];
+
+        $messageTemplate = 'The filename infix "{{ infix }}" for "{{ format }}" produces the same ".{{ extension }}" filename as: {{ formats }}';
+
+        if ($collision['configs'] !== []) {
+            $parameters['{{ configs }}'] = implode(', ', $collision['configs']);
+            $messageTemplate .= ' in the sales channel configuration: {{ configs }}';
+        }
+
+        return new ConstraintViolation(
+            message: str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate . '.'),
+            messageTemplate: $messageTemplate . '.',
+            parameters: $parameters,
+            root: null,
+            propertyPath: $command->getPath() . '/filenameInfixes/' . $format,
+            invalidValue: $collision['infix'],
+            code: self::DUPLICATE_FILENAME_INFIX,
+        );
     }
 
     private function changesScope(WriteCommand $command): bool

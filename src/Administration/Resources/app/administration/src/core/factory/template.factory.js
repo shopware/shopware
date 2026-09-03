@@ -401,7 +401,7 @@ function wrapNativeBlockTargets(tokens) {
             return acc;
         }
 
-        const openTag = `<sw-block name="${blockName}" :data="$dataScope" :legacy-shim="false">`;
+        const openTag = `<sw-block name="${blockName}" :data="$dataScope" :sw-internal-legacy-shim="false">`;
         const closeTag = '</sw-block>';
 
         if (SLOT_TEMPLATE_START.test(firstRawText(current.token.output))) {

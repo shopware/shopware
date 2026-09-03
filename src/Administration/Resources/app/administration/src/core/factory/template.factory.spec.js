@@ -27,7 +27,7 @@ describe('core/factory/template.factory.js - native block extension points', () 
         TemplateFactory.resolveTemplates();
 
         expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-target').html).toBe(
-            '<div><sw-block name="tf_target_block" :data="$dataScope" :legacy-shim="false"><p>from twig override</p></sw-block><span>other</span></div>',
+            '<div><sw-block name="tf_target_block" :data="$dataScope" :sw-internal-legacy-shim="false"><p>from twig override</p></sw-block><span>other</span></div>',
         );
     });
 
@@ -51,10 +51,10 @@ describe('core/factory/template.factory.js - native block extension points', () 
         // The child inherits the parent's tokens. A wrapper persisted on those tokens would be
         // inherited and then wrapped a second time.
         expect(registry.get('tf-parent').html).toBe(
-            '<div><sw-block name="tf_parent_block" :data="$dataScope" :legacy-shim="false"><p>parent</p></sw-block></div>',
+            '<div><sw-block name="tf_parent_block" :data="$dataScope" :sw-internal-legacy-shim="false"><p>parent</p></sw-block></div>',
         );
         expect(registry.get('tf-kid').html).toBe(
-            '<div><sw-block name="tf_parent_block" :data="$dataScope" :legacy-shim="false"><i>kid</i><p>parent</p></sw-block></div>',
+            '<div><sw-block name="tf_parent_block" :data="$dataScope" :sw-internal-legacy-shim="false"><i>kid</i><p>parent</p></sw-block></div>',
         );
     });
 
@@ -71,7 +71,7 @@ describe('core/factory/template.factory.js - native block extension points', () 
         // Wrapping from the outside would bind #header to sw-block, which renders only its default
         // slot - the content would vanish from the DOM without any error.
         expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-slot').html).toBe(
-            '<sw-card><template #header="{ item }"><sw-block name="tf_slot_block" :data="$dataScope" :legacy-shim="false"><b>{{ item }}</b></sw-block></template></sw-card>',
+            '<sw-card><template #header="{ item }"><sw-block name="tf_slot_block" :data="$dataScope" :sw-internal-legacy-shim="false"><b>{{ item }}</b></sw-block></template></sw-card>',
         );
     });
 
@@ -130,7 +130,7 @@ describe('core/factory/template.factory.js - native block extension points', () 
 
         // Scanning for the first ">" would cut the opening tag in half.
         expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-angle').html).toBe(
-            '<sw-card><template #header :show="a > 1"><sw-block name="tf_angle_block" :data="$dataScope" :legacy-shim="false"><b>h</b></sw-block></template></sw-card>',
+            '<sw-card><template #header :show="a > 1"><sw-block name="tf_angle_block" :data="$dataScope" :sw-internal-legacy-shim="false"><b>h</b></sw-block></template></sw-card>',
         );
     });
 });

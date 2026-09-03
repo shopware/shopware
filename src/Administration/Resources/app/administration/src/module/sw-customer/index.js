@@ -38,7 +38,7 @@ Module.register('sw-customer', {
     description: 'sw-customer.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-pumpkin-500)',
+    color: '#F88138',
     icon: 'regular-users',
     favicon: 'icon-module-customers.svg',
     entity: 'customer',
@@ -119,7 +119,7 @@ Module.register('sw-customer', {
         {
             id: 'sw-customer',
             label: 'sw-customer.general.mainMenuItemGeneral',
-            color: 'var(--color-pumpkin-500)',
+            color: '#F88138',
             icon: 'regular-users',
             position: 40,
             privilege: 'customer.viewer',
@@ -127,7 +127,7 @@ Module.register('sw-customer', {
         {
             path: 'sw.customer.index',
             label: 'sw-customer.general.mainMenuItemList',
-            color: 'var(--color-pumpkin-500)',
+            color: '#F88138',
             icon: 'regular-users',
             parent: 'sw-customer',
             privilege: 'customer.viewer',

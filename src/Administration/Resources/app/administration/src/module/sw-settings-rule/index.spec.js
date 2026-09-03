@@ -41,7 +41,7 @@ describe('src/module/sw-settings-rule/index.js', () => {
             name: 'settings-rule',
             title: 'sw-settings-rule.general.mainMenuItemGeneral',
             description: 'sw-settings-rule.general.descriptionTextModule',
-            color: 'var(--color-red-300)',
+            color: '#FF7F74',
             defaultSearchConfiguration: {
                 _searchable: true,
                 name: {
@@ -63,7 +63,7 @@ describe('src/module/sw-settings-rule/index.js', () => {
                     label: 'sw-settings-rule.general.mainMenuItemGeneral',
                     path: 'sw.settings.rule.index',
                     icon: 'regular-rule',
-                    color: 'var(--color-red-300)',
+                    color: '#FF7F74',
                     parent: 'sw-automation',
                     privilege: 'rule.viewer',
                     moduleType: 'core',
@@ -73,7 +73,7 @@ describe('src/module/sw-settings-rule/index.js', () => {
                     id: 'sw-automation',
                     label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
                     icon: 'regular-rule',
-                    color: 'var(--color-red-300)',
+                    color: '#FF7F74',
                     moduleType: 'core',
                     position: 70,
                 },

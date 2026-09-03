@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 
@@ -21,8 +22,11 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
 #[CoversClass(CustomerVatIdentificationValidator::class)]
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
+    private const DE_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0de0';
+
     private const EU_PATTERNS = [
         ['iso' => 'BE', 'id' => '0199f1c4b0d3736a9f3d0f2c5a1b0be0', 'vat_id_pattern' => 'BE\d{10}'],
+        ['iso' => 'DE', 'id' => self::DE_ID, 'vat_id_pattern' => 'DE\d{9}'],
         ['iso' => 'NL', 'id' => '0199f1c4b0d3736a9f3d0f2c5a1b0140', 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
     ];
 
@@ -68,7 +72,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         // Every VAT ID matches the country's own pattern, so the fallback must stay off the hot path
         $connection->expects($this->never())->method('fetchAllAssociative');
 
-        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection));
+        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class)));
         $validator->initialize($this->context);
 
         $this->context->expects($this->never())->method('buildViolation');
@@ -170,7 +174,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         $connection->method('fetchAssociative')->willReturn(false);
         $connection->method('fetchAllAssociative')->willReturn(self::EU_PATTERNS);
 
-        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection));
+        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class)));
         $validator->initialize($this->context);
 
         $this->context->expects($this->never())->method('buildViolation');
@@ -178,6 +182,46 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         $validator->validate(['INVALID'], new CustomerVatIdentification(
             countryId: Uuid::randomHex(),
             shouldCheck: true,
+        ));
+    }
+
+    public function testAVatIdOfTheSellersOwnMemberStateIsRejectedForATaxDecision(): void
+    {
+        // A sales channel means the caller decides about tax, so the seller's own member state is excluded
+        $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS, sellerCountryId: self::DE_ID);
+
+        $this->expectSingleViolationFor('DE123456789');
+
+        $validator->validate(['DE123456789'], new CustomerVatIdentification(
+            countryId: Uuid::randomHex(),
+            shouldCheck: true,
+            salesChannelId: Uuid::randomHex(),
+        ));
+    }
+
+    public function testAVatIdOfTheSellersOwnMemberStateStaysValidWhenOnlyTheFormatIsChecked(): void
+    {
+        // Registration validates the format a customer entered, so a domestic VAT ID has to pass
+        $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS, sellerCountryId: self::DE_ID);
+
+        $this->context->expects($this->never())->method('buildViolation');
+
+        $validator->validate(['DE123456789'], new CustomerVatIdentification(
+            countryId: Uuid::randomHex(),
+            shouldCheck: true,
+        ));
+    }
+
+    public function testAVatIdOfAnotherMemberStateStaysValidForATaxDecision(): void
+    {
+        $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS, sellerCountryId: self::DE_ID);
+
+        $this->context->expects($this->never())->method('buildViolation');
+
+        $validator->validate(['NL123456789B01'], new CustomerVatIdentification(
+            countryId: Uuid::randomHex(),
+            shouldCheck: true,
+            salesChannelId: Uuid::randomHex(),
         ));
     }
 
@@ -189,6 +233,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         array $euPatterns = [],
         bool $checkVatIdPattern = true,
         bool $isEu = true,
+        ?string $sellerCountryId = null,
     ): CustomerVatIdentificationValidator {
         $connection = static::createStub(Connection::class);
         $connection
@@ -200,7 +245,10 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             ]);
         $connection->method('fetchAllAssociative')->willReturn($euPatterns);
 
-        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection));
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('getString')->willReturn($sellerCountryId ?? '');
+
+        $validator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, $systemConfigService));
         $validator->initialize($this->context);
 
         return $validator;

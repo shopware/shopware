@@ -78,6 +78,7 @@ final readonly class LoaderInputResolver
         return match ($referencedType) {
             'string' => \is_string($value),
             'list<string>' => \is_array($value) && array_is_list($value) && array_filter($value, 'is_string') === $value,
+            'object' => \is_object($value),
             default => false,
         };
     }

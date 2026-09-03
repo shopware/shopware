@@ -7,8 +7,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\CloneProtectedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -250,8 +252,12 @@ class VersionManager
         CloneBehavior $behavior,
         bool $writeAuditLog = false
     ): array {
+        if ($this->isCloneProtected($definition, $context->getContext())) {
+            throw new CloneProtectedException($definition->getEntityName(), $context->getContext()->getScope());
+        }
+
         $criteria = new Criteria([$id]);
-        $this->addCloneAssociations($definition, $criteria, $behavior->cloneChildren());
+        $this->addCloneAssociations($definition, $criteria, $behavior->cloneChildren(), $context->getContext());
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
@@ -352,6 +358,10 @@ class VersionManager
         foreach ($fields as $field) {
             $writeProtection = $field->getFlag(WriteProtected::class);
             if ($writeProtection && !$writeProtection->isAllowed($context->getScope())) {
+                continue;
+            }
+
+            if ($field instanceof AssociationField && $this->isCloneProtected($this->getCloneReferenceDefinition($field), $context)) {
                 continue;
             }
 
@@ -479,6 +489,22 @@ class VersionManager
         }
 
         return $payload;
+    }
+
+    private function isCloneProtected(EntityDefinition $definition, Context $context): bool
+    {
+        $protection = $definition->getProtections()->get(CloneProtection::class);
+
+        return $protection !== null && !$protection->isAllowed($context->getScope());
+    }
+
+    private function getCloneReferenceDefinition(AssociationField $field): EntityDefinition
+    {
+        if ($field instanceof ManyToManyAssociationField) {
+            return $field->getToManyReferenceDefinition();
+        }
+
+        return $field->getReferenceDefinition();
     }
 
     /**
@@ -643,6 +669,7 @@ class VersionManager
         EntityDefinition $definition,
         Criteria $criteria,
         bool $cloneChildren,
+        Context $context,
         int $childCounter = 1
     ): void {
         // add all cascade delete associations
@@ -653,6 +680,10 @@ class VersionManager
         });
 
         foreach ($cascades as $cascade) {
+            if ($cascade instanceof AssociationField && $this->isCloneProtected($this->getCloneReferenceDefinition($cascade), $context)) {
+                continue;
+            }
+
             $nested = $criteria->getAssociation($cascade->getPropertyName());
 
             if ($cascade instanceof ManyToManyAssociationField) {
@@ -687,12 +718,12 @@ class VersionManager
                 }
 
                 ++$childCounter;
-                $this->addCloneAssociations($reference, $nested, $cloneChildren, $childCounter);
+                $this->addCloneAssociations($reference, $nested, $cloneChildren, $context, $childCounter);
 
                 continue;
             }
 
-            $this->addCloneAssociations($reference, $nested, $cloneChildren);
+            $this->addCloneAssociations($reference, $nested, $cloneChildren, $context);
         }
     }
 

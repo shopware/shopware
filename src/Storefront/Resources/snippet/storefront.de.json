@@ -605,7 +605,10 @@
     "regularPriceLabel": "Regulärer Preis:",
     "listPriceLabel": "Verkaufspreis:",
     "addToWishlist": "Zum Merkzettel hinzufügen",
-    "removeFromWishlist": "Vom Merkzettel entfernen"
+    "removeFromWishlist": "Vom Merkzettel entfernen",
+    "productSliderAriaLabel": "Produkt-Slider mit %total% Produkten",
+    "productSliderScrollBackward": "Vorherige Produkte",
+    "productSliderScrollForward": "Nächste Produkte"
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",

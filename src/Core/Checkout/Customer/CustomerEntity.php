@@ -176,7 +176,6 @@ class CustomerEntity extends Entity implements \Stringable
     public function __toString(): string
     {
         $company = trim($this->company ?? '');
-
         if ($company !== '' && $this->getAccountType() === self::ACCOUNT_TYPE_BUSINESS) {
             return $company;
         }

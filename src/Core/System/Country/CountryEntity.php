@@ -16,6 +16,9 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@discovery')]
 class CountryEntity extends Entity
 {

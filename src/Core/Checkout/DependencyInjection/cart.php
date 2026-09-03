@@ -245,8 +245,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CartLoadRoute::class)
         ->public()
         ->args([
-            service(CartPersister::class),
-            service(CartFactory::class),
             service(CartCalculator::class),
             service(TaxProviderProcessor::class),
         ]);

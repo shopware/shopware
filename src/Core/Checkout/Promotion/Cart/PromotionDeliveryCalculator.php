@@ -91,7 +91,15 @@ class PromotionDeliveryCalculator
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$this->isAutomaticDiscount($discountItem)) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $toCalculate);
+                    $name = $discountItem->getLabel() ?? $discountItem->getId();
+                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                    } else {
+                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                            : [];
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                    }
                 }
 
                 continue;

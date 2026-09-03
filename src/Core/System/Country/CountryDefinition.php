@@ -32,6 +32,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannel
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@discovery')]
 class CountryDefinition extends EntityDefinition
 {

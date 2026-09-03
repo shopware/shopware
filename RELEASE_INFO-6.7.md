@@ -12,6 +12,10 @@ Apps can now modify or remove cookie consent groups and entries with an app scri
 
 ## API
 
+### User and integration cloning is no longer available
+
+`POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
+
 ### Added experimental Store API snippet endpoint
 
 Added new experimental Store API route `GET /store-api/snippet` (not part of the backwards compatibility promise yet, planned to be stable with v6.8.0), which returns the fully resolved snippets (translations) for the current sales channel context as a list of sets, each carrying a flat key-value map (`{"account.loginTitle": "Log in"}`). By default the list contains one set for the language of the `sw-language-id` header; the language fallback chain is merged server-side, so values are never null. The optional `prefixes` query parameter limits the result to namespace prefixes (e.g. `?prefixes=checkout,account`, at most 50 distinct prefixes per request), the optional `languageIds` query parameter fetches multiple sales channel languages in one request. Responses carry an `ETag` header and support `If-None-Match` revalidation, so headless frontends (e.g. Composable Frontends) can bake translations at build time and revalidate them cheaply at runtime.

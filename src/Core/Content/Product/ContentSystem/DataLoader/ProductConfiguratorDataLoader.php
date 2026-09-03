@@ -10,7 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -44,27 +44,23 @@ class ProductConfiguratorDataLoader extends AbstractContentDataLoader
         return new LoaderConfigSpecification([
             new ConfigKeySpecification(
                 'productProperty',
-                ConfigKeyKind::Literal,
+                ConfigKeyKind::PropertyReference,
                 'string',
                 required: false,
                 hasDefault: true,
-                default: null
+                default: 'product',
+                referencedType: 'object'
             ),
         ]);
     }
 
     public function load(
-        ContentElement $element,
+        LoaderInputs $inputs,
         DataRequirement $requirement,
         SalesChannelContext $context,
         Request $request
     ): ContentDataLoaderResult {
-        $config = $requirement->config;
-        if (!$config instanceof ProductConfiguratorLoaderConfig) {
-            return ContentDataLoaderResult::notFound();
-        }
-
-        $product = $element->getProperty($config->productProperty ?? 'product');
+        $product = $inputs->get('productProperty');
         if (!$product instanceof SalesChannelProductEntity) {
             return ContentDataLoaderResult::notFound();
         }

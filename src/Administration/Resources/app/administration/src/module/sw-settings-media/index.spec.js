@@ -19,7 +19,7 @@ describe('src/module/sw-settings-media/index.js', () => {
             name: 'settings-media',
             title: 'sw-settings-media.general.title',
             description: 'sw-settings-media.general.description',
-            color: '#9AA8B5',
+            color: 'var(--color-icon-secondary-default)',
             icon: 'regular-cog',
             favicon: 'icon-module-settings.svg',
             routes: expect.any(Object),

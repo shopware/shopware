@@ -204,6 +204,52 @@ Two consequences for operators:
 
 Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
 
+### Company tax exemption accepts VAT IDs from any EU member state
+
+A commercial customer with *Company tax free* and *Check VAT ID pattern* enabled for the delivery country previously kept the tax exemption only while the VAT ID matched the delivery country's VAT ID pattern, so a customer with a Dutch VAT ID lost it as soon as the delivery address moved to Belgium.
+
+`TaxDetector::isCompanyTaxFree()` now falls back to the VAT ID patterns of all EU member states (Settings > Countries) when a VAT ID does not match the delivery country's pattern. A VAT ID that matches no member state still removes the exemption. Tax free thresholds and currencies, the private-customer tax free path, and deliveries outside the EU are unchanged.
+
+The fallback excludes the shop's own member state: a customer identified in the country the goods are supplied from is a domestic supply, which Article 138 of the VAT Directive does not exempt, so that customer keeps being taxed. The shop's member state is the one configured as *Shop owner's country* (`core.basicInformation.sellerCountryId`). **Configure it** - a shop that leaves it empty cannot make that comparison and keeps granting the exemption to every member state, including its own.
+
+`Shopware\Core\Checkout\Cart\Tax\TaxDetector` gained an internal constructor taking `VatIdPatternProvider`. If you need to change this behaviour, decorate `AbstractTaxDetector` rather than replacing the `TaxDetector` service.
+
+On upgrade, carts and orders that were taxed only because the buyer's VAT ID belonged to another member state become tax free by themselves, and shops that do not enable *Company tax free* or *Check VAT ID pattern* see no change. Already placed orders and already generated documents are untouched. The one setting to review is *Shop owner's country*, which is what keeps the fallback from exempting a buyer identified in the shop's own member state.
+
+### Registration and profile accept VAT IDs from any EU member state
+
+Registering or changing a commercial account previously rejected a VAT ID that did not match the billing country's own VAT ID pattern, so a customer with a German billing address could not enter a Dutch VAT ID.
+
+`store-api/account/register` and `store-api/account/change-profile` now also accept a VAT ID that matches the pattern of any other EU member state. A VAT ID that matches no member state and not the billing country's pattern is still rejected, and a country that has no VAT ID pattern or that turns *Check VAT ID pattern* off is unchanged.
+
+The fallback follows the country's *Member state of the European Union* setting: a member state accepts the VAT ID patterns of all the others, while a country outside the EU keeps validating against its own pattern alone. This lives in `CustomerVatIdentification`, so every use of that constraint behaves the same way — including the intra-community delivery note. Turn the check off for a single country via its *Check VAT ID pattern* setting; there is no per-constraint opt-out.
+
+### Customers store the EU member state their VAT ID belongs to
+
+`customer` gained a nullable `vat_id_country_id` column, exposed on the DAL entity as `vatIdCountryId` with a `vatIdCountry` association to `country`. It is resolved from the customer's VAT IDs on every write that touches `vatIds`, so the Store API, the Admin API, the Sync API, the Administration, imports and plugin writes all store the same member state; a VAT ID that matches no member state stores `null`, and clearing the VAT IDs clears the country. Existing customers keep `null` until their next write that touches `vatIds`.
+
+The value is derived, not entered: it is readable through the Admin API and the DAL but not through the Store API, it is not rendered in the Administration or the storefront, and a value you write yourself is overwritten by `CustomerVatIdCountrySubscriber` whenever the same write also carries `vatIds`. Read it when you need the issuing member state without re-deriving it, for example for reporting or documents:
+
+```php
+$criteria->addAssociation('vatIdCountry');
+```
+
+`customer.vat_ids` is a list while the storefront exposes one input, so the first entry decides the country; validation already requires every entry to match some member state. `order_customer` deliberately gets no snapshot of this — documents re-derive the country from the order's own `vat_ids`, so an order keeps rendering what it was placed with.
+
+### Documents print the intra-community delivery note for the same orders as the cart
+
+The invoice, the cancellation invoice and the credit note validate the order's VAT IDs with the shared `CustomerVatIdentification` constraint, so both document stacks fall back to the patterns of every EU member state except the shop's own, matching what the cart treats as tax free.
+
+`CustomerVatIdentification` gained an optional `salesChannelId` argument for that: given one, the constraint also rejects a VAT ID of the shop's own member state, because the caller is deciding about tax rather than about the format a customer entered. Registration and profile validation pass none and keep accepting a domestic VAT ID.
+
+No public method signatures changed, so renderers and document data providers extending `AbstractDocumentRenderer` or `InvoiceDataProvider` keep working. Already generated documents are untouched.
+
+### Seller country in the basic information settings
+
+`Settings > Basic information` offers a new "Shop owner's country" select above the shop owner's address, stored per sales channel as `core.basicInformation.sellerCountryId` and readable via `SystemConfigService::get('core.basicInformation.sellerCountryId', $salesChannelId)`.
+
+The value records the member state the shop supplies from. The company tax exemption and the intra-community delivery note read it so that their fallback to the other member states' patterns skips that state, so a shop that leaves it empty grants the exemption to every member state including its own. Nothing else evaluates it yet.
+
 ## API
 
 ### Store API currency headers validate sales channel availability
@@ -578,45 +624,6 @@ Removing the language that the same write assigns as the new default is now reje
 
 ## Core
 
-### Company tax exemption accepts VAT IDs from any EU member state
-
-A commercial customer with *Company tax free* and *Check VAT ID pattern* enabled for the delivery country previously kept the tax exemption only while the VAT ID matched the delivery country's VAT ID pattern, so a customer with a Dutch VAT ID lost it as soon as the delivery address moved to Belgium.
-
-`TaxDetector::isCompanyTaxFree()` now falls back to the VAT ID patterns of all EU member states (Settings > Countries) when a VAT ID does not match the delivery country's pattern. A VAT ID that matches no member state still removes the exemption. Tax free thresholds and currencies, the private-customer tax free path, and deliveries outside the EU are unchanged.
-
-The fallback excludes the shop's own member state: a customer identified in the country the goods are supplied from is a domestic supply, which Article 138 of the VAT Directive does not exempt, so that customer keeps being taxed. The shop's member state is the one configured as *Shop owner's country* (`core.basicInformation.sellerCountryId`). **Configure it** - a shop that leaves it empty cannot make that comparison and keeps granting the exemption to every member state, including its own.
-
-`Shopware\Core\Checkout\Cart\Tax\TaxDetector` gained an internal constructor taking `VatIdPatternProvider`. If you need to change this behaviour, decorate `AbstractTaxDetector` rather than replacing the `TaxDetector` service.
-
-On upgrade, carts and orders that were taxed only because the buyer's VAT ID belonged to another member state become tax free by themselves, and shops that do not enable *Company tax free* or *Check VAT ID pattern* see no change. Already placed orders and already generated documents are untouched. The one setting to review is *Shop owner's country*, which is what keeps the fallback from exempting a buyer identified in the shop's own member state.
-
-### Registration and profile accept VAT IDs from any EU member state
-
-Registering or changing a commercial account previously rejected a VAT ID that did not match the billing country's own VAT ID pattern, so a customer with a German billing address could not enter a Dutch VAT ID.
-
-`store-api/account/register` and `store-api/account/change-profile` now also accept a VAT ID that matches the pattern of any other EU member state. A VAT ID that matches no member state and not the billing country's pattern is still rejected, and a country that has no VAT ID pattern or that turns *Check VAT ID pattern* off is unchanged.
-
-The fallback follows the country's *Member state of the European Union* setting: a member state accepts the VAT ID patterns of all the others, while a country outside the EU keeps validating against its own pattern alone. This lives in `CustomerVatIdentification`, so every use of that constraint behaves the same way — including the intra-community delivery note. Turn the check off for a single country via its *Check VAT ID pattern* setting; there is no per-constraint opt-out.
-
-### Customers store the EU member state their VAT ID belongs to
-
-`customer` gained a nullable `vat_id_country_id` column, exposed on the DAL entity as `vatIdCountryId` with a `vatIdCountry` association to `country`. It is resolved from the customer's VAT IDs on every write that touches `vatIds`, so the Store API, the Admin API, the Sync API, the Administration, imports and plugin writes all store the same member state; a VAT ID that matches no member state stores `null`, and clearing the VAT IDs clears the country. Existing customers keep `null` until their next write that touches `vatIds`.
-
-The value is derived, not entered: it is readable through the Admin API and the DAL but not through the Store API, it is not rendered in the Administration or the storefront, and a value you write yourself is overwritten by `CustomerVatIdCountrySubscriber` whenever the same write also carries `vatIds`. Read it when you need the issuing member state without re-deriving it, for example for reporting or documents:
-
-```php
-$criteria->addAssociation('vatIdCountry');
-```
-
-`customer.vat_ids` is a list while the storefront exposes one input, so the first entry decides the country; validation already requires every entry to match some member state. `order_customer` deliberately gets no snapshot of this — documents re-derive the country from the order's own `vat_ids`, so an order keeps rendering what it was placed with.
-
-### Documents print the intra-community delivery note for the same orders as the cart
-
-The invoice, the cancellation invoice and the credit note validate the order's VAT IDs with the shared `CustomerVatIdentification` constraint, so both document stacks fall back to the patterns of every EU member state except the shop's own, matching what the cart treats as tax free.
-
-`CustomerVatIdentification` gained an optional `salesChannelId` argument for that: given one, the constraint also rejects a VAT ID of the shop's own member state, because the caller is deciding about tax rather than about the format a customer entered. Registration and profile validation pass none and keep accepting a domestic VAT ID.
-
-No public method signatures changed, so renderers and document data providers extending `AbstractDocumentRenderer` or `InvoiceDataProvider` keep working. Already generated documents are untouched.
 ### Document V1/V2 file compatibility
 
 Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.
@@ -862,12 +869,6 @@ The product export now paginates products by an `autoIncrement` keyset cursor in
 ### `SalesChannelRepositoryIterator` supports autoIncrement keyset pagination
 
 `SalesChannelRepositoryIterator` now seeks by an `autoIncrement` keyset instead of `OFFSET` when the entity has an autoIncrement field and the criteria defines no sorting (mirroring `RepositoryIterator`); a criteria with its own sorting keeps offset iteration. `SalesChannelRepository::getDefinition()` was added for parity with `EntityRepository`.
-
-### Seller country in the basic information settings
-
-`Settings > Basic information` offers a new "Shop owner's country" select above the shop owner's address, stored per sales channel as `core.basicInformation.sellerCountryId` and readable via `SystemConfigService::get('core.basicInformation.sellerCountryId', $salesChannelId)`.
-
-The value records the member state the shop supplies from. The company tax exemption and the intra-community delivery note read it so that their fallback to the other member states' patterns skips that state, so a shop that leaves it empty grants the exemption to every member state including its own. Nothing else evaluates it yet.
 
 ### Cross-selling by dynamic product group excludes the whole variant family
 

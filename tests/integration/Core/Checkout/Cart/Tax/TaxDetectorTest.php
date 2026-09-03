@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -450,6 +451,8 @@ class TaxDetectorTest extends TestCase
         $context->expects($this->once())->method('getCustomer')->willReturn(
             $customer
         );
+
+        $context->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertTrue($detector->isNetDelivery($context));

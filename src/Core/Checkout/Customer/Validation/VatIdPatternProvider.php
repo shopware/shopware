@@ -85,20 +85,6 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
-     * @return string|null the ISO code of the member state the VAT ID belongs to, null if it belongs to none
-     */
-    public function getStateByEuVatId(string $vatId): ?string
-    {
-        foreach ($this->getEuPatterns() as $iso => $pattern) {
-            if ($this->matches($pattern, $vatId)) {
-                return $iso;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Whether a VAT ID identifies the customer in a member state other than the one the seller supplies
      * from, which is what Article 138 of the VAT Directive conditions the intra-community exemption on.
      * A VAT ID of the seller's own member state makes the supply a domestic one, so it grants no exemption.
@@ -178,6 +164,20 @@ class VatIdPatternProvider implements ResetInterface
         // A pattern a merchant broke matches nothing, rather than spams a warning on every
         // VAT ID it is checked against
         return @preg_match($this->toRegex($pattern), $vatId) === 1;
+    }
+
+    /**
+     * @return string|null the ISO code of the member state the VAT ID belongs to, null if it belongs to none
+     */
+    private function getStateByEuVatId(string $vatId): ?string
+    {
+        foreach ($this->getEuPatterns() as $iso => $pattern) {
+            if ($this->matches($pattern, $vatId)) {
+                return $iso;
+            }
+        }
+
+        return null;
     }
 
     /**

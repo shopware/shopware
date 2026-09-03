@@ -43,10 +43,10 @@ final readonly class ContextDeliveryResolver
     /**
      * `$loaderValues` is keyed by element id, then by requirement key — the shape
      * {@see ElementDataResolver::resolve()} returns per element, collected for the forest. It arrives
-     * precomputed rather than being resolved here because loading completes for the whole forest before any
-     * distribution starts: a provider may hand on a loaded value, so every load must already have happened
-     * by the time the first parent distributes. An element with no entry simply has no loader values, which
-     * is the ordinary case and not an error.
+     * precomputed rather than being resolved here. The depth-first rendering path instead uses
+     * {@see self::resolveDirectChildren()} after loading each parent, allowing child loaders to consume the
+     * delivered context. An element with no entry simply has no loader values, which is the ordinary case and
+     * not an error.
      *
      * `$ambientContext` is the layout's root-ambient map, resolved once per render by {@see ElementLowering}
      * and passed in so root delivery never depends on tree shape. An empty map (SKELETON, no wrapper) delivers
@@ -70,10 +70,37 @@ final readonly class ContextDeliveryResolver
     }
 
     /**
-     * The root-scoped overlay runs FIRST, before the working map is read: a root-delivered value must be in
-     * the working map for the element's own providers to hand it on, exactly as a parent-delivered one is.
-     * Records what this element received before descending, so a parent's entry is always in place before its
-     * children's.
+     * Resolves the context delivered by one element to its direct children.
+     *
+     * This is used by the depth-first rendering walk so a child's data loaders can consume
+     * context provided by its parent.
+     *
+     * @param array<string, mixed> $loaderValues
+     * @param array<string, mixed> $receivedContext
+     *
+     * @return list<ContextDelivery>
+     */
+    public function resolveDirectChildren(
+        StoredElement $element,
+        array $loaderValues,
+        array $receivedContext = [],
+    ): array {
+        $children = $this->childrenInDeliveryOrder($element);
+
+        if ($children === []) {
+            return [];
+        }
+
+        return $this->distributor->distribute(
+            $element,
+            $this->workingValues($element, [$element->id => $loaderValues], $receivedContext),
+            $children,
+        );
+    }
+
+    /**
+     * Records what this element received before descending, so the index is filled in the same pre-order the
+     * distribution runs in and a parent's entry is always in place before its children's.
      *
      * @param array<string, array<string, mixed>> $loaderValues
      * @param array<string, mixed> $ambientContext
@@ -105,6 +132,14 @@ final readonly class ContextDeliveryResolver
         foreach ($children as $index => $child) {
             $this->walk($child, $loaderValues, $ambientContext, $childDeliveries[$index], $deliveries);
         }
+    }
+
+    public function resolveRootContext(
+        StoredElement $element,
+        array $ambientContext,
+        ContextDelivery $delivery,
+    ): ContextDelivery {
+        return $this->overlayRootContext($element, $ambientContext, $delivery);
     }
 
     /**

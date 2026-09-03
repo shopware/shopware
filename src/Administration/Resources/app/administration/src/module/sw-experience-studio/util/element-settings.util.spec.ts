@@ -211,12 +211,12 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ).toBe('entity');
     });
 
-    it('maps entity multi id select properties to entity multi controls', () => {
+    it('maps entity multi select properties to entity multi controls', () => {
         expect(
             getPropertyControlType({
                 ...stringProperty,
                 adminUI: {
-                    component: 'entity-multi-id-select',
+                    component: 'entity-multi',
                     entity: 'property_group',
                 },
             }),
@@ -225,9 +225,10 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         expect(
             getPropertyControlType({
                 ...stringProperty,
+                type: 'Shopware\\Core\\Content\\Product\\ProductCollection',
                 adminUI: {
                     component: 'sw-entity-multi-id-select',
-                    entity: 'property_group',
+                    entity: 'product',
                 },
             }),
         ).toBe('entity-multi');

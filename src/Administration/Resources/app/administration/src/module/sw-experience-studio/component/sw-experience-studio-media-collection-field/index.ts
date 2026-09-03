@@ -100,7 +100,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.emitValue([...this.mediaIds, targetId]);
+            this.emitValue([
+                ...this.mediaIds,
+                targetId,
+            ]);
         },
 
         onItemRemove(mediaItem: MediaListItem): void {

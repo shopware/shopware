@@ -1,3 +1,4 @@
+import type Repository from 'src/core/data/repository.data';
 import type {
     ContentSystemElementTypeProperty,
     ContentSystemElementTypeSpecification,
@@ -29,6 +30,7 @@ type SettingsFieldPanel = {
     technicalName: string | null;
     fields: SettingsFieldDefinition[];
 };
+type EntityMultiCodec = 'csv' | 'array';
 
 const DEFAULT_PANEL_KEY = '__default__';
 const DEFAULT_PANEL_SNIPPET = 'sw-experience-studio.detail.elementSettings.panelGeneral';
@@ -62,7 +64,9 @@ export type SettingsFieldDefinition = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+    ],
 
     props: {
         fields: {
@@ -527,32 +531,54 @@ export default Shopware.Component.wrapComponentConfig({
             return typeof entity === 'string' && entity.length > 0 ? entity : null;
         },
 
-        getEntityRepository(property: ContentSystemElementTypeProperty): unknown {
-            const entity = this.getEntityName(property);
-
-            return entity === null ? null : this.repositoryFactory.create(entity as keyof EntitySchema.Entities);
+        getEntityRepository(entityName: string): Repository<keyof EntitySchema.Entities> {
+            return this.repositoryFactory.create(entityName as keyof EntitySchema.Entities);
         },
 
-        /**
-         * Id lists are stored comma-separated because the element type system has no list type.
-         */
-        getIdListValue(key: string, property: ContentSystemElementTypeProperty): string[] {
-            const value = this.getPropertyValue(key, property);
+        getEntityMultiCodec(field: SettingsFieldDefinition): EntityMultiCodec | null {
+            const selectedElementType = this.selectedElementType as ContentSystemElementTypeSpecification | null;
+            const storesIdArray = Object.values(selectedElementType?.bindingSpecifications ?? {}).some(
+                (bindingSpecification) =>
+                    bindingSpecification.default && bindingSpecification.resolves[field.key]?.loader === 'entity_collection',
+            );
 
-            if (typeof value !== 'string' || value === '') {
-                return [];
+            if (storesIdArray) {
+                return 'array';
             }
 
-            return value
-                .split(',')
-                .map((id) => id.trim())
-                .filter((id) => id.length > 0);
+            const propertyType = field.property.type;
+            const storesCommaSeparatedIds = Array.isArray(propertyType)
+                ? propertyType.includes('string')
+                : propertyType === 'string';
+
+            return storesCommaSeparatedIds ? 'csv' : null;
         },
 
-        onUpdateIdList(key: string, ids: unknown): void {
-            const value = Array.isArray(ids) ? ids.filter((id): id is string => typeof id === 'string') : [];
+        getEntityMultiValue(key: string): string[] {
+            const rawValue = this.getRawPropertyValue(key);
 
-            this.onUpdateField(key, value.join(','));
+            if (typeof rawValue === 'string') {
+                return rawValue.split(',').filter((id) => id.length > 0);
+            }
+
+            if (Array.isArray(rawValue)) {
+                return rawValue.filter((id): id is string => typeof id === 'string');
+            }
+
+            return [];
+        },
+
+        onUpdateEntityMultiField(field: SettingsFieldDefinition, ids: string[]): void {
+            const codec = this.getEntityMultiCodec(field);
+
+            if (codec === 'csv') {
+                this.onUpdateField(field.key, ids.join(','));
+                return;
+            }
+
+            if (codec === 'array') {
+                this.onUpdateField(field.key, ids);
+            }
         },
 
         getControlProps(property: ContentSystemElementTypeProperty): Record<string, unknown> {
@@ -586,7 +612,7 @@ export default Shopware.Component.wrapComponentConfig({
                             icon: typeof option.icon === 'string' ? option.icon : undefined,
                             cornerRadius: typeof option.cornerRadius === 'string' ? option.cornerRadius : undefined,
                             description: typeof option.description === 'string' ? option.description : undefined,
-                            disabled: option.disabled === true,
+                            disabled: typeof option.disabled === 'boolean' ? option.disabled : undefined,
                         };
                     })
                     .filter((option) => option.value.length > 0);
@@ -631,7 +657,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.getRadioPanelOptionId(key, selectedOption.value);
         },
 
-        onUpdateField(key: string, value: PrimitiveValue): void {
+        onUpdateField(key: string, value: PrimitiveValue | string[]): void {
             if (!this.allowEdit) {
                 return;
             }

@@ -13,9 +13,12 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpeci
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+
+use function Symfony\Component\String\u;
 
 /**
  * Loads navigation tree data via NavigationLoaderInterface.
@@ -58,20 +61,24 @@ class NavigationDataLoader extends AbstractContentDataLoader
         Request $request
     ): ContentDataLoaderResult {
         $rootId = $this->aliasResolver->resolve($inputs->string('rootId'), $context);
+        $rootId = u($rootId)->lower()->toString();
 
         // A recognized alias still resolves to itself when the sales channel has no such category
         // (service and footer navigation are both optional). Passing that on would reach
-        // Uuid::fromHexToBytes() in NavigationRoute and abort the whole render.
+        // Uuid::fromHexToBytes() in NavigationRoute and abort the whole render. Guard after the lowercase
+        // (Uuid::VALID_PATTERN is lowercase-only): NavigationLoaderConfigSerializer::decode() preserves the
+        // configured case, and an uppercase configured id works against the database.
         if (!Uuid::isValid($rootId)) {
             return ContentDataLoaderResult::notFound();
         }
 
         // The referenced property carries the "{{categoryId}}" placeholder by default, which stays literal on a
-        // layout not rooted on a category. Anything but an id therefore falls back rather than reaching
-        // Uuid::fromHexToBytes() in NavigationRoute.
-        $activeId = $inputs->stringOrNull('activeProperty');
+        // layout not rooted on a category. Anything but an id falls back to the root rather than reaching
+        // Uuid::fromHexToBytes() in NavigationRoute; same lowercase-before-guard order as above.
+        $activeProperty = $inputs->stringOrNull('activeProperty');
+        $activeId = $activeProperty === null ? null : u($activeProperty)->lower()->toString();
 
-        if (!\is_string($activeId) || !Uuid::isValid($activeId)) {
+        if ($activeId === null || !Uuid::isValid($activeId)) {
             $activeId = $rootId;
         }
 
@@ -79,7 +86,17 @@ class NavigationDataLoader extends AbstractContentDataLoader
         // not the specification, supplies it.
         $depth = $inputs->intOrNull('depth') ?? $context->getSalesChannel()->getNavigationCategoryDepth();
 
-        $tree = $this->navigationLoader->load($activeId, $context, $rootId, $depth);
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: NavigationLoader delegates through TreeBuildingNavigationRoute to
+        // NavigationRoute, which throws CategoryNotFoundException when the active or root category is
+        // missing from the tree.
+        try {
+            $tree = $this->navigationLoader->load($activeId, $context, $rootId, $depth);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         return ContentDataLoaderResult::cachedExternally($tree);
     }

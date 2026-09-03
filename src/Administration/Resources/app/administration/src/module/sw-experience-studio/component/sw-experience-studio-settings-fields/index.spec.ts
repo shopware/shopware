@@ -201,6 +201,187 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         ]);
     });
 
+    it('presents a comma-separated id list to the entity picker as an array', () => {
+        const field = {
+            key: 'propertyAllowlist',
+            property: {
+                type: 'string',
+                adminUI: {
+                    component: 'entity-multi',
+                    entity: 'property_group',
+                },
+            },
+        };
+        const vm = {
+            selectedElementType: null,
+            values: {
+                propertyAllowlist: 'a,b',
+            },
+            getRawPropertyValue: methods.getRawPropertyValue,
+        };
+
+        expect(methods.getEntityMultiCodec.call(vm, field)).toBe('csv');
+        expect(methods.getEntityMultiValue.call(vm, field.key)).toEqual([
+            'a',
+            'b',
+        ]);
+    });
+
+    it('joins picked ids into a comma-separated list for a string property', () => {
+        const $emit = jest.fn();
+        const field = {
+            key: 'propertyAllowlist',
+            property: {
+                type: 'string',
+                adminUI: {
+                    component: 'entity-multi',
+                    entity: 'property_group',
+                },
+            },
+        };
+        const vm = {
+            $emit,
+            allowEdit: true,
+            selectedElementType: null,
+            getEntityMultiCodec: methods.getEntityMultiCodec,
+            onUpdateField: methods.onUpdateField,
+        };
+
+        methods.onUpdateEntityMultiField.call(vm, field, [
+            'a',
+            'b',
+        ]);
+
+        expect($emit).toHaveBeenCalledWith('update-field', {
+            key: 'propertyAllowlist',
+            value: 'a,b',
+        });
+    });
+
+    it('presents a resolved id array to the entity picker unchanged', () => {
+        const field = {
+            key: 'products',
+            property: {
+                type: 'array',
+                adminUI: {
+                    component: 'entity-multi',
+                    entity: 'product',
+                },
+            },
+        };
+        const vm = {
+            selectedElementType: {
+                bindingSpecifications: {
+                    productListing: {
+                        default: true,
+                        resolves: {
+                            products: {
+                                loader: 'entity_collection',
+                                config: {
+                                    property: 'productIds',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            values: {
+                products: [
+                    'a',
+                    'b',
+                ],
+            },
+            getRawPropertyValue: methods.getRawPropertyValue,
+        };
+
+        expect(methods.getEntityMultiCodec.call(vm, field)).toBe('array');
+        expect(methods.getEntityMultiValue.call(vm, field.key)).toEqual([
+            'a',
+            'b',
+        ]);
+    });
+
+    it('emits picked ids as an array for an entity collection property', () => {
+        const $emit = jest.fn();
+        const field = {
+            key: 'products',
+            property: {
+                type: 'array',
+                adminUI: {
+                    component: 'entity-multi',
+                    entity: 'product',
+                },
+            },
+        };
+        const vm = {
+            $emit,
+            allowEdit: true,
+            selectedElementType: {
+                bindingSpecifications: {
+                    productListing: {
+                        default: true,
+                        resolves: {
+                            products: {
+                                loader: 'entity_collection',
+                                config: {
+                                    property: 'productIds',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            getEntityMultiCodec: methods.getEntityMultiCodec,
+            onUpdateField: methods.onUpdateField,
+        };
+
+        methods.onUpdateEntityMultiField.call(vm, field, [
+            'a',
+            'b',
+        ]);
+
+        expect($emit).toHaveBeenCalledWith('update-field', {
+            key: 'products',
+            value: [
+                'a',
+                'b',
+            ],
+        });
+    });
+
+    it('resolves no codec for an entity-multi property matching neither stored shape', () => {
+        const field = {
+            key: 'products',
+            property: {
+                type: 'array',
+                adminUI: {
+                    component: 'entity-multi',
+                    entity: 'product',
+                },
+            },
+        };
+        const vm = {
+            selectedElementType: {
+                bindingSpecifications: {
+                    productListing: {
+                        default: false,
+                        resolves: {
+                            products: {
+                                loader: 'entity_collection',
+                                config: {
+                                    property: 'productIds',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        };
+
+        expect(methods.getControlType.call(vm, field.property)).toBe('entity-multi');
+        expect(methods.getEntityMultiCodec.call(vm, field)).toBeNull();
+    });
+
     it('uses a shared structured default for breakpoint-aware box spacing', () => {
         const value = methods.getResponsiveFallbackValue.call(
             {
@@ -228,105 +409,4 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
 
         expect(value).toBe('0 20px 0 20px');
     });
-
-    it('creates the repository for the configured adminUI entity', () => {
-        const repository = { entityName: 'property_group' };
-        const create = jest.fn(() => repository);
-
-        expect(
-            methods.getEntityRepository.call(
-                {
-                    getEntityName: methods.getEntityName,
-                    repositoryFactory: { create },
-                },
-                {
-                    adminUI: {
-                        component: 'entity-multi-id-select',
-                        entity: 'property_group',
-                    },
-                },
-            ),
-        ).toBe(repository);
-        expect(create).toHaveBeenCalledWith('property_group');
-    });
-
-    it('returns no repository without an adminUI entity', () => {
-        const create = jest.fn();
-
-        expect(
-            methods.getEntityRepository.call(
-                {
-                    getEntityName: methods.getEntityName,
-                    repositoryFactory: { create },
-                },
-                {
-                    adminUI: {
-                        component: 'entity-multi-id-select',
-                    },
-                },
-            ),
-        ).toBeNull();
-        expect(create).not.toHaveBeenCalled();
-    });
-
-    it('splits, trims and filters comma separated id list values', () => {
-        const value = methods.getIdListValue.call(
-            {
-                values: {
-                    propertyIds: ' id-1 , ,id-2,',
-                },
-                getPropertyValue: methods.getPropertyValue,
-                getControlType: methods.getControlType,
-            },
-            'propertyIds',
-            {
-                type: 'string',
-                default: null,
-                adminUI: {
-                    component: 'entity-multi-id-select',
-                    entity: 'property_group',
-                },
-            },
-        );
-
-        expect(value).toEqual([
-            'id-1',
-            'id-2',
-        ]);
-    });
-
-    it('returns an empty id list for empty and non-string values', () => {
-        const property = {
-            type: 'string',
-            default: null,
-            adminUI: {
-                component: 'entity-multi-id-select',
-                entity: 'property_group',
-            },
-        };
-        const contextFor = (value: unknown) => ({
-            values: {
-                propertyIds: value,
-            },
-            getPropertyValue: methods.getPropertyValue,
-            getControlType: methods.getControlType,
-        });
-
-        expect(methods.getIdListValue.call(contextFor(''), 'propertyIds', property)).toEqual([]);
-        expect(methods.getIdListValue.call(contextFor(42), 'propertyIds', property)).toEqual([]);
-    });
-
-    it('joins string ids and drops non-string entries when updating an id list', () => {
-        const onUpdateField = jest.fn();
-
-        methods.onUpdateIdList.call({ onUpdateField }, 'propertyIds', [
-            'id-1',
-            42,
-            null,
-            'id-2',
-        ]);
-
-        expect(onUpdateField).toHaveBeenCalledWith('propertyIds', 'id-1,id-2');
-    });
-
 });

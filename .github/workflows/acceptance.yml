@@ -70,8 +70,6 @@ jobs:
     timeout-minutes: 40
     needs: generate-acceptance-matrix
     strategy:
-      # Only `matrix:` carries the expression: zizmor cannot audit a file whose whole
-      # `strategy:` is one, and an unaudited file loses its action-pinning check.
       fail-fast: false
       matrix: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
     steps:

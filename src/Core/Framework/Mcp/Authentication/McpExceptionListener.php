@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp\Authentication;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Mcp\Schema\JsonRpc\Error;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -73,12 +74,24 @@ class McpExceptionListener implements EventSubscriberInterface
     private function handleMcpException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+        $message = $exception->getMessage();
+
+        if ($exception instanceof OAuthServerException) {
+            // OAuth errors (missing, invalid, or expired bearer token) do not implement getStatusCode()
+            $httpCode = $exception->getHttpStatusCode();
+
+            if ($exception->getHint() !== null) {
+                // the hint names the actual cause, e.g. a missing Authorization header or an expired token
+                $message .= ' ' . $exception->getHint();
+            }
+        } else {
+            $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
 
         $error = new Error(
             id: '',
             code: $this->toJsonRpcCode($httpCode),
-            message: $exception->getMessage(),
+            message: $message,
         );
 
         $event->setResponse(new JsonResponse($error->jsonSerialize(), $httpCode));

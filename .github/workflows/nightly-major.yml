@@ -64,6 +64,7 @@ jobs:
     uses: ./.github/workflows/report-phpunit-failures.yml
     permissions:
       contents: read
+      id-token: write # the called workflow mints an octo-sts token
       issues: write
     with:
       report-title: "[nightly] Nightly Major test failures"

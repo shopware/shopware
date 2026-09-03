@@ -9,11 +9,11 @@ use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLo
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\ContentSystem\ContentElementBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -23,13 +23,12 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductConfiguratorDataLoader::class)]
 class ProductConfiguratorDataLoaderTest extends TestCase
 {
-    public function testReturnsNotFoundForWrongConfig(): void
+    public function testReturnsNotFoundForMissingProduct(): void
     {
         $loader = new ProductConfiguratorDataLoader(static::createStub(ProductConfiguratorLoader::class));
-        $element = ContentElementBuilder::create('variant-selection')->build();
         $requirement = new DataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig());
 
-        static::assertFalse($loader->load($element, $requirement, Generator::generateSalesChannelContext(), new Request())->hasData());
+        static::assertFalse($loader->load(new LoaderInputs(['productProperty' => null]), $requirement, Generator::generateSalesChannelContext(), new Request())->hasData());
     }
 
     public function testDelegatesConfiguredProductToConfiguratorLoader(): void
@@ -44,10 +43,9 @@ class ProductConfiguratorDataLoaderTest extends TestCase
         $configuratorLoader->expects($this->once())->method('load')->with($product, $context)->willReturn($groups);
 
         $loader = new ProductConfiguratorDataLoader($configuratorLoader);
-        $element = ContentElementBuilder::create('variant-selection')->withProperty('product', $product)->build();
         $requirement = new DataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig());
 
-        $result = $loader->load($element, $requirement, $context, new Request());
+        $result = $loader->load(new LoaderInputs(['productProperty' => $product]), $requirement, $context, new Request());
 
         static::assertSame($groups, $result->data);
         static::assertSame([EntityCacheKeyGenerator::buildProductTag('parent-id')], $result->getCacheTags());

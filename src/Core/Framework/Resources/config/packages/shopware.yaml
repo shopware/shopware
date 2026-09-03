@@ -405,7 +405,7 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 
     auto_update:
-        enabled: '%env(bool:default:defaults_bool_true:SHOPWARE_DISABLE_UPDATE_CHECK)%'
+        enabled: '%env(not:bool:default:defaults_bool_false:SHOPWARE_DISABLE_UPDATE_CHECK)%'
         hide_module: '%env(bool:default:defaults_bool_false:SHOPWARE_AUTO_UPDATE_HIDE_MODULE)%'
 
     store:

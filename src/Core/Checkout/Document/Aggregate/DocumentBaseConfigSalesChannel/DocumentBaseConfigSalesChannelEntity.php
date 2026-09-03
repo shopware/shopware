@@ -25,7 +25,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     protected string $documentTypeId;
 
     /**
-     * @deprecated tag:v6.8.0 reason:remove-duplicate-field - Will be removed. Use the typeName property of the documentBaseConfig instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use the $typeName property of $documentBaseConfig instead.
      */
     protected ?string $typeName = null;
 
@@ -72,7 +72,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.8.0 reason:remove-duplicate-field - Will be removed. Use getDocumentBaseConfig()?->getTypeName() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use getDocumentBaseConfig()?->getTypeName() instead.
      */
     public function getTypeName(): ?string
     {
@@ -82,7 +82,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.8.0 reason:remove-duplicate-field - Will be removed. Use getDocumentBaseConfig()?->setTypeName() instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use getDocumentBaseConfig()?->setTypeName() instead.
      */
     public function setTypeName(?string $typeName): void
     {

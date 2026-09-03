@@ -30,10 +30,19 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 The six unlinked loaders above — `service_menu`, `cross_selling`, `product_review`, `product_search`, `product_suggest`, `breadcrumb` — have no configuration reference yet.
 
+## Degradation boundary
+
+A loader degrades a broken element to `notFound()` instead of failing the whole render, under two rules whose imperative form lives in [AGENTS.md](AGENTS.md).
+
+An entity id read off a `PropertyReference` is guarded with `Uuid::isValid()` before use, because the stored map can hold anything, typically an unsubstituted placeholder such as `{{productId}}`, and `LoaderInputResolver::dereference()` only type-checks it as a string. The guard runs after any normalization: `Uuid::VALID_PATTERN` is lowercase-only while `Uuid::fromHexToBytes()` accepts uppercase hex, so guarding the raw value would reject an uppercase configured id that works.
+
+A collaborator call inside `load()` is wrapped in `catch (ShopwareHttpException)`: a failure Shopware modelled as an HTTP outcome degrades the element, and everything beneath that line propagates, because degrading a `\TypeError`, a `\JsonException`, or a Doctrine DBAL failure would blank the element and hide a loader defect where an error report is needed. The clause names the single covering ancestor rather than an enumerated union for two reasons. The reachable set is open: `ProductListingRoute` and `ProductCrossSellingRoute` throw `EntityNotFoundException` and `NoFilterException` out of `ProductStreamBuilder`, a collaborator that never appears as a `throw` in either route's own file. And a decorator can rewrap a named class into an unnamed one: `AppScriptProductPriceCalculator` decorates `ProductPriceCalculator` and hands every `\Throwable` an app script raises to `ScriptExecutor`, which rethrows it as `ScriptExecutionFailedException`. `HttpException` extends `ShopwareHttpException`, so both exception roots are one inheritance line. The boundary is deliberate rather than a proof of exhaustiveness: third-party code can still throw outside it, for example a pre/post/error extension listener, whose throw propagates uncaught out of `ExtensionDispatcher`'s event dispatch (`publish()` rethrows the wrapped call's exception unless an error listener supplies a result).
+
 ## Guides
 
 - [docs/data-requirements.md](docs/data-requirements.md) - What a `dataRequirements` entry declares, when to use one, and its fields.
 - [docs/custom-loaders.md](docs/custom-loaders.md) - Registering a new data source: config, serializer, loader, and cache behavior.
+- [docs/entity-id-guard-example.md](docs/entity-id-guard-example.md) - Worked example: guarding a `PropertyReference` entity id and wrapping a throwing collaborator.
 - [docs/introspection.md](docs/introspection.md) - The Admin API surface clients read to discover available sources and their config keys.
 
 ## Extension Point
@@ -44,7 +53,7 @@ The six unlinked loaders above — `service_menu`, `cross_selling`, `product_rev
 4. Override `configSpecification()` when the config serializer accepts keys — declares the loader's config contract for the derived completion residue, and is the only place a key's default may live
 5. Read every input off the `LoaderInputs` argument (see [AGENTS.md](AGENTS.md) Constraints for what `load()` may and may not touch)
 6. Tag with `content_system.data_loader` in the owning domain's DI — service locator uses `getRequirementType()` as key
-7. Return `ContentDataLoaderResult` with appropriate cache info — never throw exceptions
+7. Return `ContentDataLoaderResult` with appropriate cache info — throw nothing yourself; only a collaborator's exceptions outside the `ShopwareHttpException` boundary pass through `load()` (see [AGENTS.md](AGENTS.md) Constraints)
 
 Fixed-type loaders need no override: the base `producibleTypes()` returns one `LoaderTypeCapability` derived from `@extends`, and `resolveProducedType()` returns that type ignoring config.
 

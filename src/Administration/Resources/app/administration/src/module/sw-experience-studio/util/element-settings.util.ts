@@ -16,6 +16,7 @@ export type ElementPropertyControlType =
     | 'select'
     | 'radio-panel'
     | 'entity'
+    | 'entity-multi'
     | 'media'
     | 'media-collection'
     | 'richtext'
@@ -47,6 +48,8 @@ const ADMIN_UI_COMPONENT_CONTROL_MAP: Record<string, ElementPropertyControlType>
     'sw-media-field': 'media',
     'media-collection': 'media-collection',
     'sw-media-list-selection-v2': 'media-collection',
+    'entity-multi': 'entity-multi',
+    'sw-entity-multi-id-select': 'entity-multi',
     'responsive-number': 'responsive-number',
     'box-spacing': 'box-spacing',
 };

@@ -15,7 +15,7 @@
 }) %}
 
 {% if product is null %}
-    <div {{ attributes.defaults({ class: quantitySelectorCVA.apply({}) }) }}>
+    <div class="{{ quantitySelectorCVA.apply({}, attributes.render('class')) }}" {{ attributes.defaults({}) }}>
         <twig:Sw:Icon name="list-numbered-xs" size="sm" />
         {{ 'component.product.quantitySelect.notAvailable'|trans|sw_sanitize }}
     </div>
@@ -37,12 +37,11 @@
     {% set purchaseLimitUrl = product.isCloseout ? path('frontend.product.purchase-limit', { productId: product.id }) : null %}
 
     {% set attributeDefaults = {
-        class: quantitySelectorCVA.apply({}),
         'data-component': 'Sw:Product:QuantitySelector',
         'data-component-options': { purchaseLimitUrl: purchaseLimitUrl }|json_encode,
     } %}
 
-    <fieldset {{ attributes.defaults(attributeDefaults) }}>
+    <fieldset class="{{ quantitySelectorCVA.apply({}, attributes.render('class')) }}" {{ attributes.defaults(attributeDefaults) }}>
         {% block legend %}
             <legend {{ attributes.nested('legend').defaults({ class: 'visually-hidden' }) }}>
                 {{ 'component.product.quantitySelect.legend'|trans|striptags }}

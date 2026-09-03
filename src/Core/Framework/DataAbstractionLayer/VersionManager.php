@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeVersionMergeEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\CloneProtectedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -253,7 +252,7 @@ class VersionManager
         bool $writeAuditLog = false
     ): array {
         if ($this->isCloneProtected($definition, $context->getContext())) {
-            throw new CloneProtectedException($definition->getEntityName(), $context->getContext()->getScope());
+            throw DataAbstractionLayerException::cloneProtected($definition->getEntityName(), $context->getContext()->getScope());
         }
 
         $criteria = new Criteria([$id]);
@@ -357,7 +356,7 @@ class VersionManager
 
         foreach ($fields as $field) {
             $writeProtection = $field->getFlag(WriteProtected::class);
-            if ($writeProtection && !$writeProtection->isAllowed($context->getScope())) {
+            if ($writeProtection && !$writeProtection->isAllowed(Context::SYSTEM_SCOPE)) {
                 continue;
             }
 

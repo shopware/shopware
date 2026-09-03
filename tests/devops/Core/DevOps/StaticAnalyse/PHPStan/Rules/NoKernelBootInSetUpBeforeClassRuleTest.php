@@ -18,13 +18,13 @@ class NoKernelBootInSetUpBeforeClassRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse([__DIR__ . '/data/NoKernelBootInSetUpBeforeClassRule/Cases.php'], [
-            // bootKernel() in setUpBeforeClass()
+            // BootsInStaticHooks: bootKernel() in setUpBeforeClass()
             [NoKernelBootInSetUpBeforeClassRule::ERROR_STATIC_BOOT, 15],
-            // bootKernel() in tearDownAfterClass()
+            // BootsInStaticHooks: bootKernel() in tearDownAfterClass()
             [NoKernelBootInSetUpBeforeClassRule::ERROR_STATIC_BOOT, 20],
-            // createKernel() in setUpBeforeClass()
+            // CreatesKernelInStaticHook: createKernel() in setUpBeforeClass()
             [NoKernelBootInSetUpBeforeClassRule::ERROR_STATIC_BOOT, 31],
-            // NOT flagged: 51 (lazy boot in setUp), 64 (not a TestCase subclass)
+            // NOT flagged: BootsLazily (lazy boot in setUp), SomeSupportClass (not a TestCase subclass)
         ]);
     }
 

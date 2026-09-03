@@ -479,7 +479,7 @@ class InvoiceDataProviderTest extends TestCase
             ['iso' => 'NL', 'id' => Uuid::randomHex(), 'vat_id_pattern' => 'NL\\d{9}B\\d{2}'],
         ]);
 
-        $vatIdValidator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection));
+        $vatIdValidator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class)));
 
         return Validation::createValidatorBuilder()
             ->setConstraintValidatorFactory(new class($vatIdValidator) implements ConstraintValidatorFactoryInterface {

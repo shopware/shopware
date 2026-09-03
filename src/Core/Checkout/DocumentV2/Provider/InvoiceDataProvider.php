@@ -220,7 +220,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             $vatIds,
             [
                 new NotBlank(),
-                new CustomerVatIdentification(countryId: $country->getId()),
+                new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
             ],
         )->count() === 0;
     }

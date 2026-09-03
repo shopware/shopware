@@ -205,6 +205,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(VatIdPatternProvider::class)
         ->args([
             service(Connection::class),
+            service(SystemConfigService::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

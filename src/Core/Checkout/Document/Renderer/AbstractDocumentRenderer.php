@@ -115,7 +115,7 @@ abstract class AbstractDocumentRenderer
 
         $violations = $validator->validate($vatIds, [
             new NotBlank(),
-            new CustomerVatIdentification(countryId: $country->getId()),
+            new CustomerVatIdentification(countryId: $country->getId(), salesChannelId: $order->getSalesChannelId()),
         ]);
 
         return $violations->count() === 0;

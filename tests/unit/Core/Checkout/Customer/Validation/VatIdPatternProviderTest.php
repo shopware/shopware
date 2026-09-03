@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
@@ -128,7 +129,7 @@ class VatIdPatternProviderTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
 
-        $provider = new VatIdPatternProvider($connection);
+        $provider = new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
 
         static::assertSame('NL', $provider->getStateByEuVatId('NL123456789B01'));
         static::assertSame('NL', $provider->getStateByEuVatId('NL987654321B02'));
@@ -142,7 +143,7 @@ class VatIdPatternProviderTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}']]);
 
-        $provider = new VatIdPatternProvider($connection);
+        $provider = new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
 
         $provider->getEuPatterns();
         $provider->reset();
@@ -161,7 +162,7 @@ class VatIdPatternProviderTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(['is_eu' => 1, 'check_vat_id_pattern' => 1, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}']);
 
-        $provider = new VatIdPatternProvider($connection);
+        $provider = new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
 
         static::assertSame($provider->getCountrySettings($countryId), $provider->getCountrySettings($countryId));
     }
@@ -173,7 +174,7 @@ class VatIdPatternProviderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('fetchAssociative')->willReturn(false);
 
-        $provider = new VatIdPatternProvider($connection);
+        $provider = new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
 
         static::assertNull($provider->getCountrySettings($countryId));
         static::assertNull($provider->getCountrySettings($countryId));
@@ -188,7 +189,7 @@ class VatIdPatternProviderTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(['is_eu' => 1, 'check_vat_id_pattern' => 1, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}']);
 
-        $provider = new VatIdPatternProvider($connection);
+        $provider = new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
 
         $provider->getCountrySettings($countryId);
         $provider->reset();
@@ -206,7 +207,7 @@ class VatIdPatternProviderTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(['is_eu' => 1, 'check_vat_id_pattern' => 1, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}']);
 
-        $provider = new VatIdPatternProvider($connection);
+        $provider = new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
 
         $provider->getCountrySettings(Uuid::randomHex());
         $provider->getCountrySettings(Uuid::randomHex());
@@ -330,6 +331,58 @@ class VatIdPatternProviderTest extends TestCase
         yield 'a pattern that breaks out of the delimiters matches nothing' => ['BE/i', 'BE0123456789', false];
     }
 
+    public function testAVatIdOfTheSellersOwnMemberStateIsNoIntraCommunityOne(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::BE_ID);
+
+        static::assertFalse($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
+        static::assertTrue($provider->isIntraCommunityVatId('NL123456789B01', Uuid::randomHex()));
+    }
+
+    public function testAVatIdOfNoMemberStateIsNoIntraCommunityOne(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::BE_ID);
+
+        static::assertFalse($provider->isIntraCommunityVatId('CHE123456789', Uuid::randomHex()));
+    }
+
+    public function testEveryMemberStateCountsWhileTheShopConfiguredNoSellerCountry(): void
+    {
+        $provider = $this->createProviderSellingFrom('');
+
+        static::assertTrue($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
+    }
+
+    public function testTheSellerCountryIsNotReadWithoutASalesChannel(): void
+    {
+        // Validating the format a customer entered is not a tax decision, so it needs no seller country
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->never())->method('getString');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE\\d{10}'],
+        ]);
+
+        $provider = new VatIdPatternProvider($connection, $systemConfigService);
+
+        static::assertTrue($provider->isIntraCommunityVatId('BE0123456789', null));
+    }
+
+    private function createProviderSellingFrom(string $sellerCountryId): VatIdPatternProvider
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => 'BE\\d{10}'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}'],
+        ]);
+
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('getString')->willReturn($sellerCountryId);
+
+        return new VatIdPatternProvider($connection, $systemConfigService);
+    }
+
     /**
      * @param list<array{iso: string, id: string, vat_id_pattern: string}> $rows
      */
@@ -338,7 +391,7 @@ class VatIdPatternProviderTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($rows);
 
-        return new VatIdPatternProvider($connection);
+        return new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
     }
 
     /**
@@ -349,6 +402,6 @@ class VatIdPatternProviderTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn($country);
 
-        return new VatIdPatternProvider($connection);
+        return new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class));
     }
 }

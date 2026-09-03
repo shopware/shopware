@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
@@ -410,20 +411,93 @@ class TaxDetectorTest extends TestCase
         static::assertTrue($detector->isCompanyTaxFree($context, $country));
     }
 
+    public function testIsCompanyTaxFreeReturnsFalseForAVatIdOfTheSellersOwnMemberState(): void
+    {
+        // A German shop delivering to Belgium for a customer identified in Germany: the customer holds a
+        // VAT ID of the seller's own member state, which Article 138 does not exempt
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => 'BE\d{10}',
+            'checkVatIdPattern' => true,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'company' => 'EU Company',
+            'vatIds' => ['DE123456789'],
+        ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getSalesChannelId')->willReturn(Uuid::randomHex());
+
+        static::assertFalse($this->createDetector(self::EU_PATTERNS, 'DE')->isCompanyTaxFree($context, $country));
+    }
+
+    public function testIsCompanyTaxFreeStillAcceptsAnotherMemberStateWhenTheSellerCountryIsConfigured(): void
+    {
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => 'BE\d{10}',
+            'checkVatIdPattern' => true,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'company' => 'EU Company',
+            'vatIds' => ['NL123456789B01'],
+        ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getSalesChannelId')->willReturn(Uuid::randomHex());
+
+        static::assertTrue($this->createDetector(self::EU_PATTERNS, 'DE')->isCompanyTaxFree($context, $country));
+    }
+
+    public function testIsCompanyTaxFreeAcceptsEveryMemberStateWhileNoSellerCountryIsConfigured(): void
+    {
+        // Without the setting there is nothing to compare the VAT ID against, so the shop keeps the
+        // behaviour it had before the seller country existed
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => 'BE\d{10}',
+            'checkVatIdPattern' => true,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'company' => 'EU Company',
+            'vatIds' => ['DE123456789'],
+        ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getSalesChannelId')->willReturn(Uuid::randomHex());
+
+        static::assertTrue($this->createDetector(self::EU_PATTERNS)->isCompanyTaxFree($context, $country));
+    }
+
     /**
      * @param array<string, string> $euPatterns ISO code => VAT ID format pattern
+     * @param string|null $sellerIso the member state the shop supplies from, null when it configured none
      */
-    private function createDetector(array $euPatterns = []): TaxDetector
+    private function createDetector(array $euPatterns = [], ?string $sellerIso = null): TaxDetector
     {
         $rows = [];
+        $countryIds = [];
         foreach ($euPatterns as $iso => $pattern) {
-            $rows[] = ['iso' => $iso, 'id' => Uuid::randomHex(), 'vat_id_pattern' => $pattern];
+            $countryIds[$iso] = Uuid::randomHex();
+            $rows[] = ['iso' => $iso, 'id' => $countryIds[$iso], 'vat_id_pattern' => $pattern];
         }
 
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($rows);
 
-        return new TaxDetector(new VatIdPatternProvider($connection));
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('getString')->willReturn($sellerIso === null ? '' : $countryIds[$sellerIso]);
+
+        return new TaxDetector(new VatIdPatternProvider($connection, $systemConfigService));
     }
 
     private function createDetectorRejectingQueries(): TaxDetector
@@ -431,6 +505,6 @@ class TaxDetectorTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('fetchAllAssociative');
 
-        return new TaxDetector(new VatIdPatternProvider($connection));
+        return new TaxDetector(new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class)));
     }
 }

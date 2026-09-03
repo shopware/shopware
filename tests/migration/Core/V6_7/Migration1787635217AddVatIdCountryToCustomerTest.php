@@ -78,15 +78,38 @@ class Migration1787635217AddVatIdCountryToCustomerTest extends TestCase
         ));
     }
 
+    public function testTheForeignKeyIsCreatedWhenAnEarlierRunOnlyGotAsFarAsTheColumn(): void
+    {
+        $this->rollback();
+
+        (new Migration1787635217AddVatIdCountryToCustomer())->update($this->connection);
+
+        // The state a run leaves behind when it adds the column and then fails on the constraint
+        $this->dropForeignKey();
+
+        (new Migration1787635217AddVatIdCountryToCustomer())->update($this->connection);
+
+        static::assertTrue(TableHelper::foreignKeyExists($this->connection, 'customer', 'fk.customer.vat_id_country_id'));
+    }
+
     private function rollback(): void
     {
         if (!TableHelper::columnExists($this->connection, 'customer', 'vat_id_country_id')) {
             return;
         }
 
+        $this->dropForeignKey();
+        $this->connection->executeStatement('ALTER TABLE `customer` DROP COLUMN `vat_id_country_id`;');
+    }
+
+    private function dropForeignKey(): void
+    {
+        if (!TableHelper::foreignKeyExists($this->connection, 'customer', 'fk.customer.vat_id_country_id')) {
+            return;
+        }
+
         $this->connection->executeStatement(
             'ALTER TABLE `customer` DROP FOREIGN KEY `fk.customer.vat_id_country_id`;'
         );
-        $this->connection->executeStatement('ALTER TABLE `customer` DROP COLUMN `vat_id_country_id`;');
     }
 }

@@ -150,7 +150,7 @@ class DocumentPersisterTest extends TestCase
             'text/html',
         ));
 
-        $mediaService = static::createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')
             ->willReturnCallback(static fn (string $content, string $extension) => $extension === 'html' ? $htmlMediaId : $pdfMediaId);
 
@@ -196,7 +196,7 @@ class DocumentPersisterTest extends TestCase
             'application/xml',
         ));
 
-        $mediaService = static::createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')
             ->willReturnCallback(static fn (string $content, string $extension) => $extension === 'html' ? $htmlMediaId : $xmlMediaId);
 

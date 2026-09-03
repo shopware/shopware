@@ -216,6 +216,12 @@ The fallback excludes the shop's own member state: a customer identified in the 
 
 On upgrade, carts and orders that were taxed only because the buyer's VAT ID belonged to another member state become tax free by themselves, and shops that do not enable *Company tax free* or *Check VAT ID pattern* see no change. Already placed orders and already generated documents are untouched. The one setting to review is *Shop owner's country*, which is what keeps the fallback from exempting a buyer identified in the shop's own member state.
 
+### The company tax exemption reads the account type, not the company name
+
+`TaxDetector::isCompanyTaxFree()` decides whether a customer is a business from `accountType`, where it previously required a non-empty `company`. This is what the cart already applied through `CartRuleLoader` and what the intra-community delivery note on documents already applied, so all three now reach the same verdict.
+
+A commercial account that carries no company name - which the storefront does not create, but the Admin API, the Administration and customer imports do - keeps the exemption instead of losing it while its documents still printed the note. A private account is unaffected: it was never exempt, whether or not a company name was stored on it. Set `accountType` to `business` on customers that are meant to be treated as commercial.
+
 ### Registration and profile accept VAT IDs from any EU member state
 
 Registering or changing a commercial account previously rejected a VAT ID that did not match the billing country's own VAT ID pattern, so a customer with a German billing address could not enter a Dutch VAT ID.
@@ -241,6 +247,8 @@ $criteria->addAssociation('vatIdCountry');
 The invoice, the cancellation invoice and the credit note validate the order's VAT IDs with the shared `CustomerVatIdentification` constraint, so both document stacks fall back to the patterns of every EU member state except the shop's own, matching what the cart treats as tax free.
 
 `CustomerVatIdentification` gained an optional `salesChannelId` argument for that: given one, the constraint also rejects a VAT ID of the shop's own member state, because the caller is deciding about tax rather than about the format a customer entered. Registration and profile validation pass none and keep accepting a domestic VAT ID.
+
+The letter head prints the VAT ID from the order rather than from the customer record, so a document shows the identifier the order was placed with even after the customer changed or removed their VAT ID. Templates that override the `document_recipient` block and read `customer.customer.vatIds` should read `customer.vatIds` instead.
 
 No public method signatures changed, so renderers and document data providers extending `AbstractDocumentRenderer` or `InvoiceDataProvider` keep working. Already generated documents are untouched.
 

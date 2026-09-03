@@ -145,6 +145,27 @@ class IntraCommunityVatExemptionTest extends TestCase
         );
     }
 
+    public function testTheInvoicePrintsTheVatIdTheOrderWasPlacedWith(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19]));
+
+        $this->setVatIds(['NL987654321B02']);
+
+        $invoice = $this->render(
+            static::getContainer()->get(InvoiceRenderer::class),
+            $orderId,
+            config: ['displayCustomerVatId' => true]
+        );
+
+        static::assertStringContainsString(self::INTRA_COMMUNITY_NOTE, $invoice);
+        static::assertStringContainsString(
+            self::DUTCH_VAT_ID,
+            $invoice,
+            'The invoice must print the VAT ID the exemption was granted on, which is the order\'s own.'
+        );
+        static::assertStringNotContainsString('NL987654321B02', $invoice);
+    }
+
     /**
      * @param list<string> $vatIds
      */
@@ -250,12 +271,19 @@ class IntraCommunityVatExemptionTest extends TestCase
         return $document->getId();
     }
 
-    private function render(AbstractDocumentRenderer $renderer, string $orderId, ?string $invoiceId = null): string
-    {
+    /**
+     * @param array<string, mixed> $config additional document configuration for the scenario at hand
+     */
+    private function render(
+        AbstractDocumentRenderer $renderer,
+        string $orderId,
+        ?string $invoiceId = null,
+        array $config = []
+    ): string {
         $operation = new DocumentGenerateOperation(
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
-            ['displayAdditionalNoteDelivery' => true, 'displayLineItems' => true, 'displayPrices' => true],
+            ['displayAdditionalNoteDelivery' => true, 'displayLineItems' => true, 'displayPrices' => true] + $config,
             $invoiceId
         );
 

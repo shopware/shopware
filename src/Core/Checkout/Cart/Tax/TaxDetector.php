@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -60,7 +61,7 @@ class TaxDetector extends AbstractTaxDetector
 
         $countryCompanyTaxFree = $shippingLocationCountry->getCompanyTax()->getEnabled();
 
-        if (!$countryCompanyTaxFree || !$customer || !$customer->getCompany()) {
+        if (!$countryCompanyTaxFree || !$customer || $customer->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             return false;
         }
 

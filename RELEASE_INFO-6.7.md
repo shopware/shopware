@@ -1,3 +1,11 @@
+# 6.7.14.1
+
+## Security Fixes
+
+### Aggregation identifiers reject unsafe characters
+
+Aggregation names and range aggregation keys containing a backtick, question mark, colon, or control character are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400).
+
 # 6.7.14.0
 
 ## Features

@@ -360,6 +360,7 @@ class VersionManager
                 continue;
             }
 
+            // Autoloaded associations are not added to the clone criteria, but can still be present in the serialized entity.
             if ($field instanceof AssociationField && $this->isCloneProtected($this->getCloneReferenceDefinition($field), $context)) {
                 continue;
             }

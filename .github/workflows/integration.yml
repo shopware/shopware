@@ -54,7 +54,11 @@ jobs:
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
-    strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
+    strategy:
+      # Only `matrix:` carries the expression: zizmor cannot audit a file whose whole
+      # `strategy:` is one, and an unaudited file loses its action-pinning check.
+      fail-fast: false
+      matrix: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root

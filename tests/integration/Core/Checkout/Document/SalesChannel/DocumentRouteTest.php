@@ -18,6 +18,10 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -27,11 +31,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,17 +47,17 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     /*
      * import of two traits that both define login() with different parameters.
      * The conflict is resolved by using insteadof and internal calls inside OrderActionTrait can still use OrderActionTrait::login()
      * With the alias loginBrowser() the SalesChannelApiTestBehaviour::login() can be called.
      */
-    use OrderActionTrait, SalesChannelApiTestBehaviour {
+    use DocumentV2Trait, OrderActionTrait, SalesChannelApiTestBehaviour {
+        OrderActionTrait::createCustomer insteadof DocumentV2Trait;
         OrderActionTrait::login insteadof SalesChannelApiTestBehaviour;
         SalesChannelApiTestBehaviour::login as loginBrowser;
     }
+
     private const INVALID_MIME_TYPE = 'invalid/type';
 
     private const ACCEPT_WILDCARD = '*/*';
@@ -70,20 +74,34 @@ class DocumentRouteTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    private static bool $rateLimitedKernelBooted = false;
+
     public static function setUpBeforeClass(): void
     {
         DisableRateLimiterCompilerPass::disableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public static function tearDownAfterClass(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+        // shut down only: the next class boots its kernel lazily inside a test context, which
+        // recompiles with the rate limiter restored
+        KernelLifecycleManager::ensureKernelShutdown();
+        self::$rateLimitedKernelBooted = false;
     }
 
     protected function setUp(): void
     {
+        // the rate-limiter pass applies at container compile time, so this class needs a freshly
+        // compiled kernel. It is booted here rather than in setUpBeforeClass(): a deprecation
+        // triggered during a static-context kernel boot has no TestCase object on the call stack
+        // and crashes PHPUnit's event system instead of being recorded
+        if (!self::$rateLimitedKernelBooted) {
+            KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+            self::$rateLimitedKernelBooted = true;
+        }
+
+        $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
 
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
@@ -408,6 +426,66 @@ class DocumentRouteTest extends TestCase
             'acceptHeader' => self::ACCEPT_WILDCARD,
             'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
         ];
+    }
+
+    public function testDownloadV2DocumentWithRequestedFormat(): void
+    {
+        $customerId = $this->loginBrowser($this->browser);
+        $this->createOrder(
+            $customerId,
+            ['salesChannelId' => $this->ids->get('sales-channel')]
+        );
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+
+        $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
+            new DocumentGenerationRequest(
+                $this->ids->get('order'),
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF, DocumentFormat::HTML],
+                documentNumber: '1000',
+            ),
+            Context::createDefaultContext(),
+        );
+
+        $this->browser->request(
+            'GET',
+            '/store-api/document/download/' . $document->getId(),
+            ['format' => DocumentFormat::HTML->value],
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertStringStartsWith('text/html', (string) $response->headers->get('content-type'));
+        static::assertStringContainsString('<html', (string) $response->getContent());
+    }
+
+    public function testDownloadV2DocumentDefaultsToPdf(): void
+    {
+        $customerId = $this->loginBrowser($this->browser);
+        $this->createOrder(
+            $customerId,
+            ['salesChannelId' => $this->ids->get('sales-channel')]
+        );
+        $this->seedDemoBaseConfig(DocumentType::INVOICE->value);
+
+        $document = static::getContainer()->get(DocumentV2Generator::class)->generate(
+            new DocumentGenerationRequest(
+                $this->ids->get('order'),
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF, DocumentFormat::HTML],
+                documentNumber: '1000',
+            ),
+            Context::createDefaultContext(),
+        );
+
+        $this->browser->request('GET', '/store-api/document/download/' . $document->getId());
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertStringStartsWith('application/pdf', (string) $response->headers->get('content-type'));
+        static::assertStringStartsWith('%PDF', (string) $response->getContent());
     }
 
     public function testDownloadShouldThrowExceptionWhenRequestedFileTypeHasNoGeneratedDocument(): void

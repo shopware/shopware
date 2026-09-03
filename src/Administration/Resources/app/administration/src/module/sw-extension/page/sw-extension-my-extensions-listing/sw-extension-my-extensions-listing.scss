@@ -8,6 +8,11 @@
             margin: 0 auto 8px;
         }
 
+        .sw-extension-my-extensions-listing__empty-state {
+            margin: 0 auto;
+        }
+
+        // @deprecated tag:v6.9.0 - Kept for overrides still rendering the old sw-meteor-card empty state.
         .sw-extension-my-extensions-listing__empty-state .sw-meteor-card__content-wrapper {
             text-align: center;
             padding: 56px 32px;
@@ -40,13 +45,25 @@
         }
     }
 
-    &-empty-state {
-        text-align: center;
-    }
-
     &__container {
         max-width: 960px;
         margin: 0 auto;
+    }
+
+    &__controls-row {
+        display: flex;
+        align-items: center;
+        min-height: 46px;
+        margin-bottom: 32px;
+
+        .sw-extension-my-extensions-listing-controls {
+            flex: 1 1 auto;
+            margin-bottom: 0;
+        }
+    }
+
+    &__bulk-bar {
+        flex: 1 1 auto;
     }
 
     .sw-pagination {

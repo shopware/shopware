@@ -307,6 +307,12 @@ class LineItemListPriceRuleTest extends TestCase
 
         static::getContainer()->get('currency.repository')
             ->create([$currency], Context::createDefaultContext());
+        static::getContainer()->get('sales_channel_currency.repository')->create([
+            [
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'currencyId' => $ids->get('currency'),
+            ],
+        ], Context::createDefaultContext());
 
         // create product with two different currency prices
         $data = [

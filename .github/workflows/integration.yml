@@ -105,6 +105,7 @@ jobs:
           test-testsuite: ${{ matrix.test.testsuite }}
       - name: Upload test results to Codecov
         uses: ./.github/actions/phpunit-upload
+        continue-on-error: true
         # !cancelled(): junit test results must upload even when the run failed.
         # conclusion != 'skipped': but not when PHPUnit never ran (e.g. service container setup
         # failed), because then checkout never ran either and this local action cannot resolve.
@@ -112,7 +113,7 @@ jobs:
         with:
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: junit-phpunit-${{ strategy.job-index }}
@@ -243,7 +244,7 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: junit-phpunit-blue-green-67-68
@@ -342,7 +343,7 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: junit-phpunit-blue-green-66-67
@@ -427,7 +428,7 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "integration" --stop-on-error --stop-on-failure
 
       - name: Upload junit report for the failure tracking issue
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: junit-phpunit-update-66-67

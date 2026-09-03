@@ -27,7 +27,7 @@ class TrustedUrlResolver implements ResetInterface
 
     /**
      * @param (\Closure(string): list<string>)|null $dnsResolver
-     * @param list<string> $allowedPrivateIps
+     * @param list<string> $allowedPrivateIps List of IP addresses or CIDR ranges (e.g. "10.0.0.0/8")
      */
     public function __construct(
         ?\Closure $dnsResolver = null,
@@ -83,7 +83,7 @@ class TrustedUrlResolver implements ResetInterface
 
         if ($this->rejectPrivateRanges) {
             foreach ($addresses as $ip) {
-                if (IpUtils::checkIp($ip, self::BLOCKED_SUBNETS) && !\in_array($ip, $this->allowedPrivateIps, true)) {
+                if (IpUtils::checkIp($ip, self::BLOCKED_SUBNETS) && !IpUtils::checkIp($ip, $this->allowedPrivateIps)) {
                     throw MediaException::illegalUrl($url);
                 }
             }

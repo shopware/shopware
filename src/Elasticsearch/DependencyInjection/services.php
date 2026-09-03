@@ -529,6 +529,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElasticsearchHelper::class),
             service(ElasticsearchRegistry::class),
             service(Client::class),
+            service(AbstractKeyValueStorage::class),
         ])
         ->tag('kernel.event_subscriber');
 

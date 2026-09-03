@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use OpenSearch\Client;
+use OpenSearch\Exception\BadRequestHttpException;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
+use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\LanguageSubscriber;
 
@@ -42,6 +45,7 @@ class LanguageSubscriberTest extends TestCase
             $esHelper,
             static::createStub(ElasticsearchRegistry::class),
             static::createStub(Client::class),
+            static::createStub(AbstractKeyValueStorage::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
@@ -63,6 +67,7 @@ class LanguageSubscriberTest extends TestCase
             $esHelper,
             static::createStub(ElasticsearchRegistry::class),
             static::createStub(Client::class),
+            static::createStub(AbstractKeyValueStorage::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
@@ -86,6 +91,7 @@ class LanguageSubscriberTest extends TestCase
             $esHelper,
             $registry,
             static::createStub(Client::class),
+            static::createStub(AbstractKeyValueStorage::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
@@ -118,6 +124,7 @@ class LanguageSubscriberTest extends TestCase
             $esHelper,
             $registry,
             $client,
+            static::createStub(AbstractKeyValueStorage::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
@@ -166,12 +173,82 @@ class LanguageSubscriberTest extends TestCase
             $esHelper,
             $registry,
             $client,
+            static::createStub(AbstractKeyValueStorage::class),
         );
 
         $event = $this->createMock(EntityWrittenEvent::class);
         $event
             ->expects($this->once())
             ->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
+
+        $subscriber->onLanguageWritten($event);
+    }
+
+    public function testOnLanguageWrittenSchedulesReindexForReindexableMappingError(): void
+    {
+        $esHelper = $this->createMock(ElasticsearchHelper::class);
+        $esHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
+        $esHelper->expects($this->once())->method('getIndexName')->willReturn('sw_product');
+        $esHelper->expects($this->once())->method('logAndThrowException')->with(
+            static::callback(static function (ElasticsearchProductException $exception): bool {
+                return $exception->getMessage() === 'One or more fields already exist in the index with different types. Please reset the index and rebuild it.';
+            }),
+        )->willReturn(false);
+
+        $writeResult = new EntityWriteResult(Uuid::randomHex(), [], LanguageDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT);
+        $esProductDefinition = $this->createMock(ElasticsearchProductDefinition::class);
+        $esProductDefinition->expects($this->exactly(2))->method('getEntityDefinition')->willReturn(new ProductDefinition());
+        $esProductDefinition->expects($this->once())->method('getMapping')->willReturn(['properties' => []]);
+        $registry = new ElasticsearchRegistry([$esProductDefinition]);
+
+        $client = static::createStub(Client::class);
+        $namespace = $this->createMock(IndicesNamespace::class);
+        $namespace->expects($this->once())->method('exists')->with(['index' => 'sw_product'])->willReturn(true);
+        $namespace->expects($this->once())->method('putMapping')->willThrowException(
+            new BadRequestHttpException('mapper [field] cannot be changed from type [text] to [keyword]'),
+        );
+        $client->method('indices')->willReturn($namespace);
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->expects($this->once())->method('get')->with(SystemUpdateListener::CONFIG_KEY, [])->willReturn([]);
+        $storage->expects($this->once())->method('set')->with(SystemUpdateListener::CONFIG_KEY, [ProductDefinition::ENTITY_NAME]);
+
+        $subscriber = new LanguageSubscriber($esHelper, $registry, $client, $storage);
+
+        $event = $this->createMock(EntityWrittenEvent::class);
+        $event->expects($this->once())->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
+
+        $subscriber->onLanguageWritten($event);
+    }
+
+    public function testOnLanguageWrittenDoesNotScheduleReindexForNonReindexableMappingError(): void
+    {
+        $exception = new BadRequestHttpException('unrelated mapping error');
+        $esHelper = $this->createMock(ElasticsearchHelper::class);
+        $esHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
+        $esHelper->expects($this->once())->method('getIndexName')->willReturn('sw_product');
+        $esHelper->expects($this->once())->method('logAndThrowException')->with($exception)->willReturn(false);
+
+        $writeResult = new EntityWriteResult(Uuid::randomHex(), [], LanguageDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT);
+        $esProductDefinition = $this->createMock(ElasticsearchProductDefinition::class);
+        $esProductDefinition->expects($this->once())->method('getEntityDefinition')->willReturn(new ProductDefinition());
+        $esProductDefinition->expects($this->once())->method('getMapping')->willReturn(['properties' => []]);
+        $registry = new ElasticsearchRegistry([$esProductDefinition]);
+
+        $client = static::createStub(Client::class);
+        $namespace = $this->createMock(IndicesNamespace::class);
+        $namespace->expects($this->once())->method('exists')->with(['index' => 'sw_product'])->willReturn(true);
+        $namespace->expects($this->once())->method('putMapping')->willThrowException($exception);
+        $client->method('indices')->willReturn($namespace);
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->expects($this->once())->method('get')->with(SystemUpdateListener::CONFIG_KEY, [])->willReturn([]);
+        $storage->expects($this->never())->method('set');
+
+        $subscriber = new LanguageSubscriber($esHelper, $registry, $client, $storage);
+
+        $event = $this->createMock(EntityWrittenEvent::class);
+        $event->expects($this->once())->method('getResults')->willReturn(new EntityWriteResultCollection([$writeResult]));
 
         $subscriber->onLanguageWritten($event);
     }

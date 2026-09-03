@@ -245,6 +245,18 @@ class CustomerProfileValidationFactoryTest extends TestCase
         $normalizer = $notBlank->normalizer;
         static::assertIsCallable($normalizer);
         static::assertSame('', $normalizer('   '));
+        static::assertSame('Ada', $normalizer('  Ada  '));
+
+        // HappyPathValidator applies the normalizer without checking the type first
+        static::assertNull($normalizer(null));
+    }
+
+    /**
+     * @return callable(mixed): mixed
+     */
+    private static function trimNormalizer(): callable
+    {
+        return static fn (mixed $value): mixed => \is_string($value) ? trim($value) : $value;
     }
 
     private function getSalesChannelContext(): SalesChannelContext
@@ -262,8 +274,8 @@ class CustomerProfileValidationFactoryTest extends TestCase
     {
         $definition
             ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
-            ->add('firstName', new NotBlank(normalizer: trim(...)))
-            ->add('lastName', new NotBlank(normalizer: trim(...)))
+            ->add('firstName', new NotBlank(normalizer: self::trimNormalizer()))
+            ->add('lastName', new NotBlank(normalizer: self::trimNormalizer()))
             ->add('accountType', new Choice(choices: $this->accountTypes))
             ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
             ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))

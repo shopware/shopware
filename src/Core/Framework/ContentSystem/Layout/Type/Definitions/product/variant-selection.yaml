@@ -14,12 +14,13 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
     required: false
     title: "Product"
-    description: "Hydrated product whose variants can be selected."
+    description: "Hydrated product whose variants can be selected; resolved from the current product context. Optional because a product context may be unavailable, for example outside a product detail page; without a product, the component renders its fallback message instead of failing."
 
   configuratorSettings:
     type: Shopware\Core\Content\Property\PropertyGroupCollection
+    required: false
     title: "Configurator groups"
-    description: "Variant property groups and their available options."
+    description: "Variant property groups and their available options. Optional because they cannot be resolved without a product; when unavailable or empty, the component renders its fallback message."
     resolvedBy:
       product_configurator:
         productProperty: product

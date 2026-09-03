@@ -9,17 +9,16 @@
 
 {% set variantSelectionCVA = cva({ base: 'sw-product-variant-selection' }) %}
 {% set attributeDefaults = {
-    class: variantSelectionCVA.apply({}),
     'data-component': 'Sw:Product:VariantSelection',
     'data-component-options': { url: product and (product.parentId or product.id) ? url('frontend.detail.switch', { productId: product.parentId ?? product.id }) : null }|json_encode,
 } %}
 
 {% if product is null or configuratorSettings is null or configuratorSettings.count() === 0 %}
-    <div {{ attributes.defaults({ class: variantSelectionCVA.apply({}) }) }}>
+    <div class="{{ variantSelectionCVA.apply({}, attributes.render('class')) }}" {{ attributes.defaults({}) }}>
         {{ 'component.product.configurator.unavailable'|trans|sw_sanitize }}
     </div>
 {% else %}
-    <form {{ attributes.defaults(attributeDefaults) }}>
+    <form class="{{ variantSelectionCVA.apply({}, attributes.render('class')) }}" {{ attributes.defaults(attributeDefaults) }}>
         {% block groups %}
             {% for group in configuratorSettings %}
                 {% set groupName = 'sw-product-variant-selection__group-' ~ group.id %}

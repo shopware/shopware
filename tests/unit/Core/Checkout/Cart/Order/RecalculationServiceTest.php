@@ -847,7 +847,8 @@ class RecalculationServiceTest extends TestCase
             $entityRepository,
             $processorMock,
             $cartRuleLoader,
-            static::createStub(PromotionItemBuilder::class)
+            static::createStub(PromotionItemBuilder::class),
+            $this->lineItemFactoryRegistry()
         );
 
         $recalculationService->addCustomLineItem($order->getId(), new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE), $this->context);

@@ -211,7 +211,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'ABC Compay',
             'vatIds' => [null],
         ]);
 
@@ -288,7 +287,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'Non-EU Company',
             'vatIds' => ['ANY-VAT-ID'],
         ]);
 
@@ -315,7 +313,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'EU Company',
             'vatIds' => ['DE123456789'],
         ]);
 
@@ -342,7 +339,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'EU Company',
             'vatIds' => ['FR12345678901'],
         ]);
 
@@ -369,7 +365,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'EU Company',
             'vatIds' => ['DE123456789'],
         ]);
 
@@ -396,7 +391,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'EU Company',
             'vatIds' => ['INVALID-VAT'],
         ]);
 

@@ -60,7 +60,7 @@ class TaxDetector extends AbstractTaxDetector
 
         $countryCompanyTaxFree = $shippingLocationCountry->getCompanyTax()->getEnabled();
 
-        if (!$countryCompanyTaxFree || !$customer || !$customer->getCompany()) {
+        if (!$countryCompanyTaxFree || !$customer || $customer->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             return false;
         }
 

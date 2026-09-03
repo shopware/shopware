@@ -43,7 +43,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['DE123456789'],
         ]);
 
@@ -64,7 +64,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['INVALID-VAT'],
         ]);
 
@@ -85,7 +85,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ["DE123456789\n"],
         ]);
 
@@ -377,7 +377,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'Non-EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
         ]);
 
         $context = static::createStub(SalesChannelContext::class);
@@ -411,7 +411,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => [],
         ]);
 
@@ -422,7 +422,7 @@ class TaxDetectorTest extends TestCase
         static::assertFalse($detector->isCompanyTaxFree($context, $country));
     }
 
-    public function testIsCompanyTaxFreeReturnsFalseWhenCustomerHasNoCompany(): void
+    public function testIsCompanyTaxFreeReturnsFalseWhenCustomerIsNotABusinessAccount(): void
     {
         $country = (new CountryEntity())->assign([
             'companyTax' => new TaxFreeConfig(true),
@@ -430,7 +430,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => null,
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
         ]);
 
         $context = static::createStub(SalesChannelContext::class);
@@ -438,6 +438,50 @@ class TaxDetectorTest extends TestCase
 
         $detector = $this->createDetector();
         static::assertFalse($detector->isCompanyTaxFree($context, $country));
+    }
+
+    public function testIsCompanyTaxFreeReturnsFalseForAPrivateAccountThatCarriesACompanyName(): void
+    {
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => 'NL\d{9}B\d{2}',
+            'checkVatIdPattern' => true,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'company' => 'Acme BV',
+            'vatIds' => ['NL123456789B01'],
+        ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $detector = $this->createDetector();
+        static::assertFalse($detector->isCompanyTaxFree($context, $country));
+    }
+
+    public function testIsCompanyTaxFreeReturnsTrueForABusinessAccountWithoutACompanyName(): void
+    {
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => 'NL\d{9}B\d{2}',
+            'checkVatIdPattern' => true,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'company' => null,
+            'vatIds' => ['NL123456789B01'],
+        ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $detector = $this->createDetector();
+        static::assertTrue($detector->isCompanyTaxFree($context, $country));
     }
 
     public function testIsCompanyTaxFreeReturnsFalseWhenCountryCompanyTaxDisabled(): void
@@ -448,7 +492,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'Test Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['DE123456789'],
         ]);
 
@@ -469,7 +513,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['DE123456789', 'DE987654321'],
         ]);
 
@@ -490,7 +534,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['DE123456789', 'INVALID'],
         ]);
 
@@ -511,7 +555,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['NL123456789B01'],
         ]);
 
@@ -532,7 +576,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'Swiss Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['CHE123456789'],
         ]);
 
@@ -553,7 +597,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['NL123456789B01', 'INVALID'],
         ]);
 
@@ -574,7 +618,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['NL123456789B01'],
         ]);
 
@@ -585,7 +629,7 @@ class TaxDetectorTest extends TestCase
         static::assertTrue($detector->isCompanyTaxFree($context, $country));
     }
 
-    public function testIsCompanyTaxFreeDoesNotLoadEuPatternsWhenCustomerHasNoCompany(): void
+    public function testIsCompanyTaxFreeDoesNotLoadEuPatternsWhenCustomerIsNotABusinessAccount(): void
     {
         $country = (new CountryEntity())->assign([
             'companyTax' => new TaxFreeConfig(true),
@@ -595,7 +639,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => null,
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
             'vatIds' => ['NL123456789B01'],
         ]);
 
@@ -616,7 +660,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['NL123456789B01'],
         ]);
 
@@ -637,7 +681,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['NL123456789B01', 'NL987654321B02'],
         ]);
 
@@ -660,7 +704,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['DE123456789'],
         ]);
 
@@ -681,7 +725,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['NL123456789B01'],
         ]);
 
@@ -704,7 +748,7 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-            'company' => 'EU Company',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['DE123456789'],
         ]);
 

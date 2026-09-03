@@ -117,6 +117,9 @@ interface ContextSwitchParameters {
     shippingAddressId: string | null;
 }
 
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1. Use `DOCUMENT_TYPES` from `service/documentV2.service.ts` instead.
+ */
 const DOCUMENT_TYPES = {
     INVOICE: 'invoice',
     DELIVERY_NOTE: 'delivery_note',
@@ -130,6 +133,9 @@ const DOCUMENT_TYPES = {
     ZUGFERD_EMBEDDED_CREDIT_NOTE: 'zugferd_embedded_credit_note',
 } as const;
 
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1. Use `DOCUMENT_TYPES` from `service/documentV2.service.ts` instead.
+ */
 const ZUGFERD_DOCUMENT_TYPES = [
     DOCUMENT_TYPES.ZUGFERD_INVOICE,
     DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,

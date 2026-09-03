@@ -179,11 +179,11 @@ class VersionManagerTest extends TestCase
 
     public function testCloneSkipsCloneProtectedAssociation(): void
     {
-        $entityReader = $this->createMock(EntityReaderInterface::class);
+        $entityReader = static::createStub(EntityReaderInterface::class);
         $entityReader->method('read')->willReturn(new EntityCollection([
             (new Entity())->assign(['_uniqueIdentifier' => Uuid::randomHex()]),
         ]));
-        $serializer = $this->createMock(SerializerInterface::class);
+        $serializer = static::createStub(SerializerInterface::class);
         $serializer->method('serialize')->willReturn(json_encode([
             'id' => Uuid::randomHex(),
             'children' => [['id' => Uuid::randomHex()]],
@@ -208,8 +208,8 @@ class VersionManagerTest extends TestCase
         $context = Context::createDefaultContext();
         $contextWithDisabledAuditLog = Context::createDefaultContext();
         $contextWithDisabledAuditLog->addState(VersionManager::DISABLE_AUDIT_LOG);
-        $writeContext = $this->createMock(WriteContext::class);
-        $writeContextWithVersionId = $this->createMock(WriteContext::class);
+        $writeContext = static::createStub(WriteContext::class);
+        $writeContextWithVersionId = static::createStub(WriteContext::class);
         $writeContext->method('getContext')->willReturn($context);
         $writeContext->method('createWithVersionId')->willReturn($writeContextWithVersionId);
         $writeContextWithVersionId->method('getContext')->willReturn($contextWithDisabledAuditLog);

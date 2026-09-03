@@ -50,5 +50,4 @@ describe('Jest feature flag extensions with a major baseline', () => {
         ]);
         expect(Shopware.Feature.isActive('v6.8.0.0')).toBeTruthy();
     });
-
 });

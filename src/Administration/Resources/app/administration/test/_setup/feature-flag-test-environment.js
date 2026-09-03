@@ -43,6 +43,7 @@ class FeatureFlagTestEnvironment extends TestEnvironment {
 
         if (event.name === 'test_start') {
             const featureFlags = this.activeFeatureFlagsByTest.get(event.test);
+
             if (!featureFlags) {
                 return;
             }

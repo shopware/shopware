@@ -14,9 +14,17 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 
 /**
- * A kernel booted in setUpBeforeClass()/tearDownAfterClass() has no TestCase on the call stack,
- * so a deprecation during the container compile crashes the run under a leaked error handler
- * (NoTestCaseObjectOnCallStackException) instead of being recorded. Boot lazily in setUp().
+ * Bans kernel boots in the static PHPUnit lifecycle hooks (setUpBeforeClass/tearDownAfterClass).
+ *
+ * Those hooks run without a TestCase on the call stack. If an earlier test leaked PHPUnit's
+ * per-test error handler, a deprecation emitted during the container compile is thrown by that
+ * handler as NoTestCaseObjectOnCallStackException, so the whole run aborts - order-dependently,
+ * and billed to whichever test booted first - instead of the deprecation being recorded.
+ *
+ * The fix is stated in {@see self::ERROR_STATIC_BOOT}; RateLimiterTest is a worked example of the
+ * lazy-boot pattern that satisfies this rule.
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\RateLimiter\RateLimiterTest
  *
  * @implements Rule<StaticCall>
  *

@@ -23,8 +23,10 @@ use Shopware\Core\Framework\Util\Hasher;
  *   order is authoring noise: two elements configuring the same loader with the same ids in a different order
  *   are the same load.
  * - the inputs hash normalizes MAP KEY ORDER ONLY and preserves list order, because a resolved input's list
- *   order can be meaning. An ordered id list handed to a listing loader produces a different result in a
- *   different order, so value-sorting it would merge two loads that are not the same load.
+ *   order can be meaningful. An ordered id list handed to a listing loader produces a different result in a
+ *   different order, so value-sorting it would merge two loads that are not the same load. Object inputs are
+ *   represented by class and instance fingerprint rather than JSON-encoded, so recursive object graphs remain
+ *   hashable and the same delivered instance produces the same identity.
  *
  * @internal
  */
@@ -72,7 +74,16 @@ final readonly class LoaderValueIdentityFactory
     {
         $normalized = [];
         foreach ($values as $key => $value) {
-            $normalized[$key] = \is_array($value) ? $this->normalizeKeyOrder($value) : $value;
+            if (\is_array($value)) {
+                $normalized[$key] = $this->normalizeKeyOrder($value);
+
+                continue;
+            }
+
+            $normalized[$key] = \is_object($value) ? [
+                '@class' => $value::class,
+                '@instance' => $this->fingerprinter->fingerprint($value),
+            ] : $value;
         }
 
         if (!array_is_list($normalized)) {

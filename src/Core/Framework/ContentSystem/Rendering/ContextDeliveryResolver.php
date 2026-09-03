@@ -35,10 +35,10 @@ final readonly class ContextDeliveryResolver
     /**
      * `$loaderValues` is keyed by element id, then by requirement key — the shape
      * {@see ElementDataResolver::resolve()} returns per element, collected for the forest. It arrives
-     * precomputed rather than being resolved here because loading completes for the whole forest before any
-     * distribution starts: a provider may hand on a loaded value, so every load must already have happened
-     * by the time the first parent distributes. An element with no entry simply has no loader values, which
-     * is the ordinary case and not an error.
+     * precomputed rather than being resolved here. The depth-first rendering path instead uses
+     * {@see self::resolveDirectChildren()} after loading each parent, allowing child loaders to consume the
+     * delivered context. An element with no entry simply has no loader values, which is the ordinary case and
+     * not an error.
      *
      * @param list<StoredElement> $forest roots in order
      * @param array<string, array<string, mixed>> $loaderValues element id => requirement key => resolved value
@@ -54,6 +54,35 @@ final readonly class ContextDeliveryResolver
         }
 
         return new ContextDeliveryIndex($deliveries);
+    }
+
+    /**
+     * Resolves the context delivered by one element to its direct children.
+     *
+     * This is used by the depth-first rendering walk so a child's data loaders can consume
+     * context provided by its parent.
+     *
+     * @param array<string, mixed> $loaderValues
+     * @param array<string, mixed> $receivedContext
+     *
+     * @return list<ContextDelivery>
+     */
+    public function resolveDirectChildren(
+        StoredElement $element,
+        array $loaderValues,
+        array $receivedContext = [],
+    ): array {
+        $children = $this->childrenInDeliveryOrder($element);
+
+        if ($children === []) {
+            return [];
+        }
+
+        return $this->distributor->distribute(
+            $element,
+            $this->workingValues($element, [$element->id => $loaderValues], $receivedContext),
+            $children,
+        );
     }
 
     /**

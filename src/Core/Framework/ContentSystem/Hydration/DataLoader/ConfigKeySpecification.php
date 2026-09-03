@@ -21,7 +21,7 @@ final readonly class ConfigKeySpecification
      * The closed set of declarable referenced-value types. ContentSystemDataLoaderCompilerPass fails the
      * container build on any other value.
      */
-    public const REFERENCED_TYPES = ['string', 'list<string>'];
+    public const REFERENCED_TYPES = ['string', 'list<string>', 'object'];
 
     /**
      * `$type` is the type of the reference token, `$referencedType` the type of the value it points at.

@@ -83,6 +83,23 @@ class LoaderInputResolverTest extends TestCase
         static::assertSame('product-alice', $inputs->get('property'));
     }
 
+    #[TestDox('an object-referencing propertyReference key resolves the stored object instance')]
+    public function testPropertyReferenceResolvesObject(): void
+    {
+        $product = new \stdClass();
+        $specification = new LoaderConfigSpecification([
+            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, referencedType: 'object'),
+        ]);
+
+        $inputs = (new LoaderInputResolver())->resolve(
+            $specification,
+            new ResolverStubConfig(property: 'product'),
+            ['product' => $product],
+        );
+
+        static::assertSame($product, $inputs->get('property'));
+    }
+
     #[TestDox('a propertyReference key resolves an empty string, which is a value and not an absence')]
     public function testPropertyReferenceResolvesEmptyString(): void
     {

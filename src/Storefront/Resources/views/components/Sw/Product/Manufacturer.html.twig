@@ -5,6 +5,7 @@
 {% props
     product = null,
     newTab = false,
+    preview = false,
 %}
 
 {% set manufacturerCVA = cva({
@@ -18,7 +19,7 @@
 <div {{ attributes.defaults(attributeDefaults) }}>
     {% if product is null or product.manufacturer is null %}
         {% block fallback %}
-            {% if app.request.attributes.get('_route') === 'frontend.content-system.preview' %}
+            {% if preview %}
                 {{ 'detail.manufacturerUnavailable'|trans|sw_sanitize }}
             {% endif %}
         {% endblock %}

@@ -9,14 +9,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRouteResponse;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -112,7 +115,7 @@ class CategoryRouteTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
-                'category',
+                $category->getApiAlias(),
                 1,
                 new CategoryCollection([$category]),
                 null,
@@ -155,6 +158,7 @@ class CategoryRouteTest extends TestCase
             ),
             new CategoryDefinition(),
             static::createStub(CacheTagCollector::class),
+            static::createStub(CategoryBreadcrumbBuilder::class),
         );
 
         $categoryRoute->load(
@@ -220,7 +224,7 @@ class CategoryRouteTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
-                'category',
+                $category->getApiAlias(),
                 1,
                 new CategoryCollection([$category]),
                 null,
@@ -250,9 +254,169 @@ class CategoryRouteTest extends TestCase
             new EntityCmsSlotConfigInheritanceBuilder($this->createConnectionWithParentLanguageIds(['en'])),
             new CategoryDefinition(),
             $cacheTagCollector,
+            static::createStub(CategoryBreadcrumbBuilder::class),
         );
 
         $categoryRoute->load(CategoryRoute::HOME, $request, $salesChannelContext);
+    }
+
+    public function testBreadcrumbIsAddedToTheCategoryAndTagsTheWholePath(): void
+    {
+        $category = $this->buildPageCategory(['en']);
+        $breadcrumb = new BreadcrumbCollection([
+            new Breadcrumb('Home', $this->ids->create('home')),
+            new Breadcrumb('Shoes', $category->getId()),
+        ]);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder
+            ->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn($breadcrumb);
+
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
+            ->expects($this->exactly(2))
+            ->method('addTag')
+            ->willReturnCallback(function (string ...$tags) use ($category): void {
+                static::assertContains(
+                    $tags,
+                    [
+                        [CategoryRoute::buildName($category->getId())],
+                        [CategoryRoute::buildName($this->ids->get('home')), CategoryRoute::buildName($category->getId())],
+                    ]
+                );
+            });
+
+        $response = $this->loadCategory($category, new Request(), $breadcrumbBuilder, $cacheTagCollector);
+
+        $loadedCategory = $response->getCategory();
+        static::assertInstanceOf(SalesChannelCategoryEntity::class, $loadedCategory);
+        static::assertSame($breadcrumb, $loadedCategory->getSeoBreadcrumb());
+    }
+
+    #[DataProvider('skipBreadcrumbRequestProvider')]
+    public function testBreadcrumbIsNotLoadedWhenSkipped(Request $request): void
+    {
+        $category = $this->buildPageCategory(['en']);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder
+            ->expects($this->never())
+            ->method('getCategoryBreadcrumbUrls');
+
+        $response = $this->loadCategory($category, $request, $breadcrumbBuilder);
+
+        $loadedCategory = $response->getCategory();
+        static::assertInstanceOf(SalesChannelCategoryEntity::class, $loadedCategory);
+        static::assertNull($loadedCategory->getSeoBreadcrumb());
+    }
+
+    public static function skipBreadcrumbRequestProvider(): \Generator
+    {
+        yield 'query parameter' => [new Request([CategoryRoute::SKIP_BREADCRUMB => '1'])];
+        yield 'request body' => [new Request([], [CategoryRoute::SKIP_BREADCRUMB => true])];
+        yield 'request attribute' => [new Request([], [], [CategoryRoute::SKIP_BREADCRUMB => true])];
+    }
+
+    public function testBreadcrumbRequestAttributeOverrulesTheClientParameter(): void
+    {
+        $category = $this->buildPageCategory(['en']);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder
+            ->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', $category->getId())]));
+
+        // a visitor must not be able to suppress the breadcrumb of a rendered storefront page
+        $request = new Request(
+            [CategoryRoute::SKIP_BREADCRUMB => '1'],
+            [],
+            [CategoryRoute::SKIP_BREADCRUMB => false]
+        );
+
+        $response = $this->loadCategory($category, $request, $breadcrumbBuilder);
+
+        $loadedCategory = $response->getCategory();
+        static::assertInstanceOf(SalesChannelCategoryEntity::class, $loadedCategory);
+        static::assertNotNull($loadedCategory->getSeoBreadcrumb());
+    }
+
+    public function testMalformedSkipBreadcrumbParameterIsIgnored(): void
+    {
+        $category = $this->buildPageCategory(['en']);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder
+            ->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn(new BreadcrumbCollection([new Breadcrumb('Home', $category->getId())]));
+
+        $request = new Request([CategoryRoute::SKIP_BREADCRUMB => 'not-a-bool']);
+
+        $response = $this->loadCategory($category, $request, $breadcrumbBuilder);
+
+        $loadedCategory = $response->getCategory();
+        static::assertInstanceOf(SalesChannelCategoryEntity::class, $loadedCategory);
+        static::assertNotNull($loadedCategory->getSeoBreadcrumb());
+    }
+
+    public function testBreadcrumbIsNotBuiltForAFolderCategory(): void
+    {
+        $category = $this->buildPageCategory(['en']);
+        $category->setType(CategoryDefinition::TYPE_FOLDER);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder
+            ->expects($this->never())
+            ->method('getCategoryBreadcrumbUrls');
+
+        $this->expectExceptionObject(new CategoryNotFoundException($this->ids->get('category')));
+
+        $this->loadCategory($category, new Request(), $breadcrumbBuilder);
+    }
+
+    private function loadCategory(
+        SalesChannelCategoryEntity $category,
+        Request $request,
+        CategoryBreadcrumbBuilder $breadcrumbBuilder,
+        ?CacheTagCollector $cacheTagCollector = null
+    ): CategoryRouteResponse {
+        $salesChannelContext = $this->buildSalesChannelContext(['en']);
+
+        $categoryRepository = static::createStub(SalesChannelRepository::class);
+        $categoryRepository
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                $category->getApiAlias(),
+                1,
+                new CategoryCollection([$category]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext(),
+            ));
+
+        $cmsPageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $cmsPageLoader->method('load')->willReturn(new EntitySearchResult(
+            'cms_page',
+            1,
+            new CmsPageCollection([$this->buildCmsPage()]),
+            null,
+            new Criteria(),
+            $salesChannelContext->getContext(),
+        ));
+
+        $categoryRoute = new CategoryRoute(
+            $categoryRepository,
+            $cmsPageLoader,
+            new EntityCmsSlotConfigInheritanceBuilder($this->createConnectionWithParentLanguageIds(['en'])),
+            new CategoryDefinition(),
+            $cacheTagCollector ?? static::createStub(CacheTagCollector::class),
+            $breadcrumbBuilder,
+        );
+
+        return $categoryRoute->load($category->getId(), $request, $salesChannelContext);
     }
 
     private function buildCmsPage(): CmsPageEntity
@@ -300,9 +464,9 @@ class CategoryRouteTest extends TestCase
     /**
      * @param non-empty-list<string> $languageCodeChain
      */
-    private function buildPageCategory(array $languageCodeChain): CategoryEntity
+    private function buildPageCategory(array $languageCodeChain): SalesChannelCategoryEntity
     {
-        $category = new CategoryEntity();
+        $category = new SalesChannelCategoryEntity();
         $category->setId($this->ids->create('category'));
         $category->setCmsPageId($this->ids->create('cms-page'));
         $category->setType(CategoryDefinition::TYPE_PAGE);
@@ -334,14 +498,14 @@ class CategoryRouteTest extends TestCase
         return $category;
     }
 
-    private function buildContentlessCategoryRepositoryMock(CategoryEntity $category, SalesChannelContext $salesChannelContext, Request $request): CategoryRouteResponse
+    private function buildContentlessCategoryRepositoryMock(SalesChannelCategoryEntity $category, SalesChannelContext $salesChannelContext, Request $request): CategoryRouteResponse
     {
         $categoryRepositoryMock = $this->createMock(SalesChannelRepository::class);
         $categoryRepositoryMock
             ->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
-                'category',
+                $category->getApiAlias(),
                 1,
                 new CategoryCollection([$category]),
                 null,
@@ -357,6 +521,7 @@ class CategoryRouteTest extends TestCase
             ),
             new CategoryDefinition(),
             static::createStub(CacheTagCollector::class),
+            static::createStub(CategoryBreadcrumbBuilder::class),
         );
 
         return $categoryRoute->load(

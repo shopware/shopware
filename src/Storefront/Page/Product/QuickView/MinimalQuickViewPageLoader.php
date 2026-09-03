@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product\QuickView;
 
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
@@ -48,7 +49,10 @@ class MinimalQuickViewPageLoader
 
         $this->eventDispatcher->dispatch(new MinimalQuickViewPageCriteriaEvent($productId, $criteria, $salesChannelContext));
 
-        $result = $this->productRoute->load($productId, $request->duplicate(), $salesChannelContext, $criteria);
+        $productRequest = $request->duplicate();
+        $productRequest->attributes->set(ProductDetailRoute::SKIP_BREADCRUMB, true);
+
+        $result = $this->productRoute->load($productId, $productRequest, $salesChannelContext, $criteria);
         $product = $result->getProduct();
 
         $page = new MinimalQuickViewPage($product);

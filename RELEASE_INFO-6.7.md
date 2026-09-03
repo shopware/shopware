@@ -221,6 +221,23 @@ The list, detail and preview routes under `/api/_action/sales-channel-file/{file
 ### Dedicated error code for invalid child line item quantity
 
 `CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
+
+### Product and category Store API return the breadcrumb
+
+`GET|POST /store-api/product/{productId}` and `GET|POST /store-api/category/{navigationId}` now return a `seoBreadcrumb` field, so headless clients no longer need a second request to `GET /store-api/breadcrumb/{id}`. It holds the category id, type, resolved path and the seo urls of every category on the path.
+
+For the product the breadcrumb is built from the SEO category and honours `referrerCategoryId` exactly like the existing `seoCategory` field. It is `null` when the product has no visible category, and on every route other than the two detail routes above. The category keeps its translated `breadcrumb` field, which only holds the category names.
+
+Pass `skipBreadcrumb=1` to skip loading it; the breadcrumb costs two additional queries per request:
+
+```
+GET /store-api/product/{productId}?skipBreadcrumb=1
+```
+
+The `translated` object of a breadcrumb entry is now limited to `linkType`, `internalLink`, `externalLink`, `linkNewTab`, `description`, `metaTitle`, `metaDescription` and `keywords`. `slotConfig` and `customFields` are no longer part of it, on this field and on `GET /store-api/breadcrumb/{id}`: a breadcrumb is a plain struct, so the Store API encoder cannot apply the `ApiAware` and `store_api_aware` filters that a `category` payload gets, and both keys could otherwise expose data withheld from the Store API. Read them from the `category` payload instead.
+
+`GET /store-api/breadcrumb/{id}` stays available, for example to load a breadcrumb from a listing without loading the full product.
+
 ## Administration
 
 ### Optional order confirmation mail for Administration-created orders

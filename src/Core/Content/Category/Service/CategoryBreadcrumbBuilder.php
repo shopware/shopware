@@ -36,6 +36,20 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class CategoryBreadcrumbBuilder
 {
     /**
+     * Translated category fields that are safe to expose in a breadcrumb, see filterTranslated().
+     */
+    private const EXPOSED_TRANSLATED_FIELDS = [
+        'linkType',
+        'internalLink',
+        'externalLink',
+        'linkNewTab',
+        'description',
+        'metaTitle',
+        'metaDescription',
+        'keywords',
+    ];
+
+    /**
      * @internal
      *
      * @param EntityRepository<CategoryCollection> $categoryRepository
@@ -266,13 +280,11 @@ class CategoryBreadcrumbBuilder
         foreach ($categories as $category) {
             $categoryId = $category->getId();
             $categorySeoUrls = $this->filterCategorySeoUrls($seoUrls, $categoryId);
-            $translated = $category->getTranslated();
-            unset($translated['breadcrumb'], $translated['name']);
             $categoryBreadcrumb = new Breadcrumb(
                 $category->getTranslation('name'),
                 $categoryId,
                 $category->getType(),
-                $translated,
+                $this->filterTranslated($category),
             );
 
             if ($categorySeoUrls === []) {
@@ -296,6 +308,25 @@ class CategoryBreadcrumbBuilder
         }
 
         return new BreadcrumbCollection(array_values($seoBreadcrumbCollection));
+    }
+
+    /**
+     * The breadcrumb is a plain struct, so the store-api encoder cannot apply the `ApiAware` and `store_api_aware`
+     * filters it applies to a `category` payload. Therefore only fields that are explicitly safe to expose are
+     * copied over; `slotConfig` (not `ApiAware`) and `customFields` (filtered per field in a category payload)
+     * are deliberately not part of it.
+     *
+     * @return array<string, mixed>
+     */
+    private function filterTranslated(CategoryEntity $category): array
+    {
+        $translated = [];
+
+        foreach (self::EXPOSED_TRANSLATED_FIELDS as $field) {
+            $translated[$field] = $category->getTranslation($field);
+        }
+
+        return $translated;
     }
 
     /**

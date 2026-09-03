@@ -3,9 +3,11 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
@@ -120,6 +122,9 @@ class CmsController extends StorefrontController
             throw RoutingException::missingRequestParameter('navigationId');
         }
 
+        // this widget renders the cms page only, and the listing resolver mutates the request, so it must not be duplicated
+        $request->attributes->set(CategoryRoute::SKIP_BREADCRUMB, true);
+
         $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();
 
         $page = $category->getCmsPage();
@@ -206,6 +211,8 @@ class CmsController extends StorefrontController
         );
 
         $newProductId = $variantResponse->getFoundCombination()->getVariantId();
+
+        $request->attributes->set(ProductDetailRoute::SKIP_BREADCRUMB, true);
 
         $result = $this->productRoute->load($newProductId, $request, $context, new Criteria());
         $product = $result->getProduct();

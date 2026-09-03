@@ -280,6 +280,48 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertCount(1, $firstBreadcrumb->seoUrls);
     }
 
+    public function testConvertCategoriesToBreadcrumbUrlsOnlyExposesSafeTranslatedFields(): void
+    {
+        $categoryEntity = $this->createNewCategoryEntity(
+            '019192b9cd82711482744d7b456b6c01',
+            'Home 2',
+            [
+                'name' => 'Home sweet home 2',
+                'breadcrumb' => ['019192b9cd82711482744d7b456b6c01' => 'Home 2'],
+                // not `ApiAware` on the category definition
+                'slotConfig' => ['content' => ['field' => ['value' => 'secret']]],
+                // filtered per field in a category payload, which a plain struct cannot do
+                'customFields' => ['internal_note' => 'secret'],
+                'metaTitle' => 'Meta title',
+                'linkNewTab' => true,
+            ]
+        );
+
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
+            $this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]),
+            $this->getProductRepositoryMock([], []),
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c01', $this->salesChannelContext->getContext());
+        static::assertNotNull($category);
+
+        $breadcrumb = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls(
+            $category,
+            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext->getSalesChannel()
+        )->first();
+
+        static::assertNotNull($breadcrumb);
+        static::assertArrayNotHasKey('slotConfig', $breadcrumb->translated);
+        static::assertArrayNotHasKey('customFields', $breadcrumb->translated);
+        static::assertArrayNotHasKey('name', $breadcrumb->translated);
+        static::assertArrayNotHasKey('breadcrumb', $breadcrumb->translated);
+        static::assertSame('Meta title', $breadcrumb->translated['metaTitle']);
+        static::assertTrue($breadcrumb->translated['linkNewTab']);
+    }
+
     public function testConvertCategoriesToBreadcrumbUrlsWithSeoUrlsOnlyPathInfo(): void
     {
         $categoryEntityOne = $this->createNewCategoryEntity(

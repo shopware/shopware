@@ -10,6 +10,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\CmsPageCollection;
@@ -718,6 +720,105 @@ class ProductDetailRouteTest extends TestCase
         static::assertSame($breadcrumbCategory, $result->getProduct()->getSeoCategory());
     }
 
+    public function testLoadSeoBreadcrumb(): void
+    {
+        $seoCategory = new CategoryEntity();
+        $seoCategory->setId(Uuid::randomHex());
+
+        $breadcrumb = new BreadcrumbCollection([
+            new Breadcrumb('Home', Uuid::randomHex()),
+            new Breadcrumb('Shoes', $seoCategory->getId()),
+        ]);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->method('getProductSeoCategory')->willReturn($seoCategory);
+        $breadcrumbBuilder->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn($breadcrumb);
+
+        $result = $this->buildBreadcrumbRoute($breadcrumbBuilder)->load('1', new Request(), $this->context, new Criteria());
+
+        static::assertSame($breadcrumb, $result->getProduct()->getSeoBreadcrumb());
+    }
+
+    #[DataProvider('skipBreadcrumbRequestProvider')]
+    public function testLoadSeoBreadcrumbIsSkipped(Request $request): void
+    {
+        $seoCategory = new CategoryEntity();
+        $seoCategory->setId(Uuid::randomHex());
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->method('getProductSeoCategory')->willReturn($seoCategory);
+        $breadcrumbBuilder->expects($this->never())->method('getCategoryBreadcrumbUrls');
+
+        $result = $this->buildBreadcrumbRoute($breadcrumbBuilder)->load('1', $request, $this->context, new Criteria());
+
+        static::assertNull($result->getProduct()->getSeoBreadcrumb());
+    }
+
+    public static function skipBreadcrumbRequestProvider(): \Generator
+    {
+        yield 'query parameter' => [new Request([ProductDetailRoute::SKIP_BREADCRUMB => '1'])];
+        yield 'request body' => [new Request([], [ProductDetailRoute::SKIP_BREADCRUMB => true])];
+        yield 'request attribute' => [new Request([], [], [ProductDetailRoute::SKIP_BREADCRUMB => true])];
+    }
+
+    public function testLoadSeoBreadcrumbRequestAttributeOverrulesTheClientParameter(): void
+    {
+        $seoCategory = new CategoryEntity();
+        $seoCategory->setId(Uuid::randomHex());
+
+        $breadcrumb = new BreadcrumbCollection([new Breadcrumb('Home', $seoCategory->getId())]);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->method('getProductSeoCategory')->willReturn($seoCategory);
+        $breadcrumbBuilder->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn($breadcrumb);
+
+        // a visitor must not be able to suppress the breadcrumb of a rendered storefront page
+        $request = new Request(
+            [ProductDetailRoute::SKIP_BREADCRUMB => '1'],
+            [],
+            [ProductDetailRoute::SKIP_BREADCRUMB => false]
+        );
+
+        $result = $this->buildBreadcrumbRoute($breadcrumbBuilder)->load('1', $request, $this->context, new Criteria());
+
+        static::assertSame($breadcrumb, $result->getProduct()->getSeoBreadcrumb());
+    }
+
+    public function testLoadSeoBreadcrumbIgnoresAMalformedSkipParameter(): void
+    {
+        $seoCategory = new CategoryEntity();
+        $seoCategory->setId(Uuid::randomHex());
+
+        $breadcrumb = new BreadcrumbCollection([new Breadcrumb('Home', $seoCategory->getId())]);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->method('getProductSeoCategory')->willReturn($seoCategory);
+        $breadcrumbBuilder->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn($breadcrumb);
+
+        $request = new Request([ProductDetailRoute::SKIP_BREADCRUMB => 'not-a-bool']);
+
+        $result = $this->buildBreadcrumbRoute($breadcrumbBuilder)->load('1', $request, $this->context, new Criteria());
+
+        static::assertSame($breadcrumb, $result->getProduct()->getSeoBreadcrumb());
+    }
+
+    public function testLoadSeoBreadcrumbWithoutSeoCategory(): void
+    {
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->method('getProductSeoCategory')->willReturn(null);
+        $breadcrumbBuilder->expects($this->never())->method('getCategoryBreadcrumbUrls');
+
+        $result = $this->buildBreadcrumbRoute($breadcrumbBuilder)->load('1', new Request(), $this->context, new Criteria());
+
+        static::assertNull($result->getProduct()->getSeoBreadcrumb());
+    }
+
     public static function breadcrumbCategoryDataProvider(): \Generator
     {
         $defaultBreadcrumbCategory = new CategoryEntity();
@@ -791,6 +892,27 @@ class ProductDetailRouteTest extends TestCase
             new InvokedCount(0),
             $defaultBreadcrumbCategory,
         ];
+    }
+
+    private function buildBreadcrumbRoute(CategoryBreadcrumbBuilder $breadcrumbBuilder): ProductDetailRoute
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setId(Uuid::randomHex());
+        $product->setUniqueIdentifier('product');
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                $product->getApiAlias(),
+                1,
+                new ProductCollection([$product]),
+                null,
+                new Criteria(),
+                $this->context->getContext()
+            )
+        );
+
+        return $this->buildRoute($productRepository, breadcrumbBuilder: $breadcrumbBuilder);
     }
 
     /**

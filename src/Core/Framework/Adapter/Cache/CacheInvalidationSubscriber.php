@@ -31,6 +31,7 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
 use Shopware\Core\Defaults;
@@ -183,6 +184,30 @@ class CacheInvalidationSubscriber
         }
 
         $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), array_keys($categoryIds)));
+    }
+
+    public function invalidateCategoryRouteBySeoUrlChanges(EntityWrittenContainerEvent $event): void
+    {
+        $seoUrlIds = $event->getPrimaryKeys(SeoUrlDefinition::ENTITY_NAME);
+
+        if ($seoUrlIds === []) {
+            return;
+        }
+
+        $categoryIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(seo_url.foreign_key)) as category_id
+             FROM seo_url
+             INNER JOIN category ON category.id = seo_url.foreign_key
+             WHERE seo_url.id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($seoUrlIds)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        if ($categoryIds === []) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), $categoryIds));
     }
 
     public function invalidateProduct(InvalidateProductCache $event): void

@@ -3,7 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
@@ -46,6 +49,12 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductDetailRoute extends AbstractProductDetailRoute
 {
+    /**
+     * Opt out of loading the breadcrumb. Clients pass it as the `skipBreadcrumb` query or body parameter; internal
+     * callers set it as a request attribute, which takes precedence and cannot be provided by a client.
+     */
+    final public const SKIP_BREADCRUMB = 'skipBreadcrumb';
+
     private const SKIP_CONFIGURATOR = 'skipConfigurator';
     private const SKIP_CMS_PAGE = 'skipCmsPage';
 
@@ -138,9 +147,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
             $this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($parent));
 
-            $product->setSeoCategory(
-                $this->getBreadcrumbCategory($request, $product, $context)
-            );
+            $seoCategory = $this->getBreadcrumbCategory($request, $product, $context);
+            $product->setSeoCategory($seoCategory);
 
             $loadConfigurator = !$request->query->getBoolean(self::SKIP_CONFIGURATOR);
             $configurator = $loadConfigurator ? $this->configuratorLoader->load($product, $context) : null;
@@ -164,6 +172,10 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 if ($cmsPage instanceof CmsPageEntity) {
                     $product->setCmsPage($cmsPage);
                 }
+            }
+
+            if ($seoCategory !== null && !$this->skipBreadcrumb($request)) {
+                $product->setSeoBreadcrumb($this->loadBreadcrumb($seoCategory, $context));
             }
 
             return new ProductDetailRouteResponse($product, $configurator);
@@ -406,5 +418,32 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         }
 
         return $this->breadcrumbBuilder->getProductSeoCategory($product, $context);
+    }
+
+    private function loadBreadcrumb(CategoryEntity $seoCategory, SalesChannelContext $context): BreadcrumbCollection
+    {
+        $breadcrumb = $this->breadcrumbBuilder->getCategoryBreadcrumbUrls(
+            $seoCategory,
+            $context->getContext(),
+            $context->getSalesChannel()
+        );
+
+        // the breadcrumb reflects every category on the path, so all of them have to invalidate the cached response
+        $tags = $breadcrumb->map(static fn (Breadcrumb $item) => CategoryRoute::buildName($item->categoryId));
+
+        if ($tags !== []) {
+            $this->cacheTagCollector->addTag(...$tags);
+        }
+
+        return $breadcrumb;
+    }
+
+    private function skipBreadcrumb(Request $request): bool
+    {
+        if ($request->attributes->has(self::SKIP_BREADCRUMB)) {
+            return $request->attributes->getBoolean(self::SKIP_BREADCRUMB);
+        }
+
+        return filter_var(RequestParamHelper::get($request, self::SKIP_BREADCRUMB, false), \FILTER_VALIDATE_BOOL);
     }
 }

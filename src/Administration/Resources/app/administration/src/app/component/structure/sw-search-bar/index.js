@@ -849,11 +849,16 @@ export default {
 
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            if (!module) {
-                return '#5C738A';
+            if (module) {
+                return module.manifest.color || '#5C738A';
             }
 
-            return module.manifest.color || '#5C738A';
+            // List pages may pass an alias instead of their entity, so fall back to the color of the current module
+            if (entityName && entityName === this.initialSearchType) {
+                return this.$route?.meta?.$module?.color || '#5C738A';
+            }
+
+            return '#5C738A';
         },
 
         getTypeIconColor(entityName) {
@@ -1004,7 +1009,7 @@ export default {
                     {
                         name: 'sales-channel',
                         icon: saleChannelType?.iconName ?? 'regular-server',
-                        color: '#14D7A5',
+                        color: '#0870FF',
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,
                         route: {

@@ -29,10 +29,12 @@ concurrency:
 
 jobs:
   process:
-    # Only process a run that actually produced triage output. The agent workflow triggers on every
-    # repo issue_comment/label and skips the irrelevant ones; a skipped run still fires workflow_run,
-    # so without this guard the processor spins up a runner for every comment across the repo.
-    if: github.event.workflow_run.conclusion == 'success'
+    # Skip the runs the agent workflow itself skipped. It triggers on every repo issue_comment/label
+    # and skips the irrelevant ones, but a skipped run still fires workflow_run, so without this guard
+    # the processor spins up a runner for every comment across the repo. A real triage run concludes
+    # success or failure (never skipped), and both must be processed - a failed agent run is a signal,
+    # not something to drop.
+    if: github.event.workflow_run.conclusion != 'skipped'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:

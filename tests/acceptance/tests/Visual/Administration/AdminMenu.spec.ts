@@ -121,10 +121,7 @@ test('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, Admi
         const flyout = page.locator('.sw-admin-menu__flyout-content');
         await ShopAdmin.expects(flyout).toBeVisible();
 
-        // The flyout's border-radius clips its own background, so the corners of the
-        // rectangular screenshot bounding box show whatever renders behind it instead.
-        // Flattening the radius for the capture keeps those corners filled with the
-        // flyout's own background, avoiding flaky diffs unrelated to the flyout itself.
+        // Flatten the corners so they don't show whatever renders behind the flyout.
         await page.addStyleTag({
             content: '.sw-admin-menu__flyout-content { border-radius: 0 !important; }',
         });

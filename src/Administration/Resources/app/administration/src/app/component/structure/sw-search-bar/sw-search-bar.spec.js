@@ -2025,18 +2025,40 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(wrapper.vm.getEntityIconColor('unknown')).toBe('#5C738A');
         });
 
-        it('should leave the search type button to the stylesheet by default', async () => {
+        it('should show no icon in the search type button while searching in all types', async () => {
             wrapper = await createWrapper();
             await flushPromises();
 
-            const button = wrapper.find('.sw-search-bar__type--v2');
-
-            expect(wrapper.vm.searchTypeColor).toBeNull();
-            expect(button.classes()).not.toContain('is--module-colored');
-            expect(button.attributes('style')).toBeUndefined();
+            expect(wrapper.vm.searchTypeIcon).toBeNull();
+            expect(wrapper.find('.sw-search-bar__type--v2 .sw-search-bar__type-icon').exists()).toBe(false);
         });
 
-        it('should paint the search type button in the module color when the preference is enabled', async () => {
+        it('should show the solid module icon in the search type button without a color by default', async () => {
+            register('sw-order', {
+                title: 'Orders',
+                color: 'var(--color-module-purple-default)',
+                icon: 'regular-shopping-bag',
+                entity: 'order',
+
+                routes: {
+                    index: {
+                        component: 'sw-order-list',
+                        path: 'index',
+                    },
+                },
+            });
+
+            wrapper = await createWrapper({ initialSearchType: 'order' });
+            await flushPromises();
+
+            const icon = wrapper.findComponent('.sw-search-bar__type--v2 .sw-search-bar__type-icon');
+
+            expect(wrapper.vm.searchTypeColor).toBeNull();
+            expect(icon.props('name')).toBe('solid-shopping-bag');
+            expect(icon.props('color')).toBeUndefined();
+        });
+
+        it('should paint the search type icon in the module color when the preference is enabled', async () => {
             register('sw-order', {
                 title: 'Orders',
                 color: 'var(--color-module-purple-default)',
@@ -2056,10 +2078,19 @@ describe('src/app/component/structure/sw-search-bar', () => {
             await flushPromises();
 
             const button = wrapper.find('.sw-search-bar__type--v2');
+            const icon = wrapper.findComponent('.sw-search-bar__type--v2 .sw-search-bar__type-icon');
 
-            expect(wrapper.vm.searchTypeColor).toBe('var(--color-module-purple-default)');
-            expect(button.classes()).toContain('is--module-colored');
-            expect(button.attributes('style')).toContain('--sw-search-bar-type-color: var(--color-module-purple-default)');
+            expect(icon.props('color')).toBe('var(--color-module-purple-default)');
+            expect(button.attributes('style')).toBeUndefined();
+        });
+
+        it('should take the icon of the current module when the search type is not an entity', async () => {
+            wrapper = await createWrapper({ initialSearchType: 'theme' });
+            wrapper.vm.$route.meta = { $module: { icon: 'regular-paint-brush' } };
+            await flushPromises();
+
+            expect(wrapper.vm.getSearchTypeManifest('theme')).toEqual({ icon: 'regular-paint-brush' });
+            expect(wrapper.vm.getSearchTypeManifest('unknown')).toBeUndefined();
         });
     });
 });

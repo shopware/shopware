@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Lock\LockFactory;
 
 /**
  * Sole write path for app style options into the database. Called during app install and update.
@@ -43,6 +44,7 @@ class ContentSystemStyleOptionPersister
         private readonly AbstractContentSystemStyleOptionRegistry $registry,
         private readonly StyleOptionSpecificationSerializer $serializer,
         private readonly Connection $connection,
+        private readonly LockFactory $lockFactory,
     ) {
     }
 
@@ -55,51 +57,59 @@ class ContentSystemStyleOptionPersister
         $appId = $context->app->getId();
 
         $resolvedDtos = $this->loadDtos($context);
-        $existing = $this->getExistingOptions($appId, $context->context);
 
-        if ($resolvedDtos === [] && $existing->count() === 0) {
-            return;
-        }
+        // Serialize concurrent same-app persists so the delta is never computed from a stale snapshot.
+        $lock = $this->lockFactory->createLock('content_system_style_option_persist_' . $appId, 15.0);
+        $lock->acquire(true);
 
-        if ($resolvedDtos !== []) {
-            $proposedNames = $this->buildProposedNames($resolvedDtos);
-            $inactiveNames = $this->loadInactiveAppOptionNames($appId, $context->context);
+        try {
+            $existing = $this->getExistingOptions($appId, $context->context);
 
-            // Exclude own source to prevent self-collision when updating existing options
-            $this->collisionDetector->validate(
-                $proposedNames,
-                'app:' . $context->app->getName(),
-                $inactiveNames,
-            );
-        }
+            if ($resolvedDtos === [] && $existing->count() === 0) {
+                return;
+            }
 
-        $upserts = $this->buildUpserts($resolvedDtos, $existing, $context);
-        $deleteIds = $this->buildDeletes($resolvedDtos, $existing);
+            if ($resolvedDtos !== []) {
+                $proposedNames = $this->buildProposedNames($resolvedDtos);
+                $inactiveNames = $this->loadInactiveAppOptionNames($appId, $context->context);
 
-        // Upsert and delete are one atomic unit: a partial failure must not leave the registered set
-        // half-synced (a stale-but-valid row alongside a committed new one).
-        $this->connection->transactional(function () use ($upserts, $deleteIds, $context): void {
-            if ($upserts !== []) {
-                try {
-                    $this->styleOptionRepository->upsert($upserts, $context->context);
-                } catch (UniqueConstraintViolationException $e) {
-                    throw AppException::contentSystemStyleOptionDuplicate(
-                        array_column($upserts, 'name'),
-                        'app:' . $context->app->getName(),
-                        $e,
-                    );
+                // Exclude own source to prevent self-collision when updating existing options
+                $this->collisionDetector->validate(
+                    $proposedNames,
+                    'app:' . $context->app->getName(),
+                    $inactiveNames,
+                );
+            }
+
+            $upserts = $this->buildUpserts($resolvedDtos, $existing, $context);
+            $deleteIds = $this->buildDeletes($resolvedDtos, $existing);
+
+            // Upsert and delete are one atomic unit: a partial failure must not leave the registered set
+            // half-synced (a stale-but-valid row alongside a committed new one).
+            $this->connection->transactional(function () use ($upserts, $deleteIds, $context): void {
+                if ($upserts !== []) {
+                    try {
+                        $this->styleOptionRepository->upsert($upserts, $context->context);
+                    } catch (UniqueConstraintViolationException $e) {
+                        throw AppException::contentSystemStyleOptionDuplicate(
+                            array_column($upserts, 'name'),
+                            'app:' . $context->app->getName(),
+                            $e,
+                        );
+                    }
                 }
-            }
 
-            if ($deleteIds !== []) {
-                $this->styleOptionRepository->delete($deleteIds, $context->context);
-            }
-        });
+                if ($deleteIds !== []) {
+                    $this->styleOptionRepository->delete($deleteIds, $context->context);
+                }
+            });
 
-        // Invalidate only after the transaction commits, so the cache is never refreshed from a write
-        // that rolled back.
-        if ($upserts !== [] || $deleteIds !== []) {
-            $this->registry->invalidate();
+            // Keep invalidation inside the lock and after commit so no concurrent persist can repopulate stale data.
+            if ($upserts !== [] || $deleteIds !== []) {
+                $this->registry->invalidate();
+            }
+        } finally {
+            $lock->release();
         }
     }
 

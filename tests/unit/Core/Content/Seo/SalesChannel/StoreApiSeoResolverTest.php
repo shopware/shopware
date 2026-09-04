@@ -324,7 +324,7 @@ class StoreApiSeoResolverTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{bool, bool, list<string>}>
+     * @return \Generator<string, array{bool, bool, list<string>, 3?: bool}>
      */
     public static function routeNameFilterCases(): \Generator
     {
@@ -345,13 +345,20 @@ class StoreApiSeoResolverTest extends TestCase
             false,
             [ProductStoreApiUrlRoute::ROUTE_NAME],
         ];
+
+        yield 'headless sales channels fall back to the storefront names for entities without a store-api route' => [
+            true,
+            true,
+            [TestProductSeoUrlRoute::ROUTE_NAME],
+            false,
+        ];
     }
 
     /**
      * @param list<string> $expectedRouteNames
      */
     #[DataProvider('routeNameFilterCases')]
-    public function testRouteNameFilterMatchesSalesChannelType(bool $headless, bool $withStorefrontRoutes, array $expectedRouteNames): void
+    public function testRouteNameFilterMatchesSalesChannelType(bool $headless, bool $withStorefrontRoutes, array $expectedRouteNames, bool $withStoreApiRoutes = true): void
     {
         $context = $headless ? $this->createHeadlessSalesChannelContext() : Generator::generateSalesChannelContext();
 
@@ -361,6 +368,7 @@ class StoreApiSeoResolverTest extends TestCase
         $capturedCriteria = null;
         $storeApiSeoResolver = $this->createStoreApiSeoResolver(
             seoUrlRouteRegistry: $withStorefrontRoutes ? null : new SeoUrlRouteRegistry([]),
+            withStoreApiRoutes: $withStoreApiRoutes,
             onSearch: static function (Criteria $criteria) use (&$capturedCriteria): void {
                 $capturedCriteria = $criteria;
             },
@@ -435,6 +443,7 @@ class StoreApiSeoResolverTest extends TestCase
         array $foreignKeys = ['random'],
         ?SeoUrlRouteRegistry $seoUrlRouteRegistry = null,
         ?\Closure $onSearch = null,
+        bool $withStoreApiRoutes = true,
     ): StoreApiSeoResolver {
         $definitionInstanceRegistry = $this->getDefinitionRegistry();
 
@@ -482,7 +491,7 @@ class StoreApiSeoResolverTest extends TestCase
                 new SeoUrlRouteRegistry([]),
                 static::createStub(SeoUrlPlaceholderHandlerInterface::class),
                 static::createStub(RouterInterface::class),
-                [new ProductStoreApiUrlRoute($productDefinition)],
+                $withStoreApiRoutes ? [new ProductStoreApiUrlRoute($productDefinition)] : [],
             ),
         );
     }

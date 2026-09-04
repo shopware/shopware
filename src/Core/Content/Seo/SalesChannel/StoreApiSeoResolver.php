@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
+use Shopware\Core\Content\Seo\Exception\SeoUrlRouteConfigException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface as SeoUrlRouteConfigRoute;
@@ -198,9 +199,13 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
         // Headless sales channels persist their SEO URLs against the store-api route family. The storefront
         // route names stay in the filter as a fallback for entities without a store-api counterpart.
-        return array_values(array_unique([
-            ...$this->entityRouteResolver->getEntitySeoUrlRouteNames($entityName),
-            ...$routeNames,
-        ]));
+        try {
+            return array_values(array_unique([
+                $this->entityRouteResolver->getRouteNameForEntityName($entityName, $context->getSalesChannel()->getTypeId()),
+                ...$routeNames,
+            ]));
+        } catch (SeoUrlRouteConfigException) {
+            return $routeNames;
+        }
     }
 }

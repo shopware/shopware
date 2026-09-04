@@ -116,6 +116,8 @@
                         "showBirthdayField",
                         "birthdayFieldRequired",
                         "showAccountTypeSelection",
+                        "showNameFieldsForCompanyAccounts",
+                        "nameFieldsRequiredForCompanyAccounts",
                         "showAdditionalAddressField1",
                         "additionalAddressField1Required",
                         "showAdditionalAddressField2",
@@ -178,6 +180,14 @@
                           "description": "Whether the birthday field is required"
                         },
                         "showAccountTypeSelection": {
+                          "type": "boolean",
+                          "description": "Whether the selection between a private and a commercial (company) account is shown"
+                        },
+                        "showNameFieldsForCompanyAccounts": {
+                          "type": "boolean",
+                          "description": "Whether the selection between a private and a commercial (company) account is shown"
+                        },
+                        "nameFieldsRequiredForCompanyAccounts": {
                           "type": "boolean",
                           "description": "Whether the selection between a private and a commercial (company) account is shown"
                         },

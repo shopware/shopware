@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -23,26 +24,50 @@ class CustomerMailNameSubscriber implements EventSubscriberInterface
     public function onMailBeforeValidate(MailBeforeValidateEvent $event): void
     {
         $templateData = $event->getTemplateData();
-        $customer = $templateData['customer'] ?? null;
+        $changed = false;
 
+        $customer = $this->renderCustomer($templateData['customer'] ?? null);
+        if ($customer !== null) {
+            $templateData['customer'] = $customer;
+            $changed = true;
+        }
+
+        $recovery = $templateData['customerRecovery'] ?? null;
+        if ($recovery instanceof CustomerRecoveryEntity) {
+            $recoveryCustomer = $this->renderCustomer($recovery->getCustomer());
+
+            if ($recoveryCustomer !== null) {
+                $renderRecovery = clone $recovery;
+                $renderRecovery->setCustomer($recoveryCustomer);
+                $templateData['customerRecovery'] = $renderRecovery;
+                $changed = true;
+            }
+        }
+
+        if ($changed) {
+            $event->setTemplateData($templateData);
+        }
+    }
+
+    private function renderCustomer(mixed $customer): ?CustomerEntity
+    {
         if (!$customer instanceof CustomerEntity) {
-            return;
+            return null;
         }
 
         $company = trim($customer->getCompany() ?? '');
 
-        if ($company === '' || $customer->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            return;
+        if ($company === '' || !$customer->isBusinessAccount()) {
+            return null;
         }
 
         if (trim($customer->getFirstName() . $customer->getLastName()) !== '') {
-            return;
+            return null;
         }
 
         $renderCustomer = clone $customer;
         $renderCustomer->setLastName($company);
 
-        $templateData['customer'] = $renderCustomer;
-        $event->setTemplateData($templateData);
+        return $renderCustomer;
     }
 }

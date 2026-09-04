@@ -8,8 +8,6 @@
                 "description": "Added since version: 6.0.0.0",
                 "required": [
                     "countryId",
-                    "firstName",
-                    "lastName",
                     "city",
                     "street"
                 ],

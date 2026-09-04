@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerMailNameSubscriber;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
@@ -54,6 +55,22 @@ class CustomerMailNameSubscriberTest extends TestCase
         (new CustomerMailNameSubscriber())->onMailBeforeValidate($event);
 
         static::assertSame(['order' => 'something'], $event->getTemplateData());
+    }
+
+    public function testTheNestedRecoveryCustomerIsRenderedToo(): void
+    {
+        $recovery = new CustomerRecoveryEntity();
+        $recovery->setUniqueIdentifier('recovery-id');
+        $recovery->setCustomer($this->customer(CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', 'Acme GmbH'));
+
+        $event = new MailBeforeValidateEvent([], Context::createDefaultContext(), ['customerRecovery' => $recovery]);
+
+        (new CustomerMailNameSubscriber())->onMailBeforeValidate($event);
+
+        $rendered = $event->getTemplateData()['customerRecovery'];
+        static::assertInstanceOf(CustomerRecoveryEntity::class, $rendered);
+        static::assertSame('Acme GmbH', $rendered->getCustomer()?->getLastName());
+        static::assertSame('', $recovery->getCustomer()?->getLastName());
     }
 
     /**

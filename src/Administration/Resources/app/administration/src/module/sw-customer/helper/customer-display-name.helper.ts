@@ -16,7 +16,7 @@ type NameableCustomer = {
  * Mirrors `CustomerEntity::getDisplayName()`.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default function customerDisplayName(customer?: NameableCustomer | null): string {
+export default function customerDisplayName(customer?: NameableCustomer | null, lastNameFirst = false): string {
     if (!customer) {
         return '';
     }
@@ -27,5 +27,16 @@ export default function customerDisplayName(customer?: NameableCustomer | null):
         return company;
     }
 
-    return `${customer.firstName ?? ''} ${customer.lastName ?? ''}`.trim();
+    const firstName = (customer.firstName ?? '').trim();
+    const lastName = (customer.lastName ?? '').trim();
+
+    if (!lastNameFirst) {
+        return `${firstName} ${lastName}`.trim();
+    }
+
+    if (firstName === '' || lastName === '') {
+        return `${lastName}${firstName}`.trim();
+    }
+
+    return `${lastName}, ${firstName}`;
 }

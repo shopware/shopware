@@ -135,7 +135,7 @@
                         v-else
                         :to="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }"
                     >
-                        {{ customerDisplayName(item) }}
+                        {{ customerDisplayName(item, true) }}
                     </mt-link>
                     {% endblock %}
 

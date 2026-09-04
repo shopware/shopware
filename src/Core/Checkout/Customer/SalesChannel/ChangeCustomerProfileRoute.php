@@ -85,7 +85,11 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->remove('accountType');
         }
 
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+        $isBusinessAccount = $data->has('accountType')
+            ? $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            : $customer->isBusinessAccount();
+
+        if ($isBusinessAccount) {
             $validation->add('company', new NotBlank());
 
             if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {

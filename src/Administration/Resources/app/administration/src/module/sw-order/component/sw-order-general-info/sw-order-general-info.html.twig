@@ -12,10 +12,10 @@
                     class="sw-order-general-info__summary-main-header-link"
                     :to="{ name: 'sw.customer.detail', params: { id: order.orderCustomer.customerId } }"
                 >
-                    {{ orderCustomerName }}
+                    {{ orderCustomerName(order.orderCustomer) }}
                 </router-link>
                 <template v-else>
-                    {{ orderCustomerName }}
+                    {{ orderCustomerName(order.orderCustomer) }}
                 </template>
                 ({{ emailIdnFilter(order.orderCustomer.email) }})
             </div>

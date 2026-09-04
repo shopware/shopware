@@ -60,8 +60,6 @@ class AddressTransformer
             'department' => $address->getDepartment(),
             'salutationId' => $address->getSalutationId(),
             'title' => $address->getTitle(),
-            'firstName' => $address->getFirstName(),
-            'lastName' => $address->getLastName(),
             'street' => $address->getStreet(),
             'zipcode' => $address->getZipcode(),
             'city' => $address->getCity(),
@@ -75,6 +73,10 @@ class AddressTransformer
         });
 
         $addressArray['id'] = Uuid::randomHex();
+
+        // required on the snapshot, so the keys survive even when a company account has no contact person
+        $addressArray['firstName'] = $address->getFirstName();
+        $addressArray['lastName'] = $address->getLastName();
 
         $customFields = $address->getCustomFields();
         if ($customFields !== null && $customFields !== []) {

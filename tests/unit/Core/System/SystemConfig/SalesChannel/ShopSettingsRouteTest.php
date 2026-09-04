@@ -44,6 +44,8 @@ class ShopSettingsRouteTest extends TestCase
                 'core.loginRegistration.showBirthdayField' => true,
                 'core.loginRegistration.birthdayFieldRequired' => true,
                 'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts' => false,
+                'core.loginRegistration.nameFieldsRequiredForCompanyAccounts' => false,
                 'core.loginRegistration.showAdditionalAddressField1' => true,
                 'core.loginRegistration.additionalAddressField1Required' => true,
                 'core.loginRegistration.showAdditionalAddressField2' => true,
@@ -114,6 +116,8 @@ class ShopSettingsRouteTest extends TestCase
         static::assertTrue($loginRegistration->showBirthdayField);
         static::assertTrue($loginRegistration->birthdayFieldRequired);
         static::assertTrue($loginRegistration->showAccountTypeSelection);
+        static::assertFalse($loginRegistration->showNameFieldsForCompanyAccounts);
+        static::assertFalse($loginRegistration->nameFieldsRequiredForCompanyAccounts);
         static::assertTrue($loginRegistration->showAdditionalAddressField1);
         static::assertTrue($loginRegistration->additionalAddressField1Required);
         static::assertTrue($loginRegistration->showAdditionalAddressField2);

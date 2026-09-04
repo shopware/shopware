@@ -69,7 +69,9 @@ jobs:
     # Shards finish in under 20 minutes; without a cap a single hung step holds the job for GitHub's 6-hour default.
     timeout-minutes: 40
     needs: generate-acceptance-matrix
-    strategy: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

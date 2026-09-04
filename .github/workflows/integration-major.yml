@@ -38,7 +38,9 @@ jobs:
     needs:
       - phpunit-major-matrix
     runs-on: ubuntu-24.04
-    strategy: ${{ fromJson(needs.phpunit-major-matrix.outputs.matrix) }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.phpunit-major-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
       FEATURE_ALL: major

@@ -1,7 +1,7 @@
 const { Criteria } = Shopware.Data;
 
 type AppScriptCondition = {
-    id: string;
+    scriptId: EntityKey<'script'>;
     config: unknown;
 };
 
@@ -11,12 +11,12 @@ type Condition = {
     label: string;
     scopes: string[];
     group: string;
-    scriptId: string;
+    scriptId: EntityKey<'script'>;
     appScriptCondition: AppScriptCondition;
 };
 
 type Script = {
-    id: string;
+    id: EntityKey<'script'>;
     name?: string;
     translated?: {
         name?: string;
@@ -376,7 +376,7 @@ export default class RuleConditionService {
                 group: script.group,
                 scriptId: script.id,
                 appScriptCondition: {
-                    id: script.id,
+                    scriptId: script.id,
                     config: script.config,
                 },
             });
@@ -637,7 +637,7 @@ export default class RuleConditionService {
      *     ]
      * }
      */
-    getRestrictedConditions(r: EntitySchema.rule) {
+    getRestrictedConditions(r: Entity<'rule'>) {
         if (!r) {
             return {};
         }
@@ -646,7 +646,7 @@ export default class RuleConditionService {
 
         const conditions: { [key: string]: Array<unknown> } = {};
         keys.forEach((key) => {
-            const association = r[key as keyof EntitySchema.rule] as Array<unknown>;
+            const association = r[key as keyof Entity<'rule'>] as Array<unknown>;
             const currentEntry = this.awarenessConfiguration[key];
 
             if (association && association.length > 0 && currentEntry.notEquals) {

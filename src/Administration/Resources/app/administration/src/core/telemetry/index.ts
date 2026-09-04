@@ -64,7 +64,7 @@ export class Telemetry {
         });
     }
 
-    private waitForCurrentUser(): Promise<EntitySchema.user> {
+    private waitForCurrentUser(): Promise<Entity<'user'>> {
         const session = Shopware.Store.get('session');
 
         if (session.currentUser) {

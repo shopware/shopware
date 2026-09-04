@@ -351,7 +351,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('page-type-change', pageType);
         },
 
-        onDemoEntityChange(demoEntityId: string) {
+        onDemoEntityChange(demoEntityId: EntityKey<'product'>) {
             this.$emit('demo-entity-change', demoEntityId);
         },
 
@@ -632,12 +632,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('section-duplicate', section);
         },
 
-        onSectionDelete(sectionId: string) {
+        onSectionDelete(sectionId: EntityKey<'cms_section'>) {
             Shopware.Store.get('cmsPage').removeSelectedSection();
             this.page.sections!.remove(sectionId);
         },
 
-        onNavigatorSectionDelete(sectionId: string) {
+        onNavigatorSectionDelete(sectionId: EntityKey<'cms_section'>) {
             this.onSectionDelete(sectionId);
             this.$emit('page-save');
         },

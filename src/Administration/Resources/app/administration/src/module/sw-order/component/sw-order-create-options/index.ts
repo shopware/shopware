@@ -52,7 +52,7 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        salesChannelId(): string {
+        salesChannelId(): EntityKey<'sales_channel'> {
             return this.customer?.salesChannelId ?? Store.get('swOrder').context?.salesChannel?.id ?? '';
         },
 
@@ -115,7 +115,7 @@ export default Component.wrapComponentConfig({
         },
 
         'context.currencyId': {
-            async handler(currencyId: string): Promise<void> {
+            async handler(currencyId: EntityKey<'currency'>): Promise<void> {
                 if (!currencyId || currencyId === Store.get('swOrder').context?.context?.currencyId) {
                     return;
                 }
@@ -137,7 +137,7 @@ export default Component.wrapComponentConfig({
         },
 
         'context.shippingMethodId': {
-            async handler(shippingMethodId: string): Promise<void> {
+            async handler(shippingMethodId: EntityKey<'shipping_method'>): Promise<void> {
                 if (!shippingMethodId || shippingMethodId === Store.get('swOrder').context?.shippingMethod?.id) {
                     return;
                 }
@@ -146,7 +146,7 @@ export default Component.wrapComponentConfig({
             },
         },
 
-        'context.languageId'(languageId: string) {
+        'context.languageId'(languageId: EntityKey<'language'>) {
             if (!languageId) {
                 return;
             }

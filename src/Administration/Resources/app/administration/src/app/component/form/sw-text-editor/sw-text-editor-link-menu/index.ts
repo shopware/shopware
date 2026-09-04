@@ -180,7 +180,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('mounted');
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollection<'category'>> {
+        getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollection<'category'>> {
             const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
@@ -205,7 +205,7 @@ export default Shopware.Component.wrapComponentConfig({
                 ].includes(slicedLink[1])
             ) {
                 if (slicedLink[1] === 'navigation') {
-                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2] as EntityKey<'category'>);
                 } else if (slicedLink[1] === 'mediaId') {
                     slicedLink[1] = 'media';
                 }
@@ -235,7 +235,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        replaceCategorySelection(category: { id: string }): void {
+        replaceCategorySelection(category: { id: EntityKey<'category'> }): void {
             this.linkTarget = category.id;
         },
 

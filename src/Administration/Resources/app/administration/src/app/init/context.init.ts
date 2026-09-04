@@ -101,7 +101,7 @@ export default function initializeContext(): void {
             aclRoles: currentUser?.aclRoles as unknown as Array<{
                 name: string;
                 type: string;
-                id: string;
+                id: EntityKey<'acl_role'>;
                 privileges: Array<string>;
             }>,
             active: !!currentUser?.active,

@@ -16,7 +16,7 @@ import Criteria from 'src/core/data/criteria.data';
  * @private
  */
 export default function usePosition(): {
-    getNewPosition: <EntityName extends keyof EntitySchema.Entities>(
+    getNewPosition: <EntityName extends keyof EntitySchema.EntityKeys>(
         repository: Repository<EntityName>,
         criteria: Criteria,
         context: typeof Shopware.Context.api,
@@ -59,7 +59,7 @@ export default function usePosition(): {
     /**
      * Returns a new position value using the current max position + 1, starting with 1.
      */
-    function getNewPosition<EntityName extends keyof EntitySchema.Entities>(
+    function getNewPosition<EntityName extends keyof EntitySchema.EntityKeys>(
         repository: Repository<EntityName>,
         criteria: Criteria,
         context: typeof Shopware.Context.api,

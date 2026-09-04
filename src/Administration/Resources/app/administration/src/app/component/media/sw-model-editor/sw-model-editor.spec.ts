@@ -71,7 +71,7 @@ const createMockEuler = (x = 0, y = 0, z = 0): MockEuler => ({
     },
 });
 
-const createMediaEntity = (overrides: Partial<EntitySchema.Entity<'media'>> = {}) => {
+const createMediaEntity = (overrides: Partial<Entity<'media'>> = {}) => {
     return {
         getEntityName: () => 'media',
         id: 'test-media-id',
@@ -476,7 +476,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             await flushPromises();
 
             const newMediaEntity = createMediaEntity({
-                id: 'new-media-id',
+                id: 'new-media-id' as EntityKey<'media'>,
                 url: 'https://example.com/new-model.glb',
             });
 
@@ -494,7 +494,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             const initialCallCount = mockQuickView.mock.calls.length;
 
             const newMediaEntity = createMediaEntity({
-                id: 'new-media-id',
+                id: 'new-media-id' as EntityKey<'media'>,
                 url: 'https://example.com/new-model.glb',
             });
 
@@ -511,7 +511,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             await flushPromises();
 
             const newMediaEntity = createMediaEntity({
-                id: 'new-media-id',
+                id: 'new-media-id' as EntityKey<'media'>,
                 url: 'https://example.com/new-model.glb',
             });
 
@@ -668,7 +668,7 @@ describe('src/app/component/media/sw-model-editor', () => {
     describe('Integration Scenarios', () => {
         it('should complete full initialization flow', async () => {
             const mediaEntity = createMediaEntity({
-                id: 'integration-test-id',
+                id: 'integration-test-id' as EntityKey<'media'>,
                 url: 'https://example.com/integration-model.glb',
             });
             const wrapper = await createWrapper({
@@ -695,7 +695,7 @@ describe('src/app/component/media/sw-model-editor', () => {
 
         it('should handle media update flow correctly', async () => {
             const mediaEntity = createMediaEntity({
-                id: 'update-test-id',
+                id: 'update-test-id' as EntityKey<'media'>,
                 url: 'https://example.com/original-model.glb',
             });
 
@@ -735,19 +735,19 @@ describe('src/app/component/media/sw-model-editor', () => {
             await flushPromises();
 
             // Simulate media update event
-            Shopware.Utils.EventBus.emit('sw-media-library-item-updated', 'update-test-id');
+            Shopware.Utils.EventBus.emit('sw-media-library-item-updated', 'update-test-id' as EntityKey<'media'>);
             await flushPromises();
 
             // Verify modelEntity was updated with new URL from API
             // Note: onMediaLibraryItemUpdated only refetches the entity, doesn't reinitialize QuickView
             expect(wrapper.vm.modelEntity).toBeTruthy();
-            const updatedEntity = wrapper.vm.modelEntity as EntitySchema.Entity<'media'>;
+            const updatedEntity = wrapper.vm.modelEntity as Entity<'media'>;
             expect(updatedEntity?.url).toBe('https://example.com/updated-model.glb');
         });
 
         it('should not reinitialize when media update is for different id', async () => {
             const mediaEntity = createMediaEntity({
-                id: 'update-test-id',
+                id: 'update-test-id' as EntityKey<'media'>,
                 url: 'https://example.com/original-model.glb',
             });
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -761,7 +761,7 @@ describe('src/app/component/media/sw-model-editor', () => {
             const initialCallCount = mockQuickView.mock.calls.length;
 
             // Simulate media update for different id
-            Shopware.Utils.EventBus.emit('sw-media-library-item-updated', 'different-media-id');
+            Shopware.Utils.EventBus.emit('sw-media-library-item-updated', 'different-media-id' as EntityKey<'media'>);
             await flushPromises();
 
             expect(mockQuickView.mock.calls).toHaveLength(initialCallCount);

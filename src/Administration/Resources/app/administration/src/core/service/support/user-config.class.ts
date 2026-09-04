@@ -9,10 +9,6 @@ enum USER_CONFIG_PERMISSIONS {
     UPDATE = 'user_config:update',
 }
 
-type SessionUser = {
-    id?: string;
-};
-
 abstract class UserConfigClass {
     private currentUserId = this.getCurrentUserId();
 
@@ -89,10 +85,8 @@ abstract class UserConfigClass {
         return userConfig;
     }
 
-    private getCurrentUserId(): string {
-        const currentUser = Shopware.Store.get('session').currentUser as SessionUser | undefined;
-
-        return currentUser?.id ?? '';
+    private getCurrentUserId(): EntityKey<'user'> {
+        return Shopware.Store.get('session').currentUser?.id ?? ('' as EntityKey<'user'>);
     }
 }
 

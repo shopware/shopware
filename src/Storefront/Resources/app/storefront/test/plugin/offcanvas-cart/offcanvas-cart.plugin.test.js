@@ -158,6 +158,27 @@ describe('OffCanvasCartPlugin tests', () => {
         expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
     });
 
+    test('fires a request without delay when a quantity form is submitted', async () => {
+        const el = document.querySelector('.header-cart');
+
+        // Open offcanvas cart with click
+        el.dispatchEvent(new Event('click', {
+            bubbles: true,
+        }));
+
+        await new Promise(process.nextTick);
+
+        const form = document.querySelector('.js-offcanvas-cart-change-quantity-number').closest('form');
+
+        // Confirming the value with `Enter` submits the form, which must not leave the Offcanvas.
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+        await new Promise(process.nextTick);
+
+        expect(fireRequestSpy).toHaveBeenCalledTimes(1);
+        expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
+    });
+
     test('does not fire a request for a change the quantity selector withholds', async () => {
         const el = document.querySelector('.header-cart');
 

@@ -19,6 +19,15 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
         purchaseLimitUrl: null,
+
+        /**
+         * Submit the surrounding form when the user confirms the value with `Enter`.
+         *
+         * Used where the form applies the quantity on its own, like the cart. `Enter` is a
+         * deliberate "apply now", so it submits directly instead of going through the delay
+         * those forms use to bundle repeated clicks on the `[+]` and `[-]` buttons.
+         */
+        submitOnEnter: false,
     };
 
     init() {
@@ -108,18 +117,32 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Commit the current value on `Enter`, so a keyboard user does not have to leave the
-     * input to apply it.
+     * Apply the current value on `Enter`, so a keyboard user does not have to leave the
+     * input for it to take effect.
      *
      * @param {KeyboardEvent} event
      *
      * @private
      */
     _onKeyDown(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            this._commit();
+        if (event.key !== 'Enter') {
+            return;
         }
+
+        event.preventDefault();
+
+        if (!this.options.submitOnEnter) {
+            this._commit();
+            return;
+        }
+
+        if (this._input.value === this._committedValue) {
+            return;
+        }
+
+        this._committedValue = this._input.value;
+        this._announceChange();
+        this._input.form?.requestSubmit();
     }
 
     /**
@@ -155,16 +178,26 @@ export default class QuantitySelectorPlugin extends Plugin {
         const event = new Event('change', { bubbles: true, cancelable: false });
         this._input.dispatchEvent(event);
 
-        if (this.options.ariaLiveUpdateMode === 'live') {
-            this._updateAriaLive();
-        } else if (this.options.ariaLiveUpdateMode === 'onload') {
-            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
-        }
+        this._announceChange();
 
         if (btn === 'up') {
             this._btnPlus.dispatchEvent(event);
         } else if (btn === 'down') {
             this._btnMinus.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * Announce the new quantity, either right away or after the page the form submits to has
+     * loaded.
+     *
+     * @private
+     */
+    _announceChange() {
+        if (this.options.ariaLiveUpdateMode === 'live') {
+            this._updateAriaLive();
+        } else if (this.options.ariaLiveUpdateMode === 'onload') {
+            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
         }
     }
 

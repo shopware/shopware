@@ -310,6 +310,58 @@ describe('QuantitySelectorPlugin tests', () => {
         expect(input.value).toBe('21');
     });
 
+    test('submits the form on enter when the form applies the quantity itself', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const form = document.querySelector('form');
+        const formChangeSpy = jest.fn();
+
+        form.requestSubmit = jest.fn();
+        form.addEventListener('change', formChangeSpy);
+        plugin.options.submitOnEnter = true;
+
+        input.focus();
+        input.value = 21;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+        // Submitted directly instead of through the delay a `change` would run into.
+        expect(form.requestSubmit).toHaveBeenCalledTimes(1);
+        expect(formChangeSpy).not.toHaveBeenCalled();
+    });
+
+    test('does not submit on enter when the value is unchanged', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const form = document.querySelector('form');
+
+        form.requestSubmit = jest.fn();
+        plugin.options.submitOnEnter = true;
+
+        input.focus();
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+        expect(form.requestSubmit).not.toHaveBeenCalled();
+    });
+
+    test('does not submit again on blur after enter submitted the value', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const form = document.querySelector('form');
+        const formChangeSpy = jest.fn();
+
+        form.requestSubmit = jest.fn();
+        form.addEventListener('change', formChangeSpy);
+        plugin.options.submitOnEnter = true;
+
+        input.focus();
+        input.value = 21;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+        input.blur();
+
+        expect(form.requestSubmit).toHaveBeenCalledTimes(1);
+        expect(formChangeSpy).not.toHaveBeenCalled();
+    });
+
     test('does not fetch on init without user interaction', () => {
         global.fetch = jest.fn();
         expect(global.fetch).not.toHaveBeenCalled();

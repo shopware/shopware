@@ -115,6 +115,8 @@ export default class OffCanvasCartPlugin extends Plugin {
                     this._onChangeProductQuantity.bind(this),
                     this.options.changeQuantityInputDelay,
                 ));
+
+                input.form?.addEventListener('submit', this._onSubmitProductQuantity.bind(this));
             });
         }
     }
@@ -258,6 +260,28 @@ export default class OffCanvasCartPlugin extends Plugin {
         this._fireRequest(form, selector);
     }
 
+
+    /**
+     * Submit the change quantity form inside the Offcanvas
+     *
+     * The quantity forms are submitted when the user confirms a value with `Enter`. Without
+     * this the browser would leave the Offcanvas and render the cart fragment as a page.
+     *
+     * @param {Event} event
+     *
+     * @private
+     */
+    _onSubmitProductQuantity(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const selector = this.options.cartItemSelector;
+
+        this.$emitter.publish('onChangeProductQuantity');
+
+        this._saveFocusState(form.querySelector(this.options.changeProductQuantityTriggerNumberSelector));
+        this._fireRequest(form, selector);
+    }
 
     /**
      * Submit the add form inside the Offcanvas

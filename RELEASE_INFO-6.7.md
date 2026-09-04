@@ -463,11 +463,14 @@ lineItem.payload.features[].value = { id, type, content, display }
 
 `input[type=number]` emits a `change` event on every arrow key press. In the cart, off-canvas cart and checkout confirm each of those submitted the surrounding form, so the page reloaded underneath a keyboard or screen reader user while they were still choosing a value.
 
-`QuantitySelectorPlugin` now holds those events back while the input keeps the focus and passes on a single one when the edit is finished, either on blur or on `Enter`. Typed values and the `[+]` and `[-]` buttons are unchanged.
+`QuantitySelectorPlugin` now holds those events back while the input keeps the focus and passes on a single one when the edit is finished on blur. Typed values and the `[+]` and `[-]` buttons are unchanged.
+
+`Enter` applies the value straight away instead: the new `submitOnEnter` option submits the surrounding form directly, skipping the delay those forms use to bundle repeated button clicks. `OffCanvasCartPlugin` handles the resulting `submit` so the Offcanvas stays open.
 
 A `change` listener bound to the input itself still sees every step, listeners on the surrounding form and further up only see the finished value. `OffCanvasCartPlugin` listens on the form for that reason; move custom listeners that should only react to a finished edit there as well.
 
 The `<legend>` of the cart quantity fieldset gained the new snippet `component.product.quantitySelect.cartUpdateHint`, which tells screen reader users that changing the quantity updates the cart before they reach the control.
+
 ### The buy button shows a loading indicator while the product is added
 
 `AddToCartPlugin` puts a loading indicator on the buy button when the form is submitted and removes it once the off-canvas cart has opened or the request is through. The button is disabled in the meantime, so a second click can no longer add the product a second time.

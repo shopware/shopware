@@ -7,11 +7,14 @@ on:
       - labeled
 
 permissions:
-  id-token: write
+  contents: read
 
 jobs:
   find-linked-issue:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     if: >
       github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
@@ -69,6 +72,9 @@ jobs:
 
   reopen-linked-issue:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     if: >
       github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'
@@ -162,6 +168,9 @@ jobs:
 
   backport:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     if: >
       github.event.act || github.event.pull_request.merged && (
         github.event.action == 'closed'

@@ -14,11 +14,7 @@ on:
         default: ""
 
 permissions:
-  actions: write
   contents: read
-  id-token: write
-  issues: write
-  pull-requests: write
   checks: read
   statuses: read
 
@@ -35,6 +31,10 @@ jobs:
 
   rufus:
     name: Rufus
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
@@ -62,6 +62,10 @@ jobs:
 
   commercial:
     name: Commercial
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
@@ -90,6 +94,11 @@ jobs:
 
   mergeability-check:
     name: Downstream Mergeability Check
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}

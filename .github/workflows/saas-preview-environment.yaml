@@ -14,11 +14,13 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   create_preview_environment:
     name: Create or migrate preview environment
+    permissions:
+      contents: read
+      id-token: write
     if: ${{ github.event.action != 'closed' && contains(github.event.pull_request.labels.*.name, 'preview-environment') }}
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +31,9 @@ jobs:
 
   archive_preview_environment:
     name: Archive preview environment
+    permissions:
+      contents: read
+      id-token: write
     if: ${{ (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'preview-environment')) || (github.event.action == 'unlabeled' && github.event.pull_request.label.name == 'preview-environment') }}
     runs-on: ubuntu-latest
     steps:

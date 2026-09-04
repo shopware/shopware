@@ -2,6 +2,9 @@
 
 $php = ['8.2'];
 
+// Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
+// workflow, because zizmor cannot audit a file whose whole `strategy:` is an expression.
+//
 // argv[1] is the run profile: '' (PR), 'nightly' or 'release' (patch release gate).
 $mode = \strtolower($_SERVER['argv'][1] ?? '');
 $nightly = $mode === 'nightly';
@@ -32,21 +35,18 @@ if ($majorFilter === 'exclude') {
 }
 
 $matrix = [
-    'fail-fast' => false,
-    'matrix' => [
-        'name' => ['Platform'],
-        'major' => $majorVariants,
-        'php-version' => $php,
-        'shard' => ['1', '2', '3'],
-        'shard-count' => [3],
-        'no-currents' => [true],
-        'include' => [],
-    ],
+    'name' => ['Platform'],
+    'major' => $majorVariants,
+    'php-version' => $php,
+    'shard' => ['1', '2', '3'],
+    'shard-count' => [3],
+    'no-currents' => [true],
+    'include' => [],
 ];
 
 // The install test is not a major test, so it only belongs to the non-major run.
 if ($majorFilter !== 'only') {
-    $matrix['matrix']['include'][] = [
+    $matrix['include'][] = [
         'name' => 'Install',
         'php-version' => ($nightly || $release) ? '8.4' : '8.2',
         'shard' => 1,
@@ -58,7 +58,7 @@ if ($majorFilter !== 'only') {
 if ($nightly) {
     for ($i = 0; $i < 3; ++$i) {
         if ($majorFilter !== 'only') {
-            $matrix['matrix']['include'][] = [
+            $matrix['include'][] = [
                 'name' => 'Platform',
                 'php-version' => '8.4',
                 'shard' => $i + 1,
@@ -67,7 +67,7 @@ if ($nightly) {
             ];
         }
         if ($majorFilter !== 'exclude') {
-            $matrix['matrix']['include'][] = [
+            $matrix['include'][] = [
                 'name' => 'Platform',
                 'major' => 'major',
                 'php-version' => '8.4',

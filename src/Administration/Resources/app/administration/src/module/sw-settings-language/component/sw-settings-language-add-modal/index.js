@@ -47,12 +47,14 @@ export default {
                 .map((translation) => {
                     const isLinked = translation.lastUpdate !== null;
                     const existsAsLanguage = this.existingLanguageLocales.includes(translation.locale);
+                    const isPseudoLanguage = translation.isPseudoLanguage === true;
 
                     return {
                         value: translation.locale,
-                        label: translation.name,
+                        // Pseudo languages borrow a real locale code, so only their own name describes them
+                        label: isPseudoLanguage ? translation.name : Shopware.Utils.format.localeName(translation.locale),
                         disabled: isLinked || existsAsLanguage,
-                        isPseudoLanguage: translation.isPseudoLanguage === true,
+                        isPseudoLanguage,
                     };
                 })
                 .sort((a, b) => {

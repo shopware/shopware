@@ -9,8 +9,8 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\ContextWiringDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
@@ -23,13 +23,13 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 /**
  * Routing of a decoded entry to the object that owns its config: a data requirement to its source's config
  * serializer, and a provider to its declared distribution strategy's config. The distribution rows reach
- * {@see ContextWiringDecoder}, which the codec composes, which is why it is covered here too.
+ * {@see StoredElementWiringDecoder}, which the codec composes, which is why it is covered here too.
  *
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(StoredElementCodec::class)]
-#[CoversClass(ContextWiringDecoder::class)]
+#[CoversClass(StoredElementWiringDecoder::class)]
 class StoredElementCodecDataRequirementTest extends StoredElementCodecTestCase
 {
     /**

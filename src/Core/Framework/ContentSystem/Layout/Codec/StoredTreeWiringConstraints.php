@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * and attaches what it returns; nothing here reads a registry, so the whole cluster is stateless and
  * dependency-free.
  *
- * The decode-side counterpart is {@see ContextWiringDecoder}, and the render-side one is
+ * The decode-side counterpart is {@see StoredElementWiringDecoder}, and the render-side one is
  * {@see WiringPlanner}. The three are deliberately independent implementations of the same rules rather than
  * one shared implementation: StoredTreeShapeConformanceTest runs the write descriptor and the codec over one
  * payload table precisely to catch a divergence that sharing would hide instead of surface.
@@ -43,7 +43,7 @@ final class StoredTreeWiringConstraints
 {
     /**
      * A provider entry is itself a string-keyed map — the two declared fields plus the declared strategy's
-     * own fields — so it carries the key check its {@see ContextWiringDecoder} counterpart applies to it.
+     * own fields — so it carries the key check its {@see StoredElementWiringDecoder} counterpart applies to it.
      *
      * @return list<Constraint>
      */
@@ -91,7 +91,7 @@ final class StoredTreeWiringConstraints
             ),
             // Map-level, because both rules are judged per entry against the entry's own map key, which a
             // constraint inside the `All()` above never sees.
-            new Callback($this->validateConsumerLandingKeys(...)),
+            new Callback($this->validateConsumerBaseKeys(...)),
             new Callback($this->validateRedistributeKeyShape(...)),
         ];
     }
@@ -183,7 +183,7 @@ final class StoredTreeWiringConstraints
     }
 
     /**
-     * The two cross-field consumer rules {@see ContextWiringDecoder} enforces on decode: a consumer alias
+     * The two cross-field consumer rules {@see StoredElementWiringDecoder} enforces on decode: a consumer alias
      * renames the context this consumer redistributes, so it means nothing without `redistribute`, and a
      * property alias names one property on this element, so it carries no dot notation.
      */
@@ -208,16 +208,16 @@ final class StoredTreeWiringConstraints
     }
 
     /**
-     * The landing key a consumer writes its delivered value to is the base segment of
+     * The base key a consumer writes its delivered value to is the base segment of
      * `propertyAlias ?? contextKey`, and two consumers of one element writing the same one would each
-     * overwrite the other. {@see ContextWiringDecoder} throws on the first collision; here every colliding
+     * overwrite the other. {@see StoredElementWiringDecoder} throws on the first collision; here every colliding
      * consumer is reported, and the first holder of a base key keeps it so a third consumer on that key is
      * reported too.
      *
      * A shape another constraint already reports is skipped rather than reported twice: a non-array map, a
      * non-array entry, a non-string map key, a non-string `propertyAlias`.
      */
-    private function validateConsumerLandingKeys(mixed $value, ExecutionContextInterface $context): void
+    private function validateConsumerBaseKeys(mixed $value, ExecutionContextInterface $context): void
     {
         if (!\is_array($value)) {
             return;

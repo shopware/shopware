@@ -116,7 +116,7 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
 
     /**
      * The per-consumer combination tier: a consumer judged against itself, before any cross-map rule runs.
-     * Separate from the element-local rows below, which mirror {@see ContextWiringDecoderTest} row for row.
+     * Separate from the element-local rows below, which mirror {@see StoredElementWiringDecoderTest} row for row.
      *
      * @param array<string, mixed> $overrides
      */
@@ -132,7 +132,7 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
     }
 
     /**
-     * The element-local wiring tier, mirroring {@see ContextWiringDecoderTest} row for row: what decode throws
+     * The element-local wiring tier, mirroring {@see StoredElementWiringDecoderTest} row for row: what decode throws
      * on, the descriptor reports, so a payload cannot pass the write and then fail every read.
      *
      * The message is asserted alongside the path because the two redistribute rules emit at the same path:
@@ -181,7 +181,7 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
      */
     public static function accumulatesEveryElementLocalViolationProvider(): iterable
     {
-        // Base keys 'product' and 'category' are distinct, so the landing-key rule stays silent and these
+        // Base keys 'product' and 'category' are distinct, so the base-key rule stays silent and these
         // are exactly the two dotted-redistribute violations.
         yield 'two redistributing consumers keyed by dotted paths' => [
             ['acceptsContext' => [
@@ -217,7 +217,7 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
      */
     public static function rejectsElementLocalWiringProvider(): iterable
     {
-        yield 'two consumers landing on one base key' => [
+        yield 'two consumers sharing one base key' => [
             ['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
@@ -262,7 +262,7 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
      */
     public static function acceptsCleanElementWiringProvider(): iterable
     {
-        yield 'two consumers landing on distinct base keys' => [
+        yield 'two consumers writing distinct base keys' => [
             ['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'item'],
@@ -308,7 +308,7 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
      */
     public static function reportsBothViolationsProvider(): iterable
     {
-        yield 'a consumer renaming without redistributing and landing on a held base key' => [
+        yield 'a consumer renaming without redistributing while sharing a held base key' => [
             ['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => [

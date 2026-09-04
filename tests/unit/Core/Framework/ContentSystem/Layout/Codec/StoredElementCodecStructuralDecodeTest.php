@@ -7,8 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\ContextWiringDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -17,13 +17,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * The structural strictness tier of decode: a container, key, id or value whose shape the stored model cannot
  * represent fails decode outright rather than being repaired or dropped. The wiring-map rows reach
- * {@see ContextWiringDecoder}, which the codec composes, which is why it is covered here too.
+ * {@see StoredElementWiringDecoder}, which the codec composes, which is why it is covered here too.
  *
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(StoredElementCodec::class)]
-#[CoversClass(ContextWiringDecoder::class)]
+#[CoversClass(StoredElementWiringDecoder::class)]
 class StoredElementCodecStructuralDecodeTest extends StoredElementCodecTestCase
 {
     #[TestDox('rejects a top-level key the element wire shape does not carry')]

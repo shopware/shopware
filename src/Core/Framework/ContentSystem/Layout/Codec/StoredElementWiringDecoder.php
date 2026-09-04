@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Wiring is judged in two tiers and first hit throws. Per consumer, inside {@see decodeConsumers()}: a
  * `consumerAlias` without `redistribute`, and a `propertyAlias` carrying dot notation. Then, once that map is
- * complete, the element-local tier in {@see rejectInvalidElementWiring()}: landing-key uniqueness across the
+ * complete, the element-local tier in {@see rejectInvalidElementWiring()}: base-key uniqueness across the
  * consumer map, a `redistribute` consumer keyed by a dotted path, and a `redistribute` consumer whose derived
  * provider key an authored provider already holds. The tiers are ordered, not interleaved, so a per-consumer
  * violation anywhere in the element throws before an element-local one. A stored row already carrying an
@@ -46,7 +46,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class ContextWiringDecoder
+final class StoredElementWiringDecoder
 {
     /**
      * @var list<string>

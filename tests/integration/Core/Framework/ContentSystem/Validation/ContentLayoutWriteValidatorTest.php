@@ -173,7 +173,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
      */
     public static function elementLocalWiringDefectProvider(): iterable
     {
-        yield 'two consumers landing on one base key' => [
+        yield 'two consumers sharing one base key' => [
             ['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => false],
                 'category' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'product'],

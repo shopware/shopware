@@ -30,7 +30,7 @@ use Shopware\Core\Framework\Log\Package;
  * write path. Numeric wiring keys are not checked here — the element constructor rejects them, and decode
  * leaves that throw untouched.
  *
- * Both context-wiring maps are decoded by {@see ContextWiringDecoder}, which also owns the consumer entry's
+ * Both context-wiring maps are decoded by {@see StoredElementWiringDecoder}, which also owns the consumer entry's
  * closed key set, the provider entry's deliberately open one, and the two ordered tiers of wiring rules
  * decode judges. This class delegates all three of its entry points and adds nothing to them; the element-local
  * tier runs from {@see decodeElement()} once both maps are complete.
@@ -48,7 +48,7 @@ use Shopware\Core\Framework\Log\Package;
  * throws like any other malformed container — but stays registry-blind: an option name the registry no longer
  * knows is a well-formed string and still reads verbatim, so removing a style option provider does not make an
  * already-stored layout unreadable; the registry-aware check belongs to the write boundary, not here. The
- * provider entry's open key set, described on {@see ContextWiringDecoder}, is the other leniency. Every other
+ * provider entry's open key set, described on {@see StoredElementWiringDecoder}, is the other leniency. Every other
  * malformed value throws.
  *
  * @internal
@@ -88,12 +88,12 @@ final class StoredElementCodec
         'config',
     ];
 
-    private readonly ContextWiringDecoder $wiring;
+    private readonly StoredElementWiringDecoder $wiring;
 
     public function __construct(
         private readonly DataLoaderConfigSerializerProvider $configProvider,
     ) {
-        $this->wiring = new ContextWiringDecoder();
+        $this->wiring = new StoredElementWiringDecoder();
     }
 
     /**
@@ -448,7 +448,7 @@ final class StoredElementCodec
     /**
      * A key set decode closes: a key outside it is a decode failure, so a field the shape does not carry is
      * never silently dropped on the way to the stored model. The two sets closed here are the element's own
-     * and the data requirement entry's; {@see ContextWiringDecoder} closes the third, the consumer entry's.
+     * and the data requirement entry's; {@see StoredElementWiringDecoder} closes the third, the consumer entry's.
      * The write-path descriptor closes the same three, so neither side admits what the other refuses.
      *
      * @param array<array-key, mixed> $data

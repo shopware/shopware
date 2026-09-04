@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\ContextWiringDecoder;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\Log\Package;
 
@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ContextWiringDecoder::class)]
-class ContextWiringDecoderTest extends StoredElementCodecTestCase
+#[CoversClass(StoredElementWiringDecoder::class)]
+class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
 {
     /**
      * The two fields the element-local rules read are asserted alongside the key list: `rejectInvalidElementWiring`
@@ -92,7 +92,7 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
      */
     public static function rejectsElementLocalWiringProvider(): iterable
     {
-        yield 'two consumers landing on one base key' => [
+        yield 'two consumers sharing one base key' => [
             self::baseWire(['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
@@ -136,7 +136,7 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
      */
     public static function acceptsCleanElementWiringProvider(): iterable
     {
-        yield 'two consumers landing on distinct base keys' => [
+        yield 'two consumers writing distinct base keys' => [
             self::baseWire(['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'item'],
@@ -194,8 +194,8 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
         ];
 
         // Both violations sit inside the element-local tier, so the declared order within it decides:
-        // landing-key uniqueness before the dotted redistribute key.
-        yield 'the landing-key rule for an element violating two element-local rules' => [
+        // base-key uniqueness before the dotted redistribute key.
+        yield 'the base-key rule for an element violating two element-local rules' => [
             self::baseWire(['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
@@ -218,7 +218,7 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
 
         // The two element-local rules on disjoint consumers, which is what pins the order of the two loops
         // rather than the order of the checks inside one of them.
-        yield 'the landing-key rule over a provider conflict on a different consumer' => [
+        yield 'the base-key rule over a provider conflict on a different consumer' => [
             self::baseWire([
                 'providesContext' => ['shared' => ['type' => 'single', 'distribution' => 'broadcast']],
                 'acceptsContext' => [

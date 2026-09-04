@@ -123,7 +123,7 @@ class ContentDiagnoseControllerTest extends TestCase
             'Element property map key must be string, got int',
         ];
 
-        yield 'two consumers landing on one base key' => [
+        yield 'two consumers sharing one base key' => [
             ['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => false],
                 'category' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'product'],

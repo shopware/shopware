@@ -336,7 +336,7 @@ class DraftLayoutDecoderTest extends TestCase
      */
     public static function elementLocalWiringDefectProvider(): iterable
     {
-        yield 'two consumers landing on one base key' => [
+        yield 'two consumers sharing one base key' => [
             ['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],

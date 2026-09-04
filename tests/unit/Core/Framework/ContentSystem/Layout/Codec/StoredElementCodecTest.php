@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Both directions of the wire shape over a payload decode admits: what decode reads, encode writes back
  * unchanged. The three failure tiers sit in {@see StoredElementCodecStructuralDecodeTest},
- * {@see ContextWiringDecoderTest} and {@see StoredElementCodecDataRequirementTest}; all four share
+ * {@see StoredElementWiringDecoderTest} and {@see StoredElementCodecDataRequirementTest}; all four share
  * {@see StoredElementCodecTestCase}.
  *
  * @internal

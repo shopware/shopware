@@ -364,7 +364,7 @@ class StoredTreeShapeConformanceTest extends TestCase
         // The element-local wiring tier: each rule judges one element's consumer map against itself or against
         // that element's own provider map, so both sides can and must state it. Each rejected row is paired
         // with the accepted sibling one edit away on the tested axis alone.
-        yield 'two consumers landing on one base key' => [
+        yield 'two consumers sharing one base key' => [
             self::forest(['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
@@ -373,7 +373,7 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
-        yield 'two consumers landing on distinct base keys' => [
+        yield 'two consumers writing distinct base keys' => [
             self::forest(['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'item'],

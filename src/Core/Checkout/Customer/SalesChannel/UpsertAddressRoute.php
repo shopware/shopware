@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -30,6 +31,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -101,8 +103,24 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
-        $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition = $this->getValidationDefinition($data, $accountType, $isCreate, $context);
+        $accountType = $data->get('accountType');
+
+        if (!\is_string($accountType) || $accountType === '') {
+            $accountType = $customer->isBusinessAccount()
+                ? CustomerEntity::ACCOUNT_TYPE_BUSINESS
+                : CustomerEntity::ACCOUNT_TYPE_PRIVATE;
+        }
+
+        // the checkout decides from the authenticated customer, so an address accepted here has to
+        // stay usable there. the request account type only drives the company requirement.
+        $relaxNames = $customer->isBusinessAccount()
+            && !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
+
+        if ($relaxNames) {
+            CompanyAccountNameFields::normalize($data);
+        }
+
+        $definition = $this->getValidationDefinition($data, $accountType, $relaxNames, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $addressId], $data->all()), $definition);
 
         $addressData = [
@@ -152,6 +170,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     private function getValidationDefinition(
         DataBag $data,
         string $accountType,
+        bool $relaxNames,
         bool $isCreate,
         SalesChannelContext $context
     ): DataValidationDefinition {
@@ -161,10 +180,21 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation = $this->addressValidationFactory->update($context);
         }
 
+        $nameFieldsRequired = CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
+
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')
+            && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')
+                || !$nameFieldsRequired)
         ) {
             $validation->add('company', new NotBlank());
+        }
+
+        if ($relaxNames) {
+            CompanyAccountNameFields::relax(
+                $validation,
+                new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'),
+                new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG')
+            );
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));

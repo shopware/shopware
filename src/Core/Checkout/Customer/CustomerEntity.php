@@ -178,6 +178,22 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->getFirstName() . ' ' . $this->getLastName();
     }
 
+    public function isBusinessAccount(): bool
+    {
+        return isset($this->accountType) && $this->accountType === self::ACCOUNT_TYPE_BUSINESS;
+    }
+
+    public function getDisplayName(): string
+    {
+        $company = trim($this->company ?? '');
+
+        if ($company !== '' && $this->isBusinessAccount()) {
+            return $company;
+        }
+
+        return trim($this->getFirstName() . ' ' . $this->getLastName());
+    }
+
     public function getGroupId(): string
     {
         return $this->groupId;

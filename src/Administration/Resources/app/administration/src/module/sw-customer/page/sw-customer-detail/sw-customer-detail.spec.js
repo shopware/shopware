@@ -428,4 +428,55 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
     });
+    it.each([
+        [
+            'a company customer with a blank account company takes it from the billing address',
+            'business',
+            '',
+            'Acme GmbH',
+            'Acme GmbH',
+        ],
+        [
+            'an account company that is already set is kept',
+            'business',
+            'Existing AG',
+            'Acme GmbH',
+            'Existing AG',
+        ],
+        [
+            'a private customer is left alone',
+            'private',
+            '',
+            'Acme GmbH',
+            '',
+        ],
+        [
+            'a blank address company is ignored',
+            'business',
+            '',
+            '   ',
+            '',
+        ],
+    ])('%s', async (_name, accountType, company, addressCompany, expected) => {
+        await flushPromises();
+
+        wrapper.vm.customer = {
+            accountType,
+            company,
+            defaultBillingAddress: { company: addressCompany },
+        };
+
+        wrapper.vm.backfillCompanyFromAddress();
+
+        expect(wrapper.vm.customer.company).toBe(expected);
+    });
+
+    it('should not fail without a billing address', async () => {
+        await flushPromises();
+
+        wrapper.vm.customer = { accountType: 'business', company: '', defaultBillingAddress: null };
+
+        expect(() => wrapper.vm.backfillCompanyFromAddress()).not.toThrow();
+        expect(wrapper.vm.customer.company).toBe('');
+    });
 });

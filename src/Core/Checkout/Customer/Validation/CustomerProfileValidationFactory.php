@@ -50,11 +50,13 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
 
     private function addConstraints(DataValidationDefinition $definition, SalesChannelContext $context): void
     {
+        $trim = static fn (mixed $value): mixed => \is_string($value) ? trim($value) : $value;
+
         $definition
             ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
             ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
-            ->add('firstName', new NotBlank(), new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
-            ->add('lastName', new NotBlank(), new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME))
+            ->add('firstName', new NotBlank(normalizer: $trim), new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
+            ->add('lastName', new NotBlank(normalizer: $trim), new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME))
             ->add('accountType', new Choice(choices: $this->accountTypes));
 
         $salesChannelId = $context->getSalesChannelId();

@@ -1,5 +1,6 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
+import orderCustomerName from '../../helper/order-customer-name.helper';
 
 /**
  * @sw-package checkout
@@ -318,6 +319,8 @@ export default {
     },
 
     methods: {
+        orderCustomerName,
+
         createdComponent() {},
 
         /**

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -201,6 +202,63 @@ class CustomerProfileValidationFactoryTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
+    #[DataProvider('nameFieldProvider')]
+    public function testCreateTrimsNameFieldBeforeBlankCheck(string $field): void
+    {
+        $customerProfileValidationFactory = new CustomerProfileValidationFactory(
+            static::createStub(SystemConfigService::class),
+            $this->accountTypes,
+        );
+
+        $definition = $customerProfileValidationFactory->create($this->getSalesChannelContext());
+
+        $this->assertBlankCheckTrims($definition, $field);
+    }
+
+    #[DataProvider('nameFieldProvider')]
+    public function testUpdateTrimsNameFieldBeforeBlankCheck(string $field): void
+    {
+        $customerProfileValidationFactory = new CustomerProfileValidationFactory(
+            static::createStub(SystemConfigService::class),
+            $this->accountTypes,
+        );
+
+        $definition = $customerProfileValidationFactory->update($this->getSalesChannelContext());
+
+        $this->assertBlankCheckTrims($definition, $field);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function nameFieldProvider(): iterable
+    {
+        yield 'firstName' => ['firstName'];
+        yield 'lastName' => ['lastName'];
+    }
+
+    private function assertBlankCheckTrims(DataValidationDefinition $definition, string $field): void
+    {
+        $notBlank = $definition->getProperty($field)[0] ?? null;
+        static::assertInstanceOf(NotBlank::class, $notBlank);
+
+        $normalizer = $notBlank->normalizer;
+        static::assertIsCallable($normalizer);
+        static::assertSame('', $normalizer('   '));
+        static::assertSame('Ada', $normalizer('  Ada  '));
+
+        // HappyPathValidator applies the normalizer without checking the type first
+        static::assertNull($normalizer(null));
+    }
+
+    /**
+     * @return callable(mixed): mixed
+     */
+    private static function trimNormalizer(): callable
+    {
+        return static fn (mixed $value): mixed => \is_string($value) ? trim($value) : $value;
+    }
+
     private function getSalesChannelContext(): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
@@ -216,8 +274,8 @@ class CustomerProfileValidationFactoryTest extends TestCase
     {
         $definition
             ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
-            ->add('firstName', new NotBlank())
-            ->add('lastName', new NotBlank())
+            ->add('firstName', new NotBlank(normalizer: self::trimNormalizer()))
+            ->add('lastName', new NotBlank(normalizer: self::trimNormalizer()))
             ->add('accountType', new Choice(choices: $this->accountTypes))
             ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
             ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))

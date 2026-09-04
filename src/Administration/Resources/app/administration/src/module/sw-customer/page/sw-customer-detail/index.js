@@ -213,6 +213,22 @@ export default {
     },
 
     methods: {
+        backfillCompanyFromAddress() {
+            if (this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                return;
+            }
+
+            if (this.customer.company?.trim().length) {
+                return;
+            }
+
+            const company = this.customer.defaultBillingAddress?.company;
+
+            if (company?.trim().length) {
+                this.customer.company = company;
+            }
+        },
+
         async loadCustomer() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
@@ -228,6 +244,7 @@ export default {
                     this.defaultCriteria,
                 );
                 this.customer = customer;
+                this.backfillCompanyFromAddress();
 
                 if (!this.customer) {
                     this.createNotificationError({

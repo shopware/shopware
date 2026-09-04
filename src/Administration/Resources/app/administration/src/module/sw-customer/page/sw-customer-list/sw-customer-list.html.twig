@@ -135,7 +135,7 @@
                         v-else
                         :to="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }"
                     >
-                        {{ item.lastName }}, {{ item.firstName }}
+                        {{ customerDisplayName(item, true) }}
                     </mt-link>
                     {% endblock %}
 
@@ -268,7 +268,7 @@
                     >
                         {% block sw_customer_list_delete_modal_confirm_delete_text %}
                         <p class="sw-customer-list__confirm-delete-text">
-                            {{ $t('sw-customer.list.textDeleteConfirm', { name: `${item.firstName} ${item.lastName}` }, 0) }}
+                            {{ $t('sw-customer.list.textDeleteConfirm', { name: customerDisplayName(item) }, 0) }}
                         </p>
                         {% endblock %}
 

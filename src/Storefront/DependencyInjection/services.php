@@ -570,6 +570,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AddressValidationFactory::class),
             service(DataValidator::class),
             service(Translator::class),
+            service(SystemConfigService::class),
         ]);
 
     $services->set(CheckoutCartPageLoader::class)

@@ -91,10 +91,6 @@
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": [
-                                    "firstName",
-                                    "lastName"
-                                ],
                                 "properties": {
                                     "salutationId": {
                                         "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
@@ -105,11 +101,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop makes the contact person optional via `nameFieldsRequiredForCompanyAccounts`.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop makes the contact person optional via `nameFieldsRequiredForCompanyAccounts`.",
                                         "type": "string"
                                     },
                                     "birthdayDay": {
@@ -1136,11 +1132,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop makes the contact person optional via `nameFieldsRequiredForCompanyAccounts`.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly. Not required for a commercial account when the shop makes the contact person optional via `nameFieldsRequiredForCompanyAccounts`.",
                                         "type": "string"
                                     },
                                     "acceptedDataProtection": {
@@ -1194,8 +1190,6 @@
                                 "required": [
                                     "email",
                                     "password",
-                                    "firstName",
-                                    "lastName",
                                     "acceptedDataProtection",
                                     "storefrontUrl",
                                     "billingAddress"

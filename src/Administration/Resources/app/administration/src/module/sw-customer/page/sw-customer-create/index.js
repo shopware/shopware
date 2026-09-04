@@ -45,7 +45,15 @@ export default {
         },
 
         validCompanyField() {
-            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ? this.address.company?.trim().length : true;
+            if (this.customer.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                return true;
+            }
+
+            return this.resolvedCompany !== '';
+        },
+
+        resolvedCompany() {
+            return this.customer.company?.trim() || this.address.company?.trim() || '';
         },
 
         languageRepository() {
@@ -185,6 +193,11 @@ export default {
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
                 hasError = true;
+            }
+
+            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                this.customer.company = this.resolvedCompany;
+                this.address.company = this.resolvedCompany;
             }
 
             if (hasError) {

@@ -2,6 +2,7 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
+import customerDisplayName from '../../helper/customer-display-name.helper';
 
 /**
  * @sw-package checkout
@@ -56,6 +57,15 @@ export default {
     },
 
     computed: {
+        avatarName() {
+            const name = customerDisplayName(this.customer).split(' ');
+
+            return {
+                firstName: name[0] ?? '',
+                lastName: name.length > 1 ? name[name.length - 1] : '',
+            };
+        },
+
         hasActionSlot() {
             return !!this.$slots.actions?.[0];
         },
@@ -76,6 +86,12 @@ export default {
         },
 
         fullName() {
+            const company = (this.customer.company ?? '').trim();
+
+            if (company !== '' && this.isBusinessAccountType) {
+                return company;
+            }
+
             const name = {
                 name: this.salutation(this.customer),
                 company: this.customer.company,

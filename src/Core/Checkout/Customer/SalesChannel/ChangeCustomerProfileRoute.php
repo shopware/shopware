@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -28,8 +29,10 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -56,6 +59,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
         private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper,
         private readonly EntityRepository $salutationRepository,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -81,8 +85,21 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $data->remove('accountType');
         }
 
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+        $isBusinessAccount = $data->has('accountType')
+            ? $data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            : $customer->isBusinessAccount();
+
+        if ($isBusinessAccount) {
             $validation->add('company', new NotBlank());
+
+            if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
+                CompanyAccountNameFields::relax(
+                    $validation,
+                    new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME),
+                    new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
+                );
+            }
+
             $billingAddress = $customer->getDefaultBillingAddress();
             if ($billingAddress) {
                 $this->addVatIdsValidation($validation, $billingAddress);

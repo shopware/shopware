@@ -150,6 +150,15 @@
 
     {% block component_address_personal_fields_name %}
         <div class="row g-2">
+            {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
+            {% set companyNameFieldsRequired = companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
+
+            {% set personNameRequired = onlyCompanyRegistration
+                ? companyNameFieldsRequired
+                : (companyNameFieldsRequired or not config('core.loginRegistration.showAccountTypeSelection')) %}
+            {% set personNameShown = companyNameFieldsShown or not onlyCompanyRegistration %}
+
+            {% if personNameShown %}
             {% block component_address_personal_fields_first_name %}
                 {% if prefix !== '' and prefix != 'address' %}
                     {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
@@ -170,7 +179,7 @@
                         value: (prefix and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
                         autocomplete: 'section-personal given-name',
                         violationPath: violationPath,
-                        validationRules: 'required',
+                        validationRules: personNameRequired ? 'required' : '',
                         additionalClass: 'col-sm-6',
                     } %}
                 {% endblock %}
@@ -195,11 +204,12 @@
                         value: (prefix and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
                         autocomplete: 'section-personal family-name',
                         violationPath: violationPath,
-                        validationRules: 'required',
+                        validationRules: personNameRequired ? 'required' : '',
                         additionalClass: 'col-sm-6',
                     } %}
                 {% endblock %}
             {% endblock %}
+            {% endif %}
         </div>
     {% endblock %}
 

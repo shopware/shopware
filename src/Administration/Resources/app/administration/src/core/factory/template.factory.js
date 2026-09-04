@@ -257,13 +257,38 @@ function resolveTemplates() {
 
 const SLOT_TEMPLATE_START = /^<template\s+(#|v-slot)/;
 
-/** Text of the first non-empty token, or an empty string when that token is not raw. */
-function firstRawText(output) {
-    const first = Array.isArray(output)
-        ? output.find((token) => token.type !== 'raw' || token.value.trim().length > 0)
-        : undefined;
+/** Whitespace between tags carries no content and never decides where the wrapper goes. */
+function isContentToken(token) {
+    return token.type !== 'raw' || token.value.trim().length > 0;
+}
 
-    return first && first.type === 'raw' ? first.value.trim() : '';
+/** The token's nested `{% block %}` output, or null when it is not a block token. */
+function nestedBlockOutput(token) {
+    return token.type === 'logic' && token.token && token.token.blockName && Array.isArray(token.token.output)
+        ? token.token.output
+        : null;
+}
+
+/**
+ * Text of the first content token, or an empty string when there is none.
+ *
+ * A block whose content is itself a block is transparent here: `{% block a %}{% block b %}<template #x>`
+ * puts the slot template a level down, and `a` still has to be recognised as hosting one.
+ */
+function firstRawText(output) {
+    const firstToken = Array.isArray(output) ? output.find(isContentToken) : undefined;
+
+    if (!firstToken) {
+        return '';
+    }
+
+    if (firstToken.type === 'raw') {
+        return firstToken.value.trim();
+    }
+
+    const nestedOutput = nestedBlockOutput(firstToken);
+
+    return nestedOutput ? firstRawText(nestedOutput) : '';
 }
 
 /** Index just past the `>` closing the tag that starts at `from`, ignoring quoted attribute values. */
@@ -321,11 +346,31 @@ function insertAt(value, at, text) {
  * than one slot template spanning the whole block.
  */
 function wrapInsideSlotTemplate(output, openTag, closeTag) {
-    const isContent = (token) => token.type !== 'raw' || token.value.trim().length > 0;
-    const firstIndex = output.findIndex(isContent);
-    const lastIndex = output.findLastIndex(isContent);
+    const firstIndex = output.findIndex(isContentToken);
+    const lastIndex = output.findLastIndex(isContentToken);
+
+    if (firstIndex === -1) {
+        return null;
+    }
+
     const first = output[firstIndex];
     const last = output[lastIndex];
+    const nestedOutput = firstIndex === lastIndex ? nestedBlockOutput(first) : null;
+
+    // The whole block is one nested block, so the slot template it wraps lives a level down and the
+    // wrapper has to go there. Rebuilding the token instead of mutating it keeps the shared tree intact.
+    if (nestedOutput) {
+        const wrappedNestedOutput = wrapInsideSlotTemplate(nestedOutput, openTag, closeTag);
+
+        if (!wrappedNestedOutput) {
+            return null;
+        }
+
+        const rebuiltOutput = [...output];
+        rebuiltOutput[firstIndex] = { ...first, token: { ...first.token, output: wrappedNestedOutput } };
+
+        return rebuiltOutput;
+    }
 
     if (last.type !== 'raw' || !last.value.trimEnd().endsWith('</template>')) {
         return null;

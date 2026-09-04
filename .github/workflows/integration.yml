@@ -54,7 +54,9 @@ jobs:
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
-    strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root

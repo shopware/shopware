@@ -107,6 +107,7 @@
           "content": "Content",
           "commerce": "Commerce",
           "layout": "Layout",
+          "presets": "Presets",
           "other": "Other"
         }
       },

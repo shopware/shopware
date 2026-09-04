@@ -47,6 +47,15 @@ export type ContentLayoutDraftMovePayload = ContentLayoutDraftMutationEnvelope &
     index?: number | null;
 };
 
+/**
+ * @private
+ */
+export type ContentLayoutDraftInsertPresetPayload = ContentLayoutDraftMutationEnvelope & {
+    presetId: string;
+    parentElementId?: string | null;
+    slot?: string | null;
+};
+
 type ContentLayoutDraftMutationDiagnostics = {
     wellFormed: boolean;
     resolvable: boolean;
@@ -123,6 +132,10 @@ class ContentSystemLayoutDraftMutationApiService extends ApiService {
 
     moveElement(payload: ContentLayoutDraftMovePayload): Promise<ContentLayoutDraftMutationResponse> {
         return this.mutate('move-element', payload);
+    }
+
+    insertPreset(payload: ContentLayoutDraftInsertPresetPayload): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('insert-preset', payload);
     }
 
     private mutate(

@@ -57,6 +57,7 @@ class ContentSystemException extends HttpException
     public const LAYOUT_PRESET_DUPLICATE = 'CONTENT_SYSTEM__LAYOUT_PRESET_DUPLICATE';
     public const LAYOUT_PRESET_LOAD_FAILED = 'CONTENT_SYSTEM__LAYOUT_PRESET_LOAD_FAILED';
     public const LAYOUT_PRESET_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_PRESET_NOT_FOUND';
+    public const LAYOUT_PRESET_INVALID_LAYOUT = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_LAYOUT';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
@@ -671,6 +672,16 @@ class ContentSystemException extends HttpException
             self::LAYOUT_PRESET_NOT_FOUND,
             'Layout preset "{{ id }}" not found',
             ['id' => $id]
+        );
+    }
+
+    public static function layoutPresetInvalidLayout(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LAYOUT_PRESET_INVALID_LAYOUT,
+            'Invalid preset layout: {{ reason }}',
+            ['reason' => $reason]
         );
     }
 

@@ -67,6 +67,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
@@ -474,9 +475,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('cache.system'),
         ]);
 
-    $services->set(ContentSystemLayoutPresetRegistry::class)
+    $services->set(LayoutPresetPayloadCompiler::class)
         ->args([
             service(DraftLayoutDecoder::class),
+            service(StoredElementCodec::class),
+        ]);
+
+    $services->set(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            service(LayoutPresetPayloadCompiler::class),
         ]);
 
     $services->set(CachedContentSystemLayoutPresetRegistry::class)

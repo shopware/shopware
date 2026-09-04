@@ -39,20 +39,28 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($isClientDefect, ContentSystemException::isClientDefect($exception));
     }
 
+    /**
+     * The expected side is spelled as the literal wire strings rather than as the class constants the catalogue
+     * itself is built from. Reading both sides off the same constants would make the assertion self-referential:
+     * renaming a code's value would keep it green while breaking the error-code contract clients match on.
+     */
     #[TestDox('pins the catalogue of client-defect error codes')]
     public function testClientDefectCodes(): void
     {
         $expected = [
-            ContentSystemException::DATA_LOADER_NOT_REGISTERED,
-            ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED,
-            ContentSystemException::UNKNOWN_LOADER_ENTITY,
-            ContentSystemException::INVALID_FIELD_VALUE_TYPE,
-            ContentSystemException::INVALID_FIELD_VALUE_RANGE,
-            ContentSystemException::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
-            ContentSystemException::PROPERTY_ALIAS_WITH_DOT_NOTATION,
-            ContentSystemException::PROVIDER_DELIVERY_COLLISION,
-            ContentSystemException::INVALID_MAP_KEY,
-            ContentSystemException::INVALID_ELEMENT_ID,
+            'CONTENT_SYSTEM__DATA_LOADER_NOT_REGISTERED',
+            'CONTENT_SYSTEM__CONFIG_SERIALIZER_NOT_REGISTERED',
+            'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY',
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_TYPE',
+            'CONTENT_SYSTEM__INVALID_FIELD_VALUE_RANGE',
+            'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE',
+            'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION',
+            'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION',
+            'CONTENT_SYSTEM__REDISTRIBUTE_DOTTED_PATH',
+            'CONTENT_SYSTEM__REDISTRIBUTE_CONFLICT',
+            'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION',
+            'CONTENT_SYSTEM__INVALID_MAP_KEY',
+            'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
         ];
 
         $actual = ContentSystemException::CLIENT_DEFECT_CODES;
@@ -60,6 +68,12 @@ class ContentSystemExceptionTest extends TestCase
         sort($actual);
 
         static::assertSame($expected, $actual);
+    }
+
+    #[TestDox('rejects a non content-system throwable as a client defect')]
+    public function testForeignThrowableIsNotAClientDefect(): void
+    {
+        static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));
     }
 
     #[DataProvider('configSerializerMessageFormProvider')]
@@ -71,12 +85,6 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($expectedMessage, $exception->getMessage());
         static::assertSame(ContentSystemException::CONFIG_SERIALIZER_NOT_REGISTERED, $exception->getErrorCode());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-    }
-
-    #[TestDox('rejects a non content-system throwable as a client defect')]
-    public function testForeignThrowableIsNotAClientDefect(): void
-    {
-        static::assertFalse(ContentSystemException::isClientDefect(new \RuntimeException('boom')));
     }
 
     #[TestDox('propagates previous throwable when loading element type fails')]

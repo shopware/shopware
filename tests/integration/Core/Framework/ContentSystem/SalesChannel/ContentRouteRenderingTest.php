@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
@@ -163,6 +165,270 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame([], $this->slots($grandChildren[0]), 'The image leaf must carry no slots.');
     }
 
+    #[TestDox('serves a full-format body whose elements are the same forest the in-process consumer reads')]
+    public function testFullFormatBodyAndInProcessPageDescribeTheSameForest(): void
+    {
+        $this->createNestedLayout();
+
+        $bodyIds = array_column($this->flatten($this->rootElements($this->requestJson($this->uri('content')))), 'id');
+
+        // The public alias resolves to the main section's full-format route — the same service the Storefront
+        // consumes in process.
+        $response = static::getContainer()->get(AbstractContentRoute::class)->load(
+            'category/' . $this->ids->get('category'),
+            new Request(),
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+        );
+
+        static::assertInstanceOf(ContentRouteResponse::class, $response);
+
+        // The body and the in-process page are two views of the one rendered forest, so a divergence here is
+        // an encoding difference rather than two models drifting apart.
+        static::assertSame($bodyIds, $this->contentElementIds($response->getContentPage()->elements));
+        static::assertSame(
+            array_column($this->rootElements($this->requestJson($this->uri('content'))), 'id'),
+            array_map(static fn (RenderedElement $element): string => $element->id, $response->getRenderResult()->tree),
+        );
+    }
+
+    #[TestDox('names the skeleton page keys id, name and version, matching the full format vocabulary')]
+    public function testSkeletonNamesThePageTripleWithoutTheLayoutPrefix(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content-skeleton'));
+
+        static::assertSame($this->ids->get('layout'), $body['id'] ?? null);
+        static::assertSame(self::LAYOUT_NAME, $body['name'] ?? null);
+        static::assertSame(self::LAYOUT_VERSION, $body['version'] ?? null);
+        static::assertArrayNotHasKey('layoutId', $body);
+        static::assertArrayNotHasKey('layoutName', $body);
+        static::assertArrayNotHasKey('layoutVersion', $body);
+
+        // Same page vocabulary as the full format, which moved to these names with its own encoder.
+        $full = $this->requestJson($this->uri('content'));
+        static::assertSame($full['id'], $body['id']);
+        static::assertSame($full['name'], $body['name']);
+        static::assertSame($full['version'], $body['version']);
+    }
+
+    #[TestDox('serves a skeleton that is structurally identical to the full format apart from element properties')]
+    public function testSkeletonIsFullMinusProperties(): void
+    {
+        $this->createNestedLayout();
+
+        $full = $this->rootElements($this->requestJson($this->uri('content')));
+        $skeleton = $this->rootElements($this->requestJson($this->uri('content-skeleton')));
+
+        // Proves the full response really did carry properties, so the projection below is a reduction and
+        // not a comparison of two shapes that were already empty.
+        static::assertArrayHasKey('properties', $full[0]);
+        static::assertNotSame([], $full[0]['properties']);
+
+        static::assertSame(
+            array_map($this->structuralProjection(...), $full),
+            array_map($this->structuralProjection(...), $skeleton),
+        );
+
+        foreach ($this->flatten($skeleton) as $element) {
+            static::assertArrayNotHasKey('properties', $element);
+        }
+    }
+
+    #[TestDox('distributes the page-level context of the root source to a consuming layout root')]
+    public function testPageLevelContextReachesTheConsumingRoot(): void
+    {
+        $this->createNestedLayout();
+
+        // The wrap only happens because the root source declares page data requirements, and it is only
+        // observable because the stored root really consumes one of them.
+        static::assertContains('category', $this->pageDataRequirementKeys());
+        $this->assertStoredPageContextConsumer();
+
+        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
+        static::assertArrayHasKey('properties', $root);
+        static::assertIsArray($root['properties']);
+        static::assertSame(
+            $this->ids->get('category'),
+            $root['properties'][self::PAGE_CONTEXT_PROPERTY] ?? null,
+            'The page-level context must reach the consuming root through the virtual-root wrap/unwrap lifecycle.',
+        );
+    }
+
+    #[TestDox('returns only the addressed subtree when elementId names a nested element')]
+    public function testPartialRenderExtractsSubtree(): void
+    {
+        $this->createNestedLayout();
+
+        $fullRoots = $this->rootElements($this->requestJson($this->uri('content')));
+        static::assertNotContains($this->ids->get('inner-grid'), array_column($fullRoots, 'id'));
+
+        $partialRoots = $this->rootElements($this->requestJson($this->uri('content') . '?elementId=' . $this->ids->get('inner-grid')));
+
+        static::assertCount(1, $partialRoots);
+        static::assertSame($this->ids->get('inner-grid'), $partialRoots[0]['id']);
+        static::assertSame(['content'], array_keys($this->slots($partialRoots[0])));
+        static::assertSame(
+            [$this->ids->get('image')],
+            array_column($this->slotChildren($partialRoots[0], 'content'), 'id'),
+        );
+        // The complete flattened id list, so a descendant leaking in through any slot is a failure.
+        static::assertSame(
+            [$this->ids->get('inner-grid'), $this->ids->get('image')],
+            array_column($this->flatten($partialRoots), 'id'),
+        );
+    }
+
+    #[TestDox('serves decomposed skeletons structurally identical to the skeleton format')]
+    public function testDecomposedSkeletonsMatchSkeletonFormat(): void
+    {
+        $this->createNestedLayout();
+
+        $skeletons = $this->decomposedSkeletons($this->requestJson($this->uri('content-decomposed')));
+
+        // Both sides being empty would satisfy the comparison below, so the decomposed side is proven to
+        // carry the fixture's root before it is compared to anything.
+        static::assertNotSame([], $skeletons);
+        static::assertSame([$this->ids->get('root-grid')], array_column($skeletons, 'id'));
+
+        static::assertSame(
+            array_map($this->structuralProjection(...), $this->rootElements($this->requestJson($this->uri('content-skeleton')))),
+            array_map($this->structuralProjection(...), $skeletons),
+        );
+    }
+
+    #[TestDox('serves the decomposed body under its own page alias with the six documented top-level keys')]
+    public function testDecomposedFormatServesTheDocumentedTopLevelKeys(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content-decomposed'));
+
+        // The module writes the six; the framework appends `apiAlias` to whatever the carrier hands it, which
+        // is why the alias is asserted as the last key rather than as one of the encoder's own.
+        static::assertSame(
+            ['id', 'name', 'version', 'skeletons', 'data', 'assignments', 'apiAlias'],
+            array_keys($body),
+        );
+        static::assertSame($this->ids->get('layout'), $body['id']);
+        static::assertSame(self::LAYOUT_NAME, $body['name']);
+        static::assertSame(self::LAYOUT_VERSION, $body['version']);
+        static::assertSame('content_decomposed_page', $body['apiAlias']);
+    }
+
+    #[TestDox('serves the data body under its own page alias with the five documented top-level keys')]
+    public function testDataFormatServesTheDocumentedTopLevelKeys(): void
+    {
+        $this->createNestedLayout();
+
+        $body = $this->requestJson($this->uri('content-data'));
+
+        static::assertSame(
+            ['id', 'name', 'version', 'data', 'assignments', 'apiAlias'],
+            array_keys($body),
+        );
+        static::assertSame($this->ids->get('layout'), $body['id']);
+        static::assertSame(self::LAYOUT_NAME, $body['name']);
+        static::assertSame(self::LAYOUT_VERSION, $body['version']);
+        static::assertSame('content_data_page', $body['apiAlias']);
+    }
+
+    #[TestDox('serves the data format as the decomposed format without the skeletons')]
+    public function testDataFormatIsDecomposedWithoutSkeletons(): void
+    {
+        $this->createNestedLayout();
+
+        $decomposed = $this->requestJson($this->uri('content-decomposed'));
+        $data = $this->requestJson($this->uri('content-data'));
+
+        static::assertArrayNotHasKey('skeletons', $data);
+        static::assertSame($decomposed['id'] ?? null, $data['id'] ?? null);
+        static::assertSame(self::LAYOUT_NAME, $data['name'] ?? null);
+        static::assertSame($decomposed['name'], $data['name']);
+        static::assertSame(self::LAYOUT_VERSION, $data['version'] ?? null);
+        static::assertSame($decomposed['version'], $data['version']);
+
+        $decomposedAssignments = $this->assignments($decomposed);
+        $dataAssignments = $this->assignments($data);
+        $decomposedValues = $this->dataMap($decomposed);
+        $dataValues = $this->dataMap($data);
+
+        // The fixture really is decomposed on both formats, so the per-property comparison below exercises
+        // populated assignment maps rather than two empty ones agreeing vacuously.
+        static::assertNotSame([], $decomposedAssignments);
+
+        // Refs are response-local (see the ResolvedValueIndex class docblock) and are not compared here. The
+        // element-id/property-key grammar is not a ref and is compared directly; each side's own ref is then
+        // resolved through that side's own data map, so only the resulting VALUES are compared across formats.
+        static::assertEqualsCanonicalizing(
+            array_keys($decomposedAssignments),
+            array_keys($dataAssignments),
+            'The two formats must assign to the same set of elements.',
+        );
+
+        foreach ($decomposedAssignments as $elementId => $propertyMap) {
+            static::assertArrayHasKey($elementId, $dataAssignments);
+            static::assertEqualsCanonicalizing(
+                array_keys($propertyMap),
+                array_keys($dataAssignments[$elementId]),
+                'Element ' . $elementId . ' must have the same assigned property set in both formats.',
+            );
+
+            foreach ($propertyMap as $propertyKey => $decomposedRef) {
+                $dataRef = $dataAssignments[$elementId][$propertyKey];
+
+                static::assertArrayHasKey($decomposedRef, $decomposedValues);
+                static::assertArrayHasKey($dataRef, $dataValues);
+
+                // assertEquals, not assertSame: the values are keyed maps, and a JSON map's key order is not
+                // part of the behaviour under test (MySQL reorders JSON object keys, MariaDB does not).
+                static::assertEquals(
+                    $decomposedValues[$decomposedRef],
+                    $dataValues[$dataRef],
+                    'Element ' . $elementId . ' property ' . $propertyKey . ': the value reached through the '
+                    . 'decomposed response\'s ref differs from the value reached through the data response\'s ref.',
+                );
+            }
+        }
+
+        // The data map really carries values, not just keys: a map whose entries were all replaced by null
+        // would keep every key and every assignment intact.
+        $textRefId = $dataAssignments[$this->ids->get('text')]['text'] ?? null;
+        static::assertIsString($textRefId);
+        static::assertSame(self::TEXT_VALUE, $dataValues[$textRefId] ?? null);
+    }
+
+    #[TestDox('enriches a seo-aware entity on a rendered element property when the seo-url header is set')]
+    public function testSeoUrlEnrichmentReachesAnEntityOnARenderedProperty(): void
+    {
+        $this->createSeoAwareCategoryLayout();
+
+        // Fixture guard: a canonical seo url for this category really exists, so `StoreApiSeoResolver::enrich()`
+        // would have something to write. Without it the un-enriched body below would prove nothing.
+        static::assertSame([$this->ids->get('seo-url')], $this->storedCanonicalSeoUrlIds());
+
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+
+        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
+        // Presence first: the seo-aware entity really is on the property the absence below is asserted over.
+        static::assertIsArray($root['properties']);
+        static::assertArrayHasKey(self::SEO_CONTEXT_PROPERTY, $root['properties']);
+        $category = $root['properties'][self::SEO_CONTEXT_PROPERTY];
+        static::assertIsArray($category);
+        static::assertSame($this->ids->get('category'), $category['id'] ?? null);
+        static::assertArrayHasKey('seoUrls', $category);
+
+        // `RenderedElement` is not a `Struct`, so `getVars()` cannot walk it; `StoreApiSeoResolver` reaches
+        // this entity only through its own by-shape descent over `properties` and `slots`. A null here means
+        // that descent no longer runs and the association stays at the null the hydration left.
+        static::assertIsArray($category['seoUrls']);
+        static::assertCount(1, $category['seoUrls']);
+        static::assertSame($this->ids->get('seo-url'), $category['seoUrls'][0]['id'] ?? null);
+        static::assertSame($this->ids->get('category'), $category['seoUrls'][0]['foreignKey'] ?? null);
+    }
+
     #[TestDox('carries the stored element style of a root and of a nested element through to the full-format response')]
     public function testFullFormatCarriesElementStyle(): void
     {
@@ -290,206 +556,6 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame($expectedUrl, $media['url']);
     }
 
-    /**
-     * All four formats, because the refusal sits in `ContentRoute::load()` ahead of the format's own factory
-     * and skeleton is the format a response-side filter would have missed.
-     */
-    #[DataProvider('contentFormatProvider')]
-    #[TestDox('rejects an includes parameter on the $format route with a 400 before it renders anything')]
-    public function testEveryFormatRejectsIncludes(string $format): void
-    {
-        $this->createNestedLayout();
-
-        // The same route serves a 200 without the parameter, so the 400 below is the parameter and not a
-        // broken fixture.
-        $this->requestJson($this->uri($format));
-
-        $this->browser->request('GET', $this->uri($format) . '?includes[content_page][]=id');
-
-        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
-    }
-
-    #[DataProvider('contentFormatProvider')]
-    #[TestDox('rejects an excludes parameter on the $format route with a 400 before it renders anything')]
-    public function testEveryFormatRejectsExcludes(string $format): void
-    {
-        $this->createNestedLayout();
-
-        $this->browser->request('GET', $this->uri($format) . '?excludes[content_element][]=properties');
-
-        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
-    }
-
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function contentFormatProvider(): iterable
-    {
-        yield 'full' => ['content'];
-        yield 'decomposed' => ['content-decomposed'];
-        yield 'skeleton' => ['content-skeleton'];
-        yield 'data' => ['content-data'];
-    }
-
-    #[TestDox('names the offending parameter in the field-selection rejection')]
-    public function testFieldSelectionRejectionNamesTheOffendingParameter(): void
-    {
-        $this->createNestedLayout();
-
-        $this->browser->request('GET', $this->uri('content') . '?excludes[content_element][]=properties');
-
-        $detail = $this->errorDetail();
-
-        static::assertStringContainsString('excludes', $detail);
-        static::assertStringNotContainsString('includes', $detail, 'The message must name the parameter that was actually sent.');
-    }
-
-    #[TestDox('rejects a dotted field selector rather than serving an unfiltered body')]
-    public function testDottedFieldSelectorIsRejected(): void
-    {
-        $this->createNestedLayout();
-
-        $this->browser->request('GET', $this->uri('content') . '?includes[content_page][]=elements.component');
-
-        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
-    }
-
-    #[TestDox('serves a full-format body whose elements are the same forest the in-process consumer reads')]
-    public function testFullFormatBodyAndInProcessPageDescribeTheSameForest(): void
-    {
-        $this->createNestedLayout();
-
-        $bodyIds = array_column($this->flatten($this->rootElements($this->requestJson($this->uri('content')))), 'id');
-
-        // The public alias resolves to the main section's full-format route — the same service the Storefront
-        // consumes in process.
-        $response = static::getContainer()->get(AbstractContentRoute::class)->load(
-            'category/' . $this->ids->get('category'),
-            new Request(),
-            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-        );
-
-        static::assertInstanceOf(ContentRouteResponse::class, $response);
-
-        // The body and the in-process page are two views of the one rendered forest, so a divergence here is
-        // an encoding difference rather than two models drifting apart.
-        static::assertSame($bodyIds, $this->contentElementIds($response->getContentPage()->elements));
-        static::assertSame(
-            array_column($this->rootElements($this->requestJson($this->uri('content'))), 'id'),
-            array_map(static fn (RenderedElement $element): string => $element->id, $response->getRenderResult()->tree),
-        );
-    }
-
-    #[TestDox('names the skeleton page keys id, name and version, matching the full format vocabulary')]
-    public function testSkeletonNamesThePageTripleWithoutTheLayoutPrefix(): void
-    {
-        $this->createNestedLayout();
-
-        $body = $this->requestJson($this->uri('content-skeleton'));
-
-        static::assertSame($this->ids->get('layout'), $body['id'] ?? null);
-        static::assertSame(self::LAYOUT_NAME, $body['name'] ?? null);
-        static::assertSame(self::LAYOUT_VERSION, $body['version'] ?? null);
-        static::assertArrayNotHasKey('layoutId', $body);
-        static::assertArrayNotHasKey('layoutName', $body);
-        static::assertArrayNotHasKey('layoutVersion', $body);
-
-        // Same page vocabulary as the full format, which moved to these names with its own encoder.
-        $full = $this->requestJson($this->uri('content'));
-        static::assertSame($full['id'], $body['id']);
-        static::assertSame($full['name'], $body['name']);
-        static::assertSame($full['version'], $body['version']);
-    }
-
-    #[TestDox('serves a skeleton that is structurally identical to the full format apart from element properties')]
-    public function testSkeletonIsFullMinusProperties(): void
-    {
-        $this->createNestedLayout();
-
-        $full = $this->rootElements($this->requestJson($this->uri('content')));
-        $skeleton = $this->rootElements($this->requestJson($this->uri('content-skeleton')));
-
-        // Proves the full response really did carry properties, so the projection below is a reduction and
-        // not a comparison of two shapes that were already empty.
-        static::assertArrayHasKey('properties', $full[0]);
-        static::assertNotSame([], $full[0]['properties']);
-
-        static::assertSame(
-            array_map($this->structuralProjection(...), $full),
-            array_map($this->structuralProjection(...), $skeleton),
-        );
-
-        foreach ($this->flatten($skeleton) as $element) {
-            static::assertArrayNotHasKey('properties', $element);
-        }
-    }
-
-    #[TestDox('keeps the skeleton structurally identical to the full format while a finalization listener rewrites both trees')]
-    public function testSkeletonIsFullMinusPropertiesUnderAFinalizationListener(): void
-    {
-        $this->createNestedLayout();
-
-        // Fixture guard: the stored order is text before inner-grid, so a served order of inner-grid before
-        // text can only be the listener's reversal and not the layout as authored.
-        static::assertSame(
-            [$this->ids->get('text'), $this->ids->get('inner-grid')],
-            array_map(static fn (StoredElement $element): string => $element->id, $this->storedRoots()[0]->slots['content']),
-        );
-
-        /** @var list<list<string>> $invocations */
-        $invocations = [];
-        $this->registerFinalizationListener(function (RenderedTreeFinalizationEvent $event) use (&$invocations): void {
-            $invocations[] = $this->contentElementIds($event->tree());
-
-            $event->replaceTree(array_map($this->reverseSlotOrder(...), $event->tree()));
-        });
-
-        $full = $this->rootElements($this->requestJson($this->uri('content')));
-
-        // The listener is observed to have run inside the full request before anything is concluded from that
-        // response — a listener that silently never fires would make every assertion below vacuous.
-        static::assertCount(1, $invocations, 'The finalization listener must run inside the full-format request.');
-
-        $skeleton = $this->rootElements($this->requestJson($this->uri('content-skeleton')));
-
-        static::assertCount(2, $invocations, 'The finalization listener must run inside the skeleton request too.');
-        static::assertSame($invocations[0], $invocations[1], 'Both modes must hand the listener the same forest.');
-
-        // The listener really transformed the served tree rather than handing back what it was given.
-        static::assertSame(
-            [$this->ids->get('inner-grid'), $this->ids->get('text')],
-            array_column($this->slotChildren($full[0], 'content'), 'id'),
-        );
-
-        // The two requests really were the two modes: only the full one carries property values at all.
-        static::assertArrayHasKey('properties', $full[0]);
-        static::assertNotSame([], $full[0]['properties']);
-        static::assertArrayNotHasKey('properties', $skeleton[0]);
-
-        static::assertSame(
-            array_map($this->structuralProjection(...), $full),
-            array_map($this->structuralProjection(...), $skeleton),
-        );
-    }
-
-    #[TestDox('serves decomposed skeletons structurally identical to the skeleton format')]
-    public function testDecomposedSkeletonsMatchSkeletonFormat(): void
-    {
-        $this->createNestedLayout();
-
-        $skeletons = $this->decomposedSkeletons($this->requestJson($this->uri('content-decomposed')));
-
-        // Both sides being empty would satisfy the comparison below, so the decomposed side is proven to
-        // carry the fixture's root before it is compared to anything.
-        static::assertNotSame([], $skeletons);
-        static::assertSame([$this->ids->get('root-grid')], array_column($skeletons, 'id'));
-
-        static::assertSame(
-            array_map($this->structuralProjection(...), $this->rootElements($this->requestJson($this->uri('content-skeleton')))),
-            array_map($this->structuralProjection(...), $skeletons),
-        );
-    }
-
     #[TestDox('resolves every decomposed assignment to a known element and to an entry in the data map')]
     public function testDecomposedAssignmentsAreReferentiallyIntact(): void
     {
@@ -534,107 +600,6 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame(self::MEDIA_PATH, $media['path'] ?? null);
     }
 
-    #[TestDox('serves the data format as the decomposed format without the skeletons')]
-    public function testDataFormatIsDecomposedWithoutSkeletons(): void
-    {
-        $this->createNestedLayout();
-
-        $decomposed = $this->requestJson($this->uri('content-decomposed'));
-        $data = $this->requestJson($this->uri('content-data'));
-
-        static::assertArrayNotHasKey('skeletons', $data);
-        static::assertSame($decomposed['id'] ?? null, $data['id'] ?? null);
-        static::assertSame(self::LAYOUT_NAME, $data['name'] ?? null);
-        static::assertSame($decomposed['name'] ?? null, $data['name'] ?? null);
-        static::assertSame(self::LAYOUT_VERSION, $data['version'] ?? null);
-        static::assertSame($decomposed['version'] ?? null, $data['version'] ?? null);
-
-        $decomposedAssignments = $this->assignments($decomposed);
-        $dataAssignments = $this->assignments($data);
-        $decomposedValues = $this->dataMap($decomposed);
-        $dataValues = $this->dataMap($data);
-
-        // The fixture really is decomposed on both formats, so the per-property comparison below exercises
-        // populated assignment maps rather than two empty ones agreeing vacuously.
-        static::assertNotSame([], $decomposedAssignments);
-
-        // Refs are response-local (see the ResolvedValueIndex class docblock) and are not compared here. The
-        // element-id/property-key grammar is not a ref and is compared directly; each side's own ref is then
-        // resolved through that side's own data map, so only the resulting VALUES are compared across formats.
-        static::assertEqualsCanonicalizing(
-            array_keys($decomposedAssignments),
-            array_keys($dataAssignments),
-            'The two formats must assign to the same set of elements.',
-        );
-
-        foreach ($decomposedAssignments as $elementId => $propertyMap) {
-            static::assertArrayHasKey($elementId, $dataAssignments);
-            static::assertEqualsCanonicalizing(
-                array_keys($propertyMap),
-                array_keys($dataAssignments[$elementId]),
-                'Element ' . $elementId . ' must have the same assigned property set in both formats.',
-            );
-
-            foreach ($propertyMap as $propertyKey => $decomposedRef) {
-                $dataRef = $dataAssignments[$elementId][$propertyKey];
-
-                static::assertArrayHasKey($decomposedRef, $decomposedValues);
-                static::assertArrayHasKey($dataRef, $dataValues);
-
-                // assertEquals, not assertSame: the values are keyed maps, and a JSON map's key order is not
-                // part of the behaviour under test (MySQL reorders JSON object keys, MariaDB does not).
-                static::assertEquals(
-                    $decomposedValues[$decomposedRef],
-                    $dataValues[$dataRef],
-                    'Element ' . $elementId . ' property ' . $propertyKey . ': the value reached through the '
-                    . 'decomposed response\'s ref differs from the value reached through the data response\'s ref.',
-                );
-            }
-        }
-
-        // The data map really carries values, not just keys: a map whose entries were all replaced by null
-        // would keep every key and every assignment intact.
-        $textRefId = $dataAssignments[$this->ids->get('text')]['text'] ?? null;
-        static::assertIsString($textRefId);
-        static::assertSame(self::TEXT_VALUE, $dataValues[$textRefId] ?? null);
-    }
-
-    #[TestDox('serves the decomposed body under its own page alias with the six documented top-level keys')]
-    public function testDecomposedFormatServesTheDocumentedTopLevelKeys(): void
-    {
-        $this->createNestedLayout();
-
-        $body = $this->requestJson($this->uri('content-decomposed'));
-
-        // The module writes the six; the framework appends `apiAlias` to whatever the carrier hands it, which
-        // is why the alias is asserted as the last key rather than as one of the encoder's own.
-        static::assertSame(
-            ['id', 'name', 'version', 'skeletons', 'data', 'assignments', 'apiAlias'],
-            array_keys($body),
-        );
-        static::assertSame($this->ids->get('layout'), $body['id']);
-        static::assertSame(self::LAYOUT_NAME, $body['name']);
-        static::assertSame(self::LAYOUT_VERSION, $body['version']);
-        static::assertSame('content_decomposed_page', $body['apiAlias']);
-    }
-
-    #[TestDox('serves the data body under its own page alias with the five documented top-level keys')]
-    public function testDataFormatServesTheDocumentedTopLevelKeys(): void
-    {
-        $this->createNestedLayout();
-
-        $body = $this->requestJson($this->uri('content-data'));
-
-        static::assertSame(
-            ['id', 'name', 'version', 'data', 'assignments', 'apiAlias'],
-            array_keys($body),
-        );
-        static::assertSame($this->ids->get('layout'), $body['id']);
-        static::assertSame(self::LAYOUT_NAME, $body['name']);
-        static::assertSame(self::LAYOUT_VERSION, $body['version']);
-        static::assertSame('content_data_page', $body['apiAlias']);
-    }
-
     #[TestDox('resolves every data-format assignment to an entry in the data map')]
     public function testDataFormatAssignmentsAreReferentiallyIntact(): void
     {
@@ -653,71 +618,6 @@ class ContentRouteRenderingTest extends TestCase
             array_values(array_diff($this->referencedRefIds($assignments), array_keys($data))),
             'Every ref an assignment names must be a key of the data map.',
         );
-    }
-
-    #[TestDox('serves the resolved-value index\'s primitive keys and their order from the cached element-type specification')]
-    public function testIndexPrimitiveKeysAndOrderComeFromTheCachedElementTypeSpecification(): void
-    {
-        $this->createNestedLayout();
-
-        $pool = $this->elementTypeCachePool();
-
-        $pool->deleteItem(self::ELEMENT_TYPE_CACHE_KEY);
-        static::assertFalse(
-            $pool->getItem(self::ELEMENT_TYPE_CACHE_KEY)->isHit(),
-            'The element-type cache must be cold before the render.',
-        );
-
-        $rendered = $this->requestJson($this->uri('content-data'));
-
-        // The entry was evicted and is back, so the request that just ran populated it: the registry really
-        // does warm this backing entry from inside the request rather than reading around it.
-        $cachedTypes = $pool->getItem(self::ELEMENT_TYPE_CACHE_KEY);
-        static::assertTrue($cachedTypes->isHit(), 'A render must leave the element-type cache populated.');
-
-        // The image element's assignment keys arrive in exactly the order the CACHED spec declares its
-        // primitives in, followed by the loader-resolved key. This does not isolate which reader of the cache
-        // enforces that order, for the same reason the probe below states.
-        $declaredPrimitives = $this->declaredPrimitiveKeys($cachedTypes->get(), 'Sw:Media:Image');
-        static::assertNotSame([], $declaredPrimitives);
-        static::assertSame(
-            [...$declaredPrimitives, 'media'],
-            array_keys($this->assignments($rendered)[$this->ids->get('image')] ?? []),
-            'The cached element-type specification must order the image element\'s emitted keys.',
-        );
-
-        // The dependency proof, observed rather than inferred. A render served while the cached map is missing
-        // the image type must lose that element's declared primitives from the index — only a render that READS
-        // this cache entry can react to what was put in it, so a run that recomputed the types instead would
-        // serve the unchanged five keys here and fail. This does not isolate the index build's own registry
-        // read: `RenderedElementFactory` reads the same cache entry to decide which declared primitives exist
-        // at all, so the probe proves the served index depends on the cached specification without attributing
-        // that dependency to one reader over the other.
-        $original = $cachedTypes->get();
-        $poisoned = $original;
-        static::assertIsArray($poisoned);
-        unset($poisoned['Sw:Media:Image']);
-        static::assertTrue(
-            $this->overwriteElementTypeCache($pool, $poisoned),
-            'The element-type cache entry must be writable from the test.',
-        );
-
-        try {
-            $probe = $this->requestJson($this->uri('content-data'));
-
-            static::assertSame(
-                ['media'],
-                array_keys($this->assignments($probe)[$this->ids->get('image')] ?? []),
-                'A render reading the cached element types must emit no declared primitive for a type the cache no '
-                . 'longer carries.',
-            );
-        } finally {
-            // Restore what the earlier render computed, so no later test in this process observes the poisoned map.
-            static::assertTrue(
-                $this->overwriteElementTypeCache($pool, $original),
-                'The element-type cache entry must be writable from the test.',
-            );
-        }
     }
 
     #[TestDox('serves decomposed skeleton nodes with id, component and the element alias at every depth, and no property values')]
@@ -797,104 +697,6 @@ class ContentRouteRenderingTest extends TestCase
         );
     }
 
-    #[TestDox('fails a wiring-defective layout in the full rendering mode')]
-    public function testWiringDefectFailsInFullMode(): void
-    {
-        $this->createDottedRedistributeLayout();
-        $this->assertStoredDottedRedistributeConsumer();
-
-        $this->browser->request('GET', $this->uri('content'));
-
-        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::REDISTRIBUTE_DOTTED_PATH);
-    }
-
-    #[TestDox('fails the same wiring-defective layout in the skeleton rendering mode')]
-    public function testWiringDefectFailsInSkeletonMode(): void
-    {
-        $this->createDottedRedistributeLayout();
-        $this->assertStoredDottedRedistributeConsumer();
-
-        $this->browser->request('GET', $this->uri('content-skeleton'));
-
-        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::REDISTRIBUTE_DOTTED_PATH);
-    }
-
-    #[TestDox('fails with element_not_found instead of an empty success when elementId names no element')]
-    public function testUnknownElementIdFails(): void
-    {
-        $this->createNestedLayout();
-
-        $unknownId = $this->ids->get('not-in-this-layout');
-        static::assertNotContains($unknownId, $this->servedElementIds());
-
-        $this->browser->request('GET', $this->uri('content') . '?elementId=' . $unknownId);
-
-        $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::ELEMENT_NOT_FOUND);
-    }
-
-    #[TestDox('keeps the page-level virtual root out of the response')]
-    public function testVirtualRootDoesNotLeak(): void
-    {
-        $this->createNestedLayout();
-
-        // The category root source really does declare page data requirements, which is what makes the
-        // pipeline wrap the roots in the first place.
-        static::assertNotSame([], $this->pageDataRequirementKeys());
-
-        $roots = $this->rootElements($this->requestJson($this->uri('content')));
-
-        static::assertSame([$this->ids->get('root-grid')], array_column($roots, 'id'));
-
-        foreach ($this->flatten($roots) as $element) {
-            static::assertNotSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $element['id']);
-        }
-    }
-
-    #[TestDox('distributes the page-level context of the root source to a consuming layout root')]
-    public function testPageLevelContextReachesTheConsumingRoot(): void
-    {
-        $this->createNestedLayout();
-
-        // The wrap only happens because the root source declares page data requirements, and it is only
-        // observable because the stored root really consumes one of them.
-        static::assertContains('category', $this->pageDataRequirementKeys());
-        $this->assertStoredPageContextConsumer();
-
-        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
-
-        static::assertArrayHasKey('properties', $root);
-        static::assertIsArray($root['properties']);
-        static::assertSame(
-            $this->ids->get('category'),
-            $root['properties'][self::PAGE_CONTEXT_PROPERTY] ?? null,
-            'The page-level context must reach the consuming root through the virtual-root wrap/unwrap lifecycle.',
-        );
-    }
-
-    #[TestDox('returns only the addressed subtree when elementId names a nested element')]
-    public function testPartialRenderExtractsSubtree(): void
-    {
-        $this->createNestedLayout();
-
-        $fullRoots = $this->rootElements($this->requestJson($this->uri('content')));
-        static::assertNotContains($this->ids->get('inner-grid'), array_column($fullRoots, 'id'));
-
-        $partialRoots = $this->rootElements($this->requestJson($this->uri('content') . '?elementId=' . $this->ids->get('inner-grid')));
-
-        static::assertCount(1, $partialRoots);
-        static::assertSame($this->ids->get('inner-grid'), $partialRoots[0]['id']);
-        static::assertSame(['content'], array_keys($this->slots($partialRoots[0])));
-        static::assertSame(
-            [$this->ids->get('image')],
-            array_column($this->slotChildren($partialRoots[0], 'content'), 'id'),
-        );
-        // The complete flattened id list, so a descendant leaking in through any slot is a failure.
-        static::assertSame(
-            [$this->ids->get('inner-grid'), $this->ids->get('image')],
-            array_column($this->flatten($partialRoots), 'id'),
-        );
-    }
-
     #[TestDox('serves only the addressed subtree when the prune had to keep the target\'s context-providing ancestor')]
     public function testPartialRenderExtractsATargetWhoseAncestorThePruneKeeps(): void
     {
@@ -934,36 +736,6 @@ class ContentRouteRenderingTest extends TestCase
         );
     }
 
-    #[TestDox('enriches a seo-aware entity on a rendered element property when the seo-url header is set')]
-    public function testSeoUrlEnrichmentReachesAnEntityOnARenderedProperty(): void
-    {
-        $this->createSeoAwareCategoryLayout();
-
-        // Fixture guard: a canonical seo url for this category really exists, so `StoreApiSeoResolver::enrich()`
-        // would have something to write. Without it the un-enriched body below would prove nothing.
-        static::assertSame([$this->ids->get('seo-url')], $this->storedCanonicalSeoUrlIds());
-
-        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
-
-        $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
-
-        // Presence first: the seo-aware entity really is on the property the absence below is asserted over.
-        static::assertIsArray($root['properties']);
-        static::assertArrayHasKey(self::SEO_CONTEXT_PROPERTY, $root['properties']);
-        $category = $root['properties'][self::SEO_CONTEXT_PROPERTY];
-        static::assertIsArray($category);
-        static::assertSame($this->ids->get('category'), $category['id'] ?? null);
-        static::assertArrayHasKey('seoUrls', $category);
-
-        // `RenderedElement` is not a `Struct`, so `getVars()` cannot walk it; `StoreApiSeoResolver` reaches
-        // this entity only through its own by-shape descent over `properties` and `slots`. A null here means
-        // that descent no longer runs and the association stays at the null the hydration left.
-        static::assertIsArray($category['seoUrls']);
-        static::assertCount(1, $category['seoUrls']);
-        static::assertSame($this->ids->get('seo-url'), $category['seoUrls'][0]['id'] ?? null);
-        static::assertSame($this->ids->get('category'), $category['seoUrls'][0]['foreignKey'] ?? null);
-    }
-
     #[TestDox('fails a partial render on a wiring defect in a sibling subtree the prune discards')]
     public function testRedistributeExpansionValidatesSubtreesThePartialRenderDiscards(): void
     {
@@ -974,6 +746,236 @@ class ContentRouteRenderingTest extends TestCase
         $this->browser->request('GET', $this->uri('content') . '?elementId=' . $this->ids->get('inner-grid'));
 
         $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::REDISTRIBUTE_DOTTED_PATH);
+    }
+
+    #[TestDox('keeps the skeleton structurally identical to the full format while a finalization listener rewrites both trees')]
+    public function testSkeletonIsFullMinusPropertiesUnderAFinalizationListener(): void
+    {
+        $this->createNestedLayout();
+
+        // Fixture guard: the stored order is text before inner-grid, so a served order of inner-grid before
+        // text can only be the listener's reversal and not the layout as authored.
+        static::assertSame(
+            [$this->ids->get('text'), $this->ids->get('inner-grid')],
+            array_map(static fn (StoredElement $element): string => $element->id, $this->storedRoots()[0]->slots['content']),
+        );
+
+        /** @var list<list<string>> $invocations */
+        $invocations = [];
+        $this->registerFinalizationListener(function (RenderedTreeFinalizationEvent $event) use (&$invocations): void {
+            $invocations[] = $this->contentElementIds($event->tree());
+
+            $event->replaceTree(array_map($this->reverseSlotOrder(...), $event->tree()));
+        });
+
+        $full = $this->rootElements($this->requestJson($this->uri('content')));
+
+        // The listener is observed to have run inside the full request before anything is concluded from that
+        // response — a listener that silently never fires would make every assertion below vacuous.
+        static::assertCount(1, $invocations, 'The finalization listener must run inside the full-format request.');
+
+        $skeleton = $this->rootElements($this->requestJson($this->uri('content-skeleton')));
+
+        static::assertCount(2, $invocations, 'The finalization listener must run inside the skeleton request too.');
+        static::assertSame($invocations[0], $invocations[1], 'Both modes must hand the listener the same forest.');
+
+        // The listener really transformed the served tree rather than handing back what it was given.
+        static::assertSame(
+            [$this->ids->get('inner-grid'), $this->ids->get('text')],
+            array_column($this->slotChildren($full[0], 'content'), 'id'),
+        );
+
+        // The two requests really were the two modes: only the full one carries property values at all.
+        static::assertArrayHasKey('properties', $full[0]);
+        static::assertNotSame([], $full[0]['properties']);
+        static::assertArrayNotHasKey('properties', $skeleton[0]);
+
+        static::assertSame(
+            array_map($this->structuralProjection(...), $full),
+            array_map($this->structuralProjection(...), $skeleton),
+        );
+    }
+
+    #[TestDox('serves the resolved-value index\'s primitive keys and their order from the cached element-type specification')]
+    public function testIndexPrimitiveKeysAndOrderComeFromTheCachedElementTypeSpecification(): void
+    {
+        $this->createNestedLayout();
+
+        $pool = $this->elementTypeCachePool();
+
+        $pool->deleteItem(self::ELEMENT_TYPE_CACHE_KEY);
+        static::assertFalse(
+            $pool->getItem(self::ELEMENT_TYPE_CACHE_KEY)->isHit(),
+            'The element-type cache must be cold before the render.',
+        );
+
+        $rendered = $this->requestJson($this->uri('content-data'));
+
+        // The entry was evicted and is back, so the request that just ran populated it: the registry really
+        // does warm this backing entry from inside the request rather than reading around it.
+        $cachedTypes = $pool->getItem(self::ELEMENT_TYPE_CACHE_KEY);
+        static::assertTrue($cachedTypes->isHit(), 'A render must leave the element-type cache populated.');
+
+        // The image element's assignment keys arrive in exactly the order the CACHED spec declares its
+        // primitives in, followed by the loader-resolved key. This does not isolate which reader of the cache
+        // enforces that order, for the same reason the probe below states.
+        $declaredPrimitives = $this->declaredPrimitiveKeys($cachedTypes->get(), 'Sw:Media:Image');
+        static::assertNotSame([], $declaredPrimitives);
+        static::assertSame(
+            [...$declaredPrimitives, 'media'],
+            array_keys($this->assignments($rendered)[$this->ids->get('image')] ?? []),
+            'The cached element-type specification must order the image element\'s emitted keys.',
+        );
+
+        // The dependency proof, observed rather than inferred. A render served while the cached map is missing
+        // the image type must lose that element's declared primitives from the index — only a render that READS
+        // this cache entry can react to what was put in it, so a run that recomputed the types instead would
+        // serve the unchanged five keys here and fail. This does not isolate the index build's own registry
+        // read: `RenderedElementFactory` reads the same cache entry to decide which declared primitives exist
+        // at all, so the probe proves the served index depends on the cached specification without attributing
+        // that dependency to one reader over the other.
+        $original = $cachedTypes->get();
+        $poisoned = $original;
+        static::assertIsArray($poisoned);
+        unset($poisoned['Sw:Media:Image']);
+        static::assertTrue(
+            $this->overwriteElementTypeCache($pool, $poisoned),
+            'The element-type cache entry must be writable from the test.',
+        );
+
+        try {
+            $probe = $this->requestJson($this->uri('content-data'));
+
+            static::assertSame(
+                ['media'],
+                array_keys($this->assignments($probe)[$this->ids->get('image')] ?? []),
+                'A render reading the cached element types must emit no declared primitive for a type the cache no '
+                . 'longer carries.',
+            );
+        } finally {
+            // Restore what the earlier render computed, so no later test in this process observes the poisoned map.
+            static::assertTrue(
+                $this->overwriteElementTypeCache($pool, $original),
+                'The element-type cache entry must be writable from the test.',
+            );
+        }
+    }
+
+    #[TestDox('keeps the page-level virtual root out of the response')]
+    public function testVirtualRootDoesNotLeak(): void
+    {
+        $this->createNestedLayout();
+
+        // The category root source really does declare page data requirements, which is what makes the
+        // pipeline wrap the roots in the first place.
+        static::assertNotSame([], $this->pageDataRequirementKeys());
+
+        $roots = $this->rootElements($this->requestJson($this->uri('content')));
+
+        static::assertSame([$this->ids->get('root-grid')], array_column($roots, 'id'));
+
+        foreach ($this->flatten($roots) as $element) {
+            static::assertNotSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $element['id']);
+        }
+    }
+
+    /**
+     * All four formats, because the refusal sits in `ContentRoute::load()` ahead of the format's own factory
+     * and skeleton is the format a response-side filter would have missed.
+     */
+    #[DataProvider('contentFormatProvider')]
+    #[TestDox('rejects an includes parameter on the $format route with a 400 before it renders anything')]
+    public function testEveryFormatRejectsIncludes(string $format): void
+    {
+        $this->createNestedLayout();
+
+        // The same route serves a 200 without the parameter, so the 400 below is the parameter and not a
+        // broken fixture.
+        $this->requestJson($this->uri($format));
+
+        $this->browser->request('GET', $this->uri($format) . '?includes[content_page][]=id');
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
+    }
+
+    #[DataProvider('contentFormatProvider')]
+    #[TestDox('rejects an excludes parameter on the $format route with a 400 before it renders anything')]
+    public function testEveryFormatRejectsExcludes(string $format): void
+    {
+        $this->createNestedLayout();
+
+        $this->browser->request('GET', $this->uri($format) . '?excludes[content_element][]=properties');
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
+    }
+
+    #[TestDox('names the offending parameter in the field-selection rejection')]
+    public function testFieldSelectionRejectionNamesTheOffendingParameter(): void
+    {
+        $this->createNestedLayout();
+
+        $this->browser->request('GET', $this->uri('content') . '?excludes[content_element][]=properties');
+
+        $detail = $this->errorDetail();
+
+        static::assertStringContainsString('excludes', $detail);
+        static::assertStringNotContainsString('includes', $detail, 'The message must name the parameter that was actually sent.');
+    }
+
+    #[TestDox('rejects a dotted field selector rather than serving an unfiltered body')]
+    public function testDottedFieldSelectorIsRejected(): void
+    {
+        $this->createNestedLayout();
+
+        $this->browser->request('GET', $this->uri('content') . '?includes[content_page][]=elements.component');
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::FIELD_SELECTION_NOT_SUPPORTED);
+    }
+
+    #[TestDox('fails a wiring-defective layout in the full rendering mode')]
+    public function testWiringDefectFailsInFullMode(): void
+    {
+        $this->createDottedRedistributeLayout();
+        $this->assertStoredDottedRedistributeConsumer();
+
+        $this->browser->request('GET', $this->uri('content'));
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::REDISTRIBUTE_DOTTED_PATH);
+    }
+
+    #[TestDox('fails the same wiring-defective layout in the skeleton rendering mode')]
+    public function testWiringDefectFailsInSkeletonMode(): void
+    {
+        $this->createDottedRedistributeLayout();
+        $this->assertStoredDottedRedistributeConsumer();
+
+        $this->browser->request('GET', $this->uri('content-skeleton'));
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::REDISTRIBUTE_DOTTED_PATH);
+    }
+
+    #[TestDox('fails with element_not_found instead of an empty success when elementId names no element')]
+    public function testUnknownElementIdFails(): void
+    {
+        $this->createNestedLayout();
+
+        $unknownId = $this->ids->get('not-in-this-layout');
+        static::assertNotContains($unknownId, $this->servedElementIds());
+
+        $this->browser->request('GET', $this->uri('content') . '?elementId=' . $unknownId);
+
+        $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::ELEMENT_NOT_FOUND);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function contentFormatProvider(): iterable
+    {
+        yield 'full' => ['content'];
+        yield 'decomposed' => ['content-decomposed'];
+        yield 'skeleton' => ['content-skeleton'];
+        yield 'data' => ['content-data'];
     }
 
     /**
@@ -1596,6 +1598,7 @@ class ContentRouteRenderingTest extends TestCase
                 'content' => [$this->dottedRedistributeText()],
             ],
         ]]);
+        $this->replaceRedistributeSentinelWithDottedKey();
     }
 
     /**
@@ -1631,9 +1634,17 @@ class ContentRouteRenderingTest extends TestCase
                 ],
             ],
         ]]);
+        $this->replaceRedistributeSentinelWithDottedKey();
     }
 
     /**
+     * The write path rejects a redistributing consumer keyed by a dotted path ({@see ContentSystemException::REDISTRIBUTE_DOTTED_PATH}),
+     * so the defect this file exercises cannot reach storage through the DAL at all. This element is authored
+     * under a single-segment sentinel key instead, which passes write validation, and
+     * {@see replaceRedistributeSentinelWithDottedKey()} rewrites it to the real dotted key after persistence —
+     * the render-time defense remains the sole authority for a tree that bypassed the DAL this way, exactly as
+     * it is for a migration or a raw SQL write.
+     *
      * @return array<string, mixed>
      */
     private function dottedRedistributeText(): array
@@ -1643,13 +1654,32 @@ class ContentRouteRenderingTest extends TestCase
             'component' => 'Sw:Content:Text',
             'properties' => ['text' => self::TEXT_VALUE],
             'acceptsContext' => [
-                'category.name' => [
+                'categoryPlaceholder' => [
                     'type' => 'single',
                     'required' => false,
                     'redistribute' => true,
                 ],
             ],
         ];
+    }
+
+    /**
+     * Rewrites the sentinel key {@see dottedRedistributeText()} authors under (`categoryPlaceholder`) to the
+     * real dotted key (`category.name`) directly in the persisted `content_layout` row, bypassing the DAL write
+     * path the way a migration or a raw SQL write would. The persisted row is unreadable through
+     * {@see StoredElementCodec} by design from this point on; {@see assertStoredDottedRedistributeConsumer()}
+     * and {@see assertStoredTextIsOutsideTheInnerGridSubtree()} verify it through raw SQL instead.
+     */
+    private function replaceRedistributeSentinelWithDottedKey(): void
+    {
+        $this->connection()->executeStatement(
+            'UPDATE `content_layout` SET `layout` = REPLACE(`layout`, :sentinel, :dotted) WHERE `id` = :id',
+            [
+                'sentinel' => '"categoryPlaceholder"',
+                'dotted' => '"category.name"',
+                'id' => Uuid::fromHexToBytes($this->ids->get('layout')),
+            ]
+        );
     }
 
     /**
@@ -1704,13 +1734,20 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame(['col-span' => ['md' => 4]], $root->slots['content'][1]->style->toArray());
     }
 
+    /**
+     * Verified through the raw persisted JSON rather than through {@see storedRoots()}: the row this asserts
+     * over carries the dotted-path defect {@see StoredElementCodec} rejects by design, so a codec-based read
+     * would throw before this assertion ever ran.
+     */
     private function assertStoredDottedRedistributeConsumer(): void
     {
-        $child = $this->storedRoots()[0]->slots['content'][0];
-        $consumer = $child->contextDefinitions->getAllConsumers()['category.name'] ?? null;
+        $child = $this->rawStoredLayoutRoots()[0]['slots']['content'][0] ?? null;
+        static::assertIsArray($child);
 
-        static::assertNotNull($consumer, 'The persisted layout must really carry the dotted redistribute consumer.');
-        static::assertTrue($consumer->redistribute);
+        $consumer = $child['acceptsContext']['category.name'] ?? null;
+
+        static::assertIsArray($consumer, 'The persisted layout must really carry the dotted redistribute consumer.');
+        static::assertTrue($consumer['redistribute'] ?? false);
     }
 
     private function assertStoredPageContextConsumer(): void
@@ -1725,16 +1762,20 @@ class ContentRouteRenderingTest extends TestCase
     /**
      * The defect-carrying `text` element really is a sibling of the partial-render target rather than one of
      * its descendants, so the pre-hydration prune drops it before hydration would ever see it.
+     *
+     * Verified through the raw persisted JSON rather than through {@see storedRoots()}, for the same reason as
+     * {@see assertStoredDottedRedistributeConsumer()}.
      */
     private function assertStoredTextIsOutsideTheInnerGridSubtree(): void
     {
-        $children = $this->storedRoots()[0]->slots['content'];
+        $children = $this->rawStoredLayoutRoots()[0]['slots']['content'] ?? null;
+        static::assertIsArray($children);
 
-        static::assertSame($this->ids->get('text'), $children[0]->id);
-        static::assertSame($this->ids->get('inner-grid'), $children[1]->id);
+        static::assertSame($this->ids->get('text'), $children[0]['id'] ?? null);
+        static::assertSame($this->ids->get('inner-grid'), $children[1]['id'] ?? null);
         static::assertSame(
             [$this->ids->get('image')],
-            array_map(static fn (StoredElement $element): string => $element->id, $children[1]->slots['content']),
+            array_column($children[1]['slots']['content'] ?? [], 'id'),
         );
     }
 
@@ -1751,6 +1792,34 @@ class ContentRouteRenderingTest extends TestCase
         static::assertNotNull($layout);
 
         return $layout->getLayout();
+    }
+
+    /**
+     * The fixture layout's persisted `layout` column, read and decoded directly rather than through the DAL:
+     * the two callers above assert over a row a codec-based read cannot decode by design.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function rawStoredLayoutRoots(): array
+    {
+        $raw = $this->connection()->fetchOne(
+            'SELECT `layout` FROM `content_layout` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($this->ids->get('layout'))]
+        );
+        static::assertIsString($raw);
+
+        $decoded = json_decode($raw, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($decoded);
+
+        return array_values($decoded);
+    }
+
+    private function connection(): Connection
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
+        return $connection;
     }
 
     /**

@@ -24,6 +24,9 @@ use Shopware\Core\Framework\Log\Package;
  * to discard must still fail the render — so validation runs on the pre-prune forest while
  * derivation runs on the pruned tree the render actually serves, and the class takes both forests.
  *
+ * The write path rejects these same three conditions earlier, so this validation stays authoritative
+ * only for trees that bypass the DAL boundary: migrations and raw SQL.
+ *
  * The planner is mode-blind: the derivation runs identically in FULL and SKELETON, throws nothing
  * (every throw lives in validation), and its result is inert in SKELETON mode, where nothing
  * distributes. Gating the derivation to FULL-only is deliberately not done here; it becomes

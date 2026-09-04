@@ -177,7 +177,6 @@
             <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/PropertyType.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/SlotSpecification.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/CopilotSpecificationDto.php</file>
-            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/PropertySpecificationDto.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/SlotSpecificationDto.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Type/Validation/ValidPropertyConstraints.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Type/Loader/ResolvedElementTypeSpecificationDto.php</file>
@@ -232,6 +231,7 @@
             <directory>tests/integration/Core/Framework/Adapter</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
+            <directory>tests/integration/Core/Framework/ContentSystem</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
             <directory>tests/integration/Core/Framework/Mcp</directory>
             <directory>tests/integration/Core/Framework/Validation</directory>

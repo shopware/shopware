@@ -72,6 +72,21 @@ class OrderCustomerEntity extends Entity
         $this->salutationId = $salutationId;
     }
 
+    /**
+     * The snapshot has no account type, so an absent contact person is the only signal that the
+     * order was placed by a company account.
+     */
+    public function getDisplayName(): string
+    {
+        $personName = trim($this->getFirstName() . ' ' . $this->getLastName());
+
+        if ($personName !== '') {
+            return $personName;
+        }
+
+        return trim($this->company ?? '');
+    }
+
     public function getFirstName(): string
     {
         return $this->firstName;

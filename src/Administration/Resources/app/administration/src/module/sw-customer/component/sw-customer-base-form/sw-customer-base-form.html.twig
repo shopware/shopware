@@ -42,7 +42,7 @@
         <mt-text-field
             v-model="customer.firstName"
             name="sw-field--customer-firstName"
-            required
+            :required="!isBusinessAccountType"
             :label="$t('sw-customer.baseForm.labelFirstName')"
             :placeholder="$t('sw-customer.baseForm.placeholderFirstName')"
             :error="customerFirstNameError"
@@ -53,7 +53,7 @@
         <mt-text-field
             v-model="customer.lastName"
             name="sw-field--customer-lastName"
-            required
+            :required="!isBusinessAccountType"
             :label="$t('sw-customer.baseForm.labelLastName')"
             :placeholder="$t('sw-customer.baseForm.placeholderLastName')"
             :error="customerLastNameError"

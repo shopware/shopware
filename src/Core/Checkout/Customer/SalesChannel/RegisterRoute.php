@@ -445,6 +445,14 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('company', new NotBlank());
         }
 
+        // the account name is copied onto the billing address, so it has to be relaxed in step
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
+            $validation
+                ->set('firstName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
+                ->set('lastName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG'));
+        }
+
         $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
         $validation->add('zipcode', new Length(max: 50));
 
@@ -454,23 +462,12 @@ class RegisterRoute extends AbstractRegisterRoute
         return $validation;
     }
 
-    /**
-     * A company account is identified by its company name, so the contact person is optional.
-     * `set` replaces every constraint for the property, so the length limits are re-added.
-     */
     private function nameFieldsRequiredForCompanyAccounts(SalesChannelContext $context): bool
     {
         return $this->systemConfigService->getBool(
             'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
             $context->getSalesChannelId()
         );
-    }
-
-    private static function makePersonNameOptional(DataValidationDefinition $validation): void
-    {
-        $validation
-            ->set('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
-            ->set('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
     }
 
     private function getCustomerCreateValidationDefinition(bool $isGuest, DataBag $data, SalesChannelContext $context): DataValidationDefinition
@@ -493,9 +490,13 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
         }
 
+        // a company account is identified by its company name, so the contact person is optional.
+        // `set` replaces every constraint for the property, so the length limits are re-added.
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
-            self::makePersonNameOptional($validation);
+            $validation
+                ->set('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
+                ->set('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

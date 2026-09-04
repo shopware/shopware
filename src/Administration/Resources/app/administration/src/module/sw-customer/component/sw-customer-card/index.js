@@ -2,6 +2,7 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
+import customerDisplayName from '../../helper/customer-display-name.helper';
 
 /**
  * @sw-package checkout
@@ -56,6 +57,18 @@ export default {
     },
 
     computed: {
+        /**
+         * A company account may have no contact person, so the avatar falls back to the company name.
+         */
+        avatarName() {
+            const name = customerDisplayName(this.customer).split(' ');
+
+            return {
+                firstName: name[0] ?? '',
+                lastName: name.length > 1 ? name[name.length - 1] : '',
+            };
+        },
+
         hasActionSlot() {
             return !!this.$slots.actions?.[0];
         },

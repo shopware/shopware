@@ -123,6 +123,14 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### Company accounts can register without a contact person
+
+`Settings > Login & Registration` gains `nameFieldsRequiredForCompanyAccounts`. It defaults to on, so nothing changes until a shop turns it off. With it off, a customer registering as a commercial account may leave the first and last name empty, and the company name becomes mandatory instead.
+
+The first and last name fields of `customer`, `order_customer` and `customer_address` now carry the `AllowEmptyString` flag. The columns stay `NOT NULL` and the getters keep returning `string`, but an empty string is accepted on every write path, including the Admin API, for private accounts as well. Extensions that relied on the data abstraction layer rejecting an empty name must validate it themselves.
+
+`CustomerEntity::getDisplayName()` returns the company name for a commercial account and the person name otherwise. Prefer it over concatenating `firstName` and `lastName` when rendering a customer. `CustomerTransformer` fills the order customer snapshot from the company name when a commercial account has no contact person, so documents and mail templates keep naming the buyer.
+
 ### Invoice buyer names no longer repeat the company name
 
 The buyer name on documents rendered through `DocumentV2` no longer repeats the company name when the person name and the company name are identical, and no longer starts with a `-` when only a company name is present.

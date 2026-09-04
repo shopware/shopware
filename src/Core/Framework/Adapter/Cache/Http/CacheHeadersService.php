@@ -40,12 +40,7 @@ class CacheHeadersService
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
 
-        $newVaryArray = array_merge($response->getVary(), [
-            PlatformRequest::HEADER_ACCESS_KEY,
-            PlatformRequest::HEADER_LANGUAGE_ID,
-            PlatformRequest::HEADER_CURRENCY_ID,
-            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-        ]);
+        $newVaryArray = array_merge($response->getVary(), HttpCacheVariantHeaders::HEADERS);
         $newVaryArray = array_unique(array_map(static fn (string $v) => \trim($v), $newVaryArray));
 
         $response->setVary($newVaryArray);
@@ -136,6 +131,17 @@ class CacheHeadersService
 
         if ($salesChannelContext->getCurrencyId() !== $salesChannelContext->getSalesChannel()->getCurrencyId()) {
             // cache hash is required for non-default currency
+            return true;
+        }
+
+        // Storefront language is already encoded in the resolved domain URL, while Store API can serve different
+        // languages for the same URL through a language persisted via the context switch route or
+        // dynamically defined in the sw-language-id header. The header language override is part of the cache key/vary header,
+        // so only persisted context language should influence the hash.
+        if ($this->isStoreApi($request)
+            && $salesChannelContext->getLanguageId() !== $salesChannelContext->getSalesChannel()->getLanguageId()
+            && $salesChannelContext->getLanguageId() !== (string) $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '')
+        ) {
             return true;
         }
 

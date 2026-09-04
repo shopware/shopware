@@ -170,6 +170,70 @@ class CacheHeadersServiceTest extends TestCase
         static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
     }
 
+    public function testStoreNonDefaultLanguageRequiresCacheHash(): void
+    {
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
+
+        $event = $this->cacheHeadersService->applyCacheHash(
+            $request,
+            $this->createCacheHashContext('language-a'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+    }
+
+    public function testStoreApiHeaderProvidedLanguageDoesNotRequireCacheHash(): void
+    {
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
+        // the header carries the effective language, it is part of the cache key instead of the hash
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, 'language-a');
+
+        $event = $this->cacheHeadersService->applyCacheHash(
+            $request,
+            $this->createCacheHashContext('language-a'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertNull($event);
+    }
+
+    public function testStoreApiHeaderWithDifferentCasingRequiresCacheHash(): void
+    {
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]);
+        // language ids are matched byte-exact; a differently cased header is a different value,
+        // so it does not represents the correct language and the hash is required
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, 'LANGUAGE-A');
+
+        $event = $this->cacheHeadersService->applyCacheHash(
+            $request,
+            $this->createCacheHashContext('language-a'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
+        static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+    }
+
+    public function testStorefrontNonDefaultLanguageDoesNotRequireCacheHash(): void
+    {
+        $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]);
+
+        $event = $this->cacheHeadersService->applyCacheHash(
+            $request,
+            $this->createCacheHashContext('language-a'),
+            new Cart('empty'),
+            new Response()
+        );
+
+        // storefront language is carried by the domain URL, so custom language should not trigger hash generation
+        static::assertNull($event);
+    }
+
     public function testCurrencyChangeLeadsToDifferentCacheHash(): void
     {
         $request = new Request();
@@ -352,6 +416,12 @@ class CacheHeadersServiceTest extends TestCase
         $salesChannelContext->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
         $salesChannelContext->method('getLanguageId')->willReturn($languageId);
         $salesChannelContext->method('getTaxState')->willReturn('gross');
+        $salesChannelContext->method('getSalesChannel')->willReturn(
+            (new SalesChannelEntity())->assign([
+                'currencyId' => Defaults::CURRENCY,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+            ])
+        );
 
         return $salesChannelContext;
     }

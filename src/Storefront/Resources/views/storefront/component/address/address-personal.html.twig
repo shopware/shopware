@@ -151,9 +151,13 @@
     {% block component_address_personal_fields_name %}
         <div class="row g-2">
             {# a company account may be registered without a contact person, and the account type is chosen in this form #}
-            {% set personNameRequired = config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts')
+            {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
+            {% set personNameRequired = (companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts'))
                 or not config('core.loginRegistration.showAccountTypeSelection') %}
+            {# only a company-only form can drop the fields outright, a mixed form would lose them for private customers too #}
+            {% set personNameShown = companyNameFieldsShown or not onlyCompanyRegistration %}
 
+            {% if personNameShown %}
             {% block component_address_personal_fields_first_name %}
                 {% if prefix !== '' and prefix != 'address' %}
                     {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
@@ -204,6 +208,7 @@
                     } %}
                 {% endblock %}
             {% endblock %}
+            {% endif %}
         </div>
     {% endblock %}
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -87,7 +88,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             $validation->add('company', new NotBlank());
 
-            if (!$this->systemConfigService->getBool('core.loginRegistration.nameFieldsRequiredForCompanyAccounts', $context->getSalesChannelId())) {
+            if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
                 // a company account is identified by its company name, so the contact person is optional
                 $validation
                     ->set('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))

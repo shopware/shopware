@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -162,10 +163,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation = $this->addressValidationFactory->update($context);
         }
 
-        $nameFieldsRequired = $this->systemConfigService->getBool(
-            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
-            $context->getSalesChannelId()
-        );
+        $nameFieldsRequired = CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')

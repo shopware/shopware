@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
@@ -464,10 +465,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function nameFieldsRequiredForCompanyAccounts(SalesChannelContext $context): bool
     {
-        return $this->systemConfigService->getBool(
-            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
-            $context->getSalesChannelId()
-        );
+        return CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
     }
 
     private function getCustomerCreateValidationDefinition(bool $isGuest, DataBag $data, SalesChannelContext $context): DataValidationDefinition

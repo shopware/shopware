@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Symfony\Component\Validator\Constraints\Length;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -124,7 +125,7 @@ class CheckoutConfirmPageLoader
             return;
         }
 
-        if ($this->systemConfigService->getBool('core.loginRegistration.nameFieldsRequiredForCompanyAccounts', $context->getSalesChannelId())) {
+        if (CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
             return;
         }
 

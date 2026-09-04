@@ -213,6 +213,26 @@ export default {
     },
 
     methods: {
+        /**
+         * Company accounts created before the company name moved onto the account only carry it on
+         * the address, so it is filled in here instead of failing validation on the next save.
+         */
+        backfillCompanyFromAddress() {
+            if (this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                return;
+            }
+
+            if (this.customer.company?.trim().length) {
+                return;
+            }
+
+            const company = this.customer.defaultBillingAddress?.company;
+
+            if (company?.trim().length) {
+                this.customer.company = company;
+            }
+        },
+
         async loadCustomer() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
@@ -228,6 +248,7 @@ export default {
                     this.defaultCriteria,
                 );
                 this.customer = customer;
+                this.backfillCompanyFromAddress();
 
                 if (!this.customer) {
                     this.createNotificationError({

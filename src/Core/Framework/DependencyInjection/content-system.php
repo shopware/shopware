@@ -67,6 +67,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -469,6 +471,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->decorate(ContentSystemElementTypeRegistry::class)
         ->args([
             service(CachedContentSystemElementTypeRegistry::class . '.inner'),
+            service('cache.system'),
+        ]);
+
+    $services->set(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            service(DraftLayoutDecoder::class),
+        ]);
+
+    $services->set(CachedContentSystemLayoutPresetRegistry::class)
+        ->decorate(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            service(CachedContentSystemLayoutPresetRegistry::class . '.inner'),
             service('cache.system'),
         ]);
 

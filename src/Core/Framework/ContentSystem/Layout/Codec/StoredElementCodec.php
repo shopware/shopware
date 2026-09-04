@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -41,6 +42,15 @@ use Shopware\Core\Framework\Log\Package;
  * strategy's own fields ride alongside `type` and `distribution`, and the strategy's config object reads
  * them. Numeric wiring keys are not checked here — the element constructor rejects them, and decode leaves
  * that throw untouched.
+ *
+ * Decode also judges an element's context wiring, in two tiers and first hit throws. Per consumer, inside
+ * {@see decodeConsumers()}: a `consumerAlias` without `redistribute`, and a `propertyAlias` carrying dot
+ * notation. Then, once that map is complete, the element-local tier in
+ * {@see rejectInvalidElementWiring()}: landing-key uniqueness across the consumer map, a `redistribute`
+ * consumer keyed by a dotted path, and a `redistribute` consumer whose derived provider key an authored
+ * provider already holds. The tiers are ordered, not interleaved, so a per-consumer violation anywhere in the
+ * element throws before an element-local one. A stored row already carrying an element-local violation is
+ * unreadable here rather than repaired.
  *
  * A malformed structural container is invalid storage and fails decode outright: `dataRequirements`, `slots`,
  * `providesContext`, `acceptsContext`, `style` and `attributedSpecifications` all throw when present as a
@@ -163,19 +173,72 @@ final class StoredElementCodec
             throw $this->withElementId($exception, $id);
         }
 
+        $properties = $this->decodeProperties($data['properties'] ?? []);
+        $slots = $this->decodeSlots($data['slots'] ?? [], $depth);
+        $providers = $this->decodeProviders($data['providesContext'] ?? []);
+        $consumers = $this->decodeConsumers($data['acceptsContext'] ?? []);
+        $style = $this->decodeStyle($data['style'] ?? []);
+        $attributedSpecifications = $this->decodeAttributedSpecifications($data['attributedSpecifications'] ?? []);
+
+        $this->rejectInvalidElementWiring($consumers, $providers);
+
         return new StoredElement(
             $id,
             $component,
             $dataRequirements,
-            $this->decodeProperties($data['properties'] ?? []),
-            $this->decodeSlots($data['slots'] ?? [], $depth),
-            new ContextDefinitions(
-                $this->decodeProviders($data['providesContext'] ?? []),
-                $this->decodeConsumers($data['acceptsContext'] ?? []),
-            ),
-            $this->decodeStyle($data['style'] ?? []),
-            $this->decodeAttributedSpecifications($data['attributedSpecifications'] ?? []),
+            $properties,
+            $slots,
+            new ContextDefinitions($providers, $consumers),
+            $style,
+            $attributedSpecifications,
         );
+    }
+
+    /**
+     * The element-local wiring rules that judge one consumer against another, or the consumer map against the
+     * element's own provider map. They run after {@see decodeConsumers()} has finished the whole map, so a
+     * per-consumer combination violation anywhere in the element throws before any rule here, whatever order
+     * the consumers sit in.
+     *
+     * The three rules and their identification of the offender are {@see WiringPlanner::validatePropertyAliases()}
+     * and {@see WiringPlanner::validateRedistribution()}, replicated so a tree the render would reject never
+     * reaches storage. The planner keeps them: a migration or a raw-SQL write reaches the render without
+     * passing here.
+     *
+     * @param array<string, ContextConsumer> $consumers
+     * @param array<string, ContextProvider> $providers
+     */
+    private function rejectInvalidElementWiring(array $consumers, array $providers): void
+    {
+        $holders = [];
+
+        foreach ($consumers as $contextKey => $consumer) {
+            $propertyKey = $consumer->propertyAlias ?? $contextKey;
+
+            $baseKey = str_contains($propertyKey, '.')
+                ? substr($propertyKey, 0, (int) strpos($propertyKey, '.'))
+                : $propertyKey;
+
+            if (\array_key_exists($baseKey, $holders)) {
+                throw ContentSystemException::propertyAliasCollision($baseKey, $holders[$baseKey], $contextKey);
+            }
+
+            $holders[$baseKey] = $contextKey;
+        }
+
+        foreach ($consumers as $contextKey => $consumer) {
+            if (!$consumer->redistribute) {
+                continue;
+            }
+
+            if (str_contains($contextKey, '.')) {
+                throw ContentSystemException::redistributeWithDottedPath($contextKey);
+            }
+
+            if (\array_key_exists($consumer->propertyAlias ?? $contextKey, $providers)) {
+                throw ContentSystemException::redistributeConflict($contextKey);
+            }
+        }
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -23,6 +25,11 @@ use Shopware\Core\Framework\Log\Package;
  * wiring validation belongs to this component, and a defect in a subtree a partial render is about
  * to discard must still fail the render — so validation runs on the pre-prune forest while
  * derivation runs on the pruned tree the render actually serves, and the class takes both forests.
+ *
+ * The write path rejects the same three element-local conditions earlier: {@see StoredElementCodec}
+ * throws on decode and {@see StoredTreeConstraints} reports them as write-descriptor violations, so
+ * a tree written through the DAL boundary reaches this validation already clean. The validation here
+ * stays authoritative for the trees that bypassed that boundary, which migrations and raw SQL do.
  *
  * The planner is mode-blind: the derivation runs identically in FULL and SKELETON, throws nothing
  * (every throw lives in validation), and its result is inert in SKELETON mode, where nothing

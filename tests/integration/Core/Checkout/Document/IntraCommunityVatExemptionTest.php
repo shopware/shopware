@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
@@ -33,6 +34,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -67,6 +69,9 @@ class IntraCommunityVatExemptionTest extends TestCase
         $netherlands = $this->configureMemberState('NL', 'NL\d{9}B\d{2}');
         $belgium = $this->configureMemberState('BE', 'BE\d{10}');
         $this->addCountriesToSalesChannel([$netherlands, $belgium]);
+
+        // The exemption is only granted against a member state the shop does not supply from itself
+        $this->sellFrom('DE');
 
         $belgianShippingAddressId = Uuid::randomHex();
 
@@ -145,6 +150,46 @@ class IntraCommunityVatExemptionTest extends TestCase
         );
     }
 
+    public function testAShopWithoutASellerCountryKeepsTheOrderTaxedAndTheNoteOff(): void
+    {
+        // Without the setting the shop cannot tell a domestic supply from an intra-community one, so
+        // the exemption is withheld instead of being granted to every member state including its own
+        $this->sellFrom(null);
+
+        $this->salesChannelContext = $this->createSalesChannelContext();
+
+        $cart = $this->generateDemoCartWithTaxes([19]);
+        static::assertNotSame(CartPrice::TAX_STATE_FREE, $cart->getPrice()->getTaxStatus());
+
+        $orderId = $this->persistCart($cart);
+        $this->generateInvoice($orderId);
+
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId)
+        );
+    }
+
+    public function testAShopSupplyingFromTheBuyersMemberStateKeepsTheOrderTaxedAndTheNoteOff(): void
+    {
+        // The buyer is identified in the Netherlands, so a Dutch shop supplies domestically, which
+        // Article 138 does not exempt
+        $this->sellFrom('NL');
+
+        $this->salesChannelContext = $this->createSalesChannelContext();
+
+        $cart = $this->generateDemoCartWithTaxes([19]);
+        static::assertNotSame(CartPrice::TAX_STATE_FREE, $cart->getPrice()->getTaxStatus());
+
+        $orderId = $this->persistCart($cart);
+        $this->generateInvoice($orderId);
+
+        static::assertStringNotContainsString(
+            self::INTRA_COMMUNITY_NOTE,
+            $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId)
+        );
+    }
+
     public function testTheInvoicePrintsTheVatIdTheOrderWasPlacedWith(): void
     {
         $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19]));
@@ -164,6 +209,30 @@ class IntraCommunityVatExemptionTest extends TestCase
             'The invoice must print the VAT ID the exemption was granted on, which is the order\'s own.'
         );
         static::assertStringNotContainsString('NL987654321B02', $invoice);
+    }
+
+    /**
+     * Points `core.basicInformation.sellerCountryId` at a country, or clears it with null.
+     */
+    private function sellFrom(?string $iso): void
+    {
+        $countryId = null;
+
+        if ($iso !== null) {
+            /** @var EntityRepository<CountryCollection> $countryRepository */
+            $countryRepository = static::getContainer()->get('country.repository');
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('iso', $iso));
+
+            $countryId = $countryRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+            static::assertIsString($countryId);
+        }
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.basicInformation.sellerCountryId', $countryId);
+
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
     }
 
     /**

@@ -225,6 +225,21 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         ));
     }
 
+    public function testAVatIdOfAnotherMemberStateIsRejectedForATaxDecisionWhileNoSellerCountryIsConfigured(): void
+    {
+        // The shop cannot tell a domestic supply from an intra-community one, so the fallback to the
+        // other member states stays off instead of accepting them all
+        $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS);
+
+        $this->expectSingleViolationFor('NL123456789B01');
+
+        $validator->validate(['NL123456789B01'], new CustomerVatIdentification(
+            countryId: Uuid::randomHex(),
+            shouldCheck: true,
+            salesChannelId: Uuid::randomHex(),
+        ));
+    }
+
     /**
      * @param list<array{iso: string, id: string, vat_id_pattern: string}> $euPatterns
      */

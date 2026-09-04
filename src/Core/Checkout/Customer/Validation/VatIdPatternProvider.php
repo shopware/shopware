@@ -57,20 +57,23 @@ class VatIdPatternProvider implements ResetInterface
         $sql = <<<'SQL'
             SELECT `iso`, LOWER(HEX(`id`)) AS `id`, `vat_id_pattern`
             FROM `country`
-            WHERE `is_eu` = 1 AND `vat_id_pattern` IS NOT NULL AND `vat_id_pattern` != ''
+            WHERE `is_eu` = 1
             ORDER BY `iso`;
         SQL;
 
-        /** @var list<array{iso: string, id: string, vat_id_pattern: string}> $rows */
+        /** @var list<array{iso: string, id: string, vat_id_pattern: string|null}> $rows */
         $rows = $this->connection->fetchAllAssociative($sql);
 
         $patterns = [];
         foreach ($rows as $row) {
+            $this->euCountryIds[$row['iso']] = $row['id'];
+
+            $pattern = (string) $row['vat_id_pattern'];
+
             // Merchants can edit the patterns, so they are not guaranteed to compile. A single broken
             // pattern would WARN on every VAT ID that has to be checked against the whole list.
-            if ($this->compiles($row['vat_id_pattern'])) {
-                $patterns[$row['iso']] = $row['vat_id_pattern'];
-                $this->euCountryIds[$row['iso']] = $row['id'];
+            if ($pattern !== '' && $this->compiles($pattern)) {
+                $patterns[$row['iso']] = $pattern;
             }
         }
 
@@ -82,6 +85,23 @@ class VatIdPatternProvider implements ResetInterface
         $this->euPatterns = null;
         $this->euCountryIds = [];
         $this->countrySettings = [];
+    }
+
+    /**
+     * Whether a country accepts a VAT ID: it matches the country's own pattern, or - inside the EU - it
+     * identifies the customer in another member state. Both the tax decision and the format validation
+     * ask the same question, so they ask it in one place.
+     *
+     * @param string|null $salesChannelId null when the caller is not deciding about tax, for example when
+     *                                    it only validates the format a customer entered
+     */
+    public function acceptsVatId(string $vatId, string $countryPattern, bool $isEu, ?string $salesChannelId): bool
+    {
+        if ($this->matches($countryPattern, $vatId)) {
+            return true;
+        }
+
+        return $isEu && $this->isIntraCommunityVatId($vatId, $salesChannelId);
     }
 
     /**
@@ -100,7 +120,20 @@ class VatIdPatternProvider implements ResetInterface
             return false;
         }
 
-        return $state !== $this->getSellerState($salesChannelId);
+        // Validating the format a customer entered is not a tax decision, so there is no member state
+        // to keep out and every one of them counts
+        if ($salesChannelId === null) {
+            return true;
+        }
+
+        $sellerState = $this->getSellerState($salesChannelId);
+        // A shop that has no seller state cannot tell a domestic supply from an intra-community one, so
+        // the exemption stays off until it is configured
+        if ($sellerState === null) {
+            return false;
+        }
+
+        return $state !== $sellerState;
     }
 
     /**
@@ -182,14 +215,11 @@ class VatIdPatternProvider implements ResetInterface
 
     /**
      * @return string|null the ISO code of the member state the seller supplies from, null when the shop
-     *                     configured none or configured a country the VAT IDs cannot be compared against
+     *                     configured none or configured a country outside the EU, which cannot supply
+     *                     intra-community in the first place
      */
-    private function getSellerState(?string $salesChannelId): ?string
+    private function getSellerState(string $salesChannelId): ?string
     {
-        if ($salesChannelId === null) {
-            return null;
-        }
-
         $countryId = $this->systemConfigService->getString(self::SELLER_COUNTRY_CONFIG_KEY, $salesChannelId);
 
         if ($countryId === '') {

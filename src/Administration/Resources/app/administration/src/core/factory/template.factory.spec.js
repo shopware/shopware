@@ -75,6 +75,63 @@ describe('core/factory/template.factory.js - native block extension points', () 
         );
     });
 
+    it('moves the extension point inside a slot template that a nested block wraps', () => {
+        registerNativeExtensionTargets({ component: 'tf-nested', blocks: ['tf_nested_outer'] });
+
+        // The shape sw-multi-select-base uses: the targeted block holds nothing but another block, and
+        // only that one holds the slot template. Looking at the top token level alone sees no template
+        // here and would wrap from the outside, which silently drops the slot content.
+        TemplateFactory.registerComponentTemplate(
+            'tf-nested',
+            '<sw-select>{% block tf_nested_outer %}{% block tf_nested_inner %}<template #label="{ item }"><b>{{ item }}</b></template>{% endblock %}{% endblock %}</sw-select>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-nested').html).toBe(
+            '<sw-select><template #label="{ item }"><sw-block name="tf_nested_outer" :data="$dataScope" :sw-internal-legacy-shim="false"><b>{{ item }}</b></sw-block></template></sw-select>',
+        );
+    });
+
+    it('wraps a slot template whose own content is a nested block', () => {
+        registerNativeExtensionTargets({ component: 'tf-inner', blocks: ['tf_inner_slot'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-inner',
+            '<sw-select>{% block tf_inner_slot %}<template #label><b>{% block tf_inner_content %}<i>x</i>{% endblock %}</b></template>{% endblock %}</sw-select>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The nested block sits between the two raw tokens, so the tag-balance check has to see through
+        // it - reading only the raw siblings would measure a partial template.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-inner').html).toBe(
+            '<sw-select><template #label><sw-block name="tf_inner_slot" :data="$dataScope" :sw-internal-legacy-shim="false"><b><i>x</i></b></sw-block></template></sw-select>',
+        );
+    });
+
+    it('leaves a nested block holding two sibling slot templates unwrapped', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-nested-two', blocks: ['tf_nested_two_outer'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-nested-two',
+            '<sw-page>{% block tf_nested_two_outer %}{% block tf_nested_two_inner %}<template #content><b>c</b></template><template #sidebar><u>s</u></template>{% endblock %}{% endblock %}</sw-page>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // Descending must not turn the multi-slot case into a wrap: the guard still has to reject it one
+        // level down.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-nested-two').html).toBe(
+            '<sw-page><template #content><b>c</b></template><template #sidebar><u>s</u></template></sw-page>',
+        );
+        expect(warnSpy).toHaveBeenCalledWith('TemplateFactory', expect.stringContaining('tf_nested_two_outer'));
+
+        warnSpy.mockRestore();
+    });
+
     it('leaves a block that mixes a slot template with other content unwrapped', () => {
         const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
 

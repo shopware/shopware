@@ -123,6 +123,10 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### Document number ranges reject colliding patterns
+
+Saving a number range whose pattern matches another number range of the same document type (for example two `document_invoice` ranges assigned to different sales channels) is now rejected with a validation error naming the collision, instead of silently allowing it and failing later at document generation with a generic "number already allocated" error. If a collision is still hit at generation time, for example on data that predates this change, the error message now names the affected document type.
+
 ### `JsonField::addPropertyMapping()` for entity extensions
 
 `Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.

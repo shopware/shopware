@@ -109,14 +109,17 @@ class DocumentException extends HttpException
         );
     }
 
-    public static function documentNumberAlreadyExistsException(string $number = ''): self
+    public static function documentNumberAlreadyExistsException(string $number = '', string $documentType = ''): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DOCUMENT_NUMBER_ALREADY_EXISTS,
-            \sprintf('Document number %s has already been allocated.', $number),
+            $documentType !== ''
+                ? \sprintf('Document number %s has already been allocated for document type "%s".', $number, $documentType)
+                : \sprintf('Document number %s has already been allocated.', $number),
             [
                 '$number' => $number,
+                '$documentType' => $documentType,
             ],
         );
     }

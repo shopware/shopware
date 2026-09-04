@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Validation;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -47,6 +48,15 @@ class SalesChannelValidator implements EventSubscriberInterface
     private const CURRENCY_DELETE_VALIDATION_CODE = 'SYSTEM__CANNOT_DELETE_DEFAULT_CURRENCY_ID';
 
     /**
+     * These sales channel types are not customer facing and are not required to assign their default currency to the
+     * currency list, so the currency mapping validation is skipped for them.
+     */
+    private const CURRENCY_VALIDATION_EXCLUDED_TYPE_IDS = [
+        Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON,
+        Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+    ];
+
+    /**
      * @internal
      */
     public function __construct(private readonly Connection $connection)
@@ -88,9 +98,13 @@ class SalesChannelValidator implements EventSubscriberInterface
             deleteValidationCode: self::CURRENCY_DELETE_VALIDATION_CODE,
             updateValidationMessage: self::CURRENCY_UPDATE_VALIDATION_MESSAGE,
             updateValidationCode: self::CURRENCY_UPDATE_VALIDATION_CODE,
+            excludedTypeIds: self::CURRENCY_VALIDATION_EXCLUDED_TYPE_IDS,
         );
     }
 
+    /**
+     * @param list<string> $excludedTypeIds
+     */
     private function validateMapping(
         PreWriteValidationEvent $event,
         string $defaultField,
@@ -103,6 +117,7 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $deleteValidationCode,
         string $updateValidationMessage,
         string $updateValidationCode,
+        array $excludedTypeIds = [],
     ): void {
         $mapping = $this->extractMapping($event, $defaultField, $mappingEntity, $mappingField);
         if ($mapping->count() === 0) {
@@ -120,6 +135,7 @@ class SalesChannelValidator implements EventSubscriberInterface
             deleteValidationCode: $deleteValidationCode,
             updateValidationMessage: $updateValidationMessage,
             updateValidationCode: $updateValidationCode,
+            excludedTypeIds: $excludedTypeIds,
         );
     }
 
@@ -152,6 +168,10 @@ class SalesChannelValidator implements EventSubscriberInterface
         if ($salesChannelData === null) {
             $salesChannelData = new SalesChannelData();
             $mapping->set($id, $salesChannelData);
+        }
+
+        if (isset($command->getPayload()['type_id'])) {
+            $salesChannelData->typeId = Uuid::fromBytesToHex($command->getPayload()['type_id']);
         }
 
         if ($command instanceof UpdateCommand) {
@@ -192,6 +212,9 @@ class SalesChannelValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param list<string> $excludedTypeIds
+     */
     private function validateMappingData(
         Mapping $mapping,
         PreWriteValidationEvent $event,
@@ -201,12 +224,17 @@ class SalesChannelValidator implements EventSubscriberInterface
         string $deleteValidationCode,
         string $updateValidationMessage,
         string $updateValidationCode,
+        array $excludedTypeIds = [],
     ): void {
         $inserts = [];
         $deletions = [];
         $updates = [];
 
         foreach ($mapping as $salesChannelId => $salesChannelData) {
+            if ($salesChannelData->typeId !== null && \in_array($salesChannelData->typeId, $excludedTypeIds, true)) {
+                continue;
+            }
+
             if ($salesChannelData->inserts !== null) {
                 if ($this->isInvalidInsertCase($salesChannelData)) {
                     $inserts[$salesChannelId] = $salesChannelData->newDefault;
@@ -309,6 +337,7 @@ class SalesChannelValidator implements EventSubscriberInterface
         $result = $this->connection->fetchAllAssociative(
             \sprintf(
                 'SELECT LOWER(HEX(sales_channel.id)) AS sales_channel_id,
+                LOWER(HEX(sales_channel.type_id)) AS type_id,
                 LOWER(HEX(sales_channel.%s)) AS current_default,
                 LOWER(HEX(mapping.%s)) AS %s
                 FROM sales_channel
@@ -344,6 +373,9 @@ class SalesChannelValidator implements EventSubscriberInterface
 
             $salesChannelData = $mapping->get($id);
 
+            if ($salesChannelData->typeId === null) {
+                $salesChannelData->typeId = $record['type_id'];
+            }
             $salesChannelData->currentDefault = $record['current_default'];
             $salesChannelData->state[] = $record[$mappingField];
             $salesChannelData->inserts = array_values(array_filter(

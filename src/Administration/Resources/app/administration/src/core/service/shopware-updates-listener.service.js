@@ -19,6 +19,10 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
     let applicationRoot = null;
 
     loginService.addOnLoginListener(() => {
+        if (Shopware.Context.app.hideUpdateModule) {
+            return;
+        }
+
         if (!Shopware.Service('acl').can('system.core_update')) {
             return;
         }
@@ -26,7 +30,7 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
         serviceContainer.updateService
             .checkForUpdates()
             .then((response) => {
-                if (response.version) {
+                if (response.version && response.autoUpdateEnabled !== false) {
                     createUpdatesAvailableNotification(response);
                 }
             })

@@ -2,19 +2,30 @@
   "sw-settings-shopware-updates": {
     "general": {
       "menuTitle": "Shopware updates",
-      "title": "Shopware update ({version})",
-      "emptyTitle": "Shopware updates",
-      "emptyState": "You are running the latest version.",
-      "checkForUpdates": "Check for updates",
-      "currentVersion": "Current version:"
+      "title": "Shopware updates"
     },
     "cards": {
-      "info": "What's new?",
       "requirements": "System requirements",
       "extensions": "Extension compatibility",
       "updating": "Updating..."
     },
+    "versionCard": {
+      "title": "Shopware version",
+      "badgeUpdateAvailable": "Update available",
+      "badgeUpToDate": "Up to date",
+      "currentVersionLabel": "Installed version:",
+      "newVersionLabel": "Latest version:",
+      "changelogLink": "View changelog",
+      "methodsHeadline": "Update now",
+      "cliRecommendedBadge": "Recommended",
+      "methodDivider": "or continue with",
+      "webInstallerTitle": "With the web installer",
+      "webInstallerDescription": "Run the guided update directly in your browser.",
+      "upToDateTitle": "You're up to date",
+      "upToDateDescription": "Shopware {version} is the latest version."
+    },
     "notifications": {
+      "checkFailed": "Checking for updates failed.",
       "updateStarted": "Update started.",
       "updateStopped": "Update stopped.",
       "downloadFailed": "Download has failed.",
@@ -25,30 +36,19 @@
     "infos": {
       "backupCheckboxLabel": "I have created a backup and want to execute the update now.",
       "startUpdate": "Start update",
-      "requirementsNotMet": "Not all system requirements are met.",
+      "autoUpdateDisabled": "Automatic updates are disabled (shopware.auto_update.enabled). Use Shopware CLI to update.",
+      "clusterSetupDisabled": "Updating through the Administration is not possible on cluster setups (shopware.deployment.cluster_setup). Use Shopware CLI to update.",
       "progress": {
         "download": "Downloading update file...",
         "deactivate": "Deactivating extensions...",
         "unpack": "Extracting update file..."
       }
     },
-    "requirements": {
-      "columns": {
-        "message": "Requirement",
-        "status": "Status"
-      },
-      "message": {
-        "phpVersion": "Minimum PHP version: {minVersion}. Currently installed PHP version: {currentVersion}.",
-        "mysqlVersion": "Minimum MySQL version: {minVersion}. Currently installed MySQL version {currentVersion}.",
-        "writeableCheckValid": "The following directories and files are writable:<br/>{checkedDirectories}",
-        "writeableCheckFailed": "The following directories and files are not writable:<br>{failedDirectories}",
-        "validShopwareLicense": "Your current Shopware version is out of date. You may want to consider updating to the latest version.",
-        "invalidShopwareLicense": "No active Shopware subscription found.<br>Automatic updates cannot be performed.<br>You may want to purchase a Shopware subscription via the <a target=\"_blank\" href=\"https://account.shopware.com\">Shopware account page.</a>"
-      },
-      "ready": "Ready",
-      "notReady": "Not ready"
+    "license": {
+      "bannerTitle": "No active Shopware subscription",
+      "bannerMessage": "No active Shopware subscription found. Automatic updates cannot be performed. You may want to purchase a Shopware subscription via the <a target=\"_blank\" href=\"https://account.shopware.com\">Shopware account page</a>."
     },
-    "plugins": {
+    "extensions": {
       "columns": {
         "name": "Extension",
         "available": "Compatibility"
@@ -60,8 +60,10 @@
         "deactivateNone": "I am aware of the implicit dangers and still want to update Shopware without deactivating incompatible extensions first. I am conscious, that Shopware cannot guarantee the functionality of my installation after an incompatible update.",
         "recommended": "(Recommended)"
       },
-      "pluginNotInStore": "This extension is not available in the store. Please contact the extension's authors.",
-      "pluginWillBeDeactivatedHint": "(This extension will be deactivated on update)"
+      "emptyStateHeadline": "No compatibility issues",
+      "emptyStateDescription": "All installed extensions are compatible with this update.",
+      "extensionNotInStore": "This extension is not available in the store. Please contact the extension's authors.",
+      "extensionWillBeDeactivatedHint": "(This extension will be deactivated on update)"
     },
     "updateModal": {
       "actions": {
@@ -73,6 +75,17 @@
       "messageOkay": "All prerequisites fulfilled. Don't forget to create a backup before updating.",
       "messageUpdateCheck": "Your current version can be updated to {version}. What do you want to do?",
       "backupLabel": "Yes, I've created a backup."
+    },
+    "methodModal": {
+      "title": "Update Shopware",
+      "subtitle": "A backup is recommended before updating.",
+      "cliTitle": "With Shopware CLI",
+      "cliDescription": "Shopware CLI gives you more control and repeatable deployments.",
+      "cliInstallHint": "Install Shopware CLI and run:",
+      "cliInstallLink": "Install Shopware CLI",
+      "actions": {
+        "continue": "Continue"
+      }
     }
   },
   "sw-privileges": {

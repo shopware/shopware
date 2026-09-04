@@ -12,6 +12,10 @@ on:
     - cron: "0 3 * * *" # every day at 03:00, offset from the regular nightly (01:00)
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   acceptance:
     uses: ./.github/workflows/acceptance.yml

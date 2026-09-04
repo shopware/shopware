@@ -33,6 +33,7 @@ describe('context.store', () => {
             fallbackLocale: null,
             features: null,
             firstRunWizard: null,
+            hideUpdateModule: null,
             systemCurrencyId: null,
             systemCurrencyISOCode: null,
             windowId: null,

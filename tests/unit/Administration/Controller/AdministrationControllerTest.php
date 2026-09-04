@@ -142,6 +142,7 @@ class AdministrationControllerTest extends TestCase
                     'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
                     'productStreamIndexingEnabled' => true,
+                    'hideUpdateModule' => true,
                     'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
                 ]
             );

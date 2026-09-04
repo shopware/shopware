@@ -268,6 +268,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('enabled')->end()
+                ->booleanNode('hide_module')->end()
             ->end();
 
         return $rootNode;

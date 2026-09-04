@@ -140,6 +140,7 @@ export default defineConfig(({ command }) => {
                                 featureFlags: JSON.stringify(featureFlags),
                                 serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
                                 analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
+                                hideUpdateModule: ['1', 'true'].includes(process.env.SHOPWARE_AUTO_UPDATE_HIDE_MODULE ?? ''),
                                 pageLoadingScreen,
                             },
                         },

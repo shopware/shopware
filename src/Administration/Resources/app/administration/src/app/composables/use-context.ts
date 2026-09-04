@@ -37,6 +37,7 @@ export interface ContextState {
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
                 firstMigrationDate?: string | null;
+                hideUpdateModule?: boolean;
                 minSearchTermLength: number;
             };
             version: null | string;
@@ -55,6 +56,7 @@ export interface ContextState {
         systemCurrencyId: null | string;
         windowId: null | string;
         analyticsGatewayUrl: null | string;
+        hideUpdateModule: null | boolean;
     };
     api: {
         apiPath: null | string;
@@ -101,6 +103,7 @@ const state: ContextState = reactive({
         systemCurrencyISOCode: null,
         windowId: null,
         analyticsGatewayUrl: null,
+        hideUpdateModule: null,
     },
     api: {
         apiPath: null,

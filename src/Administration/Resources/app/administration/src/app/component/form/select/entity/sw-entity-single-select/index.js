@@ -276,7 +276,7 @@ Component.register('sw-entity-single-select', {
 
             this.isLoading = true;
             return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
-                if (!item) {
+                if (!item && !this.disabled) {
                     this.$emit('update:value', null);
                 }
 

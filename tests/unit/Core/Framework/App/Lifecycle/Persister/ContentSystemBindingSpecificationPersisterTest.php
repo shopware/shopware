@@ -222,8 +222,14 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $connection = static::createMock(Connection::class);
         $connection->expects($this->once())
             ->method('transactional')
-            ->willReturnCallback(static function (\Closure $work) {
+            ->willReturnCallback(static function (\Closure $work) use ($repo) {
+                static::assertSame([], $repo->upserts);
+                static::assertSame([], $repo->deletes);
+
                 $work();
+
+                static::assertCount(1, $repo->upserts);
+                static::assertCount(1, $repo->deletes);
 
                 return null;
             });
@@ -235,25 +241,51 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         static::assertCount(1, $repo->deletes);
     }
 
-    #[TestDox('serializes the persist under a per-app lock, acquiring it blocking and releasing it')]
-    public function testAcquiresAndReleasesPerAppLockAroundPersist(): void
+    #[TestDox('holds the per-app lock from the existing-state read through cache invalidation')]
+    public function testHoldsLockAroundReconciliationAndInvalidation(): void
     {
+        $lockHeld = false;
+
         $lock = static::createMock(SharedLockInterface::class);
-        $lock->expects($this->once())->method('acquire')->with(true);
-        $lock->expects($this->once())->method('release');
+        $lock->expects($this->once())->method('acquire')->with(true)->willReturnCallback(
+            static function () use (&$lockHeld): bool {
+                $lockHeld = true;
+
+                return true;
+            }
+        );
+        $lock->expects($this->once())->method('release')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+                $lockHeld = false;
+            }
+        );
 
         $lockFactory = static::createMock(LockFactory::class);
         $lockFactory->expects($this->once())
             ->method('createLock')
-            ->with(static::stringContains($this->ids->get('app')), static::anything())
+            ->with('content_system_binding_persist_' . $this->ids->get('app'), 15.0)
             ->willReturn($lock);
 
-        $repo = $this->createEmptyRepository();
-        $persister = $this->buildPersister($repo, lockFactory: $lockFactory);
+        $repo = new StaticEntityRepository([
+            static function (Criteria $criteria, Context $context) use (&$lockHeld): AppContentSystemBindingSpecificationCollection {
+                static::assertTrue($lockHeld);
 
-        $persister->persist($this->buildContext());
+                return new AppContentSystemBindingSpecificationCollection();
+            },
+        ]);
+
+        $registry = static::createMock(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->expects($this->once())->method('invalidate')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+            }
+        );
+
+        $this->buildPersister($repo, registry: $registry, lockFactory: $lockFactory)->persist($this->buildContext());
 
         static::assertCount(1, $repo->upserts);
+        static::assertFalse($lockHeld);
     }
 
     #[TestDox('returns early without writing when the app ships none and none are stored')]

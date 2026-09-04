@@ -588,7 +588,17 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         foreach ($response as $event) {
-            if (\in_array($event['name'], ['mail.after.create.message', 'mail.before.send', 'mail.sent'], true)) {
+            // the mail.* events cannot be mail-aware themselves; the webhook.health.* events
+            // carry no sales channel or recipient, so no flow mail action can act on them
+            if (\in_array($event['name'], [
+                'mail.after.create.message',
+                'mail.before.send',
+                'mail.sent',
+                'webhook.health.activated',
+                'webhook.health.degraded',
+                'webhook.health.suspended',
+                'webhook.health.disabled',
+            ], true)) {
                 static::assertNotContains(MailAware::class, $event['aware']);
 
                 continue;

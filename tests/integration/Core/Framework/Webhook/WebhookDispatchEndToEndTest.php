@@ -490,6 +490,29 @@ class WebhookDispatchEndToEndTest extends TestCase
         static::assertSame('1', $retryAttempt->getHeaderLine('X-Shopware-Attempt'));
     }
 
+    public function testRateLimitResponseHonoursRetryAfterHeader(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+
+        $this->appendNewResponse(new Response(429, ['Retry-After' => '120'], '{"error":"rate limited"}'));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            $manager->dispatch($event);
+            $this->runWorker();
+        });
+
+        $delivery = $this->fetchDeliveryStatusAndRetryDelta('test-webhook');
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['status'], 'A 429 must park the delivery for retry');
+        static::assertNotNull($delivery['retryDeltaSeconds'], 'A pending_retry row must carry a next_retry_at');
+        // The test uses the database clock, so allow for the worker's runtime.
+        static::assertGreaterThanOrEqual(110, $delivery['retryDeltaSeconds'], 'Retry-After: 120 must push next_retry_at ~120s out, not the +5s schedule tier');
+        static::assertLessThanOrEqual(130, $delivery['retryDeltaSeconds'], 'next_retry_at must honour the 120s header, not a larger fallback');
+    }
+
     /**
      * Steps:
      * 1. Dispatch a webhook event.
@@ -657,46 +680,20 @@ class WebhookDispatchEndToEndTest extends TestCase
 
     public function testTerminalFailureBumpsErrorCountAndDisablesWebhookAtThreshold(): void
     {
-        $webhookId = Uuid::randomHex();
-        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
-        $this->connection->update(
-            'webhook',
-            ['error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT - 1],
-            ['id' => Uuid::fromHexToBytes($webhookId)],
-        );
+        [$eventLogStatus, $webhook] = $this->runTerminalFailureScenario(false);
 
-        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
-        $event = $this->createCustomerBeforeLoginEvent();
-
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
-            $manager->dispatch($event);
-
-            $eventId = $this->fetchOutboxEventId('test-webhook');
-            $serialized = $this->connection->fetchOne(
-                'SELECT serialized_webhook_message FROM webhook_event_log WHERE id = :id',
-                ['id' => Uuid::fromHexToBytes($eventId)],
-            );
-            static::assertIsString($serialized);
-
-            $message = Serialization::assertUnserializedInstanceOf(WebhookEventMessage::class, $serialized);
-            $failed = new WorkerMessageFailedEvent(new Envelope($message), 'webhook', new \RuntimeException('Delivery failed'));
-
-            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)->failed($failed);
-        });
-
-        $eventLogStatus = $this->connection->fetchOne(
-            'SELECT delivery_status FROM webhook_event_log WHERE webhook_name = :name',
-            ['name' => 'test-webhook'],
-        );
         static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLogStatus);
-
-        $webhook = $this->connection->fetchAssociative(
-            'SELECT active, error_count FROM webhook WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($webhookId)],
-        );
-        static::assertIsArray($webhook);
         static::assertSame(0, (int) $webhook['error_count']);
         static::assertSame(0, (int) $webhook['active']);
+    }
+
+    public function testTerminalFailureDoesNotDisableWebhookUnderRework(): void
+    {
+        [$eventLogStatus, $webhook] = $this->runTerminalFailureScenario(true);
+
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLogStatus);
+        static::assertSame(1, (int) $webhook['active']);
+        static::assertSame(9, (int) $webhook['error_count']);
     }
 
     /**
@@ -870,6 +867,89 @@ class WebhookDispatchEndToEndTest extends TestCase
         static::assertIsString($id, \sprintf('Expected an outbox entry for webhook "%s"', $webhookName));
 
         return Uuid::fromBytesToHex($id);
+    }
+
+    /**
+     * @return array{status: string, retryDeltaSeconds: int|null}
+     */
+    private function fetchDeliveryStatusAndRetryDelta(string $webhookName): array
+    {
+        $eventId = $this->fetchOutboxEventId($webhookName);
+        $row = $this->connection->fetchAssociative(
+            'SELECT delivery_status, TIMESTAMPDIFF(SECOND, NOW(3), next_retry_at) AS retry_delta
+             FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($eventId)]
+        );
+        static::assertIsArray($row, \sprintf('Expected a webhook_delivery row for webhook "%s"', $webhookName));
+
+        return [
+            'status' => (string) $row['delivery_status'],
+            'retryDeltaSeconds' => $row['retry_delta'] === null ? null : (int) $row['retry_delta'],
+        ];
+    }
+
+    /**
+     * @return array{string, array<string, mixed>}
+     */
+    private function runTerminalFailureScenario(bool $reworkEnabled): array
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+        $this->connection->update(
+            'webhook',
+            ['error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT - 1],
+            ['id' => Uuid::fromHexToBytes($webhookId)],
+        );
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+        $deliver = function () use ($manager, $event, $reworkEnabled): void {
+            $manager->dispatch($event);
+
+            $eventId = $this->fetchOutboxEventId('test-webhook');
+            if (!$reworkEnabled) {
+                $serialized = $this->connection->fetchOne(
+                    'SELECT serialized_webhook_message FROM webhook_event_log WHERE id = :id',
+                    ['id' => Uuid::fromHexToBytes($eventId)],
+                );
+                static::assertIsString($serialized);
+                $message = Serialization::assertUnserializedInstanceOf(WebhookEventMessage::class, $serialized);
+                $failed = new WorkerMessageFailedEvent(new Envelope($message), 'webhook', new \RuntimeException('Delivery failed'));
+                static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)->failed($failed);
+
+                return;
+            }
+
+            $stateService = static::getContainer()->get(WebhookOutboxStore::class);
+            $past = new \DateTimeImmutable('-1 minute');
+            for ($i = 0; $i < 5; ++$i) {
+                $entry = $stateService->markRunning($eventId);
+                static::assertNotNull($entry);
+                $stateService->markPendingRetry($entry, $past, null);
+            }
+
+            $this->appendNewResponse(new Response(500, [], '{"error":"fail"}'));
+            $this->runWorker();
+        };
+
+        if ($reworkEnabled) {
+            Feature::withFeatureEnabled('WEBHOOKS_REWORK', $deliver);
+        } else {
+            Feature::withFeatureDisabled('WEBHOOKS_REWORK', $deliver);
+        }
+
+        $eventLogStatus = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE webhook_name = :name',
+            ['name' => 'test-webhook'],
+        );
+        $webhook = $this->connection->fetchAssociative(
+            'SELECT active, error_count FROM webhook WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)],
+        );
+        static::assertIsString($eventLogStatus);
+        static::assertIsArray($webhook);
+
+        return [$eventLogStatus, $webhook];
     }
 
     /**

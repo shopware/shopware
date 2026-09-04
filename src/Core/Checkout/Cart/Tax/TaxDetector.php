@@ -78,13 +78,11 @@ class TaxDetector extends AbstractTaxDetector
 
         if ($vatPattern !== null && $vatPattern !== '' && $shippingLocationCountry->getCheckVatIdPattern()) {
             foreach ($vatIds as $vatId) {
-                if ($this->vatIdPatternProvider->matches($vatPattern, $vatId)) {
-                    continue;
-                }
-
                 // An intra-EU B2B supply is tax free because the customer holds a VAT ID of some other
-                // member state, not because that state is the destination of the delivery.
-                if (!$this->vatIdPatternProvider->isIntraCommunityVatId($vatId, $context->getSalesChannelId())) {
+                // member state, not because that state is the destination of the delivery. The country
+                // is an EU one here, so the same rule the VAT ID validation applies is the one that
+                // decides about tax.
+                if (!$this->vatIdPatternProvider->acceptsVatId($vatId, $vatPattern, true, $context->getSalesChannelId())) {
                     return false;
                 }
             }

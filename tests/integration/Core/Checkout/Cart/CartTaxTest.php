@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
@@ -22,6 +23,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -597,6 +599,15 @@ class CartTaxTest extends TestCase
             'id' => Defaults::CURRENCY,
             'taxFreeFrom' => 0,
         ]], Context::createDefaultContext());
+
+        // The exemption is only granted against a member state the shop does not supply from itself
+        static::getContainer()->get(SystemConfigService::class)->set(
+            'core.basicInformation.sellerCountryId',
+            Uuid::fromBytesToHex($this->getCountryIdByIso('DE'))
+        );
+
+        // The provider is a container singleton, so it outlives the transaction the test runs in
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
     }
 
     private function createCrossBorderCustomerAndLogin(string $accountType): void

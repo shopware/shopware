@@ -465,10 +465,13 @@ class InvoiceDataProviderTest extends TestCase
     }
 
     /**
-     * The delivery country is Belgium and only the Netherlands is a member state with a usable pattern.
+     * The delivery country is Belgium, the shop supplies from Germany and the Netherlands is the member
+     * state a VAT ID can only be accepted through the intra-community fallback.
      */
     private function createValidatorWithTheRealVatIdCheck(): ValidatorInterface
     {
+        $sellerCountryId = Uuid::randomHex();
+
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAssociative')->willReturn([
             'is_eu' => 1,
@@ -476,10 +479,14 @@ class InvoiceDataProviderTest extends TestCase
             'vat_id_pattern' => 'BE\\d{10}',
         ]);
         $connection->method('fetchAllAssociative')->willReturn([
+            ['iso' => 'DE', 'id' => $sellerCountryId, 'vat_id_pattern' => 'DE\\d{9}'],
             ['iso' => 'NL', 'id' => Uuid::randomHex(), 'vat_id_pattern' => 'NL\\d{9}B\\d{2}'],
         ]);
 
-        $vatIdValidator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, static::createStub(SystemConfigService::class)));
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('getString')->willReturn($sellerCountryId);
+
+        $vatIdValidator = new CustomerVatIdentificationValidator(new VatIdPatternProvider($connection, $systemConfigService));
 
         return Validation::createValidatorBuilder()
             ->setConstraintValidatorFactory(new class($vatIdValidator) implements ConstraintValidatorFactoryInterface {

@@ -325,7 +325,7 @@ class TaxDetectorTest extends TestCase
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        $detector = $this->createDetector(self::EU_PATTERNS);
+        $detector = $this->createDetector(self::EU_PATTERNS, 'DE');
         static::assertTrue($detector->isCompanyTaxFree($context, $country));
     }
 
@@ -388,7 +388,7 @@ class TaxDetectorTest extends TestCase
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        $detector = $this->createDetector(self::EU_PATTERNS);
+        $detector = $this->createDetector(self::EU_PATTERNS, 'DE');
         static::assertTrue($detector->isCompanyTaxFree($context, $country));
     }
 
@@ -499,10 +499,11 @@ class TaxDetectorTest extends TestCase
         static::assertTrue($this->createDetector(self::EU_PATTERNS, 'DE')->isCompanyTaxFree($context, $country));
     }
 
-    public function testIsCompanyTaxFreeAcceptsEveryMemberStateWhileNoSellerCountryIsConfigured(): void
+    public function testIsCompanyTaxFreeRejectsEveryOtherMemberStateWhileNoSellerCountryIsConfigured(): void
     {
-        // Without the setting there is nothing to compare the VAT ID against, so the shop keeps the
-        // behaviour it had before the seller country existed
+        // Without the setting the shop cannot tell a domestic supply from an intra-community one, so
+        // the fallback stays off and only the delivery country's own pattern counts, exactly as it did
+        // before the fallback existed
         $country = (new CountryEntity())->assign([
             'companyTax' => new TaxFreeConfig(true),
             'isEu' => true,
@@ -513,6 +514,27 @@ class TaxDetectorTest extends TestCase
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             'vatIds' => ['DE123456789'],
+        ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getSalesChannelId')->willReturn(Uuid::randomHex());
+
+        static::assertFalse($this->createDetector(self::EU_PATTERNS)->isCompanyTaxFree($context, $country));
+    }
+
+    public function testIsCompanyTaxFreeStillAcceptsTheDeliveryCountrysOwnPatternWhileNoSellerCountryIsConfigured(): void
+    {
+        $country = (new CountryEntity())->assign([
+            'companyTax' => new TaxFreeConfig(true),
+            'isEu' => true,
+            'vatIdPattern' => 'BE\d{10}',
+            'checkVatIdPattern' => true,
+        ]);
+
+        $customer = (new CustomerEntity())->assign([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'vatIds' => ['BE0123456789'],
         ]);
 
         $context = static::createStub(SalesChannelContext::class);

@@ -45,6 +45,16 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 
+    public function testDropsMemberStatesWithoutAPattern(): void
+    {
+        $provider = $this->createProvider([
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => null],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
+        ]);
+
+        static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
+    }
+
     public function testDropsPatternsThatBreakOutOfTheDelimiters(): void
     {
         $provider = $this->createProvider([
@@ -311,6 +321,49 @@ class VatIdPatternProviderTest extends TestCase
         yield 'a pattern that breaks out of the delimiters matches nothing' => ['BE/i', 'BE0123456789', false];
     }
 
+    public function testACountryAcceptsAVatIdOfItsOwnPattern(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::NL_ID);
+
+        static::assertTrue($provider->acceptsVatId('BE0123456789', 'BE\\d{10}', true, Uuid::randomHex()));
+        static::assertTrue($provider->acceptsVatId('CHE123456789', 'CHE\\d{9}', false, Uuid::randomHex()));
+    }
+
+    public function testACountryOutsideTheEuAcceptsNothingButItsOwnPattern(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::NL_ID);
+
+        static::assertFalse($provider->acceptsVatId('BE0123456789', 'CHE\\d{9}', false, Uuid::randomHex()));
+    }
+
+    public function testAMemberStateAcceptsTheVatIdOfAnotherMemberState(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::NL_ID);
+
+        static::assertTrue($provider->acceptsVatId('BE0123456789', 'NL\\d{9}B\\d{2}', true, Uuid::randomHex()));
+    }
+
+    public function testAMemberStateRejectsTheVatIdOfTheSellersOwnMemberState(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::BE_ID);
+
+        static::assertFalse($provider->acceptsVatId('BE0123456789', 'NL\\d{9}B\\d{2}', true, Uuid::randomHex()));
+    }
+
+    public function testAMemberStateRejectsAForeignVatIdWhileTheShopConfiguredNoSellerCountry(): void
+    {
+        $provider = $this->createProviderSellingFrom('');
+
+        static::assertFalse($provider->acceptsVatId('BE0123456789', 'NL\\d{9}B\\d{2}', true, Uuid::randomHex()));
+    }
+
+    public function testValidatingAFormatAcceptsEveryMemberStateWithoutASalesChannel(): void
+    {
+        $provider = $this->createProviderSellingFrom(self::BE_ID);
+
+        static::assertTrue($provider->acceptsVatId('BE0123456789', 'NL\\d{9}B\\d{2}', true, null));
+    }
+
     public function testAVatIdOfTheSellersOwnMemberStateIsNoIntraCommunityOne(): void
     {
         $provider = $this->createProviderSellingFrom(self::BE_ID);
@@ -326,11 +379,40 @@ class VatIdPatternProviderTest extends TestCase
         static::assertFalse($provider->isIntraCommunityVatId('CHE123456789', Uuid::randomHex()));
     }
 
-    public function testEveryMemberStateCountsWhileTheShopConfiguredNoSellerCountry(): void
+    public function testNoMemberStateCountsWhileTheShopConfiguredNoSellerCountry(): void
     {
+        // Without a seller country there is nothing to tell a domestic supply from an intra-community
+        // one, so the fallback stays off rather than exempting the shop's own member state as well
         $provider = $this->createProviderSellingFrom('');
 
-        static::assertTrue($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
+        static::assertFalse($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
+        static::assertFalse($provider->isIntraCommunityVatId('NL123456789B01', Uuid::randomHex()));
+    }
+
+    public function testNoMemberStateCountsWhileTheShopSellsFromOutsideTheEu(): void
+    {
+        $provider = $this->createProviderSellingFrom(Uuid::randomHex());
+
+        static::assertFalse($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
+    }
+
+    public function testTheSellersOwnMemberStateIsRecognisedWithoutAUsablePattern(): void
+    {
+        // A merchant who empties or breaks the pattern of the shop's own country must not silently
+        // turn the exclusion of that country off
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => ''],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}'],
+        ]);
+
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('getString')->willReturn(self::BE_ID);
+
+        $provider = new VatIdPatternProvider($connection, $systemConfigService);
+
+        static::assertSame(['NL' => 'NL\\d{9}B\\d{2}'], $provider->getEuPatterns());
+        static::assertTrue($provider->isIntraCommunityVatId('NL123456789B01', Uuid::randomHex()));
     }
 
     public function testTheSellerCountryIsNotReadWithoutASalesChannel(): void
@@ -364,7 +446,7 @@ class VatIdPatternProviderTest extends TestCase
     }
 
     /**
-     * @param list<array{iso: string, id: string, vat_id_pattern: string}> $rows
+     * @param list<array{iso: string, id: string, vat_id_pattern: string|null}> $rows
      */
     private function createProvider(array $rows): VatIdPatternProvider
     {

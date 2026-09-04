@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
@@ -34,6 +35,7 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -474,9 +476,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $container->get('customer.repository')->update([[
-                    'id' => $order->getOrderCustomer()->getCustomerId(),
-                    'vatIds' => ['VAT-123123'],
+                $container->get('order.repository')->update([[
+                    'id' => $orderId,
+                    'orderCustomer' => [
+                        'id' => $order->getOrderCustomer()->getId(),
+                        'vatIds' => ['VAT-123123'],
+                    ],
                 ]], Context::createDefaultContext());
 
                 $orderAddress = $order->getDeliveries()?->first()?->getShippingOrderAddress();
@@ -502,13 +507,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
-                $customer = $order->getOrderCustomer()->getCustomer();
                 $rendered = $rendered->getContent();
 
-                static::assertNotNull($customer);
-                static::assertNotNull($customer->getVatIds());
+                $vatIds = $order->getOrderCustomer()->getVatIds();
+                static::assertNotNull($vatIds);
 
-                $vatId = $customer->getVatIds()[0];
+                $vatId = $vatIds[0];
 
                 static::assertStringContainsString("VAT Reg.No: $vatId", $rendered);
             },
@@ -525,9 +529,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $container->get('customer.repository')->update([[
-                    'id' => $order->getOrderCustomer()->getCustomerId(),
-                    'vatIds' => ['VAT-123123'],
+                $container->get('order.repository')->update([[
+                    'id' => $orderId,
+                    'orderCustomer' => [
+                        'id' => $order->getOrderCustomer()->getId(),
+                        'vatIds' => ['VAT-123123'],
+                    ],
                 ]], Context::createDefaultContext());
 
                 $orderAddress = $order->getDeliveries()?->first()?->getShippingOrderAddress();
@@ -554,11 +561,9 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
-                $customer = $order->getOrderCustomer()->getCustomer();
                 $rendered = $rendered->getContent();
 
-                static::assertNotNull($customer);
-                static::assertNotNull($customer->getVatIds());
+                static::assertNotNull($order->getOrderCustomer()->getVatIds());
 
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
@@ -575,9 +580,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertInstanceOf(OrderEntity::class, $order);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $container->get('customer.repository')->update([[
-                    'id' => $order->getOrderCustomer()->getCustomerId(),
-                    'vatIds' => [],
+                $container->get('order.repository')->update([[
+                    'id' => $orderId,
+                    'orderCustomer' => [
+                        'id' => $order->getOrderCustomer()->getId(),
+                        'vatIds' => [],
+                    ],
                 ]], Context::createDefaultContext());
 
                 $orderAddress = $order->getDeliveries()?->first()?->getShippingOrderAddress();
@@ -604,11 +612,9 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
-                $customer = $order->getOrderCustomer()->getCustomer();
                 $rendered = $rendered->getContent();
 
-                static::assertNotNull($customer);
-                static::assertEmpty($customer->getVatIds());
+                static::assertEmpty($order->getOrderCustomer()->getVatIds());
 
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
@@ -859,6 +865,16 @@ class InvoiceRendererTest extends TestCase
         }
 
         static::getContainer()->get('country.repository')->upsert([$updateData], Context::createDefaultContext());
+
+        // The intra-community fallback only grants the note against a member state the shop does not
+        // supply from itself, and the delivery country carries the German pattern here
+        static::getContainer()->get(SystemConfigService::class)->set(
+            'core.basicInformation.sellerCountryId',
+            $this->getCountryIdByIsoCode('DE')
+        );
+
+        // The provider is a container singleton, so it outlives the transaction the test runs in
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
 
         static::getContainer()->get('order_customer.repository')->upsert([
             [

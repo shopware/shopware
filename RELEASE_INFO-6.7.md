@@ -210,11 +210,13 @@ A commercial customer with *Company tax free* and *Check VAT ID pattern* enabled
 
 `TaxDetector::isCompanyTaxFree()` now falls back to the VAT ID patterns of all EU member states (Settings > Countries) when a VAT ID does not match the delivery country's pattern. A VAT ID that matches no member state still removes the exemption. Tax free thresholds and currencies, the private-customer tax free path, and deliveries outside the EU are unchanged.
 
-The fallback excludes the shop's own member state: a customer identified in the country the goods are supplied from is a domestic supply, which Article 138 of the VAT Directive does not exempt, so that customer keeps being taxed. The shop's member state is the one configured as *Shop owner's country* (`core.basicInformation.sellerCountryId`). **Configure it** - a shop that leaves it empty cannot make that comparison and keeps granting the exemption to every member state, including its own.
+The fallback excludes the shop's own member state: a customer identified in the country the goods are supplied from is a domestic supply, which Article 138 of the VAT Directive does not exempt, so that customer keeps being taxed. The shop's member state is the one configured as *Shop owner's country* (`core.basicInformation.sellerCountryId`).
+
+**The fallback is off until that setting is filled in.** A shop that leaves it empty cannot tell a domestic supply from an intra-community one, so it keeps deciding on the delivery country's own pattern alone - same as before this change - rather than exempting every member state including its own. Configure it to switch the fallback on.
 
 `Shopware\Core\Checkout\Cart\Tax\TaxDetector` gained an internal constructor taking `VatIdPatternProvider`. If you need to change this behaviour, decorate `AbstractTaxDetector` rather than replacing the `TaxDetector` service.
 
-On upgrade, carts and orders that were taxed only because the buyer's VAT ID belonged to another member state become tax free by themselves, and shops that do not enable *Company tax free* or *Check VAT ID pattern* see no change. Already placed orders and already generated documents are untouched. The one setting to review is *Shop owner's country*, which is what keeps the fallback from exempting a buyer identified in the shop's own member state.
+On upgrade nothing changes on its own: without *Shop owner's country* the fallback stays off, so a cart that was taxed before is taxed after. Filling the setting in is what starts exempting carts and orders whose buyer holds a VAT ID of another member state, and shops that do not enable *Company tax free* or *Check VAT ID pattern* see no change either way. Already placed orders and already generated documents are untouched.
 
 ### The company tax exemption reads the account type, not the company name
 
@@ -256,7 +258,7 @@ No public method signatures changed, so renderers and document data providers ex
 
 `Settings > Basic information` offers a new "Shop owner's country" select above the shop owner's address, stored per sales channel as `core.basicInformation.sellerCountryId` and readable via `SystemConfigService::get('core.basicInformation.sellerCountryId', $salesChannelId)`.
 
-The value records the member state the shop supplies from. The company tax exemption and the intra-community delivery note read it so that their fallback to the other member states' patterns skips that state, so a shop that leaves it empty grants the exemption to every member state including its own. Nothing else evaluates it yet.
+The value records the member state the shop supplies from. The company tax exemption and the intra-community delivery note read it so that their fallback to the other member states' patterns skips that state. Both treat an empty value as "cannot decide" and fall back to the delivery country's own pattern instead, so the setting is what switches the cross-member-state behaviour on. Nothing else evaluates it yet.
 
 ## API
 

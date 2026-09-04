@@ -91,7 +91,7 @@ describe('src/app/init/tabs.init', () => {
             version: '1.0.0',
             targetVersion: '1.0.0',
             color: 'var(--color-module-neutral-default)',
-            icon: 'regular-cog',
+            icon: 'regular-shield',
             favicon: 'icon-module-settings.svg',
             entity: 'store_settings',
             routes: {
@@ -268,7 +268,7 @@ describe('src/app/init/tabs.init', () => {
                         version: '1.0.0',
                         targetVersion: '1.0.0',
                         color: 'var(--color-module-neutral-default)',
-                        icon: 'regular-cog',
+                        icon: 'regular-shield',
                         favicon: 'icon-module-settings.svg',
                         entity: 'store_settings',
                     }),

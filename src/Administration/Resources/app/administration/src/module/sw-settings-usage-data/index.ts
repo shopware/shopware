@@ -39,7 +39,7 @@ Module.register('sw-settings-usage-data', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-shield',
     favicon: 'icon-module-settings.svg',
     entity: 'store_settings',
 

@@ -17,7 +17,7 @@ Module.register('sw-settings-newsletter', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-inbox',
     favicon: 'icon-module-settings.svg',
 
     routes: {

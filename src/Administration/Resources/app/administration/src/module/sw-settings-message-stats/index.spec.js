@@ -22,7 +22,7 @@ describe('src/module/sw-settings-message-stats/index.js', () => {
             version: '1.0.0',
             targetVersion: '1.0.0',
             color: 'var(--color-module-neutral-default)',
-            icon: 'regular-cog',
+            icon: 'regular-bars-square',
             favicon: 'icon-module-settings.svg',
             routes: expect.any(Object),
             settingsItem: [

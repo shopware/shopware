@@ -25,7 +25,7 @@ Module.register('sw-settings-customer-group', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-users',
     favicon: 'icon-module-settings.svg',
     entity: 'customer_group',
 

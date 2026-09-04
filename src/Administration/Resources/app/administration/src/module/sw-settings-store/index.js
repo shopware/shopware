@@ -13,7 +13,7 @@ Module.register('sw-settings-store', {
     title: 'sw-settings-store.general.mainMenuItemGeneral',
     description: 'sw-settings-store.general.description',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-laptop',
     favicon: 'icon-module-settings.svg',
 
     routes: {

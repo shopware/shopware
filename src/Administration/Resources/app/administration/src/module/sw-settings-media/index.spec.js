@@ -20,7 +20,7 @@ describe('src/module/sw-settings-media/index.js', () => {
             title: 'sw-settings-media.general.title',
             description: 'sw-settings-media.general.description',
             color: 'var(--color-module-neutral-default)',
-            icon: 'regular-cog',
+            icon: 'regular-image',
             favicon: 'icon-module-settings.svg',
             routes: expect.any(Object),
             settingsItem: [

@@ -25,7 +25,7 @@ Module.register('sw-property', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-green-default)',
-    icon: 'regular-products',
+    icon: 'regular-eye-dropper',
     favicon: 'icon-module-products.svg',
     entity: 'property_group',
 

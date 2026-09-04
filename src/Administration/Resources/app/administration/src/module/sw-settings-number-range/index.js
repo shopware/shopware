@@ -22,7 +22,7 @@ Module.register('sw-settings-number-range', {
     title: 'sw-settings-number-range.general.mainMenuItemGeneral',
     description: 'Number Range section in the settings module',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-file-signature',
     favicon: 'icon-module-settings.svg',
     entity: 'number_range',
 

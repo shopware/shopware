@@ -21,12 +21,8 @@ export default class QuantitySelectorPlugin extends Plugin {
         purchaseLimitUrl: null,
 
         /**
-         * Submit the surrounding form as soon as the user finishes an edit, by leaving the
-         * input or confirming the value with `Enter`.
-         *
-         * Used where the form applies the quantity on its own, like the cart. Both are
-         * deliberate "apply now" actions, so they submit directly instead of going through
-         * the delay those forms use to bundle repeated clicks on the `[+]` and `[-]` buttons.
+         * Submit the surrounding form when the user finishes an edit, by leaving the input
+         * or confirming with `Enter`. Used where the form applies the quantity itself.
          */
         submitOnFinish: false,
     };
@@ -89,17 +85,7 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Withhold `change` events that are emitted while the user is still editing.
-     *
-     * The native stepping of `input[type=number]` emits a `change` event on every single
-     * arrow key press. Form level listeners such as the `FormAutoSubmitPlugin` treat each of
-     * those as a completed edit and submit, which reloads the page underneath a keyboard or
-     * screen reader user while they are still choosing a value. Those events are held back
-     * until the edit is finished, which is either on blur or on `Enter`.
-     *
-     * The input only keeps the focus for edits made with the keyboard. Typing a value emits
-     * `change` on blur, when the focus has already moved on, and the `[+]` and `[-]` buttons
-     * trigger the event themselves. Both still pass through immediately.
+     * withhold a value the user is still editing, it is applied on blur or `Enter`
      *
      * @param {Event} event
      *
@@ -116,8 +102,7 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Apply the current value on `Enter`, so a keyboard user does not have to leave the
-     * input for it to take effect.
+     * apply the current value on `Enter`
      *
      * @param {KeyboardEvent} event
      *
@@ -136,8 +121,7 @@ export default class QuantitySelectorPlugin extends Plugin {
      * @private
      */
     _onBlur(event) {
-        // Moving on to the `[+]` or `[-]` buttons is not leaving the control. Their own
-        // commit applies the value, including the step the user is about to make.
+        // Not leaving the control, the `[+]` and `[-]` buttons apply the value themselves.
         if (this.el.contains(event.relatedTarget)) {
             return;
         }
@@ -146,11 +130,7 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Apply a value the user is done editing.
-     *
-     * Leaving the input and confirming with `Enter` are both deliberate, so the form is
-     * submitted right away where it applies the quantity itself. Everywhere else the value
-     * is passed on as a `change` and whatever listens decides what to do with it.
+     * apply a value the user is done editing
      *
      * @private
      */
@@ -170,7 +150,7 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Pass on a value the user is done editing, even when the input still holds the focus.
+     * pass on a value as a change event
      *
      * @param {'up'|'down'|undefined} btn
      *
@@ -205,8 +185,7 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Announce the new quantity, either right away or after the page the form submits to has
-     * loaded.
+     * announce the new quantity, now or after the next page load
      *
      * @private
      */

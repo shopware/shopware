@@ -52,7 +52,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      * @param array<array-key, mixed> $forest
      */
     #[DataProvider('acceptedPayloadProvider')]
-    #[TestDox('both sides accept $_dataName')]
+    #[TestDox('accepts $_dataName on both sides')]
     public function testBothSidesAcceptAConformingPayload(array $forest): void
     {
         static::assertSame(
@@ -72,7 +72,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      * @param array<array-key, mixed> $forest
      */
     #[DataProvider('rejectedPayloadProvider')]
-    #[TestDox('both sides reject $_dataName')]
+    #[TestDox('rejects $_dataName on both sides')]
     public function testBothSidesRejectANonConformingPayload(array $forest): void
     {
         $codecRejection = $this->codecRejection($forest);
@@ -93,7 +93,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      * @param array<array-key, mixed> $forest
      */
     #[DataProvider('descriptorOnlyPayloadProvider')]
-    #[TestDox('the descriptor alone rejects $_dataName')]
+    #[TestDox('rejects $_dataName when the descriptor alone diverges')]
     public function testOnlyTheDescriptorRejectsADeliberateDivergence(array $forest, string $reason): void
     {
         static::assertNotSame(
@@ -115,7 +115,7 @@ class StoredTreeShapeConformanceTest extends TestCase
      * `ContentSystemException`, and the table's own data providers type their `$forest` parameter as `array`,
      * so a `null` row cannot be carried through them either. This asserts the descriptor half directly instead.
      */
-    #[TestDox('the descriptor alone rejects a null forest')]
+    #[TestDox('rejects a null forest when the descriptor alone diverges')]
     public function testDescriptorRejectsANullForest(): void
     {
         $validator = $this->validator();

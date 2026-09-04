@@ -31,6 +31,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(StoredTreeConstraints::class)]
 class StoredTreeConstraintsTest extends TestCase
 {
+    /**
+     * The two redistribute rules emit at the same property path, so the wiring providers spell both messages
+     * out rather than leaving the path to identify the rule.
+     */
+    private const DOTTED_PATH_MESSAGE = 'This context key uses dot notation and cannot be redistributed.';
+
     #[TestDox('reports no violation for a well-formed forest carrying every element field')]
     public function testValidatesAWellFormedForest(): void
     {
@@ -131,6 +137,16 @@ class StoredTreeConstraintsTest extends TestCase
         static::assertCount(0, $this->validate([$this->element(['providesContext' => ['product' => $provider]])]));
     }
 
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    #[DataProvider('acceptsCleanElementWiringProvider')]
+    #[TestDox('reports no violation for $_dataName')]
+    public function testAcceptsACleanElementWiringSibling(array $overrides): void
+    {
+        static::assertCount(0, $this->validate([$this->element($overrides)]));
+    }
+
     #[TestDox('derives the style constraints fresh on each call so a changed registry reaches the next write')]
     public function testDerivesStyleConstraintsFreshPerCall(): void
     {
@@ -153,6 +169,26 @@ class StoredTreeConstraintsTest extends TestCase
 
         static::assertGreaterThanOrEqual(1, $beforeChange->count());
         static::assertCount(0, $afterChange);
+    }
+
+    #[TestDox('reports only the missing-field violation for a provider that declares no distribution')]
+    public function testSkipsTheDistributionFieldsWhenNoDistributionIsDeclared(): void
+    {
+        $violations = $this->validate([$this->element(['providesContext' => ['product' => ['type' => 'single']]])]);
+
+        static::assertCount(1, $violations);
+        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
+    }
+
+    #[TestDox('reports only the invalid-choice violation for a provider declaring an unknown distribution')]
+    public function testSkipsTheDistributionFieldsForAnUnknownDistribution(): void
+    {
+        $provider = ['type' => 'single', 'distribution' => 'unknown'];
+
+        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
+
+        static::assertCount(1, $violations);
+        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
     }
 
     #[TestDox('reaches a nested slot child and reports its violation at a path identifying that child')]
@@ -180,26 +216,6 @@ class StoredTreeConstraintsTest extends TestCase
             '[0][slots][main][0].[slots][inner][0].[id]',
             $violations->get(0)->getPropertyPath()
         );
-    }
-
-    #[TestDox('reports only the missing-field violation for a provider that declares no distribution')]
-    public function testSkipsTheDistributionFieldsWhenNoDistributionIsDeclared(): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => ['type' => 'single']]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
-    }
-
-    #[TestDox('reports only the invalid-choice violation for a provider declaring an unknown distribution')]
-    public function testSkipsTheDistributionFieldsForAnUnknownDistribution(): void
-    {
-        $provider = ['type' => 'single', 'distribution' => 'unknown'];
-
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
     }
 
     #[TestDox('reports a violation for a style option the registry does not know')]
@@ -317,26 +333,23 @@ class StoredTreeConstraintsTest extends TestCase
      * The element-local wiring tier, mirroring {@see StoredElementCodecTest} row for row: what decode throws
      * on, the descriptor reports, so a payload cannot pass the write and then fail every read.
      *
+     * The message is asserted alongside the path because the two redistribute rules emit at the same path:
+     * {@see StoredTreeConstraints::validateRedistributeKeyShape()} and
+     * {@see StoredTreeConstraints::validateRedistributeProviderConflicts()} both resolve to
+     * `[0][acceptsContext][<key>][redistribute]`, so a path-only assertion passes when the rule the row names
+     * went silent and the other one misfired at that same path. The message is their only discriminator.
+     *
      * @param array<string, mixed> $overrides
      */
     #[DataProvider('rejectsElementLocalWiringProvider')]
     #[TestDox('reports a violation at $expectedPath for $_dataName')]
-    public function testRejectsAnElementLocalWiringDefect(array $overrides, string $expectedPath): void
+    public function testRejectsAnElementLocalWiringDefect(array $overrides, string $expectedPath, string $expectedMessage): void
     {
         $violations = $this->validate([$this->element($overrides)]);
 
         static::assertCount(1, $violations);
         static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
-    }
-
-    /**
-     * @param array<string, mixed> $overrides
-     */
-    #[DataProvider('acceptsCleanElementWiringProvider')]
-    #[TestDox('reports no violation for $_dataName')]
-    public function testAcceptsACleanElementWiringSibling(array $overrides): void
-    {
-        static::assertCount(0, $this->validate([$this->element($overrides)]));
+        static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
     }
 
     /**
@@ -393,25 +406,60 @@ class StoredTreeConstraintsTest extends TestCase
      * Accumulation for the two redistribute rules: the descriptor owes one violation per offender, so a
      * callback that stopped at the first would report half of what the element actually carries.
      *
+     * Reported as [path, message] pairs rather than bare paths. Both redistribute rules emit at
+     * `[0][acceptsContext][<key>][redistribute]`, and canonicalizing drops order on top of that, so a
+     * path-only set is identical whether each rule produced its own violation or one rule produced both
+     * while the other went silent.
+     *
      * @param array<string, mixed> $overrides
-     * @param list<string> $expectedPaths
+     * @param list<array{string, string}> $expectedViolations
      */
     #[DataProvider('accumulatesEveryElementLocalViolationProvider')]
     #[TestDox('reports one violation per offender for $_dataName')]
-    public function testAccumulatesEveryElementLocalViolation(array $overrides, array $expectedPaths): void
+    public function testAccumulatesEveryElementLocalViolation(array $overrides, array $expectedViolations): void
     {
         $violations = $this->validate([$this->element($overrides)]);
 
-        $paths = array_values(array_map(
-            static fn (ConstraintViolationInterface $violation): string => $violation->getPropertyPath(),
+        $reported = array_values(array_map(
+            static fn (ConstraintViolationInterface $violation): array => [
+                $violation->getPropertyPath(),
+                (string) $violation->getMessage(),
+            ],
             iterator_to_array($violations)
         ));
 
-        static::assertEqualsCanonicalizing($expectedPaths, $paths);
+        static::assertEqualsCanonicalizing($expectedViolations, $reported);
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, list<string>}>
+     * @param array<string, mixed> $style
+     */
+    #[DataProvider('rejectsStyleProvider')]
+    #[TestDox('reports a violation at $expectedPath for $_dataName')]
+    public function testRejectsAnInvalidStyle(array $style, string $expectedPath): void
+    {
+        $violations = $this->validate([$this->element(['style' => $style])]);
+
+        static::assertGreaterThanOrEqual(1, $violations->count());
+        // The path proves the violation fires on the offending option/breakpoint, not a stray top-level one
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
+    }
+
+    /**
+     * @param array<string, mixed> $provider
+     */
+    #[DataProvider('rejectsDistributionProvider')]
+    #[TestDox('reports a violation at $expectedPath for $_dataName')]
+    public function testRejectsAMalformedDistribution(array $provider, string $expectedPath): void
+    {
+        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, list<array{string, string}>}>
      */
     public static function accumulatesEveryElementLocalViolationProvider(): iterable
     {
@@ -423,8 +471,8 @@ class StoredTreeConstraintsTest extends TestCase
                 'category.parent' => ['type' => 'single', 'required' => true, 'redistribute' => true],
             ]],
             [
-                '[0][acceptsContext][product.manufacturer][redistribute]',
-                '[0][acceptsContext][category.parent][redistribute]',
+                ['[0][acceptsContext][product.manufacturer][redistribute]', self::DOTTED_PATH_MESSAGE],
+                ['[0][acceptsContext][category.parent][redistribute]', self::DOTTED_PATH_MESSAGE],
             ],
         ];
 
@@ -440,14 +488,14 @@ class StoredTreeConstraintsTest extends TestCase
                 ],
             ],
             [
-                '[0][acceptsContext][product][redistribute]',
-                '[0][acceptsContext][category][redistribute]',
+                ['[0][acceptsContext][product][redistribute]', self::providerConflictMessage('product')],
+                ['[0][acceptsContext][category][redistribute]', self::providerConflictMessage('category')],
             ],
         ];
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, string}>
+     * @return iterable<string, array{array<string, mixed>, string, string}>
      */
     public static function rejectsElementLocalWiringProvider(): iterable
     {
@@ -457,6 +505,7 @@ class StoredTreeConstraintsTest extends TestCase
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
             ]],
             '[0][acceptsContext][category]',
+            'This consumer writes the property key product, which context product already writes.',
         ];
 
         yield 'a redistributing consumer keyed by a dotted path' => [
@@ -464,6 +513,7 @@ class StoredTreeConstraintsTest extends TestCase
                 'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
             ]],
             '[0][acceptsContext][product.manufacturer][redistribute]',
+            self::DOTTED_PATH_MESSAGE,
         ];
 
         yield 'a redistributing consumer whose context key an authored provider holds' => [
@@ -472,8 +522,11 @@ class StoredTreeConstraintsTest extends TestCase
                 'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
             ],
             '[0][acceptsContext][product][redistribute]',
+            self::providerConflictMessage('product'),
         ];
 
+        // The derived provider key is the propertyAlias, so the reported key differs from the context key the
+        // path names — the message is what shows the rule read the alias rather than the key.
         yield 'a redistributing consumer whose property alias an authored provider holds' => [
             [
                 'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
@@ -482,6 +535,7 @@ class StoredTreeConstraintsTest extends TestCase
                 ],
             ],
             '[0][acceptsContext][source][redistribute]',
+            self::providerConflictMessage('product'),
         ];
     }
 
@@ -570,33 +624,6 @@ class StoredTreeConstraintsTest extends TestCase
             ],
             ['[0][acceptsContext][early][redistribute]', '[0][acceptsContext][late][propertyAlias]'],
         ];
-    }
-
-    /**
-     * @param array<string, mixed> $style
-     */
-    #[DataProvider('rejectsStyleProvider')]
-    #[TestDox('reports a violation at $expectedPath for $_dataName')]
-    public function testRejectsAnInvalidStyle(array $style, string $expectedPath): void
-    {
-        $violations = $this->validate([$this->element(['style' => $style])]);
-
-        static::assertGreaterThanOrEqual(1, $violations->count());
-        // The path proves the violation fires on the offending option/breakpoint, not a stray top-level one
-        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
-    }
-
-    /**
-     * @param array<string, mixed> $provider
-     */
-    #[DataProvider('rejectsDistributionProvider')]
-    #[TestDox('reports a violation at $expectedPath for $_dataName')]
-    public function testRejectsAMalformedDistribution(array $provider, string $expectedPath): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
     }
 
     /**
@@ -756,5 +783,17 @@ class StoredTreeConstraintsTest extends TestCase
         ]);
 
         return new StoredTreeConstraints($registry, new StyleOptionConstraintDeriver());
+    }
+
+    /**
+     * The provider-conflict message names the key the consumer derives, which is its propertyAlias when it
+     * carries one and its context key otherwise, so the rows pass the derived key rather than restating it.
+     */
+    private static function providerConflictMessage(string $derivedProviderKey): string
+    {
+        return \sprintf(
+            'This consumer redistributes under the provider key %s, which an authored provider already holds.',
+            $derivedProviderKey
+        );
     }
 }

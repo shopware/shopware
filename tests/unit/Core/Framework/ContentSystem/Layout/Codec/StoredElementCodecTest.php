@@ -269,6 +269,19 @@ class StoredElementCodecTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $wire
+     * @param list<string> $expectedConsumerKeys
+     */
+    #[DataProvider('acceptsCleanElementWiringProvider')]
+    #[TestDox('decode accepts $_dataName')]
+    public function testDecodeAcceptsACleanElementWiringSibling(array $wire, array $expectedConsumerKeys): void
+    {
+        $element = $this->codec()->decode($wire);
+
+        static::assertSame($expectedConsumerKeys, array_keys($element->contextDefinitions->getAllConsumers()));
+    }
+
+    /**
      * The element-local wiring tier: a consumer map judged against itself, and against the element's own
      * provider map. Each row names the rule's own exception, and each has a sibling in
      * {@see acceptsCleanElementWiringProvider()} one edit away on the tested axis alone.
@@ -289,19 +302,6 @@ class StoredElementCodecTest extends TestCase
             static::assertSame($expected->getErrorCode(), $exception->getErrorCode());
             static::assertSame($expected->getMessage(), $exception->getMessage());
         }
-    }
-
-    /**
-     * @param array<string, mixed> $wire
-     * @param list<string> $expectedConsumerKeys
-     */
-    #[DataProvider('acceptsCleanElementWiringProvider')]
-    #[TestDox('decode accepts $_dataName')]
-    public function testDecodeAcceptsACleanElementWiringSibling(array $wire, array $expectedConsumerKeys): void
-    {
-        $element = $this->codec()->decode($wire);
-
-        static::assertSame($expectedConsumerKeys, array_keys($element->contextDefinitions->getAllConsumers()));
     }
 
     /**
@@ -403,21 +403,9 @@ class StoredElementCodecTest extends TestCase
             ]),
             ['source'],
         ];
-
-        // The planner's documented non-collision case: a consumerAlias renames what children match on, never
-        // where the value is read from, so it can equal an authored provider's key without conflicting. The
-        // authored provider carries its own alias here, so the two do not meet on the child-facing key either.
-        yield 'a consumer alias equal to an authored provider key' => [
-            self::baseWire([
-                'providesContext' => [
-                    'item' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 'other'],
-                ],
-                'acceptsContext' => [
-                    'product' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'consumerAlias' => 'item'],
-                ],
-            ]),
-            ['product'],
-        ];
+        // A consumerAlias equal to an authored provider key is deliberately absent: rejectInvalidElementWiring
+        // reads propertyAlias and redistribute only, so such a row takes the same path as the one above it, and
+        // the consumerAlias-with-redistribute branch is already covered by roundTripProvider's every-field row.
     }
 
     /**

@@ -70,49 +70,38 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame('definitely-not-a-style-option', $violations[0]['key']);
     }
 
-    #[TestDox('reports a numeric wiring key as an invalid_config violation attributed to the offending element')]
-    public function testDiagnoseReportsNumericWiringKeyAsInvalidConfigViolation(): void
+    /**
+     * The element-local client defects reach the route as catalogued client-defect codes, so the diagnose body
+     * reports each on the offending element instead of the request failing: the codec throws on decode, and the
+     * lintable decode collects a catalogued code as an `invalid_config` violation in a 200 body.
+     *
+     * The layout carries a well-formed sibling beside the defective element. Without it the attribution and the
+     * count assert nothing: one root yields at most one caught exception, and the lintable decode attributes to
+     * the id the pre-decode gate read off that same and only element, so both would hold whatever the route did.
+     *
+     * @param array<string, mixed> $defect
+     */
+    #[DataProvider('elementLocalClientDefectProvider')]
+    #[TestDox('reports $_dataName as an invalid_config violation attributed to the offending element')]
+    public function testDiagnoseReportsAnElementLocalClientDefect(array $defect, string $expectedMessage): void
     {
         $elementId = $this->ids->get('element');
-        $element = [
-            'id' => $elementId,
-            'component' => $this->registeredComponent(),
-            'properties' => [1 => 'x'],
-        ];
 
-        $body = $this->diagnose(['layout' => [$element]]);
+        $body = $this->diagnose(['layout' => [
+            [
+                'id' => $elementId,
+                'component' => $this->registeredComponent(),
+                'properties' => [],
+                ...$defect,
+            ],
+            [
+                'id' => $this->ids->get('well-formed-sibling'),
+                'component' => $this->registeredComponent(),
+                'properties' => [],
+            ],
+        ]]);
 
         static::assertFalse($body['diagnostics']['wellFormed']);
-
-        $violations = array_values(array_filter(
-            $body['diagnostics']['violations'],
-            static fn (array $violation): bool => $violation['code'] === 'invalid_config',
-        ));
-
-        static::assertCount(1, $violations);
-        static::assertSame($elementId, $violations[0]['elementId']);
-        static::assertSame('Element property map key must be string, got int', $violations[0]['message']);
-    }
-
-    /**
-     * The element-local wiring rules reach the route as client defects, so the diagnose body reports each on
-     * the offending element instead of the request failing: the codec throws on decode, and the lintable
-     * decode collects a catalogued code as an `invalid_config` violation in a 200 body.
-     *
-     * @param array<string, mixed> $wiring
-     */
-    #[DataProvider('elementLocalWiringDefectProvider')]
-    #[TestDox('reports $_dataName as an invalid_config violation attributed to the offending element')]
-    public function testDiagnoseReportsAnElementLocalWiringDefect(array $wiring, string $expectedMessage): void
-    {
-        $elementId = $this->ids->get('element');
-
-        $body = $this->diagnose(['layout' => [[
-            'id' => $elementId,
-            'component' => $this->registeredComponent(),
-            'properties' => [],
-            ...$wiring,
-        ]]]);
 
         $violations = array_values(array_filter(
             $body['diagnostics']['violations'],
@@ -127,8 +116,13 @@ class ContentDiagnoseControllerTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>, string}>
      */
-    public static function elementLocalWiringDefectProvider(): iterable
+    public static function elementLocalClientDefectProvider(): iterable
     {
+        yield 'a numeric wiring key' => [
+            ['properties' => [1 => 'x']],
+            'Element property map key must be string, got int',
+        ];
+
         yield 'two consumers landing on one base key' => [
             ['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => false],

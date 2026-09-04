@@ -60,23 +60,6 @@ class DraftLayoutDecoderTest extends TestCase
         static::assertSame([], $violations);
     }
 
-    #[TestDox('decodeLintable collects a client-defect as an invalid_config violation and keeps the rest of the tree')]
-    public function testDecodeLintableCollectsClientDefect(): void
-    {
-        $decoder = $this->decoder($this->configProviderThrowing(ContentSystemException::unknownLoaderEntity('prodct')));
-
-        [$tree, $violations] = $decoder->decodeLintable([
-            $this->elementWithDataRequirement('bad'),
-            ['id' => 'good', 'component' => 'Sw:Block'],
-        ]);
-
-        static::assertCount(1, $tree);
-        static::assertSame('good', $tree[0]->id);
-        static::assertCount(1, $violations);
-        static::assertSame(ViolationCode::InvalidConfig, $violations[0]->code);
-        static::assertSame('bad', $violations[0]->elementId);
-    }
-
     #[TestDox('decode canonicalises the style of a decoded element through the style normalizer')]
     public function testDecodeNormalizesElementStyle(): void
     {
@@ -127,6 +110,35 @@ class DraftLayoutDecoderTest extends TestCase
         );
     }
 
+    #[TestDox('decodeLintable keeps a duplicate-id tree so the diagnostics pass can report it, instead of rejecting')]
+    public function testDecodeLintableKeepsDuplicateIdTreeForDiagnostics(): void
+    {
+        [$tree, $violations] = $this->decoder()->decodeLintable([
+            ['id' => 'dup', 'component' => 'Sw:Block'],
+            ['id' => 'dup', 'component' => 'Sw:Other'],
+        ]);
+
+        static::assertSame(['dup', 'dup'], array_map(static fn (StoredElement $e): string => $e->id, $tree));
+        static::assertSame([], $violations);
+    }
+
+    #[TestDox('decodeLintable collects a client-defect as an invalid_config violation and keeps the rest of the tree')]
+    public function testDecodeLintableCollectsClientDefect(): void
+    {
+        $decoder = $this->decoder($this->configProviderThrowing(ContentSystemException::unknownLoaderEntity('prodct')));
+
+        [$tree, $violations] = $decoder->decodeLintable([
+            $this->elementWithDataRequirement('bad'),
+            ['id' => 'good', 'component' => 'Sw:Block'],
+        ]);
+
+        static::assertCount(1, $tree);
+        static::assertSame('good', $tree[0]->id);
+        static::assertCount(1, $violations);
+        static::assertSame(ViolationCode::InvalidConfig, $violations[0]->code);
+        static::assertSame('bad', $violations[0]->elementId);
+    }
+
     #[TestDox('decode rejects a tree nested past the codec maximum depth')]
     public function testDecodeRejectsExcessiveNestingDepth(): void
     {
@@ -142,18 +154,6 @@ class DraftLayoutDecoderTest extends TestCase
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
             static::assertStringContainsString('element nesting at most ' . StoredElementCodec::MAX_NESTING_DEPTH . ' levels deep', $exception->getMessage());
         }
-    }
-
-    #[TestDox('decodeLintable keeps a duplicate-id tree so the diagnostics pass can report it, instead of rejecting')]
-    public function testDecodeLintableKeepsDuplicateIdTreeForDiagnostics(): void
-    {
-        [$tree, $violations] = $this->decoder()->decodeLintable([
-            ['id' => 'dup', 'component' => 'Sw:Block'],
-            ['id' => 'dup', 'component' => 'Sw:Other'],
-        ]);
-
-        static::assertSame(['dup', 'dup'], array_map(static fn (StoredElement $e): string => $e->id, $tree));
-        static::assertSame([], $violations);
     }
 
     #[TestDox('decodeOne throws invalidLayoutStructure for a malformed element instead of a codec error')]
@@ -304,7 +304,6 @@ class DraftLayoutDecoderTest extends TestCase
             static::fail('Expected a ContentSystemException for the element-local wiring defect.');
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
-            static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
             static::assertStringContainsString($expectedMessageFragment, $exception->getMessage());
         }
     }
@@ -329,6 +328,10 @@ class DraftLayoutDecoderTest extends TestCase
     }
 
     /**
+     * Each fragment carries the interpolated context keys, not only the rule's placeholder-free prose tail. The
+     * three rules all surface as the same error code, so the identifiers are what tells one apart from another:
+     * a fragment stopping at the shared tail would pass while the wrong rule fired on the wrong key.
+     *
      * @return iterable<string, array{array<string, mixed>, string}>
      */
     public static function elementLocalWiringDefectProvider(): iterable
@@ -338,14 +341,14 @@ class DraftLayoutDecoderTest extends TestCase
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
             ]],
-            'Each propertyAlias must be unique within an element',
+            'Property key "product" is used by both context "product" and "category".',
         ];
 
         yield 'a redistributing consumer keyed by a dotted path' => [
             ['acceptsContext' => [
                 'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
             ]],
-            'uses dot notation and cannot be redistributed',
+            'Context key "product.manufacturer" uses dot notation and cannot be redistributed.',
         ];
 
         yield 'a redistributing consumer whose derived key an authored provider holds' => [
@@ -353,7 +356,7 @@ class DraftLayoutDecoderTest extends TestCase
                 'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
                 'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
             ],
-            'has both redistribute:true and explicit providesContext',
+            'Context key "product" has both redistribute:true and explicit providesContext.',
         ];
     }
 

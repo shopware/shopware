@@ -92,11 +92,21 @@ export default {
                 }
             });
 
-            this.loadLanguage(salesChannelId).then((languageId) => {
-                if (this.customer) {
+            const currentSalesChannelId = salesChannelId;
+
+            this.loadLanguage(currentSalesChannelId)
+                .then((languageId) => {
+                    if (!this.customer || this.customer.salesChannelId !== currentSalesChannelId) {
+                        return;
+                    }
+
                     this.customer.languageId = languageId || Shopware.Context.api.languageId;
-                }
-            });
+                })
+                .catch(() => {
+                    if (this.customer && this.customer.salesChannelId === currentSalesChannelId) {
+                        this.customer.languageId = Shopware.Context.api.languageId;
+                    }
+                });
         },
 
         'customer.accountType'(value) {

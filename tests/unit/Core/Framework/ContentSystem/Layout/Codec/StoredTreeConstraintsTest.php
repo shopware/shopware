@@ -314,6 +314,265 @@ class StoredTreeConstraintsTest extends TestCase
     }
 
     /**
+     * The element-local wiring tier, mirroring {@see StoredElementCodecTest} row for row: what decode throws
+     * on, the descriptor reports, so a payload cannot pass the write and then fail every read.
+     *
+     * @param array<string, mixed> $overrides
+     */
+    #[DataProvider('rejectsElementLocalWiringProvider')]
+    #[TestDox('reports a violation at $expectedPath for $_dataName')]
+    public function testRejectsAnElementLocalWiringDefect(array $overrides, string $expectedPath): void
+    {
+        $violations = $this->validate([$this->element($overrides)]);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    #[DataProvider('acceptsCleanElementWiringProvider')]
+    #[TestDox('reports no violation for $_dataName')]
+    public function testAcceptsACleanElementWiringSibling(array $overrides): void
+    {
+        static::assertCount(0, $this->validate([$this->element($overrides)]));
+    }
+
+    /**
+     * Where decode stops at the first rule it reaches, the descriptor owes every violation the element
+     * carries: these are the fixtures whose codec counterpart pins the check order, and here both defects
+     * must be reported so a fix of the first one does not hide the second until the next write.
+     *
+     * @param array<string, mixed> $overrides
+     * @param list<string> $expectedPaths
+     */
+    #[DataProvider('reportsBothViolationsProvider')]
+    #[TestDox('reports both violations for $_dataName')]
+    public function testReportsEveryViolationOfADoublyDefectiveElement(array $overrides, array $expectedPaths): void
+    {
+        $violations = $this->validate([$this->element($overrides)]);
+
+        $paths = array_values(array_map(
+            static fn (ConstraintViolationInterface $violation): string => $violation->getPropertyPath(),
+            iterator_to_array($violations)
+        ));
+
+        static::assertEqualsCanonicalizing($expectedPaths, $paths);
+    }
+
+    /**
+     * The first holder of a base key is retained after a collision is reported, so every later consumer is
+     * judged against it rather than against the consumer that collided just before. Two consumers cannot
+     * show this: the path set is identical either way, and only the third consumer's reported holder differs.
+     */
+    #[TestDox('reports every colliding consumer against the first holder of the base key')]
+    public function testReportsEveryCollisionAgainstTheFirstHolder(): void
+    {
+        $violations = $this->validate([$this->element(['acceptsContext' => [
+            'product' => ['type' => 'single', 'required' => true],
+            'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
+            'brand' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
+        ]])]);
+
+        $messages = array_values(array_map(
+            static fn (ConstraintViolationInterface $violation): string => (string) $violation->getMessage(),
+            iterator_to_array($violations)
+        ));
+
+        static::assertSame(
+            [
+                'This consumer writes the property key product, which context product already writes.',
+                'This consumer writes the property key product, which context product already writes.',
+            ],
+            $messages
+        );
+    }
+
+    /**
+     * Accumulation for the two redistribute rules: the descriptor owes one violation per offender, so a
+     * callback that stopped at the first would report half of what the element actually carries.
+     *
+     * @param array<string, mixed> $overrides
+     * @param list<string> $expectedPaths
+     */
+    #[DataProvider('accumulatesEveryElementLocalViolationProvider')]
+    #[TestDox('reports one violation per offender for $_dataName')]
+    public function testAccumulatesEveryElementLocalViolation(array $overrides, array $expectedPaths): void
+    {
+        $violations = $this->validate([$this->element($overrides)]);
+
+        $paths = array_values(array_map(
+            static fn (ConstraintViolationInterface $violation): string => $violation->getPropertyPath(),
+            iterator_to_array($violations)
+        ));
+
+        static::assertEqualsCanonicalizing($expectedPaths, $paths);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, list<string>}>
+     */
+    public static function accumulatesEveryElementLocalViolationProvider(): iterable
+    {
+        // Base keys 'product' and 'category' are distinct, so the landing-key rule stays silent and these
+        // are exactly the two dotted-redistribute violations.
+        yield 'two redistributing consumers keyed by dotted paths' => [
+            ['acceptsContext' => [
+                'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+                'category.parent' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]],
+            [
+                '[0][acceptsContext][product.manufacturer][redistribute]',
+                '[0][acceptsContext][category.parent][redistribute]',
+            ],
+        ];
+
+        yield 'two redistributing consumers whose derived keys authored providers hold' => [
+            [
+                'providesContext' => [
+                    'product' => ['type' => 'single', 'distribution' => 'broadcast'],
+                    'category' => ['type' => 'single', 'distribution' => 'broadcast'],
+                ],
+                'acceptsContext' => [
+                    'product' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+                    'category' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+                ],
+            ],
+            [
+                '[0][acceptsContext][product][redistribute]',
+                '[0][acceptsContext][category][redistribute]',
+            ],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function rejectsElementLocalWiringProvider(): iterable
+    {
+        yield 'two consumers landing on one base key' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
+            ]],
+            '[0][acceptsContext][category]',
+        ];
+
+        yield 'a redistributing consumer keyed by a dotted path' => [
+            ['acceptsContext' => [
+                'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]],
+            '[0][acceptsContext][product.manufacturer][redistribute]',
+        ];
+
+        yield 'a redistributing consumer whose context key an authored provider holds' => [
+            [
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
+            ],
+            '[0][acceptsContext][product][redistribute]',
+        ];
+
+        yield 'a redistributing consumer whose property alias an authored provider holds' => [
+            [
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => [
+                    'source' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'propertyAlias' => 'product'],
+                ],
+            ],
+            '[0][acceptsContext][source][redistribute]',
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function acceptsCleanElementWiringProvider(): iterable
+    {
+        yield 'two consumers landing on distinct base keys' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'item'],
+            ]],
+        ];
+
+        yield 'a redistributing consumer keyed by a base key' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]],
+        ];
+
+        yield 'a redistributing consumer beside a provider on another key' => [
+            [
+                'providesContext' => ['other' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
+            ],
+        ];
+
+        yield 'a redistributing consumer whose property alias no provider holds' => [
+            [
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => [
+                    'source' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'propertyAlias' => 'productList'],
+                ],
+            ],
+        ];
+
+        yield 'a consumer alias equal to an authored provider key' => [
+            [
+                'providesContext' => [
+                    'item' => ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 'other'],
+                ],
+                'acceptsContext' => [
+                    'product' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'consumerAlias' => 'item'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, list<string>}>
+     */
+    public static function reportsBothViolationsProvider(): iterable
+    {
+        yield 'a consumer renaming without redistributing and landing on a held base key' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'category' => [
+                    'type' => 'single',
+                    'required' => true,
+                    'consumerAlias' => 'inner',
+                    'propertyAlias' => 'product',
+                ],
+            ]],
+            ['[0][acceptsContext][category][consumerAlias]', '[0][acceptsContext][category]'],
+        ];
+
+        yield 'a redistributing consumer keyed by a dotted path onto a held base key' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]],
+            [
+                '[0][acceptsContext][product.manufacturer]',
+                '[0][acceptsContext][product.manufacturer][redistribute]',
+            ],
+        ];
+
+        yield 'an earlier provider conflict beside a later dotted property alias' => [
+            [
+                'providesContext' => ['early' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => [
+                    'early' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+                    'late' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'nested.key'],
+                ],
+            ],
+            ['[0][acceptsContext][early][redistribute]', '[0][acceptsContext][late][propertyAlias]'],
+        ];
+    }
+
+    /**
      * @param array<string, mixed> $style
      */
     #[DataProvider('rejectsStyleProvider')]

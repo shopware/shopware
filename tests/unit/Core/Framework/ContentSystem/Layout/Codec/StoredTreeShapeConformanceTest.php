@@ -361,6 +361,61 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
+        // The element-local wiring tier: each rule judges one element's consumer map against itself or against
+        // that element's own provider map, so both sides can and must state it. Each rejected row is paired
+        // with the accepted sibling one edit away on the tested axis alone.
+        yield 'two consumers landing on one base key' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'two consumers landing on distinct base keys' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'item'],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer keyed by a dotted path' => [
+            self::forest(['acceptsContext' => [
+                'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer keyed by a base key' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer whose derived key an authored provider holds' => [
+            self::forest([
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
+            ]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer beside a provider on another key' => [
+            self::forest([
+                'providesContext' => ['other' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
+            ]),
+            self::ACCEPTED,
+            '',
+        ];
+
         yield 'a forest whose root keys are not a sequential list' => [
             [
                 0 => ['id' => 'root-1', 'component' => 'core:text'],

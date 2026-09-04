@@ -288,6 +288,75 @@ class DraftLayoutDecoderTest extends TestCase
         }
     }
 
+    /**
+     * The three element-local wiring codes are client-defect codes, so they take the two draft-route paths the
+     * other codec defects take rather than escaping as a fault: aggregated into the strict 400 here, collected
+     * as a per-element `invalid_config` violation by {@see testDecodeLintableCollectsAnElementLocalWiringDefect()}.
+     *
+     * @param array<string, mixed> $wiring
+     */
+    #[DataProvider('elementLocalWiringDefectProvider')]
+    #[TestDox('decode rejects $_dataName as a 400 invalidLayoutStructure')]
+    public function testDecodeRejectsAnElementLocalWiringDefect(array $wiring, string $expectedMessageFragment): void
+    {
+        try {
+            $this->decoder()->decode([['id' => 'el-1', 'component' => 'Sw:Block', ...$wiring]]);
+            static::fail('Expected a ContentSystemException for the element-local wiring defect.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+            static::assertStringContainsString($expectedMessageFragment, $exception->getMessage());
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $wiring
+     */
+    #[DataProvider('elementLocalWiringDefectProvider')]
+    #[TestDox('decodeLintable reports $_dataName as an invalid_config violation on its element')]
+    public function testDecodeLintableCollectsAnElementLocalWiringDefect(array $wiring, string $expectedMessageFragment): void
+    {
+        [$tree, $violations] = $this->decoder()->decodeLintable([
+            ['id' => 'defective', 'component' => 'Sw:Block', ...$wiring],
+            ['id' => 'good', 'component' => 'Sw:Block'],
+        ]);
+
+        static::assertSame(['good'], array_map(static fn (StoredElement $e): string => $e->id, $tree));
+        static::assertCount(1, $violations);
+        static::assertSame(ViolationCode::InvalidConfig, $violations[0]->code);
+        static::assertSame('defective', $violations[0]->elementId);
+        static::assertStringContainsString($expectedMessageFragment, $violations[0]->message);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function elementLocalWiringDefectProvider(): iterable
+    {
+        yield 'two consumers landing on one base key' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true],
+                'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product'],
+            ]],
+            'Each propertyAlias must be unique within an element',
+        ];
+
+        yield 'a redistributing consumer keyed by a dotted path' => [
+            ['acceptsContext' => [
+                'product.manufacturer' => ['type' => 'single', 'required' => true, 'redistribute' => true],
+            ]],
+            'uses dot notation and cannot be redistributed',
+        ];
+
+        yield 'a redistributing consumer whose derived key an authored provider holds' => [
+            [
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
+            ],
+            'has both redistribute:true and explicit providesContext',
+        ];
+    }
+
     #[TestDox('decode rethrows a non-client-defect decode fault unchanged')]
     public function testDecodeRethrowsInternalFault(): void
     {

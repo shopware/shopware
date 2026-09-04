@@ -438,8 +438,10 @@ class RegisterRoute extends AbstractRegisterRoute
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
+        // once the contact person is optional the company name is all that is left to name the account by
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())) {
+            && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())
+                || !$this->nameFieldsRequiredForCompanyAccounts($context))) {
             $validation->add('company', new NotBlank());
         }
 
@@ -456,6 +458,14 @@ class RegisterRoute extends AbstractRegisterRoute
      * A company account is identified by its company name, so the contact person is optional.
      * `set` replaces every constraint for the property, so the length limits are re-added.
      */
+    private function nameFieldsRequiredForCompanyAccounts(SalesChannelContext $context): bool
+    {
+        return $this->systemConfigService->getBool(
+            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
+            $context->getSalesChannelId()
+        );
+    }
+
     private static function makePersonNameOptional(DataValidationDefinition $validation): void
     {
         $validation
@@ -484,7 +494,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && !$this->systemConfigService->getBool('core.loginRegistration.nameFieldsRequiredForCompanyAccounts', $context->getSalesChannelId())) {
+            && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
             self::makePersonNameOptional($validation);
         }
 

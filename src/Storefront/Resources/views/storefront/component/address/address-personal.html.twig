@@ -150,6 +150,10 @@
 
     {% block component_address_personal_fields_name %}
         <div class="row g-2">
+            {# a company account may be registered without a contact person, and the account type is chosen in this form #}
+            {% set personNameRequired = config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts')
+                or not config('core.loginRegistration.showAccountTypeSelection') %}
+
             {% block component_address_personal_fields_first_name %}
                 {% if prefix !== '' and prefix != 'address' %}
                     {% set prefix = prefix != 'shippingAddress' ? 'billingAddress' : 'shippingAddress' %}
@@ -170,7 +174,7 @@
                         value: (prefix and data.has(prefix)) ? data.get(prefix).get('firstName') : data.get('firstName'),
                         autocomplete: 'section-personal given-name',
                         violationPath: violationPath,
-                        validationRules: 'required',
+                        validationRules: personNameRequired ? 'required' : '',
                         additionalClass: 'col-sm-6',
                     } %}
                 {% endblock %}
@@ -195,7 +199,7 @@
                         value: (prefix and data.has(prefix)) ? data.get(prefix).get('lastName') : data.get('lastName'),
                         autocomplete: 'section-personal family-name',
                         violationPath: violationPath,
-                        validationRules: 'required',
+                        validationRules: personNameRequired ? 'required' : '',
                         additionalClass: 'col-sm-6',
                     } %}
                 {% endblock %}

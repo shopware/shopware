@@ -584,6 +584,33 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     }
 
     /**
+     * Deletes the provided version with a request the browser can continue while the page is unloading.
+     */
+    deleteVersionWithKeepalive(
+        entityId: string,
+        versionId: string,
+        context = Shopware.Context.api,
+    ): Promise<Response | AxiosResponse> {
+        if (typeof fetch !== 'function') {
+            return this.deleteVersion(entityId, versionId, context);
+        }
+
+        const headers = Object.fromEntries(
+            Object.entries(this.buildHeaders(context)).map(
+                ([name, value]) => [name, String(value)],
+            ),
+        );
+        const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
+
+        return fetch(this.httpClient.getUri({ url }), {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({}),
+            keepalive: true,
+        });
+    }
+
+    /**
      * @private
      */
     sendChanges(

@@ -41,8 +41,16 @@ function createRepositoryData() {
 }
 
 describe('repository.data.ts', () => {
+    const originalFetch = global.fetch;
+    const originalBaseUrl = global.repositoryFactoryMock.httpClient.defaults.baseURL;
+
     beforeEach(async () => {
         clientMock.resetHistory();
+    });
+
+    afterEach(() => {
+        global.fetch = originalFetch;
+        global.repositoryFactoryMock.httpClient.defaults.baseURL = originalBaseUrl;
     });
 
     it('should search with the criteria title', async () => {
@@ -114,6 +122,49 @@ describe('repository.data.ts', () => {
         };
 
         expect(actualHeaders).toEqual(exptectedHeaders);
+    });
+
+    it('should delete a version with a keepalive request', async () => {
+        global.fetch = jest.fn(() => Promise.resolve());
+        const repository = repositoryFactory.create('order');
+        repository.httpClient.defaults.baseURL = 'http://shopware.local/api';
+        const context = {
+            ...mockContext(),
+            versionId: 'version-id',
+        };
+
+        await repository.deleteVersionWithKeepalive('order-id', 'version-id', context);
+
+        expect(global.fetch).toHaveBeenCalledWith('http://shopware.local/api/_action/version/version-id/order/order-id', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/vnd.api+json',
+                Authorization: 'Bearer BwP_OL47uNW6k8iQzChh6SxE31XaleO_l4unyLNmFco',
+                'Content-Type': 'application/json',
+                'sw-api-compatibility': 'true',
+                'sw-currency-id': '7924299acc9641bfb8237a06e5aa0fa4',
+                'sw-language-id': '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                'sw-version-id': 'version-id',
+            },
+            body: '{}',
+            keepalive: true,
+        });
+    });
+
+    it('should fall back to the HTTP client when fetch is unavailable', async () => {
+        global.fetch = undefined;
+        const repository = repositoryFactory.create('order');
+        responses.addResponse({
+            method: 'POST',
+            url: '/_action/version/version-id/order/order-id',
+            status: 200,
+            response: {},
+        });
+
+        await repository.deleteVersionWithKeepalive('order-id', 'version-id', mockContext());
+
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(clientMock.history.post[0].url).toBe('/_action/version/version-id/order/order-id');
     });
 
     it('should create one delete operation for multiple deletes', async () => {

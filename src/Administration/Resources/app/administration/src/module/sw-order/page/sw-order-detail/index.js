@@ -197,6 +197,8 @@ export default {
     },
 
     beforeUnmount() {
+        window.removeEventListener('pagehide', this.onPageHide);
+
         this.beforeDestroyComponent();
 
         State.unregisterModule('swOrderDetail');
@@ -223,14 +225,22 @@ export default {
                 scope: this,
             });
 
-            window.addEventListener('beforeunload', this.beforeDestroyComponent);
+            window.addEventListener('pagehide', this.onPageHide);
 
             Shopware.State.commit('shopwareApps/setSelectedIds', this.orderId ? [this.orderId] : []);
 
             this.createNewVersionId();
         },
 
-        async beforeDestroyComponent() {
+        onPageHide(event) {
+            if (event.persisted) {
+                return;
+            }
+
+            this.beforeDestroyComponent(true);
+        },
+
+        beforeDestroyComponent(useKeepalive = false) {
             State.commit('swOrderDetail/setOrderAddressIds', null);
 
             if (this.hasNewVersionId) {
@@ -239,7 +249,22 @@ export default {
                 this.hasNewVersionId = false;
 
                 // clean up recently created version
-                await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
+                if (useKeepalive) {
+                    const keepaliveContext = {
+                        ...oldVersionContext,
+                        authToken: Shopware.Context.api.authToken ?? oldVersionContext.authToken,
+                    };
+
+                    this.orderRepository.deleteVersionWithKeepalive(
+                        this.orderId,
+                        oldVersionContext.versionId,
+                        keepaliveContext,
+                    );
+
+                    return;
+                }
+
+                this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
             }
         },
 

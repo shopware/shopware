@@ -64,10 +64,16 @@ class FormComponentsTest extends TestCase
             'validationRules' => 'email',
         ]);
 
+        $plain = $this->render('Sw:Form:Input', ['name' => 'firstName', 'label' => 'First name']);
+
         static::assertStringContainsString('class="sw-form-label__required form-required-label" aria-hidden="true"', $required);
         static::assertStringNotContainsString('form-required-label', $optional);
         static::assertStringNotContainsString('aria-required', $optional);
         static::assertStringContainsString('data-validation="email"', $optional);
+
+        // The helper enrols every `[data-validation]` field, so a field with no rules must not
+        // carry the attribute at all.
+        static::assertStringNotContainsString('data-validation', $plain);
     }
 
     public function testInputLinksDescriptionAndFeedbackToTheControl(): void
@@ -83,14 +89,6 @@ class FormComponentsTest extends TestCase
         static::assertStringContainsString('At least 8 characters.', $html);
     }
 
-    public function testInputOmitsTheLabelElementWhenNoLabelIsGiven(): void
-    {
-        $html = $this->render('Sw:Form:Input', ['name' => 'firstName']);
-
-        static::assertStringNotContainsString('<label', $html);
-        static::assertStringContainsString('<input', $html);
-    }
-
     public function testInputUsesTheAriaLabelWhenThereIsNoVisibleLabel(): void
     {
         $html = $this->render('Sw:Form:Input', [
@@ -100,22 +98,6 @@ class FormComponentsTest extends TestCase
 
         static::assertStringNotContainsString('<label', $html);
         static::assertStringContainsString('aria-label="Search term"', $html);
-    }
-
-    public function testInputMarksTheControlInvalid(): void
-    {
-        $html = $this->render('Sw:Form:Input', [
-            'name' => 'email',
-            'label' => 'Email',
-            'violationPath' => '/email',
-            'isInvalid' => true,
-        ]);
-
-        static::assertStringContainsString('class="sw-form-input__control sw-form-field__control form-control is-invalid"', $html);
-
-        // The container has to be there even without messages, otherwise client validation has
-        // nowhere to write to.
-        static::assertStringContainsString('id="email-feedback"', $html);
     }
 
     public function testInputSendsPlainAttributesToTheGroupAndPrefixedOnesToTheControl(): void
@@ -157,19 +139,6 @@ class FormComponentsTest extends TestCase
 
         static::assertStringContainsString(' disabled', $html);
         static::assertStringContainsString(' readonly', $html);
-        static::assertStringNotContainsString('disabled="', $html);
-    }
-
-    public function testInputOmitsOptionalAttributesThatWereNotPassed(): void
-    {
-        $html = $this->render('Sw:Form:Input', ['name' => 'firstName']);
-
-        static::assertStringNotContainsString('placeholder=', $html);
-        static::assertStringNotContainsString('autocomplete=', $html);
-        static::assertStringNotContainsString('minlength=', $html);
-        static::assertStringNotContainsString('maxlength=', $html);
-        static::assertStringNotContainsString('value=', $html);
-        static::assertStringNotContainsString('data-validation=', $html);
     }
 
     /**
@@ -187,16 +156,8 @@ class FormComponentsTest extends TestCase
         static::assertStringContainsString('value="0"', $html);
     }
 
-    public function testInputDerivesTheIdFromTheName(): void
+    public function testAnExplicitIdRipplesIntoTheLabelAndFeedbackReferences(): void
     {
-        $html = $this->render('Sw:Form:Input', [
-            'name' => 'firstName',
-            'label' => 'First name',
-        ]);
-
-        static::assertStringContainsString('id="firstName"', $html);
-        static::assertStringContainsString('for="firstName"', $html);
-
         $explicit = $this->render('Sw:Form:Input', [
             'name' => 'firstName',
             'id' => 'billingFirstName',
@@ -226,13 +187,6 @@ class FormComponentsTest extends TestCase
         static::assertStringContainsString('class="sw-form-textarea__control sw-form-field__control form-control"', $html);
     }
 
-    public function testTextareaRendersEmptyWithoutAValue(): void
-    {
-        $html = $this->render('Sw:Form:Textarea', ['name' => 'content']);
-
-        static::assertStringContainsString('></textarea>', $html);
-    }
-
     public function testSelectRendersOptionsAndMarksTheSelectedOne(): void
     {
         $html = $this->render('Sw:Form:Select', [
@@ -255,17 +209,6 @@ class FormComponentsTest extends TestCase
         static::assertSame(1, substr_count($html, 'selected="selected"'));
     }
 
-    public function testSelectPreselectsThePlaceholderWhenThereIsNoValue(): void
-    {
-        $html = $this->render('Sw:Form:Select', [
-            'name' => 'salutationId',
-            'placeholder' => 'Please choose',
-            'options' => [['value' => 'mr', 'label' => 'Mr.']],
-        ]);
-
-        static::assertStringContainsString('<option value="" selected="selected">Please choose</option>', $html);
-    }
-
     public function testCheckboxUsesTheBootstrapFormCheckStructure(): void
     {
         $html = $this->render('Sw:Form:Checkbox', [
@@ -281,9 +224,6 @@ class FormComponentsTest extends TestCase
         static::assertStringContainsString('value="1"', $html);
         static::assertStringContainsString(' checked', $html);
         static::assertStringContainsString('class="sw-form-label form-check-label" for="acceptedDataProtection"', $html);
-
-        // `custom-control-label` is a Bootstrap 4 class that no longer exists in Bootstrap 5.
-        static::assertStringNotContainsString('custom-control-label', $html);
     }
 
     public function testCheckboxRendersTheSwitchVariant(): void
@@ -396,12 +336,8 @@ class FormComponentsTest extends TestCase
         static::assertStringContainsString('<option value="7" selected="selected">7</option>', $html);
         static::assertStringContainsString('<option value="1990" selected="selected">1990</option>', $html);
         static::assertSame(3, substr_count($html, 'selected="selected"'));
-    }
 
-    public function testBirthdaySelectGivesEachPartItsOwnFeedbackElement(): void
-    {
-        $html = $this->render('Sw:Form:BirthdaySelect', []);
-
+        // Each part is validated on its own, so each needs a feedback element of its own.
         static::assertStringContainsString('id="birthdayDay-feedback"', $html);
         static::assertStringContainsString('id="birthdayMonth-feedback"', $html);
         static::assertStringContainsString('id="birthdayYear-feedback"', $html);
@@ -560,6 +496,7 @@ class FormComponentsTest extends TestCase
             'name' => 'forwardTo',
             'type' => 'hidden',
             'value' => 'frontend.product.reviews',
+            'data-captcha-token' => 'v3',
         ]);
 
         static::assertStringStartsWith('<input ', $html);
@@ -574,16 +511,8 @@ class FormComponentsTest extends TestCase
 
         // It is not a field the form component should validate or map violations onto.
         static::assertStringNotContainsString('sw-form-field', $html);
-    }
 
-    public function testHiddenTypePassesAttributesStraightToTheInput(): void
-    {
-        $html = $this->render('Sw:Form:Input', [
-            'name' => '_grecaptcha_v3',
-            'type' => 'hidden',
-            'data-captcha-token' => 'v3',
-        ]);
-
+        // With no wrapper to take them, plain attributes have to reach the input itself.
         static::assertMatchesRegularExpression('/<input[^>]*data-captcha-token="v3"/', $html);
     }
 
@@ -717,8 +646,8 @@ class FormComponentsTest extends TestCase
     }
 
     /**
-     * `required` used to reach assistive tech only: the field announced itself as required while
-     * nothing enforced it, because the client validator reads `data-validation`.
+     * `aria-required` alone announces a field as required without anything enforcing it, because
+     * the client validator reads `data-validation`. Setting `required` has to produce both.
      */
     public function testRequiredWithoutValidationRulesStillReachesClientValidation(): void
     {

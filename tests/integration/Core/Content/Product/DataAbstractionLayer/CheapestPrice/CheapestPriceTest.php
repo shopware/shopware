@@ -488,6 +488,12 @@ class CheapestPriceTest extends TestCase
             ];
             static::getContainer()->get('currency.repository')
                 ->create([$currency], Context::createDefaultContext());
+            static::getContainer()->get('sales_channel_currency.repository')->create([
+                [
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'currencyId' => $ids->get('currency'),
+                ],
+            ], Context::createDefaultContext());
 
             $products = [
                 // no rule = 70€

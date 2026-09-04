@@ -355,7 +355,9 @@ class DocumentControllerTest extends TestCase
         /** @var EntityRepository<DocumentFileCollection> $documentFileRepository */
         $documentFileRepository = static::getContainer()->get('document_file.repository');
         $documentFile = $documentFileRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('documentId', $document->getId())),
+            (new Criteria())
+                ->addFilter(new EqualsFilter('documentId', $document->getId()))
+                ->addFilter(new EqualsFilter('documentFormat', DocumentFormat::ZUGFERD_EMBEDDED_PDF->value)),
             $this->context,
         )->getEntities()->first();
 

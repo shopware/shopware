@@ -12,6 +12,17 @@ import type { Theme, UseThemeReturn } from '@shopware-ag/meteor-component-librar
  */
 export const USER_THEME_CONFIG_KEY = 'core.userTheme';
 
+/**
+ * Preference used before the user has chosen a theme. The Administration
+ * starts in light mode instead of following the operating system.
+ *
+ * Mirrored by the inline pre-boot script in
+ * `Resources/shared/page-loading-screen/page-loading-screen.js`, keep both in sync.
+ *
+ * @private
+ */
+export const DEFAULT_THEME: Theme = 'light';
+
 type UseAdminThemeReturn = UseThemeReturn & {
     /**
      * Loads the persisted theme preference of the current user from the
@@ -34,11 +45,19 @@ function isTheme(value: unknown): value is Theme {
 
 async function loadUserTheme(): Promise<void> {
     const response = await Shopware.Service('userConfigService').search([USER_THEME_CONFIG_KEY]);
-    const value = response?.data?.[USER_THEME_CONFIG_KEY] as { theme?: unknown } | undefined;
 
-    if (value && isTheme(value.theme)) {
-        useTheme().setTheme(value.theme);
+    // The service swallows request errors and resolves without a response.
+    // Keep the current preference then instead of resetting a valid choice.
+    if (!response) {
+        return;
     }
+
+    const value = response.data?.[USER_THEME_CONFIG_KEY] as { theme?: unknown } | undefined;
+
+    // `localStorage` is shared by every user of the browser, so a user without
+    // a server-side preference has to fall back to the default instead of
+    // inheriting the choice of whoever logged in here before.
+    useTheme().setTheme(value && isTheme(value.theme) ? value.theme : DEFAULT_THEME);
 }
 
 async function saveUserTheme(theme: Theme): Promise<void> {
@@ -61,7 +80,7 @@ export default function useTheme(): UseAdminThemeReturn {
         const scope = effectScope(true);
 
         themeState = {
-            ...scope.run(() => useMeteorTheme())!,
+            ...scope.run(() => useMeteorTheme({ defaultTheme: DEFAULT_THEME }))!,
             loadUserTheme,
             saveUserTheme,
         };

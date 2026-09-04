@@ -114,10 +114,6 @@ class CheckoutConfirmPageLoader
         $this->validateShippingAddress($shippingAddress, $billingAddress, $cart, $context);
     }
 
-    /**
-     * A company account may have registered without a contact person, so its addresses carry no
-     * person name and must not block the checkout.
-     */
     private function relaxNameForCompanyAccounts(DataValidationDefinition $validation, SalesChannelContext $context): void
     {
         if ($context->getCustomer()?->isBusinessAccount() !== true) {

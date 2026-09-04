@@ -105,7 +105,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         $accountType = $data->get('accountType');
 
-        // the address form does not always carry the account type, and then the account decides
         if (!\is_string($accountType) || $accountType === '') {
             $accountType = $customer->isBusinessAccount()
                 ? CustomerEntity::ACCOUNT_TYPE_BUSINESS
@@ -185,7 +184,6 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation->add('company', new NotBlank());
         }
 
-        // an address created without a contact person has to stay editable without inventing one
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !$nameFieldsRequired) {
             CompanyAccountNameFields::relax(
                 $validation,

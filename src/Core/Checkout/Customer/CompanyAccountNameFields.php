@@ -9,10 +9,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Length;
 
 /**
- * Resolves whether a commercial customer still has to provide a contact person.
- *
- * Read from every validation entry point that touches a customer or address name, so that
- * relaxing one of them cannot leave another rejecting the empty value.
+ * @internal
  */
 #[Package('checkout')]
 final class CompanyAccountNameFields
@@ -26,7 +23,6 @@ final class CompanyAccountNameFields
 
     public static function areRequired(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {
-        // a hidden field is never submitted, so it cannot be required
         return self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId)
             && self::isEnabled($systemConfigService, self::CONFIG_REQUIRED, $salesChannelId);
     }
@@ -36,22 +32,6 @@ final class CompanyAccountNameFields
         return self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId);
     }
 
-    /**
-     * Both settings default to on. An absent key would otherwise read as `false` and silently make
-     * the contact person optional on an installation that never opted in.
-     */
-    private static function isEnabled(SystemConfigService $systemConfigService, string $key, ?string $salesChannelId): bool
-    {
-        $value = $systemConfigService->get($key, $salesChannelId);
-
-        return $value === null ? true : (bool) $value;
-    }
-
-    /**
-     * The name fields are `Required` with `AllowEmptyString`, so the data abstraction layer accepts
-     * an empty string but still rejects null. A hidden or skipped input is absent from the request,
-     * so it is normalised before the payload is built.
-     */
     public static function normalize(DataBag $data): void
     {
         foreach (['firstName', 'lastName'] as $property) {
@@ -61,10 +41,6 @@ final class CompanyAccountNameFields
         }
     }
 
-    /**
-     * Drops the blank check from the person name while keeping its length limit. Only properties the
-     * definition already carries are touched, so relaxing never introduces a constraint of its own.
-     */
     public static function relax(DataValidationDefinition $validation, Length $firstName, Length $lastName): void
     {
         foreach (['firstName' => $firstName, 'lastName' => $lastName] as $property => $length) {
@@ -72,5 +48,12 @@ final class CompanyAccountNameFields
                 $validation->set($property, $length);
             }
         }
+    }
+
+    private static function isEnabled(SystemConfigService $systemConfigService, string $key, ?string $salesChannelId): bool
+    {
+        $value = $systemConfigService->get($key, $salesChannelId);
+
+        return $value === null ? true : (bool) $value;
     }
 }

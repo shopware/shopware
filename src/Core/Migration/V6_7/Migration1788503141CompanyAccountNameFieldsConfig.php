@@ -22,8 +22,6 @@ class Migration1788503141CompanyAccountNameFieldsConfig extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // an absent key reads as false, so an upgraded shop would silently make the contact person
-        // optional instead of keeping it mandatory
         foreach ([CompanyAccountNameFields::CONFIG_SHOW, CompanyAccountNameFields::CONFIG_REQUIRED] as $key) {
             $existing = $connection->fetchOne(
                 'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = ? AND `sales_channel_id` IS NULL',

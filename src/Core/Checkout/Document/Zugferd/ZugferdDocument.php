@@ -133,7 +133,6 @@ class ZugferdDocument
         $personName = trim($customer->getFirstName() . ' ' . $customer->getLastName());
         $company = trim($customer->getCompany() ?? '');
 
-        // a company account may have no contact person, and then the company is already the name
         $customerName = match (true) {
             $company === '' => $personName,
             $personName === '' || $personName === $company => $company,

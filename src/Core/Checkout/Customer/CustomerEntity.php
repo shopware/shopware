@@ -178,15 +178,6 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->getFirstName() . ' ' . $this->getLastName();
     }
 
-    /**
-     * The account holder of a company account is the legal entity, so it is named by its company.
-     * `company` is read before `accountType` because `accountType` is a typed property without a
-     * default and would throw on an entity that never had one set.
-     */
-    /**
-     * `accountType` is a typed property without a default, so an entity that never had one set
-     * would throw on a plain read.
-     */
     public function isBusinessAccount(): bool
     {
         return isset($this->accountType) && $this->accountType === self::ACCOUNT_TYPE_BUSINESS;

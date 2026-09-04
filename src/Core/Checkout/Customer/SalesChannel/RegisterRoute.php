@@ -138,8 +138,6 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
-        // a skipped contact person arrives as an absent field, which the data abstraction layer
-        // rejects even though it accepts an empty string
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
             CompanyAccountNameFields::normalize($data);
@@ -452,14 +450,12 @@ class RegisterRoute extends AbstractRegisterRoute
     ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
-        // once the contact person is optional the company name is all that is left to name the account by
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())
                 || !$this->nameFieldsRequiredForCompanyAccounts($context))) {
             $validation->add('company', new NotBlank());
         }
 
-        // the account name is copied onto the billing address, so it has to be relaxed in step
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
             CompanyAccountNameFields::relax(
@@ -503,8 +499,6 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('email', new CustomerEmailUnique(salesChannelContext: $context));
         }
 
-        // a company account is identified by its company name, so the contact person is optional.
-        // `set` replaces every constraint for the property, so the length limits are re-added.
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
             CompanyAccountNameFields::relax(

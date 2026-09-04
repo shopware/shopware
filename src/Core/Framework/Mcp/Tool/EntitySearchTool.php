@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Capability\Attribute\Schema;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
@@ -44,15 +45,18 @@ class EntitySearchTool extends McpToolResponse
     ) {
     }
 
-    /**
-     * @param string $entity Entity name to search, e.g. "order", "product" or "customer". See the shopware://entities resource for the full list.
-     * @param string $criteria A JSON OBJECT of Admin API criteria, as a string — "filter", "sort", "associations", "includes". E.g. {"sort":[{"field":"orderDateTime","order":"DESC"}]} for the most recent first, or {"filter":[{"type":"equals","field":"productNumber","value":"SW10001"}]} to look one up. Defaults to no criteria.
-     * @param int $limit Records per page, 1-500.
-     * @param int $page Page number, starting at 1.
-     * @param string $term Free-text search across the entity's searchable fields. Prefer an exact "filter" in $criteria when you know the field.
-     */
-    public function __invoke(string $entity, string $criteria = '{}', int $limit = 25, int $page = 1, string $term = ''): string
-    {
+    public function __invoke(
+        #[Schema(description: 'Entity name to search, e.g. "order", "product" or "customer". See the shopware://entities resource for the full list.')]
+        string $entity,
+        #[Schema(description: 'A JSON OBJECT of Admin API criteria, as a string — "filter", "sort", "associations", "includes". E.g. {"sort":[{"field":"orderDateTime","order":"DESC"}]} for the most recent first, or {"filter":[{"type":"equals","field":"productNumber","value":"SW10001"}]} to look one up. Defaults to no criteria.')]
+        string $criteria = '{}',
+        #[Schema(description: 'Records per page, 1-500.')]
+        int $limit = 25,
+        #[Schema(description: 'Page number, starting at 1.')]
+        int $page = 1,
+        #[Schema(description: 'Free-text search across the entity\'s searchable fields. Prefer an exact "filter" in `criteria` when you know the field.')]
+        string $term = '',
+    ): string {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {

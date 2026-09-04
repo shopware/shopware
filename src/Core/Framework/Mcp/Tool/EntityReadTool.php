@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Capability\Attribute\Schema;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
@@ -44,13 +45,14 @@ class EntityReadTool extends McpToolResponse
     ) {
     }
 
-    /**
-     * @param string $entity Entity name to read, e.g. "order" or "product". See the shopware://entities resource for the full list.
-     * @param string $id The entity's UUID (32-character hex). To find a record by any other field, use shopware-entity-search instead.
-     * @param string $criteria A JSON OBJECT of Admin API criteria, as a string — most usefully "associations" to include related data, e.g. {"associations":{"lineItems":{}}} on an order, and "includes" to trim the response. Defaults to no criteria.
-     */
-    public function __invoke(string $entity, string $id, string $criteria = '{}'): string
-    {
+    public function __invoke(
+        #[Schema(description: 'Entity name to read, e.g. "order" or "product". See the shopware://entities resource for the full list.')]
+        string $entity,
+        #[Schema(description: 'The entity\'s UUID (32-character hex). To find a record by any other field, use shopware-entity-search instead.')]
+        string $id,
+        #[Schema(description: 'A JSON OBJECT of Admin API criteria, as a string — most usefully "associations" to include related data, e.g. {"associations":{"lineItems":{}}} on an order, and "includes" to trim the response. Defaults to no criteria.')]
+        string $criteria = '{}',
+    ): string {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {

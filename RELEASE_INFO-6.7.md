@@ -283,6 +283,7 @@ The landing page copy moved to the new snippets `sw-extension-store.landing-page
 - `sw-extension-store.landing-page.activationDescriptionTitleDescription`
 
 The class `.sw-extension-store-landing-page__wrapper-label` no longer exists; `.sw-extension-store-landing-page__wrapper` no longer carries a background, border or fixed width, and `__wrapper-content` / `__wrapper-activated` no longer carry styles.
+
 ### Native-setup components expose their `swDefinePublic()` bindings to parents
 
 `swDefinePublic({ ... })` now declares one surface used in two directions. Besides marking what an override may replace, the Shopware setup transform generates the component's `defineExpose()` call from the same entries, so a parent holding a template ref reads and writes exactly those bindings:

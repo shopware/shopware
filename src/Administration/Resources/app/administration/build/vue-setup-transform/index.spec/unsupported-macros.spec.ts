@@ -91,7 +91,9 @@ describe('build/vue-setup-transform unsupported macros', () => {
         );
     });
 
-    it('rejects defineExpose() in override mode', () => {
+    // An override cannot be told to use swDefinePublic(): that marker is itself rejected in override
+    // mode, so the advice would only swap one error for the next.
+    it('sends an override authoring defineExpose() to swDefineOverride(), not swDefinePublic()', () => {
         const source = stripIndent`
             <script setup lang="ts">
             defineExpose({});
@@ -100,7 +102,7 @@ describe('build/vue-setup-transform unsupported macros', () => {
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'override-expose.override.vue')).toThrow(
-            'defineExpose() is not supported inside Shopware setup blocks.',
+            'Declare replacement bindings with swDefineOverride({ ... }) instead.',
         );
     });
 
@@ -114,7 +116,7 @@ describe('build/vue-setup-transform unsupported macros', () => {
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'base-expose.vue')).toThrow(
-            'List the binding in swDefinePublic({ ... }) instead.',
+            'Use swDefinePublic({ ... }) instead, which will call it for you automatically.',
         );
     });
 

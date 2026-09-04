@@ -116,7 +116,7 @@ class CartStoreService extends ApiService {
             items: [
                 {
                     id: id,
-                    referencedId: id,
+                    referencedId: item.referencedId ?? id,
                     label: item.label,
                     quantity: item.quantity,
                     type: item.type,
@@ -272,7 +272,7 @@ class CartStoreService extends ApiService {
 
             return {
                 id,
-                referencedId: id,
+                referencedId: item.referencedId ?? id,
                 label: item.label,
                 quantity: item.quantity,
                 type: item.type,

@@ -1,6 +1,121 @@
 # 6.7.15.0 (upcoming)
 
+## Features
+
+### Document generation v2 (experimental)
+
+Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.
+
+The architecture and all extension points are documented in the [Document (v2) concept guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/). The coexistence and migration strategy is defined in the [migration ADR](adr/2026-08-05-document-generation-v1-to-v2-migration-strategy.md).
+
+Classes intended to become public API are annotated `@experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK` and may change in any release. With Shopware 6.8, v2 becomes the default and the annotated surface becomes the stable public API.
+
+#### One document, multiple formats
+
+A document type (invoice, cancellation invoice, delivery note, credit note) can produce several formats in a single generation call: HTML, PDF, ZUGFeRD XML, and PDF with embedded ZUGFeRD XML. All formats of one document are rendered from the same data, share the same document number, and are persisted as separate files. Merchants configure per document type which formats are generated.
+
+ZUGFeRD is no longer a document type of its own. It is a file format of the invoice, cancellation invoice, and credit note types. Mail attachments and the archive download include all generated formats by default, Flow Builder mail actions can select specific formats.
+
+Each generation snapshots the order into a dedicated order version. A document always renders the order state at generation time. Generated files receive unique, readable filenames with configurable per-format infixes.
+
+#### Opting in
+
+The flag switches all Shopware-driven surfaces to v2: the order documents section in the Administration, Flow Builder document actions, mail attachments, bulk edit, and the customer-facing download routes. The legacy APIs stay functional in both flag states and remain a public contract until their removal in 6.9. Merchants can switch back at any time.
+
+#### Company information moves to basic information
+
+The company data printed on documents (name, address, tax and bank details, logo) moves to a new "Company information" card in Settings > Basic information. It is configured per sales channel, no longer per document type. Existing values are not migrated. When the card is empty for a sales channel, v2 reads the legacy document settings.
+
+Generation now fails with a clear error when name, street, zip code, city, or country is missing, instead of silently producing an incomplete document. This guarantees valid seller data on every document, including ZUGFeRD invoices.
+
+#### New Admin API routes
+
+The v2 routes are available regardless of the flag state:
+
+- `POST /api/_action/order/document-v2/create`
+- `POST /api/_action/order/document-v2/upload`
+- `POST /api/_action/order/document-v2/preview`
+- `GET /api/_action/order/document-v2/{documentId}/download/{format}`
+- `POST /api/_action/order/document-v2/download-archive`
+- `GET /api/_action/order/document-v2/available-types`
+
+### New document lifecycle business events
+
+Two new events give extensions a hook into the document lifecycle without polling or fetching the document to discover its type, number, order and file:
+
+- `document.generation.completed` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent`) is dispatched when a document is generated or uploaded for an order. It exposes `documentId`, `orderId`, `orderVersionId`, `documentType` and `documentNumber`.
+- `document.generation.deleted` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent`) is dispatched when a document is deleted, for both legacy and Document V2 documents. It exposes `documentId`, `orderId`, `orderVersionId`, `documentNumber` and `deletedAt`.
+
+Both events are selectable as triggers in Flow Builder. `document.generation.completed` fires for both the legacy document pipeline (`Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate()` and `::upload()`) and the Document V2 pipeline (`POST /_action/order/document-v2/create` and `POST /_action/order/document-v2/upload`); `document.generation.deleted` already covers both, since deletion goes through the shared `document` entity regardless of which pipeline created it.
+
+#### Extending document generation with a plugin
+
+Plugins register document types, data providers, and renderers as tagged services: `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer`. Twig template overrides keep working. v2 renders the same `@Framework/documents/*.html.twig` templates.
+
+The legacy extension points (the `document.renderer` and `document_type.renderer` tags, the legacy document events, decorators of the legacy `DocumentGenerator`) are never invoked by the v2 pipeline. Both variants can be registered side by side during the transition. See the [extension points guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/extension-points.html).
+
+#### Apps can register document types
+
+Apps register custom document types through the new `<documents>` manifest block:
+
+```xml
+<documents>
+    <document-type>
+        <identifier>swag_warranty</identifier>
+        <label>Warranty certificate</label>
+        <formats>
+            <format>html</format>
+            <format>pdf</format>
+        </formats>
+    </document-type>
+</documents>
+```
+
+Shopware seeds a number range per app document type and blocks install or update when the identifier collides with a core type or another app. The new `document-generation` app script hook runs after the order is loaded and the number is allocated. Apps can enrich the render data and override template blocks via `sw_extends`.
+
+#### Storefront and customer account
+
+Customers download v2 documents through the existing storefront and Store API routes. The URLs do not change. The document type's "display in customer account" setting applies to v2 documents as well. The file format is selected via the `Accept` header as before.
+
+#### Documents can be persisted without an order reference
+
+The `document.orderId` and `document.orderVersionId` fields are now optional. Extensions that read documents directly should not assume every document belongs to an order. Use the `order` association only when it is available.
+
+#### Deprecation of the legacy implementation
+
+Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legacy document domain in `Shopware\Core\Checkout\Document`, the legacy Administration services and modals, and the `document_type` and `document_type_translation` entities. Document types and formats become code-registered strings. Surviving shared classes move into the `DocumentV2` namespace with 6.9.
+
+Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
+
 ## Core
+
+### State machine transitions resolve deterministically
+
+When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.
+
+### `translation:install --all` no longer installs pseudo-locales
+
+`--all` now covers every configured locale except the pseudo-locales. A pseudo-locale such as `ach-UG` exists for in-context proofreading and translatability audits, not as a language a shop offers, and installing it created an active "Acholi (Pseudo Language)" alongside the real ones.
+
+It stays installable by naming it explicitly, which is how the audits it exists for ask for it:
+
+```
+translation:install --locales=ach-UG
+```
+
+Installations that ran `--all` before this change and do not want the pseudo-language can remove it in the administration, or through `DELETE /api/_action/translation/{locale}` to drop its files as well.
+
+### `system:install` dispatches `SystemInstallCompletedEvent`
+
+`Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
+
+When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
+
+### Sitemap generation for headless sales channels
+
+Sitemaps are now generated for headless (API type) sales channels that have a domain flagged as external storefront (introduced in 6.7.14.0, see "SEO URLs for headless sales channels"). This applies to all refresh strategies: the scheduled task and `sitemap:generate` now include such sales channels, and the live strategy on `GET /store-api/sitemap` generates their files on request. The `<loc>` entries point at the external storefront domain and use the headless SEO URL paths; the file URLs returned by `GET /store-api/sitemap` point at the configured sitemap filesystem (the Shopware host or its CDN), since the external storefront does not serve the files — headless frontends can serve or proxy them from there, or download them via `GET /store-api/sitemap/{filePath}`.
+
+Headless sales channels without an external storefront domain for the requested language are skipped silently — matching the behavior of the SEO URL generation — instead of failing with `CONTENT__INVALID_DOMAIN` under the live strategy. Storefront sales channels are unaffected.
 
 ### Customer imports validate customer number patterns
 
@@ -8,8 +123,150 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### `JsonField::addPropertyMapping()` for entity extensions
+
+`Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.
+
+```php
+public function modifyFields(FieldCollection $collection): void
+{
+    $hitCount = $collection->get('hitCount');
+    if (!$hitCount instanceof JsonField) {
+        return;
+    }
+
+    $hitCount->addPropertyMapping(new JsonField('landing_page', 'landing_page', [
+        new IntField('maxSuggestCount', 'maxSuggestCount'),
+        new IntField('maxSearchCount', 'maxSearchCount'),
+    ]));
+}
+```
+
+### App payment method translations are preserved
+
+Installing or updating an app no longer overwrites existing payment method name and description translations. Manifest texts are only applied to languages without a translation.
+
+### New event to register product listing sortings at runtime
+
+`Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent` is dispatched while the product listing, search and suggest criteria are built, before the requested sorting is resolved. Add a `ProductSortingEntity` to `$event->getSortings()` to make it selectable and applicable at runtime:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [ProductListingCollectSortingEvent::class => 'addSorting'];
+}
+
+public function addSorting(ProductListingCollectSortingEvent $event): void
+{
+    $event->getSortings()->add($mySorting);
+}
+```
+### Adding a product to an existing order applies line item factory decorators
+
+`POST /api/_action/order/{orderId}/product/{productId}` now builds the line item through the `LineItemFactoryRegistry` instead of creating a plain `product` line item directly, so extensions that decorate a `LineItemFactoryInterface` are applied when a product is added to an existing order, the same way they already are in the cart. A decorator that returns a different line item type — or a cart collector that replaces the line item with several others — therefore takes effect in the administration order detail page as well.
+
+When the calculation replaces the added line item, or adds further line items next to it, those receive the delivery positions as well. Adding a product that stays a single product line item is unchanged, including its delivery position.
+
+### `PromotionCartInformationTrait` helper methods deprecated
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` are deprecated and will be removed in Shopware 6.8, call `$cart->addErrors()` directly instead:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new PromotionNotFoundError($code));
+$cart->addErrors(new PromotionNotEligibleError($name));
+```
+### Installing translations from files that are already present
+
+`translation:install` accepts a new `--offline` option. It creates the languages and snippet sets for translation files that are already on the filesystem, without contacting the translation repository at all — not even for the metadata lookup that normally runs first.
+
+```
+translation:install --offline --locales=es-ES,fr-FR
+```
+
+This completes the pairing with `translation:download`, which fetches the files without touching the database. Together they cover setups where the two halves happen at different times or in different places: an installation with restricted egress where the files are copied in by hand, or a deployment that fetches them once while building its artifact and then only needs each installation to point at them.
+
+The presence of the files is verified per locale before anything is installed. Locales named with `--locales` are installed as a unit: if one of them has no files, the command fails and lists every missing locale instead of leaving a language with no translations behind it. `--offline --all` instead installs every locale that is provisioned and reports the rest, because a locale the translation repository does not offer must not make the command unusable for the others. The metadata store is neither read nor written in this mode, so a later regular `translation:install` or `translation:update` behaves exactly as before.
+
+`Shopware\Core\System\Snippet\Service\AbstractTranslationLoader` gained `link()` and `hasTranslationFiles()` for this, and decorators inherit both from the abstract class without being adjusted. Installing now calls `download()` and `link()` instead of `load()`, so a decorator that wraps `load()` to observe installs has to wrap `link()` as well; `translation:update` keeps going through `load()`. Extensions that listen to `TranslationLoadedEvent` need no change, because `link()` dispatches it exactly like `load()` does.
+
+### Installing a translation ensures its language and snippet set again
+
+Installing a translation used to decide from the state of the translation *files* whether there was anything to do, and stopped when they were up to date — before creating any language or snippet set. A locale whose files were current but whose `language` record had been removed, for example by a database restore, could therefore not be reinstalled: `translation:install` reported success without doing anything, and `POST /api/_action/translation/install` answered `200` with an empty `updated` list, which the Administration showed as a successful install.
+
+Whether a translation is current and whether it is actually installed are separate questions, and both entry points now answer both. Files are fetched only when the repository has something newer, or when they are missing locally; the language and snippet set are ensured for every requested locale either way.
+
+Two consequences for operators:
+
+- `translation:install` now exits with a non-zero code when none of the requested locales can be installed — that is, when neither the repository offers them nor the filesystem carries them. Previously it printed "All translations are already up to date." and exited `0`. Scripts that check the exit code are affected. The install route already answered such a request with an error.
+- A requested locale that the repository does not offer and that has no files on the filesystem is reported and left out rather than installed as a language without translations. `POST /api/_action/translation/install` keeps reporting those locales in its `unavailable` list, but a locale whose files were provisioned offline no longer appears there, because it can be installed. Its `skipped` list now names the requested locales that were installed without a download, instead of every locale in the local metadata that was not updated.
+
+### Product breadcrumbs work with categories hidden from navigation
+
+Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
+
+### Order and category tags are versioned
+
+Tag assignments of orders and categories are now part of the entity version. Creating a version copies the existing assignments into it, and reading, filtering or aggregating `tags` returns the assignments of the version in the context instead of the live ones. Assignments made in a version reach the live entity on merge and are dropped when the version is discarded.
+
+The tag association routes and a nested `tags` payload on the order or category both write the mapping for the version in the request context. Writing `order_tag` or `category_tag` rows directly assigns the live version unless the payload carries `orderVersionId` or `categoryVersionId`.
+
+### An already ordered cart cannot be ordered a second time
+
+`POST /store-api/checkout/order` re-checks inside its cart lock whether the cart is still stored, and answers `404 CHECKOUT__CART_TOKEN_NOT_FOUND` when it is not. Two overlapping submits of the same cart — two browser tabs on the checkout confirm page, a retried request — previously produced two orders whenever the second request had loaded its cart before the first one deleted it, because that stale cart still passed the cart hash check.
+
+`Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
+
+## API
+
+### Store API currency headers validate sales channel availability
+
+Store API requests that supply `sw-currency-id` now reject currencies that are not available on the requested sales channel.
+
+### Store API context token response header is restricted on cacheable reads
+
+Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
+
+### The Store API cart route no longer loads the cart twice
+
+`GET|POST /store-api/checkout/cart` returns the cart that the sales channel context resolution already loaded and calculated for the context token, instead of reading and calculating it a second time. `CartLoadedEvent` is therefore dispatched once per request instead of twice, and the cart processors run once. The response itself is unchanged.
+
+`Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute::load()` takes the cart as an optional third argument for this, filled by the `CartValueResolver` like on the other cart routes. Calling the route without a cart, or with a `token` that differs from the passed cart, still reads from the cart storage.
+
+`AbstractCartLoadRoute::load()` is unchanged for now, so decorations keep working, but the parameter is added there in 6.8. Add it to your own `load()` declaration and forward it to the decorated route before you upgrade. Until you do, the route reads and calculates the cart again behind your decoration, because the resolver has no parameter to fill.
+
+### Sales channel file routes require read access
+
+The list, detail and preview routes under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}` now require `sales_channel_file:read`. Clients with that privilege receive previews using the saved template overrides; supplying unsaved `templateOverrides` additionally requires `sales_channel_file:update`.
+Resolving the sales channel context now calculates the cart through `CartCalculator` rather than the `CartRuleLoader` underneath it. The cart that `CartService` holds for the current request, and with it every cart the `CartValueResolver` hands to a controller, therefore carries the context hash of its current state instead of the one stored at its last persist, and its line items are no longer flagged as modified. Read `Cart::getHash()` if you compare a cart against `/store-api/checkout/order`; a cart calculation is also measured once per request now, where the context resolution used to calculate without emitting `cart.calculation.duration`.
+
+### Dedicated error code for invalid child line item quantity
+
+`CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
+
+### Headless sales channels return their SEO URLs via `sw-include-seo-urls`
+
+Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
+
 ## Administration
 
+### Order drafts are cleaned up when leaving the detail page
+
+Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.
+
+### Optional order confirmation mail for Administration-created orders
+
+When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.
+
+### Shipping prices can be linked to the tax rate
+
+The shipping price matrix now renders `sw-price-field` per currency instead of two separate number fields. Gross and net can be linked with the lock button, and a linked net price is calculated from the gross price using the shipping method's tax rate. New shipping prices are linked by default; existing ones keep their stored state.
+
+Extensions that override the `sw_settings_shipping_price_matrix_price_grid_currencies_list` block or style the removed `.sw-settings-shipping-price-matrix__price-input` class must be adjusted to the `sw-price-field` markup. The gross and net input `name` attributes are unchanged.
 ### Admin UI shell rework (sidebar, top bar, smart bar)
 
 The Administration shell — main menu sidebar, top bar, search bar, and smart bar — has been modernized and improved in behavior and responsiveness. Extensions that override these areas via Twig blocks, style them via the removed CSS classes, or rely on the previous color props need to adapt.
@@ -111,7 +368,6 @@ Both page components declare `container-type: inline-size`. This creates a new c
 
 #### Color props without effect
 
-- `sw-page`: `headerBorderColor` (and the derived `pageColor`) no longer affect the header — the smart bar no longer renders a module-colored border.
 - `sw-search-bar`: `entitySearchColor` and the `entityIconColor` prop of `sw-search-bar-item` are only applied while the user set the "Module colors" preference to "Colored" (see below). By default search results use the standard icon colors.
 
 #### Optional module icon colors
@@ -120,7 +376,64 @@ The main menu and the search bar no longer color their icons by the `color` of t
 
 The `color` property of `Module.register()` is unchanged and keeps feeding these icons, so extensions do not need to adapt.
 
+### Individual promotion codes are released again when their promotion line item is deleted
+
+Deleting a promotion line item from an order (or deleting the order) now releases the redeemed individual promotion code, so the customer can use it again. This restores the 6.6 behaviour that was lost in the 6.7 rewrite of `PromotionRedemptionUpdater`: since 6.7.0.0 a used individual code stayed permanently redeemed even after a merchant removed the promotion from the order — a common workflow when a payment fails and the order is edited, which previously forced merchants to generate and send a new code. The release is scoped to codes whose redemption payload references the order the line item is deleted from; the promotion usage counters were already recalculated correctly and are unchanged.
+
+### Bulk operations in the My Extensions listing
+
+The "My Extensions" listing can now act on several extensions at once instead of one card at a time, which noticeably speeds up maintaining shops with many extensions. Selecting one or more extensions replaces the listing controls with a bulk actions bar.
+
+The bar offers the same actions already available per card:
+- **Install**, **activate**, **deactivate**, **update**, and **uninstall** for all selected extensions in one step.
+- Each action is enabled only when it applies to at least one selected extension (for example, *activate* counts only "installed but inactive" extensions) and shows how many of the selection it affects.
+- All actions respect the existing `system.plugin_maintain` permission and the runtime extension-management setting, exactly like the single-card actions.
+
+The listing reloads once after the batch finishes rather than after every individual extension. With nothing selected, the listing behaves exactly as before, so the feature is fully opt-in.
+### Product detail empty states use `mt-empty-state`
+
+The empty states of the product detail tabs "Advanced pricing" and "Cross Selling" now render `mt-empty-state` instead of custom markup with an illustration. The headline, description, icon and the link to the parent product are `mt-empty-state` props.
+
+The Twig blocks of `sw-product-detail-context-prices.html.twig` and `sw-product-detail-cross-selling.html.twig` that wrapped the image, icon and description texts still exist with their previous render conditions, but are empty and deprecated for removal in v6.8.0.
+
+`sw_product_detail_cross_selling_empty_state_icon` and `sw_product_detail_cross_selling_empty_state_actions` no longer wrap a `<template #icon>` / `<template #actions>`; overrides that reproduced these slot wrappers must drop them. The add button lives in `sw_product_detail_cross_selling_empty_state_actions_add` inside the `button` slot of `mt-empty-state`.
+
+The `assetFilter` computed of both components is deprecated for removal in v6.8.0; use `Shopware.Filter.getByName('asset')` instead.
+
+The classes `.sw-product-detail-context-prices__parent-prices-link` and `.sw-product-detail-cross-selling__parent-cross-sellings-link` no longer exist; the parent link is rendered as `.mt-empty-state__link`.
+
+### Native-setup editor support comes from the extension tooling
+
+Editor support for native-setup authoring is now generated by the extension tooling instead of copied by hand. Run `composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install): the generated ESLint config declares the compile-time macro globals (`swDefinePublic`, `swDefineOverride`, `useSwPreviousState`, `useSwProps`, `useSwContext`) and enables the `sw-core-rules/valid-shopware-setup` and `sw-core-rules/native-setup-filename` guards, and the generated type surface carries the macro declarations so they type-check.
+
+The workspace templates in `build/vue-setup-transform/templates/custom-plugin-workspace` are removed with it. They imported `eslint-plugin-vue` and `@typescript-eslint/parser` through explicit paths into the Administration's `node_modules`, so a dependency bump broke every copied workspace at once. If you copied `eslint.config.mjs` to `custom/eslint.config.mjs` or `plugin-tsconfig.json` to `custom/plugins/<PluginName>/tsconfig.json`, delete them and run the setup command instead.
+### Extension pages use `mt-empty-state`
+
+The empty states of Extensions > My extensions (previously a `sw-meteor-card` with custom markup) and the extension store landing page (previously custom markup with an illustration) now render `mt-empty-state`. The existing Twig blocks are unchanged and wrap the new markup.
+
+The `assetFilter` computed of `sw-extension-my-extensions-listing` and `sw-extension-store-landing-page` is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
+
+The landing page copy moved to the new snippets `sw-extension-store.landing-page.activationHeadline` and `.activationDescription`; shops that overrode the removed keys below need to move their text there. The "Now available" badge (`landing-page.label`) was removed without replacement:
+
+- `sw-extension-store.landing-page.label`
+- `sw-extension-store.landing-page.activationDescriptionTitleFirst`
+- `sw-extension-store.landing-page.activationDescriptionTitleSecond`
+- `sw-extension-store.landing-page.activationDescriptionTitleDescription`
+
+The class `.sw-extension-store-landing-page__wrapper-label` no longer exists; `.sw-extension-store-landing-page__wrapper` no longer carries a background, border or fixed width, and `__wrapper-content` / `__wrapper-activated` no longer carry styles.
+### Extension empty states use `mt-empty-state`
+
+The empty states of Extensions > My extensions and the Shopware Store activation page render `mt-empty-state`. The Twig blocks and snippet keys are unchanged, but overrides that build on the previous markup need to adapt: the listing empty state is no longer a `sw-meteor-card`, and on the activation page the "Now available" badge (`.sw-extension-store-landing-page__wrapper-label`) and the `sw-label` of the success and error states no longer exist.
+
+The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
+
 ## Storefront
+
+### Passive privacy notices without a checkbox
+
+Storefront privacy notices now use passive wording when `core.loginRegistration.requireDataProtectionCheckbox` is disabled. Contact and newsletter forms use the privacy-only snippet keys `contact.privacyNoticeTextModal` and `contact.privacyNoticeInformation`, while forms that include the terms of service use `general.privacyNoticeTextModal` and `general.privacyNoticeInformation`. Themes and custom snippet sets can override the new `*.privacyNoticeInformation` keys to adjust the non-blocking notice.
+
+The regular registration action now uses `account.registerSubmit`, while the checkout registration and guest-order authentication use `checkout.registerSubmit`.
 
 ### Semantic footer markup
 
@@ -130,7 +443,49 @@ With v6.8.0.0 the footer (`layout/footer/footer.html.twig`) will use semantic el
 - Footer columns wrapper will become `<ul>` instead of `<div role="list">` (`role="list"` is kept so Safari/VoiceOver still exposes it as a list).
 - Footer column will become `<li>` instead of `<div role="listitem">`.
 
-# 6.7.14.0 (upcoming)
+### Clear message when adding a second code of the same promotion
+
+Applying a second (individual) code that belongs to a promotion already present in the cart no longer fails silently or shows a generic error. The redundant code is dropped and the customer is informed with a dedicated notice, because a promotion can only be applied once per order. The message uses the new snippet key `checkout.promotion-not-eligible-already-added`, which theme and translation developers can override.
+
+### Edit order page selects the payment method of the order
+
+The payment selection on `/account/order/edit/{orderId}` belongs to the order instead of the session. `Shopware\Storefront\Page\Account\Order\AccountEditOrderPage::getSelectedPaymentMethodId()` returns the payment method of the order, or the one the customer picked on the page, and the templates of that page use `page.selectedPaymentMethodId` instead of `context.paymentMethod.id`. Themes that override `page_checkout_aside_actions_payment_method_id` or `page_checkout_change_payment_form` should do the same.
+
+`frontend.account.edit-order.change-payment-method` passes the selected method to the edit order page as the `paymentMethodId` query parameter. It still switches the payment method of the sales channel context, so templates that render `context.paymentMethod` on that page keep working, but that context switch is deprecated and will be removed with v6.8.0.0.
+
+### Postal codes are validated in the browser
+
+The country `<option>` rendered by `component/address/field/address-country-field.html.twig` now carries `data-zipcode-pattern` and `data-check-zipcode-pattern`, next to the existing `data-zipcode-required`. `CountryStateSelectPlugin` reads them and applies the pattern to every `[data-input-name="zipcodeInput"]` field, so an invalid postal code is reported on submit instead of only after the rest of the form passes.
+
+If your theme overrides `component_address_field_country` and renders its own `<option>` markup, add both attributes to keep postal code validation working in the browser. Server-side validation is unchanged.
+
+### Essential characteristics render select, entity and price custom fields
+
+Custom fields of the types `select`, `entity` and `price` are now rendered when they are part of a product's essential characteristics. Their line item payload gained an optional `display` key next to the untouched `content`:
+
+```
+lineItem.payload.features[].value = { id, type, content, display }
+```
+
+`display` holds a list of resolved option or entity labels for `select` and `entity`, and the price of the current currency and tax state as a float for `price`. It is only present on line items built after the update, so templates overriding `component/product/feature/types/feature-custom-field.html.twig` must treat it as optional. A characteristic that cannot be resolved is dropped from the payload, and `component/product/feature/item.html.twig` no longer emits an empty list item for a characteristic its template renders nothing for.
+
+### The buy button shows a loading indicator while the product is added
+
+`AddToCartPlugin` puts a loading indicator on the buy button when the form is submitted and removes it once the off-canvas cart has opened or the request is through. The button is disabled in the meantime, so a second click can no longer add the product a second time.
+
+The button is looked up with the plugin's existing `buyButtonSelector` option, which defaults to `button[type="submit"].btn-buy`. The new `loadingIndicatorPosition` option (`before`, `after` or `inner`, default `inner`) controls where the indicator is rendered. A buy button that does not match `buyButtonSelector` is left untouched.
+
+Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
+
+## App System
+
+### Target validation can be disabled for local development
+
+The new `shopware.app_system.enable_url_validation` option turns off app system and webhook target validation, including the HTTPS requirement, the private network checks and the DNS pinning. It defaults to `true` and is shipped as `false` for the `dev` environment, so local app and webhook endpoints work over HTTP and on private or unresolvable hosts without further configuration.
+
+While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
+
+# 6.7.14.0
 
 ## Features
 
@@ -178,6 +533,7 @@ Thirteen admin checkout endpoints that previously only required authentication n
 * `POST /api/_action/order/{orderId}/convert-to-cart/` requires `order:read`.
 
 Administration users are not affected: `order:update` and `order_address:update` are part of the "Orders editor" permission that already gates every one of these actions in the order detail page, `order:read` is part of "Orders viewer", and the order creator role depends on both. Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+
 ### User uniqueness validation endpoints now require user read access
 
 The `POST /api/_action/user/check-email-unique` and `POST /api/_action/user/check-username-unique` endpoints now require the existing `user:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
@@ -530,6 +886,10 @@ are removed. Those are still required in 6.7 and have to answer with `NoContentR
 
 With Elasticsearch for the Administration enabled, `POST /api/_admin/es-search` silently returned no results for entities that have no admin search indexer, because those entities were dropped from the request. They are now searched over the DAL instead, so an entity registered in the Administration search (`searchTypeService.upsertType()` or a module `defaultSearchConfiguration`) is findable without shipping an indexer. Registering an `AbstractAdminIndexer` for the entity is still the faster option.
 
+### Admin Elasticsearch listings fall back to the database on deep pagination
+
+Admin Elasticsearch searches (`ENABLE_OPENSEARCH_FOR_ADMIN_API`) now fall back to the database searcher when a request's `offset + limit` exceeds the configured admin index `max_result_window`, instead of sending a request that OpenSearch rejects with `Result window is too large`. This previously broke listings such as the customer grid when jumping to a deep or last page.
+
 ## Administration
 
 ### Admin Worker loads correctly when the Administration is hosted under a base path
@@ -703,6 +1063,30 @@ const { data: media } = useDataset('sw-media-quickinfo__item', {
 
 The dataset updates reactively as the user selects a different media file.
 
+### Opt-in TypeScript and ESLint configuration for Administration extensions (experimental)
+
+This toolchain is **experimental** and not covered by the backwards-compatibility promise: it is shipped early to gather feedback while it is still being shaped, so the command names and their options, the layout of the generated files, and the `manifest.json` schema can change in any release without a deprecation cycle. Re-running setup after a Shopware update is the supported migration path — the generated files are disposable by design, so nothing should be hand-edited or automated on top of. Stabilization is targeted for v6.8.0 (annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING` in the source); the experimental marker is removed once the surfaces have settled. Not running the command leaves a project exactly as it was.
+
+`composer admin:setup-extension-tooling` generates the TypeScript and ESLint configuration that lets an Administration extension be type-checked and linted against the **installed** Shopware version — its live types, its entity schema and its pinned tool versions — instead of against a toolchain the extension vendors itself and that drifts.
+
+- **Every extension is bridged automatically.** Setup discovers every installed extension with Administration sources from `var/plugins.json` and writes a git-ignored, self-explaining `.shopware/` bridge beside each Administration folder — custom and vendor-installed alike — plus small committable `tsconfig.json` / `eslint.config.mjs` that extend it when the extension has none yet. Existing configs are never overwritten — the report prints the single line to add instead. One bridge is written per directory that owns a config, so a multi-bundle package whose shared config governs several Administration roots gets a single shared bridge (`-- --root-config=<Extension>:<dir>` forces one for a layout the grouping cannot infer). Root `tsconfig.json` / `eslint.config.mjs` projections and IDE bootstraps for VS Code and Zed are generated at the project root (PhpStorm settings are printed); editors then resolve the full Administration API, including installation-specific entity types.
+- **Unwritable directories degrade gracefully.** A bridge that cannot be written (e.g. a read-only vendor directory) is skipped with a warning; the extension's sources stay covered by the generated root `tsconfig.json`, which includes whatever no extension config governs. Files written under `vendor/` are local only: a composer update removes them and re-running setup restores them.
+- **The report says what is missing, not just what happened.** Each extension is classified `ready`, `bridged`, `bridge-unwired` or `not bridged`, changed files are listed by path, git-ignored bridge files are distinguished from committable plugin-owned ones, and only the actually-missing next step is printed.
+- **CI can verify the projection is current** with `composer admin:setup-extension-tooling:check` — a guaranteed read-only dry run that writes nothing and exits 1 on drift.
+
+Options belong after Composer's `--` separator; `-- --help` prints the generated reference, and an unknown flag exits 2 before anything is written. In a Composer/Flex install, where the Administration lives under `vendor/shopware/administration` and the Composer scripts do not exist, the same commands are available as `bin/console administration:setup-extension-tooling` and `bin/console administration:generate-entity-schema-types` — run `npm ci` in the Administration directory once, since its Node dependencies are not part of the Composer package.
+
+`composer admin:check-extensions` then runs that configuration: per extension it executes `vue-tsc` and ESLint with the Administration's own pinned tool versions and prints their native, unmodified output under a per-extension header, paths relativized to the project root. Pass `-- --only=<name[,name]>` to narrow it; without that it checks everything. Extension configs that do not compose the Shopware preset are visibly skipped with a reason-specific `why:` and the exact `fix:` — never silently green — and a run that skipped a writable extension carries a prominent warning so `exit 0` cannot be mistaken for full coverage. TypeScript is blocked with the fix command while the entity schema is missing, rather than flooding the report with cascade errors, and a JavaScript-only extension reports an honest qualified pass (`0 TypeScript files — .js is not type-checked`) instead of a vacuous green. `-- --fix` applies ESLint autofixes, including the Shopware `sw-*` → `mt-*` deprecation codemods. Findings in `vendor/`-installed extensions are reported but never fail the run.
+
+Because bridging a large plugin can surface hundreds of findings at once — which would make an exit-1 check useless — `-- --only=<name> --update-baseline` records the current findings into a committed, plugin-relative `.shopware-admin-baseline.json` (custom/plugins only). The check then reports `N new · M baselined` and fails only on new findings, so a fully baselined plugin reads green while regressions still fail. Matching ignores line and column, so a recorded finding survives unrelated line drift; entries that no longer occur are reported as stale and pruned on the next `--update-baseline`. A safety net compares the structured parse against each tool's own counter and disables suppression on any disagreement, so a parser bug can never silently green a real finding. Diagnostics originating outside the extension's own root — a conflict it imposes on the shared type surface — are fatal and cannot be baselined away.
+
+Spec files are type-checked too. A dedicated `vue-tsc` program per extension injects jest types (`describe`/`it`/`expect`, from a shipped `spec-types.d.ts`) and includes only the specs, so the runtime program stays free of runner globals; spec findings are reported on their own `TS (specs)` line and column. ESLint lints specs with the jest globals available, but its type-aware rules stay off for them: the generated `.shopware/` bridges are not solution-style project references, so typescript-eslint's project service has no spec program to resolve them against — `vue-tsc` is what type-checks specs, ESLint is not. Type-checking test code surfaces findings that were previously invisible, which is exactly what the baseline above absorbs: the two features are partners.
+
+In an interactive terminal the check opens a numbered picker (numbers, ranges, `a` for all, `w` for writable-only); `-- --only=<name[,name]>` or `-- --all` skip it, and non-interactive shells check everything. Three flags exist for CI and debugging: `-- --fail-on-skipped` turns any skipped or blocked writable extension into exit 1, so `exit 0` cannot mean "checked nothing" — this is the flag a CI gate should use; `-- --strict-vendor` makes findings in `vendor/`-installed extensions fatal too; and `-- --show-commands` prints the exact underlying `vue-tsc`/ESLint invocation per extension, so any result can be reproduced by hand.
+
+Nothing changes for existing flows: no default build, watch, init or CI pipeline invokes the new command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
+Nothing changes for existing flows unless you opt in: in a platform checkout `composer setup` runs the setup command only when the experimental `ADMIN_EXTENSION_TOOLING` feature flag is enabled (e.g. `ADMIN_EXTENSION_TOOLING=1` in `.env`); without the flag the step is a one-line no-op, and no build, watch or CI pipeline invokes the command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
+
 ## Storefront
 
 ### Google reCAPTCHA failures no longer show an error page on non-AJAX forms
@@ -811,6 +1195,13 @@ The administration media folder settings modal (`sw-media-modal-folder-settings`
 * `sw-media-modal-folder-settings__mediaFolder`
 * `sw-media-modal-folder-settings__configuration`
 
+### App permissions restrict Extension SDK requests and Administration modules
+
+Extension SDK action and URI-signing requests now require `app.all` or `app.<appName>` ACL rights for the selected app.
+Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
+The Administration module response omits modules for apps the current user cannot access.
+Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
+
 ## Hosting & Configuration
 
 ### Local translation files and optional automatic updates
@@ -859,6 +1250,73 @@ The service registry decides which Shopware Services a shop installs and where t
 
 Other environments are unrestricted, so local setups and tests can still point at their own registry.
 
+# 6.7.13.1
+
+## Security Fixes
+
+### Twig templates can no longer call arbitrary PHP functions through `find`, `has some`, and `has every`
+
+The Twig `find` filter and the `has some` / `has every` operators now reject string callables that are not listed in `shopware.twig.allowed_php_functions`, matching the existing behaviour of the `map`, `filter`, `reduce`, and `sort` filters. Templates passing arrow functions (`v => ...`) are unaffected; add any string callable a template legitimately needs to the allowlist.
+
+### Administration password recovery links use a trusted origin
+
+Administration password recovery links are now built from `APP_URL` when no trusted hosts are configured. If trusted hosts are configured, Shopware can continue to use the request host after Symfony has validated it. Ensure that `APP_URL` contains the public HTTP or HTTPS URL of the shop.
+
+### Custom entity and field names are validated before the schema is built
+
+Entity and field names in `Resources/entities.xml` become table and column names in the generated schema. They are now validated when the app or plugin is installed or updated, and may only contain letters, digits, underscores, `$`, and non-ASCII bytes supported by MySQL/MariaDB identifiers. A manifest using whitespace or punctuation such as `-` is rejected with a clear error.
+
+### Store API aggregation names reject control characters
+
+Aggregation names supplied through Store API criteria can no longer contain control characters. Invalid names are rejected before the aggregation query is built. Integrations must use printable names for aggregations.
+
+### ACL roles and protected Administration fields use authorized write paths
+
+Generic Admin API writes can no longer create or update `acl_role` entities. Direct DAL writes to the `admin` fields of users and integrations remain system-only; the authenticated Administration API controllers continue to authorize these changes, while self-profile and integration management work as before.
+
+The Administration service method `Shopware.Service('integrationService').updateAdmin()` is deprecated and will be removed in Shopware 6.8. Use the integration repository instead:
+
+```javascript
+const integrationRepository = Shopware.Service('repositoryFactory').create('integration');
+await integrationRepository.save(integration);
+```
+
+### Nested `productReviews` associations follow the same visibility rules as the top-level association
+
+Store API criteria that load product reviews through a nested association now apply the same review visibility rules as the top-level `productReviews` association: approved reviews, plus the pending reviews of the logged-in customer. Previously those rules were applied to the top-level association only. Integrations that read reviews through a nested association can receive fewer reviews than before.
+
+### Oversized sales channel criteria are rejected
+
+`SalesChannelRepository` applies the restrictions of the sales channel definitions — the sales channel scope and entity-specific filters such as product availability — to the first 99 criteria nodes it walks. Criteria with more nested associations than that kept the remaining nodes unrestricted. Such criteria are now rejected with a `400` and the error code `SYSTEM__CRITERIA_TOO_MANY_NESTED_CRITERIA` instead of being answered with partially restricted data. No storefront request produces criteria of that size; integrations that build them must split them into several requests.
+
+### Media file extensions are validated on every write
+
+Direct writes to `media.fileExtension` now use the same configured extension allowlist as media uploads. Invalid public or private media extensions are rejected with the error code `MEDIA_ILLEGAL_FILE_EXTENSION`.
+
+### Media import URL checks apply to the address that is connected to
+
+Media imports send the request to the address the URL check resolved, and check every resolved address instead of only the first IPv4 one. A `FileUrlValidatorInterface` implementation can still reject a URL, but can no longer allow a private or reserved address. To import media from a host in such a range, set `shopware.media.enable_url_validation` to `false`.
+
+### Webhook target validation hardened
+
+Webhook delivery now validates outbound targets before every request and before every followed redirect. By default, webhook targets must use HTTPS and resolve only to public IP addresses. HTTP endpoints, IP-literal targets, and internal network targets are rejected unless the operator explicitly allows the required traffic through `shopware.app_system.allow_unencrypted_traffic` or `shopware.app_system.allowed_private_ip_addresses` in `shopware.yaml`.
+
+Shopware pins the DNS result used during validation to the actual webhook HTTP request, reducing DNS rebinding risk between validation and connection.
+
+### Guest document downloads are rate limited
+
+Guest document download requests using a deep link code are now covered by the guest login rate limiter. Repeated invalid authentication attempts are rejected once the configured limit is reached; a successful authentication resets the limit.
+
+## Critical Fixes
+
+### Elasticsearch index updates schedule a reindex when analysis settings change
+
+When an Elasticsearch/OpenSearch mapping update references an analyzer or normalizer that the live index's analysis settings do not define, updating the mapping fails. Analysis settings cannot be added to a live index, so the affected entity is now scheduled for a reindex into a freshly created index with the current analysis settings instead of leaving the outdated mapping in place.
+
+### Document rendering supports decorated Twig environments
+
+The document renderer now type-hints the base `Twig\Environment` instead of Shopware's `TwigEnvironment`, so a decorated `twig` service no longer breaks document generation. The sales channel business timezone override applies only when Shopware's `TwigEnvironment` is in use. With a decorator that does not extend it, documents render in Twig's default timezone.
+
 # 6.7.13.0
 
 ## Critical Fixes
@@ -868,10 +1326,6 @@ Other environments are unrestricted, so local setups and tests can still point a
 Store API requests now remain stateless unless application or extension code explicitly starts a session. Previously, several sales channel and Storefront event subscribers could initialize Symfony's lazy session factory during Store API requests, causing unnecessary session storage growth and potentially taking PHP session locks. Storefront session handling, including customer imitation, remains unchanged.
 
 ## Core
-
-### Admin Elasticsearch listings fall back to the database on deep pagination
-
-Admin Elasticsearch searches (`ENABLE_OPENSEARCH_FOR_ADMIN_API`) now fall back to the database searcher when a request's `offset + limit` exceeds the configured admin index `max_result_window`, instead of sending a request that OpenSearch rejects with `Result window is too large`. This previously broke listings such as the customer grid when jumping to a deep or last page.
 
 ### Product `descriptionTeaser` backfill runs once as a post-update indexer
 
@@ -1319,13 +1773,6 @@ The route is guarded by the existing `media:read` ACL privilege and returns a sm
 
 ## App System
 
-### App permissions restrict Extension SDK requests and Administration modules
-
-Extension SDK action and URI-signing requests now require `app.all` or `app.<appName>` ACL rights for the selected app.
-Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
-The Administration module response omits modules for apps the current user cannot access.
-Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
-
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 
 Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
@@ -1352,30 +1799,6 @@ GENERATE_SOURCEMAPS=true NODE_ENV=production composer build:js:storefront
 ```
 
 ## Administration
-
-### Opt-in TypeScript and ESLint configuration for Administration extensions (experimental)
-
-This toolchain is **experimental** and not covered by the backwards-compatibility promise: it is shipped early to gather feedback while it is still being shaped, so the command names and their options, the layout of the generated files, and the `manifest.json` schema can change in any release without a deprecation cycle. Re-running setup after a Shopware update is the supported migration path — the generated files are disposable by design, so nothing should be hand-edited or automated on top of. Stabilization is targeted for v6.8.0 (annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_EXTENSION_TOOLING` in the source); the experimental marker is removed once the surfaces have settled. Not running the command leaves a project exactly as it was.
-
-`composer admin:setup-extension-tooling` generates the TypeScript and ESLint configuration that lets an Administration extension be type-checked and linted against the **installed** Shopware version — its live types, its entity schema and its pinned tool versions — instead of against a toolchain the extension vendors itself and that drifts.
-
-- **Every extension is bridged automatically.** Setup discovers every installed extension with Administration sources from `var/plugins.json` and writes a git-ignored, self-explaining `.shopware/` bridge beside each Administration folder — custom and vendor-installed alike — plus small committable `tsconfig.json` / `eslint.config.mjs` that extend it when the extension has none yet. Existing configs are never overwritten — the report prints the single line to add instead. One bridge is written per directory that owns a config, so a multi-bundle package whose shared config governs several Administration roots gets a single shared bridge (`-- --root-config=<Extension>:<dir>` forces one for a layout the grouping cannot infer). Root `tsconfig.json` / `eslint.config.mjs` projections and IDE bootstraps for VS Code and Zed are generated at the project root (PhpStorm settings are printed); editors then resolve the full Administration API, including installation-specific entity types.
-- **Unwritable directories degrade gracefully.** A bridge that cannot be written (e.g. a read-only vendor directory) is skipped with a warning; the extension's sources stay covered by the generated root `tsconfig.json`, which includes whatever no extension config governs. Files written under `vendor/` are local only: a composer update removes them and re-running setup restores them.
-- **The report says what is missing, not just what happened.** Each extension is classified `ready`, `bridged`, `bridge-unwired` or `not bridged`, changed files are listed by path, git-ignored bridge files are distinguished from committable plugin-owned ones, and only the actually-missing next step is printed.
-- **CI can verify the projection is current** with `composer admin:setup-extension-tooling:check` — a guaranteed read-only dry run that writes nothing and exits 1 on drift.
-
-Options belong after Composer's `--` separator; `-- --help` prints the generated reference, and an unknown flag exits 2 before anything is written. In a Composer/Flex install, where the Administration lives under `vendor/shopware/administration` and the Composer scripts do not exist, the same commands are available as `bin/console administration:setup-extension-tooling` and `bin/console administration:generate-entity-schema-types` — run `npm ci` in the Administration directory once, since its Node dependencies are not part of the Composer package.
-
-`composer admin:check-extensions` then runs that configuration: per extension it executes `vue-tsc` and ESLint with the Administration's own pinned tool versions and prints their native, unmodified output under a per-extension header, paths relativized to the project root. Pass `-- --only=<name[,name]>` to narrow it; without that it checks everything. Extension configs that do not compose the Shopware preset are visibly skipped with a reason-specific `why:` and the exact `fix:` — never silently green — and a run that skipped a writable extension carries a prominent warning so `exit 0` cannot be mistaken for full coverage. TypeScript is blocked with the fix command while the entity schema is missing, rather than flooding the report with cascade errors, and a JavaScript-only extension reports an honest qualified pass (`0 TypeScript files — .js is not type-checked`) instead of a vacuous green. `-- --fix` applies ESLint autofixes, including the Shopware `sw-*` → `mt-*` deprecation codemods. Findings in `vendor/`-installed extensions are reported but never fail the run.
-
-Because bridging a large plugin can surface hundreds of findings at once — which would make an exit-1 check useless — `-- --only=<name> --update-baseline` records the current findings into a committed, plugin-relative `.shopware-admin-baseline.json` (custom/plugins only). The check then reports `N new · M baselined` and fails only on new findings, so a fully baselined plugin reads green while regressions still fail. Matching ignores line and column, so a recorded finding survives unrelated line drift; entries that no longer occur are reported as stale and pruned on the next `--update-baseline`. A safety net compares the structured parse against each tool's own counter and disables suppression on any disagreement, so a parser bug can never silently green a real finding. Diagnostics originating outside the extension's own root — a conflict it imposes on the shared type surface — are fatal and cannot be baselined away.
-
-Spec files are type-checked too. A dedicated `vue-tsc` program per extension injects jest types (`describe`/`it`/`expect`, from a shipped `spec-types.d.ts`) and includes only the specs, so the runtime program stays free of runner globals; spec findings are reported on their own `TS (specs)` line and column. ESLint lints specs with the jest globals available, but its type-aware rules stay off for them: the generated `.shopware/` bridges are not solution-style project references, so typescript-eslint's project service has no spec program to resolve them against — `vue-tsc` is what type-checks specs, ESLint is not. Type-checking test code surfaces findings that were previously invisible, which is exactly what the baseline above absorbs: the two features are partners.
-
-In an interactive terminal the check opens a numbered picker (numbers, ranges, `a` for all, `w` for writable-only); `-- --only=<name[,name]>` or `-- --all` skip it, and non-interactive shells check everything. Three flags exist for CI and debugging: `-- --fail-on-skipped` turns any skipped or blocked writable extension into exit 1, so `exit 0` cannot mean "checked nothing" — this is the flag a CI gate should use; `-- --strict-vendor` makes findings in `vendor/`-installed extensions fatal too; and `-- --show-commands` prints the exact underlying `vue-tsc`/ESLint invocation per extension, so any result can be reproduced by hand.
-
-Nothing changes for existing flows: no default build, watch, init or CI pipeline invokes the new command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
-Nothing changes for existing flows unless you opt in: in a platform checkout `composer setup` runs the setup command only when the experimental `ADMIN_EXTENSION_TOOLING` feature flag is enabled (e.g. `ADMIN_EXTENSION_TOOLING=1` in `.env`); without the flag the step is a one-line no-op, and no build, watch or CI pipeline invokes the command. The full reference — flags, generated-file ownership, troubleshooting — lives in [`extension-tooling/README.md`](src/Administration/Resources/app/administration/extension-tooling/README.md).
 
 ### Reworked search behaviour options
 
@@ -3661,21 +4084,6 @@ Since [6.7.2.0](https://github.com/shopware/shopware/pull/11107), the "find best
 This behaviour is now optional and can be enabled by setting the `core.listing.findBestVariant` config to `true` or setting it via the admin interface under Settings > Products > "Preview best matching variant for search results"
 
 ## Administration
-
-As part of this change, the following deprecations were made:
-- The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
-- `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
-- The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
-- The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
-- A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
-- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
-
-If you have using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
-If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
-
-## Administration
-
-When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
 
 ### Axios upgrade with dual-client dispatcher
 

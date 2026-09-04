@@ -103,7 +103,9 @@ export default Shopware.Mixin.register(
 
             inheritedSlotConfig() {
                 const currentLanguageId = Shopware.Store.get('context').api.languageId;
-                const parentLanguageId = Shopware.Store.get('context').api.language?.parentId;
+                const parentLanguageId =
+                    Shopware.Store.get('context').api.language?.parentId ??
+                    Shopware.Store.get('context').api.systemLanguageId;
 
                 const currentSlotConfig = this.getSlotConfigForLanguage(currentLanguageId);
                 const parentSlotConfig = parentLanguageId ? this.getSlotConfigForLanguage(parentLanguageId) : null;

@@ -23,13 +23,14 @@ class CheckoutStoreService extends ApiService {
         contextToken: string,
         additionalParams = {},
         additionalHeaders = {},
+        payload = {},
     ) {
         const route = `_proxy-order/${salesChannelId}`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
             'sw-context-token': contextToken,
         };
-        return this.httpClient.post(route, {}, { ...additionalParams, headers });
+        return this.httpClient.post(route, payload, { ...additionalParams, headers });
     }
 }
 

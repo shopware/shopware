@@ -8,6 +8,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use Monolog\Handler\NullHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Test\Category\Service\CountingEntityReader;
 use Shopware\Core\Content\Test\Category\Service\CountingEntitySearcher;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController;
+use Shopware\Core\Framework\Test\App\StaticTrustedUrlResolverFactory;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\DateTimeDefinition;
@@ -36,6 +38,8 @@ use Shopware\Core\Framework\Test\TestCacheClearer;
 use Shopware\Core\Framework\Test\TestCaseHelper\StoreApiSessionListener;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Test\TestSessionStorageFactory;
+use Shopware\Core\Framework\Test\Webhook\StaticWebhookTargetValidatorFactory;
+use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\Integration\App\TestAppServer;
@@ -186,6 +190,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                     ->args([
                         service(TestAppServer::class),
                     ])
+                    ->call('after', [
+                        'allow_redirects',
+                        service('shopware.app_system.guzzle.security_middleware'),
+                        'app_system_http_security',
+                    ])
                     ->call('push', [
                         service('shopware.app_system.guzzle.middleware'),
                     ])
@@ -195,6 +204,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ],
         ]);
 
+    $services->set('shopware.app_system.trusted_url_resolver', TrustedUrlResolver::class)
+        ->factory([StaticTrustedUrlResolverFactory::class, 'create'])
+        ->args([
+            param('shopware.app_system.allowed_private_ip_addresses'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set('shopware.webhook.trusted_url_resolver', TrustedUrlResolver::class)
+        ->factory([StaticTrustedUrlResolverFactory::class, 'create'])
+        ->args([
+            param('shopware.app_system.allowed_private_ip_addresses'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
     $services->set('shopware.webhook.guzzle', Client::class)
         ->args([
             [
@@ -203,6 +226,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                     ->args([
                         service(TestAppServer::class),
                     ])
+                    ->call('after', [
+                        'allow_redirects',
+                        service('shopware.webhook.guzzle.security_middleware'),
+                        'app_system_http_security',
+                    ])
                     ->call('push', [
                         service('shopware.app_system.guzzle.middleware'),
                     ])
@@ -210,6 +238,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                         service('test.guzzle.history.middleware'),
                     ]),
             ],
+        ]);
+
+    $services->set('Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator', WebhookTargetValidator::class)
+        ->factory([StaticWebhookTargetValidatorFactory::class, 'create'])
+        ->args([
+            param('shopware.app_system.allow_unencrypted_traffic'),
+            param('shopware.app_system.allowed_private_ip_addresses'),
+            param('shopware.app_system.enable_url_validation'),
         ]);
 
     $services->set(TestAppServer::class)

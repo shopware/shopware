@@ -1,6 +1,7 @@
 import template from './sw-order-detail.html.twig';
 import './sw-order-detail.scss';
 import '../../store/order-detail.store';
+import { getCartErrorMessage } from '../../cart-error.helper';
 
 /**
  * @sw-package checkout
@@ -257,6 +258,8 @@ export default {
     },
 
     beforeUnmount() {
+        window.removeEventListener('pagehide', this.onPageHide);
+
         // Deselecting happens here and not in `beforeRouteLeave`, because leaving while editing
         // is confirmed through the leave page warning, which resumes the navigation on its own.
         Shopware.Store.get('shopwareApps').selectedIds = [];
@@ -287,7 +290,7 @@ export default {
                 scope: this,
             });
 
-            window.addEventListener('beforeunload', this.beforeDestroyComponent);
+            window.addEventListener('pagehide', this.onPageHide);
 
             Shopware.Store.get('shopwareApps').selectedIds = this.orderId ? [this.orderId] : [];
 
@@ -303,7 +306,15 @@ export default {
             });
         },
 
-        async beforeDestroyComponent() {
+        onPageHide(event) {
+            if (event.persisted) {
+                return;
+            }
+
+            this.beforeDestroyComponent(true);
+        },
+
+        beforeDestroyComponent(useKeepalive = false) {
             Store.get('swOrderDetail').setOrderAddressIds(null);
 
             if (this.hasNewVersionId) {
@@ -312,10 +323,14 @@ export default {
                 this.hasNewVersionId = false;
 
                 // clean up recently created version
-                await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
-            }
+                if (useKeepalive) {
+                    this.orderRepository.deleteVersionWithKeepalive(this.orderId, oldVersionContext.versionId);
 
-            window.removeEventListener('beforeunload', this.beforeDestroyComponent);
+                    return;
+                }
+
+                this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
+            }
         },
 
         /**
@@ -559,6 +574,8 @@ export default {
         onLeaveModalConfirm() {
             this.isDisplayingLeavePageWarning = false;
 
+            Store.get('swOrderDetail').editing = false;
+
             this.$nextTick(() => {
                 this.nextRoute();
             });
@@ -630,8 +647,10 @@ export default {
                 return;
             }
 
-            Object.values(response.data.errors).forEach(({ level, message }) => {
-                switch (level) {
+            Object.values(response.data.errors).forEach((error) => {
+                const message = getCartErrorMessage(error);
+
+                switch (error.level) {
                     case 0: {
                         this.createNotificationInfo({ message });
                         break;

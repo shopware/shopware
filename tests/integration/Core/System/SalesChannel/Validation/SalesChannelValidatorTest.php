@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -38,6 +39,10 @@ class SalesChannelValidatorTest extends TestCase
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
     private const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
     private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
+
+    private const CURRENCY_INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel currency id in the currency list.';
+    private const CURRENCY_UPDATE_VALIDATION_MESSAGE = 'Cannot update default currency id because the given id is not in the currency list of sales channel with id "%s"';
+    private const CURRENCY_DELETE_VALIDATION_MESSAGE = 'Cannot delete default currency id from currency list of the sales channel with id "%s".';
 
     /**
      * @param list<array{0: string, 1: string, 2?: list<string>}> $inserts
@@ -349,6 +354,113 @@ class SalesChannelValidatorTest extends TestCase
         static::assertSame([$newDefaultId], array_values($salesChannel->getLanguages()->getIds()));
     }
 
+    public function testCurrencyValidationFailsWithoutCurrencyEntry(): void
+    {
+        $id = Uuid::randomHex();
+        $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
+        $data['currencies'] = [];
+
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::CURRENCY_INSERT_VALIDATION_MESSAGE, $id),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
+
+        $this->createSalesChannelAndRethrowConstraintViolation($data);
+    }
+
+    public function testCurrencyValidationFailsWhenUpdatingDefaultToUnassignedCurrency(): void
+    {
+        $id = Uuid::randomHex();
+        $this->getSalesChannelRepository()->create([
+            $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]),
+        ], Context::createDefaultContext());
+
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::CURRENCY_UPDATE_VALIDATION_MESSAGE, $id),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
+
+        try {
+            $this->getSalesChannelRepository()->update([[
+                'id' => $id,
+                'currencyId' => Uuid::randomHex(),
+            ]], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            $this->rethrowConstraintViolation($e);
+        }
+    }
+
+    public function testCurrencyValidationPreventsDefaultCurrencyRemoval(): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::CURRENCY_DELETE_VALIDATION_MESSAGE, TestDefaults::SALES_CHANNEL),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
+
+        try {
+            $this->getSalesChannelCurrencyRepository()->delete([[
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'currencyId' => Defaults::CURRENCY,
+            ]], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            $this->rethrowConstraintViolation($e);
+        }
+    }
+
+    public function testChangingDefaultCurrencyAndRemovingPreviousDefaultInOneWrite(): void
+    {
+        $id = Uuid::randomHex();
+        $newDefaultId = $this->createCurrency();
+        $context = Context::createDefaultContext();
+
+        $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
+        $data['currencies'][] = ['id' => $newDefaultId];
+        $this->getSalesChannelRepository()->create([$data], $context);
+
+        static::getContainer()->get(SyncService::class)->sync([
+            new SyncOperation('write', SalesChannelDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, [
+                ['id' => $id, 'currencyId' => $newDefaultId],
+            ]),
+            new SyncOperation('delete', SalesChannelCurrencyDefinition::ENTITY_NAME, SyncOperation::ACTION_DELETE, [
+                ['salesChannelId' => $id, 'currencyId' => Defaults::CURRENCY],
+            ]),
+        ], $context, new SyncBehavior());
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('currencies');
+
+        $salesChannel = $this->getSalesChannelRepository()->search($criteria, $context)->getEntities()->first();
+
+        static::assertNotNull($salesChannel);
+        static::assertSame($newDefaultId, $salesChannel->getCurrencyId());
+        static::assertNotNull($salesChannel->getCurrencies());
+        static::assertSame([$newDefaultId], array_values($salesChannel->getCurrencies()->getIds()));
+    }
+
     public function testDeletingSalesChannelWillNotBeValidated(): void
     {
         $id = Uuid::randomHex();
@@ -500,6 +612,45 @@ class SalesChannelValidatorTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $data
+     */
+    private function createSalesChannelAndRethrowConstraintViolation(array $data): void
+    {
+        try {
+            $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            $this->rethrowConstraintViolation($e);
+        }
+    }
+
+    private function rethrowConstraintViolation(WriteException $exception): never
+    {
+        foreach ($exception->getExceptions() as $inner) {
+            throw $inner;
+        }
+
+        throw $exception;
+    }
+
+    private function createCurrency(): string
+    {
+        $id = Uuid::randomHex();
+        static::getContainer()->get('currency.repository')->create([[
+            'id' => $id,
+            'name' => 'Test currency ' . $id,
+            'factor' => 1.0,
+            'symbol' => '$',
+            'isoCode' => 'T' . substr($id, 0, 2),
+            'decimalPrecision' => 2,
+            'shortName' => 'Test currency',
+            'itemRounding' => ['decimals' => 2, 'interval' => 0.01, 'roundForNet' => true],
+            'totalRounding' => ['decimals' => 2, 'interval' => 0.01, 'roundForNet' => true],
+        ]], Context::createDefaultContext());
+
+        return $id;
+    }
+
+    /**
      * @return EntityRepository<SalesChannelCollection>
      */
     private function getSalesChannelRepository(): EntityRepository
@@ -513,5 +664,13 @@ class SalesChannelValidatorTest extends TestCase
     private function getSalesChannelLanguageRepository(): EntityRepository
     {
         return static::getContainer()->get('sales_channel_language.repository');
+    }
+
+    /**
+     * @return EntityRepository<EntityCollection<Entity>>
+     */
+    private function getSalesChannelCurrencyRepository(): EntityRepository
+    {
+        return static::getContainer()->get('sales_channel_currency.repository');
     }
 }

@@ -25,9 +25,40 @@
         "version": "Version",
         "update": "Update"
       },
+      "bulk": {
+        "selectExtensionAria": "Select {name}",
+        "install": "Install",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "update": "Update",
+        "uninstall": "Uninstall",
+        "uninstallModal": {
+          "title": "Uninstall {count} extension|Uninstall {count} extensions",
+          "description": "The following extensions will be uninstalled:",
+          "alert": "This action cannot be undone.",
+          "buttonLabel": "Uninstall",
+          "labelRemovePluginData": "Also remove all data for every selected extension",
+          "helpTextRemovePluginData": "Warning: If enabled, all data created by these extensions will be removed permanently."
+        },
+        "deactivationModal": {
+          "title": "Deactivate {count} extension|Deactivate {count} extensions",
+          "description": "The following extensions have a monthly subscription fee. Deactivating them will not cancel your subscriptions and fees will continue to be collected:",
+          "alert": "Do you still want to deactivate the selected extensions?",
+          "buttonLabel": "Deactivate"
+        },
+        "consent": {
+          "extensionLabel": "{count} extension|{count} extensions",
+          "installTitle": "Install {count} extension|Install {count} extensions",
+          "installDescription": "The selected extensions request the following permissions:",
+          "installAction": "Accept and install",
+          "updateTitle": "Update {count} extension|Update {count} extensions",
+          "updateDescription": "Updating the selected extensions requires accepting the following new permissions:",
+          "updateAction": "Accept and update"
+        }
+      },
       "account": {
         "headline": "Shopware Account",
-        "isLoggedIn": "Shopware Account succesfully connected. Go to the \"App\" or \"Themes\" tab and check if your purchased extensions are listed. If not, check head over to your Showare Account and make sure the correct domain for extensions has been set.",
+        "isLoggedIn": "Shopware Account succesfully connected. Go to the \"App\" or \"Themes\" tab and check if your purchased extensions are listed. If not, check head over to your Shopware Account and make sure the correct domain for extensions has been set.",
         "login": "Login",
         "logout": "Logout",
         "loginMessage": "Login with you Shopware Account to access extensions you bought on store.shopware.com",

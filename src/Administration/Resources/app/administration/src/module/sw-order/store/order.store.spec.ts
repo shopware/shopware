@@ -74,6 +74,7 @@ describe('src/module/sw-order/store/order.store', () => {
 
     beforeEach(() => {
         Shopware.Store.get('swOrder').$reset();
+        jest.clearAllMocks();
     });
 
     it('should have an empty state', () => {
@@ -119,6 +120,7 @@ describe('src/module/sw-order/store/order.store', () => {
                 },
                 promotionCodes: [],
                 disabledAutoPromotion: false,
+                sendOrderConfirmationMail: true,
             }),
         );
     });
@@ -314,7 +316,15 @@ describe('src/module/sw-order/store/order.store', () => {
     it('saves order', async () => {
         await store.saveOrder({ salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token });
 
-        expect(checkoutMock).toHaveBeenLastCalledWith('1', token);
+        expect(checkoutMock).toHaveBeenLastCalledWith('1', token, {}, {}, { sendOrderConfirmationMail: true });
+    });
+
+    it('saves order without confirmation mail when disabled', async () => {
+        store.setSendOrderConfirmationMail(false);
+
+        await store.saveOrder({ salesChannelId: '1' as EntityKey<'sales_channel'>, contextToken: token });
+
+        expect(checkoutMock).toHaveBeenLastCalledWith('1', token, {}, {}, { sendOrderConfirmationMail: false });
     });
 
     it('removes line items', async () => {

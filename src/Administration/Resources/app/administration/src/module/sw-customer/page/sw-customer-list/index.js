@@ -1,4 +1,5 @@
 import template from './sw-customer-list.html.twig';
+import customerDisplayName from '../../helper/customer-display-name.helper';
 import './sw-customer-list.scss';
 
 /**
@@ -217,6 +218,8 @@ export default {
     },
 
     methods: {
+        customerDisplayName,
+
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */

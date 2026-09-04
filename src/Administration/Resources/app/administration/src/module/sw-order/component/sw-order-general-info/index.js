@@ -72,6 +72,27 @@ export default {
     },
 
     computed: {
+        /**
+         * A company account may have no contact person, and then the snapshot name already is the
+         * company, so appending it again would repeat it.
+         */
+        orderCustomerName() {
+            const customer = this.order?.orderCustomer;
+
+            if (!customer) {
+                return '';
+            }
+
+            const personName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
+            const company = (customer.company || '').trim();
+
+            if (company === '' || personName === company) {
+                return personName || company;
+            }
+
+            return personName === '' ? company : `${personName} - ${company}`;
+        },
+
         isLoading: () => Store.get('swOrderDetail').isLoading,
 
         savedSuccessful: () => Store.get('swOrderDetail').savedSuccessful,

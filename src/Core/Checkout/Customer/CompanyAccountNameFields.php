@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Length;
@@ -26,13 +27,38 @@ final class CompanyAccountNameFields
     public static function areRequired(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {
         // a hidden field is never submitted, so it cannot be required
-        return $systemConfigService->getBool(self::CONFIG_SHOW, $salesChannelId)
-            && $systemConfigService->getBool(self::CONFIG_REQUIRED, $salesChannelId);
+        return self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId)
+            && self::isEnabled($systemConfigService, self::CONFIG_REQUIRED, $salesChannelId);
     }
 
     public static function areVisible(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {
-        return $systemConfigService->getBool(self::CONFIG_SHOW, $salesChannelId);
+        return self::isEnabled($systemConfigService, self::CONFIG_SHOW, $salesChannelId);
+    }
+
+    /**
+     * Both settings default to on. An absent key would otherwise read as `false` and silently make
+     * the contact person optional on an installation that never opted in.
+     */
+    private static function isEnabled(SystemConfigService $systemConfigService, string $key, ?string $salesChannelId): bool
+    {
+        $value = $systemConfigService->get($key, $salesChannelId);
+
+        return $value === null ? true : (bool) $value;
+    }
+
+    /**
+     * The name fields are `Required` with `AllowEmptyString`, so the data abstraction layer accepts
+     * an empty string but still rejects null. A hidden or skipped input is absent from the request,
+     * so it is normalised before the payload is built.
+     */
+    public static function normalize(DataBag $data): void
+    {
+        foreach (['firstName', 'lastName'] as $property) {
+            if ($data->get($property) === null) {
+                $data->set($property, '');
+            }
+        }
     }
 
     /**

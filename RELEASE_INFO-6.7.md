@@ -125,7 +125,7 @@ Custom number range increment storages can implement `AbstractIncrementStorage::
 
 ### Company accounts can register without a contact person
 
-`Settings > Login & Registration` gains `nameFieldsRequiredForCompanyAccounts`. It defaults to on, so nothing changes until a shop turns it off. With it off, a customer registering as a commercial account may leave the first and last name empty, and the company name becomes mandatory instead.
+`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. Both default to on, for new and for upgraded installations, so nothing changes until a shop turns one of them off. Together they cover the three states a contact person can have on a commercial account: required, optional and hidden. A hidden field is never submitted and therefore never required. Once the contact person is no longer mandatory the company name takes its place and becomes required.
 
 The first and last name fields of `customer`, `order_customer` and `customer_address` now carry the `AllowEmptyString` flag. The columns stay `NOT NULL` and the getters keep returning `string`, but an empty string is accepted on every write path, including the Admin API, for private accounts as well. Extensions that relied on the data abstraction layer rejecting an empty name must validate it themselves.
 

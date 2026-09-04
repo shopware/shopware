@@ -73,6 +73,8 @@ class CompanyAccountNameTest extends TestCase
 
         static::assertSame('', $customer->getFirstName());
         static::assertSame('', $customer->getLastName());
+        static::assertSame('', $customer->getDefaultBillingAddress()?->getFirstName());
+        static::assertSame('', $customer->getDefaultBillingAddress()?->getLastName());
         static::assertSame('Acme GmbH', $customer->getCompany());
         static::assertSame('Acme GmbH', $customer->getDisplayName());
     }
@@ -93,7 +95,7 @@ class CompanyAccountNameTest extends TestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-                'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                // deliberately no account type: the address form does not always carry it
                 'company' => 'Acme GmbH',
                 'city' => 'Hamburg',
             ], \JSON_THROW_ON_ERROR)
@@ -199,6 +201,7 @@ class CompanyAccountNameTest extends TestCase
     private function loadCustomer(string $email): CustomerEntity
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('email', $email));
+        $criteria->addAssociation('defaultBillingAddress');
         $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertInstanceOf(CustomerEntity::class, $customer);

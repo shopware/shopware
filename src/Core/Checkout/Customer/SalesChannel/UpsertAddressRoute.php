@@ -103,7 +103,20 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $data->set('salutationId', $this->getDefaultSalutationId($context));
         }
 
-        $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        $accountType = $data->get('accountType');
+
+        // the address form does not always carry the account type, and then the account decides
+        if (!\is_string($accountType) || $accountType === '') {
+            $accountType = $customer->isBusinessAccount()
+                ? CustomerEntity::ACCOUNT_TYPE_BUSINESS
+                : CustomerEntity::ACCOUNT_TYPE_PRIVATE;
+        }
+
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
+            CompanyAccountNameFields::normalize($data);
+        }
+
         $definition = $this->getValidationDefinition($data, $accountType, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $addressId], $data->all()), $definition);
 

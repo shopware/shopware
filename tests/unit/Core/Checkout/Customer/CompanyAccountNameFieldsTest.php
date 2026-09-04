@@ -32,6 +32,14 @@ class CompanyAccountNameFieldsTest extends TestCase
         static::assertFalse(CompanyAccountNameFields::areVisible($this->config(false, true), TestDefaults::SALES_CHANNEL));
     }
 
+    public function testAbsentKeysDefaultToRequired(): void
+    {
+        $config = new StaticSystemConfigService([TestDefaults::SALES_CHANNEL => []]);
+
+        static::assertTrue(CompanyAccountNameFields::areRequired($config, TestDefaults::SALES_CHANNEL));
+        static::assertTrue(CompanyAccountNameFields::areVisible($config, TestDefaults::SALES_CHANNEL));
+    }
+
     /**
      * @return iterable<string, array{bool|null, bool|null, bool}>
      */

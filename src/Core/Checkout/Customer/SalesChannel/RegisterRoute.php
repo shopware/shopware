@@ -138,6 +138,19 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
+        // a skipped contact person arrives as an absent field, which the data abstraction layer
+        // rejects even though it accepts an empty string
+        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
+            CompanyAccountNameFields::normalize($data);
+
+            foreach ([$billing, $shipping] as $address) {
+                if ($address instanceof DataBag) {
+                    CompanyAccountNameFields::normalize($address);
+                }
+            }
+        }
+
         $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions, $validateStorefrontUrl);
 
         $customer = $this->mapCustomerData($data, $isGuest, $context);

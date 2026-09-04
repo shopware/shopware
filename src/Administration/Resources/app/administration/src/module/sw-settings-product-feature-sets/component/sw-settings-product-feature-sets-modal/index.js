@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const { Context, Locale } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -119,6 +120,24 @@ export default {
 
         customFieldCriteria() {
             const criteria = new Criteria(1, 10);
+
+            if (this.customFieldSearchTerm) {
+                // score queries restrict the result set on their own, the score sorting has to be added before the
+                // type sorting to stay the primary one
+                criteria.addSorting(Criteria.sort('_score', 'DESC'));
+
+                this.customFieldSearchFields.forEach((field) => {
+                    criteria.addQuery(
+                        Criteria.equals(field, this.customFieldSearchTerm),
+                        searchRankingPoint.HIGH_SEARCH_RANKING,
+                    );
+                    criteria.addQuery(
+                        Criteria.contains(field, this.customFieldSearchTerm),
+                        searchRankingPoint.LOW_SEARCH_RANKING,
+                    );
+                });
+            }
+
             criteria.addSorting(Criteria.sort('type', 'DESC'));
 
             const featureIds = this.getFeaturesIds('customField');
@@ -126,39 +145,20 @@ export default {
                 criteria.addFilter(Criteria.not('AND', [Criteria.equalsAny('id', featureIds)]));
             }
 
-            if (this.customFieldSearchTerm) {
-                criteria.addFilter(Criteria.multi('OR', this.customFieldSearchFilters));
-            }
-
             return criteria;
         },
 
-        /**
-         * The grid renders the translated `config.label` of a custom field, but a plain term search only matches the
-         * technical `name`, because `custom_field` has no searchable label field. Search both, so a merchant can find
-         * a custom field by the label they see.
-         */
-        customFieldSearchFilters() {
-            const term = this.customFieldSearchTerm;
-            const filters = [Criteria.contains('name', term)];
-
-            // The rendered label is read from the current locale with the fallback locale as backup, so both have to
-            // be covered even when they are not part of the locale registry.
+        customFieldSearchFields() {
             const locales = new Set([
                 Shopware.Store.get('session').currentLocale,
                 Shopware.Context.app.fallbackLocale,
                 ...Locale.getLocaleRegistry().keys(),
             ]);
 
-            locales.forEach((locale) => {
-                if (!locale) {
-                    return;
-                }
-
-                filters.push(Criteria.contains(`config.label.${locale}`, term));
-            });
-
-            return filters;
+            return [
+                'name',
+                ...[...locales].filter(Boolean).map((locale) => `config.label.${locale}`),
+            ];
         },
 
         propertyGroupCriteria() {

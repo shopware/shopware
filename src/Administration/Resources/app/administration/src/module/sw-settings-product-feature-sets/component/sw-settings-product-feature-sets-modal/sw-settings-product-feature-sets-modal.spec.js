@@ -322,18 +322,40 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         // a term search would only match the technical `name` of a custom field
         expect(criteria.term).toBeNull();
 
-        const searchFilter = criteria.filters.find((filter) => filter.type === 'multi' && filter.operator === 'OR');
+        expect(criteria.queries).toContainEqual({
+            score: 80,
+            query: { type: 'contains', field: 'name', value: 'Material thickness' },
+        });
+        expect(criteria.queries).toContainEqual({
+            score: 80,
+            query: { type: 'contains', field: `config.label.${locale}`, value: 'Material thickness' },
+        });
+    });
 
-        expect(searchFilter).toBeDefined();
-        expect(searchFilter.queries).toContainEqual({
-            type: 'contains',
-            field: 'name',
-            value: 'Material thickness',
+    it('ranks exact custom field matches above partial ones', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'Material' });
+        await wrapper.vm.onSearchCustomFields();
+        await flushPromises();
+
+        const criteria = searchCriteria.custom_field;
+        const locale = Shopware.Store.get('session').currentLocale;
+
+        [
+            'name',
+            `config.label.${locale}`,
+        ].forEach((field) => {
+            const exact = criteria.queries.find((query) => query.query.type === 'equals' && query.query.field === field);
+            const partial = criteria.queries.find((query) => query.query.type === 'contains' && query.query.field === field);
+
+            expect(exact.score).toBeGreaterThan(partial.score);
         });
-        expect(searchFilter.queries).toContainEqual({
-            type: 'contains',
-            field: `config.label.${locale}`,
-            value: 'Material thickness',
-        });
+
+        // the score sorting has to win over the type sorting
+        expect(criteria.sortings[0]).toEqual({ field: '_score', order: 'DESC', naturalSorting: false });
+        expect(criteria.sortings[1]).toEqual({ field: 'type', order: 'DESC', naturalSorting: false });
     });
 });

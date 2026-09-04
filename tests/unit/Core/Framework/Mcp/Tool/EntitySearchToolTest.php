@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
@@ -455,12 +456,9 @@ class EntitySearchToolTest extends TestCase
         static::assertStringContainsString('shopware://entities', $data['error']);
     }
 
+    #[TestDox('A rejected filter is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]
     public function testAMalformedCriteriaIsAnsweredWithTheParserDetail(): void
     {
-        // Same regression as EntityAggregateTool: fromArray() rejects a
-        // malformed filter by throwing, and an escaping throwable reaches the
-        // MCP SDK's generic handler as "Error while executing tool", which a
-        // client cannot correct from. The pointer is the part it cannot infer.
         $context = Context::createDefaultContext();
         $definition = static::createStub(EntityDefinition::class);
 
@@ -501,10 +499,9 @@ class EntitySearchToolTest extends TestCase
         static::assertStringContainsString('The filter should contain a "field".', $data['error']);
     }
 
+    #[TestDox('Only criteria-parsing exceptions are answered; any other throwable is a bug and still propagates')]
     public function testAnUnexpectedThrowableStillPropagates(): void
     {
-        // Only the parser exceptions are answered; a bug must still reach the
-        // log untouched rather than being flattened into a tool result.
         $context = Context::createDefaultContext();
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);

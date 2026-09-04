@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Defaults;
@@ -303,6 +304,7 @@ class McpToolResponseConventionTest extends TestCase
         static::assertSame('The aggregations parameter has to be a list of aggregations.', $result['error']);
     }
 
+    #[TestDox('The pointer of each rejected element is named, because the caller cannot infer which one was wrong')]
     public function testInvalidCriteriaErrorNamesThePointerOfEachRejectedElement(): void
     {
         $exception = new SearchRequestException();
@@ -323,21 +325,14 @@ class McpToolResponseConventionTest extends TestCase
         );
 
         static::assertFalse($result['success']);
-        // The pointer is the part a caller cannot infer: which element of the
-        // array it sent is the wrong one.
         static::assertStringContainsString('/aggregations/0/avg/field', $result['error']);
         static::assertStringContainsString('The aggregation should contain a "field".', $result['error']);
         static::assertStringContainsString('/filter/1/equals/field', $result['error']);
     }
 
+    #[TestDox('The base DataAbstractionLayerException the builder throws for e.g. {"includes":"id"} is handled, not only its subclasses')]
     public function testInvalidCriteriaErrorHandlesTheBaseClassThrownDirectly(): void
     {
-        // The gap a reviewer found on this branch: RequestCriteriaBuilder throws
-        // the BASE DataAbstractionLayerException for some input errors rather
-        // than one of the InvalidFilterQuery / InvalidAggregationQuery
-        // subclasses, so catching only the children let `{"includes":"id"}`
-        // escape to the SDK's generic handler — reproduced on a live lane as
-        // `Error while executing tool`.
         $result = json_decode(
             (new McpToolResponseTestHelper())->callInvalidCriteriaError(
                 DataAbstractionLayerException::expectedArrayWithType('includes', 'string')

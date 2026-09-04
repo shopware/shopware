@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
@@ -230,13 +231,9 @@ class EntityReadToolTest extends TestCase
         static::assertStringContainsString('shopware://entities', $data['error']);
     }
 
+    #[TestDox('A malformed "includes" that makes the builder throw the base DataAbstractionLayerException is answered with its detail')]
     public function testAMalformedCriteriaIsAnsweredWithTheParserDetail(): void
     {
-        // This tool's documented use is "associations" and "includes", and
-        // `{"includes":"id"}` — a string where an array is wanted — makes
-        // RequestCriteriaBuilder throw the BASE DataAbstractionLayerException.
-        // Before the guard it escaped to the SDK's generic handler; reproduced
-        // on a live lane as `Error while executing tool`.
         $context = Context::createDefaultContext();
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);

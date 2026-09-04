@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
@@ -347,14 +348,9 @@ class EntityAggregateToolTest extends TestCase
         static::assertStringContainsString('order_customer:read', $data['error']);
     }
 
+    #[TestDox('A rejected aggregation is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]
     public function testAnAggregationTheEntityCannotExpressIsAnsweredWithTheParserDetail(): void
     {
-        // The regression this covers: RequestCriteriaBuilder rejects a malformed
-        // aggregation by throwing, and an escaping throwable reaches the MCP
-        // SDK's generic handler as "Error while executing tool" — which tells a
-        // client nothing it can act on. Measured on shopware-mcp-evals run
-        // 33598354019, where three fixtures picked this tool correctly and still
-        // failed because the retry was answered with that bare string.
         $context = Context::createDefaultContext();
         $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
 
@@ -392,11 +388,9 @@ class EntityAggregateToolTest extends TestCase
         static::assertSame('The aggregation type "nonsense" used as key does not exist.', $data['error']);
     }
 
+    #[TestDox('Only criteria-parsing exceptions are answered; any other throwable is a bug and still propagates')]
     public function testAnUnexpectedThrowableStillPropagates(): void
     {
-        // The other half of the policy on McpToolResponse: only the three
-        // parser exceptions are answered. Anything else is a bug and must reach
-        // the log untouched rather than being flattened into a tool result.
         $context = Context::createDefaultContext();
         $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
 

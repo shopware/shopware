@@ -126,33 +126,16 @@ abstract class McpToolResponse
     }
 
     /**
-     * Renders a criteria-parsing failure as an error the caller can act on.
+     * Renders a `RequestCriteriaBuilder::fromArray()` failure as an error the
+     * caller can act on, instead of letting it escape to the SDK's generic
+     * "Error while executing tool".
      *
-     * `RequestCriteriaBuilder::fromArray()` rejects a malformed criteria,
-     * filter or aggregation payload by throwing, and an escaping throwable
-     * reaches the SDK's generic handler as "Error while executing tool" — a
-     * message that says only that something went wrong. For a human reading a
-     * log that is merely unhelpful; for an AI client it is a dead end, because
-     * the retry it attempts next is uninformed by anything the server knows.
-     *
-     * Measured on shopware/shopware-mcp-evals run 33598354019: three fixtures
-     * selected shopware-entity-aggregate correctly, were told on the first
-     * attempt that "aggregations must be a JSON array of aggregation
-     * definitions" — which is this repo's own message and is genuinely
-     * useful — and then received "Error while executing tool" three times in a
-     * row for the follow-up calls. The detail existed and was being dropped.
-     *
-     * `SearchRequestException` carries one entry per rejected pointer, so the
-     * pointer is included: "/aggregations/0/avg/field" tells the caller which
-     * element of the array it sent is wrong, which a bare message cannot.
-     *
-     * `DataAbstractionLayerException` rather than its InvalidFilterQuery /
-     * InvalidAggregationQuery subclasses, because the builder throws the BASE
-     * class directly for some input errors — `expectedArrayWithType()` does,
-     * which is what `{"includes":"id"}` produces — and catching only the
-     * children let exactly those escape. Callers scope the catch to the
-     * `fromArray()` call, so this stays criteria parsing and does not swallow
-     * DAL failures from the search or serialization that follow it.
+     * `SearchRequestException` carries one entry per rejected pointer, so each
+     * detail is prefixed with it: "/aggregations/0/avg/field" names the element
+     * that is wrong. The base `DataAbstractionLayerException` is accepted, not
+     * only its InvalidFilterQuery / InvalidAggregationQuery subclasses, because
+     * the builder throws the base class directly for some input errors, e.g.
+     * `expectedArrayWithType()` for `{"includes":"id"}`.
      */
     protected function invalidCriteriaError(SearchRequestException|DataAbstractionLayerException $e): string
     {

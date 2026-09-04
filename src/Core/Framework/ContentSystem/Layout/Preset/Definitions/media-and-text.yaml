@@ -1,7 +1,7 @@
 id: core.media-and-text
 name: "Media & text"
 description: "An image next to a rich-text block inside a grid container."
-icon: "regular-image"
+icon: "regular-image-text"
 layout:
   - component: Sw:Grid:Container
     slots:

@@ -31,8 +31,8 @@ Module.register('sw-settings-product-feature-sets', {
     name: 'settings-product-feature-sets',
     title: 'sw-settings-product-feature-sets.general.mainMenuItemGeneral',
     description: 'Essential characteristics section in the settings module',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
+    color: 'var(--color-module-neutral-default)',
+    icon: 'regular-check-square',
     favicon: 'icon-module-settings.svg',
     entity: 'product_feature_set',
 

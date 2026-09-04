@@ -20,8 +20,8 @@ Module.register('sw-settings-tag', {
     name: 'settings-tag',
     title: 'sw-settings-tag.general.mainMenuItemGeneral',
     description: 'Tag section in the settings module',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
+    color: 'var(--color-module-neutral-default)',
+    icon: 'regular-tag',
     favicon: 'icon-module-settings.svg',
     entity: 'tag',
 

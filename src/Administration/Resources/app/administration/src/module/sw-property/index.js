@@ -24,8 +24,8 @@ Module.register('sw-property', {
     description: 'sw-property.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
-    icon: 'regular-products',
+    color: 'var(--color-module-green-default)',
+    icon: 'regular-eye-dropper',
     favicon: 'icon-module-products.svg',
     entity: 'property_group',
 
@@ -77,6 +77,7 @@ Module.register('sw-property', {
         {
             id: 'sw-property',
             label: 'sw-property.general.mainMenuItemGeneral',
+            color: 'var(--color-module-green-default)',
             parent: 'sw-catalogue',
             path: 'sw.property.index',
             position: 40,

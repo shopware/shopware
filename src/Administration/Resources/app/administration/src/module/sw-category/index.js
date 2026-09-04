@@ -45,8 +45,8 @@ Module.register('sw-category', {
     description: 'sw-category.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-green-500)',
-    icon: 'regular-products',
+    color: 'var(--color-module-green-default)',
+    icon: 'regular-folder-open',
     favicon: 'icon-module-products.svg',
     entity: 'category',
 
@@ -201,6 +201,7 @@ Module.register('sw-category', {
             id: 'sw-category',
             path: 'sw.category.index',
             label: 'sw-category.general.mainMenuItemIndex',
+            color: 'var(--color-module-green-default)',
             parent: 'sw-catalogue',
             privilege: 'category.viewer',
             position: 20,

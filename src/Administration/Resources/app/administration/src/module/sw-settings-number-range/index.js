@@ -21,8 +21,8 @@ Module.register('sw-settings-number-range', {
     name: 'settings-number-range',
     title: 'sw-settings-number-range.general.mainMenuItemGeneral',
     description: 'Number Range section in the settings module',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
+    color: 'var(--color-module-neutral-default)',
+    icon: 'regular-file-signature',
     favicon: 'icon-module-settings.svg',
     entity: 'number_range',
 

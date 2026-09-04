@@ -38,8 +38,8 @@ Module.register('sw-settings-usage-data', {
     description: 'sw-settings-usage-data.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
+    color: 'var(--color-module-neutral-default)',
+    icon: 'regular-shield',
     favicon: 'icon-module-settings.svg',
     entity: 'store_settings',
 

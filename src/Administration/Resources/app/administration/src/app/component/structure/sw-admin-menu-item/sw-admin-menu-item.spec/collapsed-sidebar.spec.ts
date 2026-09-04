@@ -184,7 +184,7 @@ describe('src/app/component/structure/sw-admin-menu-item: collapsed sidebar', ()
         const leafEntry = {
             id: 'sw-dashboard',
             label: 'sw-dashboard.general.mainMenuItemGeneral',
-            color: '#6AD6F0',
+            color: 'var(--color-module-brand-default)',
             path: 'sw.dashboard.index',
             icon: 'regular-dashboard',
             position: 10,

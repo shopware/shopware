@@ -22,8 +22,8 @@ Module.register('sw-settings-delivery-time', {
     name: 'settings-delivery-time',
     title: 'sw-settings-delivery-time.general.mainMenuItemGeneral',
     description: 'sw-settings-delivery-time.general.description',
-    color: 'var(--color-icon-secondary-default)',
-    icon: 'regular-cog',
+    color: 'var(--color-module-neutral-default)',
+    icon: 'regular-clock',
     favicon: 'icon-module-settings.svg',
     entity: 'delivery_time',
 

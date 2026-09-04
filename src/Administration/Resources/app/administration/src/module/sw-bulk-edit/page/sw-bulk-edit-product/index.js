@@ -965,7 +965,7 @@ export default {
         },
 
         setRouteMetaModule() {
-            this.$route.meta.$module.color = '#57D9A3';
+            this.$route.meta.$module.color = 'var(--color-module-green-default)';
             this.$route.meta.$module.icon = 'regular-products';
         },
 

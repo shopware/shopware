@@ -100,8 +100,8 @@ Module.register('sw-sales-channel', {
     description: 'The module for managing Sales Channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-green-500)',
-    icon: 'regular-server',
+    color: 'var(--color-module-brand-default)',
+    icon: 'regular-storefront',
     entity: 'sales_channel',
 
     searchMatcher: (regex, labelType, manifest) => {

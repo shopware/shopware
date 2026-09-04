@@ -211,6 +211,17 @@ export default {
         searchTypeColor() {
             return useModuleIconColors().enabled.value ? this.getEntityIconColor(this.currentSearchType) : null;
         },
+
+        // Solid variant of the module icon, none while searching in all types
+        searchTypeIcon() {
+            if (!this.currentSearchType) {
+                return null;
+            }
+
+            const icon = this.getSearchTypeManifest(this.currentSearchType)?.icon ?? 'regular-books';
+
+            return icon.startsWith('regular-') ? icon.replace('regular-', 'solid-') : icon;
+        },
     },
 
     watch: {
@@ -847,13 +858,22 @@ export default {
                 return this.entitySearchColor;
             }
 
+            return this.getSearchTypeManifest(entityName)?.color || '#5C738A';
+        },
+
+        getSearchTypeManifest(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            if (!module) {
-                return '#5C738A';
+            if (module) {
+                return module.manifest;
             }
 
-            return module.manifest.color || '#5C738A';
+            // List pages may pass an alias instead of their entity, so fall back to the current module
+            if (entityName && entityName === this.initialSearchType) {
+                return this.$route?.meta?.$module;
+            }
+
+            return undefined;
         },
 
         getTypeIconColor(entityName) {
@@ -1004,7 +1024,7 @@ export default {
                     {
                         name: 'sales-channel',
                         icon: saleChannelType?.iconName ?? 'regular-server',
-                        color: '#14D7A5',
+                        color: 'var(--color-module-brand-default)',
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,
                         route: {

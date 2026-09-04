@@ -18,8 +18,8 @@ Module.register('sw-review', {
     description: 'sw-review.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
-    icon: 'regular-products',
+    color: 'var(--color-module-green-default)',
+    icon: 'regular-star',
     favicon: 'icon-module-products.svg',
     entity: 'product_review',
 
@@ -47,9 +47,9 @@ Module.register('sw-review', {
         {
             id: 'sw-review',
             label: 'sw-review.general.mainMenuItemList',
-            color: '#57D9A3',
+            color: 'var(--color-module-green-default)',
             path: 'sw.review.index',
-            icon: 'regular-products',
+            icon: 'regular-star',
             parent: 'sw-catalogue',
             position: 20,
             privilege: 'review.viewer',

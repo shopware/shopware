@@ -2,6 +2,11 @@
 
 namespace Shopware\Storefront\Page\Checkout\Confirm;
 
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Symfony\Component\Validator\Constraints\Length;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -39,7 +44,8 @@ class CheckoutConfirmPageLoader
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
         private readonly DataValidator $validator,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -108,6 +114,25 @@ class CheckoutConfirmPageLoader
         $this->validateShippingAddress($shippingAddress, $billingAddress, $cart, $context);
     }
 
+    /**
+     * A company account may have registered without a contact person, so its addresses carry no
+     * person name and must not block the checkout.
+     */
+    private function relaxNameForCompanyAccounts(DataValidationDefinition $validation, SalesChannelContext $context): void
+    {
+        if ($context->getCustomer()?->getAccountType() !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return;
+        }
+
+        if ($this->systemConfigService->getBool('core.loginRegistration.nameFieldsRequiredForCompanyAccounts', $context->getSalesChannelId())) {
+            return;
+        }
+
+        $validation
+            ->set('firstName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
+            ->set('lastName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG'));
+    }
+
     private function validateBillingAddress(
         ?CustomerAddressEntity $billingAddress,
         Cart $cart,
@@ -117,6 +142,8 @@ class CheckoutConfirmPageLoader
         if ($billingAddress) {
             $validation->set('zipcode', new CustomerZipCode(countryId: $billingAddress->getCountryId()));
         }
+
+        $this->relaxNameForCompanyAccounts($validation, $context);
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -142,6 +169,8 @@ class CheckoutConfirmPageLoader
         if ($shippingAddress) {
             $validation->set('zipcode', new CustomerZipCode(countryId: $shippingAddress->getCountryId()));
         }
+
+        $this->relaxNameForCompanyAccounts($validation, $context);
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

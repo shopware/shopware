@@ -323,7 +323,7 @@ function insertAt(value, at, text) {
 function wrapInsideSlotTemplate(output, openTag, closeTag) {
     const isContent = (token) => token.type !== 'raw' || token.value.trim().length > 0;
     const firstIndex = output.findIndex(isContent);
-    const lastIndex = output.length - 1 - [...output].reverse().findIndex(isContent);
+    const lastIndex = output.findLastIndex(isContent);
     const first = output[firstIndex];
     const last = output[lastIndex];
 
@@ -371,6 +371,13 @@ function wrapNativeBlockTargets(tokens) {
     }
 
     const targets = getNativeBlockExtensionTargets();
+
+    // No native override registered anywhere - the common case in an installation without such an
+    // extension, and the whole token tree can be handed back untouched.
+    if (targets.size === 0) {
+        return tokens;
+    }
+
     let changed = false;
 
     const result = tokens.reduce((acc, token) => {

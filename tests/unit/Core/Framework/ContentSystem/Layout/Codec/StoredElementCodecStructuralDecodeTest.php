@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ContextWiringDecoder::class)]
 class StoredElementCodecStructuralDecodeTest extends StoredElementCodecTestCase
 {
-    #[TestDox('decode rejects a top-level key the element wire shape does not carry')]
+    #[TestDox('rejects a top-level key the element wire shape does not carry')]
     public function testDecodeRejectsAnUnknownTopLevelKey(): void
     {
         $this->expectExceptionObject(
@@ -42,7 +42,7 @@ class StoredElementCodecStructuralDecodeTest extends StoredElementCodecTestCase
     }
 
     #[DataProvider('rejectedElementIdProvider')]
-    #[TestDox('decode rejects $_dataName as an element id')]
+    #[TestDox('rejects $_dataName as an element id')]
     public function testDecodeRejectsIdsOutsideTheValueDomain(string $id, ContentSystemException $expected): void
     {
         $this->expectExceptionObject($expected);
@@ -90,7 +90,7 @@ class StoredElementCodecStructuralDecodeTest extends StoredElementCodecTestCase
      * @param array<array-key, mixed> $style
      */
     #[DataProvider('rejectsMalformedStyleProvider')]
-    #[TestDox('decode rejects $_dataName')]
+    #[TestDox('rejects $_dataName')]
     public function testDecodeRejectsMalformedStyle(array $style, ContentSystemException $expected): void
     {
         $this->expectExceptionObject($expected);

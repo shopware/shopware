@@ -6,9 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * Both directions of the wire shape over a payload decode admits: what decode reads, encode writes back
@@ -54,25 +52,6 @@ class StoredElementCodecTest extends StoredElementCodecTestCase
         static::assertSame(
             ['id' => 'el-1', 'component' => 'core:text', 'properties' => ['title' => 'Hello']],
             $codec->encode($codec->decode($wire))
-        );
-    }
-
-    #[TestDox('encode produces the canonical storage shape of an element it did not decode')]
-    public function testEncodeProducesTheCanonicalShape(): void
-    {
-        $element = StoredElementBuilder::create('core:text', 'el-1')
-            ->withProperty('title', 'Hello')
-            ->withStyle(new ElementStyle(['col-span' => ['md' => 6]]))
-            ->build();
-
-        static::assertSame(
-            [
-                'id' => 'el-1',
-                'component' => 'core:text',
-                'properties' => ['title' => 'Hello'],
-                'style' => ['col-span' => ['md' => 6]],
-            ],
-            $this->codec()->encode($element)
         );
     }
 

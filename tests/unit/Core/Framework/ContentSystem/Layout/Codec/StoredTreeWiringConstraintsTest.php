@@ -35,71 +35,6 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
         static::assertCount(0, $this->validate([$this->element($overrides)]));
     }
 
-    #[TestDox('reports a violation for a consumer alias declared without redistribution')]
-    public function testRejectsAConsumerAliasWithoutRedistribute(): void
-    {
-        $violations = $this->validate([
-            [
-                'id' => 'root-1',
-                'component' => 'core:text',
-                'properties' => [],
-                'acceptsContext' => [
-                    'items' => ['type' => 'single', 'required' => true, 'consumerAlias' => 'inner'],
-                ],
-            ],
-        ]);
-
-        static::assertCount(1, $violations);
-        static::assertSame(
-            'This value requires "redistribute" to be true.',
-            (string) $violations->get(0)->getMessage()
-        );
-    }
-
-    #[TestDox('reports a violation for a property alias carrying dot notation')]
-    public function testRejectsAPropertyAliasWithDotNotation(): void
-    {
-        $violations = $this->validate([
-            [
-                'id' => 'root-1',
-                'component' => 'core:text',
-                'properties' => [],
-                'acceptsContext' => [
-                    'items' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product.name'],
-                ],
-            ],
-        ]);
-
-        static::assertCount(1, $violations);
-        static::assertSame(
-            'This value should be a simple property name without dot notation.',
-            (string) $violations->get(0)->getMessage()
-        );
-    }
-
-    /**
-     * The element-local wiring tier, mirroring {@see ContextWiringDecoderTest} row for row: what decode throws
-     * on, the descriptor reports, so a payload cannot pass the write and then fail every read.
-     *
-     * The message is asserted alongside the path because the two redistribute rules emit at the same path:
-     * {@see StoredTreeWiringConstraints::validateRedistributeProviderConflicts()} and the dotted-key rule both
-     * resolve to `[0][acceptsContext][<key>][redistribute]`, so a path-only assertion passes when the rule the
-     * row names went silent and the other one misfired at that same path. The message is their only
-     * discriminator.
-     *
-     * @param array<string, mixed> $overrides
-     */
-    #[DataProvider('rejectsElementLocalWiringProvider')]
-    #[TestDox('reports a violation at $expectedPath for $_dataName')]
-    public function testRejectsAnElementLocalWiringDefect(array $overrides, string $expectedPath, string $expectedMessage): void
-    {
-        $violations = $this->validate([$this->element($overrides)]);
-
-        static::assertCount(1, $violations);
-        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
-        static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
-    }
-
     /**
      * Where decode stops at the first rule it reaches, the descriptor owes every violation the element
      * carries: these are the fixtures whose codec counterpart pins the check order, and here both defects
@@ -177,6 +112,68 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
         ));
 
         static::assertEqualsCanonicalizing($expectedViolations, $reported);
+    }
+
+    /**
+     * The per-consumer combination tier: a consumer judged against itself, before any cross-map rule runs.
+     * Separate from the element-local rows below, which mirror {@see ContextWiringDecoderTest} row for row.
+     *
+     * @param array<string, mixed> $overrides
+     */
+    #[DataProvider('rejectsPerConsumerCombinationProvider')]
+    #[TestDox('reports a violation at $expectedPath for $_dataName')]
+    public function testRejectsAPerConsumerCombinationDefect(array $overrides, string $expectedPath, string $expectedMessage): void
+    {
+        $violations = $this->validate([$this->element($overrides)]);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
+        static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
+    }
+
+    /**
+     * The element-local wiring tier, mirroring {@see ContextWiringDecoderTest} row for row: what decode throws
+     * on, the descriptor reports, so a payload cannot pass the write and then fail every read.
+     *
+     * The message is asserted alongside the path because the two redistribute rules emit at the same path:
+     * {@see StoredTreeWiringConstraints::validateRedistributeProviderConflicts()} and the dotted-key rule both
+     * resolve to `[0][acceptsContext][<key>][redistribute]`, so a path-only assertion passes when the rule the
+     * row names went silent and the other one misfired at that same path. The message is their only
+     * discriminator.
+     *
+     * @param array<string, mixed> $overrides
+     */
+    #[DataProvider('rejectsElementLocalWiringProvider')]
+    #[TestDox('reports a violation at $expectedPath for $_dataName')]
+    public function testRejectsAnElementLocalWiringDefect(array $overrides, string $expectedPath, string $expectedMessage): void
+    {
+        $violations = $this->validate([$this->element($overrides)]);
+
+        static::assertCount(1, $violations);
+        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
+        static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string, string}>
+     */
+    public static function rejectsPerConsumerCombinationProvider(): iterable
+    {
+        yield 'a consumer alias declared without redistribution' => [
+            ['acceptsContext' => [
+                'items' => ['type' => 'single', 'required' => true, 'consumerAlias' => 'inner'],
+            ]],
+            '[0][acceptsContext][items][consumerAlias]',
+            'This value requires "redistribute" to be true.',
+        ];
+
+        yield 'a property alias carrying dot notation' => [
+            ['acceptsContext' => [
+                'items' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'product.name'],
+            ]],
+            '[0][acceptsContext][items][propertyAlias]',
+            'This value should be a simple property name without dot notation.',
+        ];
     }
 
     /**

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\ContextWiringDecoder;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,16 +21,26 @@ use Shopware\Core\Framework\Log\Package;
 class ContextWiringDecoderTest extends StoredElementCodecTestCase
 {
     /**
+     * The two fields the element-local rules read are asserted alongside the key list: `rejectInvalidElementWiring`
+     * opens its redistribute loop with a `!$consumer->redistribute` early exit, so a row whose consumer decoded
+     * `redistribute` as false would clear every rule it names without the rules ever running, and a key-list-only
+     * assertion cannot tell that apart from a clean pass.
+     *
      * @param array<string, mixed> $wire
-     * @param list<string> $expectedConsumerKeys
+     * @param array<string, array{bool, string|null}> $expectedConsumers
      */
     #[DataProvider('acceptsCleanElementWiringProvider')]
-    #[TestDox('decode accepts $_dataName')]
-    public function testDecodeAcceptsACleanElementWiringSibling(array $wire, array $expectedConsumerKeys): void
+    #[TestDox('accepts $_dataName')]
+    public function testDecodeAcceptsACleanElementWiringSibling(array $wire, array $expectedConsumers): void
     {
         $element = $this->codec()->decode($wire);
 
-        static::assertSame($expectedConsumerKeys, array_keys($element->contextDefinitions->getAllConsumers()));
+        $decoded = array_map(
+            static fn (ContextConsumer $consumer): array => [$consumer->redistribute, $consumer->propertyAlias],
+            $element->contextDefinitions->getAllConsumers()
+        );
+
+        static::assertSame($expectedConsumers, $decoded);
     }
 
     /**
@@ -43,7 +54,7 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
      * @param array<string, mixed> $wire
      */
     #[DataProvider('rejectsElementLocalWiringProvider')]
-    #[TestDox('decode rejects $_dataName')]
+    #[TestDox('rejects $_dataName')]
     public function testDecodeRejectsAnElementLocalWiringDefect(array $wire, ContentSystemException $expected): void
     {
         try {
@@ -64,7 +75,7 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
      * @param array<string, mixed> $wire
      */
     #[DataProvider('pinsElementWiringCheckOrderProvider')]
-    #[TestDox('decode throws $_dataName')]
+    #[TestDox('throws $_dataName')]
     public function testDecodeThrowsTheFirstRuleInTheDeclaredOrder(array $wire, ContentSystemException $expected): void
     {
         try {
@@ -118,7 +129,10 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, list<string>}>
+     * Each row's expectation maps every decoded consumer key to its `[redistribute, propertyAlias]` pair, the two
+     * fields the element-local rules judge.
+     *
+     * @return iterable<string, array{array<string, mixed>, array<string, array{bool, string|null}>}>
      */
     public static function acceptsCleanElementWiringProvider(): iterable
     {
@@ -127,14 +141,14 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
                 'product' => ['type' => 'single', 'required' => true],
                 'category' => ['type' => 'single', 'required' => true, 'propertyAlias' => 'item'],
             ]]),
-            ['product', 'category'],
+            ['product' => [false, null], 'category' => [false, 'item']],
         ];
 
         yield 'a redistributing consumer keyed by a base key' => [
             self::baseWire(['acceptsContext' => [
                 'product' => ['type' => 'single', 'required' => true, 'redistribute' => true],
             ]]),
-            ['product'],
+            ['product' => [true, null]],
         ];
 
         yield 'a redistributing consumer beside a provider on another key' => [
@@ -142,7 +156,7 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
                 'providesContext' => ['other' => ['type' => 'single', 'distribution' => 'broadcast']],
                 'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'redistribute' => true]],
             ]),
-            ['product'],
+            ['product' => [true, null]],
         ];
 
         yield 'a redistributing consumer whose property alias no provider holds' => [
@@ -152,7 +166,7 @@ class ContextWiringDecoderTest extends StoredElementCodecTestCase
                     'source' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'propertyAlias' => 'productList'],
                 ],
             ]),
-            ['source'],
+            ['source' => [true, 'productList']],
         ];
         // A consumerAlias equal to an authored provider key is deliberately absent: rejectInvalidElementWiring
         // reads propertyAlias and redistribute only, so such a row takes the same path as the one above it, and

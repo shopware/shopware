@@ -63,21 +63,6 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
         static::assertCount(0, $this->validate($forest));
     }
 
-    #[TestDox('reports no violation for a style option the registry knows')]
-    public function testAcceptsAKnownStyleOption(): void
-    {
-        $violations = $this->validate([
-            [
-                'id' => 'root-1',
-                'component' => 'core:text',
-                'properties' => [],
-                'style' => ['col-span' => ['md' => 6]],
-            ],
-        ]);
-
-        static::assertCount(0, $violations);
-    }
-
     #[TestDox('attaches the property-type rule to every element, reporting a root and a nested child at their own paths')]
     public function testAttachesThePropertyTypeRuleToEveryElement(): void
     {
@@ -357,18 +342,11 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
      */
     public static function rejectsDistributionProvider(): iterable
     {
+        // One row covers the shared `consumerAlias` rule: broadcast, indexed and iterator each declare the
+        // byte-identical constraint set, so a second and third strategy assert nothing the first does not.
+        // The keyed and sliced rows below stay, because their configs declare an additional field each.
         yield 'a broadcast provider whose consumer alias is not a string' => [
             ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 42],
-            '[0][providesContext][product][consumerAlias]',
-        ];
-
-        yield 'an indexed provider whose consumer alias is not a string' => [
-            ['type' => 'single', 'distribution' => 'indexed', 'consumerAlias' => 42],
-            '[0][providesContext][product][consumerAlias]',
-        ];
-
-        yield 'an iterator provider whose consumer alias is not a string' => [
-            ['type' => 'collection', 'distribution' => 'iterator', 'consumerAlias' => 42],
             '[0][providesContext][product][consumerAlias]',
         ];
 

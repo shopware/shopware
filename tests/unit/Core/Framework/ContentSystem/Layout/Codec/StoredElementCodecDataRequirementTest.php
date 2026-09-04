@@ -52,7 +52,7 @@ class StoredElementCodecDataRequirementTest extends StoredElementCodecTestCase
      * @param array<string, mixed> $expectedConfig
      */
     #[DataProvider('distributionStrategyProvider')]
-    #[TestDox('decode builds the config of $_dataName')]
+    #[TestDox('builds the config of $_dataName')]
     public function testDecodeDispatchesEveryDistributionStrategy(array $provider, string $expected, array $expectedConfig): void
     {
         $element = $this->codec()->decode(self::baseWire(['providesContext' => ['product' => $provider]]));

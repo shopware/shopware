@@ -3,11 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Codec;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * The codec fixture the four groups of the split share: one codec, the base wire shape every override starts
@@ -19,22 +19,18 @@ use Shopware\Core\Framework\Log\Package;
 abstract class StoredElementCodecTestCase extends TestCase
 {
     /**
-     * The provider is stubbed down to routing; the `entity` source's real config serializer does the decoding,
-     * so every `config` in these files' fixtures has to be a shape production could actually store.
+     * The real provider over a locator holding the one `entity` source, so the codec's routing argument is
+     * observed: a requirement naming any other source fails as production does. The `entity` source's real
+     * config serializer does the decoding, so every `config` in these files' fixtures has to be a shape
+     * production could actually store.
      */
     protected function codec(): StoredElementCodec
     {
-        $serializer = new EntityLoaderConfigSerializer();
+        $locator = new ServiceLocator([
+            'entity' => static fn (): EntityLoaderConfigSerializer => new EntityLoaderConfigSerializer(),
+        ]);
 
-        $configProvider = static::createStub(DataLoaderConfigSerializerProvider::class);
-        $configProvider->method('decode')->willReturnCallback(
-            /**
-             * @param array<string, mixed> $data
-             */
-            static fn (string $source, array $data): AbstractContentDataLoaderConfig => $serializer->decode($data)
-        );
-
-        return new StoredElementCodec($configProvider);
+        return new StoredElementCodec(new DataLoaderConfigSerializerProvider($locator));
     }
 
     /**

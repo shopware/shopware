@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+require_once __DIR__ . '/lib/feature-flags.php';
+
 $php = ['8.2'];
 
 // Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
@@ -17,6 +19,10 @@ $major = \strtolower($_SERVER['argv'][2] ?? '') === 'true';
 //   'only'    -> only major variants (used by the dedicated major nightly)
 $majorFilter = \strtolower($_SERVER['argv'][3] ?? '');
 
+// One major variant per in-flight major (`FEATURE_ALL=v6.8.0.0`), so a major's release state is
+// covered without the next major's changes active. See lib/feature-flags.php.
+$majorLanes = shopware_major_lanes();
+
 if ($nightly) {
     // We add 8.4 separate because of currents
     $php = ['8.2', '8.5'];
@@ -27,11 +33,11 @@ if ($release) {
     $php = ['8.2', '8.4', '8.5'];
 }
 
-$majorVariants = ($major || $nightly) ? ['', 'major'] : [''];
+$majorVariants = ($major || $nightly) ? ['', ...$majorLanes] : [''];
 if ($majorFilter === 'exclude') {
     $majorVariants = [''];
 } elseif ($majorFilter === 'only') {
-    $majorVariants = ['major'];
+    $majorVariants = $majorLanes;
 }
 
 $matrix = [
@@ -67,14 +73,16 @@ if ($nightly) {
             ];
         }
         if ($majorFilter !== 'exclude') {
-            $matrix['include'][] = [
-                'name' => 'Platform',
-                'major' => 'major',
-                'php-version' => '8.4',
-                'shard' => $i + 1,
-                'shard-count' => 3,
-                'no-currents' => true,
-            ];
+            foreach ($majorLanes as $majorLane) {
+                $matrix['include'][] = [
+                    'name' => 'Platform',
+                    'major' => $majorLane,
+                    'php-version' => '8.4',
+                    'shard' => $i + 1,
+                    'shard-count' => 3,
+                    'no-currents' => true,
+                ];
+            }
         }
     }
 }

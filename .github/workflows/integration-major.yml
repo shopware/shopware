@@ -14,12 +14,14 @@ permissions:
   id-token: write
 
 jobs:
-  phpunit-major-matrix:
-    # On PRs the whole matrix only runs when the `major-php` (or umbrella `major-tests`) label is present; nightly (workflow_call) and manual runs are unaffected.
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+  major-matrix:
+    # Serves every major arm below, so it runs for any of their labels; each arm keeps its own gate.
+    # Nightly (workflow_call) and manual runs are unaffected.
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
+      lanes: ${{ steps.major-lanes.outputs.lanes }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -32,18 +34,29 @@ jobs:
             echo "$MATRIX"
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
+      # The PHPUnit matrix carries the majors as a dimension; Jest needs the bare list for its own.
+      - id: major-lanes
+        run: |
+          set -euo pipefail
+          LANES=$(php .github/bin/major-lanes.php)
+          jq . <<<"$LANES"
+          echo "lanes=$LANES" >> "$GITHUB_OUTPUT"
 
   phpunit-major:
-    name: "${{ matrix.test.testsuite }}${{ matrix.test.path }}"
+    name: "${{ matrix.test.testsuite }}${{ matrix.test.path }} (${{ matrix.major }})"
+    # The matrix job also runs for the `major-js` arm, so gate the PHPUnit arm on its own labels.
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
     needs:
-      - phpunit-major-matrix
+      - major-matrix
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.phpunit-major-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.major-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
-      FEATURE_ALL: major
+      # One lane per in-flight major (`v6.8.0.0`), so a major's release state is validated without
+      # the next major's changes active. `major` when no unreleased major is registered.
+      FEATURE_ALL: ${{ matrix.major }}
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
       REDIS_URL: redis://localhost:6379
       APP_URL: http://localhost:8000
@@ -101,12 +114,21 @@ jobs:
           overwrite: true
 
   jest-admin-major:
-    name: "Jest Admin"
+    name: "Jest Admin (${{ matrix.major }})"
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    needs:
+      - major-matrix
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        major: ${{ fromJson(needs.major-matrix.outputs.lanes) }}
     env:
       NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
+      # `composer admin:unit:major` pins FEATURE_ALL=major itself, so the lane is passed to the plain
+      # `admin:unit` script instead — see the FEATURE_ALL note on phpunit-major above.
+      FEATURE_ALL: ${{ matrix.major }}
 
     steps:
       - name: Setup Shopware
@@ -126,13 +148,13 @@ jobs:
         run: npm --prefix src/Administration/Resources/app/administration ci
 
       - name: Run Jest Admin with major features
-        run: composer admin:unit:major
+        run: composer admin:unit
 
       - name: Upload Jest results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: jest-admin-major-results
+          name: jest-admin-major-${{ matrix.major }}-results
           path: build/artifacts/jest/administration.junit.xml
           if-no-files-found: error
 

@@ -555,6 +555,126 @@ class FeatureTest extends TestCase
             'FEATURE_NEXT_101',
             false,
         ];
+
+        // The fixtures use majors of a version that is not registered for real: the unit suite puts
+        // every registered flag into $_SERVER, and a specific environment value wins over FEATURE_ALL.
+        yield 'major of the targeted major with FEATURE_ALL=v9.1.0.0' => [
+            [
+                'v9.1.0.0' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'v9.1.0.0',
+            true,
+        ];
+
+        yield 'major of an earlier major with FEATURE_ALL=v9.1.0.0' => [
+            [
+                'v9.0.0.0' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'v9.0.0.0',
+            true,
+        ];
+
+        yield 'major of a later major with FEATURE_ALL=v9.1.0.0' => [
+            [
+                'v9.2.0.0' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'v9.2.0.0',
+            false,
+        ];
+
+        yield 'major of a later major with FEATURE_ALL=v9.2.0.0' => [
+            [
+                'v9.2.0.0' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_ALL' => 'v9.2.0.0',
+            ],
+            'v9.2.0.0',
+            true,
+        ];
+
+        yield 'major declaring a later major via majorVersion with FEATURE_ALL=v9.1.0.0' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                    'majorVersion' => 'v9.2.0.0',
+                ],
+            ],
+            [
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'major declaring the targeted major via majorVersion with FEATURE_ALL=v9.1.0.0' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                    'majorVersion' => 'v9.1.0.0',
+                ],
+            ],
+            [
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'major without a target major with FEATURE_ALL=v9.1.0.0' => [
+            [
+                'FEATURE_NEXT_101' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'minor with FEATURE_ALL=v9.1.0.0' => [
+            [
+                'FEATURE_NEXT_101',
+            ],
+            [
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'major with an env value overriding FEATURE_ALL=v9.1.0.0' => [
+            [
+                'v9.2.0.0' => [
+                    'major' => true,
+                ],
+            ],
+            [
+                'V9_2_0_0' => '1',
+                'FEATURE_ALL' => 'v9.1.0.0',
+            ],
+            'v9.2.0.0',
+            true,
+        ];
     }
 
     /**

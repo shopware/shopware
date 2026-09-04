@@ -10,6 +10,42 @@ To switch flags on and off you can use the ***.env*** to configure each feature 
 V6_5_0_0=1
 ```
 
+### Activating whole groups of flags
+`FEATURE_ALL` switches a group on at once, which is how the test lanes run:
+
+| Value | Active flags |
+|---|---|
+| `1`, `minor`, any truthy value except `false` | every non-major flag |
+| `major` | every major flag |
+| `v6.8.0.0` | the major flags arriving in v6.8.0.0 or earlier |
+
+A flag configured in the environment always wins over `FEATURE_ALL`.
+
+A major flag named after its major (`v6.8.0.0`) carries the major it arrives in. One that is not
+(`JSON_LD_DATA`, `BREADCRUMB_REWORK`) belongs to every major, so it is active in every major lane;
+declare `majorVersion` when the flag may only be active from a later major on:
+
+```yaml
+      - name: JSON_LD_DATA
+        default: false
+        major: true
+        majorVersion: v6.9.0.0
+        toggleable: true
+```
+
+## While two majors are in flight
+
+Trunk then carries the flags of both majors, and "all majors on" no longer describes any release
+state: 6.9 changes decide the outcome of a 6.8 assertion. CI therefore runs one lane per unreleased
+major (`FEATURE_ALL=v6.8.0.0`, `FEATURE_ALL=v6.9.0.0`) in `integration-major.yml` and in the major
+arm of `acceptance.yml`. The lanes come from `feature.yaml` itself — a `major: true` flag named after
+its version and still `default: false` is a lane, see `.github/bin/lib/feature-flags.php` — so
+registering the next major flag adds its lane, with nothing to maintain in the workflows.
+
+The unit suite is the exception: its bootstrap activates every registered flag regardless of
+`FEATURE_ALL`, so a unit test always sees the newest major and has to pin itself explicitly — see
+[Using flags in tests](#using-flags-in-tests).
+
 ## Using flags in PHP
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
@@ -132,7 +168,9 @@ class ProductTest
 }
 ```
 
-In integration tests, the suite may run multiple times with different feature-flag states. Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag. This can also be used in the `setUp()` method.
+While two majors are in flight, pin a test to the older one by disabling the newer major: `#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
+
+In integration tests, the suite may run multiple times with different feature-flag states. Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag. This can also be used in the `setUp()` method. That is also how an integration test pins itself to a single major — `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
 
 ```php
 use Shopware\Core\Framework\Feature;

@@ -21,13 +21,14 @@ export default class QuantitySelectorPlugin extends Plugin {
         purchaseLimitUrl: null,
 
         /**
-         * Submit the surrounding form when the user confirms the value with `Enter`.
+         * Submit the surrounding form as soon as the user finishes an edit, by leaving the
+         * input or confirming the value with `Enter`.
          *
-         * Used where the form applies the quantity on its own, like the cart. `Enter` is a
-         * deliberate "apply now", so it submits directly instead of going through the delay
-         * those forms use to bundle repeated clicks on the `[+]` and `[-]` buttons.
+         * Used where the form applies the quantity on its own, like the cart. Both are
+         * deliberate "apply now" actions, so they submit directly instead of going through
+         * the delay those forms use to bundle repeated clicks on the `[+]` and `[-]` buttons.
          */
-        submitOnEnter: false,
+        submitOnFinish: false,
     };
 
     init() {
@@ -105,12 +106,10 @@ export default class QuantitySelectorPlugin extends Plugin {
      * @private
      */
     _onChange(event) {
-        const isEditing = !this._isCommitting && document.activeElement === this._input;
-
-        if (isEditing) {
-            event.stopPropagation();
-        } else {
+        if (this._isCommitting) {
             this._committedValue = this._input.value;
+        } else {
+            event.stopPropagation();
         }
 
         this._updateUnitLabel();
@@ -130,8 +129,33 @@ export default class QuantitySelectorPlugin extends Plugin {
         }
 
         event.preventDefault();
+        this._applyEdit();
+    }
 
-        if (!this.options.submitOnEnter) {
+    /**
+     * @private
+     */
+    _onBlur(event) {
+        // Moving on to the `[+]` or `[-]` buttons is not leaving the control. Their own
+        // commit applies the value, including the step the user is about to make.
+        if (this.el.contains(event.relatedTarget)) {
+            return;
+        }
+
+        this._applyEdit();
+    }
+
+    /**
+     * Apply a value the user is done editing.
+     *
+     * Leaving the input and confirming with `Enter` are both deliberate, so the form is
+     * submitted right away where it applies the quantity itself. Everywhere else the value
+     * is passed on as a `change` and whatever listens decides what to do with it.
+     *
+     * @private
+     */
+    _applyEdit() {
+        if (!this.options.submitOnFinish) {
             this._commit();
             return;
         }
@@ -143,13 +167,6 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._committedValue = this._input.value;
         this._announceChange();
         this._input.form?.requestSubmit();
-    }
-
-    /**
-     * @private
-     */
-    _onBlur() {
-        this._commit();
     }
 
     /**

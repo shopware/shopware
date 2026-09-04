@@ -286,14 +286,18 @@ describe('QuantitySelectorPlugin tests', () => {
         expect(formChangeSpy).not.toHaveBeenCalled();
     });
 
-    test('passes on a typed value that the browser commits on blur', () => {
+    test('passes on a typed value once the input loses focus', () => {
         const input = document.querySelector('.js-quantity-selector');
         const formChangeSpy = jest.fn();
         document.querySelector('form').addEventListener('change', formChangeSpy);
 
-        // Typing emits `change` on blur, when the focus has already moved on.
+        // Typing emits `change` around the blur that ends the edit.
+        input.focus();
         input.value = 21;
         input.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(formChangeSpy).not.toHaveBeenCalled();
+
+        input.blur();
 
         expect(formChangeSpy).toHaveBeenCalledTimes(1);
     });
@@ -317,7 +321,7 @@ describe('QuantitySelectorPlugin tests', () => {
 
         form.requestSubmit = jest.fn();
         form.addEventListener('change', formChangeSpy);
-        plugin.options.submitOnEnter = true;
+        plugin.options.submitOnFinish = true;
 
         input.focus();
         input.value = 21;
@@ -335,7 +339,7 @@ describe('QuantitySelectorPlugin tests', () => {
         const form = document.querySelector('form');
 
         form.requestSubmit = jest.fn();
-        plugin.options.submitOnEnter = true;
+        plugin.options.submitOnFinish = true;
 
         input.focus();
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
@@ -350,7 +354,7 @@ describe('QuantitySelectorPlugin tests', () => {
 
         form.requestSubmit = jest.fn();
         form.addEventListener('change', formChangeSpy);
-        plugin.options.submitOnEnter = true;
+        plugin.options.submitOnFinish = true;
 
         input.focus();
         input.value = 21;
@@ -360,6 +364,41 @@ describe('QuantitySelectorPlugin tests', () => {
 
         expect(form.requestSubmit).toHaveBeenCalledTimes(1);
         expect(formChangeSpy).not.toHaveBeenCalled();
+    });
+
+    test('submits the form as soon as the input loses focus', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const form = document.querySelector('form');
+
+        form.requestSubmit = jest.fn();
+        plugin.options.submitOnFinish = true;
+
+        input.focus();
+        input.value = 21;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(form.requestSubmit).not.toHaveBeenCalled();
+
+        input.blur();
+
+        // Applied right away, not after the delay a `change` would run into.
+        expect(form.requestSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not submit when the focus moves on to the step buttons', () => {
+        const input = document.querySelector('.js-quantity-selector');
+        const form = document.querySelector('form');
+
+        form.requestSubmit = jest.fn();
+        plugin.options.submitOnFinish = true;
+
+        input.focus();
+        input.value = 21;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        input.dispatchEvent(new FocusEvent('blur', {
+            relatedTarget: document.querySelector('.js-btn-plus'),
+        }));
+
+        expect(form.requestSubmit).not.toHaveBeenCalled();
     });
 
     test('does not fetch on init without user interaction', () => {

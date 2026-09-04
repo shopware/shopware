@@ -138,14 +138,20 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
-            CompanyAccountNameFields::normalize($data);
+        if (!$this->nameFieldsRequiredForCompanyAccounts($context)) {
+            if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+                CompanyAccountNameFields::normalize($data);
 
-            foreach ([$billing, $shipping] as $address) {
-                if ($address instanceof DataBag) {
-                    CompanyAccountNameFields::normalize($address);
+                if ($billing instanceof DataBag) {
+                    CompanyAccountNameFields::normalize($billing);
                 }
+            }
+
+            // the shipping address carries its own account type, and the validation below reads it,
+            // so the normalisation has to read the same value
+            if ($shipping instanceof DataBag
+                && self::addressAccountType($shipping) === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+                CompanyAccountNameFields::normalize($shipping);
             }
         }
 
@@ -333,8 +339,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($shippingAddress instanceof DataBag) {
-            $shippingAccountType = $shippingAddress->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, $shippingAccountType, $shippingAddress, $context));
+            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($data, self::addressAccountType($shippingAddress), $shippingAddress, $context));
         }
 
         if ($data->get('vatIds') instanceof DataBag) {
@@ -472,6 +477,15 @@ class RegisterRoute extends AbstractRegisterRoute
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
+    }
+
+    private static function addressAccountType(DataBag $address): string
+    {
+        $accountType = $address->get('accountType');
+
+        return \is_string($accountType) && $accountType !== ''
+            ? $accountType
+            : CustomerEntity::ACCOUNT_TYPE_PRIVATE;
     }
 
     private function nameFieldsRequiredForCompanyAccounts(SalesChannelContext $context): bool

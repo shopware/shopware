@@ -86,6 +86,12 @@ export default {
         },
 
         fullName() {
+            const company = (this.customer.company ?? '').trim();
+
+            if (company !== '' && this.isBusinessAccountType) {
+                return company;
+            }
+
             const name = {
                 name: this.salutation(this.customer),
                 company: this.customer.company,

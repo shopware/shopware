@@ -5,13 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Preset\Registr
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @internal
@@ -33,24 +33,27 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
         (new Filesystem())->remove($this->tempDir);
     }
 
-    #[TestDox('loads presets from the directory keyed by their id, preserving metadata and payload')]
+    #[TestDox('loads presets keyed by id, with metadata and the compiled payload')]
     public function testAllLoadsPresetsKeyedById(): void
     {
-        $payload = [['id' => 'el-1', 'component' => 'Sw:Content:Text', 'properties' => ['text' => '<p>Hi</p>']]];
-        $this->writePreset('text-block.json', [
+        $this->writePreset('text-block.yaml', [
             'id' => 'core.text-block',
             'name' => 'Text block',
             'description' => 'A single text element.',
             'icon' => 'regular-align-left',
-            'payload' => $payload,
+            'layout' => [['component' => 'Sw:Content:Text']],
         ]);
-        $this->writePreset('other.json', [
+        $this->writePreset('other.yaml', [
             'id' => 'core.media-and-text',
             'name' => 'Media & text',
-            'payload' => [],
+            'layout' => [['component' => 'Sw:Grid:Container']],
         ]);
 
-        $all = $this->createRegistry()->all();
+        $payload = [['id' => 'el-1', 'component' => 'Sw:Content:Text', 'properties' => []]];
+        $compiler = $this->createStub(LayoutPresetPayloadCompiler::class);
+        $compiler->method('compile')->willReturn($payload);
+
+        $all = $this->createRegistry($compiler)->all();
 
         static::assertCount(2, $all);
         static::assertArrayHasKey('core.text-block', $all);
@@ -70,33 +73,33 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
     public function testAllReturnsEmptyWhenDirectoryMissing(): void
     {
         $registry = new ContentSystemLayoutPresetRegistry(
-            static::createStub(DraftLayoutDecoder::class),
+            $this->createStub(LayoutPresetPayloadCompiler::class),
             $this->tempDir . '/does-not-exist',
         );
 
         static::assertSame([], $registry->all());
     }
 
-    #[TestDox('runs each payload through the shared decode gate')]
-    public function testAllValidatesPayloadThroughDecoder(): void
+    #[TestDox('compiles the authoring shorthand through the payload compiler')]
+    public function testAllCompilesLayoutThroughCompiler(): void
     {
-        $payload = [['id' => 'el-1', 'component' => 'Sw:Content:Text']];
-        $this->writePreset('text-block.json', [
+        $layout = [['component' => 'Sw:Content:Text', 'properties' => ['text' => 'x']]];
+        $this->writePreset('text-block.yaml', [
             'id' => 'core.text-block',
             'name' => 'Text block',
-            'payload' => $payload,
+            'layout' => $layout,
         ]);
 
-        $decoder = $this->createMock(DraftLayoutDecoder::class);
-        $decoder->expects($this->once())->method('decode')->with($payload)->willReturn([]);
+        $compiler = $this->createMock(LayoutPresetPayloadCompiler::class);
+        $compiler->expects($this->once())->method('compile')->with($layout)->willReturn([]);
 
-        (new ContentSystemLayoutPresetRegistry($decoder, $this->tempDir))->all();
+        (new ContentSystemLayoutPresetRegistry($compiler, $this->tempDir))->all();
     }
 
     #[TestDox('returns true for a known id and false for an unknown one')]
     public function testHas(): void
     {
-        $this->writePreset('text-block.json', ['id' => 'core.text-block', 'name' => 'Text block', 'payload' => []]);
+        $this->writePreset('text-block.yaml', ['id' => 'core.text-block', 'name' => 'Text block', 'layout' => []]);
 
         $registry = $this->createRegistry();
 
@@ -107,7 +110,7 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
     #[TestDox('returns the preset for a known id')]
     public function testGetReturnsPreset(): void
     {
-        $this->writePreset('text-block.json', ['id' => 'core.text-block', 'name' => 'Text block', 'payload' => []]);
+        $this->writePreset('text-block.yaml', ['id' => 'core.text-block', 'name' => 'Text block', 'layout' => []]);
 
         static::assertSame('Text block', $this->createRegistry()->get('core.text-block')->name);
     }
@@ -129,17 +132,17 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
     #[TestDox('throws when two presets declare the same id')]
     public function testDuplicateIdThrows(): void
     {
-        $this->writePreset('a.json', ['id' => 'core.dupe', 'name' => 'A', 'payload' => []]);
-        $this->writePreset('b.json', ['id' => 'core.dupe', 'name' => 'B', 'payload' => []]);
+        $this->writePreset('a.yaml', ['id' => 'core.dupe', 'name' => 'A', 'layout' => []]);
+        $this->writePreset('b.yaml', ['id' => 'core.dupe', 'name' => 'B', 'layout' => []]);
 
         $this->expectExceptionObject(ContentSystemException::layoutPresetDuplicate('core.dupe'));
         $this->createRegistry()->all();
     }
 
-    #[TestDox('fails hard on malformed JSON')]
-    public function testInvalidJsonThrows(): void
+    #[TestDox('fails hard on malformed YAML')]
+    public function testInvalidYamlThrows(): void
     {
-        file_put_contents($this->tempDir . '/broken.json', '{ not valid json');
+        file_put_contents($this->tempDir . '/broken.yaml', "id: [unclosed\n");
 
         $this->assertLoadFailed();
     }
@@ -147,7 +150,7 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
     #[TestDox('fails hard when the id is missing')]
     public function testMissingIdThrows(): void
     {
-        $this->writePreset('no-id.json', ['name' => 'Nameless', 'payload' => []]);
+        $this->writePreset('no-id.yaml', ['name' => 'Nameless', 'layout' => []]);
 
         $this->assertLoadFailed();
     }
@@ -155,46 +158,45 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
     #[TestDox('fails hard when the name is missing')]
     public function testMissingNameThrows(): void
     {
-        $this->writePreset('no-name.json', ['id' => 'core.no-name', 'payload' => []]);
+        $this->writePreset('no-name.yaml', ['id' => 'core.no-name', 'layout' => []]);
 
         $this->assertLoadFailed();
     }
 
-    #[TestDox('fails hard when the payload is not a list')]
-    public function testNonListPayloadThrows(): void
+    #[TestDox('fails hard when the layout is not a list')]
+    public function testNonListLayoutThrows(): void
     {
-        $this->writePreset('bad-payload.json', ['id' => 'core.bad', 'name' => 'Bad', 'payload' => ['not' => 'a list']]);
+        $this->writePreset('bad-layout.yaml', ['id' => 'core.bad', 'name' => 'Bad', 'layout' => ['not' => 'a list']]);
 
         $this->assertLoadFailed();
     }
 
-    #[TestDox('wraps a decode-gate rejection as a load failure')]
-    public function testDecoderRejectionWrappedAsLoadFailed(): void
+    #[TestDox('wraps a compiler rejection as a load failure')]
+    public function testCompilerRejectionWrappedAsLoadFailed(): void
     {
-        $this->writePreset('text-block.json', [
+        $this->writePreset('text-block.yaml', [
             'id' => 'core.text-block',
             'name' => 'Text block',
-            'payload' => [['id' => 'el-1', 'component' => 'Sw:Content:Text']],
+            'layout' => [['component' => 'Sw:Content:Text']],
         ]);
 
-        $decoder = static::createStub(DraftLayoutDecoder::class);
-        $decoder->method('decode')->willThrowException(
-            ContentSystemException::invalidLayoutStructure(new ConstraintViolationList())
-        );
-
-        $registry = new ContentSystemLayoutPresetRegistry($decoder, $this->tempDir);
+        $compiler = $this->createStub(LayoutPresetPayloadCompiler::class);
+        $compiler->method('compile')->willThrowException(ContentSystemException::layoutPresetInvalidLayout('nope'));
 
         try {
-            $registry->all();
+            (new ContentSystemLayoutPresetRegistry($compiler, $this->tempDir))->all();
             static::fail('Expected a ContentSystemException.');
         } catch (ContentSystemException $e) {
             static::assertSame(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED, $e->getErrorCode());
         }
     }
 
-    private function createRegistry(): ContentSystemLayoutPresetRegistry
+    private function createRegistry(?LayoutPresetPayloadCompiler $compiler = null): ContentSystemLayoutPresetRegistry
     {
-        return new ContentSystemLayoutPresetRegistry(static::createStub(DraftLayoutDecoder::class), $this->tempDir);
+        return new ContentSystemLayoutPresetRegistry(
+            $compiler ?? $this->createStub(LayoutPresetPayloadCompiler::class),
+            $this->tempDir,
+        );
     }
 
     private function assertLoadFailed(): void
@@ -212,6 +214,6 @@ class ContentSystemLayoutPresetRegistryTest extends TestCase
      */
     private function writePreset(string $file, array $data): void
     {
-        file_put_contents($this->tempDir . '/' . $file, json_encode($data, \JSON_THROW_ON_ERROR));
+        file_put_contents($this->tempDir . '/' . $file, Yaml::dump($data));
     }
 }

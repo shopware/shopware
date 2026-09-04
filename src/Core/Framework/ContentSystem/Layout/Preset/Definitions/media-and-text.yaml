@@ -1,0 +1,12 @@
+id: core.media-and-text
+name: "Media & text"
+description: "An image next to a rich-text block inside a grid container."
+icon: "regular-image"
+layout:
+  - component: Sw:Grid:Container
+    slots:
+      content:
+        - component: Sw:Media:Image
+        - component: Sw:Content:Text
+          properties:
+            text: "<h3>Describe your product</h3><p>Add a short, benefit-led description next to the image.</p>"

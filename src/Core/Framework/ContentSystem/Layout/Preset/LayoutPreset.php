@@ -5,11 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Preset;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * A ready-made layout fragment the admin can drop into the layout it is editing. The payload is a complete or
- * partial layout tree (a list of encoded elements, same wire shape as a saved layout); name, description and icon
- * are the display metadata the admin shows in the preset picker. The id is author-provided and must be unique so
- * a preset can be identified definitively.
- *
  * @internal
  *
  * @phpstan-type PresetPayload list<array<string, mixed>>

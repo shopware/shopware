@@ -1,5 +1,9 @@
 # 6.7.15.0
 
+## `type_name` field in `document_base_config_sales_channel` deprecated
+
+Due to the value of the field `type_name` in the `document_base_config_sales_channel` table being the same as the one in the always referenced `document_base_config` and the need to keep those fields in sync, it was decided to remove the field on the `document_base_config_sales_channel` table and to only use the one in the `document_base_config` table.
+
 ## Document generation v1 deprecated for removal in Shopware 6.9
 
 The legacy document generation implementation is deprecated with `@deprecated tag:v6.9.0` and replaced by document generation v2 (opt-in via the `DOCUMENT_GENERATION_REWORK` feature flag, the default with Shopware 6.8). The legacy implementation keeps working throughout 6.7 and 6.8 and is removed with Shopware 6.9. Migration guidance per extension point is in `UPGRADE-6.9.md`.
@@ -167,6 +171,7 @@ The following components are fully deprecated including their registration, temp
 - the `showModal` data property and the `documentModal` computed property
 - the methods `convertStoreEventToVueEvent()`, `createDocument()`, `onCancelCreation()`, `onPrepareDocument()`, `openDocument()`
 - the v1-only branches inside the surviving download and creation methods
+- the CSS class `sw-data-grid__cell--documentType-name` is deprecated and will be replaced by `sw-data-grid__cell--typeName`
 
 `sw-bulk-edit-save-modal-process` (order bulk edit): the methods `createDocument()`, `getDocumentGenerationResult()`, `getFailedDocumentGenerationItems()`
 

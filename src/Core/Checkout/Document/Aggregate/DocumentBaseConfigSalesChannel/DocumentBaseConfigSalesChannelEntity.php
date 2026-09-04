@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -23,6 +24,9 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
 
     protected string $documentTypeId;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use the $typeName property of $documentBaseConfig instead.
+     */
     protected ?string $typeName = null;
 
     protected ?DocumentTypeEntity $documentType = null;
@@ -52,7 +56,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentBaseConfig()?->getTypeName() instead.
      */
     public function getDocumentTypeId(): string
     {
@@ -60,25 +64,35 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentBaseConfig()?->setTypeName() instead.
      */
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use getDocumentBaseConfig()?->getTypeName() instead.
+     */
     public function getTypeName(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, 'getTypeName', 'v6.8.0.0', self::class . '::getDocumentBaseConfig()::getTypeName()'));
+
         return $this->typeName;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use getDocumentBaseConfig()?->setTypeName() instead.
+     */
     public function setTypeName(?string $typeName): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, 'setTypeName', 'v6.8.0.0', self::class . '::getDocumentBaseConfig()::setTypeName()'));
+
         $this->typeName = $typeName;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentBaseConfig()?->getTypeName() instead.
      */
     public function getDocumentType(): ?DocumentTypeEntity
     {
@@ -86,7 +100,7 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentBaseConfig()?->setTypeName() instead.
      */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {

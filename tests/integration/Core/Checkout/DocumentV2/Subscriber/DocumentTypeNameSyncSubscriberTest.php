@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\Doc
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -43,6 +44,8 @@ class DocumentTypeNameSyncSubscriberTest extends TestCase
 
     public function testTypeNameIsWrittenForSalesChannelConfigWrite(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $documentTypeId = $this->getDocumentTypeId('invoice', $context);
 

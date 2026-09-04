@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -84,15 +85,42 @@ class UserControllerTest extends TestCase
         static::assertSame('Europe/Berlin', $userRepository->upserts[0][0]['timeZone']);
     }
 
-    public function testUpdateMeRejectsFieldsOutsideTheSelfProfileAllowlist(): void
+    /**
+     * updateMe() must reject any field outside the self-service profile allow-list before the
+     * SYSTEM_SCOPE write, including escalation-relevant ones such as `admin` and `aclRoles`. The
+     * nested avatarMedia association guard needs the real DAL definition and is covered by the
+     * integration test.
+     *
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('forbiddenUpdateMePayloadProvider')]
+    public function testUpdateMeRejectsFieldsOutsideTheSelfProfileAllowlist(array $payload): void
     {
         static::expectExceptionObject(ApiException::missingPrivileges(['user:update']));
 
         $controller = $this->createController();
         $context = Context::createDefaultContext(new AdminApiSource('test-user-id'));
-        $request = Request::create('/', Request::METHOD_PATCH, ['title' => 'Dr.']);
+        $request = Request::create('/', Request::METHOD_PATCH, $payload);
 
         $controller->updateMe($context, $request, static::createStub(ResponseFactoryInterface::class));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function forbiddenUpdateMePayloadProvider(): iterable
+    {
+        yield 'disallowed top-level admin flag' => [[
+            'admin' => true,
+        ]];
+
+        yield 'disallowed acl role assignment' => [[
+            'aclRoles' => [['id' => 'role-id']],
+        ]];
+
+        yield 'field outside the profile allow-list' => [[
+            'title' => 'Dr.',
+        ]];
     }
 
     /**

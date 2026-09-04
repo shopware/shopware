@@ -1,3 +1,11 @@
+# 6.7.14.1
+
+## Security Fixes
+
+### Self-service profile updates reject nested associations in `avatarMedia`
+
+`PATCH /api/_info/me` now rejects an `avatarMedia` payload that contains associations of the media entity, such as `user` or `avatarUsers`, with a `403` and the error code `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
+
 # 6.7.14.0
 
 ## Features

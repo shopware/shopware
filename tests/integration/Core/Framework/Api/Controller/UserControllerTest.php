@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -245,6 +246,100 @@ class UserControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
         static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
         static::assertSame(['user:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+    }
+
+    /**
+     * A user who may only edit their own profile (user_change_me) must not be able to elevate
+     * themselves to admin. Top-level "admin" is already rejected; this guards the nested variant
+     * where the flag is hidden inside an allowed association (avatarMedia -> user / avatarUsers).
+     *
+     * @param callable(string): array<string, mixed> $payloadFactory
+     */
+    #[DataProvider('nestedAdminEscalationPayloadProvider')]
+    public function testSetOwnProfileCannotEscalateToAdminViaNestedWrite(callable $payloadFactory): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        // Resolve the caller's own id and confirm the non-admin baseline.
+        $browser->request('GET', '/api/_info/me');
+        $me = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $userId = $me['data']['id'];
+        static::assertIsString($userId);
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            0,
+            (int) $connection->fetchOne('SELECT admin FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId])
+        );
+
+        $browser->jsonRequest('PATCH', '/api/_info/me', $payloadFactory($userId));
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(
+            MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
+            json_decode((string) $response->getContent(), true)['errors'][0]['code']
+        );
+
+        static::assertSame(
+            0,
+            (int) $connection->fetchOne('SELECT admin FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId]),
+            'Self-service profile edits must never grant the admin flag.'
+        );
+    }
+
+    /**
+     * @return iterable<string, array{callable(string): array<string, mixed>}>
+     */
+    public static function nestedAdminEscalationPayloadProvider(): iterable
+    {
+        yield 'via avatarMedia.user' => [
+            static fn (string $userId): array => [
+                'avatarMedia' => [
+                    'id' => Uuid::randomHex(),
+                    'user' => ['id' => $userId, 'admin' => true],
+                ],
+            ],
+        ];
+
+        yield 'via avatarMedia.avatarUsers' => [
+            static fn (string $userId): array => [
+                'avatarMedia' => [
+                    'id' => Uuid::randomHex(),
+                    'avatarUsers' => [['id' => $userId, 'admin' => true]],
+                ],
+            ],
+        ];
+    }
+
+    public function testSetOwnProfileCanUpdateAvatarViaMediaAssociation(): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $browser->request('GET', '/api/_info/me');
+        $me = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $userId = $me['data']['id'];
+        static::assertIsString($userId);
+
+        // Setting the avatar through the media association (not just avatarId) must keep working.
+        $mediaId = Uuid::randomHex();
+        $browser->jsonRequest('PATCH', '/api/_info/me', ['avatarMedia' => ['id' => $mediaId]]);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            $mediaId,
+            $connection->fetchOne('SELECT LOWER(HEX(avatar_id)) FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId]),
+            'The avatar media association must remain writable for self-service profile edits.'
+        );
+        static::assertSame(
+            0,
+            (int) $connection->fetchOne('SELECT admin FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId])
+        );
     }
 
     public function testPreventChangeOfUSerWithoutPermission(): void

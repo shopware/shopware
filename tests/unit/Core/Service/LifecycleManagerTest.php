@@ -291,6 +291,9 @@ class LifecycleManagerTest extends TestCase
         $this->serviceLifecycle->expects($this->once())
             ->method('uninstall')
             ->with('OrphanedService', $this->context);
+        $this->serviceLifecycle->expects($this->once())
+            ->method('reevaluateInstalled')
+            ->with($this->context);
 
         $this->privileges->expects($this->never())
             ->method('acceptAllForApps');
@@ -317,6 +320,9 @@ class LifecycleManagerTest extends TestCase
             ->with($this->context)
             ->willReturn($expectedServices);
 
+        $this->serviceLifecycle->expects($this->once())
+            ->method('reevaluateInstalled')
+            ->with($this->context);
         $this->serviceLifecycle->expects($this->never())
             ->method('uninstall');
         $this->client->expects($this->never())
@@ -345,6 +351,8 @@ class LifecycleManagerTest extends TestCase
             ->method('set');
         $this->serviceLifecycle->expects($this->never())
             ->method('uninstall');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('reevaluateInstalled');
         $this->permissionsService->expects($this->never())
             ->method('revoke');
         $this->client->expects($this->never())

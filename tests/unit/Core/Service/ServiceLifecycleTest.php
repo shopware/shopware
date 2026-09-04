@@ -504,8 +504,55 @@ class ServiceLifecycleTest extends TestCase
         $this->expectInstallMachineryIsNotUsed();
 
         $this->appManager->expects($this->never())->method('uninstall');
+        $this->appManager->expects($this->never())->method('activate');
+        $this->requirementsValidator->expects($this->never())->method('permitsStateChange');
 
         $this->createLifecycle($this->buildAppRepository([$app]))->reevaluateInstalled(Context::createDefaultContext());
+    }
+
+    public function testReevaluateInstalledActivatesInactiveServicesWhoseStateMayNotBeChanged(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyCoolService', active: false);
+        $context = new Context(new AdminApiSource(Uuid::randomHex()));
+        $this->requirementsMet(true);
+        $this->stateChangePermitted(false);
+        $this->expectInstallMachineryIsNotUsed();
+
+        $this->appManager->expects($this->never())->method('uninstall');
+        $this->appManager->expects($this->once())
+            ->method('activate')
+            ->with($app, static::callback($this->isSystemScope()));
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->reevaluateInstalled($context);
+    }
+
+    public function testReevaluateInstalledLeavesInactiveServicesWhoseStateMayBeChanged(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyCoolService', active: false);
+        $this->requirementsMet(true);
+        $this->stateChangePermitted(true);
+        $this->expectInstallMachineryIsNotUsed();
+
+        $this->appManager->expects($this->never())->method('uninstall');
+        $this->appManager->expects($this->never())->method('activate');
+
+        $this->createLifecycle($this->buildAppRepository([$app]))->reevaluateInstalled(Context::createDefaultContext());
+    }
+
+    public function testReevaluateInstalledUninstallsBeforeConsideringActivation(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyCoolService', active: false);
+        $context = Context::createDefaultContext();
+        $this->requirementsMet(false);
+        $this->requirementsValidator->expects($this->never())->method('permitsStateChange');
+        $this->expectInstallMachineryIsNotUsed();
+
+        $this->appManager->expects($this->once())->method('uninstall')->with($app, $context);
+        $this->appManager->expects($this->never())->method('activate');
+
+        $appRepo = StaticEntityRepository::of(AppCollection::class, [new AppCollection([$app]), new AppCollection([$app])]);
+
+        $this->createLifecycle($appRepo)->reevaluateInstalled($context);
     }
 
     public function testActivate(): void

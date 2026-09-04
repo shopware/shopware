@@ -48,13 +48,14 @@ class LifecycleManager
     public function sync(Context $context): void
     {
         $this->removeOrphanedServices($this->serviceStorage->findAll($context), $context);
+        $this->serviceLifecycle->reevaluateInstalled($context);
     }
 
     /**
      * Level-triggered counterpart to the update push (ServiceController::triggerUpdate): installs new
-     * services and converges installed ones to the registry's latest revision, both via the same
-     * idempotent update path. Only runs if ENABLE_SERVICES allows it. No orphan removal — that stays
-     * in sync().
+     * services, converges installed ones to the registry's latest revision, both via the same
+     * idempotent update path, and re-evaluates the installed services against their requirements.
+     * Only runs if ENABLE_SERVICES allows it. No orphan removal, that stays in sync().
      *
      * @return array<string> The newly installed services
      */
@@ -64,7 +65,10 @@ class LifecycleManager
             return [];
         }
 
-        return $this->serviceInstaller->reconcile($context);
+        $installed = $this->serviceInstaller->reconcile($context);
+        $this->serviceLifecycle->reevaluateInstalled($context);
+
+        return $installed;
     }
 
     public function syncState(string $serviceName, Context $context): void

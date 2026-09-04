@@ -4,7 +4,17 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
+    inputs:
+      extension-tooling-e2e:
+        description: "Run the slow extension-tooling e2e suite (otherwise nightly only)"
+        type: boolean
+        default: false
   workflow_call:
+    inputs:
+      extension-tooling-e2e:
+        description: "Run the slow extension-tooling e2e suite (otherwise nightly only)"
+        type: boolean
+        default: false
 
 env:
   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
@@ -102,6 +112,43 @@ jobs:
           files: build/artifacts/jest/cobertura-coverage.xml
           flags: jest-admin
           disable_search: true
+
+  extension-tooling-e2e:
+    needs:
+      - markdown-only-changes
+    # Slow suite: scaffolds a project and runs the real vue-tsc/ESLint toolchain.
+    # Nightly passes the input to enable it; it does not run on pull requests.
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.extension-tooling-e2e }}
+    runs-on: ubuntu-24.04
+    name: "Extension tooling e2e (nightly)"
+    env:
+      NODE_VERSION: 'lts/*'
+
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Generate entity schema mock
+        run: composer run framework:schema:dump
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/Administration/Resources/app/administration/package-lock.json
+
+      - name: Install admin dependencies
+        run: npm --prefix src/Administration/Resources/app/administration ci
+
+      - name: Generate unit test setup artifacts
+        run: npm --prefix src/Administration/Resources/app/administration run unit-setup
+
+      - name: Run extension tooling e2e suite
+        run: npm --prefix src/Administration/Resources/app/administration run unit:extension-tooling-e2e
 
   license-check:
     needs:

@@ -32,29 +32,6 @@ class StoredElementCodecTest extends StoredElementCodecTestCase
         static::assertSame($wire, $codec->encode($codec->decode($wire)));
     }
 
-    #[TestDox('encode omits every empty optional key, leaving the three always-present ones')]
-    public function testEncodeOmitsEmptyOptionalKeys(): void
-    {
-        $wire = [
-            'id' => 'el-1',
-            'component' => 'core:text',
-            'properties' => ['title' => 'Hello'],
-            'dataRequirements' => [],
-            'slots' => [],
-            'providesContext' => [],
-            'acceptsContext' => [],
-            'style' => [],
-            'attributedSpecifications' => [],
-        ];
-
-        $codec = $this->codec();
-
-        static::assertSame(
-            ['id' => 'el-1', 'component' => 'core:text', 'properties' => ['title' => 'Hello']],
-            $codec->encode($codec->decode($wire))
-        );
-    }
-
     #[TestDox('decode accepts an id that only looks numeric')]
     public function testDecodeAcceptsANonCastableNumericLookingId(): void
     {
@@ -75,19 +52,27 @@ class StoredElementCodecTest extends StoredElementCodecTestCase
         static::assertSame($wire, $codec->encode($codec->decode($wire)));
     }
 
-    #[TestDox('keeps a well-formed style entry the registry no longer knows')]
-    public function testDecodeKeepsAnUnknownButWellFormedStyleOption(): void
+    #[TestDox('decode treats an explicitly empty optional container as absent')]
+    public function testDecodeTreatsAnExplicitlyEmptyOptionalContainerAsAbsent(): void
     {
-        $wire = self::baseWire([
-            'style' => [
-                'flat-option' => 'red',
-                'breakpoint-option' => ['md' => 10],
-            ],
-        ]);
+        $wire = [
+            'id' => 'el-1',
+            'component' => 'core:text',
+            'properties' => ['title' => 'Hello'],
+            'dataRequirements' => [],
+            'slots' => [],
+            'providesContext' => [],
+            'acceptsContext' => [],
+            'style' => [],
+            'attributedSpecifications' => [],
+        ];
 
-        $codec = $this->codec();
+        $element = $this->codec()->decode($wire);
 
-        static::assertSame($wire, $codec->encode($codec->decode($wire)));
+        static::assertSame([], $element->slots);
+        static::assertSame([], $element->dataRequirements);
+        static::assertSame([], $element->attributedSpecifications);
+        static::assertTrue($element->style->isEmpty());
     }
 
     /**
@@ -145,6 +130,13 @@ class StoredElementCodecTest extends StoredElementCodecTestCase
             'style' => ['col-span' => ['md' => 6]],
             'attributedSpecifications' => ['image' => 'core:product-image'],
         ]];
+
+        yield 'an element whose style mixes a flat option with a breakpoint map' => [self::baseWire([
+            'style' => [
+                'flat-option' => 'red',
+                'breakpoint-option' => ['md' => 10],
+            ],
+        ])];
     }
 
     /**

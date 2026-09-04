@@ -113,40 +113,6 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame($expectedMessage, $violations[0]['message']);
     }
 
-    /**
-     * @return iterable<string, array{array<string, mixed>, string}>
-     */
-    public static function elementLocalClientDefectProvider(): iterable
-    {
-        yield 'a numeric wiring key' => [
-            ['properties' => [1 => 'x']],
-            'Element property map key must be string, got int',
-        ];
-
-        yield 'two consumers sharing one base key' => [
-            ['acceptsContext' => [
-                'product' => ['type' => 'single', 'required' => false],
-                'category' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'product'],
-            ]],
-            'Property key "product" is used by both context "product" and "category". Each propertyAlias must be unique within an element.',
-        ];
-
-        yield 'a redistributing consumer keyed by a dotted path' => [
-            ['acceptsContext' => [
-                'product.manufacturer' => ['type' => 'single', 'required' => false, 'redistribute' => true],
-            ]],
-            'Context key "product.manufacturer" uses dot notation and cannot be redistributed. Only base keys support redistribution.',
-        ];
-
-        yield 'a redistributing consumer whose derived key an authored provider holds' => [
-            [
-                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
-                'acceptsContext' => ['product' => ['type' => 'single', 'required' => false, 'redistribute' => true]],
-            ],
-            'Context key "product" has both redistribute:true and explicit providesContext. Use one or the other.',
-        ];
-    }
-
     #[TestDox('resolves the root source from the rootSource field and returns a resolvability verdict')]
     public function testDiagnoseWithRootSource(): void
     {
@@ -156,6 +122,17 @@ class ContentDiagnoseControllerTest extends TestCase
         ]);
 
         static::assertArrayHasKey('resolvable', $body['diagnostics']);
+    }
+
+    #[TestDox('treats an empty rootSource as absent and reports intrinsic well-formedness without gating')]
+    public function testDiagnoseTreatsEmptyRootSourceAsAbsent(): void
+    {
+        $body = $this->diagnose([
+            'layout' => [$this->element($this->registeredComponent())],
+            'rootSource' => '',
+        ]);
+
+        static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
     #[TestDox('rejects an unknown rootSource with a 400 and the unknownRootSource code, never reaching resolve')]
@@ -188,15 +165,38 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
     }
 
-    #[TestDox('treats an empty rootSource as absent and reports intrinsic well-formedness without gating')]
-    public function testDiagnoseTreatsEmptyRootSourceAsAbsent(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function elementLocalClientDefectProvider(): iterable
     {
-        $body = $this->diagnose([
-            'layout' => [$this->element($this->registeredComponent())],
-            'rootSource' => '',
-        ]);
+        yield 'a numeric wiring key' => [
+            ['properties' => [1 => 'x']],
+            'Element property map key must be string, got int',
+        ];
 
-        static::assertTrue($body['diagnostics']['wellFormed']);
+        yield 'two consumers sharing one base key' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => false],
+                'category' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'product'],
+            ]],
+            'Property key "product" is used by both context "product" and "category". Each propertyAlias must be unique within an element.',
+        ];
+
+        yield 'a redistributing consumer keyed by a dotted path' => [
+            ['acceptsContext' => [
+                'product.manufacturer' => ['type' => 'single', 'required' => false, 'redistribute' => true],
+            ]],
+            'Context key "product.manufacturer" uses dot notation and cannot be redistributed. Only base keys support redistribution.',
+        ];
+
+        yield 'a redistributing consumer whose derived key an authored provider holds' => [
+            [
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => false, 'redistribute' => true]],
+            ],
+            'Context key "product" has both redistribute:true and explicit providesContext. Use one or the other.',
+        ];
     }
 
     /**

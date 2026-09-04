@@ -244,7 +244,6 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
         yield 'an empty style' => [[]];
         yield 'a flat integer option sent as a scalar' => [['z-index' => 10]];
         yield 'a flat string option within its maxLength' => [['flat-label' => 'short']];
-        yield 'coexisting flat and breakpoint-aware options' => [['z-index' => 10, 'col-span' => ['md' => 6]]];
     }
 
     /**

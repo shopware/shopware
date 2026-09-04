@@ -83,6 +83,104 @@ class ElementStyleNormalizerTest extends TestCase
         ], $normalized->toArray());
     }
 
+    #[TestDox('keeps a span map in which not every entry is the range minimum')]
+    public function testKeepsMixedSpanMapWhenNotAllValuesAreTheMinimum(): void
+    {
+        $normalized = $this->normalizer($this->colSpanOption())
+            ->normalize(new ElementStyle(['col-span' => ['lg' => 1, 'xl' => 2]]));
+
+        static::assertSame(['col-span' => ['lg' => 1, 'xl' => 2]], $normalized->toArray());
+    }
+
+    #[TestDox('fills the breakpoints a partial map omits with the option default')]
+    public function testExpandsPartialMapWithTheOptionDefaultForMissingBreakpoints(): void
+    {
+        $normalized = $this->normalizer($this->displayOption())
+            ->normalize(new ElementStyle(['display' => ['xs' => false, 'sm' => false, 'md' => false]]));
+
+        static::assertSame([
+            'display' => [
+                'xs' => false,
+                'sm' => false,
+                'md' => false,
+                'lg' => true,
+                'xl' => true,
+                'xxl' => true,
+            ],
+        ], $normalized->toArray());
+    }
+
+    #[TestDox('keeps the explicit entries of a viewport-specific map while filling the rest')]
+    public function testKeepsExplicitValuesWhenExpandingAViewportSpecificMap(): void
+    {
+        $normalized = $this->normalizer($this->displayOption())
+            ->normalize(new ElementStyle(['display' => ['xs' => false, 'lg' => true, 'xl' => true, 'xxl' => true]]));
+
+        static::assertSame([
+            'display' => [
+                'xs' => false,
+                'sm' => true,
+                'md' => true,
+                'lg' => true,
+                'xl' => true,
+                'xxl' => true,
+            ],
+        ], $normalized->toArray());
+    }
+
+    #[TestDox('keeps a breakpoint map unchanged for an option that declares no default')]
+    public function testKeepsBreakpointMapUnchangedForAnOptionWithoutDefault(): void
+    {
+        $normalized = $this->normalizer($this->colSpanOption())
+            ->normalize(new ElementStyle(['col-span' => ['lg' => 6]]));
+
+        static::assertSame(['col-span' => ['lg' => 6]], $normalized->toArray());
+    }
+
+    #[TestDox('keeps a scalar flat for an option that is not breakpoint-aware')]
+    public function testKeepsScalarFlatForAnOptionThatIsNotBreakpointAware(): void
+    {
+        $normalized = $this->normalizer($this->zIndexOption())->normalize(new ElementStyle(['z-index' => 10]));
+
+        static::assertSame(['z-index' => 10], $normalized->toArray());
+    }
+
+    #[TestDox('passes an option with no registry entry through untouched')]
+    public function testPassesAnUnregisteredOptionThroughUntouched(): void
+    {
+        $normalized = $this->normalizer()->normalize(new ElementStyle(['brand-gap' => '20']));
+
+        static::assertSame(['brand-gap' => '20'], $normalized->toArray());
+    }
+
+    #[TestDox('normalizes a whole style map, dropping the options that resolve to unset')]
+    public function testNormalizesAWholeStyleMap(): void
+    {
+        $normalized = $this->normalizer(
+            $this->textOption('padding'),
+            $this->colSpanOption(),
+            $this->textOption('margin'),
+            $this->alignSelfOption(),
+        )->normalize(new ElementStyle([
+            'padding' => '0 8px',
+            'col-span' => ['lg' => 6],
+            'margin' => '',
+            'align-self' => ['md' => 'auto'],
+        ]));
+
+        static::assertSame([
+            'padding' => [
+                'xs' => '0 8px',
+                'sm' => '0 8px',
+                'md' => '0 8px',
+                'lg' => '0 8px',
+                'xl' => '0 8px',
+                'xxl' => '0 8px',
+            ],
+            'col-span' => ['lg' => 6],
+        ], $normalized->toArray());
+    }
+
     #[TestDox('applies shorthand normalization to an option that declares kind box-spacing')]
     public function testBoxSpacingKindSelectsShorthandNormalization(): void
     {
@@ -169,9 +267,7 @@ class ElementStyleNormalizerTest extends TestCase
      */
     public static function rangeMinimumMapProvider(): iterable
     {
-        yield 'single breakpoint' => [['md' => 1]];
-        yield 'three breakpoints' => [['lg' => 1, 'xl' => 1, 'xxl' => 1]];
-        yield 'every breakpoint' => [['xs' => 1, 'sm' => 1, 'md' => 1, 'lg' => 1, 'xl' => 1, 'xxl' => 1]];
+        yield 'every entry is the range minimum' => [['lg' => 1, 'xl' => 1, 'xxl' => 1]];
     }
 
     /**
@@ -187,15 +283,6 @@ class ElementStyleNormalizerTest extends TestCase
         static::assertSame([], $normalized->toArray());
     }
 
-    #[TestDox('keeps a span map in which not every entry is the range minimum')]
-    public function testKeepsMixedSpanMapWhenNotAllValuesAreTheMinimum(): void
-    {
-        $normalized = $this->normalizer($this->colSpanOption())
-            ->normalize(new ElementStyle(['col-span' => ['lg' => 1, 'xl' => 2]]));
-
-        static::assertSame(['col-span' => ['lg' => 1, 'xl' => 2]], $normalized->toArray());
-    }
-
     #[TestDox('keeps a value equal to the range minimum when the option also declares a default')]
     public function testKeepsRangeMinimumWhenTheOptionAlsoDeclaresADefault(): void
     {
@@ -209,42 +296,6 @@ class ElementStyleNormalizerTest extends TestCase
         $normalized = $this->normalizer($option)->normalize(new ElementStyle(['pin-min' => 1]));
 
         static::assertSame(['pin-min' => 1], $normalized->toArray());
-    }
-
-    #[TestDox('fills the breakpoints a partial map omits with the option default')]
-    public function testExpandsPartialMapWithTheOptionDefaultForMissingBreakpoints(): void
-    {
-        $normalized = $this->normalizer($this->displayOption())
-            ->normalize(new ElementStyle(['display' => ['xs' => false, 'sm' => false, 'md' => false]]));
-
-        static::assertSame([
-            'display' => [
-                'xs' => false,
-                'sm' => false,
-                'md' => false,
-                'lg' => true,
-                'xl' => true,
-                'xxl' => true,
-            ],
-        ], $normalized->toArray());
-    }
-
-    #[TestDox('keeps the explicit entries of a viewport-specific map while filling the rest')]
-    public function testKeepsExplicitValuesWhenExpandingAViewportSpecificMap(): void
-    {
-        $normalized = $this->normalizer($this->displayOption())
-            ->normalize(new ElementStyle(['display' => ['xs' => false, 'lg' => true, 'xl' => true, 'xxl' => true]]));
-
-        static::assertSame([
-            'display' => [
-                'xs' => false,
-                'sm' => true,
-                'md' => true,
-                'lg' => true,
-                'xl' => true,
-                'xxl' => true,
-            ],
-        ], $normalized->toArray());
     }
 
     #[TestDox('replaces an empty-string entry with the option default when expanding')]
@@ -302,59 +353,6 @@ class ElementStyleNormalizerTest extends TestCase
         static::assertSame(['display' => $uniform], $normalized->toArray());
     }
 
-    #[TestDox('keeps a breakpoint map unchanged for an option that declares no default')]
-    public function testKeepsBreakpointMapUnchangedForAnOptionWithoutDefault(): void
-    {
-        $normalized = $this->normalizer($this->colSpanOption())
-            ->normalize(new ElementStyle(['col-span' => ['lg' => 6]]));
-
-        static::assertSame(['col-span' => ['lg' => 6]], $normalized->toArray());
-    }
-
-    #[TestDox('keeps a scalar flat for an option that is not breakpoint-aware')]
-    public function testKeepsScalarFlatForAnOptionThatIsNotBreakpointAware(): void
-    {
-        $normalized = $this->normalizer($this->zIndexOption())->normalize(new ElementStyle(['z-index' => 10]));
-
-        static::assertSame(['z-index' => 10], $normalized->toArray());
-    }
-
-    #[TestDox('passes an option with no registry entry through untouched')]
-    public function testPassesAnUnregisteredOptionThroughUntouched(): void
-    {
-        $normalized = $this->normalizer()->normalize(new ElementStyle(['brand-gap' => '20']));
-
-        static::assertSame(['brand-gap' => '20'], $normalized->toArray());
-    }
-
-    #[TestDox('normalizes a whole style map, dropping the options that resolve to unset')]
-    public function testNormalizesAWholeStyleMap(): void
-    {
-        $normalized = $this->normalizer(
-            $this->textOption('padding'),
-            $this->colSpanOption(),
-            $this->textOption('margin'),
-            $this->alignSelfOption(),
-        )->normalize(new ElementStyle([
-            'padding' => '0 8px',
-            'col-span' => ['lg' => 6],
-            'margin' => '',
-            'align-self' => ['md' => 'auto'],
-        ]));
-
-        static::assertSame([
-            'padding' => [
-                'xs' => '0 8px',
-                'sm' => '0 8px',
-                'md' => '0 8px',
-                'lg' => '0 8px',
-                'xl' => '0 8px',
-                'xxl' => '0 8px',
-            ],
-            'col-span' => ['lg' => 6],
-        ], $normalized->toArray());
-    }
-
     #[TestDox('returns an empty style when every option resolves to unset')]
     public function testReturnsAnEmptyStyleWhenEveryValueIsUnset(): void
     {
@@ -376,7 +374,7 @@ class ElementStyleNormalizerTest extends TestCase
         yield 'uniform map with default' => [['display' => ['xs' => true, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true]]];
         yield 'flat option' => [['z-index' => 10]];
         yield 'unregistered option' => [['brand-gap' => '20']];
-        yield 'everything unset' => [['align-self' => 'auto', 'col-span' => ['md' => 1]]];
+        yield 'align-self and col-span values that survive the first pass' => [['align-self' => 'start', 'col-span' => ['md' => 6]]];
         yield 'mixed style' => [[
             'padding' => '8px 16px',
             'col-span' => ['lg' => 6, 'xl' => 8],

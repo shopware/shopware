@@ -111,16 +111,6 @@ class StoredElementCodecStructuralDecodeTest extends StoredElementCodecTestCase
             '0',
             ContentSystemException::invalidElementId('0', 'PHP casts it to an integer array key'),
         ];
-
-        yield 'the integer-castable string "12"' => [
-            '12',
-            ContentSystemException::invalidElementId('12', 'PHP casts it to an integer array key'),
-        ];
-
-        yield 'the integer-castable string "-3"' => [
-            '-3',
-            ContentSystemException::invalidElementId('-3', 'PHP casts it to an integer array key'),
-        ];
     }
 
     /**

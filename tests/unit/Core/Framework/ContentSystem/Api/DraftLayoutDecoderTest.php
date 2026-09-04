@@ -139,6 +139,25 @@ class DraftLayoutDecoderTest extends TestCase
         static::assertSame('bad', $violations[0]->elementId);
     }
 
+    /**
+     * @param array<string, mixed> $wiring
+     */
+    #[DataProvider('elementLocalWiringDefectProvider')]
+    #[TestDox('decodeLintable reports $_dataName as an invalid_config violation on its element')]
+    public function testDecodeLintableCollectsAnElementLocalWiringDefect(array $wiring, string $expectedMessageFragment): void
+    {
+        [$tree, $violations] = $this->decoder()->decodeLintable([
+            ['id' => 'defective', 'component' => 'Sw:Block', ...$wiring],
+            ['id' => 'good', 'component' => 'Sw:Block'],
+        ]);
+
+        static::assertSame(['good'], array_map(static fn (StoredElement $e): string => $e->id, $tree));
+        static::assertCount(1, $violations);
+        static::assertSame(ViolationCode::InvalidConfig, $violations[0]->code);
+        static::assertSame('defective', $violations[0]->elementId);
+        static::assertStringContainsString($expectedMessageFragment, $violations[0]->message);
+    }
+
     #[TestDox('decode rejects a tree nested past the codec maximum depth')]
     public function testDecodeRejectsExcessiveNestingDepth(): void
     {
@@ -180,41 +199,6 @@ class DraftLayoutDecoderTest extends TestCase
         $this->decoder()->decode($rawLayout);
     }
 
-    /**
-     * @return iterable<string, array{array<int|string, mixed>, ConstraintViolationList}>
-     */
-    public static function invalidLayoutProvider(): iterable
-    {
-        yield 'non-array top-level element' => [
-            ['not-an-array'],
-            new ConstraintViolationList([
-                new ConstraintViolation('Layout element must be an array.', null, [], null, '[0]', 'not-an-array'),
-            ]),
-        ];
-
-        yield 'element missing both id and component aggregates both violations' => [
-            [[]],
-            new ConstraintViolationList([
-                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
-                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
-            ]),
-        ];
-
-        yield 'element missing only the id' => [
-            [['component' => 'Sw:Block']],
-            new ConstraintViolationList([
-                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
-            ]),
-        ];
-
-        yield 'element missing only the component' => [
-            [['id' => 'el-1']],
-            new ConstraintViolationList([
-                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
-            ]),
-        ];
-    }
-
     #[TestDox('decode rejects a globally duplicate element id, reading the rule off the stored forest')]
     public function testDecodeRejectsDuplicateElementId(): void
     {
@@ -243,24 +227,6 @@ class DraftLayoutDecoderTest extends TestCase
         } catch (ContentSystemException $exception) {
             static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
         }
-    }
-
-    /**
-     * A scalar `style` is the case the older decode path emptied rather than refused, which took the element's
-     * style out of reach of the unknown-style-option diagnostic entirely. It is listed here alongside the other
-     * containers because the codec judges all of them by the same rule.
-     *
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function malformedContainerProvider(): iterable
-    {
-        yield 'scalar style' => [['id' => 'root', 'component' => 'Sw:Block', 'style' => 'garbage']];
-        yield 'scalar slots' => [['id' => 'root', 'component' => 'Sw:Block', 'slots' => 'garbage']];
-        yield 'non-list slot children container' => [['id' => 'root', 'component' => 'Sw:Block', 'slots' => ['main' => 'garbage']]];
-        yield 'non-array nested child' => [['id' => 'root', 'component' => 'Sw:Block', 'slots' => ['content' => ['not-an-array']]]];
-        yield 'scalar dataRequirements' => [['id' => 'root', 'component' => 'Sw:Block', 'dataRequirements' => 'garbage']];
-        yield 'scalar acceptsContext' => [['id' => 'root', 'component' => 'Sw:Block', 'acceptsContext' => 'garbage']];
-        yield 'scalar attributedSpecifications' => [['id' => 'root', 'component' => 'Sw:Block', 'attributedSpecifications' => 'garbage']];
     }
 
     #[TestDox('decode aggregates a client-defect decode failure into a 400 invalidLayoutStructure')]
@@ -308,23 +274,87 @@ class DraftLayoutDecoderTest extends TestCase
         }
     }
 
-    /**
-     * @param array<string, mixed> $wiring
-     */
-    #[DataProvider('elementLocalWiringDefectProvider')]
-    #[TestDox('decodeLintable reports $_dataName as an invalid_config violation on its element')]
-    public function testDecodeLintableCollectsAnElementLocalWiringDefect(array $wiring, string $expectedMessageFragment): void
+    #[TestDox('decode rethrows a non-client-defect decode fault unchanged')]
+    public function testDecodeRethrowsInternalFault(): void
     {
-        [$tree, $violations] = $this->decoder()->decodeLintable([
-            ['id' => 'defective', 'component' => 'Sw:Block', ...$wiring],
-            ['id' => 'good', 'component' => 'Sw:Block'],
-        ]);
+        $decoder = $this->decoder($this->configProviderThrowing(ContentSystemException::layoutNotFound('x')));
 
-        static::assertSame(['good'], array_map(static fn (StoredElement $e): string => $e->id, $tree));
-        static::assertCount(1, $violations);
-        static::assertSame(ViolationCode::InvalidConfig, $violations[0]->code);
-        static::assertSame('defective', $violations[0]->elementId);
-        static::assertStringContainsString($expectedMessageFragment, $violations[0]->message);
+        $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
+        $decoder->decode([$this->elementWithDataRequirement('el-1')]);
+    }
+
+    #[TestDox('decodeLintable still throws invalidLayoutStructure for a structurally invalid element')]
+    public function testDecodeLintableRejectsStructurallyInvalidElement(): void
+    {
+        try {
+            $this->decoder()->decodeLintable([['component' => 'Sw:Block']]);
+            static::fail('Expected a ContentSystemException for the structurally invalid element.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+            static::assertStringContainsString('Layout element id must be a non-empty string.', $exception->getMessage());
+        }
+    }
+
+    #[TestDox('decodeLintable rethrows a non-client-defect decode fault unchanged')]
+    public function testDecodeLintableRethrowsInternalFault(): void
+    {
+        $decoder = $this->decoder($this->configProviderThrowing(ContentSystemException::layoutNotFound('x')));
+
+        $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
+        $decoder->decodeLintable([$this->elementWithDataRequirement('el-1')]);
+    }
+
+    /**
+     * @return iterable<string, array{array<int|string, mixed>, ConstraintViolationList}>
+     */
+    public static function invalidLayoutProvider(): iterable
+    {
+        yield 'non-array top-level element' => [
+            ['not-an-array'],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element must be an array.', null, [], null, '[0]', 'not-an-array'),
+            ]),
+        ];
+
+        yield 'element missing both id and component aggregates both violations' => [
+            [[]],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
+                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
+            ]),
+        ];
+
+        yield 'element missing only the id' => [
+            [['component' => 'Sw:Block']],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].id', null),
+            ]),
+        ];
+
+        yield 'element missing only the component' => [
+            [['id' => 'el-1']],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
+            ]),
+        ];
+    }
+
+    /**
+     * A scalar `style` is the case the older decode path emptied rather than refused, which took the element's
+     * style out of reach of the unknown-style-option diagnostic entirely. It is listed here alongside the other
+     * containers because the codec judges all of them by the same rule.
+     *
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function malformedContainerProvider(): iterable
+    {
+        yield 'scalar style' => [['id' => 'root', 'component' => 'Sw:Block', 'style' => 'garbage']];
+        yield 'scalar slots' => [['id' => 'root', 'component' => 'Sw:Block', 'slots' => 'garbage']];
+        yield 'non-list slot children container' => [['id' => 'root', 'component' => 'Sw:Block', 'slots' => ['main' => 'garbage']]];
+        yield 'non-array nested child' => [['id' => 'root', 'component' => 'Sw:Block', 'slots' => ['content' => ['not-an-array']]]];
+        yield 'scalar dataRequirements' => [['id' => 'root', 'component' => 'Sw:Block', 'dataRequirements' => 'garbage']];
+        yield 'scalar acceptsContext' => [['id' => 'root', 'component' => 'Sw:Block', 'acceptsContext' => 'garbage']];
+        yield 'scalar attributedSpecifications' => [['id' => 'root', 'component' => 'Sw:Block', 'attributedSpecifications' => 'garbage']];
     }
 
     /**
@@ -358,36 +388,6 @@ class DraftLayoutDecoderTest extends TestCase
             ],
             'Context key "product" has both redistribute:true and explicit providesContext.',
         ];
-    }
-
-    #[TestDox('decode rethrows a non-client-defect decode fault unchanged')]
-    public function testDecodeRethrowsInternalFault(): void
-    {
-        $decoder = $this->decoder($this->configProviderThrowing(ContentSystemException::layoutNotFound('x')));
-
-        $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
-        $decoder->decode([$this->elementWithDataRequirement('el-1')]);
-    }
-
-    #[TestDox('decodeLintable still throws invalidLayoutStructure for a structurally invalid element')]
-    public function testDecodeLintableRejectsStructurallyInvalidElement(): void
-    {
-        try {
-            $this->decoder()->decodeLintable([['component' => 'Sw:Block']]);
-            static::fail('Expected a ContentSystemException for the structurally invalid element.');
-        } catch (ContentSystemException $exception) {
-            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
-            static::assertStringContainsString('Layout element id must be a non-empty string.', $exception->getMessage());
-        }
-    }
-
-    #[TestDox('decodeLintable rethrows a non-client-defect decode fault unchanged')]
-    public function testDecodeLintableRethrowsInternalFault(): void
-    {
-        $decoder = $this->decoder($this->configProviderThrowing(ContentSystemException::layoutNotFound('x')));
-
-        $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
-        $decoder->decodeLintable([$this->elementWithDataRequirement('el-1')]);
     }
 
     /**

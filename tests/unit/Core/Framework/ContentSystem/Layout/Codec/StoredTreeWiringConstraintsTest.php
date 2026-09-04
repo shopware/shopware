@@ -27,6 +27,16 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
     private const DOTTED_PATH_MESSAGE = 'This context key uses dot notation and cannot be redistributed.';
 
     /**
+     * @param array<string, mixed> $provider
+     */
+    #[DataProvider('acceptsDistributionProvider')]
+    #[TestDox('reports no violation for $_dataName')]
+    public function testAcceptsAWellFormedDistribution(array $provider): void
+    {
+        static::assertCount(0, $this->validate([$this->element(['providesContext' => ['product' => $provider]])]));
+    }
+
+    /**
      * @param array<string, mixed> $overrides
      */
     #[DataProvider('acceptsCleanElementWiringProvider')]
@@ -34,19 +44,6 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
     public function testAcceptsACleanElementWiringSibling(array $overrides): void
     {
         static::assertCount(0, $this->validate([$this->element($overrides)]));
-    }
-
-    /**
-     * The no-op path every wiring rule takes for an explicitly empty map: each of
-     * {@see StoredTreeWiringConstraints::validateConsumerBaseKeys()}, {@see StoredTreeWiringConstraints::validateRedistributeKeyShape()}
-     * and {@see StoredTreeWiringConstraints::validateRedistributeProviderConflicts()} loops over the map and
-     * exits without a single iteration, distinct from the field being absent entirely, which
-     * {@see acceptsCleanElementWiringProvider()}'s rows never exercise.
-     */
-    #[TestDox('reports no violation for an element carrying explicitly empty wiring maps')]
-    public function testAcceptsExplicitlyEmptyWiringMaps(): void
-    {
-        static::assertCount(0, $this->validate([$this->element(['providesContext' => [], 'acceptsContext' => []])]));
     }
 
     /**
@@ -100,6 +97,48 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
     }
 
     /**
+     * Accumulation for the two redistribute rules: the descriptor owes one violation per offender, so a
+     * callback that stopped at the first would report half of what the element actually carries.
+     *
+     * Reported as [path, message] pairs rather than bare paths. Both redistribute rules emit at
+     * `[0][acceptsContext][<key>][redistribute]`, and canonicalizing drops order on top of that, so a
+     * path-only set is identical whether each rule produced its own violation or one rule produced both
+     * while the other went silent.
+     *
+     * @param array<string, mixed> $overrides
+     * @param list<array{string, string}> $expectedViolations
+     */
+    #[DataProvider('accumulatesEveryElementLocalViolationProvider')]
+    #[TestDox('reports one violation per offender for $_dataName')]
+    public function testAccumulatesEveryElementLocalViolation(array $overrides, array $expectedViolations): void
+    {
+        $violations = $this->validate([$this->element($overrides)]);
+
+        $reported = array_values(array_map(
+            static fn (ConstraintViolationInterface $violation): array => [
+                $violation->getPropertyPath(),
+                (string) $violation->getMessage(),
+            ],
+            iterator_to_array($violations)
+        ));
+
+        static::assertEqualsCanonicalizing($expectedViolations, $reported);
+    }
+
+    /**
+     * The no-op path every wiring rule takes for an explicitly empty map: each of
+     * {@see StoredTreeWiringConstraints::validateConsumerBaseKeys()}, {@see StoredTreeWiringConstraints::validateRedistributeKeyShape()}
+     * and {@see StoredTreeWiringConstraints::validateRedistributeProviderConflicts()} loops over the map and
+     * exits without a single iteration, distinct from the field being absent entirely, which
+     * {@see acceptsCleanElementWiringProvider()}'s rows never exercise.
+     */
+    #[TestDox('reports no violation for an element carrying explicitly empty wiring maps')]
+    public function testAcceptsExplicitlyEmptyWiringMaps(): void
+    {
+        static::assertCount(0, $this->validate([$this->element(['providesContext' => [], 'acceptsContext' => []])]));
+    }
+
+    /**
      * A non-string `propertyAlias` is already reported by the field's own `Type('string')` constraint, so
      * {@see StoredTreeWiringConstraints::validateConsumerBaseKeys()} skips the entry rather than deriving a
      * base key from it — deriving one would call `str_contains()` on a non-string value under this file's
@@ -136,35 +175,6 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
         static::assertCount(1, $violations);
         static::assertSame('[0][acceptsContext][source][propertyAlias]', $violations->get(0)->getPropertyPath());
         static::assertSame('This value should be of type string.', (string) $violations->get(0)->getMessage());
-    }
-
-    /**
-     * Accumulation for the two redistribute rules: the descriptor owes one violation per offender, so a
-     * callback that stopped at the first would report half of what the element actually carries.
-     *
-     * Reported as [path, message] pairs rather than bare paths. Both redistribute rules emit at
-     * `[0][acceptsContext][<key>][redistribute]`, and canonicalizing drops order on top of that, so a
-     * path-only set is identical whether each rule produced its own violation or one rule produced both
-     * while the other went silent.
-     *
-     * @param array<string, mixed> $overrides
-     * @param list<array{string, string}> $expectedViolations
-     */
-    #[DataProvider('accumulatesEveryElementLocalViolationProvider')]
-    #[TestDox('reports one violation per offender for $_dataName')]
-    public function testAccumulatesEveryElementLocalViolation(array $overrides, array $expectedViolations): void
-    {
-        $violations = $this->validate([$this->element($overrides)]);
-
-        $reported = array_values(array_map(
-            static fn (ConstraintViolationInterface $violation): array => [
-                $violation->getPropertyPath(),
-                (string) $violation->getMessage(),
-            ],
-            iterator_to_array($violations)
-        ));
-
-        static::assertEqualsCanonicalizing($expectedViolations, $reported);
     }
 
     /**
@@ -205,36 +215,6 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
         static::assertCount(1, $violations);
         static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
         static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
-    }
-
-    /**
-     * @param array<string, mixed> $provider
-     */
-    #[DataProvider('acceptsDistributionProvider')]
-    #[TestDox('reports no violation for $_dataName')]
-    public function testAcceptsAWellFormedDistribution(array $provider): void
-    {
-        static::assertCount(0, $this->validate([$this->element(['providesContext' => ['product' => $provider]])]));
-    }
-
-    #[TestDox('reports only the missing-field violation for a provider that declares no distribution')]
-    public function testSkipsTheDistributionFieldsWhenNoDistributionIsDeclared(): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => ['type' => 'single']]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
-    }
-
-    #[TestDox('reports only the invalid-choice violation for a provider declaring an unknown distribution')]
-    public function testSkipsTheDistributionFieldsForAnUnknownDistribution(): void
-    {
-        $provider = ['type' => 'single', 'distribution' => 'unknown'];
-
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
     }
 
     /**
@@ -581,6 +561,16 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
      */
     public static function rejectsDistributionProvider(): iterable
     {
+        yield 'a provider declaring no distribution, whose strategy fields are skipped' => [
+            ['type' => 'single'],
+            '[0][providesContext][product][distribution]',
+        ];
+
+        yield 'a provider declaring an unknown distribution, whose strategy fields are skipped' => [
+            ['type' => 'single', 'distribution' => 'unknown'],
+            '[0][providesContext][product][distribution]',
+        ];
+
         // One row covers the shared `consumerAlias` rule: broadcast, indexed and iterator each declare the
         // byte-identical constraint set, so a second and third strategy assert nothing the first does not.
         // The keyed and sliced rows below stay, because their configs declare an additional field each.

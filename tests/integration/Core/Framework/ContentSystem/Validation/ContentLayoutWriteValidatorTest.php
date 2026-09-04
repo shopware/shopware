@@ -46,6 +46,43 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertSame($id, $this->repository()->searchIds(new Criteria([$id]), $context)->firstId());
     }
 
+    #[TestDox('accepts a none-rooted layout that needs no root context')]
+    public function testAcceptsNoneRootedResolvableLayout(): void
+    {
+        $context = Context::createDefaultContext();
+        $id = $this->ids->get('layout');
+
+        $this->repository()->create([$this->layout('none', TestElementTypeLoader::RESOLVABLE, $id)], $context);
+
+        static::assertSame($id, $this->repository()->searchIds(new Criteria([$id]), $context)->firstId());
+    }
+
+    #[TestDox('accepts an edit that keeps the layout resolvable for its committed root source')]
+    public function testAcceptsResolvableEdit(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
+
+        $this->repository()->update([['id' => $layoutId, 'name' => 'renamed-layout', 'layout' => $this->tree(TestElementTypeLoader::RESOLVABLE)]], $context);
+
+        $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $layout);
+        static::assertSame('renamed-layout', $layout->getName());
+    }
+
+    #[TestDox('bypasses every check when the write context carries the skip flag')]
+    public function testSkipFlagBypassesGate(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
+        $id = $this->ids->get('layout');
+
+        $this->repository()->create([$this->layout('category', 'Sw:Test:DefinitelyUnregistered', $id)], $context);
+
+        static::assertSame($id, $this->repository()->searchIds(new Criteria([$id]), $context)->firstId());
+    }
+
     #[TestDox('rejects a layout that is not resolvable for its declared root source on creation')]
     public function testRejectsUnresolvableLayoutOnCreation(): void
     {
@@ -73,17 +110,6 @@ class ContentLayoutWriteValidatorTest extends TestCase
         } catch (WriteException $exception) {
             static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
         }
-    }
-
-    #[TestDox('accepts a none-rooted layout that needs no root context')]
-    public function testAcceptsNoneRootedResolvableLayout(): void
-    {
-        $context = Context::createDefaultContext();
-        $id = $this->ids->get('layout');
-
-        $this->repository()->create([$this->layout('none', TestElementTypeLoader::RESOLVABLE, $id)], $context);
-
-        static::assertSame($id, $this->repository()->searchIds(new Criteria([$id]), $context)->firstId());
     }
 
     #[TestDox('rejects an unregistered root source on creation with a membership violation')]
@@ -168,6 +194,44 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertNull($this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
     }
 
+    #[TestDox('rejects an edit that makes the layout unresolvable for its committed root source')]
+    public function testRejectsEditBreakingResolvability(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
+
+        try {
+            $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(TestElementTypeLoader::UNRESOLVABLE)]], $context);
+            static::fail('Expected the gate to re-validate the edit against the committed root source.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+        }
+    }
+
+    #[TestDox('rejects an update that changes the immutable root source and leaves the stored value unchanged')]
+    public function testRejectsRootSourceChange(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
+
+        try {
+            $this->repository()->update([['id' => $layoutId, 'rootSource' => 'product']], $context);
+            static::fail('Expected the DAL to reject the change of the immutable root source.');
+        } catch (WriteException $exception) {
+            // Pin the rejection to the root_source field: the EntityWriteGateway immutable-violation message is
+            // 'The field "root_source" of "content_layout" is immutable and cannot be updated.'
+            static::assertStringContainsString('immutable', $exception->getMessage());
+            static::assertStringContainsString('root_source', $exception->getMessage());
+        }
+
+        // The gate aborts the batch pre-commit, so the stored value must still be the original.
+        $persisted = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $persisted);
+        static::assertSame('category', $persisted->getRootSource());
+    }
+
     /**
      * @return iterable<string, array{array<string, mixed>, string}>
      */
@@ -195,70 +259,6 @@ class ContentLayoutWriteValidatorTest extends TestCase
             ],
             ContentSystemException::REDISTRIBUTE_CONFLICT,
         ];
-    }
-
-    #[TestDox('bypasses every check when the write context carries the skip flag')]
-    public function testSkipFlagBypassesGate(): void
-    {
-        $context = Context::createDefaultContext();
-        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
-        $id = $this->ids->get('layout');
-
-        $this->repository()->create([$this->layout('category', 'Sw:Test:DefinitelyUnregistered', $id)], $context);
-
-        static::assertSame($id, $this->repository()->searchIds(new Criteria([$id]), $context)->firstId());
-    }
-
-    #[TestDox('rejects an edit that makes the layout unresolvable for its committed root source')]
-    public function testRejectsEditBreakingResolvability(): void
-    {
-        $context = Context::createDefaultContext();
-        $layoutId = $this->ids->get('layout');
-        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
-
-        try {
-            $this->repository()->update([['id' => $layoutId, 'layout' => $this->tree(TestElementTypeLoader::UNRESOLVABLE)]], $context);
-            static::fail('Expected the gate to re-validate the edit against the committed root source.');
-        } catch (WriteException $exception) {
-            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
-        }
-    }
-
-    #[TestDox('accepts an edit that keeps the layout resolvable for its committed root source')]
-    public function testAcceptsResolvableEdit(): void
-    {
-        $context = Context::createDefaultContext();
-        $layoutId = $this->ids->get('layout');
-        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
-
-        $this->repository()->update([['id' => $layoutId, 'name' => 'renamed-layout', 'layout' => $this->tree(TestElementTypeLoader::RESOLVABLE)]], $context);
-
-        $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
-        static::assertInstanceOf(ContentLayoutEntity::class, $layout);
-        static::assertSame('renamed-layout', $layout->getName());
-    }
-
-    #[TestDox('rejects an update that changes the immutable root source and leaves the stored value unchanged')]
-    public function testRejectsRootSourceChange(): void
-    {
-        $context = Context::createDefaultContext();
-        $layoutId = $this->ids->get('layout');
-        $this->repository()->create([$this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
-
-        try {
-            $this->repository()->update([['id' => $layoutId, 'rootSource' => 'product']], $context);
-            static::fail('Expected the DAL to reject the change of the immutable root source.');
-        } catch (WriteException $exception) {
-            // Pin the rejection to the root_source field: the EntityWriteGateway immutable-violation message is
-            // 'The field "root_source" of "content_layout" is immutable and cannot be updated.'
-            static::assertStringContainsString('immutable', $exception->getMessage());
-            static::assertStringContainsString('root_source', $exception->getMessage());
-        }
-
-        // The gate aborts the batch pre-commit, so the stored value must still be the original.
-        $persisted = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
-        static::assertInstanceOf(ContentLayoutEntity::class, $persisted);
-        static::assertSame('category', $persisted->getRootSource());
     }
 
     /**

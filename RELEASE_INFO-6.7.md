@@ -161,6 +161,11 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
     $event->getSortings()->add($mySorting);
 }
 ```
+
+### Store API product listing totals count grouped products
+
+`POST /store-api/product-listing/{categoryId}` now returns the number of grouped listing products in `total` for manually assigned categories with product variants. Headless storefronts and other API clients can use the value for pagination without counting ungrouped variants.
+
 ### Adding a product to an existing order applies line item factory decorators
 
 `POST /api/_action/order/{orderId}/product/{productId}` now builds the line item through the `LineItemFactoryRegistry` instead of creating a plain `product` line item directly, so extensions that decorate a `LineItemFactoryInterface` are applied when a product is added to an existing order, the same way they already are in the cart. A decorator that returns a different line item type — or a cart collector that replaces the line item with several others — therefore takes effect in the administration order detail page as well.

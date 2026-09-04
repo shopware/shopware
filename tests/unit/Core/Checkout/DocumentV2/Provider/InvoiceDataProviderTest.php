@@ -434,8 +434,7 @@ class InvoiceDataProviderTest extends TestCase
     }
 
     /**
-     * Runs the provider against the real VAT ID constraint, so the assertion is the verdict a merchant
-     * sees rather than the constraint the provider happened to build.
+     * Runs the provider against the real VAT ID constraint, so the assertion is the verdict a merchant sees.
      *
      * @param list<string> $vatIds
      */
@@ -465,8 +464,8 @@ class InvoiceDataProviderTest extends TestCase
     }
 
     /**
-     * The delivery country is Belgium, the shop supplies from Germany and the Netherlands is the member
-     * state a VAT ID can only be accepted through the intra-community fallback.
+     * The delivery country is Belgium and the shop supplies from Germany, so a Dutch VAT ID is only
+     * accepted through the intra-community fallback.
      */
     private function createValidatorWithTheRealVatIdCheck(): ValidatorInterface
     {

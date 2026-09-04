@@ -468,8 +468,8 @@ class TaxDetectorTest extends TestCase
         $beCountry = $this->enableCompanyTaxFree('BE');
         $this->sellFrom(null);
 
-        // Without a seller country the shop cannot tell a domestic supply from an intra-community one,
-        // so the fallback to the other member states stays off instead of exempting them all
+        // Without a seller country a domestic supply is indistinguishable from an intra-community one,
+        // so the fallback stays off
         $customer = new CustomerEntity();
         $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
         $customer->setVatIds(['NL123456789B01']);
@@ -561,7 +561,6 @@ class TaxDetectorTest extends TestCase
         static::getContainer()->get(SystemConfigService::class)
             ->set('core.basicInformation.sellerCountryId', $countryId);
 
-        // The provider is a container singleton, so it outlives the transaction the test runs in
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
     }
 

@@ -24,9 +24,8 @@ class VatIdPatternProviderTest extends TestCase
     ];
 
     /**
-     * Matching a VAT ID against the whole EU relies on the patterns that ship in the `country` table.
      * Patterns that do not compile are silently dropped while loading, so this asserts on the real
-     * database that not a single member state falls out of the list that way.
+     * database that no shipped member state falls out of the list that way.
      */
     public function testEveryEuMemberStateShipsAPatternThatCompiles(): void
     {

@@ -150,8 +150,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     public function testACountryOutsideTheEuRejectsAVatIdOfAMemberState(): void
     {
-        // Great Britain ships a VAT ID pattern but is no member state, so there is no union whose
-        // VAT IDs it would have to honour
+        // Great Britain ships a VAT ID pattern but is no member state, so no union's VAT IDs apply
         $this->validator->validate(['NL123456789B01'], $this->constraintFor('GB'));
 
         static::assertCount(1, $violations = $this->executionContext->getViolations());

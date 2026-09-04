@@ -79,8 +79,7 @@ class VatIdPatternProviderTest extends TestCase
             ['iso' => 'NL', 'id' => self::NL_ID, 'vat_id_pattern' => 'NL\d{9}B\d{2}'],
         ]);
 
-        // The storefront exposes one input, so a second entry can only come from the API and must not
-        // silently win over the first
+        // A second entry can only come from the API and must not silently win over the first
         static::assertSame(self::NL_ID, $provider->getCountryIdForVatIds(['NL123456789B01', 'BE0123456789']));
     }
 
@@ -146,8 +145,7 @@ class VatIdPatternProviderTest extends TestCase
         $countryId = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        // The route builds the validation definition and the validator checks the VAT IDs against the
-        // same country moments later, so the settings must not be fetched twice per request
+        // The route and the validator hit the same country within a request
         $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(['is_eu' => 1, 'check_vat_id_pattern' => 1, 'vat_id_pattern' => 'NL\\d{9}B\\d{2}']);
@@ -381,8 +379,8 @@ class VatIdPatternProviderTest extends TestCase
 
     public function testNoMemberStateCountsWhileTheShopConfiguredNoSellerCountry(): void
     {
-        // Without a seller country there is nothing to tell a domestic supply from an intra-community
-        // one, so the fallback stays off rather than exempting the shop's own member state as well
+        // Without a seller country a domestic supply is indistinguishable from an intra-community one,
+        // so the fallback stays off
         $provider = $this->createProviderSellingFrom('');
 
         static::assertFalse($provider->isIntraCommunityVatId('BE0123456789', Uuid::randomHex()));
@@ -398,8 +396,7 @@ class VatIdPatternProviderTest extends TestCase
 
     public function testTheSellersOwnMemberStateIsRecognisedWithoutAUsablePattern(): void
     {
-        // A merchant who empties or breaks the pattern of the shop's own country must not silently
-        // turn the exclusion of that country off
+        // Emptying or breaking the pattern of the shop's own country must not turn its exclusion off
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['iso' => 'BE', 'id' => self::BE_ID, 'vat_id_pattern' => ''],
@@ -417,7 +414,7 @@ class VatIdPatternProviderTest extends TestCase
 
     public function testTheSellerCountryIsNotReadWithoutASalesChannel(): void
     {
-        // Validating the format a customer entered is not a tax decision, so it needs no seller country
+        // Format validation is not a tax decision, so it needs no seller country
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->never())->method('getString');
 

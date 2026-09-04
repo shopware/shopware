@@ -866,14 +866,12 @@ class InvoiceRendererTest extends TestCase
 
         static::getContainer()->get('country.repository')->upsert([$updateData], Context::createDefaultContext());
 
-        // The intra-community fallback only grants the note against a member state the shop does not
-        // supply from itself, and the delivery country carries the German pattern here
+        // The note is only granted against a member state the shop does not supply from itself
         static::getContainer()->get(SystemConfigService::class)->set(
             'core.basicInformation.sellerCountryId',
             $this->getCountryIdByIsoCode('DE')
         );
 
-        // The provider is a container singleton, so it outlives the transaction the test runs in
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
 
         static::getContainer()->get('order_customer.repository')->upsert([

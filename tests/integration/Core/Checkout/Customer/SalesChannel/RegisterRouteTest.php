@@ -1681,7 +1681,7 @@ class RegisterRouteTest extends TestCase
 
     /**
      * Pins the billing address to a member state that checks the VAT ID format, so the VAT ID under
-     * test belongs to a different member state than the billing address does.
+     * test belongs to another member state.
      */
     private function configureBillingCountry(string $iso): string
     {

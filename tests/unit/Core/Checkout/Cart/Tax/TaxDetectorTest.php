@@ -501,9 +501,8 @@ class TaxDetectorTest extends TestCase
 
     public function testIsCompanyTaxFreeRejectsEveryOtherMemberStateWhileNoSellerCountryIsConfigured(): void
     {
-        // Without the setting the shop cannot tell a domestic supply from an intra-community one, so
-        // the fallback stays off and only the delivery country's own pattern counts, exactly as it did
-        // before the fallback existed
+        // Without the setting a domestic supply is indistinguishable from an intra-community one, so
+        // only the delivery country's own pattern counts
         $country = (new CountryEntity())->assign([
             'companyTax' => new TaxFreeConfig(true),
             'isEu' => true,

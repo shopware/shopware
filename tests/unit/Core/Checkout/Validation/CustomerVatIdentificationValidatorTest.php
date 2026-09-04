@@ -227,8 +227,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     public function testAVatIdOfAnotherMemberStateIsRejectedForATaxDecisionWhileNoSellerCountryIsConfigured(): void
     {
-        // The shop cannot tell a domestic supply from an intra-community one, so the fallback to the
-        // other member states stays off instead of accepting them all
+        // A domestic supply is indistinguishable from an intra-community one, so the fallback stays off
         $validator = $this->createValidator('BE\\d{10}', self::EU_PATTERNS);
 
         $this->expectSingleViolationFor('NL123456789B01');

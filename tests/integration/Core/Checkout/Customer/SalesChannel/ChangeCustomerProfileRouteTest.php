@@ -870,8 +870,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
 
     private function setVatIdOfTheCountryToValidateFormat(): void
     {
-        // The billing country has to be a member state, otherwise it does not honour the VAT ID
-        // patterns of the other ones
+        // Only a member state honours the VAT ID patterns of the other ones
         static::getContainer()->get(Connection::class)
             ->executeStatement(
                 'UPDATE `country` SET `is_eu` = 1, `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}"

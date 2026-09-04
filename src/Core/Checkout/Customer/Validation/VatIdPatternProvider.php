@@ -9,11 +9,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * Reads the VAT ID format patterns configured in Settings > Countries and matches VAT IDs against them,
- * either against the pattern of a single country or against the patterns of every EU member state.
- *
- * It also answers whether a VAT ID grants an intra-community exemption, which needs the seller's own
- * member state from Settings > Basic information on top of the patterns.
+ * Matches VAT IDs against the patterns configured in Settings > Countries, either against a single
+ * country's pattern or against the patterns of every EU member state. Deciding about the
+ * intra-community exemption additionally needs the seller's member state from Settings > Basic information.
  *
  * @internal
  */
@@ -44,8 +42,6 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
-     * The pattern of every EU member state that has a usable one.
-     *
      * @return array<string, string> ISO code => VAT ID format pattern
      */
     public function getEuPatterns(): array
@@ -89,11 +85,9 @@ class VatIdPatternProvider implements ResetInterface
 
     /**
      * Whether a country accepts a VAT ID: it matches the country's own pattern, or - inside the EU - it
-     * identifies the customer in another member state. Both the tax decision and the format validation
-     * ask the same question, so they ask it in one place.
+     * identifies the customer in another member state.
      *
-     * @param string|null $salesChannelId null when the caller is not deciding about tax, for example when
-     *                                    it only validates the format a customer entered
+     * @param string|null $salesChannelId null to only validate the format instead of deciding about tax
      */
     public function acceptsVatId(string $vatId, string $countryPattern, bool $isEu, ?string $salesChannelId): bool
     {
@@ -107,10 +101,8 @@ class VatIdPatternProvider implements ResetInterface
     /**
      * Whether a VAT ID identifies the customer in a member state other than the one the seller supplies
      * from, which is what Article 138 of the VAT Directive conditions the intra-community exemption on.
-     * A VAT ID of the seller's own member state makes the supply a domestic one, so it grants no exemption.
      *
-     * @param string|null $salesChannelId null when the caller is not deciding about tax, for example when
-     *                                    it only validates the format a customer entered
+     * @param string|null $salesChannelId null to only validate the format instead of deciding about tax
      */
     public function isIntraCommunityVatId(string $vatId, ?string $salesChannelId): bool
     {
@@ -120,15 +112,13 @@ class VatIdPatternProvider implements ResetInterface
             return false;
         }
 
-        // Validating the format a customer entered is not a tax decision, so there is no member state
-        // to keep out and every one of them counts
+        // Format validation is not a tax decision, so no member state has to be kept out
         if ($salesChannelId === null) {
             return true;
         }
 
         $sellerState = $this->getSellerState($salesChannelId);
-        // A shop that has no seller state cannot tell a domestic supply from an intra-community one, so
-        // the exemption stays off until it is configured
+        // Without a seller state a domestic supply is indistinguishable from an intra-community one
         if ($sellerState === null) {
             return false;
         }
@@ -137,14 +127,10 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
-     * The member state a customer's VAT IDs belong to.
-     *
-     * A customer holds a list of VAT IDs while the storefront exposes exactly one input, and validation
-     * already requires every entry to match some member state, so the first entry decides the country.
+     * The storefront exposes exactly one VAT ID input while the customer holds a list, so the first
+     * entry decides the member state.
      *
      * @param array<mixed>|null $vatIds
-     *
-     * @return string|null the id of the member state, null when the list is empty or matches none
      */
     public function getCountryIdForVatIds(?array $vatIds): ?string
     {
@@ -160,8 +146,6 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
-     * The VAT ID settings a merchant configured for a single country.
-     *
      * @return array{isEu: bool, checkPattern: bool, pattern: string|null}|null null if the country does not exist
      */
     public function getCountrySettings(string $countryId): ?array
@@ -194,13 +178,12 @@ class VatIdPatternProvider implements ResetInterface
 
     public function matches(string $pattern, string $vatId): bool
     {
-        // A pattern a merchant broke matches nothing, rather than spams a warning on every
-        // VAT ID it is checked against
+        // A pattern a merchant broke matches nothing instead of warning on every VAT ID
         return @preg_match($this->toRegex($pattern), $vatId) === 1;
     }
 
     /**
-     * @return string|null the ISO code of the member state the VAT ID belongs to, null if it belongs to none
+     * @return string|null the ISO code of the member state, null if the VAT ID belongs to none
      */
     private function getStateByEuVatId(string $vatId): ?string
     {
@@ -214,9 +197,8 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
-     * @return string|null the ISO code of the member state the seller supplies from, null when the shop
-     *                     configured none or configured a country outside the EU, which cannot supply
-     *                     intra-community in the first place
+     * @return string|null the ISO code of the member state the seller supplies from, null when none is
+     *                     configured or the configured country lies outside the EU
      */
     private function getSellerState(string $salesChannelId): ?string
     {

@@ -185,11 +185,11 @@
                         },
                         "showNameFieldsForCompanyAccounts": {
                           "type": "boolean",
-                          "description": "Whether the selection between a private and a commercial (company) account is shown"
+                          "description": "Whether the first and last name fields are shown for a commercial (company) account"
                         },
                         "nameFieldsRequiredForCompanyAccounts": {
                           "type": "boolean",
-                          "description": "Whether the selection between a private and a commercial (company) account is shown"
+                          "description": "Whether the first and last name fields are required for a commercial (company) account. A hidden field is never required."
                         },
                         "showAdditionalAddressField1": {
                           "type": "boolean",

@@ -256,4 +256,46 @@ describe('module/sw-customer/page/sw-customer-create', () => {
             });
         }
     });
+    it.each([
+        [
+            'the account company wins when both are set',
+            'Acme GmbH',
+            'Old GmbH',
+            'Acme GmbH',
+            true,
+        ],
+        [
+            'a cleared account company falls back to the address',
+            '',
+            'Addr GmbH',
+            'Addr GmbH',
+            true,
+        ],
+        [
+            'a blank account company falls back to the address',
+            '   ',
+            'Addr GmbH',
+            'Addr GmbH',
+            true,
+        ],
+        [
+            'no company anywhere is rejected',
+            '',
+            '',
+            '',
+            false,
+        ],
+    ])('should resolve the company: %s', async (_name, company, addressCompany, expected, valid) => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        await wrapper.setData({
+            customer: { id: '1', accountType: 'business', company },
+            address: { company: addressCompany },
+        });
+
+        expect(wrapper.vm.resolvedCompany).toBe(expected);
+        expect(wrapper.vm.validCompanyField).toBe(valid);
+    });
 });

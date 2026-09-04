@@ -130,14 +130,7 @@ class ZugferdDocument
 
     public function withBuyerInformation(OrderCustomerEntity $customer, OrderAddressEntity $billingAddress): self
     {
-        $personName = trim($customer->getFirstName() . ' ' . $customer->getLastName());
-        $company = trim($customer->getCompany() ?? '');
-
-        $customerName = match (true) {
-            $company === '' => $personName,
-            $personName === '' || $personName === $company => $company,
-            default => $personName . ' - ' . $company,
-        };
+        $customerName = $customer->getBuyerName();
 
         $replace = $billingAddress->getCountry()?->getIso() . '-';
         $countryStateCode = $billingAddress->getCountryState()?->getShortCode() ?? '';

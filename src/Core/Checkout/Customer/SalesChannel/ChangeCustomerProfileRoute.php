@@ -98,7 +98,6 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                     new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME),
                     new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
                 );
-                CompanyAccountNameFields::normalize($data);
             }
 
             $billingAddress = $customer->getDefaultBillingAddress();

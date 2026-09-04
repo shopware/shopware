@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartGatewayResult;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
@@ -37,6 +39,8 @@ use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -351,12 +355,85 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader->load(new Request(), $context);
     }
 
+    public function testCompanyAddressNamesAreRelaxedWhenTheShopOptsIn(): void
+    {
+        $definitions = [
+            new DataValidationDefinition('address.create'),
+            new DataValidationDefinition('address.update'),
+        ];
+
+        foreach ($definitions as $definition) {
+            $definition->add('firstName', new NotBlank(), new Length(max: 255));
+            $definition->add('lastName', new NotBlank(), new Length(max: 255));
+        }
+
+        $addressValidation = $this->createMock(AddressValidationFactory::class);
+        $addressValidation->method('create')->willReturnOnConsecutiveCalls(...$definitions);
+
+        $loader = $this->createLoader(
+            addressValidationFactory: $addressValidation,
+            systemConfigService: new StaticSystemConfigService([
+                CompanyAccountNameFields::CONFIG_SHOW => true,
+                CompanyAccountNameFields::CONFIG_REQUIRED => false,
+            ]),
+        );
+
+        $loader->load(new Request(), $this->getContextWithDummyCompanyCustomer());
+
+        foreach ($definitions as $definition) {
+            foreach (['firstName', 'lastName'] as $property) {
+                $constraints = $definition->getProperty($property);
+
+                static::assertCount(1, $constraints, 'the blank check has to be gone');
+                static::assertInstanceOf(Length::class, $constraints[0], 'the length limit has to survive');
+            }
+        }
+    }
+
+    public function testCompanyAddressNamesStayRequiredByDefault(): void
+    {
+        $definitions = [
+            new DataValidationDefinition('address.create'),
+            new DataValidationDefinition('address.update'),
+        ];
+
+        foreach ($definitions as $definition) {
+            $definition->add('firstName', new NotBlank(), new Length(max: 255));
+            $definition->add('lastName', new NotBlank(), new Length(max: 255));
+        }
+
+        $addressValidation = $this->createMock(AddressValidationFactory::class);
+        $addressValidation->method('create')->willReturnOnConsecutiveCalls(...$definitions);
+
+        $loader = $this->createLoader(
+            addressValidationFactory: $addressValidation,
+            systemConfigService: new StaticSystemConfigService([]),
+        );
+
+        $loader->load(new Request(), $this->getContextWithDummyCompanyCustomer());
+
+        foreach ($definitions as $definition) {
+            static::assertCount(2, $definition->getProperty('firstName'));
+        }
+    }
+
+    private function getContextWithDummyCompanyCustomer(): SalesChannelContext
+    {
+        $context = $this->getContextWithDummyCustomer();
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+
+        return $context;
+    }
+
     private function createLoader(
         ?EventDispatcherInterface $eventDispatcher = null,
         ?StorefrontCartFacade $cartService = null,
         ?GenericPageLoader $pageLoader = null,
         ?DataValidationFactoryInterface $addressValidationFactory = null,
         ?DataValidator $validator = null,
+        ?SystemConfigService $systemConfigService = null,
     ): CheckoutConfirmPageLoader {
         return new CheckoutConfirmPageLoader(
             $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
@@ -365,7 +442,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $addressValidationFactory ?? static::createStub(DataValidationFactoryInterface::class),
             $validator ?? static::createStub(DataValidator::class),
             static::createStub(AbstractTranslator::class),
-            static::createStub(SystemConfigService::class),
+            $systemConfigService ?? static::createStub(SystemConfigService::class),
         );
     }
 

@@ -49,7 +49,11 @@ export default {
                 return true;
             }
 
-            return !!this.customer.company?.trim().length || !!this.address.company?.trim().length;
+            return this.resolvedCompany !== '';
+        },
+
+        resolvedCompany() {
+            return this.customer.company?.trim() || this.address.company?.trim() || '';
         },
 
         languageRepository() {
@@ -191,8 +195,9 @@ export default {
                 hasError = true;
             }
 
-            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS && this.customer.company?.trim().length) {
-                this.address.company = this.customer.company;
+            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                this.customer.company = this.resolvedCompany;
+                this.address.company = this.resolvedCompany;
             }
 
             if (hasError) {

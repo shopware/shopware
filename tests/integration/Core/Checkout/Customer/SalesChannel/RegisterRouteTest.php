@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -1563,6 +1564,146 @@ class RegisterRouteTest extends TestCase
         static::assertSame('VIOLATION::TOO_LONG_ERROR', $error['code']);
         static::assertSame('/password', $error['source']['pointer']);
         static::assertSame(':PASSWORD_IS_TOO_LONG', $error['detail']);
+    }
+
+    public function testRegistrationAcceptsAVatIdOfAnotherEuMemberState(): void
+    {
+        $germany = $this->configureBillingCountry('DE');
+
+        // The exemption follows the member state that issued the VAT ID, not the billing country
+        $response = $this->registerCommercialCustomer(['NL123456789B01'], $germany);
+
+        static::assertSame('customer', $response['apiAlias'], (string) $this->browser->getResponse()->getContent());
+        static::assertSame(['NL123456789B01'], $response['vatIds']);
+    }
+
+    public function testRegistrationRejectsAVatIdOfNoMemberState(): void
+    {
+        $germany = $this->configureBillingCountry('DE');
+
+        $response = $this->registerCommercialCustomer(['CHE123456789'], $germany);
+
+        static::assertSame(
+            'VIOLATION::VAT_ID_FORMAT_NOT_CORRECT',
+            $response['errors'][0]['code'] ?? null,
+            (string) $this->browser->getResponse()->getContent()
+        );
+    }
+
+    public function testRegistrationPersistsTheMemberStateTheVatIdBelongsTo(): void
+    {
+        $germany = $this->configureBillingCountry('DE');
+        $netherlands = $this->configureBillingCountry('NL');
+
+        $response = $this->registerCommercialCustomer(['NL123456789B01'], $germany);
+        static::assertSame('customer', $response['apiAlias'], (string) $this->browser->getResponse()->getContent());
+
+        static::assertSame($netherlands, $this->fetchVatIdCountryId($response['id']));
+    }
+
+    public function testRegistrationPersistsNoMemberStateForAVatIdOfTheBillingCountry(): void
+    {
+        $germany = $this->configureBillingCountry('DE');
+
+        $response = $this->registerCommercialCustomer(['DE123456789'], $germany);
+        static::assertSame('customer', $response['apiAlias'], (string) $this->browser->getResponse()->getContent());
+
+        // Germany's own pattern is the one the seeded data ships, so the resolved country is Germany
+        static::assertSame($germany, $this->fetchVatIdCountryId($response['id']));
+    }
+
+    public function testRegistrationWithoutAVatIdPersistsNoMemberState(): void
+    {
+        $germany = $this->configureBillingCountry('DE');
+
+        $registrationData = $this->getRegistrationData();
+        $registrationData['billingAddress']['countryId'] = $germany;
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/register',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($registrationData, \JSON_THROW_ON_ERROR)
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('customer', $response['apiAlias'], (string) $this->browser->getResponse()->getContent());
+
+        static::assertNull($this->fetchVatIdCountryId($response['id']));
+    }
+
+    public function testTheResolvedMemberStateIsNotExposedThroughTheStoreApi(): void
+    {
+        $germany = $this->configureBillingCountry('DE');
+
+        $response = $this->registerCommercialCustomer(['NL123456789B01'], $germany);
+
+        static::assertArrayNotHasKey('vatIdCountryId', $response);
+        static::assertArrayNotHasKey('vatIdCountry', $response);
+    }
+
+    private function fetchVatIdCountryId(string $customerId): ?string
+    {
+        $countryId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(`vat_id_country_id`)) FROM `customer` WHERE `id` = UNHEX(:id)',
+            ['id' => $customerId]
+        );
+
+        return \is_string($countryId) ? $countryId : null;
+    }
+
+    /**
+     * @param list<string> $vatIds
+     *
+     * @return array<string, mixed>
+     */
+    private function registerCommercialCustomer(array $vatIds, string $billingCountryId): array
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['accountType'] = CustomerEntity::ACCOUNT_TYPE_BUSINESS;
+        $registrationData['vatIds'] = $vatIds;
+        $registrationData['billingAddress']['company'] = 'Test Company';
+        $registrationData['billingAddress']['countryId'] = $billingCountryId;
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/register',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($registrationData, \JSON_THROW_ON_ERROR)
+        );
+
+        return json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * Pins the billing address to a member state that checks the VAT ID format, so the VAT ID under
+     * test belongs to another member state.
+     */
+    private function configureBillingCountry(string $iso): string
+    {
+        $countryId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(`id`)) FROM `country` WHERE `iso` = :iso',
+            ['iso' => $iso]
+        );
+        static::assertIsString($countryId);
+
+        /** @var EntityRepository<CountryCollection> $countryRepository */
+        $countryRepository = static::getContainer()->get('country.repository');
+        $countryRepository->update([[
+            'id' => $countryId,
+            'active' => true,
+            'isEu' => true,
+            'checkVatIdPattern' => true,
+            'vatIdRequired' => false,
+        ]], Context::createDefaultContext());
+
+        $this->addCountriesToSalesChannel([$countryId], $this->ids->get('sales-channel'));
+
+        return $countryId;
     }
 
     /**

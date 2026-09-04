@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -14,7 +14,7 @@ type ContentSystemEntityTypeResponse = {
  * Gateway for content system entity types endpoint.
  */
 class ContentSystemEntityTypeApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'content-system-entity-types') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system-entity-types') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'contentSystemEntityTypeService';
     }

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { ContentElementNode } from '../content-element.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
@@ -104,7 +104,7 @@ export type ContentLayoutDraftMutationResponse = {
  * Gateway for stateless content layout draft mutations.
  */
 class ContentSystemLayoutDraftMutationApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'content-system') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'contentSystemLayoutDraftMutationService';
     }

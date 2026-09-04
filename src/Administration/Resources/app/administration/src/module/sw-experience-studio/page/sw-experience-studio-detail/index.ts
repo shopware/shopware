@@ -3,11 +3,14 @@ import type { ContentSystemElementTypeSpecification } from 'src/core/service/api
 import type {
     ContentLayoutDraftDuplicatePayload,
     ContentLayoutDraftInsertPayload,
+    ContentLayoutDraftInsertPresetPayload,
     ContentLayoutDraftMovePayload,
     ContentLayoutDraftMutationResponse,
     ContentLayoutDraftRemovePayload,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
+import type { ContentSystemLayoutPreset } from 'src/core/service/api/content-system-layout-preset.api.service';
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
+import type { ExperienceStudioLayoutPresetStore } from 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
 import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 
 import type { ContentElementNode } from 'src/core/service/content-element.types';
@@ -25,6 +28,7 @@ import {
 } from 'src/module/sw-experience-studio/util/content-element.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
+import 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
 import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
@@ -53,6 +57,9 @@ type ElementPickerItem = {
     label: string;
     icon: string | null;
     category: string | null;
+    kind?: 'element' | 'preset';
+    id?: string;
+    description?: string | null;
 };
 
 type MoveElementPayload = {
@@ -81,13 +88,14 @@ type InlineEditSession = {
     isEditing: boolean;
 } | null;
 
-type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move';
+type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'insert-preset';
 
 type ContentSystemLayoutDraftMutationService = {
     insertElement: (payload: ContentLayoutDraftInsertPayload) => Promise<ContentLayoutDraftMutationResponse>;
     removeElement: (payload: ContentLayoutDraftRemovePayload) => Promise<ContentLayoutDraftMutationResponse>;
     duplicateElement: (payload: ContentLayoutDraftDuplicatePayload) => Promise<ContentLayoutDraftMutationResponse>;
     moveElement: (payload: ContentLayoutDraftMovePayload) => Promise<ContentLayoutDraftMutationResponse>;
+    insertPreset: (payload: ContentLayoutDraftInsertPresetPayload) => Promise<ContentLayoutDraftMutationResponse>;
 };
 
 type ContentSystemEntityTypeService = {
@@ -240,6 +248,10 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('experienceStudioStyleOption' as never) as ExperienceStudioStyleOptionStore;
         },
 
+        layoutPresetStore() {
+            return Shopware.Store.get('experienceStudioLayoutPreset' as never) as ExperienceStudioLayoutPresetStore;
+        },
+
         canUndo(): boolean {
             return this.editorStore.canUndo;
         },
@@ -272,14 +284,39 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         availablePickerElements(): ElementPickerItem[] {
-            const availableTypes = this.getAvailableTypesForPayload(this.pendingAddElementPayload);
+            const payload = this.pendingAddElementPayload;
+            const availableTypes = this.getAvailableTypesForPayload(payload);
 
-            return availableTypes.map((typeSpecification) => ({
+            const elementItems: ElementPickerItem[] = availableTypes.map((typeSpecification) => ({
                 name: typeSpecification.name,
                 label: typeSpecification.label,
                 icon: typeSpecification.icon,
                 category: typeSpecification.category,
+                kind: 'element',
             }));
+
+            if (!payload) {
+                return elementItems;
+            }
+
+            const allowedComponents = new Set(availableTypes.map((typeSpecification) => typeSpecification.name));
+
+            const presetItems: ElementPickerItem[] = this.layoutPresetStore.allPresets
+                .filter((preset) => this.isPresetAllowedForPayload(preset, payload, allowedComponents))
+                .map((preset) => ({
+                    name: preset.id,
+                    label: preset.name,
+                    icon: preset.icon,
+                    category: 'presets',
+                    kind: 'preset',
+                    id: preset.id,
+                    description: preset.description,
+                }));
+
+            return [
+                ...elementItems,
+                ...presetItems,
+            ];
         },
 
         isInlineEditing(): boolean {
@@ -296,6 +333,7 @@ export default Shopware.Component.wrapComponentConfig({
         void this.loadDefaultPreviewSalesChannel();
         void this.loadElementTypes();
         void this.loadStyleOptions();
+        void this.loadLayoutPresets();
         void this.loadLayoutTypes();
     },
 
@@ -535,6 +573,10 @@ export default Shopware.Component.wrapComponentConfig({
             await this.styleOptionStore.loadStyleOptions();
         },
 
+        async loadLayoutPresets(): Promise<void> {
+            await this.layoutPresetStore.loadPresets();
+        },
+
         entityTypeService(): ContentSystemEntityTypeService {
             return Shopware.Service('contentSystemEntityTypeService') as ContentSystemEntityTypeService;
         },
@@ -682,6 +724,33 @@ export default Shopware.Component.wrapComponentConfig({
                 'insert',
                 layoutElements,
                 insertPayload,
+                (response) => response.affectedElementIds[0] ?? this.selectedElementId,
+            );
+
+            this.onCloseElementPicker();
+        },
+
+        async onSelectPreset(presetId: string): Promise<void> {
+            const payload = this.pendingAddElementPayload;
+
+            if (!payload || !this.layout) {
+                this.onCloseElementPicker();
+                return;
+            }
+
+            const insertPresetPayload: Omit<ContentLayoutDraftInsertPresetPayload, 'layout' | 'rootSource'> = {
+                presetId,
+            };
+
+            if (payload.parentElementId !== null) {
+                insertPresetPayload.parentElementId = payload.parentElementId;
+                insertPresetPayload.slot = payload.slotName;
+            }
+
+            await this.executeStructuralDraftMutation(
+                'insert-preset',
+                this.layout.layout,
+                insertPresetPayload,
                 (response) => response.affectedElementIds[0] ?? this.selectedElementId,
             );
 
@@ -961,6 +1030,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return service.moveElement(payload as ContentLayoutDraftMovePayload);
             }
 
+            if (operation === 'insert-preset') {
+                return service.insertPreset(payload as ContentLayoutDraftInsertPresetPayload);
+            }
+
             return service.duplicateElement(payload as ContentLayoutDraftDuplicatePayload);
         },
 
@@ -1003,6 +1076,18 @@ export default Shopware.Component.wrapComponentConfig({
                     this.isLoading = false;
                 }
             }
+        },
+
+        isPresetAllowedForPayload(
+            preset: ContentSystemLayoutPreset,
+            payload: AddElementPayload,
+            allowedComponents: Set<string>,
+        ): boolean {
+            if (payload.parentElementId === null) {
+                return true;
+            }
+
+            return preset.payload.every((rootElement) => allowedComponents.has(rootElement.component));
         },
 
         getAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {

@@ -148,6 +148,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns content system element types as JSON')]
     public function testContentSystemElementTypes(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $spec = $this->alertTypeSpecification();
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
@@ -170,6 +172,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns the registered style options keyed by wire name with their derived schema')]
     public function testContentSystemStyleOptionsReturnsRegisteredOptionsKeyedByWireName(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
 
@@ -197,6 +201,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns content system entity types as JSON')]
     public function testContentSystemEntityTypes(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $expected = ['entityTypes' => ['product', 'category', 'landing_page']];
 
         $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
@@ -214,6 +220,7 @@ class InfoControllerTest extends TestCase
     public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
     {
         $this->shopIdProvider
+            ->expects($this->atLeastOnce())
             ->method('getShopId')
             ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('current-shop-id'), new FingerprintComparisonResult([], [], 75)));
 
@@ -228,6 +235,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('folds the registered style options into the element types response')]
     public function testContentSystemElementTypesFoldsInStyleOptions(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $styleOptionRegistry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $styleOptionRegistry->method('allResolved')->willReturn(['col-span' => $this->styleOption()]);
 
@@ -248,6 +257,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('folds the registered binding specifications into the matching element type entry, keyed by source-qualified id')]
     public function testContentSystemElementTypesFoldsInBindingSpecifications(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $imageSpec = new ContentSystemElementTypeSpecification(
             name: 'Sw:Media:Image',
             label: 'Image',
@@ -296,6 +307,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('folds the resolved storage schema into each element type entry, keyed by stored key')]
     public function testContentSystemElementTypesFoldsInStorageSchema(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $textSpec = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
             ->primitive('text', 'string', default: '<p>Lorem ipsum</p>')
             ->build();
@@ -373,6 +386,7 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns first migration date as $_dataName')]
     public function testConfigReturnsFirstMigrationDate(?string $migrationDate, mixed $expected): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn($migrationDate);
 
         $data = $this->getConfigData();
@@ -384,6 +398,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('includes queue stats worker flag when legacy feature is inactive')]
     public function testConfigIncludesQueueStatsWorkerWhenLegacyFlagInactive(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $data = $this->getConfigData();
 
         static::assertTrue($data['adminWorker']['enableQueueStatsWorker']);
@@ -415,7 +431,7 @@ class InfoControllerTest extends TestCase
     #[TestDox('encodes the folded per-type binding specification set as a JSON object when the type has none')]
     public function testContentSystemElementTypesEncodesEmptyBindingSpecificationsAsObject(): void
     {
-        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
 
         $spec = $this->alertTypeSpecification();
 
@@ -434,6 +450,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('encodes the folded per-type storage schema as a JSON object when the type stores nothing')]
     public function testContentSystemElementTypesEncodesEmptyStorageSchemaAsObject(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $spec = $this->alertTypeSpecification();
 
         $elementTypeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
@@ -451,6 +469,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('encodes the folded empty style option set as a JSON object on the element types response')]
     public function testContentSystemElementTypesEncodesEmptyStyleOptionsAsObject(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('allResolved')->willReturn([]);
 
@@ -466,7 +486,7 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns empty types array when no element types are registered')]
     public function testContentSystemElementTypesReturnsEmptyWhenNoTypesRegistered(): void
     {
-        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
 
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn([]);
@@ -484,7 +504,7 @@ class InfoControllerTest extends TestCase
     #[TestDox('encodes an empty style option set as a JSON object, not an array')]
     public function testContentSystemStyleOptionsEncodesEmptySetAsObject(): void
     {
-        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
 
         $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('allResolved')->willReturn([]);
@@ -501,6 +521,8 @@ class InfoControllerTest extends TestCase
     #[TestDox('returns disabled message stats when stats service is not enabled')]
     public function testMessageStatsReturnsDisabledWhenNotEnabled(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $this->statsService->method('getStats')->willReturn(
             new MessageStatsResponseEntity(enabled: false)
         );

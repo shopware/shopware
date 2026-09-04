@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
@@ -545,9 +547,9 @@ class ContentRouteRenderingTest extends TestCase
         static::assertArrayNotHasKey('skeletons', $data);
         static::assertSame($decomposed['id'] ?? null, $data['id'] ?? null);
         static::assertSame(self::LAYOUT_NAME, $data['name'] ?? null);
-        static::assertSame($decomposed['name'] ?? null, $data['name'] ?? null);
+        static::assertSame($decomposed['name'], $data['name']);
         static::assertSame(self::LAYOUT_VERSION, $data['version'] ?? null);
-        static::assertSame($decomposed['version'] ?? null, $data['version'] ?? null);
+        static::assertSame($decomposed['version'], $data['version']);
 
         $decomposedAssignments = $this->assignments($decomposed);
         $dataAssignments = $this->assignments($data);
@@ -1596,6 +1598,7 @@ class ContentRouteRenderingTest extends TestCase
                 'content' => [$this->dottedRedistributeText()],
             ],
         ]]);
+        $this->replaceRedistributeSentinelWithDottedKey();
     }
 
     /**
@@ -1631,9 +1634,17 @@ class ContentRouteRenderingTest extends TestCase
                 ],
             ],
         ]]);
+        $this->replaceRedistributeSentinelWithDottedKey();
     }
 
     /**
+     * The write path rejects a redistributing consumer keyed by a dotted path ({@see ContentSystemException::REDISTRIBUTE_DOTTED_PATH}),
+     * so the defect this file exercises cannot reach storage through the DAL at all. This element is authored
+     * under a single-segment sentinel key instead, which passes write validation, and
+     * {@see replaceRedistributeSentinelWithDottedKey()} rewrites it to the real dotted key after persistence —
+     * the render-time defense remains the sole authority for a tree that bypassed the DAL this way, exactly as
+     * it is for a migration or a raw SQL write.
+     *
      * @return array<string, mixed>
      */
     private function dottedRedistributeText(): array
@@ -1643,13 +1654,32 @@ class ContentRouteRenderingTest extends TestCase
             'component' => 'Sw:Content:Text',
             'properties' => ['text' => self::TEXT_VALUE],
             'acceptsContext' => [
-                'category.name' => [
+                'categoryPlaceholder' => [
                     'type' => 'single',
                     'required' => false,
                     'redistribute' => true,
                 ],
             ],
         ];
+    }
+
+    /**
+     * Rewrites the sentinel key {@see dottedRedistributeText()} authors under (`categoryPlaceholder`) to the
+     * real dotted key (`category.name`) directly in the persisted `content_layout` row, bypassing the DAL write
+     * path the way a migration or a raw SQL write would. The persisted row is unreadable through
+     * {@see StoredElementCodec} by design from this point on; {@see assertStoredDottedRedistributeConsumer()}
+     * and {@see assertStoredTextIsOutsideTheInnerGridSubtree()} verify it through raw SQL instead.
+     */
+    private function replaceRedistributeSentinelWithDottedKey(): void
+    {
+        $this->connection()->executeStatement(
+            'UPDATE `content_layout` SET `layout` = REPLACE(`layout`, :sentinel, :dotted) WHERE `id` = :id',
+            [
+                'sentinel' => '"categoryPlaceholder"',
+                'dotted' => '"category.name"',
+                'id' => Uuid::fromHexToBytes($this->ids->get('layout')),
+            ]
+        );
     }
 
     /**
@@ -1704,13 +1734,20 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame(['col-span' => ['md' => 4]], $root->slots['content'][1]->style->toArray());
     }
 
+    /**
+     * Verified through the raw persisted JSON rather than through {@see storedRoots()}: the row this asserts
+     * over carries the dotted-path defect {@see StoredElementCodec} rejects by design, so a codec-based read
+     * would throw before this assertion ever ran.
+     */
     private function assertStoredDottedRedistributeConsumer(): void
     {
-        $child = $this->storedRoots()[0]->slots['content'][0];
-        $consumer = $child->contextDefinitions->getAllConsumers()['category.name'] ?? null;
+        $child = $this->rawStoredLayoutRoots()[0]['slots']['content'][0] ?? null;
+        static::assertIsArray($child);
 
-        static::assertNotNull($consumer, 'The persisted layout must really carry the dotted redistribute consumer.');
-        static::assertTrue($consumer->redistribute);
+        $consumer = $child['acceptsContext']['category.name'] ?? null;
+
+        static::assertIsArray($consumer, 'The persisted layout must really carry the dotted redistribute consumer.');
+        static::assertTrue($consumer['redistribute'] ?? false);
     }
 
     private function assertStoredPageContextConsumer(): void
@@ -1725,16 +1762,20 @@ class ContentRouteRenderingTest extends TestCase
     /**
      * The defect-carrying `text` element really is a sibling of the partial-render target rather than one of
      * its descendants, so the pre-hydration prune drops it before hydration would ever see it.
+     *
+     * Verified through the raw persisted JSON rather than through {@see storedRoots()}, for the same reason as
+     * {@see assertStoredDottedRedistributeConsumer()}.
      */
     private function assertStoredTextIsOutsideTheInnerGridSubtree(): void
     {
-        $children = $this->storedRoots()[0]->slots['content'];
+        $children = $this->rawStoredLayoutRoots()[0]['slots']['content'] ?? null;
+        static::assertIsArray($children);
 
-        static::assertSame($this->ids->get('text'), $children[0]->id);
-        static::assertSame($this->ids->get('inner-grid'), $children[1]->id);
+        static::assertSame($this->ids->get('text'), $children[0]['id'] ?? null);
+        static::assertSame($this->ids->get('inner-grid'), $children[1]['id'] ?? null);
         static::assertSame(
             [$this->ids->get('image')],
-            array_map(static fn (StoredElement $element): string => $element->id, $children[1]->slots['content']),
+            array_column($children[1]['slots']['content'] ?? [], 'id'),
         );
     }
 
@@ -1751,6 +1792,34 @@ class ContentRouteRenderingTest extends TestCase
         static::assertNotNull($layout);
 
         return $layout->getLayout();
+    }
+
+    /**
+     * The fixture layout's persisted `layout` column, read and decoded directly rather than through the DAL:
+     * the two callers above assert over a row a codec-based read cannot decode by design.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function rawStoredLayoutRoots(): array
+    {
+        $raw = $this->connection()->fetchOne(
+            'SELECT `layout` FROM `content_layout` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($this->ids->get('layout'))]
+        );
+        static::assertIsString($raw);
+
+        $decoded = json_decode($raw, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($decoded);
+
+        return array_values($decoded);
+    }
+
+    private function connection(): Connection
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
+        return $connection;
     }
 
     /**

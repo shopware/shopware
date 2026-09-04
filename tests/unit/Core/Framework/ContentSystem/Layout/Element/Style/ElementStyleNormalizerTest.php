@@ -415,7 +415,7 @@ class ElementStyleNormalizerTest extends TestCase
             $indexed[$option->name()] = $option;
         }
 
-        $registry = $this->createMock(AbstractContentSystemStyleOptionRegistry::class);
+        $registry = static::createStub(AbstractContentSystemStyleOptionRegistry::class);
         $registry->method('all')->willReturn($indexed);
 
         return new ElementStyleNormalizer($registry, new BoxSpacingNormalizer());

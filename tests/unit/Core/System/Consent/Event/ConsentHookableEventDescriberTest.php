@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
 use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
+use Shopware\Core\System\Consent\ConsentScope\StorefrontVisitor;
 use Shopware\Core\System\Consent\Event\ConsentHookableEventDescriber;
 use Shopware\Tests\Unit\Core\System\Consent\TestDefinition;
 
@@ -22,6 +23,9 @@ class ConsentHookableEventDescriberTest extends TestCase
         $resolver = new ConsentHookableEventDescriber(new ConsentDefinitionRegistry([
             new TestDefinition('backend_data', 'system'),
             new TestDefinition('product_analytics', 'admin_user'),
+            // storefront visitor consents cannot fire accepted/revoked events,
+            // so no webhook events may be advertised for them
+            new TestDefinition('cookie_consent', StorefrontVisitor::NAME),
         ]));
 
         static::assertEquals([

@@ -111,6 +111,7 @@
 |`order.deleted` | Triggers when a order is deleted | `order:read` | {"entity":"order","operation":"deleted","primaryKey":"array string","payload":"array"}
 |`order_address.written` | Triggers when a order_address is written | `order_address:read` | {"entity":"order_address","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`order_address.deleted` | Triggers when a order_address is deleted | `order_address:read` | {"entity":"order_address","operation":"deleted","primaryKey":"array string","payload":"array"}
+|`cookie.consent.logged` | Fires when a storefront visitor&#039;s cookie consent decision was logged. The payload is anonymous. | `cookie_consent_log:read` | 
 |`media.uploaded` | Fires when a media file is uploaded | `media:read` | 
 |`app.activated` | Fires when an app is activated | - | 
 |`app.deactivated` | Fires when an app is deactivated | - | 

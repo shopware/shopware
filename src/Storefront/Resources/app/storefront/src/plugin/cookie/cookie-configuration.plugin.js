@@ -67,6 +67,7 @@ export default class CookieConfiguration extends Plugin {
         entriesActiveClass: 'offcanvas-cookie-entries--active',
         entriesClass: 'offcanvas-cookie-entries',
         groupClass: 'offcanvas-cookie-group',
+        renderedConfigHashSelector: '[data-cookie-config-hash]',
         parentInputClass: 'offcanvas-cookie-parent-input',
         // Consent offcanvas selectors
         consentAcceptButtonSelector: '.js-wishlist-cookie-accept',
@@ -430,6 +431,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required', [], data.languageId);
 
+        this._logConsent('accept_required');
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
 
         this._hideCookieBar();
@@ -541,6 +543,60 @@ export default class CookieConfiguration extends Plugin {
         }
 
         return cookies;
+    }
+
+    /**
+     * Sends the consent decision to the server for GDPR-compliant consent logging.
+     * Only raw facts are reported, the server derives the per-group verdict from
+     * them. Fire-and-forget: uses sendBeacon (fetch with keepalive as fallback),
+     * so the consent UX is never blocked and failures are silent.
+     *
+     * @param {string} consentAction - 'accept_all' | 'accept_required' | 'accept_selected'
+     * @param {Array} acceptedCookies - Names of the ticked cookies, only relevant for 'accept_selected'
+     * @private
+     */
+    _logConsent(consentAction, acceptedCookies = []) {
+        const url = window.router['frontend.cookie.consent.log'];
+        if (!url) {
+            return;
+        }
+
+        const body = { consentAction, acceptedCookies };
+        const renderedConfigHash = this._getRenderedConfigHash();
+        if (renderedConfigHash) {
+            body.renderedConfigHash = renderedConfigHash;
+        }
+
+        const payload = JSON.stringify(body);
+
+        try {
+            if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }))) {
+                return;
+            }
+        } catch (_error) {
+            // fall through to fetch
+        }
+
+        fetch(url, {
+            method: 'POST',
+            body: payload,
+            keepalive: true,
+            headers: { 'Content-Type': 'application/json' },
+        }).catch(() => {});
+    }
+
+    /**
+     * Hash of the cookie configuration that was rendered into the off-canvas.
+     * Null when no configuration was on screen, e.g. when the visitor only used
+     * the cookie bar buttons - there is nothing the client could attest to then.
+     *
+     * @returns {string|null}
+     * @private
+     */
+    _getRenderedConfigHash() {
+        const element = document.querySelector(this.options.renderedConfigHashSelector);
+
+        return element ? element.dataset.cookieConfigHash || null : null;
     }
 
     _handleUpdateListener(active, inactive) {
@@ -935,6 +991,7 @@ export default class CookieConfiguration extends Plugin {
             data.languageId,
         );
 
+        this._logConsent('accept_selected', selectedCookiesFromDOM);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
@@ -956,6 +1013,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all');
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
         this.closeOffCanvas();
@@ -976,6 +1034,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all');
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
     }
@@ -995,6 +1054,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all');
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }

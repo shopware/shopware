@@ -54,19 +54,41 @@
     {% block sw_settings_basic_information_content %}
     <template #content>
         <sw-card-view>
-            <template v-if="isLoading">
+            <template v-if="systemConfigLoading">
                 <sw-skeleton />
                 <sw-skeleton />
             </template>
 
             {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
-            <sw-system-config
-                v-show="!isLoading"
-                ref="systemConfig"
-                sales-channel-switchable
-                domain="core.basicInformation"
-                @loading-changed="onLoadingChanged"
-            />
+            <div v-show="!systemConfigLoading">
+                {% block sw_settings_basic_information_system_config %}
+                <sw-system-config
+                    ref="systemConfig"
+                    sales-channel-switchable
+                    domain="core.basicInformation"
+                    @loading-changed="onBasicInformationLoadingChanged"
+                />
+                {% endblock %}
+
+                {% block sw_settings_basic_information_cookie_consent_config %}
+                <sw-system-config
+                    ref="systemConfigCookieConsent"
+                    sales-channel-switchable
+                    domain="core.cookieConsent"
+                    @loading-changed="onCookieConsentLoadingChanged"
+                />
+                {% endblock %}
+
+                {% block sw_settings_basic_information_cookie_consent_retention_config %}
+                {# Not switchable: the cleanup deletes across the whole table, so a per sales channel retention would be ignored #}
+                <sw-system-config
+                    ref="systemConfigCookieConsentRetention"
+                    :sales-channel-switchable="false"
+                    domain="core.cookieConsentRetention"
+                    @loading-changed="onCookieConsentRetentionLoadingChanged"
+                />
+                {% endblock %}
+            </div>
         </sw-card-view>
     </template>
     {% endblock %}

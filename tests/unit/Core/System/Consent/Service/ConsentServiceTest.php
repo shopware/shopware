@@ -6,8 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\ConsentException;
@@ -605,6 +607,62 @@ class ConsentServiceTest extends TestCase
         static::assertNull($updatedState->acceptedRevision);
     }
 
+    public function testListSkipsDefinitionsWithUnresolvableScope(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
+            new TestDefinition('storefront-consent', ConsentScope\StorefrontVisitor::NAME),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([]);
+
+        // The storefront visitor scope cannot be resolved from an admin context,
+        // so the storefront consent must be skipped instead of failing the whole list
+        $result = $service->list(Context::createDefaultContext(new AdminApiSource('user-123')));
+
+        static::assertArrayHasKey('consent-1', $result);
+        static::assertArrayNotHasKey('storefront-consent', $result);
+    }
+
+    public function testListThrowsWhenADefinitionReferencesAnUnknownScope(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', 'scope-that-nobody-registered'),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([]);
+
+        // A missing scope is a wiring bug and must surface. Only consents whose scope
+        // does not apply to the caller are skipped silently.
+        $this->expectExceptionObject(ConsentException::invalidScope('scope-that-nobody-registered'));
+
+        $service->list(Context::createDefaultContext(new AdminApiSource('user-123')));
+    }
+
+    public function testListContainsDefinitionsWithResolvableScope(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('storefront-consent', ConsentScope\StorefrontVisitor::NAME),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([]);
+
+        $result = $service->list(Context::createDefaultContext(new SalesChannelApiSource(Uuid::randomHex())));
+
+        static::assertArrayHasKey('storefront-consent', $result);
+        static::assertSame(ConsentScope\StorefrontVisitor::IDENTIFIER, $result['storefront-consent']->identifier);
+        static::assertSame(ConsentStatus::UNSET, $result['storefront-consent']->status);
+    }
+
     /**
      * @param array<ConsentDefinition> $definitions
      */
@@ -614,6 +672,7 @@ class ConsentServiceTest extends TestCase
             [
                 new ConsentScope\System(),
                 new AdminUser(),
+                new ConsentScope\StorefrontVisitor(),
             ],
             new ConsentDefinitionRegistry($definitions),
             $this->consentRepository,

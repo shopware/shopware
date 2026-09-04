@@ -26,5 +26,12 @@
       "basicCaptchaNoticeTitle": "Hinweis",
       "basicCaptchaNotice": "Die Basic-Captcha-Lösung wird nicht als barrierefrei betrachtet. Wir empfehlen, eine Lösung zu verwenden, die keine Benutzerinteraktion benötigt."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "cookie_consent": {
+        "label": "Cookie-Einwilligungsprotokoll"
+      }
+    }
   }
 }

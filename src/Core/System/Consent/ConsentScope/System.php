@@ -21,6 +21,14 @@ class System implements ConsentScope
         return self::NAME;
     }
 
+    /**
+     * The system scope is global, its identifier never depends on the calling context.
+     */
+    public function appliesTo(Context $context): bool
+    {
+        return true;
+    }
+
     public function resolveIdentifier(Context $context): string
     {
         return self::NAME;

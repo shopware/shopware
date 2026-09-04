@@ -444,7 +444,6 @@ const missingTests = [
     'src/module/sw-settings/mixin/sw-settings-list.mixin.js',
     'src/module/sw-settings-basic-information/component/sw-settings-captcha-select-v2/index.js',
     'src/module/sw-settings-basic-information/index.js',
-    'src/module/sw-settings-basic-information/page/sw-settings-basic-information/index.js',
     'src/module/sw-settings-cache/component/sw-settings-cache-modal/index.js',
     'src/module/sw-settings-cache/index.js',
     'src/module/sw-settings-cart/index.js',

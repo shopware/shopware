@@ -2,8 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
-use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,15 +31,19 @@ class CookieController extends StorefrontController
      */
     public function __construct(
         private readonly AbstractCookieRoute $cookieRoute,
+        private readonly AbstractCookieConsentLogRoute $cookieConsentLogRoute,
     ) {
     }
 
     #[Route(path: '/cookie/offcanvas', name: 'frontend.cookie.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function offcanvas(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        $cookieGroupCollection = $this->getCookieGroupsFromCookieRoute($request, $salesChannelContext);
+        $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
         $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', [
-            'cookieGroups' => $cookieGroupCollection,
+            'cookieGroups' => $cookieRouteResponse->getCookieGroups(),
+            // Rendered into the markup so the consent log can record which configuration
+            // the visitor actually saw, instead of re-reading the current one on submit.
+            'cookieConfigHash' => $cookieRouteResponse->getHash(),
         ]);
         $response->headers->set('x-robots-tag', 'noindex,follow');
 
@@ -49,7 +53,7 @@ class CookieController extends StorefrontController
     #[Route(path: '/cookie/permission', name: 'frontend.cookie.permission', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function permission(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        $cookieGroupCollection = $this->getCookieGroupsFromCookieRoute($request, $salesChannelContext);
+        $cookieGroupCollection = $this->cookieRoute->getCookieGroups($request, $salesChannelContext)->getCookieGroups();
         $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', [
             'cookieGroups' => $cookieGroupCollection,
         ]);
@@ -78,10 +82,9 @@ class CookieController extends StorefrontController
         return $this->json($cookieRouteResponse->getObject());
     }
 
-    private function getCookieGroupsFromCookieRoute(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection
+    #[Route(path: '/cookie/consent-log', name: 'frontend.cookie.consent.log', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    public function logConsent(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        $cookieRouteResponse = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
-
-        return $cookieRouteResponse->getCookieGroups();
+        return $this->cookieConsentLogRoute->log($request, $salesChannelContext);
     }
 }

@@ -123,6 +123,27 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
+### Server-side cookie consent logging (experimental)
+
+The built-in cookie banner now logs every consent decision server-side, so shop operators can demonstrate that consent was obtained, as required by GDPR Recital 42. The feature is active by default and can be switched off per shop. Its routes, database schema and events are experimental until 6.8.0 and not yet covered by the backwards compatibility promise, so they can still change in a patch release.
+
+- Every "accept all", "accept required only", and custom-selection interaction with the cookie banner is sent (fire-and-forget via `navigator.sendBeacon`) to the new storefront route `POST /cookie/consent-log`, which proxies to the new Store API route `POST /store-api/cookie-consent-log`.
+- The client only reports raw facts: the action, the names of the cookies the visitor ticked (`acceptedCookies`), and the hash of the configuration it displayed (`renderedConfigHash`). The per-group verdict is derived server-side against the configuration the server holds, so it cannot be shaped by the client.
+- Decisions are stored anonymously in the new `cookie_consent_log` table: action, per-group verdict (`group_decisions`), accepted cookie names (`accepted_cookies`), sales channel, language, both configuration hashes, and timestamp. No IP addresses, session IDs, or other visitor identifiers are stored.
+- `group_decisions` distinguishes `accepted`, `partial`, and `rejected` per cookie group. A group counts as `accepted` only when every cookie the visitor could tick in it was accepted, so a granular selection is never recorded as broader consent than was given.
+- `server_config_hash` always has a matching snapshot row; `rendered_config_hash` is the unverified hash the client reported and is `NULL` when no configuration was displayed, e.g. when only the cookie bar buttons were used. A mismatch between the two is queryable instead of silent.
+- A snapshot of the cookie banner configuration is stored once per configuration hash in the new `cookie_consent_config_version` table, preserving what the banner looked like when consent was given.
+- Both tables are readable through the Admin API (e.g. `POST /api/search/cookie-consent-log`) for compliance exports.
+- Read access can be granted without making someone an administrator: the new "Cookie consent logging" permission under Settings in Users & Permissions grants `cookie_consent_log:read` and `cookie_consent_config_version:read`. It offers a viewer role only, both tables reject every write from an API scope, including deletes.
+- The new event `Shopware\Core\Content\Cookie\Event\CookieConsentLoggedEvent` is dispatched for every logged decision. It is hookable: apps can subscribe to it as the webhook event `cookie.consent.logged`, gated by the `cookie_consent_log:read` privilege. The payload mirrors a log row and is anonymous.
+- Both routes are rate limited per client IP (`cookie_consent_log`, 60 requests per 60 seconds, `sliding_window`), because the endpoint is anonymous and every accepted request inserts a row. The IP is only used as the limiter key and is never stored with the decision.
+- Logging can be switched off per sales channel with the `core.cookieConsent.logEnabled` system config (default: enabled), in the admin under Settings > Basic information, in the new "Cookie consent logging" card. Turn it off for a sales channel whose consent is handled by a third-party manager. Decisions that were already recorded are kept and still expire through the retention period. While it is off the routes still answer `204`, and the storefront of that sales channel stops sending the beacon at all.
+- The new daily scheduled task `cookie_consent_log.cleanup` deletes log entries older than the retention period, configurable via the `core.cookieConsentRetention.days` system config (default: 120 days, `0` deletes immediately, negative values disable the cleanup), and removes banner snapshots that are no longer referenced. Operators can manage it in the admin under Settings > Basic information, in the new "Cookie consent retention" card. The cleanup deletes across the whole installation, so unlike the logging switch this value is not per sales channel.
+- The Store API `/store-api/cookie-groups` response now additionally exposes the translation-independent `technicalName` of each cookie group.
+
+Because no visitor identifier is stored, the log is process-level evidence: it demonstrates that consent was collected, under which banner configuration and when, but it cannot identify an individual data subject.
+
+Shops using a third-party consent manager instead of the built-in cookie banner are not affected. (shopware/shopware#15513)
 ### `JsonField::addPropertyMapping()` for entity extensions
 
 `Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.

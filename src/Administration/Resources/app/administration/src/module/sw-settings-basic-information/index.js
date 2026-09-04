@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import './acl';
 import CaptchaService from './service/captcha.service';
 
 const { Module } = Shopware;

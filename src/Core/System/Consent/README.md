@@ -66,6 +66,11 @@ When scope implementations cannot resolve to an ID from the context, they must t
    - Identifier: literal `system` (global scope).
    - Actor: the current Admin API user id who performed the action.
 
+ - StorefrontVisitor
+   - File: `src/Core/System/Consent/ConsentScope/StorefrontVisitor.php`
+   - Identifier: literal `anonymous`, only resolvable from sales channel contexts (privacy by design, visitors are not identified).
+   - Actor: same as identifier.
+
  ## Bundled consents
  - Backend data
    - File: `src/Core/System/Consent/Definition/BackendData.php`
@@ -76,6 +81,11 @@ When scope implementations cannot resolve to an ID from the context, they must t
    - File: `src/Core/System/Consent/Definition/ProductAnalytics.php`
    - Scope: `admin_user`
    - Description: Per-admin-user consent for Admin usage tracking.
+
+ - CookieConsent
+   - File: `src/Core/System/Consent/Definition/CookieConsent.php`
+   - Scope: `storefront_visitor`
+   - Description: Storefront visitors' consent to the cookie banner. Evidence is stored anonymously in the dedicated `cookie_consent_log` / `cookie_consent_config_version` tables (see `src/Core/Content/Cookie/`), not in the consent state storage.
 
 ## PHP API's
 

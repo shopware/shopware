@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Cookie consent logging</title>
+        <title lang="de-DE">Cookie-Einwilligungsprotokoll</title>
+
+        <input-field type="bool">
+            <name>logEnabled</name>
+            <defaultValue>true</defaultValue>
+            <label>Log cookie consent decisions</label>
+            <label lang="de-DE">Cookie-Einwilligungen protokollieren</label>
+            <helpText>Whether consent decisions from the built-in cookie banner are recorded. Turn this off when a third-party consent manager keeps the evidence instead. Decisions that were already recorded are kept and still expire through the retention period. This setting applies per sales channel.</helpText>
+            <helpText lang="de-DE">Legt fest, ob Einwilligungen aus dem integrierten Cookie-Banner erfasst werden. Deaktivieren, wenn ein externer Consent-Manager den Nachweis führt. Bereits erfasste Einwilligungen bleiben erhalten und verfallen weiterhin über die Aufbewahrungsdauer. Diese Einstellung gilt je Verkaufskanal.</helpText>
+        </input-field>
+    </card>
+</config>

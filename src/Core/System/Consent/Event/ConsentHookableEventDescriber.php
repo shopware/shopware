@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
 use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
+use Shopware\Core\System\Consent\ConsentScope\StorefrontVisitor;
 
 #[Package('data-services')]
 class ConsentHookableEventDescriber implements HookableEventDescriber
@@ -40,6 +41,14 @@ class ConsentHookableEventDescriber implements HookableEventDescriber
         $events = [];
 
         foreach ($this->consentDefinitionRegistry->all() as $consentDefinition) {
+            // Storefront visitor consents cannot be accepted or revoked through the
+            // admin-only consent endpoints, so their accepted/revoked events never
+            // fire; advertising them would offer apps webhooks that never trigger.
+            // Revisit if consents ever become manageable via the Store API.
+            if ($consentDefinition->getScopeName() === StorefrontVisitor::NAME) {
+                continue;
+            }
+
             $consentName = $consentDefinition->getName();
             $privilege = \sprintf('consent:%s:%s', $consentName, AclRoleDefinition::PRIVILEGE_READ);
 

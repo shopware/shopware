@@ -364,6 +364,15 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
+            cookie_consent_log:
+                # Anonymous storefront visitors write here and every request inserts a row, so
+                # this only caps volume per IP; it deliberately does not escalate like the form
+                # limiters. Kept generous because many real visitors can share one IP (carrier or
+                # corporate NAT) and a rejected request means lost consent evidence.
+                enabled: true
+                policy: 'sliding_window'
+                limit: 60
+                interval: '60 seconds'
             mcp_admin_api:
                 # Trusted automation (integrations / admin users), keyed per OAuth token, so a
                 # generous limit is acceptable. Kept higher than the Store API on purpose.

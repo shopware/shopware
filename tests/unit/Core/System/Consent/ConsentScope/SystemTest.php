@@ -25,6 +25,14 @@ class SystemTest extends TestCase
         static::assertSame('system', $scope->getName());
     }
 
+    public function testAppliesToEveryContext(): void
+    {
+        $scope = new System();
+
+        static::assertTrue($scope->appliesTo(Context::createDefaultContext()));
+        static::assertTrue($scope->appliesTo(new Context(new AdminApiSource(null))));
+    }
+
     public function testScopeIdentifier(): void
     {
         $context = Context::createDefaultContext();

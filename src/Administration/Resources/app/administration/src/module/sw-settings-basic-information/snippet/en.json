@@ -26,5 +26,12 @@
       "basicCaptchaNoticeTitle": "Note",
       "basicCaptchaNotice": "The Basic Captcha solution is not considered as accessible. We recommend using a solution that does not require user interaction."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "cookie_consent": {
+        "label": "Cookie consent logging"
+      }
+    }
   }
 }

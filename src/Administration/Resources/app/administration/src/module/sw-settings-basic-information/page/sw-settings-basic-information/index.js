@@ -18,6 +18,9 @@ export default {
         return {
             isLoading: false,
             isSaveSuccessful: false,
+            basicInformationLoading: false,
+            cookieConsentLoading: false,
+            cookieConsentRetentionLoading: false,
         };
     },
 
@@ -25,6 +28,12 @@ export default {
         return {
             title: this.$createTitle(),
         };
+    },
+
+    computed: {
+        systemConfigLoading() {
+            return this.basicInformationLoading || this.cookieConsentLoading || this.cookieConsentRetentionLoading;
+        },
     },
 
     methods: {
@@ -36,8 +45,11 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.$refs.systemConfig
-                .saveAll()
+            Promise.all([
+                this.$refs.systemConfig.saveAll(),
+                this.$refs.systemConfigCookieConsent.saveAll(),
+                this.$refs.systemConfigCookieConsentRetention.saveAll(),
+            ])
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
@@ -50,8 +62,16 @@ export default {
                 });
         },
 
-        onLoadingChanged(loading) {
-            this.isLoading = loading;
+        onBasicInformationLoadingChanged(loading) {
+            this.basicInformationLoading = loading;
+        },
+
+        onCookieConsentLoadingChanged(loading) {
+            this.cookieConsentLoading = loading;
+        },
+
+        onCookieConsentRetentionLoadingChanged(loading) {
+            this.cookieConsentRetentionLoading = loading;
         },
     },
 };

@@ -148,6 +148,9 @@ class ShopwareClass implements CustomShopwareProperties {
         attachOverrides: attachOverrides,
         overrideComponentSetup: overrideComponentSetup,
 
+        /**
+         * @private
+         */
         registerNativeExtensionTargets: registerNativeExtensionTargets,
         /**
          * @private

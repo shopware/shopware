@@ -346,24 +346,26 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '<h1>not json</h1>'));
 
-        $caught = null;
-        try {
-            ($this->webhookEventMessageHandler)($webhookEventMessage);
-        } catch (WebhookException $e) {
-            $caught = $e;
-        }
-        static::assertInstanceOf(WebhookException::class, $caught);
-        static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+            $caught = null;
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+            } catch (WebhookException $e) {
+                $caught = $e;
+            }
+            static::assertInstanceOf(WebhookException::class, $caught);
+            static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
 
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
-        static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_QUEUED);
-        static::assertSame($webhookEventLog->getResponseStatusCode(), 500);
-        static::assertEquals($webhookEventLog->getResponseContent(), [
-            'headers' => [],
-            'body' => '<h1>not json</h1>',
-        ]);
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_QUEUED);
+            static::assertSame($webhookEventLog->getResponseStatusCode(), 500);
+            static::assertEquals($webhookEventLog->getResponseContent(), [
+                'headers' => [],
+                'body' => '<h1>not json</h1>',
+            ]);
+        });
     }
 
     public function testNetworkErrorThrowsWebhookFailed(): void
@@ -407,9 +409,11 @@ class WebhookEventMessageHandlerTest extends TestCase
         $connectException = new ConnectException('Connection refused', new Request('POST', 'https://www.shopware.com'));
         $this->appendNewResponse($connectException);
 
-        $this->expectExceptionObject(WebhookException::webhookFailedException($webhookId, $connectException));
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookId, $connectException): void {
+            $this->expectExceptionObject(WebhookException::webhookFailedException($webhookId, $connectException));
 
-        ($this->webhookEventMessageHandler)($webhookEventMessage);
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+        });
     }
 
     /**
@@ -575,42 +579,44 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "internal server error"}'));
 
-        $caught = null;
-        try {
-            ($this->webhookEventMessageHandler)($webhookEventMessage);
-        } catch (WebhookException $e) {
-            $caught = $e;
-        }
-        static::assertInstanceOf(WebhookException::class, $caught);
-        static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId, $connection): void {
+            $caught = null;
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+            } catch (WebhookException $e) {
+                $caught = $e;
+            }
+            static::assertInstanceOf(WebhookException::class, $caught);
+            static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
 
-        // After failure: verify status is reset to QUEUED (for Messenger retry)
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
-        static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
+            // After failure: verify status is reset to QUEUED (for Messenger retry)
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
 
-        static::assertSame(500, $webhookEventLog->getResponseStatusCode());
-        static::assertNotNull($webhookEventLog->getProcessingTime());
-        static::assertGreaterThanOrEqual(0, $webhookEventLog->getProcessingTime());
+            static::assertSame(500, $webhookEventLog->getResponseStatusCode());
+            static::assertNotNull($webhookEventLog->getProcessingTime());
+            static::assertGreaterThanOrEqual(0, $webhookEventLog->getProcessingTime());
 
-        // Verify response content captures the error body
-        $responseContent = $webhookEventLog->getResponseContent();
-        static::assertIsArray($responseContent);
-        static::assertArrayHasKey('body', $responseContent);
-        static::assertArrayHasKey('headers', $responseContent);
+            // Verify response content captures the error body
+            $responseContent = $webhookEventLog->getResponseContent();
+            static::assertIsArray($responseContent);
+            static::assertArrayHasKey('body', $responseContent);
+            static::assertArrayHasKey('headers', $responseContent);
 
-        // Verify request content was set during the RUNNING transition
-        $requestContent = $webhookEventLog->getRequestContent();
-        static::assertIsArray($requestContent);
-        static::assertArrayHasKey('headers', $requestContent);
-        static::assertArrayHasKey('body', $requestContent);
+            // Verify request content was set during the RUNNING transition
+            $requestContent = $webhookEventLog->getRequestContent();
+            static::assertIsArray($requestContent);
+            static::assertArrayHasKey('headers', $requestContent);
+            static::assertArrayHasKey('body', $requestContent);
 
-        // Verify webhook_delivery row is preserved on resetForRetry (stays for next attempt)
-        $deliveryStatus = $connection->fetchOne(
-            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => Uuid::fromHexToBytes($webhookEventId)]
-        );
-        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $deliveryStatus, 'webhook_delivery row should be preserved with QUEUED status after failure');
+            // Verify webhook_delivery row is preserved on resetForRetry (stays for next attempt)
+            $deliveryStatus = $connection->fetchOne(
+                'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $deliveryStatus, 'webhook_delivery row should be preserved with QUEUED status after failure');
+        });
     }
 
     public function testFailurePathWithUnserializableResponseResetsToQueued(): void
@@ -771,41 +777,43 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://test.com')));
 
-        $caught = null;
-        try {
-            ($this->webhookEventMessageHandler)($webhookEventMessage);
-        } catch (WebhookException $e) {
-            // ConnectException has no response, so this falls through to webhookFailedException (not app variant)
-            $caught = $e;
-        }
-        static::assertInstanceOf(WebhookException::class, $caught);
-        static::assertSame(WebhookException::WEBHOOK_FAILED, $caught->getErrorCode());
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId, $connection): void {
+            $caught = null;
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+            } catch (WebhookException $e) {
+                // ConnectException has no response, so this falls through to webhookFailedException (not app variant)
+                $caught = $e;
+            }
+            static::assertInstanceOf(WebhookException::class, $caught);
+            static::assertSame(WebhookException::WEBHOOK_FAILED, $caught->getErrorCode());
 
-        // After network error: status should be reset to QUEUED
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
-        static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
+            // After network error: status should be reset to QUEUED
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->getEntities()->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
 
-        // Processing time should still be set
-        static::assertNotNull($webhookEventLog->getProcessingTime());
+            // Processing time should still be set
+            static::assertNotNull($webhookEventLog->getProcessingTime());
 
-        // No response data since there was no HTTP response
-        static::assertNull($webhookEventLog->getResponseStatusCode());
-        static::assertNull($webhookEventLog->getResponseReasonPhrase());
-        static::assertNull($webhookEventLog->getResponseContent());
+            // No response data since there was no HTTP response
+            static::assertNull($webhookEventLog->getResponseStatusCode());
+            static::assertNull($webhookEventLog->getResponseReasonPhrase());
+            static::assertNull($webhookEventLog->getResponseContent());
 
-        // Request content should still be persisted from the RUNNING phase
-        $requestContent = $webhookEventLog->getRequestContent();
-        static::assertIsArray($requestContent);
-        static::assertArrayHasKey('headers', $requestContent);
-        static::assertArrayHasKey('body', $requestContent);
+            // Request content should still be persisted from the RUNNING phase
+            $requestContent = $webhookEventLog->getRequestContent();
+            static::assertIsArray($requestContent);
+            static::assertArrayHasKey('headers', $requestContent);
+            static::assertArrayHasKey('body', $requestContent);
 
-        // Verify webhook_delivery row is preserved on resetForRetry (stays for next attempt)
-        $deliveryStatus = $connection->fetchOne(
-            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => Uuid::fromHexToBytes($webhookEventId)]
-        );
-        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $deliveryStatus, 'webhook_delivery row should be preserved with QUEUED status after network error');
+            // Verify webhook_delivery row is preserved on resetForRetry (stays for next attempt)
+            $deliveryStatus = $connection->fetchOne(
+                'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $deliveryStatus, 'webhook_delivery row should be preserved with QUEUED status after network error');
+        });
     }
 
     /**
@@ -865,12 +873,14 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200, [], '{"ok": true}'));
 
-        ($this->webhookEventMessageHandler)($webhookEventMessage);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
-        static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(0, $webhook->getErrorCount());
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(0, $webhook->getErrorCount());
+        });
     }
 
     /**
@@ -927,17 +937,19 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "fail"}'));
 
-        try {
-            ($this->webhookEventMessageHandler)($webhookEventMessage);
-        } catch (WebhookException) {
-            // expected
-        }
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookId): void {
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+            } catch (WebhookException) {
+                // expected
+            }
 
-        // error_count should remain unchanged -- handler only resets on success
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
-        static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(3, $webhook->getErrorCount());
+            // error_count should remain unchanged -- handler only resets on success
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), Context::createDefaultContext())->getEntities()->first();
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(3, $webhook->getErrorCount());
+        });
     }
 
     /**

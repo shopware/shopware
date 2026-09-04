@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
@@ -32,28 +33,21 @@ use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
+use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
 /**
- * End-to-end dispatch coverage for the outbox transport. Two smoke tests run under
- * both `WEBHOOKS_REWORK` ON and OFF via #[DataProvider('flagStates')] to confirm the
- * happy-path and transient-failure contracts hold identically across transports:
- *  - `testAsyncWebhookIsDeliveredAndPublishesConsumerContract`
- *  - `testTransientFailureDoesNotBlockLaterMessagesOnSamePartition`
+ * End-to-end coverage for webhook delivery and its persisted state.
  *
- * The remaining tests run flag-ON only — they target outbox-specific behaviour
- * (retry-cycle, terminal failure, recovery against stale results, sync inline path,
- * insertion order, multi-webhook fan-out) where the flag-OFF leg either duplicates
- * coverage already provided by the dispatcher's own suite or relies on Messenger
- * wiring (`SendFailedMessageForRetryListener`) that `QueueTestBehaviour::runWorker()`
- * does not provide.
- *
- * Assertions target observable end-state — the outbox (`webhook_event_log`,
- * `webhook_delivery`) and the outgoing HTTP request.
+ * Tests select the feature state required by each behavior. Legacy terminal failures invoke the
+ * Messenger failure subscriber directly because QueueTestBehaviour does not wire it.
  *
  * @internal
  */
@@ -661,18 +655,6 @@ class WebhookDispatchEndToEndTest extends TestCase
         static::assertSame(2, $streamPartitions, 'Two app-bound webhooks must produce two distinct partitions');
     }
 
-    /**
-     * Steps:
-     * 1. Register a webhook with `error_count = MAX_ERROR_COUNT - 1` (= 9).
-     * 2. Dispatch the event.
-     * 3. Burn the retry budget the same way `testTerminalFailureAfterMaxRetriesMovesRowToFailed` does.
-     * 4. Worker polls → endpoint returns 500 → terminal branch fires.
-     *
-     * Expected:
-     * - `webhook_event_log` row is `FAILED`.
-     * - `webhook.error_count` resets to `0` (the disable-on-threshold strategy zeros it).
-     * - `webhook.active` flips to `0` — the webhook is disabled at the threshold.
-     */
     public function testTerminalFailureBumpsErrorCountAndDisablesWebhookAtThreshold(): void
     {
         $webhookId = Uuid::randomHex();
@@ -683,24 +665,23 @@ class WebhookDispatchEndToEndTest extends TestCase
             ['id' => Uuid::fromHexToBytes($webhookId)],
         );
 
-        $this->appendNewResponse(new Response(500, [], '{"error":"fail"}'));
-
         $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
         $event = $this->createCustomerBeforeLoginEvent();
 
-        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
             $manager->dispatch($event);
 
             $eventId = $this->fetchOutboxEventId('test-webhook');
-            $stateService = static::getContainer()->get(WebhookOutboxStore::class);
-            $past = new \DateTimeImmutable('-1 minute');
-            for ($i = 0; $i < 5; ++$i) {
-                $entry = $stateService->markRunning($eventId);
-                static::assertNotNull($entry);
-                $stateService->markPendingRetry($entry, $past, null);
-            }
+            $serialized = $this->connection->fetchOne(
+                'SELECT serialized_webhook_message FROM webhook_event_log WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($eventId)],
+            );
+            static::assertIsString($serialized);
 
-            $this->runWorker();
+            $message = Serialization::assertUnserializedInstanceOf(WebhookEventMessage::class, $serialized);
+            $failed = new WorkerMessageFailedEvent(new Envelope($message), 'webhook', new \RuntimeException('Delivery failed'));
+
+            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)->failed($failed);
         });
 
         $eventLogStatus = $this->connection->fetchOne(
@@ -714,8 +695,8 @@ class WebhookDispatchEndToEndTest extends TestCase
             ['id' => Uuid::fromHexToBytes($webhookId)],
         );
         static::assertIsArray($webhook);
-        static::assertSame(0, (int) $webhook['error_count'], 'Disable-on-threshold strategy zeroes error_count');
-        static::assertSame(0, (int) $webhook['active'], 'Webhook is disabled once it crosses the threshold');
+        static::assertSame(0, (int) $webhook['error_count']);
+        static::assertSame(0, (int) $webhook['active']);
     }
 
     /**
@@ -925,6 +906,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(WebhookHealthService::class),
             static::getContainer()->get('logger'),
+            new HttpErrorClassifier(),
             $isAdminWorkerEnabled,
         );
 
@@ -940,6 +922,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            static::getContainer()->get(WebhookHealthService::class),
         );
     }
 

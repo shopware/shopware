@@ -393,7 +393,6 @@ shopware:
                 policy: 'sliding_window'
                 limit: 60
                 interval: '60 minutes'
-
     admin_worker:
         enable_admin_worker: true
         enable_queue_stats_worker: true
@@ -719,6 +718,10 @@ shopware:
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
         failure_strategy: disable_on_threshold
+        #@experimental stableVersion:v6.8.0 feature:WEBHOOKS_REWORK
+        health:
+            cooldown_schedule_seconds: [300, 600, 1200, 2400, 3600, 14400]
+            degraded_threshold_count: 5
 
     app_system:
         enable_url_validation: true

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -1701,6 +1702,27 @@ class Configuration implements ConfigurationInterface
                     ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
                     ->values(WebhookFailureStrategy::values())
                     ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
+                ->arrayNode('health')
+                    ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOKS_REWORK Endpoint health settings.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('cooldown_schedule_seconds')
+                            ->info('Cooldown tiers between DEGRADED trial deliveries, in seconds. The first tier must exceed the delivery timeout.')
+                            ->performNoDeepMerging()
+                            ->requiresAtLeastOneElement()
+                            ->integerPrototype()->min(1)->end()
+                            ->defaultValue([300, 600, 1200, 2400, 3600, 14400])
+                            ->validate()
+                                ->ifTrue(static fn (array $schedule): bool => $schedule !== [] && $schedule[0] <= WebhookClient::REQUEST_TIMEOUT)
+                                ->thenInvalid(\sprintf('The first cooldown tier must exceed the %d-second webhook delivery timeout.', WebhookClient::REQUEST_TIMEOUT))
+                            ->end()
+                        ->end()
+                        ->integerNode('degraded_threshold_count')
+                            ->info('Consecutive first-attempt transient failures that trip HEALTHY into DEGRADED.')
+                            ->min(1)->defaultValue(5)
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 

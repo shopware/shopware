@@ -19,6 +19,12 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
         purchaseLimitUrl: null,
+
+        /**
+         * Submit the surrounding form when the user finishes an edit, by leaving the input
+         * or confirming with `Enter`. Used where the form applies the quantity itself.
+         */
+        submitOnFinish: false,
     };
 
     init() {
@@ -27,6 +33,8 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._btnMinus = this.el.querySelector('.js-btn-minus');
         this._unitLabel = this.el.querySelector('.js-quantity-selector-unit');
         this._purchaseLimitFetched = false;
+        this._committedValue = this._input.value;
+        this._isCommitting = false;
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
@@ -71,16 +79,91 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._btnPlus.addEventListener('click', this._stepUp.bind(this));
         this._btnMinus.addEventListener('click', this._stepDown.bind(this));
 
-        // prevent default submit on
-        this._input.addEventListener('keydown', (event) => {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                this._triggerChange();
-                return false;
-            }
-        });
+        this._input.addEventListener('keydown', this._onKeyDown.bind(this));
+        this._input.addEventListener('change', this._onChange.bind(this));
+        this._input.addEventListener('blur', this._onBlur.bind(this));
+    }
 
-        this._input.addEventListener('change', this._updateUnitLabel.bind(this));
+    /**
+     * withhold a value the user is still editing, it is applied on blur or `Enter`
+     *
+     * @param {Event} event
+     *
+     * @private
+     */
+    _onChange(event) {
+        if (this._isCommitting) {
+            this._committedValue = this._input.value;
+        } else {
+            event.stopPropagation();
+        }
+
+        this._updateUnitLabel();
+    }
+
+    /**
+     * apply the current value on `Enter`
+     *
+     * @param {KeyboardEvent} event
+     *
+     * @private
+     */
+    _onKeyDown(event) {
+        if (event.key !== 'Enter') {
+            return;
+        }
+
+        event.preventDefault();
+        this._applyEdit();
+    }
+
+    /**
+     * @private
+     */
+    _onBlur(event) {
+        // Not leaving the control, the `[+]` and `[-]` buttons apply the value themselves.
+        if (this.el.contains(event.relatedTarget)) {
+            return;
+        }
+
+        this._applyEdit();
+    }
+
+    /**
+     * apply a value the user is done editing
+     *
+     * @private
+     */
+    _applyEdit() {
+        if (!this.options.submitOnFinish) {
+            this._commit();
+            return;
+        }
+
+        if (this._input.value === this._committedValue) {
+            return;
+        }
+
+        this._committedValue = this._input.value;
+        this._announceChange();
+        this._input.form?.requestSubmit();
+    }
+
+    /**
+     * pass on a value as a change event
+     *
+     * @param {'up'|'down'|undefined} btn
+     *
+     * @private
+     */
+    _commit(btn) {
+        if (this._input.value === this._committedValue) {
+            return;
+        }
+
+        this._isCommitting = true;
+        this._triggerChange(btn);
+        this._isCommitting = false;
     }
 
     /**
@@ -92,16 +175,25 @@ export default class QuantitySelectorPlugin extends Plugin {
         const event = new Event('change', { bubbles: true, cancelable: false });
         this._input.dispatchEvent(event);
 
-        if (this.options.ariaLiveUpdateMode === 'live') {
-            this._updateAriaLive();
-        } else if (this.options.ariaLiveUpdateMode === 'onload') {
-            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
-        }
+        this._announceChange();
 
         if (btn === 'up') {
             this._btnPlus.dispatchEvent(event);
         } else if (btn === 'down') {
             this._btnMinus.dispatchEvent(event);
+        }
+    }
+
+    /**
+     * announce the new quantity, now or after the next page load
+     *
+     * @private
+     */
+    _announceChange() {
+        if (this.options.ariaLiveUpdateMode === 'live') {
+            this._updateAriaLive();
+        } else if (this.options.ariaLiveUpdateMode === 'onload') {
+            window.localStorage.setItem('lastQuantityChange', this.ariaLiveProductName);
         }
     }
 
@@ -114,7 +206,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         const before = this._input.value;
         this._input.stepUp();
         if (this._input.value !== before) {
-            this._triggerChange('up');
+            this._commit('up');
         }
     }
 
@@ -127,7 +219,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         const before = this._input.value;
         this._input.stepDown();
         if (this._input.value !== before) {
-            this._triggerChange('down');
+            this._commit('down');
         }
     }
 
@@ -276,7 +368,7 @@ export default class QuantitySelectorPlugin extends Plugin {
 
         if (steppedValue !== currentValue) {
             this._input.value = steppedValue;
-            this._triggerChange();
+            this._commit();
             this._dispatchFormEvent('QuantitySelector/StockAdjusted', { quantity: steppedValue });
         }
     }

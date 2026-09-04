@@ -463,6 +463,10 @@ lineItem.payload.features[].value = { id, type, content, display }
 
 `display` holds a list of resolved option or entity labels for `select` and `entity`, and the price of the current currency and tax state as a float for `price`. It is only present on line items built after the update, so templates overriding `component/product/feature/types/feature-custom-field.html.twig` must treat it as optional. A characteristic that cannot be resolved is dropped from the payload, and `component/product/feature/item.html.twig` no longer emits an empty list item for a characteristic its template renders nothing for.
 
+### Accessibility improvements for cart quantity changes
+
+Changing a quantity in the cart, off-canvas cart and checkout confirm no longer submits the form on every arrow key press; the value is applied once the edit is finished or confirmed with `Enter`. Custom `change` listeners on the quantity form therefore only see the finished value.
+
 ### The buy button shows a loading indicator while the product is added
 
 `AddToCartPlugin` puts a loading indicator on the buy button when the form is submitted and removes it once the off-canvas cart has opened or the request is through. The button is disabled in the meantime, so a second click can no longer add the product a second time.

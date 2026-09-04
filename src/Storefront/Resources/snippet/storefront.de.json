@@ -850,6 +850,7 @@
       },
       "quantitySelect": {
         "legend": "Produkt Anzahl: Gib den gewünschten Wert ein oder benutze die Schaltflächen um die Anzahl zu erhöhen oder zu reduzieren.",
+        "cartUpdateHint": "Das Ändern der Anzahl aktualisiert den Warenkorb.",
         "areaLiveText": "Anzahl für %product% ist %quantity%.",
         "label": "Anzahl",
         "labelWithProduct": "Anzahl von %product%",

@@ -108,10 +108,13 @@ export default class OffCanvasCartPlugin extends Plugin {
 
         if (numberInputs) {
             numberInputs.forEach((input) => {
-                input.addEventListener('change', Debouncer.debounce(
+                // On the form: the `QuantitySelectorPlugin` withholds events on the input.
+                input.form?.addEventListener('change', Debouncer.debounce(
                     this._onChangeProductQuantity.bind(this),
                     this.options.changeQuantityInputDelay,
                 ));
+
+                input.form?.addEventListener('submit', this._onSubmitProductQuantity.bind(this));
             });
         }
     }
@@ -255,6 +258,25 @@ export default class OffCanvasCartPlugin extends Plugin {
         this._fireRequest(form, selector);
     }
 
+
+    /**
+     * Submit the change quantity form inside the Offcanvas
+     *
+     * @param {Event} event
+     *
+     * @private
+     */
+    _onSubmitProductQuantity(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const selector = this.options.cartItemSelector;
+
+        this.$emitter.publish('onChangeProductQuantity');
+
+        this._saveFocusState(form.querySelector(this.options.changeProductQuantityTriggerNumberSelector));
+        this._fireRequest(form, selector);
+    }
 
     /**
      * Submit the add form inside the Offcanvas

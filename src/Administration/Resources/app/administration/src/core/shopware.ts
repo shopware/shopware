@@ -49,6 +49,7 @@ import {
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
+import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
 import CUSTOMER from '../module/sw-customer/constant/sw-customer.constant';
@@ -147,6 +148,10 @@ class ShopwareClass implements CustomShopwareProperties {
         attachOverrides: attachOverrides,
         overrideComponentSetup: overrideComponentSetup,
 
+        /**
+         * @private
+         */
+        registerNativeExtensionTargets: registerNativeExtensionTargets,
         /**
          * @private
          *

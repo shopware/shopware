@@ -34,6 +34,9 @@ describe('build/vue-setup-transform override transforms', () => {
             </script>
         `;
 
+        // The leading plain <script> is the extension-targets registry: it runs at module eval, which is
+        // what puts the block names in place before the Twig templates are resolved.
+        //
         // The one end-to-end assertion for override lowering, covering the three generated constructs that
         // only co-occur on the <sw-block extends> path: the module-root Symbol() namespace, the
         // `__swOverride` payload keyed by it, and the `#default` slot scope that forwards the
@@ -43,6 +46,14 @@ describe('build/vue-setup-transform override transforms', () => {
         // Whitespace-insensitive on both sides - the transform does not beautify its output, so its
         // blank-line residue is not behaviour. The Vue round-trip below guards the token sequence.
         const expected = stripWhitespace`
+            <script lang="ts">
+            Shopware.Component.registerNativeExtensionTargets?.({
+                component: 'sw-example',
+                blocks: [
+                    'sw_example_headline',
+                ],
+            });
+            </script>
             <template>
                 <sw-block extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: { suffix } }, headline }">
                     <h1>{{ headline }} - {{ suffix }}</h1>
@@ -104,6 +115,45 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result).toContain('const useSwContext = () => __swSetupContext;');
         expect(result).toContain('return {};');
         expectVueCompilerScriptToCompile(result, 'sw-my-component.override.vue');
+    });
+
+    it('appends the extension-targets registration to a codemod module prelude instead of emitting a second script', () => {
+        const source = stripIndent`
+            <script data-sfc-migration-module lang="ts">
+            export const moduleValue = 1;
+            </script>
+
+            <template>
+                <sw-block extends="sw_example_headline">
+                    <h1>overridden</h1>
+                </sw-block>
+            </template>
+
+            <script setup lang="ts">
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-example.override.vue').code;
+
+        // Vue allows exactly one plain <script> beside <script setup>, and the codemod already spends it.
+        // A second one would make every migrated override fail to compile, so the registration goes into
+        // the prelude that is already there - keeping its own lang attribute rather than a mirrored one.
+        expect(result.match(/<script(?![ ]setup)/g)).toHaveLength(1);
+        expect(result).toContain('<script data-sfc-migration-module lang="ts">');
+        expect(stripWhitespace(result)).toContain(
+            stripWhitespace`
+                export const moduleValue = 1;
+                Shopware.Component.registerNativeExtensionTargets?.({
+                    component: 'sw-example',
+                    blocks: [
+                        'sw_example_headline',
+                    ],
+                });
+                </script>
+            `,
+        );
+        expectVueCompilerScriptToCompile(result, 'sw-example.override.vue');
     });
 
     it('transforms sw-override blocks in .override.vue files', () => {

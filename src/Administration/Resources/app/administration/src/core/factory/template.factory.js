@@ -6,6 +6,7 @@
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import transformNativeLegacyBlockConditionals from './transform-legacy-block-conditionals';
+import { getNativeBlockExtensionTargets } from './native-extension-targets';
 
 /**
  * @module core/factory/async-template
@@ -254,13 +255,266 @@ function resolveTemplates() {
     return normalizedTemplateRegistry;
 }
 
+const SLOT_TEMPLATE_START = /^<template\s+(#|v-slot)/;
+
+/** Whitespace between tags carries no content and never decides where the wrapper goes. */
+function isContentToken(token) {
+    return token.type !== 'raw' || token.value.trim().length > 0;
+}
+
+/** The token's nested `{% block %}` output, or null when it is not a block token. */
+function nestedBlockOutput(token) {
+    return token.type === 'logic' && token.token && token.token.blockName && Array.isArray(token.token.output)
+        ? token.token.output
+        : null;
+}
+
+/**
+ * Text of the first content token, or an empty string when there is none.
+ *
+ * A block whose content is itself a block is transparent here: `{% block a %}{% block b %}<template #x>`
+ * puts the slot template a level down, and `a` still has to be recognised as hosting one.
+ */
+function firstRawText(output) {
+    const firstToken = Array.isArray(output) ? output.find(isContentToken) : undefined;
+
+    if (!firstToken) {
+        return '';
+    }
+
+    if (firstToken.type === 'raw') {
+        return firstToken.value.trim();
+    }
+
+    const nestedOutput = nestedBlockOutput(firstToken);
+
+    return nestedOutput ? firstRawText(nestedOutput) : '';
+}
+
+/** Index just past the `>` closing the tag that starts at `from`, ignoring quoted attribute values. */
+function findTagEnd(text, from) {
+    let quote = null;
+
+    for (let i = from; i < text.length; i += 1) {
+        const char = text[i];
+
+        if (quote) {
+            quote = char === quote ? null : quote;
+        } else if (char === '"' || char === "'") {
+            quote = char;
+        } else if (char === '>') {
+            return i + 1;
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * Checks that the first `<template>` closes only at the very end of the text.
+ *
+ * Two sibling slot templates would pass a naive start/end check, so the depth has to reach zero
+ * exactly once, at the end.
+ */
+function outerTemplateSpansText(text) {
+    let depth = 0;
+
+    for (const match of text.matchAll(/<template[\s>]|<\/template>/g)) {
+        depth += match[0].startsWith('</') ? -1 : 1;
+
+        if (depth === 0) {
+            return match.index + match[0].length === text.length;
+        }
+    }
+
+    return false;
+}
+
+/** Inserts `text` into `value` at `at`. */
+function insertAt(value, at, text) {
+    return value.slice(0, at) + text + value.slice(at);
+}
+
+/**
+ * Moves the extension point inside a block that consists of a single named slot template.
+ *
+ * Wrapping such a block from the outside would bind the slot to `sw-block` and the content would
+ * disappear. Placing the wrapper inside the template keeps the slot on the surrounding component and
+ * makes the override replace the slot's content, which is what an author expects.
+ *
+ * Only called for blocks that already start with a slot template. Returns null for any shape other
+ * than one slot template spanning the whole block.
+ */
+function wrapInsideSlotTemplate(output, openTag, closeTag) {
+    const firstIndex = output.findIndex(isContentToken);
+    const lastIndex = output.findLastIndex(isContentToken);
+
+    if (firstIndex === -1) {
+        return null;
+    }
+
+    const first = output[firstIndex];
+    const last = output[lastIndex];
+    const nestedOutput = firstIndex === lastIndex ? nestedBlockOutput(first) : null;
+
+    // The whole block is one nested block, so the slot template it wraps lives a level down and the
+    // wrapper has to go there. Rebuilding the token instead of mutating it keeps the shared tree intact.
+    if (nestedOutput) {
+        const wrappedNestedOutput = wrapInsideSlotTemplate(nestedOutput, openTag, closeTag);
+
+        if (!wrappedNestedOutput) {
+            return null;
+        }
+
+        const rebuiltOutput = [...output];
+        rebuiltOutput[firstIndex] = { ...first, token: { ...first.token, output: wrappedNestedOutput } };
+
+        return rebuiltOutput;
+    }
+
+    if (last.type !== 'raw' || !last.value.trimEnd().endsWith('</template>')) {
+        return null;
+    }
+
+    const rawText = output
+        .slice(firstIndex, lastIndex + 1)
+        .reduce((text, token) => (token.type === 'raw' ? text + token.value : text), '')
+        .trim();
+
+    if (!outerTemplateSpansText(rawText)) {
+        return null;
+    }
+
+    const openTagEnd = findTagEnd(first.value, first.value.indexOf('<'));
+    const closeIndex = last.value.lastIndexOf('</template>');
+
+    if (openTagEnd === -1) {
+        return null;
+    }
+
+    const result = [...output];
+
+    // Same token: insert the closing tag first, so the earlier index stays valid.
+    if (firstIndex === lastIndex) {
+        result[firstIndex] = {
+            type: 'raw',
+            value: insertAt(insertAt(first.value, closeIndex, closeTag), openTagEnd, openTag),
+        };
+
+        return result;
+    }
+
+    result[firstIndex] = { type: 'raw', value: insertAt(first.value, openTagEnd, openTag) };
+    result[lastIndex] = { type: 'raw', value: insertAt(last.value, closeIndex, closeTag) };
+
+    return result;
+}
+
+function wrapNativeBlockTargets(tokens) {
+    if (!Array.isArray(tokens)) {
+        return tokens;
+    }
+
+    const targets = getNativeBlockExtensionTargets();
+
+    // No native override registered anywhere - the common case in an installation without such an
+    // extension, and the whole token tree can be handed back untouched.
+    if (targets.size === 0) {
+        return tokens;
+    }
+
+    let changed = false;
+
+    const result = tokens.reduce((acc, token) => {
+        let current = token;
+
+        // Blocks can sit inside other logic tokens (if/for), so recurse first. A changed output means a
+        // shallow copy of the token, never a mutation of the shared tree.
+        if (token.type === 'logic' && token.token && Array.isArray(token.token.output)) {
+            const output = wrapNativeBlockTargets(token.token.output);
+
+            if (output !== token.token.output) {
+                current = {
+                    ...token,
+                    token: {
+                        ...token.token,
+                        output,
+                    },
+                };
+                changed = true;
+            }
+        }
+
+        const blockName = current.type === 'logic' && current.token ? current.token.blockName : null;
+
+        if (!blockName || !targets.has(blockName)) {
+            acc.push(current);
+
+            return acc;
+        }
+
+        const openTag = `<sw-block name="${blockName}" :data="$dataScope" :sw-internal-legacy-shim="false">`;
+        const closeTag = '</sw-block>';
+
+        if (SLOT_TEMPLATE_START.test(firstRawText(current.token.output))) {
+            const insideOutput = wrapInsideSlotTemplate(current.token.output, openTag, closeTag);
+
+            if (!insideOutput) {
+                Shopware.Utils.debug.warn(
+                    'TemplateFactory',
+                    `The block "${blockName}" cannot host a native extension point: its content mixes a named slot ` +
+                        'template with other content. The native override for this block is ignored.',
+                );
+                acc.push(current);
+
+                return acc;
+            }
+
+            changed = true;
+            acc.push({ ...current, token: { ...current.token, output: insideOutput } });
+
+            return acc;
+        }
+
+        changed = true;
+        acc.push({ type: 'raw', value: openTag }, current, { type: 'raw', value: closeTag });
+
+        return acc;
+    }, []);
+
+    return changed ? result : tokens;
+}
+
+/**
+ * Renders a template with `sw-block` extension points around every natively overridden block.
+ *
+ * The wrapped tokens are swapped in for the render only. Components that extend this one inherit its
+ * tokens, so a persisted wrapper would be inherited too and wrapped a second time.
+ */
+function renderWithNativeBlocks(template, templateVars) {
+    const originalTokens = template.tokens;
+    const wrappedTokens = wrapNativeBlockTargets(originalTokens);
+
+    if (wrappedTokens === originalTokens) {
+        return template.render(templateVars);
+    }
+
+    template.tokens = wrappedTokens;
+
+    try {
+        return template.render(templateVars);
+    } finally {
+        template.tokens = originalTokens;
+    }
+}
+
 function applyTemplateOverrides(name) {
     const item = normalizedTemplateRegistry.get(name);
     const templateVars = {};
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = item.template.render(templateVars);
+        const finalHtml = renderWithNativeBlocks(item.template, templateVars);
 
         // Update item which will be written to the registry
         const updatedTemplate = {
@@ -291,7 +545,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render(templateVars);
+    const finalHtml = renderWithNativeBlocks(updatedTemplate.template, templateVars);
 
     // Update item which will written to the registry
     updatedTemplate = {

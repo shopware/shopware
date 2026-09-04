@@ -642,7 +642,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.app_system.trusted_url_resolver'),
             param('shopware.app_system.allow_unencrypted_traffic'),
-        ]);
+        ])
+        ->arg('$enableUrlValidation', param('shopware.app_system.enable_url_validation'));
 
     $services->set('shopware.app_system.guzzle', Client::class)
         ->lazy()

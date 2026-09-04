@@ -258,12 +258,7 @@ describe('components/sw-entity-single-select', () => {
         });
         await flushPromises();
 
-        expect(repository.get).toHaveBeenCalledWith(
-            'unresolved-id',
-            expect.any(Object),
-            expect.any(Object),
-            undefined,
-        );
+        expect(repository.get).toHaveBeenCalledWith('unresolved-id', expect.any(Object), expect.any(Object), undefined);
         expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 

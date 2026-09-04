@@ -7,25 +7,19 @@
  * exact "green without proving anything" failure mode the CI rules exist to
  * prevent, so the skips are reconciled against an explicit list instead.
  *
- * `strategy: ${{ fromJson(...) }}` (a dynamic matrix) is valid GitHub Actions but
- * is not modelled by zizmor's schema, which is why the three entries below are
- * skipped. There is no upstream escape hatch and no open issue for the `strategy`
- * case; the closest precedent is zizmorcore/zizmor#1769, which fixed the same
- * problem for a dynamic `with:`.
+ * The list is empty, and the goal is to keep it that way. zizmor's schema does not
+ * model a whole `strategy:` block that is an expression, so the dynamic-matrix
+ * workflows put the expression on `strategy.matrix` instead — the shape zizmor does
+ * parse. Moving it back onto `strategy:` silently drops those files out of the audit.
  *
  * The check runs in both directions on purpose: a file that starts being skipped
  * is a new coverage hole, and a listed file that is no longer skipped means the
- * entry is stale and should be deleted — that is how this list retires itself
- * once zizmor learns the construct.
+ * entry is stale and should be deleted.
  */
 
 import { readFileSync } from 'node:fs';
 
-export const KNOWN_UNCOLLECTABLE = [
-    '.github/workflows/acceptance.yml',
-    '.github/workflows/integration-major.yml',
-    '.github/workflows/integration.yml',
-];
+export const KNOWN_UNCOLLECTABLE: string[] = [];
 
 const SCHEMA_FAILURE = /failed to validate file:\/\/(\S+?) as \w+: input does not match expected validation schema/g;
 

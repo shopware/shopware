@@ -72,6 +72,8 @@ rules:
     disable: true
   self-hosted-runner:
     disable: true
+  self-repository:
+    disable: true
   stale-action-refs:
     disable: true
   superfluous-actions:

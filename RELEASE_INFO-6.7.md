@@ -1,16 +1,44 @@
 # 6.7.15.0 (upcoming)
 
-## Core
+## Features
 
-### State machine transitions resolve deterministically
+### Document generation v2 (experimental)
 
-When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.
+Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.
 
-### `system:install` dispatches `SystemInstallCompletedEvent`
+The architecture and all extension points are documented in the [Document (v2) concept guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/). The coexistence and migration strategy is defined in the [migration ADR](adr/2026-08-05-document-generation-v1-to-v2-migration-strategy.md).
 
-`Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
+Classes intended to become public API are annotated `@experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK` and may change in any release. With Shopware 6.8, v2 becomes the default and the annotated surface becomes the stable public API.
 
-When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
+#### One document, multiple formats
+
+A document type (invoice, cancellation invoice, delivery note, credit note) can produce several formats in a single generation call: HTML, PDF, ZUGFeRD XML, and PDF with embedded ZUGFeRD XML. All formats of one document are rendered from the same data, share the same document number, and are persisted as separate files. Merchants configure per document type which formats are generated.
+
+ZUGFeRD is no longer a document type of its own. It is a file format of the invoice, cancellation invoice, and credit note types. Mail attachments and the archive download include all generated formats by default, Flow Builder mail actions can select specific formats.
+
+Each generation snapshots the order into a dedicated order version. A document always renders the order state at generation time. Generated files receive unique, readable filenames with configurable per-format infixes.
+
+#### Opting in
+
+The flag switches all Shopware-driven surfaces to v2: the order documents section in the Administration, Flow Builder document actions, mail attachments, bulk edit, and the customer-facing download routes. The legacy APIs stay functional in both flag states and remain a public contract until their removal in 6.9. Merchants can switch back at any time.
+
+#### Company information moves to basic information
+
+The company data printed on documents (name, address, tax and bank details, logo) moves to a new "Company information" card in Settings > Basic information. It is configured per sales channel, no longer per document type. Existing values are not migrated. When the card is empty for a sales channel, v2 reads the legacy document settings.
+
+Generation now fails with a clear error when name, street, zip code, city, or country is missing, instead of silently producing an incomplete document. This guarantees valid seller data on every document, including ZUGFeRD invoices.
+
+#### New Admin API routes
+
+The v2 routes are available regardless of the flag state:
+
+- `POST /api/_action/order/document-v2/create`
+- `POST /api/_action/order/document-v2/upload`
+- `POST /api/_action/order/document-v2/preview`
+- `GET /api/_action/order/document-v2/{documentId}/download/{format}`
+- `POST /api/_action/order/document-v2/download-archive`
+- `GET /api/_action/order/document-v2/available-types`
+
 ### New document lifecycle business events
 
 Two new events give extensions a hook into the document lifecycle without polling or fetching the document to discover its type, number, order and file:
@@ -19,6 +47,69 @@ Two new events give extensions a hook into the document lifecycle without pollin
 - `document.generation.deleted` (`Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent`) is dispatched when a document is deleted, for both legacy and Document V2 documents. It exposes `documentId`, `orderId`, `orderVersionId`, `documentNumber` and `deletedAt`.
 
 Both events are selectable as triggers in Flow Builder. `document.generation.completed` fires for both the legacy document pipeline (`Shopware\Core\Checkout\Document\Service\DocumentGenerator::generate()` and `::upload()`) and the Document V2 pipeline (`POST /_action/order/document-v2/create` and `POST /_action/order/document-v2/upload`); `document.generation.deleted` already covers both, since deletion goes through the shared `document` entity regardless of which pipeline created it.
+
+#### Extending document generation with a plugin
+
+Plugins register document types, data providers, and renderers as tagged services: `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer`. Twig template overrides keep working. v2 renders the same `@Framework/documents/*.html.twig` templates.
+
+The legacy extension points (the `document.renderer` and `document_type.renderer` tags, the legacy document events, decorators of the legacy `DocumentGenerator`) are never invoked by the v2 pipeline. Both variants can be registered side by side during the transition. See the [extension points guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/extension-points.html).
+
+#### Apps can register document types
+
+Apps register custom document types through the new `<documents>` manifest block:
+
+```xml
+<documents>
+    <document-type>
+        <identifier>swag_warranty</identifier>
+        <label>Warranty certificate</label>
+        <formats>
+            <format>html</format>
+            <format>pdf</format>
+        </formats>
+    </document-type>
+</documents>
+```
+
+Shopware seeds a number range per app document type and blocks install or update when the identifier collides with a core type or another app. The new `document-generation` app script hook runs after the order is loaded and the number is allocated. Apps can enrich the render data and override template blocks via `sw_extends`.
+
+#### Storefront and customer account
+
+Customers download v2 documents through the existing storefront and Store API routes. The URLs do not change. The document type's "display in customer account" setting applies to v2 documents as well. The file format is selected via the `Accept` header as before.
+
+#### Documents can be persisted without an order reference
+
+The `document.orderId` and `document.orderVersionId` fields are now optional. Extensions that read documents directly should not assume every document belongs to an order. Use the `order` association only when it is available.
+
+#### Deprecation of the legacy implementation
+
+Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legacy document domain in `Shopware\Core\Checkout\Document`, the legacy Administration services and modals, and the `document_type` and `document_type_translation` entities. Document types and formats become code-registered strings. Surviving shared classes move into the `DocumentV2` namespace with 6.9.
+
+Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
+
+## Core
+
+### State machine transitions resolve deterministically
+
+When a state machine contains multiple transitions with the same action name and source state but different destination states, firing that action now deterministically resolves to the oldest transition instead of an undefined one. Such conflicting transitions are deprecated: resolving or writing them triggers a deprecation notice, and with v6.8.0.0 existing duplicates are removed and new ones are prevented by a unique database constraint. If your extension needs its own destination state, register the transition under its own action name instead of reusing an existing one.
+
+### `translation:install --all` no longer installs pseudo-locales
+
+`--all` now covers every configured locale except the pseudo-locales. A pseudo-locale such as `ach-UG` exists for in-context proofreading and translatability audits, not as a language a shop offers, and installing it created an active "Acholi (Pseudo Language)" alongside the real ones.
+
+It stays installable by naming it explicitly, which is how the audits it exists for ask for it:
+
+```
+translation:install --locales=ach-UG
+```
+
+Installations that ran `--all` before this change and do not want the pseudo-language can remove it in the administration, or through `DELETE /api/_action/translation/{locale}` to drop its files as well.
+
+### `system:install` dispatches `SystemInstallCompletedEvent`
+
+`Shopware\Core\Framework\Event\SystemInstallCompletedEvent` is dispatched after a successful `bin/console system:install`. The event exposes the CLI `Context`. Extensions can subscribe to run post-install work.
+
+When Elasticsearch indexing is enabled and the cluster is reachable, the Elasticsearch bundle listens to this event and creates empty storefront indices and aliases. Storefront search after a fresh install no longer fails with `index_not_found_exception` because the alias is missing. Population stays a later `es:index` run.
 
 ### Sitemap generation for headless sales channels
 
@@ -32,9 +123,6 @@ Customer import records whose `customerNumber` does not match the configured cus
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
 
-### Documents can be persisted without an order reference
-
-The `document.orderId` and `document.orderVersionId` fields are now optional. Extensions that read documents directly should not assume every document belongs to an order; use the `order` association only when it is available.
 ### `JsonField::addPropertyMapping()` for entity extensions
 
 `Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField` now has `addPropertyMapping()`. Plugins can call it from `EntityExtension::modifyFields()` to extend an existing JSON schema, for example to add another entity key to a structured `hitCount` map. The field collection passed to `modifyFields()` is keyed by property name, so `$collection->get('hitCount')` returns the field.
@@ -73,6 +161,11 @@ public function addSorting(ProductListingCollectSortingEvent $event): void
     $event->getSortings()->add($mySorting);
 }
 ```
+### Adding a product to an existing order applies line item factory decorators
+
+`POST /api/_action/order/{orderId}/product/{productId}` now builds the line item through the `LineItemFactoryRegistry` instead of creating a plain `product` line item directly, so extensions that decorate a `LineItemFactoryInterface` are applied when a product is added to an existing order, the same way they already are in the cart. A decorator that returns a different line item type — or a cart collector that replaces the line item with several others — therefore takes effect in the administration order detail page as well.
+
+When the calculation replaces the added line item, or adds further line items next to it, those receive the delivery positions as well. Adding a product that stays a single product line item is unchanged, including its delivery position.
 
 ### `PromotionCartInformationTrait` helper methods deprecated
 
@@ -112,6 +205,16 @@ Two consequences for operators:
 - `translation:install` now exits with a non-zero code when none of the requested locales can be installed — that is, when neither the repository offers them nor the filesystem carries them. Previously it printed "All translations are already up to date." and exited `0`. Scripts that check the exit code are affected. The install route already answered such a request with an error.
 - A requested locale that the repository does not offer and that has no files on the filesystem is reported and left out rather than installed as a language without translations. `POST /api/_action/translation/install` keeps reporting those locales in its `unavailable` list, but a locale whose files were provisioned offline no longer appears there, because it can be installed. Its `skipped` list now names the requested locales that were installed without a download, instead of every locale in the local metadata that was not updated.
 
+### Product breadcrumbs work with categories hidden from navigation
+
+Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
+
+### An already ordered cart cannot be ordered a second time
+
+`POST /store-api/checkout/order` re-checks inside its cart lock whether the cart is still stored, and answers `404 CHECKOUT__CART_TOKEN_NOT_FOUND` when it is not. Two overlapping submits of the same cart — two browser tabs on the checkout confirm page, a retried request — previously produced two orders whenever the second request had loaded its cart before the first one deleted it, because that stale cart still passed the cart hash check.
+
+`Shopware\Core\Checkout\Cart\AbstractCartPersister` gained `exists()` for this. The abstract class carries a default implementation that delegates to the decorated persister, so existing implementations keep working, but the method becomes abstract with 6.8.0.0 — implement it in every cart persister of yours before upgrading.
+
 ## API
 
 ### Store API currency headers validate sales channel availability
@@ -122,18 +225,36 @@ Store API requests that supply `sw-currency-id` now reject currencies that are n
 
 Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.
 
+### The Store API cart route no longer loads the cart twice
+
+`GET|POST /store-api/checkout/cart` returns the cart that the sales channel context resolution already loaded and calculated for the context token, instead of reading and calculating it a second time. `CartLoadedEvent` is therefore dispatched once per request instead of twice, and the cart processors run once. The response itself is unchanged.
+
+`Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute::load()` takes the cart as an optional third argument for this, filled by the `CartValueResolver` like on the other cart routes. Calling the route without a cart, or with a `token` that differs from the passed cart, still reads from the cart storage.
+
+`AbstractCartLoadRoute::load()` is unchanged for now, so decorations keep working, but the parameter is added there in 6.8. Add it to your own `load()` declaration and forward it to the decorated route before you upgrade. Until you do, the route reads and calculates the cart again behind your decoration, because the resolver has no parameter to fill.
+
 ### Sales channel file routes require read access
 
 The list, detail and preview routes under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}` now require `sales_channel_file:read`. Clients with that privilege receive previews using the saved template overrides; supplying unsaved `templateOverrides` additionally requires `sales_channel_file:update`.
+Resolving the sales channel context now calculates the cart through `CartCalculator` rather than the `CartRuleLoader` underneath it. The cart that `CartService` holds for the current request, and with it every cart the `CartValueResolver` hands to a controller, therefore carries the context hash of its current state instead of the one stored at its last persist, and its line items are no longer flagged as modified. Read `Cart::getHash()` if you compare a cart against `/store-api/checkout/order`; a cart calculation is also measured once per request now, where the context resolution used to calculate without emitting `cart.calculation.duration`.
 
 ### Dedicated error code for invalid child line item quantity
 
 `CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
+
+### Headless sales channels return their SEO URLs via `sw-include-seo-urls`
+
+Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
+
 ## Administration
 
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.
+
+### Optional order confirmation mail for Administration-created orders
+
+When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.
 
 ### Shipping prices can be linked to the tax rate
 
@@ -349,6 +470,14 @@ lineItem.payload.features[].value = { id, type, content, display }
 The button is looked up with the plugin's existing `buyButtonSelector` option, which defaults to `button[type="submit"].btn-buy`. The new `loadingIndicatorPosition` option (`before`, `after` or `inner`, default `inner`) controls where the indicator is rendered. A buy button that does not match `buyButtonSelector` is left untouched.
 
 Dispatching a `removeLoader` event on the form removes the indicator and re-enables the button, the same as with `FormHandler` and `FormSubmitLoader`. Use it when your own code needs to release the button before the request is through; `removeLoadingIndicator()` on the plugin instance does the same.
+
+## App System
+
+### Target validation can be disabled for local development
+
+The new `shopware.app_system.enable_url_validation` option turns off app system and webhook target validation, including the HTTPS requirement, the private network checks and the DNS pinning. It defaults to `true` and is shipped as `false` for the `dev` environment, so local app and webhook endpoints work over HTTP and on private or unresolvable hosts without further configuration.
+
+While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
 
 # 6.7.14.0
 

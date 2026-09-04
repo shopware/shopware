@@ -161,6 +161,23 @@ class AppSystemHttpMiddlewareTest extends TestCase
         }
     }
 
+    public function testPassesRequestThroughUntouchedWhenUrlValidationIsDisabled(): void
+    {
+        $history = [];
+        $client = $this->createClient(
+            $history,
+            static fn (): array => ['127.0.0.1'],
+            webhookMode: true,
+            enableUrlValidation: false,
+        );
+
+        $client->post('http://localhost:8000/webhook', ['proxy' => 'http://proxy.example.com:8080']);
+
+        static::assertCount(1, $history);
+        static::assertArrayNotHasKey('curl', $history[0]['options']);
+        static::assertSame('http://proxy.example.com:8080', $history[0]['options']['proxy']);
+    }
+
     /**
      * @param array<string, mixed> $options
      */
@@ -212,6 +229,7 @@ class AppSystemHttpMiddlewareTest extends TestCase
         array $responses = [new Response(200)],
         bool $webhookMode = false,
         array $allowedPrivateIpAddresses = [],
+        bool $enableUrlValidation = true,
     ): Client {
         /** @var list<array{request: RequestInterface, options: array<string, mixed>}> $history */
         $history = [];
@@ -223,6 +241,7 @@ class AppSystemHttpMiddlewareTest extends TestCase
                 false,
                 $webhookMode,
                 $allowedPrivateIpAddresses,
+                $enableUrlValidation,
             ),
             'app_system_http_security',
         );

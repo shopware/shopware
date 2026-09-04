@@ -636,7 +636,13 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
 
         const headers = Object.fromEntries(
             Object.entries(this.buildHeaders(context)).map(
-                ([name, value]) => [name, String(value)],
+                ([
+                    name,
+                    value,
+                ]) => [
+                    name,
+                    String(value),
+                ],
             ),
         );
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;

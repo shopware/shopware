@@ -99,6 +99,33 @@ class WebhookTargetValidatorTest extends TestCase
         static::assertNull($validator->validate('https://example.com/webhook'));
     }
 
+    public function testAcceptsUnencryptedTargetWhenUrlValidationIsDisabled(): void
+    {
+        $validator = new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => []), enableUrlValidation: false);
+
+        $target = $validator->validate('http://localhost:8000/webhook');
+
+        static::assertNotNull($target);
+        static::assertSame('localhost', $target->host);
+        static::assertSame(8000, $target->port);
+        static::assertNull($target->ip);
+    }
+
+    public function testAcceptsPrivateIpLiteralWhenUrlValidationIsDisabled(): void
+    {
+        $validator = new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => ['127.0.0.1']), enableUrlValidation: false);
+
+        static::assertNotNull($validator->validate('http://127.0.0.1:8000/webhook'));
+    }
+
+    public function testRejectsMalformedUrlWhenUrlValidationIsDisabled(): void
+    {
+        $validator = new WebhookTargetValidator(false, [], new TrustedUrlResolver(static fn (string $host): array => []), enableUrlValidation: false);
+
+        static::assertNull($validator->validate('http://:8000/webhook'));
+        static::assertNull($validator->validate('ftp://localhost/webhook'));
+    }
+
     /**
      * @return \Generator<string, array{records: list<string>}>
      */

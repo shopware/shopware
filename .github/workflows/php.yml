@@ -17,6 +17,9 @@ on:
 env:
   COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
+permissions:
+  contents: read
+
 jobs:
   markdown-only-changes:
     permissions:

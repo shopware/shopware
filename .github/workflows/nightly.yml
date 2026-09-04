@@ -5,6 +5,9 @@ on:
     - cron: "0 1 * * *" # every day at 01:00
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   redis:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
@@ -49,16 +52,26 @@ jobs:
 
   admin:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    permissions:
+      contents: read
+      pull-requests: read
     uses: ./.github/workflows/admin.yml
     secrets: inherit
   integration:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    permissions:
+      contents: read
+      security-events: write
     uses: ./.github/workflows/integration.yml
     secrets: inherit
     with:
       profile: nightly
   acceptance:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     uses: ./.github/workflows/acceptance.yml
     secrets: inherit
     with:
@@ -69,12 +82,20 @@ jobs:
       major: exclude
   visual-tests:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
     uses: ./.github/workflows/visual-tests-docker.yml
     secrets: inherit
     with:
       currents: ${{ github.event_name == 'schedule' }}
   php:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: read
     uses: ./.github/workflows/php.yml
     secrets: inherit
   storefront:
@@ -87,12 +108,25 @@ jobs:
     secrets: inherit
   downstream:
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    permissions:
+      actions: write
+      checks: read
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
+      statuses: read
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
     with:
       nightly: "true"
   prepare-release: # This will only execute dry-runs and push current trunk to the many-repos
     if: (github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag'
+    permissions:
+      contents: write
+      id-token: write
+      issues: write
+      pull-requests: write
     uses: ./.github/workflows/05-prepare-release.yml
     secrets: inherit
 

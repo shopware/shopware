@@ -16,6 +16,7 @@ final class PlatformRequest
      * Context headers
      */
     public const HEADER_CONTEXT_TOKEN = 'sw-context-token';
+    public const HEADER_CONTEXT_SOURCE = 'sw-context-source';
     public const HEADER_ACCESS_KEY = 'sw-access-key';
     public const HEADER_LANGUAGE_ID = 'sw-language-id';
     public const HEADER_CURRENCY_ID = 'sw-currency-id';

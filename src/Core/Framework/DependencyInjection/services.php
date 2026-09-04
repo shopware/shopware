@@ -98,6 +98,7 @@ use Shopware\Core\Framework\Routing\RouteScope;
 use Shopware\Core\Framework\Routing\RouteScopeListener;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Routing\SymfonyRouteScopeWhitelist;
 use Shopware\Core\Framework\Routing\Telemetry\AreaResolver;
@@ -172,6 +173,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes
     $parameters->set('shopware.routing.registered_api_prefixes', []);
+
+    // Single kill switch for the Store API storefront-session context token fallback.
+    // Set to false and the Store API never looks at the storefront session again.
+    $parameters->set('shopware.routing.session_context_token.enabled', true);
 
     // Migration config
     $parameters->set('core.migration.directories', []);
@@ -711,6 +716,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RouteScopeRegistry::class),
         ]);
 
+    $services->set(SessionContextTokenAccessor::class)
+        ->args([
+            param('session.storage.options'),
+            param('shopware.routing.session_context_token.enabled'),
+        ]);
+
     $services->set(SalesChannelRequestContextResolver::class)
         ->decorate(ApiRequestContextResolver::class)
         ->args([
@@ -718,6 +729,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextService::class),
             service('event_dispatcher'),
             service(RouteScopeRegistry::class),
+            service(SessionContextTokenAccessor::class),
         ]);
 
     $services->set(ApiOrderCartService::class)

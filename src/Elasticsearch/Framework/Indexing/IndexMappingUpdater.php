@@ -22,7 +22,7 @@ class IndexMappingUpdater
      * mismatches ("has not been configured in mappings"), because analyzers/normalizers are
      * fixed at index creation and cannot be added to a live index.
      */
-    private const REINDEXABLE_MAPPING_ERRORS = [
+    public const REINDEXABLE_MAPPING_ERRORS = [
         'conflicts with existing mapper:\n\tCannot update parameter',
         'cannot be changed from type',
         'can\'t merge a non object mapping',

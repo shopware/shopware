@@ -94,8 +94,6 @@ class CustomerDefinitionTest extends TestCase
 
     public function testTheVatIdCountryIsReadableThroughTheAdminApiOnly(): void
     {
-        // The value is derived from the VAT IDs, so it is readable for reporting and documents but is
-        // never part of a storefront payload
         foreach (['vatIdCountryId', 'vatIdCountry'] as $fieldName) {
             $field = $this->definition->getFields()->get($fieldName);
             static::assertNotNull($field, $fieldName);

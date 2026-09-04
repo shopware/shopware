@@ -386,7 +386,7 @@ class CartTaxTest extends TestCase
     {
         $this->prepareIntraEuDelivery();
 
-        // Same company and VAT ID; only the account type differs, which is what decides the B2B exemption.
+        // Same company and VAT ID as the B2B case; only the account type differs
         $this->createCrossBorderCustomerAndLogin(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
 
         // 550 gross for the product + 11 gross for the shipping
@@ -606,7 +606,6 @@ class CartTaxTest extends TestCase
             Uuid::fromBytesToHex($this->getCountryIdByIso('DE'))
         );
 
-        // The provider is a container singleton, so it outlives the transaction the test runs in
         static::getContainer()->get(VatIdPatternProvider::class)->reset();
     }
 

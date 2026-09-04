@@ -38,9 +38,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * Regression coverage for the reported cross-border B2B scenario: a commercial customer established in
- * the Netherlands, holding a Dutch VAT ID and taking delivery in Belgium, keeps the intra-community
- * exemption — and the invoice, the cancellation invoice and the credit note all agree with the cart.
+ * Regression coverage for a commercial customer established in the Netherlands, holding a Dutch VAT ID
+ * and taking delivery in Belgium: the intra-community exemption holds and the invoice, the cancellation
+ * invoice and the credit note all agree with the cart.
  *
  * @internal
  */
@@ -95,8 +95,8 @@ class IntraCommunityVatExemptionTest extends TestCase
 
         $this->setVatIds([self::DUTCH_VAT_ID]);
 
-        // The trait points the billing address at the default country; the reported scenario has the
-        // buyer established in the Netherlands and taking delivery in Belgium
+        // The trait points the billing address at the default country, but the buyer is established
+        // in the Netherlands
         $this->moveBillingAddressTo($this->customerId, $netherlands);
 
         $this->salesChannelContext = $this->createSalesChannelContext();
@@ -152,8 +152,8 @@ class IntraCommunityVatExemptionTest extends TestCase
 
     public function testAShopWithoutASellerCountryKeepsTheOrderTaxedAndTheNoteOff(): void
     {
-        // Without the setting the shop cannot tell a domestic supply from an intra-community one, so
-        // the exemption is withheld instead of being granted to every member state including its own
+        // Without the setting a domestic supply is indistinguishable from an intra-community one, so
+        // the exemption is withheld
         $this->sellFrom(null);
 
         $this->salesChannelContext = $this->createSalesChannelContext();
@@ -211,9 +211,6 @@ class IntraCommunityVatExemptionTest extends TestCase
         static::assertStringNotContainsString('NL987654321B02', $invoice);
     }
 
-    /**
-     * Points `core.basicInformation.sellerCountryId` at a country, or clears it with null.
-     */
     private function sellFrom(?string $iso): void
     {
         $countryId = null;
@@ -341,7 +338,7 @@ class IntraCommunityVatExemptionTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $config additional document configuration for the scenario at hand
+     * @param array<string, mixed> $config
      */
     private function render(
         AbstractDocumentRenderer $renderer,

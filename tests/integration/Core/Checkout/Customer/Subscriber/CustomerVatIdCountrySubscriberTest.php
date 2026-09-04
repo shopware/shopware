@@ -15,9 +15,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * The store-api register and change-profile routes are not the only writers of `customer.vatIds`:
- * the Administration, the Admin API, the Sync API, imports and plugins write them through the DAL
- * directly, and all of them have to end up with the same `vatIdCountryId`.
+ * Every writer of `customer.vatIds` - not just the store-api routes - has to end up with the same
+ * `vatIdCountryId`.
  *
  * @internal
  */

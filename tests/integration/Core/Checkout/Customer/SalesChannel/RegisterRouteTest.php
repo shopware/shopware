@@ -1113,7 +1113,7 @@ class RegisterRouteTest extends TestCase
             static::assertArrayHasKey('errors', $response);
         } else {
             static::assertSame('customer', $response['apiAlias']);
-            static::assertCount(0, $response['vatIds']);
+            static::assertNull($response['vatIds']);
             static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
             static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
@@ -1941,7 +1941,7 @@ class RegisterRouteTest extends TestCase
 
     /**
      * Pins the billing address to a member state that checks the VAT ID format, so the VAT ID under
-     * test belongs to a different member state than the billing address does.
+     * test belongs to another member state.
      */
     private function configureBillingCountry(string $iso): string
     {

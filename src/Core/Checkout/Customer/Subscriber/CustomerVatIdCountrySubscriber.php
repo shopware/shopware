@@ -10,9 +10,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Derives the read-only `vatIdCountryId` from the customer's `vatIds` on write, so every write path -
- * Store API, Admin API, Sync API, imports and plugins - stores the same member state instead of only
- * the two store-api routes that used to resolve it themselves.
+ * Derives the read-only `vatIdCountryId` from the customer's `vatIds` on write, so every write path
+ * (Store API, Admin API, Sync API, imports, plugins) stores the same member state.
  *
  * @internal
  */

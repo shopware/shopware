@@ -21,6 +21,7 @@ export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
 export const COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY = 'companySettingsMovedBannerHidden';
 
 const INVALID_PAYMENT_DUE_DATE = 'DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE';
+const DUPLICATE_FILENAME_INFIX = 'DOCUMENT_BASE_CONFIG_DUPLICATE_FILENAME_INFIX';
 
 /**
  * @private
@@ -745,11 +746,13 @@ export default {
                     this.paymentDueDateIsValid = true;
                 })
                 .catch((error) => {
+                    this.documentConfig.filenameInfixes ??= {};
+
                     if (error.response?.data?.errors?.length) {
                         error.response.data.errors.forEach((errorEntry) => {
                             if (errorEntry.code === INVALID_PAYMENT_DUE_DATE) {
                                 this.paymentDueDateIsValid = false;
-                            } else {
+                            } else if (errorEntry.code !== DUPLICATE_FILENAME_INFIX) {
                                 this.createNotificationError({
                                     message: this.$t(
                                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
@@ -766,6 +769,51 @@ export default {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        filenameInfixError(format) {
+            if (!this.documentConfig?.id) {
+                return null;
+            }
+
+            const error = Shopware.Store.get('error').getApiErrorFromPath('document_base_config', this.documentConfig.id, [
+                'filenameInfixes',
+                format,
+            ]);
+
+            if (!error) {
+                return null;
+            }
+
+            const formats = (error.parameters?.['{{ formats }}'] ?? '')
+                .split(',')
+                .map((otherFormat) => otherFormat.trim())
+                .filter((otherFormat) => otherFormat !== '')
+                .map((otherFormat) => this.formatLabels[otherFormat] ?? otherFormat)
+                .join(', ');
+            const configs = error.parameters?.['{{ configs }}'];
+
+            if (configs) {
+                return {
+                    detail: this.$t('sw-settings-document.errors.duplicateFilenameInfixInSalesChannelConfig', {
+                        formats,
+                        configs,
+                    }),
+                };
+            }
+
+            const infix = error.parameters?.['{{ infix }}'];
+            const isInherited = infix && !this.documentConfig.filenameInfixes?.[format];
+
+            if (isInherited) {
+                return {
+                    detail: this.$t('sw-settings-document.errors.duplicateFilenameInfixInherited', { formats, infix }),
+                };
+            }
+
+            return {
+                detail: this.$t('sw-settings-document.errors.duplicateFilenameInfix', { formats }),
+            };
         },
 
         async onCancel() {

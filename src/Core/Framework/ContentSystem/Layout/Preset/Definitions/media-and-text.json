@@ -1,0 +1,29 @@
+{
+    "id": "core.media-and-text",
+    "name": "Media & text",
+    "description": "An image next to a rich-text block inside a grid container.",
+    "icon": "regular-image",
+    "payload": [
+        {
+            "id": "b7c8d9e0f1a24233b4c5d6e7f8091a2b",
+            "component": "Sw:Grid:Container",
+            "properties": {},
+            "slots": {
+                "content": [
+                    {
+                        "id": "c3d4e5f6a7b84899c0d1e2f3a4b5c6d7",
+                        "component": "Sw:Media:Image",
+                        "properties": {}
+                    },
+                    {
+                        "id": "d9e0f1a2b3c44855d6e7f8091a2b3c4d",
+                        "component": "Sw:Content:Text",
+                        "properties": {
+                            "text": "<h3>Describe your product</h3><p>Add a short, benefit-led description next to the image.</p>"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

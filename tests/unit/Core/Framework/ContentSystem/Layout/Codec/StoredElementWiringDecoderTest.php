@@ -6,13 +6,22 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * The element-local wiring tier of decode. Every test here reaches the rules through
- * `StoredElementCodec::decode()`, which is the only entry point the composing codec exposes.
+ * The element-local wiring tier of decode, and the routing of a decoded provider to its declared distribution
+ * strategy's config. Every test here reaches the rules through `StoredElementCodec::decode()`, which is the
+ * only entry point the composing codec exposes.
  *
  * @internal
  */
@@ -20,6 +29,23 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(StoredElementWiringDecoder::class)]
 class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
 {
+    /**
+     * @param array<string, mixed> $provider
+     * @param class-string<DistributionConfig> $expected
+     * @param array<string, mixed> $expectedConfig
+     */
+    #[DataProvider('distributionStrategyProvider')]
+    #[TestDox('builds the config of $_dataName')]
+    public function testDecodeDispatchesEveryDistributionStrategy(array $provider, string $expected, array $expectedConfig): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['providesContext' => ['product' => $provider]]));
+
+        $config = $element->contextDefinitions->getAllProviders()['product']->distributionConfig;
+
+        static::assertInstanceOf($expected, $config);
+        static::assertSame($expectedConfig, $config->toArray());
+    }
+
     /**
      * The two fields the element-local rules read are asserted alongside the key list: `rejectInvalidElementWiring`
      * opens its redistribute loop with a `!$consumer->redistribute` early exit, so a row whose consumer decoded
@@ -85,6 +111,23 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
             static::assertSame($expected->getErrorCode(), $exception->getErrorCode());
             static::assertSame($expected->getMessage(), $exception->getMessage());
         }
+    }
+
+    /**
+     * The structural strictness tier this class owns independently of the composing codec: a malformed wiring
+     * container, key or field fails decode outright. {@see StoredElementCodecStructuralDecodeTest} exercises
+     * the same rules through `decode()`'s public surface for the composing class's own coverage; the rows here
+     * pin them directly against this class.
+     *
+     * @param array<array-key, mixed> $wire
+     */
+    #[DataProvider('rejectsStructurallyMalformedWiringProvider')]
+    #[TestDox('rejects $_dataName')]
+    public function testDecodeRejectsAStructurallyMalformedWiringEntry(array $wire, ContentSystemException $expected): void
+    {
+        $this->expectExceptionObject($expected);
+
+        $this->codec()->decode($wire);
     }
 
     /**
@@ -241,6 +284,146 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
                 ],
             ]),
             ContentSystemException::propertyAliasWithDotNotation('late', 'nested.key'),
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, class-string<DistributionConfig>, array<string, mixed>}>
+     */
+    public static function distributionStrategyProvider(): iterable
+    {
+        yield 'a broadcast provider' => [
+            ['type' => 'collection', 'distribution' => 'broadcast'],
+            BroadcastDistributionConfig::class,
+            ['distribution' => 'broadcast', 'consumerAlias' => null],
+        ];
+
+        yield 'an indexed provider' => [
+            ['type' => 'collection', 'distribution' => 'indexed'],
+            IndexedDistributionConfig::class,
+            ['distribution' => 'indexed', 'consumerAlias' => null],
+        ];
+
+        yield 'an iterator provider' => [
+            ['type' => 'collection', 'distribution' => 'iterator'],
+            IteratorDistributionConfig::class,
+            ['distribution' => 'iterator', 'consumerAlias' => null],
+        ];
+
+        yield 'a keyed provider' => [
+            ['type' => 'single', 'distribution' => 'keyed', 'keyProperty' => 'sku'],
+            KeyedDistributionConfig::class,
+            ['distribution' => 'keyed', 'keyProperty' => 'sku', 'consumerAlias' => null],
+        ];
+
+        yield 'a sliced provider' => [
+            ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 4],
+            SlicedDistributionConfig::class,
+            ['distribution' => 'sliced', 'sliceSize' => 4, 'consumerAlias' => null],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, ContentSystemException}>
+     */
+    public static function rejectsStructurallyMalformedWiringProvider(): iterable
+    {
+        yield 'a non-array providesContext' => [
+            self::baseWire(['providesContext' => 'not-an-array']),
+            ContentSystemException::invalidFieldValueType('providesContext', 'array', 'string'),
+        ];
+
+        yield 'a non-array acceptsContext' => [
+            self::baseWire(['acceptsContext' => 'not-an-array']),
+            ContentSystemException::invalidFieldValueType('acceptsContext', 'array', 'string'),
+        ];
+
+        yield 'a non-string key inside providesContext' => [
+            self::baseWire([
+                'providesContext' => [0 => ['type' => 'single', 'distribution' => 'keyed', 'keyProperty' => 'sku']],
+            ]),
+            ContentSystemException::invalidMapKey('Element context provider map', 'int'),
+        ];
+
+        yield 'a non-string key inside acceptsContext' => [
+            self::baseWire([
+                'acceptsContext' => [0 => ['type' => 'single', 'required' => true]],
+            ]),
+            ContentSystemException::invalidMapKey('Element context consumer map', 'int'),
+        ];
+
+        yield 'a non-array provider config' => [
+            self::baseWire(['providesContext' => ['product' => 'not-an-array']]),
+            ContentSystemException::invalidFieldValueType('providesContext[product]', 'array', 'string'),
+        ];
+
+        yield 'a non-array consumer config' => [
+            self::baseWire(['acceptsContext' => ['items' => 'not-an-array']]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items]', 'array', 'string'),
+        ];
+
+        yield 'an unparseable provider context-type' => [
+            self::baseWire([
+                'providesContext' => ['product' => ['type' => 'bogus-type', 'distribution' => 'keyed', 'keyProperty' => 'sku']],
+            ]),
+            ContentSystemException::invalidFieldValueType('providesContext[product].type', implode('|', ContextType::values()), 'string'),
+        ];
+
+        yield 'an unparseable provider distribution strategy' => [
+            self::baseWire([
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'bogus-strategy']],
+            ]),
+            ContentSystemException::invalidFieldValueType('providesContext[product].distribution', implode('|', DistributionStrategy::values()), 'string'),
+        ];
+
+        yield 'a consumer entry missing type' => [
+            self::baseWire(['acceptsContext' => ['items' => ['required' => true]]]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items].type', implode('|', ContextType::values()), 'null'),
+        ];
+
+        yield 'a consumer entry missing required' => [
+            self::baseWire(['acceptsContext' => ['items' => ['type' => 'single']]]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items].required', 'bool', 'null'),
+        ];
+
+        yield 'a consumer entry with a non-bool redistribute' => [
+            self::baseWire(['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'redistribute' => 'yes']]]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items].redistribute', 'bool', 'string'),
+        ];
+
+        yield 'a consumer entry with a non-string consumerAlias' => [
+            self::baseWire(['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'consumerAlias' => 42]]]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items].consumerAlias', 'string', 'int'),
+        ];
+
+        yield 'a consumer entry with a non-string propertyAlias' => [
+            self::baseWire(['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'propertyAlias' => 42]]]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items].propertyAlias', 'string', 'int'),
+        ];
+
+        yield 'an unknown key inside a consumer entry' => [
+            self::baseWire(['acceptsContext' => [
+                'items' => ['type' => 'single', 'required' => true, 'fallback' => 'none'],
+            ]]),
+            ContentSystemException::invalidFieldValueType(
+                'acceptsContext[items]',
+                'only known consumer keys',
+                'unknown key "fallback"'
+            ),
+        ];
+
+        yield 'a non-string key inside a provider config' => [
+            self::baseWire([
+                'providesContext' => [
+                    'product' => (array) json_decode(
+                        '{"type":"single","distribution":"broadcast","12":"x"}',
+                        true,
+                        512,
+                        \JSON_THROW_ON_ERROR
+                    ),
+                ],
+            ]),
+            ContentSystemException::invalidMapKey('providesContext[product]', 'int'),
         ];
     }
 }

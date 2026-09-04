@@ -10,26 +10,16 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfigSerializer;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
- * Routing of a decoded entry to the object that owns its config: a data requirement to its source's config
- * serializer, and a provider to its declared distribution strategy's config. The distribution rows reach
- * {@see StoredElementWiringDecoder}, which the codec composes, which is why it is covered here too.
+ * Routing of a decoded data requirement entry to its source's config serializer.
  *
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(StoredElementCodec::class)]
-#[CoversClass(StoredElementWiringDecoder::class)]
 class StoredElementCodecDataRequirementTest extends StoredElementCodecTestCase
 {
     /**
@@ -44,23 +34,6 @@ class StoredElementCodecDataRequirementTest extends StoredElementCodecTestCase
         // The map key always stays the outer one; only the requirement's own key falls back to it.
         static::assertSame(['products'], array_keys($element->dataRequirements));
         static::assertSame($expected, $element->dataRequirements['products']->key);
-    }
-
-    /**
-     * @param array<string, mixed> $provider
-     * @param class-string<DistributionConfig> $expected
-     * @param array<string, mixed> $expectedConfig
-     */
-    #[DataProvider('distributionStrategyProvider')]
-    #[TestDox('builds the config of $_dataName')]
-    public function testDecodeDispatchesEveryDistributionStrategy(array $provider, string $expected, array $expectedConfig): void
-    {
-        $element = $this->codec()->decode(self::baseWire(['providesContext' => ['product' => $provider]]));
-
-        $config = $element->contextDefinitions->getAllProviders()['product']->distributionConfig;
-
-        static::assertInstanceOf($expected, $config);
-        static::assertSame($expectedConfig, $config->toArray());
     }
 
     #[TestDox('names the element whose data requirement points at an unregistered config serializer source')]
@@ -125,42 +98,6 @@ class StoredElementCodecDataRequirementTest extends StoredElementCodecTestCase
         yield 'the inner key when the entry carries both' => [
             ['key' => 'featured', 'source' => 'entity', 'config' => $config],
             'featured',
-        ];
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>, class-string<DistributionConfig>, array<string, mixed>}>
-     */
-    public static function distributionStrategyProvider(): iterable
-    {
-        yield 'a broadcast provider' => [
-            ['type' => 'collection', 'distribution' => 'broadcast'],
-            BroadcastDistributionConfig::class,
-            ['distribution' => 'broadcast', 'consumerAlias' => null],
-        ];
-
-        yield 'an indexed provider' => [
-            ['type' => 'collection', 'distribution' => 'indexed'],
-            IndexedDistributionConfig::class,
-            ['distribution' => 'indexed', 'consumerAlias' => null],
-        ];
-
-        yield 'an iterator provider' => [
-            ['type' => 'collection', 'distribution' => 'iterator'],
-            IteratorDistributionConfig::class,
-            ['distribution' => 'iterator', 'consumerAlias' => null],
-        ];
-
-        yield 'a keyed provider' => [
-            ['type' => 'single', 'distribution' => 'keyed', 'keyProperty' => 'sku'],
-            KeyedDistributionConfig::class,
-            ['distribution' => 'keyed', 'keyProperty' => 'sku', 'consumerAlias' => null],
-        ];
-
-        yield 'a sliced provider' => [
-            ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 4],
-            SlicedDistributionConfig::class,
-            ['distribution' => 'sliced', 'sliceSize' => 4, 'consumerAlias' => null],
         ];
     }
 }

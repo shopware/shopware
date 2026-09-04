@@ -16,14 +16,13 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The structural strictness tier of decode: a container, key, id or value whose shape the stored model cannot
- * represent fails decode outright rather than being repaired or dropped. The wiring-map rows reach
- * {@see StoredElementWiringDecoder}, which the codec composes, which is why it is covered here too.
+ * represent fails decode outright rather than being repaired or dropped. Some rows reach {@see StoredElementWiringDecoder}
+ * through the codec's own delegation; that class's own coverage lives in its dedicated test file.
  *
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(StoredElementCodec::class)]
-#[CoversClass(StoredElementWiringDecoder::class)]
 class StoredElementCodecStructuralDecodeTest extends StoredElementCodecTestCase
 {
     #[TestDox('rejects a top-level key the element wire shape does not carry')]

@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeWiringConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
@@ -15,17 +14,13 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
- * The element, slot, style and provider-field tiers of the write descriptor. The element-local wiring tier
- * sits in {@see StoredTreeWiringConstraintsTest}; both files share {@see StoredTreeConstraintsTestCase}.
- *
- * The provider tests below reach {@see StoredTreeWiringConstraints}, which the descriptor composes, which is
- * why it is covered here too.
+ * The element, slot and style tiers of the write descriptor. The element-local and provider-field wiring
+ * tiers sit in {@see StoredTreeWiringConstraintsTest}; both files share {@see StoredTreeConstraintsTestCase}.
  *
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(StoredTreeConstraints::class)]
-#[CoversClass(StoredTreeWiringConstraints::class)]
 class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
 {
     #[TestDox('reports no violation for a well-formed forest carrying every element field')]
@@ -103,16 +98,6 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
         static::assertCount(0, $this->validate([$this->element(['style' => $style])]));
     }
 
-    /**
-     * @param array<string, mixed> $provider
-     */
-    #[DataProvider('acceptsDistributionProvider')]
-    #[TestDox('reports no violation for $_dataName')]
-    public function testAcceptsAWellFormedDistribution(array $provider): void
-    {
-        static::assertCount(0, $this->validate([$this->element(['providesContext' => ['product' => $provider]])]));
-    }
-
     #[TestDox('derives the style constraints fresh on each call so a changed registry reaches the next write')]
     public function testDerivesStyleConstraintsFreshPerCall(): void
     {
@@ -135,26 +120,6 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
 
         static::assertGreaterThanOrEqual(1, $beforeChange->count());
         static::assertCount(0, $afterChange);
-    }
-
-    #[TestDox('reports only the missing-field violation for a provider that declares no distribution')]
-    public function testSkipsTheDistributionFieldsWhenNoDistributionIsDeclared(): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => ['type' => 'single']]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
-    }
-
-    #[TestDox('reports only the invalid-choice violation for a provider declaring an unknown distribution')]
-    public function testSkipsTheDistributionFieldsForAnUnknownDistribution(): void
-    {
-        $provider = ['type' => 'single', 'distribution' => 'unknown'];
-
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame('[0][providesContext][product][distribution]', $violations->get(0)->getPropertyPath());
     }
 
     #[TestDox('reaches a nested slot child and reports its violation at a path identifying that child')]
@@ -268,19 +233,6 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
     }
 
     /**
-     * @param array<string, mixed> $provider
-     */
-    #[DataProvider('rejectsDistributionProvider')]
-    #[TestDox('reports a violation at $expectedPath for $_dataName')]
-    public function testRejectsAMalformedDistribution(array $provider, string $expectedPath): void
-    {
-        $violations = $this->validate([$this->element(['providesContext' => ['product' => $provider]])]);
-
-        static::assertCount(1, $violations);
-        static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
-    }
-
-    /**
      * @return iterable<string, array{array<string, mixed>}>
      */
     public static function acceptsStyleProvider(): iterable
@@ -309,55 +261,5 @@ class StoredTreeConstraintsTest extends StoredTreeConstraintsTestCase
         yield 'a flat integer option sent as a breakpoint map' => [['z-index' => ['md' => 10]], '[0][style][z-index]'];
         yield 'a breakpoint-aware option sent as a bare scalar' => [['col-span' => 6], '[0][style][col-span]'];
         yield 'a flat string option exceeding its maxLength' => [['flat-label' => '123456789'], '[0][style][flat-label]'];
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>}>
-     */
-    public static function acceptsDistributionProvider(): iterable
-    {
-        yield 'a broadcast provider carrying nothing beyond its two declared fields' => [
-            ['type' => 'single', 'distribution' => 'broadcast'],
-        ];
-
-        yield 'an indexed provider carrying nothing beyond its two declared fields' => [
-            ['type' => 'single', 'distribution' => 'indexed'],
-        ];
-
-        yield 'an iterator provider carrying nothing beyond its two declared fields' => [
-            ['type' => 'collection', 'distribution' => 'iterator'],
-        ];
-
-        yield 'a keyed provider carrying its key property' => [
-            ['type' => 'collection', 'distribution' => 'keyed', 'keyProperty' => 'sku'],
-        ];
-
-        yield 'a sliced provider carrying its slice size' => [
-            ['type' => 'collection', 'distribution' => 'sliced', 'sliceSize' => 5],
-        ];
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>, string}>
-     */
-    public static function rejectsDistributionProvider(): iterable
-    {
-        // One row covers the shared `consumerAlias` rule: broadcast, indexed and iterator each declare the
-        // byte-identical constraint set, so a second and third strategy assert nothing the first does not.
-        // The keyed and sliced rows below stay, because their configs declare an additional field each.
-        yield 'a broadcast provider whose consumer alias is not a string' => [
-            ['type' => 'single', 'distribution' => 'broadcast', 'consumerAlias' => 42],
-            '[0][providesContext][product][consumerAlias]',
-        ];
-
-        yield 'a keyed provider with no key property' => [
-            ['type' => 'collection', 'distribution' => 'keyed'],
-            '[0][providesContext][product][keyProperty]',
-        ];
-
-        yield 'a sliced provider with no slice size' => [
-            ['type' => 'collection', 'distribution' => 'sliced'],
-            '[0][providesContext][product][sliceSize]',
-        ];
     }
 }

@@ -36,6 +36,7 @@ class DownloadTranslationCommand extends Command
         TranslationCommandHelper::executeLoadWithProgressBar(
             $this->config->locales,
             $output,
+            'Downloading translations',
             fn (string $locale) => $this->translationLoader->download($locale),
         );
 

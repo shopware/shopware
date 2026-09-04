@@ -247,7 +247,7 @@ class DocumentAppFeatureDefinitionTest extends TestCase
      */
     private function buildDefinition(array $claimedBy, StaticEntityRepository $typeRepository, StaticEntityRepository $rangeRepository): DocumentAppFeatureDefinition
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllKeyValue')->willReturn($claimedBy);
 
         return new DocumentAppFeatureDefinition($connection, $typeRepository, $rangeRepository);

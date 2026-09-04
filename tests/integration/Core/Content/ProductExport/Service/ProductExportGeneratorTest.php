@@ -285,8 +285,16 @@ class ProductExportGeneratorTest extends TestCase
     #[DataProvider('isoCodeProvider')]
     public function testExportRendersGivenCurrencies(string $code): void
     {
+        $currencyId = $this->getCurrencyIdByIso($code);
+        static::getContainer()->get('sales_channel_currency.repository')->create([
+            [
+                'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+                'currencyId' => $currencyId,
+            ],
+        ], $this->context);
+
         $productExportId = $this->createTestEntity([
-            'currencyId' => $this->getCurrencyIdByIso($code),
+            'currencyId' => $currencyId,
             'bodyTemplate' => '{{ context.currency.isoCode }}',
         ]);
 

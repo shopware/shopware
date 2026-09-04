@@ -143,13 +143,13 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     describe('module icon colors', () => {
         const moduleItem = {
             entityIconName: 'regular-shopping-basket',
-            entityIconColor: '#46954B',
+            entityIconColor: 'var(--color-module-green-default)',
             column: 1,
             index: 1,
             type: 'module',
             item: {
                 name: 'sw-order',
-                color: '#8258FF',
+                color: 'var(--color-module-purple-default)',
                 icon: 'regular-shopping-bag',
                 route: 'sw.order.index',
             },
@@ -169,7 +169,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             useModuleIconColors().enabled.value = true;
             wrapper = await createWrapper(moduleItem);
 
-            expect(wrapper.vm.iconColor).toBe('#8258FF');
+            expect(wrapper.vm.iconColor).toBe('var(--color-module-purple-default)');
         });
 
         it('should fall back to the entity icon color for entity results', async () => {
@@ -180,7 +180,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
                 item: { id: 'productId', name: 'Awesome Product' },
             });
 
-            expect(wrapper.vm.iconColor).toBe('#46954B');
+            expect(wrapper.vm.iconColor).toBe('var(--color-module-green-default)');
         });
     });
 

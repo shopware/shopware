@@ -13,7 +13,7 @@ Module.register('sw-settings-media', {
     name: 'settings-media',
     title: 'sw-settings-media.general.title',
     description: 'sw-settings-media.general.description',
-    color: '#848A96',
+    color: 'var(--color-module-neutral-default)',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
 

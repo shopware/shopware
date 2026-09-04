@@ -21,7 +21,7 @@ Module.register('sw-settings-currency', {
     name: 'settings-currency',
     title: 'sw-settings-currency.general.mainMenuItemGeneral',
     description: 'Currency section in the settings module',
-    color: '#848A96',
+    color: 'var(--color-module-neutral-default)',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'currency',

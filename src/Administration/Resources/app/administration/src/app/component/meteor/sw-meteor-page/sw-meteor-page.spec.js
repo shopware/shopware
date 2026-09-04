@@ -79,7 +79,7 @@ async function createWrapper(slotsData = {}, { routeName = undefined } = {}) {
                         $module: {
                             icon: 'regular-plug',
                             title: 'sw.example.title',
-                            color: '#0870FF',
+                            color: 'var(--color-module-brand-default)',
                         },
                     },
                 },

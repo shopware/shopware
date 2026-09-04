@@ -154,6 +154,10 @@
       "placeholderEan": "Gib die GTIN/EAN ein ...",
       "placeholderManufacturerNumber": "Produktnummer eingeben ...",
       "placeholderGuaranteeMonths": "z. B. 30, 36 oder 42 Monate ...",
+      "noticeGuaranteeRequirements": "Das Label wird erst in der Storefront angezeigt, wenn folgende Angaben hinterlegt sind:",
+      "noticeGuaranteeRequirementMonths": "{label}: mindestens {minimum} Monate, in Schritten von {step}.",
+      "noticeGuaranteeRequirementManufacturer": "{label}, in der Karte „{card}“.",
+      "noticeGuaranteeRequirementManufacturerNumber": "{label}, in der Karte „{card}“.",
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"
     },

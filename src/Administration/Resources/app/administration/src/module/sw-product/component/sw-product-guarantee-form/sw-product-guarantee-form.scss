@@ -16,4 +16,14 @@
             margin: 0;
         }
     }
+
+    .sw-product-guarantee-form__requirements-notice {
+        margin: var(--scale-size-24) 0 0;
+
+        ul {
+            margin: var(--scale-size-4) 0 0;
+            padding-left: var(--scale-size-16);
+            list-style: disc outside;
+        }
+    }
 }

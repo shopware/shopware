@@ -20,9 +20,10 @@
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
                     number-type="int"
-                    :step="6"
+                    :min="guaranteeMonthsMinimum"
+                    :step="guaranteeMonthsStep"
                     :allow-empty="true"
-                    :error="productGuaranteeMonthsError"
+                    :error="guaranteeMonthsError"
                     :label="$t('sw-product.settingsForm.labelGuaranteeMonths')"
                     :help-text="$t('sw-product.settingsForm.helpTextGuaranteeMonths')"
                     :placeholder="$t('sw-product.settingsForm.placeholderGuaranteeMonths')"
@@ -63,6 +64,25 @@
         </div>
         {% endblock %}
     </sw-container>
+    {% endblock %}
+
+    {% block sw_product_guarantee_form_requirements_notice %}
+    <mt-banner
+        v-if="unmetGuaranteeLabelRequirements.length > 0"
+        class="sw-product-guarantee-form__requirements-notice"
+        variant="attention"
+    >
+        {{ $t('sw-product.settingsForm.noticeGuaranteeRequirements') }}
+
+        <ul>
+            <li
+                v-for="requirement in unmetGuaranteeLabelRequirements"
+                :key="requirement"
+            >
+                {{ requirement }}
+            </li>
+        </ul>
+    </mt-banner>
     {% endblock %}
 </div>
 {% endblock %}

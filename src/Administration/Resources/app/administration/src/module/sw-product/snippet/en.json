@@ -154,6 +154,10 @@
       "placeholderEan": "Enter GTIN/EAN...",
       "placeholderManufacturerNumber": "Enter product number...",
       "placeholderGuaranteeMonths": "e.g. 30, 36 or 42 months...",
+      "noticeGuaranteeRequirements": "The label will not be displayed in the Storefront until the following information is stored:",
+      "noticeGuaranteeRequirementMonths": "{label}: at least {minimum} months, in steps of {step}.",
+      "noticeGuaranteeRequirementManufacturer": "{label}, in the card \"{card}\".",
+      "noticeGuaranteeRequirementManufacturerNumber": "{label}, in the card \"{card}\".",
       "labelAvailableStock": "Available stock",
       "labelPurchaseSteps": "Purchase steps"
     },

@@ -20,6 +20,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\ElasticsearchProductException;
 use Shopware\Elasticsearch\Product\LanguageSubscriber;
 
 /**

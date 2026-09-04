@@ -367,7 +367,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $definition->add('lastName', new NotBlank(), new Length(max: 255));
         }
 
-        $addressValidation = $this->createMock(AddressValidationFactory::class);
+        $addressValidation = static::createStub(AddressValidationFactory::class);
         $addressValidation->method('create')->willReturnOnConsecutiveCalls(...$definitions);
 
         $loader = $this->createLoader(
@@ -402,7 +402,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $definition->add('lastName', new NotBlank(), new Length(max: 255));
         }
 
-        $addressValidation = $this->createMock(AddressValidationFactory::class);
+        $addressValidation = static::createStub(AddressValidationFactory::class);
         $addressValidation->method('create')->willReturnOnConsecutiveCalls(...$definitions);
 
         $loader = $this->createLoader(

@@ -72,18 +72,6 @@ class OrderCustomerEntity extends Entity
         $this->salutationId = $salutationId;
     }
 
-    public function getBuyerName(): string
-    {
-        $personName = trim($this->getFirstName() . ' ' . $this->getLastName());
-        $company = trim($this->company ?? '');
-
-        return match (true) {
-            $company === '' => $personName,
-            $personName === '' || $personName === $company => $company,
-            default => $personName . ' - ' . $company,
-        };
-    }
-
     public function getFirstName(): string
     {
         return $this->firstName;

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Template\View;
 
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerNameFormatter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
@@ -37,7 +38,7 @@ final readonly class TradePartyView
         $billing = $order->getBillingAddress()
             ?? $order->getAddresses()?->get($order->getBillingAddressId());
 
-        $name = $customer?->getBuyerName() ?? '';
+        $name = OrderCustomerNameFormatter::buyerName($customer);
 
         if ($name === '') {
             throw DocumentV2Exception::invalidOrderData(

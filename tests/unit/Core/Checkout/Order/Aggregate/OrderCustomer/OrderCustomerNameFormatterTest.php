@@ -6,17 +6,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerNameFormatter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(OrderCustomerEntity::class)]
-class OrderCustomerEntityTest extends TestCase
+#[CoversClass(OrderCustomerNameFormatter::class)]
+class OrderCustomerNameFormatterTest extends TestCase
 {
     #[DataProvider('buyerNameProvider')]
-    public function testGetBuyerName(string $firstName, string $lastName, ?string $company, string $expected): void
+    public function testBuyerName(string $firstName, string $lastName, ?string $company, string $expected): void
     {
         $customer = new OrderCustomerEntity();
         $customer->setUniqueIdentifier('order-customer-id');
@@ -27,7 +28,12 @@ class OrderCustomerEntityTest extends TestCase
             $customer->setCompany($company);
         }
 
-        static::assertSame($expected, $customer->getBuyerName());
+        static::assertSame($expected, OrderCustomerNameFormatter::buyerName($customer));
+    }
+
+    public function testBuyerNameWithoutAnOrderCustomer(): void
+    {
+        static::assertSame('', OrderCustomerNameFormatter::buyerName(null));
     }
 
     /**

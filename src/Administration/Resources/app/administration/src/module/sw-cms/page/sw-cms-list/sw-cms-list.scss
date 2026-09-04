@@ -5,10 +5,6 @@
         max-width: $content-width;
         position: relative;
         margin: auto;
-
-        @media screen and (max-width: 1360px) {
-            padding: 15px;
-        }
     }
 
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
@@ -38,44 +34,36 @@
 
     .sw-cms-list__actions {
         display: grid;
-        grid-template-columns: auto 380px 36px;
-        grid-column-gap: 20px;
+        grid-template-columns: auto 380px max-content;
+        grid-column-gap: var(--scale-size-8);
         align-items: center;
         align-content: center;
-        margin-bottom: 28px;
+        margin-bottom: var(--scale-size-32);
 
         @media screen and (max-width: 700px) {
-            grid-template-columns: auto 36px;
+            grid-template-columns: auto max-content;
         }
 
         h3 {
-            font-size: var(--font-size-2xl);
-            font-weight: normal;
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
             margin: 0;
         }
     }
 
-    .sw-cms-list__actions-mode {
-        height: 36px;
-        line-height: 33px;
-        text-align: center;
-        color: var(--color-text-primary-default);
-        border: 1px solid var(--color-border-primary-default);
-        border-radius: 4px;
-        background: var(--color-elevation-surface-raised);
-        cursor: pointer;
-
-        &:hover {
-            color: var(--color-text-brand-default);
-            border-color: var(--color-border-brand-default);
-        }
-    }
-
     .sw-cms-list__list-grid-content {
+        --sw-cms-list-grid-gap: var(--scale-size-24);
+
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        grid-gap: 30px;
+
+        // min() keeps at least two columns on very narrow pages by subtracting half the gap
+        grid-template-columns: repeat(auto-fill, minmax(min(260px, calc(50% - var(--sw-cms-list-grid-gap) / 2)), 1fr));
+        grid-gap: var(--sw-cms-list-grid-gap);
         align-content: start;
+
+        @media screen and (max-width: 700px) {
+            --sw-cms-list-grid-gap: var(--scale-size-16);
+        }
 
         .sw-skeleton__gallery::before {
             padding-top: 65%;

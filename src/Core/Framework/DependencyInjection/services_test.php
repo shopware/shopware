@@ -245,6 +245,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('shopware.app_system.allow_unencrypted_traffic'),
             param('shopware.app_system.allowed_private_ip_addresses'),
+            param('shopware.app_system.enable_url_validation'),
         ]);
 
     $services->set(TestAppServer::class)

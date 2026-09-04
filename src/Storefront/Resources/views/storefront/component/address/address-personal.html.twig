@@ -150,11 +150,16 @@
 
     {% block component_address_personal_fields_name %}
         <div class="row g-2">
-            {# a company account may be registered without a contact person, and the account type is chosen in this form #}
+            {# a company account may be registered without a contact person #}
             {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
-            {% set personNameRequired = (companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts'))
-                or not config('core.loginRegistration.showAccountTypeSelection') %}
-            {# only a company-only form can drop the fields outright, a mixed form would lose them for private customers too #}
+            {% set companyNameFieldsRequired = companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
+
+            {# a company-only form is governed by the company settings alone. a mixed form lets the
+               customer pick the account type after this renders, so the fields stay visible and the
+               required marker only survives when it holds for both account types. #}
+            {% set personNameRequired = onlyCompanyRegistration
+                ? companyNameFieldsRequired
+                : (companyNameFieldsRequired or not config('core.loginRegistration.showAccountTypeSelection')) %}
             {% set personNameShown = companyNameFieldsShown or not onlyCompanyRegistration %}
 
             {% if personNameShown %}

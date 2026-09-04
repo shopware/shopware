@@ -323,13 +323,55 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(criteria.term).toBeNull();
 
         expect(criteria.queries).toContainEqual({
-            score: 80,
+            score: 250,
             query: { type: 'contains', field: 'name', value: 'Material thickness' },
         });
         expect(criteria.queries).toContainEqual({
-            score: 80,
+            score: 250,
             query: { type: 'contains', field: `config.label.${locale}`, value: 'Material thickness' },
         });
+    });
+
+    it('matches the single words of a search term below the whole term', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'Material thickness' });
+        await wrapper.vm.onSearchCustomFields();
+        await flushPromises();
+
+        const criteria = searchCriteria.custom_field;
+        const wholeTerm = criteria.queries.find(
+            (query) => query.query.type === 'contains' && query.query.value === 'Material thickness',
+        );
+
+        [
+            'Material',
+            'thickness',
+        ].forEach((part) => {
+            const partQuery = criteria.queries.find(
+                (query) => query.query.type === 'contains' && query.query.field === 'name' && query.query.value === part,
+            );
+
+            expect(partQuery).toBeDefined();
+            expect(partQuery.score).toBeLessThan(wholeTerm.score);
+        });
+    });
+
+    it('does not split a single word search term', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'Material' });
+        await wrapper.vm.onSearchCustomFields();
+        await flushPromises();
+
+        const criteria = searchCriteria.custom_field;
+        const nameQueries = criteria.queries.filter((query) => query.query.field === 'name');
+
+        expect(nameQueries).toHaveLength(2);
     });
 
     it('ranks exact custom field matches above partial ones', async () => {

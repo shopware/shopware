@@ -126,6 +126,11 @@ export default {
                 // type sorting to stay the primary one
                 criteria.addSorting(Criteria.sort('_score', 'DESC'));
 
+                const parts = this.customFieldSearchTerm
+                    .trim()
+                    .split(/\s+/)
+                    .filter((part) => part.length > 1);
+
                 this.customFieldSearchFields.forEach((field) => {
                     criteria.addQuery(
                         Criteria.equals(field, this.customFieldSearchTerm),
@@ -133,8 +138,16 @@ export default {
                     );
                     criteria.addQuery(
                         Criteria.contains(field, this.customFieldSearchTerm),
-                        searchRankingPoint.LOW_SEARCH_RANKING,
+                        searchRankingPoint.MIDDLE_SEARCH_RANKING,
                     );
+
+                    if (parts.length < 2) {
+                        return;
+                    }
+
+                    parts.forEach((part) => {
+                        criteria.addQuery(Criteria.contains(field, part), searchRankingPoint.LOW_SEARCH_RANKING);
+                    });
                 });
             }
 

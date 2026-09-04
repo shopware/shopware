@@ -689,7 +689,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertEmpty($result->getSuccess()->getElements());
         static::assertNotEmpty($result->getErrors());
         static::assertArrayHasKey($this->orderId, $result->getErrors());
-        static::assertSame('Document number 1001 has already been allocated.', $result->getErrors()[$this->orderId]->getMessage());
+        static::assertSame('Document number 1001 has already been allocated for document type "invoice".', $result->getErrors()[$this->orderId]->getMessage());
     }
 
     public function testCreateInvoiceIsExistingNumberPdf(): void
@@ -726,7 +726,7 @@ class DocumentGeneratorTest extends TestCase
         $errors = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->getErrors();
         static::assertNotEmpty($errors);
         static::assertArrayHasKey($this->orderId, $errors);
-        static::assertSame($errors[$this->orderId]->getMessage(), 'Document number 1002 has already been allocated.');
+        static::assertSame($errors[$this->orderId]->getMessage(), 'Document number 1002 has already been allocated for document type "delivery_note".');
     }
 
     public function testGenerateStaticDocument(): void

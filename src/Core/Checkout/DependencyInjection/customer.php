@@ -70,6 +70,7 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLogoutSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerMailNameSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber;
@@ -224,6 +225,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(AddressHashSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerMailNameSubscriber::class)
         ->tag('kernel.event_subscriber');
 
     $services->set(CustomerMetaFieldSubscriber::class)

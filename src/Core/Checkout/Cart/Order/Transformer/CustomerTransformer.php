@@ -47,12 +47,12 @@ class CustomerTransformer
     public static function transform(CustomerEntity $customer): array
     {
         $lastName = $customer->getLastName();
-        $company = trim($customer->getCompany() ?? '');
 
-        // a company account may have no contact person, and the snapshot still has to name the buyer
-        if ($company !== ''
-            && $customer->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && trim($customer->getFirstName() . $lastName) === '') {
+        // a company account may have no contact person, and the snapshot still has to name the buyer.
+        // the account type is read last because it is a typed property without a default.
+        if (trim($customer->getFirstName() . $lastName) === ''
+            && ($company = trim($customer->getCompany() ?? '')) !== ''
+            && $customer->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             $lastName = $company;
         }
 

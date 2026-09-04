@@ -1,0 +1,156 @@
+/**
+ * @sw-package framework
+ * @private
+ *
+ * Runs native setup overrides against components that are still rendered through the Twig pipeline.
+ *
+ * The whole module works around one ordering constraint: only a `setup()` return value outranks
+ * `data` and `computed` in Vue's instance proxy, but `setup()` runs before either of them exists.
+ * So the slot is reserved in `setup()` and filled in `created()`.
+ *
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ */
+
+import { getCurrentInstance } from 'vue';
+import type { ComponentInternalInstance, SetupContext } from '@vue/runtime-core';
+import type { ComponentConfig } from 'src/core/factory/async-component.factory';
+import { _overridesMap } from './index';
+
+type AnyRecord = Record<string, unknown>;
+type SetupResult = AnyRecord | ((...args: unknown[]) => unknown) | undefined;
+
+// Hands the object created in setup() over to created(). Keyed per instance because the config is
+// shared by every instance of the component.
+const bags = new WeakMap<ComponentInternalInstance, AnyRecord>();
+
+/**
+ * @private
+ */
+export function attachSetupOverrideShim(componentName: string, config: ComponentConfig): void {
+    // A string template means the component came out of the Twig pipeline; migrated SFCs run their
+    // overrides through createExtendableSetup() instead.
+    if (typeof config.template !== 'string' || !_overridesMap[componentName]?.length) {
+        return;
+    }
+
+    const originalSetup = config.setup;
+
+    // Vue keeps a live reference to whatever setup() returns as `setupState`, which is what later lets
+    // created() write into it. The overrides cannot run here - `data` and `computed` do not exist yet,
+    // so previousState would be empty. An existing setup() keeps its own return value as the starting
+    // content instead of being replaced.
+    config.setup = function shimSetup(props: Record<string, unknown>, context: SetupContext) {
+        const originalResult = (originalSetup ? originalSetup.call(this, props, context) : undefined) as SetupResult;
+
+        // A setup() returning a render function cannot carry the bag. Leave it untouched; the created
+        // hook then finds no bag and bails out, so the component keeps working without the overrides.
+        if (typeof originalResult === 'function') {
+            return originalResult;
+        }
+
+        const bag: AnyRecord = originalResult ?? {};
+        const instance = getCurrentInstance();
+
+        if (instance) {
+            bags.set(instance, bag);
+        }
+
+        return bag;
+    };
+
+    const shimMixin = {
+        created(this: { $: ComponentInternalInstance }) {
+            const instance = this.$;
+            const bag = bags.get(instance);
+
+            if (!bag) {
+                return;
+            }
+
+            // Deliberately skips `setupState`: reading through the instance proxy would resolve to the
+            // override's own result and loop. Mirrors Vue's own order minus that first step.
+            const readBaseState = (key: string): unknown => {
+                const data = instance.data as AnyRecord;
+
+                if (data && key in data) {
+                    return data[key];
+                }
+
+                if (instance.props && key in instance.props) {
+                    return (instance.props as AnyRecord)[key];
+                }
+
+                return (instance as unknown as { ctx: AnyRecord }).ctx[key];
+            };
+
+            // Mirrors readBaseState for writes, so a write lands on the base state instead of the
+            // override's own result. Props stay read-only, as they are on Vue's own proxy.
+            const writeBaseState = (key: string, next: unknown): void => {
+                const data = instance.data as AnyRecord;
+
+                if (data && key in data) {
+                    data[key] = next;
+
+                    return;
+                }
+
+                if (instance.props && key in instance.props) {
+                    return;
+                }
+
+                (instance as unknown as { ctx: AnyRecord }).ctx[key] = next;
+            };
+
+            // Override callbacks read `previousState.x.value`, so every key is served as a ref-like
+            // accessor. A proxy avoids having to enumerate data, computed and methods upfront.
+            const previousState = new Proxy(
+                {},
+                {
+                    get: (_target, key: string) => ({
+                        __v_isRef: true,
+                        get value() {
+                            return readBaseState(key);
+                        },
+                        set value(next: unknown) {
+                            writeBaseState(key, next);
+                        },
+                    }),
+                },
+            );
+
+            const context = {
+                attrs: instance.attrs,
+                slots: instance.slots,
+                emit: instance.emit,
+                expose: () => {},
+            } as SetupContext;
+
+            // Vue activates the component's effect scope around lifecycle hooks, so watchers and
+            // computeds the overrides create here are disposed on unmount without further handling.
+            _overridesMap[componentName].forEach((override) => {
+                const result = override(previousState as never, instance.props as never, context) as AnyRecord;
+
+                if (result === undefined) {
+                    return;
+                }
+
+                Object.keys(result).forEach((key) => {
+                    bag[key] = result[key];
+                    // Vue memoises which bucket a key resolved from on first access. Anything that read the
+                    // key earlier - an immediate watcher, a preceding created hook - pinned it to `data`,
+                    // and setupState would never be consulted again.
+                    delete (instance as unknown as { accessCache: Record<string, unknown> }).accessCache[key];
+                });
+            });
+        },
+    };
+
+    const existingMixins = (config.mixins ?? []) as unknown[];
+
+    // Placed first: Vue caches the bucket a key resolves to on first access, so any created() hook that
+    // touches an overridden key before this one would pin it to `data` and the override would be lost.
+    config.mixins = [
+        shimMixin,
+        ...existingMixins,
+    ] as ComponentConfig['mixins'];
+}

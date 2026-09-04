@@ -20,7 +20,7 @@ Module.register('sw-integration', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-key',
     favicon: 'icon-module-settings.svg',
     entity: 'integration',
 
@@ -38,7 +38,7 @@ Module.register('sw-integration', {
     settingsItem: {
         group: 'system',
         to: 'sw.integration.index',
-        icon: 'regular-cog',
+        icon: 'regular-key',
         privilege: 'integration.viewer',
     },
 });

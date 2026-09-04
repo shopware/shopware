@@ -54,7 +54,7 @@ Module.register('sw-settings-search', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-search',
     favicon: 'icon-module-settings.svg',
     entity: 'product_search_config',
 

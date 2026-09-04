@@ -19,7 +19,7 @@ Module.register('sw-settings-cache', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-files',
     favicon: 'icon-module-settings.svg',
 
     routes: {

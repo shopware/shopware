@@ -16,7 +16,7 @@ Module.register('sw-settings-sitemap', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-sitemap',
     favicon: 'icon-module-settings.svg',
 
     routes: {
@@ -33,7 +33,7 @@ Module.register('sw-settings-sitemap', {
     settingsItem: {
         group: 'content',
         to: 'sw.settings.sitemap.index',
-        icon: 'regular-map',
+        icon: 'regular-sitemap',
         privilege: 'system.system_config',
     },
 });

@@ -39,7 +39,7 @@ Module.register('sw-mail-template', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-envelope',
     favicon: 'icon-module-settings.svg',
     entity: 'mail_template',
 

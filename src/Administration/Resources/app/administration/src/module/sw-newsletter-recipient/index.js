@@ -24,7 +24,7 @@ Module.register('sw-newsletter-recipient', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-yellow-default)',
-    icon: 'regular-megaphone',
+    icon: 'regular-inbox',
     favicon: 'icon-module-marketing.svg',
     entity: 'newsletter_recipient',
     entityDisplayProperty: 'email',
@@ -51,12 +51,13 @@ Module.register('sw-newsletter-recipient', {
     navigation: [
         {
             id: 'sw-newsletter-recipient',
-            icon: 'regular-megaphone',
+            icon: 'regular-inbox',
             color: 'var(--color-module-yellow-default)',
             path: 'sw.newsletter.recipient.index',
             privilege: 'newsletter_recipient.viewer',
             label: 'sw-newsletter-recipient.general.mainMenuItemGeneral',
             parent: 'sw-marketing',
+            position: 20,
         },
     ],
 

@@ -19,7 +19,7 @@ Module.register('sw-review', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-green-default)',
-    icon: 'regular-products',
+    icon: 'regular-star',
     favicon: 'icon-module-products.svg',
     entity: 'product_review',
 
@@ -49,7 +49,7 @@ Module.register('sw-review', {
             label: 'sw-review.general.mainMenuItemList',
             color: 'var(--color-module-green-default)',
             path: 'sw.review.index',
-            icon: 'regular-products',
+            icon: 'regular-star',
             parent: 'sw-catalogue',
             position: 20,
             privilege: 'review.viewer',

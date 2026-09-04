@@ -20,7 +20,7 @@ Shopware.Module.register('sw-settings-measurement', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-balance-scale',
     favicon: 'icon-module-settings.svg',
 
     routes: {

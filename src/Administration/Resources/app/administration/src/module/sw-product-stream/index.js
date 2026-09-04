@@ -28,7 +28,7 @@ Module.register('sw-product-stream', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-green-default)',
-    icon: 'regular-products',
+    icon: 'regular-layer-group',
     favicon: 'icon-module-products.svg',
     entity: 'product_stream',
 

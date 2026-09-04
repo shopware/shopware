@@ -14,7 +14,7 @@ Module.register('sw-settings-media', {
     title: 'sw-settings-media.general.title',
     description: 'sw-settings-media.general.description',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-image',
     favicon: 'icon-module-settings.svg',
 
     routes: {

@@ -13,7 +13,7 @@ Shopware.Module.register('sw-settings-message-stats', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: 'var(--color-module-neutral-default)',
-    icon: 'regular-cog',
+    icon: 'regular-bars-square',
     favicon: 'icon-module-settings.svg',
 
     routes: {

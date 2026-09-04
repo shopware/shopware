@@ -30,6 +30,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -161,10 +162,23 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation = $this->addressValidationFactory->update($context);
         }
 
+        $nameFieldsRequired = $this->systemConfigService->getBool(
+            'core.loginRegistration.nameFieldsRequiredForCompanyAccounts',
+            $context->getSalesChannelId()
+        );
+
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')
+            && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')
+                || !$nameFieldsRequired)
         ) {
             $validation->add('company', new NotBlank());
+        }
+
+        // an address created without a contact person has to stay editable without inventing one
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !$nameFieldsRequired) {
+            $validation
+                ->set('firstName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
+                ->set('lastName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG'));
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));

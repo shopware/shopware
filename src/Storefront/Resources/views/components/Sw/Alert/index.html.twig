@@ -1,0 +1,65 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    variant = 'info',
+    size = 'md',
+    text = null,
+    icon = null,
+    slots = [],
+%}
+
+{% set alert = cva({
+    base: 'sw-alert alert',
+    variants: {
+        variant: {
+            primary: 'alert-primary',
+            secondary: 'alert-secondary',
+            warning: 'alert-warning',
+            success: 'alert-success',
+            info: 'alert-info',
+            danger: 'alert-danger',
+            light: 'alert-light',
+            dark: 'alert-dark',
+        },
+        size: {
+            sm: 'text-sm',
+            md: 'text-md',
+            lg: 'text-lg',
+        }
+    }
+}) %}
+
+{% set attributeDefaults = {
+    class: alert.apply({ variant, size }),
+    role: 'alert'
+} %}
+
+{% set defaultIcons = {
+    primary: 'info',
+    secondary: 'info',
+    warning: 'warning',
+    success: 'checkmark-circle',
+    info: 'info',
+    danger: 'blocked',
+    light: 'info',
+    dark: 'info',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+
+    {% block icon %}
+        {% if icon is not false and icon|length > 0 %}
+            <twig:Sw:Icon :name="icon" :color="variant" />
+        {% elseif icon is not false %}
+            <twig:Sw:Icon :name="defaultIcons[variant]" :color="variant" />
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+        <twig:Slot name="content">
+            {{ text }}
+        </twig:Slot>
+    {% endblock %}
+</div>

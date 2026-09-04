@@ -1,0 +1,35 @@
+.sw-experience-studio-detail {
+    &__content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    &__workspace {
+        display: grid;
+        grid-template-columns: 280px 1fr 320px;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    &__sidebar-tree,
+    &__preview,
+    &__element-settings {
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    &__preview {
+        display: flex;
+    }
+
+    &__sidebar-tree {
+        border-right: 1px solid var(--color-border-primary-default);
+    }
+
+    &__element-settings {
+        border-left: 1px solid var(--color-border-primary-default);
+    }
+}

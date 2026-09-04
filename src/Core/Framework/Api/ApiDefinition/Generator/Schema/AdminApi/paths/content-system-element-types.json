@@ -1,0 +1,294 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Element Types",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-element-types.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system element types",
+                "description": "Get all registered content system element type specifications.",
+                "operationId": "content-system-element-types",
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of all registered content system element types.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["types", "styleOptions"],
+                                    "properties": {
+                                        "types": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["name", "label", "description", "source", "icon", "category", "copilot", "properties", "slots", "bindingSpecifications", "storageSchema"],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "Unique type name."
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "description": "Human-readable label."
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "description": "Human-readable description."
+                                                    },
+                                                    "source": {
+                                                        "type": "string",
+                                                        "description": "Source identifier (e.g. core, plugin:MyPlugin, app:MyApp)."
+                                                    },
+                                                    "icon": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Optional icon identifier."
+                                                    },
+                                                    "category": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Optional category for grouping."
+                                                    },
+                                                    "copilot": {
+                                                        "type": "object",
+                                                        "required": ["summary", "hints"],
+                                                        "properties": {
+                                                            "summary": {
+                                                                "type": "string"
+                                                            },
+                                                            "hints": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "properties": {
+                                                        "type": ["object", "array"],
+                                                        "description": "Map of property name to property specification. Encodes as `[]` when the type declares no properties (for example a slot-only container).",
+                                                        "additionalProperties": {
+                                                            "type": "object",
+                                                            "required": ["type", "translatable", "enum", "default", "required", "title", "description", "adminUI"],
+                                                            "properties": {
+                                                                "type": {
+                                                                    "oneOf": [
+                                                                        {
+                                                                            "type": "string"
+                                                                        },
+                                                                        {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    ],
+                                                                    "description": "Primitive type name, FQCN, object, or a list of those for union declarations."
+                                                                },
+                                                                "translatable": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "enum": {
+                                                                    "type": ["array", "null"],
+                                                                    "items": {
+                                                                        "type": ["string", "integer", "number", "boolean"]
+                                                                    }
+                                                                },
+                                                                "default": {
+                                                                    "type": ["string", "integer", "number", "boolean", "null"]
+                                                                },
+                                                                "properties": {
+                                                                    "type": ["object", "null"],
+                                                                    "description": "Nested schema for object-typed properties.",
+                                                                    "additionalProperties": {
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "required": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "title": {
+                                                                    "type": "string"
+                                                                },
+                                                                "description": {
+                                                                    "type": "string"
+                                                                },
+                                                                "adminUI": {
+                                                                    "type": ["object", "null"]
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "slots": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "required": ["name", "maxElements", "allowList", "description"],
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "maxElements": {
+                                                                    "type": ["integer", "null"]
+                                                                },
+                                                                "allowList": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "description": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "bindingSpecifications": {
+                                                        "type": "object",
+                                                        "description": "Map of source-qualified binding specification id (`source:id`) to its specification, filtered to those applicable to this type; folded in from the aggregated binding specification registry. Encodes as `{}` when the type has no applicable specification.",
+                                                        "additionalProperties": {
+                                                            "type": "object",
+                                                            "required": ["id", "type", "label", "default", "resolves", "inputs"],
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "description": "The bare id declared by the specification (without the source prefix)."
+                                                                },
+                                                                "type": {
+                                                                    "type": "string",
+                                                                    "description": "The element type this specification applies to (always this entry's own `name`)."
+                                                                },
+                                                                "label": {
+                                                                    "type": "string",
+                                                                    "description": "Human-readable label for the specification."
+                                                                },
+                                                                "default": {
+                                                                    "type": "boolean",
+                                                                    "description": "Whether this is the type's synthesized default specification, derived as id === type. At most one default exists per type. Inserting or replacing an element with no explicit binding choice auto-applies the type's default (fill-only: it never overwrites already-wired or carried keys); an explicit binding choice applies on top and wins on shared keys."
+                                                                },
+                                                                "resolves": {
+                                                                    "type": ["object", "array"],
+                                                                    "description": "Map of reference property key to the loader wiring that fills it. Encodes as `[]` when the specification wires no reference property.",
+                                                                    "additionalProperties": {
+                                                                        "type": "object",
+                                                                        "required": ["loader", "config"],
+                                                                        "properties": {
+                                                                            "loader": {
+                                                                                "type": "string",
+                                                                                "description": "The data loader source that fills the property."
+                                                                            },
+                                                                            "config": {
+                                                                                "type": ["object", "array"],
+                                                                                "description": "The loader's config for this wiring. Encodes as `[]` when the loader takes no config.",
+                                                                                "additionalProperties": true
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "inputs": {
+                                                                    "type": ["object", "array"],
+                                                                    "description": "Map of primitive property key to its residual input declaration. Encodes as `[]` when the specification declares no residual input. Each entry always carries `required`; `default` is present only when the specification declares one — presence of the key, not its value, distinguishes \"no default\" from \"default is null\".",
+                                                                    "additionalProperties": {
+                                                                        "type": "object",
+                                                                        "required": ["required"],
+                                                                        "properties": {
+                                                                            "required": {
+                                                                                "type": "boolean",
+                                                                                "description": "Whether the target element must carry a value for this property: derived from a specification-required propertyReference config key whose target reference property is declared required:true on the type. Not authorable directly."
+                                                                            },
+                                                                            "default": {
+                                                                                "description": "The property's seeded default value, applied only when the target element does not already carry the key."
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "storageSchema": {
+                                                        "type": "object",
+                                                        "description": "Map of stored key to its storage-schema entry: what an element of this type STORES, as opposed to `properties`, which is the hydrated output schema. Encodes as `{}` when the type stores nothing.",
+                                                        "additionalProperties": {
+                                                            "type": "object",
+                                                            "required": ["kind", "type", "required"],
+                                                            "properties": {
+                                                                "kind": {
+                                                                    "type": "string",
+                                                                    "enum": ["property", "resolvedByStorage", "config"],
+                                                                    "description": "Where the entry comes from. `property`: a primitive property declared by the type, stored under its own key. `resolvedByStorage`: the storage key a `resolvedBy` reference property resolves through, contributed by the type's synthesized default binding specification. `config`: a stored key named by any other propertyReference config key of a binding specification's loader wiring."
+                                                                },
+                                                                "type": {
+                                                                    "type": "string",
+                                                                    "description": "The type of the stored value: a primitive type name (`string`, `integer`, `number`, `boolean`) on a `property` entry, `string` or `list<string>` on a `resolvedByStorage` or `config` entry."
+                                                                },
+                                                                "required": {
+                                                                    "type": "boolean",
+                                                                    "description": "Whether a value must be stored under this key."
+                                                                },
+                                                                "default": {
+                                                                    "type": ["string", "integer", "number", "boolean"],
+                                                                    "description": "The default stored value. Present only on a `property` entry whose property declares a default, and never on a `resolvedByStorage` or `config` entry, because a config key's default is a reference token (a property name) rather than a stored value."
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "styleOptions": {
+                                            "type": "object",
+                                            "description": "Map of style option wire name to its specification, folded in from the same registry served at \/_info\/content-system-style-options.json. Every option is settable on every element.",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "required": ["type", "enum", "range", "maxLength", "default", "adminUI", "breakpointAware"],
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string",
+                                                        "description": "Primitive value type: string, integer, number, or boolean."
+                                                    },
+                                                    "enum": {
+                                                        "type": ["array", "null"],
+                                                        "items": {
+                                                            "type": ["string", "integer", "number", "boolean"]
+                                                        }
+                                                    },
+                                                    "range": {
+                                                        "type": ["object", "null"],
+                                                        "properties": {
+                                                            "min": {
+                                                                "type": ["integer", "number"]
+                                                            },
+                                                            "max": {
+                                                                "type": ["integer", "number"]
+                                                            }
+                                                        }
+                                                    },
+                                                    "maxLength": {
+                                                        "type": ["integer", "null"]
+                                                    },
+                                                    "default": {
+                                                        "type": ["string", "integer", "number", "boolean", "null"]
+                                                    },
+                                                    "adminUI": {
+                                                        "type": ["object", "null"]
+                                                    },
+                                                    "breakpointAware": {
+                                                        "type": "boolean",
+                                                        "description": "Whether the option's value is set per breakpoint (an object keyed by xs, sm, md, lg, xl, xxl) or a single flat value."
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,176 @@
+.sw-experience-studio-sidebar-tree-node {
+    --tree-indent: 12px;
+
+    &__element {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        padding: 4px 6px 4px 0;
+        color: var(--color-text-primary-default);
+        cursor: pointer;
+
+        &.is--expandable {
+            grid-template-columns: 16px 1fr auto;
+        }
+
+        &.is--dragging {
+            opacity: 0.45;
+        }
+
+        &:hover .sw-experience-studio-sidebar-tree-node__label {
+            color: var(--color-text-brand-default);
+        }
+
+        &.is--valid-drop {
+            background: var(--color-background-brand-hover);
+            box-shadow: inset 0 2px 0 var(--color-border-brand-default);
+        }
+
+        &.is--invalid-drop {
+            background: var(--color-background-critical-subtle);
+            box-shadow: inset 0 2px 0 var(--color-border-critical-default);
+        }
+
+        &.is--dragging,
+        &.is--drag-element {
+            background: var(--color-background-primary-default);
+            padding: 4px;
+
+            .sw-experience-studio-sidebar-tree-node__actions {
+                display: none;
+            }
+        }
+
+        &.is--active {
+            .sw-experience-studio-sidebar-tree-node__name {
+                color: var(--color-text-brand-default);
+                font-weight: var(--font-weight-semi-bold);
+            }
+
+            .sw-experience-studio-sidebar-tree-node__type-icon {
+                color: var(--color-icon-brand-default);
+            }
+        }
+    }
+
+    &__label,
+    &__slot-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    &__type-icon {
+        flex-shrink: 0;
+        color: var(--color-icon-secondary-default);
+    }
+
+    &__toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--color-icon-secondary-default);
+        cursor: pointer;
+    }
+
+    &__name {
+        min-width: 0;
+        font-size: var(--font-size-xs);
+        line-height: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    &__element:hover &__actions,
+    &__element.is--active &__actions {
+        opacity: 1;
+    }
+
+    &__action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px;
+        border: 0;
+        background: transparent;
+        color: var(--color-icon-secondary-default);
+        cursor: pointer;
+
+        &:hover:not(:disabled) {
+            color: var(--color-text-brand-default);
+        }
+
+        &:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+    }
+
+    &__children {
+        padding: 4px 0;
+        padding-left: var(--tree-indent);
+    }
+
+    &__slot {
+        margin-top: 6px;
+        padding-bottom: 4px;
+    }
+
+    &__slot-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 0 0 4px;
+        padding: 6px 8px;
+        background: var(--color-background-tertiary-default);
+    }
+
+    &__slot-label {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__slot-name {
+        font-size: var(--font-size-xxs);
+        font-weight: var(--font-weight-semi-bold);
+        color: var(--color-text-secondary-default);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    &__slot-elements {
+        padding: 2px 0 4px var(--tree-indent);
+        border-left: 1px solid var(--color-border-primary-default);
+    }
+
+    &__slot-drop-target {
+        height: 10px;
+        margin-left: var(--tree-indent);
+        border-radius: 2px;
+
+        &.is--valid-drop {
+            background: var(--color-background-brand-hover);
+            box-shadow: inset 0 2px 0 var(--color-border-brand-default);
+        }
+
+        &.is--invalid-drop {
+            background: var(--color-background-critical-subtle);
+            box-shadow: inset 0 2px 0 var(--color-border-critical-default);
+        }
+    }
+}

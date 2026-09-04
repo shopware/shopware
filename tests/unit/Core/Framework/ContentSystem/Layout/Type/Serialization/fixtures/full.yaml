@@ -1,0 +1,60 @@
+meta:
+  label: "Product Card"
+  description: "Displays a product card."
+  icon: "product"
+  category: "commerce"
+  copilot:
+    summary: "Product card for grids."
+    hints:
+      - "Supports horizontal layout."
+      - "Requires product entity."
+
+properties:
+  product:
+    type: Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity
+    required: true
+    title: "Product"
+    description: "The product to display."
+  layout:
+    type: string
+    title: "Layout"
+    description: "Card layout."
+    default: "default"
+    enum:
+      - "default"
+      - "horizontal"
+  text:
+    type: string
+    translatable: true
+    title: "Text"
+    description: "The text content."
+  showBadge:
+    type: boolean
+    title: "Show Badge"
+    description: "Display discount badge."
+    default: true
+  columns:
+    type: integer
+    title: "Columns"
+    description: "Grid column count."
+    default: 3
+  opacity:
+    type: number
+    title: "Opacity"
+    description: "Element opacity."
+    default: 0.8
+  size:
+    type: string
+    title: "Size"
+    description: "Element size."
+    adminUI:
+      component: "select"
+
+slots:
+  - name: media
+    maxElements: 1
+    allowList:
+      - "Sw:Media:Image"
+    description: "Product media."
+  - name: footer
+    description: "Footer area."

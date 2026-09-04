@@ -1,0 +1,569 @@
+meta:
+  label: "Grid Container"
+  description: "The main element for creating responsive layouts. It is the central element to function as a wrapping element for other elements and to achieve certain layout effects."
+  icon: "regular-view-grid"
+  category: "layout"
+  copilot:
+    summary: "Responsive grid container."
+    hints:
+      - "Use for structured multi-column content."
+      - "Configure breakpoint-specific columns and rows."
+
+properties:
+  mode:
+    type: string
+    title: "Mode"
+    description: "Grid layout mode."
+    default: "auto-fit"
+    enum:
+      - "max-content"
+      - "auto-fit"
+      - "auto-fill"
+      - "explicit"
+    adminUI:
+      component: "radio-panel"
+      panel: "general"
+      props:
+        options:
+          - value: "auto-fit"
+            label: "Auto fit"
+            icon: "regular-view-grid"
+            description: "Automatically fits as many columns as possible."
+          - value: "max-content"
+            label: "Max content"
+            icon: "regular-line-column-xs"
+            description: "Size columns based on their maximum content size."
+          - value: "explicit"
+            label: "Explicit"
+            icon: "regular-table"
+            description: "Use explicit columns and rows configuration."
+
+  itemMinWidth:
+    type: string
+    title: "Item Min Width"
+    description: "Minimum item width used in auto-fit and auto-fill mode."
+    default: "400px"
+    adminUI:
+      component: "text"
+      panel: "general"
+      visibleWhen:
+        field: "mode"
+        in: ["auto-fit", "auto-fill"]
+
+  columns:
+    type:
+      - "integer"
+      - "object"
+    title: "Columns"
+    description: "Column count as a single integer or responsive object with breakpoint keys."
+    adminUI:
+      component: "responsive-number"
+      panel: "general"
+      props:
+        min: 1
+        max: 12
+        step: 1
+      visibleWhen:
+        field: "mode"
+        equals: "explicit"
+    properties:
+      xs:
+        type: integer
+        title: "Columns (XS)"
+        description: "Column count on extra small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      sm:
+        type: integer
+        title: "Columns (SM)"
+        description: "Column count on small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      md:
+        type: integer
+        title: "Columns (MD)"
+        description: "Column count on medium breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      lg:
+        type: integer
+        title: "Columns (LG)"
+        description: "Column count on large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      xl:
+        type: integer
+        title: "Columns (XL)"
+        description: "Column count on extra large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+  rows:
+    type:
+      - "integer"
+      - "object"
+    title: "Rows"
+    description: "Row count as a single integer or responsive object with breakpoint keys."
+    adminUI:
+      component: "responsive-number"
+      panel: "general"
+      props:
+        min: 1
+        max: 12
+        step: 1
+      visibleWhen:
+        field: "mode"
+        equals: "explicit"
+    properties:
+      xs:
+        type: integer
+        title: "Rows (XS)"
+        description: "Row count on extra small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      sm:
+        type: integer
+        title: "Rows (SM)"
+        description: "Row count on small breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      md:
+        type: integer
+        title: "Rows (MD)"
+        description: "Row count on medium breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      lg:
+        type: integer
+        title: "Rows (LG)"
+        description: "Row count on large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      xl:
+        type: integer
+        title: "Rows (XL)"
+        description: "Row count on extra large breakpoint."
+        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+  centered:
+    type: boolean
+    title: "Centered"
+    description: "Center container in available width."
+    default: true
+    adminUI:
+      panel: "general"
+
+  gap:
+    type: integer
+    title: "Gap"
+    description: "Gap size in px."
+    default: 24
+    adminUI:
+      component: "number"
+      panel: "spacing"
+
+  padding:
+    type:
+      - "string"
+      - "object"
+    title: "Padding"
+    description: "Breakpoint-aware inner spacing."
+    adminUI:
+      component: "box-spacing"
+      panel: "spacing"
+      breakpointAware: true
+    properties:
+      xs:
+        type: string
+        title: "Padding (XS)"
+        description: "Inner spacing on extra small breakpoint."
+        default: "0 20px 0 20px"
+      sm:
+        type: string
+        title: "Padding (SM)"
+        description: "Inner spacing on small breakpoint."
+        default: "0 20px 0 20px"
+      md:
+        type: string
+        title: "Padding (MD)"
+        description: "Inner spacing on medium breakpoint."
+        default: "0 20px 0 20px"
+      lg:
+        type: string
+        title: "Padding (LG)"
+        description: "Inner spacing on large breakpoint."
+        default: "0 20px 0 20px"
+      xl:
+        type: string
+        title: "Padding (XL)"
+        description: "Inner spacing on extra large breakpoint."
+        default: "0 20px 0 20px"
+      xxl:
+        type: string
+        title: "Padding (XXL)"
+        description: "Inner spacing on extra extra large breakpoint."
+        default: "0 20px 0 20px"
+
+  margin:
+    type:
+      - "string"
+      - "object"
+    title: "Margin"
+    description: "Breakpoint-aware outer spacing."
+    adminUI:
+      component: "box-spacing"
+      panel: "spacing"
+      breakpointAware: true
+    properties:
+      xs:
+        type: string
+        title: "Margin (XS)"
+        description: "Outer spacing on extra small breakpoint."
+        default: "0 0 24px 0"
+      sm:
+        type: string
+        title: "Margin (SM)"
+        description: "Outer spacing on small breakpoint."
+        default: "0 0 24px 0"
+      md:
+        type: string
+        title: "Margin (MD)"
+        description: "Outer spacing on medium breakpoint."
+        default: "0 0 24px 0"
+      lg:
+        type: string
+        title: "Margin (LG)"
+        description: "Outer spacing on large breakpoint."
+        default: "0 0 24px 0"
+      xl:
+        type: string
+        title: "Margin (XL)"
+        description: "Outer spacing on extra large breakpoint."
+        default: "0 0 24px 0"
+      xxl:
+        type: string
+        title: "Margin (XXL)"
+        description: "Outer spacing on extra extra large breakpoint."
+        default: "0 0 24px 0"
+
+  align:
+    type: string
+    title: "Align Items"
+    description: "Align items on cross-axis."
+    default: "start"
+    enum:
+      - "start"
+      - "end"
+      - "center"
+      - "stretch"
+    adminUI:
+      component: "radio-panel"
+      panel: "alignment"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            icon: "regular-align-left"
+          - value: "center"
+            label: "Center"
+            icon: "regular-align-center"
+          - value: "end"
+            label: "End"
+            icon: "regular-align-right"
+          - value: "stretch"
+            label: "Stretch"
+            icon: "regular-align-justify"
+
+  alignContent:
+    type: string
+    title: "Align Content"
+    description: "Align content distribution."
+    default: "start"
+    enum:
+      - "start"
+      - "end"
+      - "center"
+      - "stretch"
+      - "spaceAround"
+      - "spaceBetween"
+      - "spaceEvenly"
+    adminUI:
+      component: "radio-panel"
+      panel: "alignment"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            icon: "regular-align-left"
+          - value: "center"
+            label: "Center"
+            icon: "regular-align-center"
+          - value: "end"
+            label: "End"
+            icon: "regular-align-right"
+          - value: "stretch"
+            label: "Stretch"
+            icon: "regular-align-justify"
+          - value: "spaceAround"
+            label: "Space around"
+            icon: "regular-align-justify"
+          - value: "spaceBetween"
+            label: "Space between"
+            icon: "regular-align-justify"
+          - value: "spaceEvenly"
+            label: "Space evenly"
+            icon: "regular-align-justify"
+
+  justify:
+    type: string
+    title: "Justify Items"
+    description: "Justify items on main axis."
+    default: "start"
+    enum:
+      - "start"
+      - "end"
+      - "center"
+      - "stretch"
+    adminUI:
+      component: "radio-panel"
+      panel: "alignment"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            icon: "regular-align-left"
+          - value: "center"
+            label: "Center"
+            icon: "regular-align-center"
+          - value: "end"
+            label: "End"
+            icon: "regular-align-right"
+          - value: "stretch"
+            label: "Stretch"
+            icon: "regular-align-justify"
+
+  justifyContent:
+    type: string
+    title: "Justify Content"
+    description: "Justify content distribution."
+    default: "start"
+    enum:
+      - "start"
+      - "end"
+      - "center"
+      - "stretch"
+      - "spaceAround"
+      - "spaceBetween"
+      - "spaceEvenly"
+    adminUI:
+      component: "radio-panel"
+      panel: "alignment"
+      props:
+        options:
+          - value: "start"
+            label: "Start"
+            icon: "regular-align-left"
+          - value: "center"
+            label: "Center"
+            icon: "regular-align-center"
+          - value: "end"
+            label: "End"
+            icon: "regular-align-right"
+          - value: "stretch"
+            label: "Stretch"
+            icon: "regular-align-justify"
+          - value: "spaceAround"
+            label: "Space around"
+            icon: "regular-align-justify"
+          - value: "spaceBetween"
+            label: "Space between"
+            icon: "regular-align-justify"
+          - value: "spaceEvenly"
+            label: "Space evenly"
+            icon: "regular-align-justify"
+
+  border:
+    type: string
+    title: "Border"
+    description: "Border position."
+    required: false
+    enum:
+      - "all"
+      - "top"
+      - "end"
+      - "bottom"
+      - "start"
+    adminUI:
+      component: "select"
+      panel: "border"
+
+  borderVariant:
+    type: string
+    title: "Border Variant"
+    description: "Border color variant."
+    required: false
+    enum:
+      - "primary"
+      - "secondary"
+      - "secondarySubtle"
+    adminUI:
+      component: "select"
+      panel: "border"
+
+  borderRadius:
+    type: string
+    title: "Rounded Corners"
+    description: "Corner radius of the container."
+    default: "0"
+    enum:
+      - "0"
+      - "4px"
+      - "8px"
+      - "16px"
+      - "50%"
+    adminUI:
+      component: "radio-panel"
+      panel: "border"
+      props:
+        options:
+          - value: "0"
+            label: "Square"
+            cornerRadius: "0"
+          - value: "4px"
+            label: "Small"
+            cornerRadius: "4px"
+          - value: "8px"
+            label: "Medium"
+            cornerRadius: "8px"
+          - value: "16px"
+            label: "Large"
+            cornerRadius: "16px"
+          - value: "50%"
+            label: "Round"
+            cornerRadius: "50%"
+
+  backgroundColor:
+    type: string
+    title: "Background Color"
+    description: "Optional background color of the container."
+    default: null
+    required: false
+    adminUI:
+      component: "color"
+      panel: "background"
+
+  backgroundOpacity:
+    type: integer
+    title: "Background Opacity"
+    description: "Opacity of the background color in percent."
+    default: 100
+    adminUI:
+      component: "slider"
+      panel: "background"
+      props:
+        min: 0
+        max: 100
+        step: 1
+
+  backgroundImage:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: false
+    title: "Background Image"
+    description: "Optional background image of the container."
+    resolvedBy: backgroundImageId
+    adminUI:
+      component: "media-field"
+      panel: "background"
+
+  backgroundImageMode:
+    type: string
+    title: "Background Image Mode"
+    description: "How the background image is sized inside the container."
+    default: "auto"
+    enum:
+      - "auto"
+      - "cover"
+      - "contain"
+    adminUI:
+      component: "select"
+      panel: "background"
+      visibleWhen:
+        field: "backgroundImage"
+        isNotEmpty: true
+
+  shadowOffsetX:
+    type: integer
+    title: "Shift Right"
+    description: "Horizontal shadow offset in px."
+    default: 0
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: -50
+        max: 50
+        step: 1
+
+  shadowOffsetY:
+    type: integer
+    title: "Shift Down"
+    description: "Vertical shadow offset in px."
+    default: 0
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: -50
+        max: 50
+        step: 1
+
+  shadowSpread:
+    type: integer
+    title: "Spread"
+    description: "Shadow spread in px."
+    default: 0
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: 0
+        max: 50
+        step: 1
+
+  shadowBlur:
+    type: integer
+    title: "Blur"
+    description: "Shadow blur in px."
+    default: 0
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: 0
+        max: 50
+        step: 1
+
+  shadowOpacity:
+    type: integer
+    title: "Opacity"
+    description: "Opacity of the shadow color in percent."
+    default: 100
+    adminUI:
+      component: "slider"
+      panel: "shadow"
+      props:
+        min: 0
+        max: 100
+        step: 1
+
+  shadowInset:
+    type: boolean
+    title: "Inset"
+    description: "Render the shadow inside the container."
+    default: false
+    adminUI:
+      panel: "shadow"
+
+  shadowColor:
+    type: string
+    title: "Color"
+    description: "Color of the shadow."
+    default: "#000000"
+    adminUI:
+      component: "color"
+      panel: "shadow"
+
+slots:
+  - name: content
+    description: "Child elements rendered inside the grid container."

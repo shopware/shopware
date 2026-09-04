@@ -1,0 +1,25 @@
+meta:
+  label: "Filter Panel"
+  description: "Product listing filter panel with sorting and layout switch actions."
+  icon: "regular-filter-s"
+  category: "commerce"
+  copilot:
+    summary: "Listing filter and sorting panel."
+    hints:
+      - "Bind listing aggregations and sortings."
+      - "Use additional filter slots to extend built-in filters."
+
+properties:
+  showLayoutSwitch:
+    type: boolean
+    title: "Show Layout Switch"
+    description: "Whether to show listing layout toggle actions."
+    default: true
+
+  visibleFilterCount:
+    type: integer
+    title: "Visible Filter Count"
+    description: "Number of visible filters before collapsing into 'more'."
+    default: 3
+    adminUI:
+      component: "number"

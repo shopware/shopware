@@ -1,0 +1,116 @@
+{
+  "sw-experience-studio": {
+    "general": {
+      "mainMenuItemGeneral": "Experience Studio",
+      "descriptionTextModule": "Manage content layouts for the new content system.",
+      "placeholderSearchBar": "Search layouts...",
+      "moduleTitle": "Experience Studio",
+      "createNewLayout": "Create new layout"
+    },
+    "elements": {
+      "sw-grid-container": {
+        "panels": {
+          "general": "General",
+          "spacing": "Spacing",
+          "alignment": "Alignment",
+          "border": "Border",
+          "corners": "Corners",
+          "shadow": "Shadow",
+          "background": "Background"
+        }
+      }
+    },
+    "list": {
+      "columnName": "Name",
+      "columnVersion": "Version",
+      "columnCreatedAt": "Created at",
+      "columnUpdatedAt": "Updated at",
+      "emptyStateTitle": "No content layouts yet",
+      "emptyStateSubline": "Create your first content layout to get started."
+    },
+    "createWizard": {
+      "title": "Create content layout",
+      "description": "Choose a name and the layout type before you start editing.",
+      "nameLabel": "Layout name",
+      "namePlaceholder": "Enter layout name...",
+      "typeLabel": "Layout type",
+      "typePlaceholder": "Select layout type...",
+      "loadingTypes": "Loading layout types...",
+      "typeLoadError": "Layout types could not be loaded.",
+      "noTypes": "No layout types are available.",
+      "start": "Start editing",
+      "missingFields": "Please provide a layout name and layout type before saving.",
+      "layoutTypes": {
+        "product": "Product",
+        "category": "Category",
+        "landing_page": "Landing page"
+      }
+    },
+    "detail": {
+      "toolbar": {
+        "undo": "Undo",
+        "redo": "Redo",
+        "viewportMobile": "Mobile",
+        "viewportTablet": "Tablet",
+        "viewportDesktop": "Desktop",
+        "previewEntity": "Entity",
+        "previewEntityPlaceholder": "Select entity for preview",
+        "previewSalesChannel": "Sales channel",
+        "previewSalesChannelPlaceholder": "Select sales channel for preview",
+        "save": "Save layout"
+      },
+      "sidebarTree": {
+        "title": "Structure",
+        "emptyState": "No elements in this layout yet.",
+        "addElement": "Add element",
+        "addElementNoTypeAvailable": "No registered element type is available for insertion.",
+        "addElementNotAllowed": "This element cannot be inserted into the selected slot.",
+        "configureElement": "Configure element",
+        "duplicateElement": "Duplicate element",
+        "deleteElement": "Delete element"
+      },
+      "preview": {
+        "title": "Preview",
+        "placeholder": "Storefront preview will be shown here.",
+        "missingSalesChannel": "Select a sales channel to load the preview.",
+        "missingEntityContext": "This layout is not assigned to a product, category, or landing page yet.",
+        "noElements": "The preview loaded, but no root elements were returned.",
+        "emptySlot": "No elements in this slot.",
+        "errorLoad": "Preview could not be loaded."
+      },
+      "elementSettings": {
+        "title": "Element settings",
+        "tabElement": "Element",
+        "tabLayout": "Layout",
+        "emptyState": "Select an element to edit its settings.",
+        "loading": "Loading element settings...",
+        "typeLoadError": "Element settings could not be loaded.",
+        "styleLoadError": "Layout settings could not be loaded.",
+        "typeMissing": "No registered element type was found for this component yet.",
+        "noEditableProperties": "This element does not provide editable primitive properties.",
+        "noEditableStyleOptions": "No layout style options are available.",
+        "panelGeneral": "General",
+        "viewportSettings": "Viewport settings",
+        "boxSpacingTop": "Top",
+        "boxSpacingRight": "Right",
+        "boxSpacingBottom": "Bottom",
+        "boxSpacingLeft": "Left",
+        "boxSpacingLinkSides": "Edit all sides together",
+        "boxSpacingUnlinkSides": "Edit sides individually",
+        "inlineTextHint": "Edit text directly in the preview. Double-click to edit.",
+        "inlineTextEditingActive": "Inline editing is currently active in the preview."
+      },
+      "elementPicker": {
+        "title": "Add element",
+        "noElements": "No element types are available for this position.",
+        "categoryHeadlines": {
+          "content": "Content",
+          "commerce": "Commerce",
+          "layout": "Layout",
+          "other": "Other"
+        }
+      },
+      "messageSaved": "Content layout saved successfully."
+    }
+  }
+}

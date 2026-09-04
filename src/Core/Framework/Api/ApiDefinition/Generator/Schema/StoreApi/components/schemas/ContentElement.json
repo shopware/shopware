@@ -1,0 +1,61 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentElement": {
+                "type": "object",
+                "description": "A node of the full format's element tree: the rendered element with its property values merged into one flat map. Key order on the wire is `id`, `component`, `properties`, `slots`, `style`, with `apiAlias` last at every depth.",
+                "required": ["id", "component", "properties", "apiAlias"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique element identifier, carried through from the stored element."
+                    },
+                    "component": {
+                        "type": "string",
+                        "description": "Element component type (e.g. Sw:Grid:Container, Sw:Content:Text, Sw:Product:Card)."
+                    },
+                    "properties": {
+                        "description": "Element properties keyed by property name, always present. The map draws no distinction between a statically authored value, a value a data loader produced and a value delivered by context. An empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "maxItems": 0,
+                                "description": "The empty properties map, serialized as `[]`."
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        ]
+                    },
+                    "slots": {
+                        "type": "object",
+                        "description": "Child element subtrees keyed by slot name. Each slot name maps DIRECTLY to an ordered list of child elements — there is no wrapper object and no per-slot alias. Omitted entirely when the element has no slots, never serialized as an empty container.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": { "$ref": "#/components/schemas/ContentElement" }
+                        }
+                    },
+                    "style": {
+                        "type": "object",
+                        "description": "Universal presentation options keyed by option wire name. Each value is either a single scalar (a flat option) or an object keyed by breakpoint (xs, sm, md, lg, xl, xxl) for a breakpoint-aware option, per the option's breakpointAware flag in the style-option introspection schema. Omitted when empty.",
+                        "additionalProperties": {
+                            "oneOf": [
+                                { "type": ["string", "integer", "number", "boolean"] },
+                                { "type": "object", "additionalProperties": { "type": ["string", "integer", "number", "boolean"] } }
+                            ]
+                        }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_element"],
+                        "description": "Present on every node at every depth, written last."
+                    }
+                }
+            }
+        }
+    }
+}

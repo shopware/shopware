@@ -3,11 +3,17 @@
 namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategorySpecificationSource;
 use Shopware\Core\Content\Category\Aggregate\CategoryTag\CategoryTagDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Cms\CategoryNameCmsElementResolver;
 use Shopware\Core\Content\Category\Cms\CategoryNavigationCmsElementResolver;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuDataLoader;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuLoaderConfigSerializer;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdater;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler;
@@ -21,6 +27,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Subscriber\CategorySubscriber;
 use Shopware\Core\Content\Category\Subscriber\CategoryTreeMovedSubscriber;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
@@ -29,6 +36,9 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
+use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
+use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
@@ -183,4 +193,41 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(HtmlSanitizer::class),
         ])
         ->tag('shopware.cms.data_resolver');
+
+    // Content System
+    $services->set(CategoryContentLayoutDefinition::class)
+        ->args([
+            service(ContentLayoutMetadataDeriver::class),
+        ])
+        ->tag('shopware.entity.definition');
+
+    $services->alias(NavigationLoaderInterface::class, NavigationLoader::class);
+
+    $services->set(NavigationDataLoader::class)
+        ->args([
+            service(NavigationLoaderInterface::class),
+            service(NavigationAliasResolver::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(NavigationLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(ServiceMenuDataLoader::class)
+        ->args([
+            service(NavigationLoaderInterface::class),
+            service(NavigationAliasResolver::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(ServiceMenuLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(CategorySpecificationSource::class)
+        ->args([
+            service('category_content_layout.repository'),
+            service(CategoryContentLayoutDefinition::class),
+            service(EntityLayoutContextFactory::class),
+        ])
+        ->tag('content_system.entity_specification_source', ['priority' => 100]);
 };

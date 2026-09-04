@@ -1,0 +1,41 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Entity Types",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-entity-types.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system entity types",
+                "description": "Get the DAL entity types that support content layout assignment.",
+                "operationId": "content-system-entity-types",
+                "responses": {
+                    "200": {
+                        "description": "Returns the assignable entity types.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["entityTypes"],
+                                    "properties": {
+                                        "entityTypes": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "description": "DAL entity names that support content layout assignment."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

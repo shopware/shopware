@@ -15,6 +15,8 @@ class ShippingException extends HttpException
 
     final public const SHIPPING_METHOD_DUPLICATE_TECHNICAL_NAME = 'CHECKOUT__DUPLICATE_SHIPPING_METHOD_TECHNICAL_NAME';
 
+    final public const INVALID_FIELD_VALUE_TYPE = 'CHECKOUT__SHIPPING_INVALID_FIELD_VALUE_TYPE';
+
     public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self
     {
         return new self(
@@ -44,6 +46,16 @@ class ShippingException extends HttpException
             self::SHIPPING_METHOD_DUPLICATE_TECHNICAL_NAME,
             'The technical name "{{ technicalName }}" is not unique.',
             ['technicalName' => $technicalName]
+        );
+    }
+
+    public static function invalidFieldValueType(string $fieldName, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_FIELD_VALUE_TYPE,
+            'Field {{ fieldName }} expected {{ expectedType }}, got {{ actualType }}',
+            ['fieldName' => $fieldName, 'expectedType' => $expectedType, 'actualType' => $actualType]
         );
     }
 }

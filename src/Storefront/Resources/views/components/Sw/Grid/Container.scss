@@ -1,0 +1,183 @@
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+@each $breakpoint, $value in $grid-breakpoints {
+    @property --sw-grid-container-padding-#{$breakpoint} {
+        syntax: '*';
+        inherits: false;
+    }
+
+    @property --sw-grid-container-margin-#{$breakpoint} {
+        syntax: '*';
+        inherits: false;
+    }
+}
+
+.grid-container {
+    display: grid;
+
+    &.centered {
+        max-width: 1400px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    &.max-content {
+        grid-auto-flow: column;
+        grid-auto-columns: max-content;
+    }
+
+    @for $i from 1 through 12 {
+        &.columns-#{$i} {
+            grid-template-columns: repeat(#{$i}, 1fr);
+        }
+
+        &.rows-#{$i} {
+            grid-template-rows: repeat(#{$i}, 1fr);
+        }
+    }
+
+    @include media-breakpoint-up(sm) {
+        @for $i from 1 through 12 {
+            &.columns-sm-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-sm-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        @for $i from 1 through 12 {
+            &.columns-md-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-md-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+        @for $i from 1 through 12 {
+            &.columns-lg-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-lg-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
+    }
+
+    @include media-breakpoint-up(xl) {
+        @for $i from 1 through 12 {
+            &.columns-xl-#{$i} {
+                grid-template-columns: repeat(#{$i}, 1fr);
+            }
+
+            &.rows-xl-#{$i} {
+                grid-template-rows: repeat(#{$i}, 1fr);
+            }
+        }
+    }
+
+    &.align-start {
+        align-items: start;
+    }
+
+    &.align-end {
+        align-items: end;
+    }
+
+    &.align-center {
+        align-items: center;
+    }
+
+    &.align-stretch {
+        align-items: stretch;
+    }
+
+    &.align-content-start {
+        align-content: start;
+    }
+
+    &.align-content-end {
+        align-content: end;
+    }
+
+    &.align-content-center {
+        align-content: center;
+    }
+
+    &.align-content-stretch {
+        align-content: stretch;
+    }
+
+    &.align-content-space-around {
+        align-content: space-around;
+    }
+
+    &.align-content-space-between {
+        align-content: space-between;
+    }
+
+    &.align-content-space-evenly {
+        align-content: space-evenly;
+    }
+
+    &.justify-start {
+        justify-items: start;
+    }
+
+    &.justify-end {
+        justify-items: end;
+    }
+
+    &.justify-center {
+        justify-items: center;
+    }
+
+    &.justify-stretch {
+        justify-items: stretch;
+    }
+
+    &.justify-content-start {
+        justify-content: start;
+    }
+
+    &.justify-content-end {
+        justify-content: end;
+    }
+
+    &.justify-content-center {
+        justify-content: center;
+    }
+
+    &.justify-content-stretch {
+        justify-content: stretch;
+    }
+
+    &.justify-content-space-around {
+        justify-content: space-around;
+    }
+
+    &.justify-content-space-between {
+        justify-content: space-between;
+    }
+
+    &.justify-content-space-evenly {
+        justify-content: space-evenly;
+    }
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            padding: var(--sw-grid-container-padding-#{$breakpoint});
+            margin: var(--sw-grid-container-margin-#{$breakpoint});
+        }
+    }
+}

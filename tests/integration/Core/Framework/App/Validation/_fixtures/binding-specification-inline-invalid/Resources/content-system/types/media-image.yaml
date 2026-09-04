@@ -1,0 +1,31 @@
+meta:
+  label: "Invalid Inline Media Image"
+  description: "Fixture image type whose inline binding illegally declares an explicit type."
+  icon: "regular-image"
+  category: "content"
+  copilot:
+    summary: "Fixture image element."
+    hints: []
+
+properties:
+  mediaId:
+    type: string
+    title: "Media ID"
+    description: "Stored media id."
+
+  media:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: true
+    title: "Media"
+    description: "Hydrated media entity."
+
+bindings:
+  bad-binding:
+    type: Sw:Media:Image
+    label: "Explicit type is forbidden inline"
+    resolves:
+      media:
+        loader: entity
+        config:
+          entity: media
+          property: mediaId

@@ -1,0 +1,29 @@
+type: string
+default: "auto"
+enum:
+  - "auto"
+  - "start"
+  - "center"
+  - "end"
+  - "stretch"
+adminUI:
+  component: "radio-panel"
+  label: "Justify Self"
+  description: "Main-axis alignment of the element within its parent."
+  props:
+    options:
+      - value: "auto"
+        label: "Auto"
+        icon: "regular-circle"
+      - value: "start"
+        label: "Start"
+        icon: "regular-align-left"
+      - value: "center"
+        label: "Center"
+        icon: "regular-align-center"
+      - value: "end"
+        label: "End"
+        icon: "regular-align-right"
+      - value: "stretch"
+        label: "Stretch"
+        icon: "regular-align-justify"

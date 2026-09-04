@@ -6,11 +6,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\System\Language\CachedLanguageLoader;
+use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader;
+use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageLoaderConfigSerializer;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageExceptionHandler;
 use Shopware\Core\System\Language\LanguageLoader;
 use Shopware\Core\System\Language\LanguageValidator;
 use Shopware\Core\System\Language\Rule\LanguageRule;
+use Shopware\Core\System\Language\SalesChannel\AbstractLanguageRoute;
 use Shopware\Core\System\Language\SalesChannel\LanguageRoute;
 use Shopware\Core\System\Language\SalesChannel\SalesChannelLanguageDefinition;
 use Shopware\Core\System\Language\SalesChannelLanguageLoader;
@@ -70,4 +73,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(LanguageRule::class)
         ->tag('shopware.rule.definition');
+
+    // Content System
+    $services->alias(AbstractLanguageRoute::class, LanguageRoute::class);
+
+    $services->set(LanguageDataLoader::class)
+        ->args([
+            service(AbstractLanguageRoute::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(LanguageLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
 };

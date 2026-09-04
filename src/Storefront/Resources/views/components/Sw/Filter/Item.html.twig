@@ -1,0 +1,60 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    filterName = '',
+    slots = [],
+    displayType = 'dropdown',
+%}
+
+{% set filterItemId = 'filter-item-' ~ random() %}
+
+{% set itemCVA = cva({
+    base: 'sw-filter-item',
+    variants: {
+        displayType: {
+            dropdown: 'is--dropdown',
+            collapse: 'is--collapse',
+        },
+    },
+}) %}
+
+{% set defaultAttributes = {
+    class: itemCVA.apply({ displayType }),
+    'data-component': 'Sw:Filter:Item',
+} %}
+
+{% set contentAttributes = {
+    id: filterItemId,
+    class: displayType == 'dropdown' ? 'sw-filter-item__dropdown dropdown-menu' : 'sw-filter-item__collapse collapse',
+} %}
+
+{% set buttonAttributes = {
+    class: 'sw-filter-item__btn',
+    type: 'button',
+    variant: 'filter',
+    'data-bs-toggle': displayType == 'dropdown' ? 'dropdown' : 'collapse',
+    'aria-expanded': 'false',
+    'data-bs-offset': '0,-1',
+    'data-bs-auto-close': 'outside',
+} %}
+
+{% if displayType == 'collapse' %}
+    {% set buttonAttributes = buttonAttributes|merge({ 'data-bs-target': '#' ~ filterItemId }) %}
+{% endif %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <twig:Sw:Button {{ ...attributes.defaults(buttonAttributes) }}>
+        {{ filterName }}
+        <span class="sw-filter-item__count badge text-bg-secondary is--hidden">0</span>
+        <twig:Sw:Icon name="arrow-head-down" size="xs" />
+        <twig:Sw:Icon name="arrow-head-up" size="xs" />
+    </twig:Sw:Button>
+
+    <div {{ attributes.defaults(contentAttributes) }}>
+        {% block content %}
+            <twig:Slot name="content"></twig:Slot>
+        {% endblock %}
+    </div>
+</div>

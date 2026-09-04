@@ -1,0 +1,603 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/content-system/layout/{layoutId}/insert-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Insert an element into a stored layout",
+                "operationId": "contentSystemLayoutPersistedInsertElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Inserts a new element of the given `type` at the root, or into `parentElementId`/`slot` at the optional `index`. When the optional `bindingSpecificationId` is given, the named binding specification's wiring is applied onto the fresh element atomically after scaffold, in the same committed edit; an unregistered id is rejected with `400` (`bindingSpecificationNotFound`) and a specification whose declared `type` does not match the inserted `type` with `400` (`bindingTypeMismatch`) — the mutation throws before the repository write, so nothing is persisted on either failure. The committing write runs the resolvability gates, so a binding-breaking edit is rejected and nothing is written. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege. Response diagnostics are derived from the layout's real source bindings, not a request hint.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedInsertElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Insert at the root of a never-updated layout",
+                                    "value": { "type": "Sw:Content:Text", "expectedVersion": null }
+                                },
+                                "withOptionalPlacement": {
+                                    "summary": "Insert into a slot at a position, with a version token",
+                                    "value": {
+                                        "type": "Sw:Content:Text",
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00",
+                                        "parentElementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
+                                        "slot": "content",
+                                        "index": 0
+                                    }
+                                },
+                                "withBinding": {
+                                    "summary": "Insert an image and apply a binding specification atomically",
+                                    "value": {
+                                        "type": "Sw:Media:Image",
+                                        "bindingSpecificationId": "core:Sw:Media:Image",
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": {
+                        "description": "Conflict, and nothing was written. Either the optimistic-concurrency token (`expectedVersion`) no longer matches the stored layout's current version (`CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT` — reload the layout, take the `updatedAt` the read returned, and retry), or the inserted type's default binding specification set holds more than one specification so no single default can be fill-applied (`CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS` — reachable only when a database row created outside the app lifecycle fakes a second default for the type; the mutation throws before the repository write instead of picking one).",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "examples": {
+                                    "versionConflict": {
+                                        "summary": "The expected version no longer matches",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                                    "title": "Conflict",
+                                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "defaultAmbiguity": {
+                                        "summary": "The type has more than one default binding specification",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                                    "title": "Conflict",
+                                                    "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "examples": {
+                                    "versionConflict": {
+                                        "summary": "The expected version no longer matches",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                                    "title": "Conflict",
+                                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "defaultAmbiguity": {
+                                        "summary": "The type has more than one default binding specification",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                                    "title": "Conflict",
+                                                    "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/remove-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Remove an element from a stored layout",
+                "operationId": "contentSystemLayoutPersistedRemoveElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Removes `elementId` and its subtree. The committing write runs the resolvability gates. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedRemoveElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Remove an element by id",
+                                    "value": { "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "expectedVersion": "2026-06-22T10:00:00.000+00:00" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/move-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Move an element within a stored layout",
+                "operationId": "contentSystemLayoutPersistedMoveElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Moves `elementId` under `newParentId`/`newSlot` (root when omitted) at the optional `index`, which counts the sibling list after the moved element is removed. Moving an element into itself or a descendant is rejected with `400`. The committing write runs the resolvability gates. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedMoveElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Move an element to the root",
+                                    "value": { "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "expectedVersion": "2026-06-22T10:00:00.000+00:00" }
+                                },
+                                "withOptionalPlacement": {
+                                    "summary": "Move into another slot at a position",
+                                    "value": {
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00",
+                                        "newParentId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
+                                        "newSlot": "content",
+                                        "index": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/replace-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Replace an element's type in a stored layout",
+                "operationId": "contentSystemLayoutPersistedReplaceElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Replaces the type of `elementId` with `newType`. Anything the new type cannot keep is committed-out and reported, never silently lost: detached children in `orphaned` (re-place them with `attach-element`), wiring keys in `droppedWiring`, and static property values in `droppedProperties`. The committing write runs the resolvability gates. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedReplaceElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Replace an element's type",
+                                    "value": {
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "newType": "Sw:Content:Text",
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics. Detached content rides back in `orphaned` / `droppedWiring` / `droppedProperties`.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        },
+                        "links": {
+                            "AttachOrphanedElement": {
+                                "operationId": "contentSystemLayoutPersistedAttachElement",
+                                "description": "Each subtree returned in `orphaned` can be re-placed by calling the persisted attach-element on the same layout with it as the `element`."
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": {
+                        "description": "Conflict, and nothing was written. Either the optimistic-concurrency token (`expectedVersion`) no longer matches the stored layout's current version (`CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT` — reload the layout, take the `updatedAt` the read returned, and retry), or the new type's default binding specification set holds more than one specification so no single default can be fill-applied (`CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS` — reachable only when a database row created outside the app lifecycle fakes a second default for the type; the mutation throws before the repository write instead of picking one).",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "examples": {
+                                    "versionConflict": {
+                                        "summary": "The expected version no longer matches",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                                    "title": "Conflict",
+                                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "defaultAmbiguity": {
+                                        "summary": "The type has more than one default binding specification",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                                    "title": "Conflict",
+                                                    "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "examples": {
+                                    "versionConflict": {
+                                        "summary": "The expected version no longer matches",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT",
+                                                    "title": "Conflict",
+                                                    "detail": "Content layout \"0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b\" was modified concurrently; the expected version no longer matches. Reload the layout and retry."
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "defaultAmbiguity": {
+                                        "summary": "The type has more than one default binding specification",
+                                        "value": {
+                                            "errors": [
+                                                {
+                                                    "status": "409",
+                                                    "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                                    "title": "Conflict",
+                                                    "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/duplicate-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Duplicate an element in a stored layout",
+                "operationId": "contentSystemLayoutPersistedDuplicateElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Duplicates `elementId` and its subtree, placing the copy at the optional `index` (next sibling when omitted). The copy and its descendants receive freshly minted ids, returned in `affectedElementIds`. The committing write runs the resolvability gates. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedDuplicateElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Duplicate an element as its next sibling",
+                                    "value": { "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "expectedVersion": "2026-06-22T10:00:00.000+00:00" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/wrap-elements": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Wrap sibling elements in a new container in a stored layout",
+                "operationId": "contentSystemLayoutPersistedWrapElements",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Wraps `elementIds` (a non-empty, duplicate-free set of siblings in one slot, or all roots) in a new container of `containerType`, placed into its `slot`. The committing write runs the resolvability gates. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedWrapElementsRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Wrap two elements in a container",
+                                    "value": {
+                                        "elementIds": ["0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41"],
+                                        "containerType": "shopware/container",
+                                        "slot": "content",
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/unwrap-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Unwrap a container in a stored layout",
+                "operationId": "contentSystemLayoutPersistedUnwrapElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Removes the container `containerElementId`, lifting its children into its former position. The committing write runs the resolvability gates. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedUnwrapElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Unwrap a container",
+                                    "value": { "containerElementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b", "expectedVersion": "2026-06-22T10:00:00.000+00:00" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/attach-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Attach an element subtree into a stored layout",
+                "operationId": "contentSystemLayoutPersistedAttachElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Splices the supplied `element` subtree into the root, or into `parentElementId`/`slot` at the optional `index`. Every id in the subtree is re-minted server-side; the placed ids are returned in `affectedElementIds`. Use this to re-place an `orphaned` subtree from an earlier edit. The committing write runs the resolvability gates. `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedAttachElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Attach a subtree at the root",
+                                    "value": {
+                                        "element": { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } },
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00"
+                                    }
+                                },
+                                "withOptionalPlacement": {
+                                    "summary": "Attach an orphaned subtree into a slot",
+                                    "value": {
+                                        "element": { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } },
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00",
+                                        "parentElementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
+                                        "slot": "content",
+                                        "index": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics, with the attached ids in `affectedElementIds`.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        },
+        "/_action/content-system/layout/{layoutId}/bind-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Bind a specification to an element in a stored layout",
+                "operationId": "contentSystemLayoutPersistedBindElement",
+                "description": "Applies a single structural edit to the stored layout named by `{layoutId}` and commits it, returning the re-resolved tree plus diagnostics. Binds `bindingSpecificationId`'s wiring onto `elementId`, mirroring the draft bind-element action. The committing write runs the resolvability gates. An unregistered `bindingSpecificationId` is rejected with `400` (`bindingSpecificationNotFound`); a specification whose declared `type` does not match the target element's `component` is rejected with `400` (`bindingTypeMismatch`). `expectedVersion` is the optimistic-concurrency token; a malformed `expectedVersion` returns `400 invalidVersionToken`. Unknown request fields are rejected with `400` (`unknownRequestField`). Requires the `content_layout:update` privilege.",
+                "parameters": [
+                    {
+                        "name": "layoutId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Id of the stored `content_layout` to edit.",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutPersistedBindElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Bind a specification to an element",
+                                    "value": {
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "bindingSpecificationId": "core:Sw:Media:Image",
+                                        "expectedVersion": "2026-06-22T10:00:00.000+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The committed, re-resolved layout plus diagnostics, with the binding's wiring applied.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "404": { "$ref": "#/components/responses/404" },
+                    "409": { "$ref": "#/components/responses/ContentLayoutVersionConflict" }
+                }
+            }
+        }
+    }
+}

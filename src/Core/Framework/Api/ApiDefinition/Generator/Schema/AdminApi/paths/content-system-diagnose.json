@@ -1,0 +1,52 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/content-system/layout/diagnose": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Resolve and diagnose a draft layout",
+                "operationId": "contentSystemLayoutDiagnose",
+                "description": "Resolves every element property of an unsaved draft layout and reports what is structurally broken or still unresolved, without persisting and without rendering against a real entity. Returns the per-element `resolutions` plus a well-formedness / resolvability `diagnostics` report. The optional `rootSource` resolves the draft against a root source's context so resolvability can be checked; with it unset, only intrinsic well-formedness is evaluated. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`). The whole request body is optional; an absent body diagnoses an empty tree. Requires the `content_layout:read` privilege. A malformed element config is reported as an `invalid_config` violation in the body at `200`, not as an error; a structurally malformed element is rejected with `400`.",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutDiagnoseRequest" },
+                            "examples": {
+                                "boundToEntity": {
+                                    "summary": "Diagnose a draft against a product root source",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } }
+                                        ],
+                                        "rootSource": "product"
+                                    }
+                                },
+                                "intrinsicOnly": {
+                                    "summary": "Diagnose well-formedness only, no source bound",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The per-element resolutions plus the well-formedness / resolvability report. Never persisted, never cached.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutDiagnoseResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        }
+    }
+}

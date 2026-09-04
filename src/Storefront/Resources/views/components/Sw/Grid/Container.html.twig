@@ -1,0 +1,373 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    mode = null,
+    itemMinWidth = "400px",
+    columns = null,
+    rows = null,
+    gap = 24,
+    padding = {
+        xs: '0 20px 0 20px',
+        sm: '0 20px 0 20px',
+        md: '0 20px 0 20px',
+        lg: '0 20px 0 20px',
+        xl: '0 20px 0 20px',
+        xxl: '0 20px 0 20px',
+    },
+    margin = {
+        xs: '0 0 24px 0',
+        sm: '0 0 24px 0',
+        md: '0 0 24px 0',
+        lg: '0 0 24px 0',
+        xl: '0 0 24px 0',
+        xxl: '0 0 24px 0',
+    },
+    align = 'start',
+    alignContent = 'start',
+    justify = 'start',
+    justifyContent = 'start',
+    centered = true,
+    border = null,
+    borderVariant = null,
+    backgroundOpacity = 100,
+    borderRadius = '0',
+    backgroundColor = null,
+    backgroundImage = null,
+    backgroundImageMode = 'auto',
+    shadowOffsetX = 0,
+    shadowOffsetY = 0,
+    shadowSpread = 0,
+    shadowBlur = 0,
+    shadowOpacity = 100,
+    shadowInset = false,
+    shadowColor = '#000000',
+    slots = [],
+%}
+
+{% if columns is not null and mode is null %}
+    {% set mode = 'explicit' %}
+{% elseif mode is null %}
+    {% set mode = 'auto-fit' %}
+{% endif %}
+
+{% if columns is object or columns is iterable %}
+    {% set columnsXs = columns.xs ?? null %}
+    {% set columnsSm = columns.sm ?? null %}
+    {% set columnsMd = columns.md ?? null %}
+    {% set columnsLg = columns.lg ?? null %}
+    {% set columnsXl = columns.xl ?? null %}
+{% else %}
+    {% set columnsXs = columns ?? null %}
+    {% set columnsSm = columns ?? null %}
+    {% set columnsMd = columns ?? null %}
+    {% set columnsLg = columns ?? null %}
+    {% set columnsXl = columns ?? null %}
+{% endif %}
+
+{% if rows is object or rows is iterable %}
+    {% set rowsXs = rows.xs ?? null %}
+    {% set rowsSm = rows.sm ?? null %}
+    {% set rowsMd = rows.md ?? null %}
+    {% set rowsLg = rows.lg ?? null %}
+    {% set rowsXl = rows.xl ?? null %}
+{% else %}
+    {% set rowsXs = rows ?? null %}
+    {% set rowsSm = rows ?? null %}
+    {% set rowsMd = rows ?? null %}
+    {% set rowsLg = rows ?? null %}
+    {% set rowsXl = rows ?? null %}
+{% endif %}
+
+{% set gridCVA = cva({
+    base: 'grid-container',
+    variants: {
+        mode: {
+            'max-content': 'max-content',
+            'auto-fit': 'auto-fit',
+            'auto-fill': 'auto-fill',
+            'explicit': 'explicit',
+        },
+        columnsXs: {
+            '1': 'columns-1',
+            '2': 'columns-2',
+            '3': 'columns-3',
+            '4': 'columns-4',
+            '5': 'columns-5',
+            '6': 'columns-6',
+            '7': 'columns-7',
+            '8': 'columns-8',
+            '9': 'columns-9',
+            '10': 'columns-10',
+            '11': 'columns-11',
+            '12': 'columns-12',
+        },
+        columnsSm: {
+            '1': 'columns-sm-1',
+            '2': 'columns-sm-2',
+            '3': 'columns-sm-3',
+            '4': 'columns-sm-4',
+            '5': 'columns-sm-5',
+            '6': 'columns-sm-6',
+            '7': 'columns-sm-7',
+            '8': 'columns-sm-8',
+            '9': 'columns-sm-9',
+            '10': 'columns-sm-10',
+            '11': 'columns-sm-11',
+            '12': 'columns-sm-12',
+        },
+        columnsMd: {
+            '1': 'columns-md-1',
+            '2': 'columns-md-2',
+            '3': 'columns-md-3',
+            '4': 'columns-md-4',
+            '5': 'columns-md-5',
+            '6': 'columns-md-6',
+            '7': 'columns-md-7',
+            '8': 'columns-md-8',
+            '9': 'columns-md-9',
+            '10': 'columns-md-10',
+            '11': 'columns-md-11',
+            '12': 'columns-md-12',
+        },
+        columnsLg: {
+            '1': 'columns-lg-1',
+            '2': 'columns-lg-2',
+            '3': 'columns-lg-3',
+            '4': 'columns-lg-4',
+            '5': 'columns-lg-5',
+            '6': 'columns-lg-6',
+            '7': 'columns-lg-7',
+            '8': 'columns-lg-8',
+            '9': 'columns-lg-9',
+            '10': 'columns-lg-10',
+            '11': 'columns-lg-11',
+            '12': 'columns-lg-12',
+        },
+        columnsXl: {
+            '1': 'columns-xl-1',
+            '2': 'columns-xl-2',
+            '3': 'columns-xl-3',
+            '4': 'columns-xl-4',
+            '5': 'columns-xl-5',
+            '6': 'columns-xl-6',
+            '7': 'columns-xl-7',
+            '8': 'columns-xl-8',
+            '9': 'columns-xl-9',
+            '10': 'columns-xl-10',
+            '11': 'columns-xl-11',
+            '12': 'columns-xl-12',
+        },
+        rows: {
+            '1': 'rows-1',
+            '2': 'rows-2',
+            '3': 'rows-3',
+            '4': 'rows-4',
+            '5': 'rows-5',
+            '6': 'rows-6',
+            '7': 'rows-7',
+            '8': 'rows-8',
+            '9': 'rows-9',
+            '10': 'rows-10',
+            '11': 'rows-11',
+            '12': 'rows-12',
+        },
+        rowsSm: {
+            '1': 'rows-sm-1',
+            '2': 'rows-sm-2',
+            '3': 'rows-sm-3',
+            '4': 'rows-sm-4',
+            '5': 'rows-sm-5',
+            '6': 'rows-sm-6',
+            '7': 'rows-sm-7',
+            '8': 'rows-sm-8',
+            '9': 'rows-sm-9',
+            '10': 'rows-sm-10',
+            '11': 'rows-sm-11',
+            '12': 'rows-sm-12',
+        },
+        rowsMd: {
+            '1': 'rows-md-1',
+            '2': 'rows-md-2',
+            '3': 'rows-md-3',
+            '4': 'rows-md-4',
+            '5': 'rows-md-5',
+            '6': 'rows-md-6',
+            '7': 'rows-md-7',
+            '8': 'rows-md-8',
+            '9': 'rows-md-9',
+            '10': 'rows-md-10',
+            '11': 'rows-md-11',
+            '12': 'rows-md-12',
+        },
+        rowsLg: {
+            '1': 'rows-lg-1',
+            '2': 'rows-lg-2',
+            '3': 'rows-lg-3',
+            '4': 'rows-lg-4',
+            '5': 'rows-lg-5',
+            '6': 'rows-lg-6',
+            '7': 'rows-lg-7',
+            '8': 'rows-lg-8',
+            '9': 'rows-lg-9',
+            '10': 'rows-lg-10',
+            '11': 'rows-lg-11',
+            '12': 'rows-lg-12',
+        },
+        rowsXl: {
+            '1': 'rows-xl-1',
+            '2': 'rows-xl-2',
+            '3': 'rows-xl-3',
+            '4': 'rows-xl-4',
+            '5': 'rows-xl-5',
+            '6': 'rows-xl-6',
+            '7': 'rows-xl-7',
+            '8': 'rows-xl-8',
+            '9': 'rows-xl-9',
+            '10': 'rows-xl-10',
+            '11': 'rows-xl-11',
+            '12': 'rows-xl-12',
+        },
+        align: {
+            start: 'align-start',
+            end: 'align-end',
+            center: 'align-center',
+            stretch: 'align-stretch',
+        },
+        alignContent: {
+            start: 'align-content-start',
+            end: 'align-content-end',
+            center: 'align-content-center',
+            stretch: 'align-content-stretch',
+            spaceAround: 'align-content-space-around',
+            spaceBetween: 'align-content-space-between',
+            spaceEvenly: 'align-content-space-evenly',
+        },
+        justify: {
+            start: 'justify-start',
+            end: 'justify-end',
+            center: 'justify-center',
+            stretch: 'justify-stretch',
+        },
+        justifyContent: {
+            start: 'justify-content-start',
+            end: 'justify-content-end',
+            center: 'justify-content-center',
+            stretch: 'justify-content-stretch',
+            spaceAround: 'justify-content-space-around',
+            spaceBetween: 'justify-content-space-between',
+            spaceEvenly: 'justify-content-space-evenly',
+        },
+        centered: {
+            true: 'centered',
+        },
+        border: {
+            all: 'border',
+            top: 'border-top',
+            end: 'border-end',
+            bottom: 'border-bottom',
+            start: 'border-start'
+        },
+        borderVariant: {
+            primary: 'border-primary',
+            secondary: 'border-secondary',
+            secondarySubtle: 'border-secondary-subtle'
+        },
+    }
+}) %}
+
+{% set attributeDefaults = {
+    class: gridCVA.apply({
+        mode,
+        columnsXs,
+        columnsSm,
+        columnsMd,
+        columnsLg,
+        columnsXl,
+        rowsXs,
+        rowsSm,
+        rowsMd,
+        rowsLg,
+        rowsXl,
+        align,
+        alignContent,
+        justify,
+        justifyContent,
+        centered,
+        border,
+        borderVariant,
+        backgroundColor,
+        backgroundImage
+    }),
+} %}
+
+{% set gridStyle = '' %}
+{% set columnSetting = '' %}
+{% set rowSetting = '' %}
+{% set columnCvaValues = ['auto', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'] %}
+{% set rowCvaValues = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'] %}
+
+{# It is possible to pass custom values which will be assigned to the grid-template-columns property. #}
+{% if columns is string and columns not in columnCvaValues %}
+    {% set columnSetting = columns %}
+{% endif %}
+
+{# It is possible to pass custom values which will be assigned to the grid-template-rows property. #}
+{% if rows is string and rows not in rowCvaValues %}
+    {% set rowSetting = rows %}
+{% endif %}
+
+{% set gridStyle = columnSetting ? gridStyle ~ 'grid-template-columns: ' ~ columnSetting|trim ~ '; ' : gridStyle %}
+{% set gridStyle = rowSetting ? gridStyle ~ 'grid-template-rows: ' ~ rowSetting|trim ~ '; ' : gridStyle %}
+{% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; ' : gridStyle %}
+
+{% for spacingName, spacingValue in { padding: padding, margin: margin } %}
+    {% if spacingValue is mapping %}
+        {% for viewport, value in spacingValue %}
+            {% if value is not empty and value is not null %}
+                {% set gridStyle = gridStyle ~ '--sw-grid-container-' ~ spacingName ~ '-' ~ viewport ~ ': ' ~ value ~ '; ' %}
+            {% endif %}
+        {% endfor %}
+    {% elseif spacingValue is not empty %}
+        {% set gridStyle = gridStyle ~ spacingName ~ ': ' ~ spacingValue ~ '; ' %}
+    {% endif %}
+{% endfor %}
+
+{% if backgroundColor and backgroundOpacity > 0 %}
+    {% set gridStyle = gridStyle ~ 'background-color: color-mix(in srgb, ' ~ backgroundColor ~ ' ' ~ backgroundOpacity ~ '%, transparent); ' %}
+{% endif %}
+{% if backgroundImage %}
+    {% set gridStyle = gridStyle ~ 'background-image: url(' ~ backgroundImage|sw_encode_media_url ~ '); ' %}
+    {% if backgroundImageMode in ['cover', 'contain'] %}
+        {% set gridStyle = gridStyle ~ 'background-size: ' ~ backgroundImageMode ~ '; background-position: center; background-repeat: no-repeat; ' %}
+    {% endif %}
+{% endif %}
+{% if borderRadius and borderRadius != '0' %}
+    {% set gridStyle = gridStyle ~ 'border-radius: ' ~ borderRadius ~ '; ' %}
+{% endif %}
+{% if shadowColor and shadowOpacity > 0 %}
+    {% set shadowInsetValue = shadowInset ? 'inset ' : '' %}
+    {% set shadowColorValue = 'color-mix(in srgb, ' ~ shadowColor ~ ' ' ~ shadowOpacity ~ '%, transparent)' %}
+    {% set gridStyle = gridStyle ~ 'box-shadow: ' ~ shadowInsetValue ~ shadowOffsetX ~ 'px ' ~ shadowOffsetY ~ 'px ' ~ shadowBlur ~ 'px ' ~ shadowSpread ~ 'px ' ~ shadowColorValue ~ '; ' %}
+{% endif %}
+
+{% if mode == 'auto-fit' or mode == 'auto-fill' %}
+    {% set gridStyle = gridStyle ~ 'grid-template-columns: repeat(' ~ mode ~ ', minmax(' ~ itemMinWidth ~ ', 1fr));' %}
+{% endif %}
+
+{% if gridStyle is not empty %}
+    {% set externalStyle = attributes.all()['style'] %}
+    {% set gridStyle = gridStyle ~ externalStyle %}
+
+    {% set attributeDefaults = attributeDefaults|merge({ style: gridStyle }) %}
+{% endif %}
+
+<div {{ attributes.without('style').defaults(attributeDefaults) }}>
+
+    {% block content %}
+        {% for name, slot in slots %}
+            <twig:Slot :name="name"></twig:Slot>
+        {% endfor %}
+    {% endblock %}
+</div>

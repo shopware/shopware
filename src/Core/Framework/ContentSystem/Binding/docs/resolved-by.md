@@ -1,0 +1,21 @@
+# resolvedBy References
+
+The inline shorthand that lets a reference property name its storage key without any authored `bindings:` entry.
+
+A reference property can name its storage key inline through a single `resolvedBy` key, instead of an authored `bindings:` entry:
+
+```yaml
+properties:
+  media:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: true
+    resolvedBy: mediaId
+```
+
+`resolvedBy` names the storage key under which elements of this type store the entity id (`properties.mediaId`); the property resolves from that key through the DAL at serving time. It is valid only on a reference (FQCN-typed) property — on a primitive property it is a hard load error. The storage key must not collide with a declared property key of the type, and two `resolvedBy` properties of one type must not name the same storage key; either collision is a hard load error. The storage key is a defined concept only for the two built-in resolvedBy branches (`ResolvedByLoaderBranch`), and a value wired through any other loader has no single storage key, so these collision checks do not apply to it — canonicalization and validation remain its only gates. The key is undeclared by design: it is invisible to the type pipeline (the type serializer reads only its own declared property keys and drops everything else, the same tolerance that makes `bindings:` possible — see [Type](../../Layout/Type/README.md)), and `TypeConsistentBindingSpecification` accepts it as an undeclared `resolvedBy` storage key rather than rejecting it as unknown (see [validation.md](validation.md)). A typo in that key is not load-time detectable by construction — indistinguishable from an intentional undeclared key — so the wiring validates; the required reference then resolves from its own stored requirement, but the mistyped key never carries a value, so diagnosis reports it as an unfilled required input (`Diagnostics/ViolationCode::UnfilledRequiredInput`), never a load-time error.
+
+Its value is a `resolves` entry value and goes through the same three sugar tiers as an authored entry (a bare string is the standard case; the single-key and canonical forms also apply — see [authoring-sugar.md](authoring-sugar.md)). `DefaultBindingSpecificationSynthesizer`, injected into `YamlBindingSpecificationLoader`, turns every `resolvedBy` property of a type file into one synthesized specification for the file: `id` is the type name itself (see [default-specification.md](default-specification.md)), `label` is `meta.label` falling back to the type name, `resolves` carries one entry per `resolvedBy` property fed through the standard load path, and it carries no `inputs` — the canonicalizer's input synthesis skips undeclared storage keys, since requiredness already lives on the reference property itself. Synthesis reads the raw parsed `properties` map before any type-pipeline validation runs, so property-level malformation — a non-array property entry, a missing or non-string `type`, a non-reference `type`, the id-length cap, or either storage-key collision — is its own hard load error naming the file; a malformed resolvedBy *value* (null, a non-string scalar, an empty array, a multi-key map) is a `resolves` entry value like any authored one and fails hard downstream through the shared sugar tiers, as a canonicalization error (`bindingSpecificationCanonicalizationFailed`) keyed on the synthesized id. The type pipeline itself has no knowledge of the `resolvedBy` key.
+
+Because the type name is reserved for the synthesized default, an authored `bindings:` entry whose map key equals the containing file's type name is a hard load error (`ContentSystemException::bindingSpecificationReservedId`, 409) — the default can never be impersonated, and can never carry authored `inputs`. This applies whether or not the file actually declares a `resolvedBy` property.
+
+`resolvedBy` needs no `bindings:` section, no pseudo-property for the id, and no client-side binding step: the client inserts the element and the type's default is fill-applied automatically (see [default-specification.md](default-specification.md)). Author a `bindings:` entry (see [inline-bindings.md](inline-bindings.md)) when a type needs an alternative or additional wiring beyond its default.

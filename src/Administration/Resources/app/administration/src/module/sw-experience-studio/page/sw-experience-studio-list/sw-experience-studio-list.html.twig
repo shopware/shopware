@@ -1,0 +1,64 @@
+{% block sw_experience_studio_list %}
+<sw-page class="sw-experience-studio-list">
+    {% block sw_experience_studio_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="content_layout"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_experience_studio_list_smart_bar %}
+    <template #smart-bar-header>
+        <h2>{{ $t('sw-experience-studio.general.moduleTitle') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <mt-button
+            v-tooltip="{
+                message: $t('sw-privileges.tooltip.warning'),
+                disabled: allowCreate,
+                showOnDisabledElements: true
+            }"
+            variant="primary"
+            :disabled="!allowCreate || undefined"
+            @click="onCreateNewLayout"
+        >
+            {{ $t('sw-experience-studio.general.createNewLayout') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+
+    {% block sw_experience_studio_list_content %}
+    <template #content>
+        <div class="sw-experience-studio-list__content">
+            <sw-entity-listing
+                v-if="layouts && layouts.length > 0"
+                :repository="layoutRepository"
+                :columns="columnConfig"
+                :data-source="layouts"
+                :is-loading="isLoading"
+                :show-selection="false"
+                :allow-inline-edit="false"
+                :allow-column-edit="false"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                @page-change="onPageChange"
+                @column-sort="onSortColumn"
+            />
+
+            <mt-empty-state
+                v-else-if="!isLoading"
+                icon="regular-palette"
+                :headline="$t('sw-experience-studio.list.emptyStateTitle')"
+                :description="$t('sw-experience-studio.list.emptyStateSubline')"
+            />
+
+            <sw-loader v-else />
+        </div>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

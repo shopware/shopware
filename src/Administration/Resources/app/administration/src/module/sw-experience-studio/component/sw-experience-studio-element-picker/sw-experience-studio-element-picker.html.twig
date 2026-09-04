@@ -1,0 +1,64 @@
+{% block sw_experience_studio_element_picker %}
+<div
+    v-if="open"
+    v-click-outside="() => $emit('close')"
+    class="sw-experience-studio-element-picker"
+    :style="flyoutStyle()"
+>
+    <div class="sw-experience-studio-element-picker__header">
+        <span>{{ title }}</span>
+
+        <button
+            class="sw-experience-studio-element-picker__close"
+            type="button"
+            @click="$emit('close')"
+        >
+            <mt-icon
+                name="regular-times-xs"
+                size="12px"
+            />
+        </button>
+    </div>
+
+    <div class="sw-experience-studio-element-picker__content">
+        <mt-empty-state
+            v-if="elements.length === 0"
+            icon="regular-puzzle-piece"
+            :description="$t('sw-experience-studio.detail.elementPicker.noElements')"
+        />
+
+        <div
+            v-else
+            class="sw-experience-studio-element-picker__sections"
+        >
+            <div
+                v-for="group in groupedElements"
+                :key="group.key"
+                class="sw-experience-studio-element-picker__section"
+            >
+                <div class="sw-experience-studio-element-picker__section-title">
+                    <span>{{ $t(group.headlineSnippetKey) }}</span>
+                </div>
+
+                <div class="sw-experience-studio-element-picker__grid">
+                    <button
+                        v-for="element in group.elements"
+                        :key="element.name"
+                        v-tooltip="{ message: element.label }"
+                        class="sw-experience-studio-element-picker__item"
+                        type="button"
+                        @click="onSelect(element.name)"
+                    >
+                        <div class="sw-experience-studio-element-picker__icon-square">
+                            <mt-icon
+                                :name="element.icon || 'regular-square'"
+                                size="20px"
+                            />
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

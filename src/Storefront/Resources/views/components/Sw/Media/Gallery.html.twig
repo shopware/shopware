@@ -1,0 +1,162 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{#
+    @prop displayMode - String 'auto' | 'fixedHeight'
+    @prop mediaItems - Array of Shopware\Core\Content\Media
+    @prop thumbnailSize - Number - The size of the thumbnail in pixels
+    @prop thumbnailNavigationPosition - String 'left' | 'underneath'
+    @prop showNavigationArrows - Boolean - Show the navigation arrows
+    @prop showMagnifier - Boolean - Show the magnifier
+    @prop useSchemaMarkup - Boolean - Use itemprop schema markup for SEO
+    @prop showFullScreenGallery - Boolean - Show the full screen gallery
+    @prop isLightbox - Boolean - Gallery is displayed in the lightbox
+    @prop autoplayVideos - Boolean - Autoplay if the media is a video
+#}
+
+{% props
+    mediaItems = null,
+    displayMode = 'auto',
+    maxHeight = null,
+    thumbnailSize = 70,
+    thumbnailNavigationPosition = 'left',
+    thumbnailNavShowsMediaOnHover = true,
+    showNavigationArrows = true,
+    showMagnifier = true,
+    useSchemaMarkup = false,
+    showFullScreenGallery = true,
+    isLightbox = false,
+    autoplayVideos = true,
+%}
+
+{% set lightboxId = 'sw-media-gallery-lightbox-' ~ random() %}
+{% set singleMedia = mediaItems|length == 1 %}
+
+{% set mediaGalleryCVA = cva({
+    base: 'sw-media-gallery',
+    variants: {
+        thumbnailNavigationPosition: {
+            left: 'sw-media-gallery--thumbnail-nav-left',
+            bottom: 'sw-media-gallery--thumbnail-nav-bottom',
+        },
+        displayMode: {
+            auto: 'sw-media-gallery--display-mode-auto',
+            fixedHeight: 'sw-media-gallery--display-mode-fixed-height',
+        },
+        singleMedia: {
+            true: 'sw-media-gallery--single-media',
+        },
+        isLightbox: {
+            true: 'sw-media-gallery--is-lightbox',
+        }
+    },
+}) %}
+
+{% set mediaGalleryOptions = {
+    showMagnifier,
+    thumbnailNavigationPosition,
+    showNavigationArrows,
+    showFullScreenGallery,
+    isLightbox,
+    thumbnailNavShowsMediaOnHover,
+    counterDeviderLabel: 'component.cms.mediaGallery.counterDeviderLabel'|trans|striptags,
+} %}
+
+{% set defaultAttributes = {
+    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, singleMedia, isLightbox }),
+    'data-component': 'Sw:Media:Gallery',
+    'data-component-options': mediaGalleryOptions|json_encode,
+    'aria-label': 'component.cms.mediaGallery.ariaLabel'|trans({'%total%': mediaItems|length})|striptags,
+    style: "--sw-media-gallery-thumbnail-size: #{thumbnailSize}px;",
+} %}
+
+{% if displayMode == 'fixedHeight' and maxHeight is not null %}
+    {% set defaultAttributes = defaultAttributes|merge({
+        style: defaultAttributes.style ~ " --sw-media-gallery-max-height: #{maxHeight}px;",
+    }) %}
+{% endif %}
+
+{% if mediaItems is not null and mediaItems|length > 0 %}
+    <section {{ attributes.defaults(defaultAttributes) }}>
+        {% if mediaItems|length > 1 %}
+            <twig:Sw:Media:ThumbnailNav
+                class="sw-media-gallery__thumbnail-nav"
+                :mediaItems="mediaItems" 
+                :thumbnailSize="thumbnailSize"
+                :isHorizontal="thumbnailNavigationPosition == 'bottom'"
+            />
+        {% endif %}
+
+        <div class="sw-media-gallery__previews-wrapper">
+            <div class="sw-media-gallery__previews">
+                {% for mediaItem in mediaItems %}
+                    <div 
+                        class="sw-media-gallery__preview-item" 
+                        id="sw-media-gallery-preview-{{ loop.index }}"
+                        data-media-id="{{ loop.index }}"
+                        {% if showFullScreenGallery %}
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{ lightboxId }}"
+                            role="button"
+                            tabindex="0"
+                            aria-label="{{ 'component.cms.mediaGallery.openLightboxAriaLabel'|trans({'%index%': loop.index})|striptags }}"
+                            aria-haspopup="dialog"
+                            aria-controls="{{ lightboxId }}"
+                        {% endif %}
+                    >
+                        <twig:Sw:Media 
+                            :media="mediaItem"
+                            :title="null"
+                            class="sw-media-gallery__preview"
+                            :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
+                            :autoplay="autoplayVideos"
+                        />
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if showNavigationArrows and not singleMedia %}
+                <twig:Sw:Button
+                    class="sw-media-gallery__nav-button is--backward"
+                    variant="light"
+                    :iconOnly="true"
+                    aria-label="{{ 'component.cms.mediaGallery.previousMedia'|trans|striptags }}"
+                >
+                    <twig:Sw:Icon name="arrow-head-left" size="sm" />
+                </twig:Sw:Button>
+
+                <twig:Sw:Button
+                    class="sw-media-gallery__nav-button is--forward"
+                    variant="light"
+                    :iconOnly="true"
+                    aria-label="{{ 'component.cms.mediaGallery.nextMedia'|trans|striptags }}"
+                >
+                    <twig:Sw:Icon name="arrow-head-right" size="sm" />
+                </twig:Sw:Button>
+            {% endif %}
+
+            {% if not singleMedia %}
+                <span class="sw-media-gallery__preview-item-badge badge" aria-live="polite">
+                    <span class="visually-hidden">{{ 'component.cms.mediaGallery.counterLabel'|trans|striptags }} </span> 
+                    <span class="sw-media-galley__counter-info">1 {{ mediaGalleryOptions.counterDeviderLabel }} {{ mediaItems|length }}</span>
+                </span>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if showFullScreenGallery %}
+        <twig:Sw:Media:GalleryLightbox
+            class="sw-media-gallery__lightbox"
+            id="{{ lightboxId }}"
+            :mediaItems="mediaItems"
+            :thumbnailSize="thumbnailSize"
+            :thumbnailNavigationPosition="thumbnailNavigationPosition"
+        />
+    {% endif %}
+{% else %}
+    {# Render a null media to display a placeholder #}
+    <twig:Sw:Media:Image
+        :media="null"
+    />
+{% endif %}

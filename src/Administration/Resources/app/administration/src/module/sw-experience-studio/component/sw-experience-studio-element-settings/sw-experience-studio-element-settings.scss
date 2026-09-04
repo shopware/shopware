@@ -1,0 +1,39 @@
+.sw-experience-studio-element-settings {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--color-elevation-surface-default);
+
+    &__content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+
+        > .mt-empty-state {
+            padding: 16px;
+            flex: 1;
+            overflow: auto;
+        }
+    }
+
+    &__tabs-area {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    &__tabs {
+        flex-shrink: 0;
+        width: 100%;
+    }
+
+    &__tab-panel {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+}

@@ -1,0 +1,639 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentLayoutDraftEnvelope": {
+                "title": "Content layout draft envelope",
+                "type": "object",
+                "description": "Fields shared by every draft (stateless) mutation request: the draft tree the edit is applied to, plus the optional root source used for resolvability.",
+                "properties": {
+                    "layout": {
+                        "type": "array",
+                        "description": "The current draft element tree the edit is applied to. Defaults to an empty tree.",
+                        "items": {
+                            "$ref": "#/components/schemas/StoredContentElement"
+                        },
+                        "default": []
+                    },
+                    "rootSource": {
+                        "type": ["string", "null"],
+                        "description": "Optional root source the draft is resolved against for resolvability. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it unset, only intrinsic well-formedness is evaluated.",
+                        "default": null,
+                        "example": "product"
+                    }
+                }
+            },
+            "ContentLayoutVersionEnvelope": {
+                "title": "Content layout version envelope",
+                "type": "object",
+                "description": "The optimistic-concurrency token shared by every persisted mutation request.",
+                "required": ["expectedVersion"],
+                "properties": {
+                    "expectedVersion": {
+                        "type": ["string", "null"],
+                        "description": "Optimistic-concurrency token: the stored layout's `updatedAt` as last read, compared at millisecond precision. `null` for a layout that was never updated. A mismatch is rejected with `409` and an unparseable value with `400`; nothing is written in either case. Take this value from the `updatedAt` the layout read returned.",
+                        "example": "2026-06-22T10:00:00.000+00:00"
+                    }
+                }
+            },
+            "ContentLayoutInsertElementRequest": {
+                "title": "Insert element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The element type to insert (becomes the new element's `component`). A registered type name; see `GET /api/_info/content-system-element-types.json`.",
+                                "example": "Sw:Content:Text"
+                            },
+                            "parentElementId": {
+                                "type": ["string", "null"],
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the parent element to insert into; the element is inserted at the root when omitted.",
+                                "default": null
+                            },
+                            "slot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the parent slot to insert into. Required when `parentElementId` is given.",
+                                "default": null
+                            },
+                            "index": {
+                                "type": ["integer", "null"],
+                                "minimum": 0,
+                                "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
+                                "default": null
+                            },
+                            "bindingSpecificationId": {
+                                "type": ["string", "null"],
+                                "description": "Optional source-qualified id (`source:id`) of a binding specification to apply onto the inserted element atomically after scaffold (data requirements, seeded input defaults, and attribution), in the same edit. A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`. The specification's declared `type` must equal `type` (else `400 bindingTypeMismatch`); an unregistered id is rejected with `400 bindingSpecificationNotFound`, and nothing is inserted on either failure.",
+                                "default": null,
+                                "example": "core:Sw:Media:Image"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutRemoveElementRequest": {
+                "title": "Remove element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to remove. Its subtree is removed with it."
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutMoveElementRequest": {
+                "title": "Move element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to move."
+                            },
+                            "newParentId": {
+                                "type": ["string", "null"],
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the new parent element; moves to the root when omitted. Moving an element into itself or a descendant is rejected with `400`.",
+                                "default": null
+                            },
+                            "newSlot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the target slot. Required unless a same-parent move reuses the current slot.",
+                                "default": null
+                            },
+                            "index": {
+                                "type": ["integer", "null"],
+                                "minimum": 0,
+                                "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutReplaceElementRequest": {
+                "title": "Replace element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "newType"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to replace."
+                            },
+                            "newType": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The element type to replace it with (becomes the element's new `component`). A registered type name; see `GET /api/_info/content-system-element-types.json`. Children, wiring, and property values the new type cannot hold are reported back in `orphaned`, `droppedWiring`, and `droppedProperties`.",
+                                "example": "Sw:Content:Text"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutDuplicateElementRequest": {
+                "title": "Duplicate element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to duplicate. The copy and its subtree receive freshly minted ids, returned in `affectedElementIds`."
+                            },
+                            "index": {
+                                "type": ["integer", "null"],
+                                "minimum": 0,
+                                "description": "Zero-based position to place the copy at within its sibling list. Placed as the next sibling when omitted.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutWrapElementsRequest": {
+                "title": "Wrap elements request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementIds", "containerType"],
+                        "properties": {
+                            "elementIds": {
+                                "type": "array",
+                                "description": "Ids of the elements to wrap. They must be siblings in one slot, or all root-level. Must be non-empty and contain no duplicates.",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "minItems": 1,
+                                "uniqueItems": true
+                            },
+                            "containerType": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The element type of the new container to wrap the elements in (becomes its `component`). A registered type name; see `GET /api/_info/content-system-element-types.json`.",
+                                "example": "shopware/container"
+                            },
+                            "slot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the container slot the wrapped elements are placed into.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutUnwrapElementRequest": {
+                "title": "Unwrap element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["containerElementId"],
+                        "properties": {
+                            "containerElementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the container element to unwrap. Its children take its place and the container is removed."
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutAttachElementRequest": {
+                "title": "Attach element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["element"],
+                        "properties": {
+                            "element": {
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/StoredContentElement" }
+                                ],
+                                "description": "The element subtree to splice in (for example an `orphaned` subtree from an earlier edit, or a copy). Every id in it is re-minted server-side; the placed ids are returned in `affectedElementIds`."
+                            },
+                            "parentElementId": {
+                                "type": ["string", "null"],
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the parent element to attach into; attaches at the root when omitted.",
+                                "default": null
+                            },
+                            "slot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the parent slot to attach into. Required when `parentElementId` is given.",
+                                "default": null
+                            },
+                            "index": {
+                                "type": ["integer", "null"],
+                                "minimum": 0,
+                                "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutBindElementRequest": {
+                "title": "Bind element request (draft)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "bindingSpecificationId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to bind the specification onto."
+                            },
+                            "bindingSpecificationId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`.",
+                                "example": "core:Sw:Media:Image"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedInsertElementRequest": {
+                "title": "Insert element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The element type to insert (becomes the new element's `component`). A registered type name; see `GET /api/_info/content-system-element-types.json`.",
+                                "example": "Sw:Content:Text"
+                            },
+                            "parentElementId": {
+                                "type": ["string", "null"],
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the parent element to insert into; the element is inserted at the root when omitted.",
+                                "default": null
+                            },
+                            "slot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the parent slot to insert into. Required when `parentElementId` is given.",
+                                "default": null
+                            },
+                            "index": {
+                                "type": ["integer", "null"],
+                                "minimum": 0,
+                                "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
+                                "default": null
+                            },
+                            "bindingSpecificationId": {
+                                "type": ["string", "null"],
+                                "description": "Optional source-qualified id (`source:id`) of a binding specification to apply onto the inserted element atomically after scaffold, in the same committed edit. A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`. The specification's declared `type` must equal `type` (else `400 bindingTypeMismatch`); an unregistered id is rejected with `400 bindingSpecificationNotFound`. The op throws before the repository write, so nothing is persisted on either failure.",
+                                "default": null,
+                                "example": "core:Sw:Media:Image"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedRemoveElementRequest": {
+                "title": "Remove element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to remove. Its subtree is removed with it."
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedMoveElementRequest": {
+                "title": "Move element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to move."
+                            },
+                            "newParentId": {
+                                "type": ["string", "null"],
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the new parent element; moves to the root when omitted. Moving an element into itself or a descendant is rejected with `400`.",
+                                "default": null
+                            },
+                            "newSlot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the target slot. Required unless a same-parent move reuses the current slot.",
+                                "default": null
+                            },
+                            "index": {
+                                "type": ["integer", "null"],
+                                "minimum": 0,
+                                "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedReplaceElementRequest": {
+                "title": "Replace element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "newType"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to replace."
+                            },
+                            "newType": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The element type to replace it with (becomes the element's new `component`). A registered type name; see `GET /api/_info/content-system-element-types.json`. Children, wiring, and property values the new type cannot hold are reported back in `orphaned`, `droppedWiring`, and `droppedProperties`.",
+                                "example": "Sw:Content:Text"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedDuplicateElementRequest": {
+                "title": "Duplicate element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to duplicate. The copy and its subtree receive freshly minted ids, returned in `affectedElementIds`."
+                            },
+                            "index": {
+                                "type": ["integer", "null"],
+                                "minimum": 0,
+                                "description": "Zero-based position to place the copy at within its sibling list. Placed as the next sibling when omitted.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedWrapElementsRequest": {
+                "title": "Wrap elements request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementIds", "containerType"],
+                        "properties": {
+                            "elementIds": {
+                                "type": "array",
+                                "description": "Ids of the elements to wrap. They must be siblings in one slot, or all root-level. Must be non-empty and contain no duplicates.",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "minItems": 1,
+                                "uniqueItems": true
+                            },
+                            "containerType": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "The element type of the new container to wrap the elements in (becomes its `component`). A registered type name; see `GET /api/_info/content-system-element-types.json`.",
+                                "example": "shopware/container"
+                            },
+                            "slot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the container slot the wrapped elements are placed into.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedUnwrapElementRequest": {
+                "title": "Unwrap element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["containerElementId"],
+                        "properties": {
+                            "containerElementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the container element to unwrap. Its children take its place and the container is removed."
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedAttachElementRequest": {
+                "title": "Attach element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["element"],
+                        "properties": {
+                            "element": {
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/StoredContentElement" }
+                                ],
+                                "description": "The element subtree to splice in (for example an `orphaned` subtree from an earlier edit, or a copy). Every id in it is re-minted server-side; the placed ids are returned in `affectedElementIds`."
+                            },
+                            "parentElementId": {
+                                "type": ["string", "null"],
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the parent element to attach into; attaches at the root when omitted.",
+                                "default": null
+                            },
+                            "slot": {
+                                "type": ["string", "null"],
+                                "description": "Name of the parent slot to attach into. Required when `parentElementId` is given.",
+                                "default": null
+                            },
+                            "index": {
+                                "type": ["integer", "null"],
+                                "minimum": 0,
+                                "description": "Zero-based position within the target list. A null, negative, or out-of-range value appends at the end.",
+                                "default": null
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedBindElementRequest": {
+                "title": "Bind element request (persisted)",
+                "type": "object",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "bindingSpecificationId"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element to bind the specification onto."
+                            },
+                            "bindingSpecificationId": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Source-qualified id of the binding specification to apply (`source:id`). A value from the `bindingSpecifications` map on the element's type entry in `GET /api/_info/content-system-element-types.json`.",
+                                "example": "core:Sw:Media:Image"
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentPreviewEntityRequest": {
+                "title": "Content preview request",
+                "type": "object",
+                "description": "An unsaved draft layout plus the real entity and sales-channel context to render it against.",
+                "required": ["layout", "entityType", "entityId", "salesChannelId"],
+                "properties": {
+                    "layout": {
+                        "type": "array",
+                        "description": "The draft element tree to render. Must be non-empty.",
+                        "items": {
+                            "$ref": "#/components/schemas/StoredContentElement"
+                        },
+                        "minItems": 1
+                    },
+                    "entityType": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The entity type to render against, selected by exact match. One of the values from `GET /api/_info/content-system-entity-types.json`.",
+                        "example": "product"
+                    },
+                    "entityId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Id of the entity to hydrate against; the entity must exist."
+                    },
+                    "salesChannelId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Sales channel whose context is synthesized for rendering."
+                    },
+                    "languageId": {
+                        "type": ["string", "null"],
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Optional language id overriding the synthesized sales-channel context.",
+                        "default": null
+                    },
+                    "currencyId": {
+                        "type": ["string", "null"],
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Optional currency id overriding the synthesized sales-channel context.",
+                        "default": null
+                    },
+                    "domainId": {
+                        "type": ["string", "null"],
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Optional domain id overriding the synthesized sales-channel context.",
+                        "default": null
+                    },
+                    "customerId": {
+                        "type": ["string", "null"],
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Optional customer id overriding the synthesized sales-channel context.",
+                        "default": null
+                    },
+                    "queryParameters": {
+                        "type": "object",
+                        "description": "Optional values forwarded as the render request's query parameters; defaults to none. `elementId` selects a single element for partial preview. A member name PHP casts to an integer (`0`, `12`, `-3`) is rejected with 400: the stored envelope is a string-keyed map and cannot carry an integer key.",
+                        "additionalProperties": true,
+                        "propertyNames": { "pattern": "^(?!-?(0|[1-9][0-9]*)$).+$" },
+                        "example": { "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40" }
+                    }
+                }
+            },
+            "ContentLayoutDiagnoseRequest": {
+                "title": "Content layout diagnose request",
+                "type": "object",
+                "description": "An unsaved draft layout to resolve and diagnose, plus an optional root source. The whole body is optional; an empty body diagnoses an empty tree.",
+                "properties": {
+                    "layout": {
+                        "type": "array",
+                        "description": "The draft element tree to diagnose. Defaults to an empty tree.",
+                        "items": {
+                            "$ref": "#/components/schemas/StoredContentElement"
+                        },
+                        "default": []
+                    },
+                    "rootSource": {
+                        "type": ["string", "null"],
+                        "description": "Optional root source the draft is resolved against. An entity type (a value from `GET /api/_info/content-system-entity-types.json`), a section (`header`, `footer`), or `none`. With it unset, only intrinsic well-formedness is evaluated.",
+                        "default": null,
+                        "example": "product"
+                    }
+                }
+            }
+        }
+    }
+}

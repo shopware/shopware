@@ -7,11 +7,14 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\Currency\Api\CurrencyIsoCodeFkResolver;
+use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyDataLoader;
+use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfigSerializer;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\Currency\CurrencyLoadSubscriber;
 use Shopware\Core\System\Currency\CurrencyValidator;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
+use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\Currency\SalesChannel\CurrencyRoute;
 use Shopware\Core\System\Currency\SalesChannel\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -62,4 +65,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('shopware.sync.fk_resolver');
+
+    // Content System
+    $services->alias(AbstractCurrencyRoute::class, CurrencyRoute::class);
+
+    $services->set(CurrencyDataLoader::class)
+        ->args([
+            service(AbstractCurrencyRoute::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(CurrencyLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
 };

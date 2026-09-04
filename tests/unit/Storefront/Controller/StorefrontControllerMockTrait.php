@@ -3,8 +3,11 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -21,6 +24,10 @@ trait StorefrontControllerMockTrait
     public array $renderStorefrontParameters;
 
     public Hook $calledHook;
+
+    public ?ContentPage $contentPage = null;
+
+    public ?string $loadedContentPath = null;
 
     public string $forwardToRoute;
 
@@ -90,6 +97,13 @@ trait StorefrontControllerMockTrait
     protected function hook(Hook $hook): void
     {
         $this->calledHook = $hook;
+    }
+
+    protected function loadContentPage(string $path, Request $request, SalesChannelContext $context): ?ContentPage
+    {
+        $this->loadedContentPath = $path;
+
+        return $this->contentPage;
     }
 
     /**

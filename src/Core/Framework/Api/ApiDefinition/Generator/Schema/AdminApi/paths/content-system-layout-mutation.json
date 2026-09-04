@@ -1,0 +1,457 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/content-system/layout/insert-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Insert an element into a draft layout",
+                "operationId": "contentSystemLayoutInsertElement",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus a diagnostics report, without persisting. Inserts a new element of the given `type` at the root, or into `parentElementId`/`slot` at the optional `index` (a null, negative, or out-of-range index appends). When the optional `bindingSpecificationId` is given, the named binding specification's wiring is applied onto the fresh element atomically after scaffold (data requirements, seeded input defaults, and attribution), in the same edit; an unregistered id is rejected with `400` (`bindingSpecificationNotFound`) and a specification whose declared `type` does not match the inserted `type` with `400` (`bindingTypeMismatch`), and nothing is inserted on either failure. The optional `rootSource` resolves the draft against a root source's context so resolvability is evaluated; with it unset, only intrinsic well-formedness is checked. Requires the `content_layout:read` privilege. Structural impossibilities (`mutationSlotRequired`, `mutationUnknownType`, a malformed layout) are rejected with `400`; resolvability problems are reported in the `diagnostics` body at `200`, not as errors. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutInsertElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Insert at the root",
+                                    "value": { "type": "Sw:Content:Text" }
+                                },
+                                "withOptionalPlacement": {
+                                    "summary": "Insert into a slot at a position, resolved against a product root source",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b", "component": "shopware/container", "slots": { "content": [] } }
+                                        ],
+                                        "type": "Sw:Content:Text",
+                                        "parentElementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
+                                        "slot": "content",
+                                        "index": 0,
+                                        "rootSource": "product"
+                                    }
+                                },
+                                "withBinding": {
+                                    "summary": "Insert an image and apply a binding specification atomically",
+                                    "value": {
+                                        "type": "Sw:Media:Image",
+                                        "bindingSpecificationId": "core:Sw:Media:Image"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "409": {
+                        "description": "Conflict. The inserted type's default binding specification set holds more than one specification, so no single default can be fill-applied. Reachable only when a database row created outside the app lifecycle fakes a second default for the type; the edit throws instead of picking one, and nothing is inserted.",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/remove-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Remove an element from a draft layout",
+                "operationId": "contentSystemLayoutRemoveElement",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Removes `elementId` and its whole subtree. Requires the `content_layout:read` privilege. A referenced id that is not in the layout, or a malformed layout, is rejected with `400`. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutRemoveElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Remove an element by id",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b", "component": "shopware/container", "slots": { "content": [ { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } } ] } }
+                                        ],
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        },
+        "/_action/content-system/layout/move-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Move an element within a draft layout",
+                "operationId": "contentSystemLayoutMoveElement",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Moves `elementId` under `newParentId`/`newSlot` (root when `newParentId` is omitted) at the optional `index`, which counts the sibling list after the moved element is removed. Requires the `content_layout:read` privilege. Moving an element into itself or a descendant (`mutationCycle`), or omitting a required slot (`mutationSlotRequired`), is rejected with `400`. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutMoveElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Move an element to the root",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b", "component": "shopware/container", "slots": { "content": [ { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } } ] } }
+                                        ],
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40"
+                                    }
+                                },
+                                "withOptionalPlacement": {
+                                    "summary": "Move into another slot at a position",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b", "component": "shopware/container", "slots": { "header": [ { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } } ], "content": [] } }
+                                        ],
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "newParentId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
+                                        "newSlot": "content",
+                                        "index": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        },
+        "/_action/content-system/layout/replace-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Replace an element's type in a draft layout",
+                "operationId": "contentSystemLayoutReplaceElement",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Replaces the type of `elementId` with `newType`. Anything the new type cannot keep is returned, never silently lost: detached children in `orphaned` (re-place them with `attach-element`), wiring keys in `droppedWiring`, and static property values in `droppedProperties`. Requires the `content_layout:read` privilege. An unregistered `newType` (`mutationUnknownType`) or a malformed layout is rejected with `400`. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutReplaceElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Replace an element's type",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } }
+                                        ],
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "newType": "Sw:Content:Text"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics. Detached content rides back in `orphaned` / `droppedWiring` / `droppedProperties`. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        },
+                        "links": {
+                            "AttachOrphanedElement": {
+                                "operationId": "contentSystemLayoutAttachElement",
+                                "description": "Each subtree returned in `orphaned` can be re-placed by calling attach-element with it as the `element`."
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "409": {
+                        "description": "Conflict. The new type's default binding specification set holds more than one specification, so no single default can be fill-applied. Reachable only when a database row created outside the app lifecycle fakes a second default for the type; the edit throws instead of picking one, and nothing is replaced.",
+                        "content": {
+                            "application/vnd.api+json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/failure" },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "status": "409",
+                                            "code": "CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS",
+                                            "title": "Conflict",
+                                            "detail": "Element type \"Sw:Media:Image\" has more than one default binding specification (core:Sw:Media:Image, app:AcmeApp:Sw:Media:Image), but at most one specification may be default per type."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/content-system/layout/duplicate-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Duplicate an element in a draft layout",
+                "operationId": "contentSystemLayoutDuplicateElement",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Duplicates `elementId` and its subtree, placing the copy at the optional `index` (next sibling when omitted). The copy and its descendants receive freshly minted ids, returned in `affectedElementIds`. Requires the `content_layout:read` privilege. A referenced id that is not in the layout, or a malformed layout, is rejected with `400`. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutDuplicateElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Duplicate an element as its next sibling",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } }
+                                        ],
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        },
+        "/_action/content-system/layout/wrap-elements": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Wrap sibling elements in a new container",
+                "operationId": "contentSystemLayoutWrapElements",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Wraps `elementIds` (a non-empty, duplicate-free set of siblings in one slot, or all roots) in a new container of `containerType`, placed into its `slot`. Requires the `content_layout:read` privilege. Empty or non-sibling targets (`mutationInvalidWrapTargets`), an unregistered `containerType` (`mutationUnknownType`), or a missing slot (`mutationSlotRequired`) is rejected with `400`. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutWrapElementsRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Wrap two root elements in a container",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } },
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41", "component": "shopware/product-heading", "properties": { "tag": "h2" } }
+                                        ],
+                                        "elementIds": ["0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41"],
+                                        "containerType": "shopware/container",
+                                        "slot": "content"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        },
+        "/_action/content-system/layout/unwrap-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Unwrap a container in a draft layout",
+                "operationId": "contentSystemLayoutUnwrapElement",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Removes the container `containerElementId`, lifting its children into the container's former position. The inverse of wrap-elements. Requires the `content_layout:read` privilege. A referenced id that is not in the layout, or a malformed layout, is rejected with `400`. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutUnwrapElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Unwrap a container",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b", "component": "shopware/container", "slots": { "content": [ { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } } ] } }
+                                        ],
+                                        "containerElementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        },
+        "/_action/content-system/layout/attach-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Attach an element subtree into a draft layout",
+                "operationId": "contentSystemLayoutAttachElement",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Splices the supplied `element` subtree into the root, or into `parentElementId`/`slot` at the optional `index`. Every id in the subtree is re-minted server-side; the placed ids are returned in `affectedElementIds`. This is the inverse of the detachment a `replace` reports: hand an `orphaned` subtree (or any copy) back here to re-place it. Requires the `content_layout:read` privilege. A missing slot (`mutationSlotRequired`) or a malformed layout/element is rejected with `400`. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutAttachElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Attach a subtree at the root",
+                                    "value": {
+                                        "element": { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } }
+                                    }
+                                },
+                                "withOptionalPlacement": {
+                                    "summary": "Attach an orphaned subtree into a slot",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b", "component": "shopware/container", "slots": { "content": [] } }
+                                        ],
+                                        "element": { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } },
+                                        "parentElementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b",
+                                        "slot": "content",
+                                        "index": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics, with the attached ids in `affectedElementIds`. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        },
+        "/_action/content-system/layout/bind-element": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Bind a specification to an element in a draft layout",
+                "operationId": "contentSystemLayoutBindElement",
+                "description": "Applies a single structural edit to an unsaved draft layout and returns the re-resolved tree plus diagnostics, without persisting. Binds `bindingSpecificationId`'s wiring onto `elementId`: each `resolves` entry becomes a concrete reference wiring, merged into the element's existing wiring and overwriting the same keys; each `inputs` entry with a default seeds that primitive property only when the element does not already carry the key (an authored value, including an explicit null, is never overwritten); and every wired key's attribution is recorded. Requires the `content_layout:read` privilege. An unregistered `bindingSpecificationId` is rejected with `400` (`bindingSpecificationNotFound`); a specification whose declared `type` does not match the target element's `component` is rejected with `400` (`bindingTypeMismatch`); a referenced element id that is not in the layout, or a malformed layout, is rejected with `400`. A non-empty `rootSource` that is not a registered root source is rejected with `400` (`unknownRootSource`). Unknown request fields are rejected with `400` (`unknownRequestField`).",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentLayoutBindElementRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Bind a specification to an element",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "Sw:Media:Image", "properties": { "mediaId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41" } }
+                                        ],
+                                        "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                        "bindingSpecificationId": "core:Sw:Media:Image"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The re-resolved draft layout plus diagnostics, with the binding's wiring applied. Not persisted.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentLayoutMutationResponse" }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,17 @@
+.sw-media-image {
+    max-width: 100%;
+}
+
+.sw-media-image__placeholder {
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.sw-media-image__placeholder-icon {
+    color: #b4b4b4;
+}

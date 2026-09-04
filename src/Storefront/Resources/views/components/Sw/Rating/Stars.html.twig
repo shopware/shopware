@@ -1,0 +1,30 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    stars,
+    maxStars = 5
+%}
+
+{% set starsRounded = stars|round %}
+
+{% set attributeDefaults = {
+    class: 'sw-rating-stars mb-2',
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {# Actual rating stars #}
+    {% for star in range(1, starsRounded) %}
+        <twig:Sw:Icon name="star" pack="solid" size="xs" />
+    {% endfor %}
+
+    {# Remaining stars #}
+    {% set delta = maxStars - starsRounded %}
+
+    {% if delta > 0 %}
+        {% for starEmpty in range(1, delta) %}
+            <twig:Sw:Icon name="star" size="xs" />
+        {% endfor %}
+    {% endif %}
+</div>

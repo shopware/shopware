@@ -1,0 +1,130 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/content-header": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered header content layout",
+                "description": "Loads and renders the header content layout with full element trees. Uses domain-aware resolution to find the appropriate header assignment for the current sales channel and domain. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
+                "operationId": "readContentHeader",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Header layout metadata with fully hydrated element trees.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-header-decomposed": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered header content layout (decomposed format)",
+                "description": "Loads and renders the header content with decomposed format: skeletons + deduplicated data + assignments. Uses domain-aware resolution. Optimized for bandwidth efficiency. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
+                "operationId": "readContentHeaderDecomposed",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Header layout metadata with element skeletons, deduplicated property data, and element-to-data mappings.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentDecomposedPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-header-skeleton": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch header content layout skeleton (without hydration)",
+                "description": "Returns header layout structure without hydrated data. Uses domain-aware resolution. Useful for layout preview, client-side hydration, or structure inspection. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
+                "operationId": "readContentHeaderSkeleton",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Header layout metadata with element trees before hydration.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentSkeletonPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-header-data": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch header content data only (without skeleton)",
+                "description": "Returns only the hydrated data and element-to-property assignments for the header. Uses domain-aware resolution. Useful when client already has the skeleton and only needs refreshed data. Field selection is not supported: a request carrying an `includes` or `excludes` parameter is rejected with HTTP 400.",
+                "operationId": "readContentHeaderData",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Header layout metadata with deduplicated property data and element-to-data mappings.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentDataPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        }
+    }
+}

@@ -88,6 +88,7 @@ use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoaderInvalidator;
 use Shopware\Storefront\Framework\Routing\CanonicalLinkListener;
 use Shopware\Storefront\Framework\Routing\ClearSiteDataListener;
+use Shopware\Storefront\Framework\Routing\ContentSystemPreviewToolbarSubscriber;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
@@ -881,4 +882,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(StorybookRouteScopeAllowList::class)
         ->tag('shopware.route_scope_whitelist');
+
+    $services->set(ContentSystemPreviewToolbarSubscriber::class)
+        ->tag('kernel.event_subscriber');
 };

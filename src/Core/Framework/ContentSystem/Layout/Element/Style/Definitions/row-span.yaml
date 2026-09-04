@@ -1,0 +1,12 @@
+type: integer
+range:
+  min: 1
+  max: 12
+adminUI:
+  component: "number"
+  label: "Row Span"
+  description: "How many grid rows the element spans."
+  props:
+    min: 1
+    max: 12
+    step: 1

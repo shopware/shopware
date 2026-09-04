@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\AppContentSystemBindingSpecificationCollection;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
@@ -153,6 +156,12 @@ class AppEntity extends Entity
     protected ?AppFlowActionCollection $flowActions = null;
 
     protected ?AppFlowEventCollection $flowEvents = null;
+
+    protected ?AppContentSystemElementTypeCollection $contentElementTypes = null;
+
+    protected ?AppContentSystemStyleOptionCollection $styleOptions = null;
+
+    protected ?AppContentSystemBindingSpecificationCollection $bindingSpecifications = null;
 
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null
@@ -656,6 +665,36 @@ class AppEntity extends Entity
     public function setFlowEvents(AppFlowEventCollection $flowEvents): void
     {
         $this->flowEvents = $flowEvents;
+    }
+
+    public function getContentElementTypes(): ?AppContentSystemElementTypeCollection
+    {
+        return $this->contentElementTypes;
+    }
+
+    public function setContentElementTypes(AppContentSystemElementTypeCollection $contentElementTypes): void
+    {
+        $this->contentElementTypes = $contentElementTypes;
+    }
+
+    public function getStyleOptions(): ?AppContentSystemStyleOptionCollection
+    {
+        return $this->styleOptions;
+    }
+
+    public function setStyleOptions(AppContentSystemStyleOptionCollection $styleOptions): void
+    {
+        $this->styleOptions = $styleOptions;
+    }
+
+    public function getBindingSpecifications(): ?AppContentSystemBindingSpecificationCollection
+    {
+        return $this->bindingSpecifications;
+    }
+
+    public function setBindingSpecifications(AppContentSystemBindingSpecificationCollection $bindingSpecifications): void
+    {
+        $this->bindingSpecifications = $bindingSpecifications;
     }
 
     /**

@@ -1,0 +1,102 @@
+.sw-experience-studio-element-picker {
+    position: fixed;
+    z-index: 1050;
+    width: 320px;
+    border: 1px solid var(--color-border-primary-default);
+    border-radius: var(--border-radius-default);
+    background: var(--color-elevation-surface-default);
+    box-shadow: 0 8px 16px var(--color-elevation-shadow-default);
+    padding: 12px;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: -12px -12px 10px;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--color-border-primary-default);
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-xs);
+    }
+
+    &__close {
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-icon-secondary-default);
+    }
+
+    &__content {
+        min-height: 200px;
+        padding: 12px 6px 6px;
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+        gap: 12px;
+    }
+
+    &__sections {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    &__section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        & + & {
+            margin-top: 22px;
+        }
+    }
+
+    &__section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-2xs);
+        font-weight: var(--font-weight-semibold);
+        line-height: 1.2;
+        text-transform: uppercase;
+
+        &::after {
+            content: "";
+            flex: 1;
+            border-top: 1px solid var(--color-border-primary-default);
+            min-width: 8px;
+        }
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+        padding: 2px;
+        cursor: pointer;
+
+        &:hover .sw-experience-studio-element-picker__icon-square {
+            border-color: var(--color-border-brand-selected);
+        }
+    }
+
+    &__icon-square {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-default);
+        background: var(--color-elevation-surface-default);
+    }
+}

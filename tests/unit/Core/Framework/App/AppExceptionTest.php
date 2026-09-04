@@ -108,13 +108,16 @@ class AppExceptionTest extends TestCase
         static::assertSame('App installation for "AnyAppName" failed: reason', $e->getMessage());
     }
 
-    public function testAppSecretRequiredForFeatures(): void
+    public function testAppSecretRequiredForFewerThanThreeFeatures(): void
     {
-        $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules']);
+        $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules', 'Payments']);
 
         static::assertSame(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
-        static::assertSame('App "MyApp" could not be installed/updated because it uses features Modules but has no secret', $e->getMessage());
+        static::assertSame('App "MyApp" could not be installed/updated because it uses features Modules and Payments but has no secret', $e->getMessage());
+    }
 
+    public function testAppSecretRequiredForThreeOrMoreFeatures(): void
+    {
         $e = AppException::appSecretRequiredForFeatures('MyApp', ['Modules', 'Payments', 'Webhooks']);
 
         static::assertSame(AppException::FEATURES_REQUIRE_APP_SECRET, $e->getErrorCode());
@@ -259,6 +262,19 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_URL_INVALID', $e->getErrorCode());
         static::assertSame('APP_URL is invalid: invalid-url', $e->getMessage());
+    }
+
+    public function testContentSystemElementTypeDuplicate(): void
+    {
+        $previous = new \RuntimeException('DBAL unique constraint');
+        $e = AppException::contentSystemElementTypeDuplicate(['MyApp:Hero', 'MyApp:Banner'], 'app:MyApp', $previous);
+
+        static::assertSame(Response::HTTP_CONFLICT, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE', $e->getErrorCode());
+        static::assertStringContainsString('app:MyApp', $e->getMessage());
+        static::assertStringContainsString('MyApp:Hero, MyApp:Banner', $e->getMessage());
+        static::assertSame(['source' => 'app:MyApp', 'names' => 'MyApp:Hero, MyApp:Banner'], $e->getParameters());
+        static::assertSame($previous, $e->getPrevious());
     }
 
     public function testRequirementsNotMet(): void

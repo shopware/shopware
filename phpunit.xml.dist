@@ -36,6 +36,11 @@
             <file>src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php</file>
             <file>src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php</file>
 
+            <directory suffix="Definition.php">src/Storefront/ContentSystem</directory>
+            <directory suffix="Entity.php">src/Storefront/ContentSystem</directory>
+            <directory suffix="Collection.php">src/Storefront/ContentSystem</directory>
+            <directory suffix="Extension.php">src/Storefront/ContentSystem</directory>
+
             <!-- All fixtures, stubs, traits used for tests -->
             <directory suffix=".php">src/Core/Content/Test</directory>
             <!-- Only the test fixtures under DevOps/Test; the tooling classes stay covered by their unit tests. -->
@@ -146,6 +151,45 @@
 
             <!-- Helper class and its output DTOs and exception, which could not be unit tested -->
             <directory suffix=".php">src/Core/Framework/Util/Database</directory>
+
+            <!-- ContentSystem: trivial value objects, DTOs, route responses, pure delegations, enums, loader configs -->
+            <file>src/Core/Framework/ContentSystem/SalesChannel/Routing/ContentRouteDefinition.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/Context/Distribution/DistributionStrategy.php</file>
+            <file>src/Core/Framework/ContentSystem/RenderingSpecification.php</file>
+            <file>src/Core/Content/Category/Aggregate/CategoryContentLayout/CategorySpecificationSource.php</file>
+            <file>src/Core/Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource.php</file>
+            <file>src/Core/Content/LandingPage/Aggregate/LandingPageContentLayout/LandingPageSpecificationSource.php</file>
+            <file>src/Core/Framework/ContentSystem/SpecificationData.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/FactoryHelper/LayoutResolutionResult.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/ParameterBinding/ParameterBinding.php</file>
+            <file>src/Core/Framework/ContentSystem/Adapter/ParameterBinding/ResolutionConfig.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/Context/ContextConsumer.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/Context/ContextProvider.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Element/DataRequirement/DataRequirement.php</file>
+            <file>src/Core/Framework/ContentSystem/Output/Struct/ContentSkeletonPage.php</file>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/ContentRouteResponse.php</file>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDataRouteResponse.php</file>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDecomposedRouteResponse.php</file>
+            <file>src/Core/Framework/ContentSystem/SalesChannel/ContentSkeletonRouteResponse.php</file>
+            <file>src/Core/Framework/ContentSystem/Hydration/DataLoader/ContentSystemDataLoaderTypeDescriptor.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/CopilotSpecification.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/PropertySpecification.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/PropertyType.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/SlotSpecification.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/CopilotSpecificationDto.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/PropertySpecificationDto.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/SlotSpecificationDto.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Validation/ValidPropertyConstraints.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Loader/ResolvedElementTypeSpecificationDto.php</file>
+            <file>src/Core/Framework/ContentSystem/Schema/ContentLayoutAssignableEntitySchemaGenerator.php</file>
+            <directory suffix="LoaderConfig.php">src/Core/Framework/ContentSystem/Hydration/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Content/Breadcrumb/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Content/Category/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Content/Product/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Checkout/Payment/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/Checkout/Shipping/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/System/Currency/ContentSystem/DataLoader/</directory>
+            <directory suffix="LoaderConfig.php">src/Core/System/Language/ContentSystem/DataLoader/</directory>
 
             <!-- BC-change attributes are data-only markers without behavior to test -->
             <directory suffix=".php">src/Core/Framework/Deprecation/BCChange</directory>

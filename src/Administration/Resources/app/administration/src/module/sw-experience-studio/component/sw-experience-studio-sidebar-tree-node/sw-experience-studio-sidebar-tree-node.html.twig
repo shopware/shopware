@@ -1,0 +1,162 @@
+{% block sw_experience_studio_sidebar_tree_node %}
+<div class="sw-experience-studio-sidebar-tree-node">
+    {% block sw_experience_studio_sidebar_tree_node_element %}
+    <div
+        v-draggable="dragConfig()"
+        v-droppable="dropConfigForElement()"
+        class="sw-experience-studio-sidebar-tree-node__element"
+        :class="{
+            'is--active': isSelected,
+            'is--expandable': hasSlots
+        }"
+        role="button"
+        tabindex="0"
+        @click="onSelectElement"
+        @keydown.enter="onSelectElement"
+    >
+        {% block sw_experience_studio_sidebar_tree_node_toggle %}
+        <button
+            v-if="hasSlots"
+            class="sw-experience-studio-sidebar-tree-node__toggle"
+            type="button"
+            :aria-label="isExpanded ? $t('global.default.close') : $t('global.default.open')"
+            @click.stop="onToggleExpand"
+        >
+            <mt-icon
+                :name="isExpanded ? 'regular-chevron-down-xxs' : 'regular-chevron-right-xxs'"
+                size="12px"
+            />
+        </button>
+        {% endblock %}
+
+        {% block sw_experience_studio_sidebar_tree_node_label %}
+        <div class="sw-experience-studio-sidebar-tree-node__label">
+            <mt-icon
+                class="sw-experience-studio-sidebar-tree-node__type-icon"
+                :name="typeIcon"
+                size="12px"
+            />
+
+            <span class="sw-experience-studio-sidebar-tree-node__name">
+                {{ label }}
+            </span>
+        </div>
+        {% endblock %}
+
+        {% block sw_experience_studio_sidebar_tree_node_actions %}
+        <div class="sw-experience-studio-sidebar-tree-node__actions">
+            <button
+                v-tooltip="{
+                    message: $t('sw-experience-studio.detail.sidebarTree.duplicateElement'),
+                    disabled: allowEdit
+                }"
+                class="sw-experience-studio-sidebar-tree-node__action"
+                type="button"
+                :disabled="!allowEdit || undefined"
+                :aria-label="$t('sw-experience-studio.detail.sidebarTree.duplicateElement')"
+                @click.stop="onDuplicateElement"
+            >
+                <mt-icon
+                    name="regular-duplicate"
+                    size="16px"
+                />
+            </button>
+
+            <button
+                v-tooltip="{
+                    message: $t('sw-experience-studio.detail.sidebarTree.deleteElement'),
+                    disabled: allowEdit
+                }"
+                class="sw-experience-studio-sidebar-tree-node__action"
+                type="button"
+                :disabled="!allowEdit || undefined"
+                :aria-label="$t('sw-experience-studio.detail.sidebarTree.deleteElement')"
+                @click.stop="onDeleteElement"
+            >
+                <mt-icon
+                    name="regular-trash"
+                    size="16px"
+                />
+            </button>
+
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_sidebar_tree_node_children %}
+    <div
+        v-if="isExpanded && hasSlots"
+        class="sw-experience-studio-sidebar-tree-node__children"
+    >
+        <template
+            v-for="slot in slotEntries"
+            :key="slot.name"
+        >
+            <div
+                class="sw-experience-studio-sidebar-tree-node__slot"
+            >
+                {% block sw_experience_studio_sidebar_tree_node_slot_header %}
+                <div class="sw-experience-studio-sidebar-tree-node__slot-header">
+                    <div class="sw-experience-studio-sidebar-tree-node__slot-label">
+                        <mt-icon
+                            class="sw-experience-studio-sidebar-tree-node__type-icon"
+                            name="regular-products-s"
+                            size="12px"
+                        />
+
+                        <span class="sw-experience-studio-sidebar-tree-node__slot-name">
+                            {{ slot.name }}
+                        </span>
+                    </div>
+
+                    <button
+                        v-tooltip="{
+                            message: $t('sw-experience-studio.detail.sidebarTree.addElement'),
+                            disabled: allowEdit
+                        }"
+                        class="sw-experience-studio-sidebar-tree-node__action"
+                        type="button"
+                        :disabled="!allowEdit || undefined"
+                        :aria-label="$t('sw-experience-studio.detail.sidebarTree.addElement')"
+                        @click.stop="onAddElement(slot.name, $event)"
+                    >
+                        <mt-icon
+                            name="regular-plus-xs"
+                            size="12px"
+                        />
+                    </button>
+                </div>
+                {% endblock %}
+
+                {% block sw_experience_studio_sidebar_tree_node_slot_elements %}
+                <div class="sw-experience-studio-sidebar-tree-node__slot-elements">
+                    <sw-experience-studio-sidebar-tree-node
+                        v-for="(childElement, childIndex) in slot.elements"
+                        :key="childElement.id"
+                        :element="childElement"
+                        :selected-element-id="selectedElementId"
+                        :depth="depth + 1"
+                        :allow-drag-and-drop="allowDragAndDrop"
+                        :validate-move-target="validateMoveTarget"
+                        :parent-element-id="contentElement.id"
+                        :parent-slot-name="slot.name"
+                        :index-in-parent="childIndex"
+                        @select-element="$emit('select-element', $event)"
+                        @add-element="$emit('add-element', $event)"
+                        @duplicate-element="$emit('duplicate-element', $event)"
+                        @delete-element="$emit('delete-element', $event)"
+                        @move-element="$emit('move-element', $event)"
+                    />
+                </div>
+                <div
+                    v-droppable="dropConfigForSlot(slot.name)"
+                    class="sw-experience-studio-sidebar-tree-node__slot-drop-target"
+                ></div>
+                {% endblock %}
+            </div>
+        </template>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

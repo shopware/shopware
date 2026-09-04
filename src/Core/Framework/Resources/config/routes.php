@@ -21,4 +21,5 @@ return static function (RoutingConfigurator $routes): void {
     $routes->import('../../Sso/Controller/**/*Controller.php', 'attribute');
     $routes->import('../../Mcp/Controller/*Controller.php', 'attribute');
     $routes->import('../../Validation/Api/*Controller.php', 'attribute');
+    $routes->import('../../ContentSystem/Api/*Controller.php', 'attribute');
 };

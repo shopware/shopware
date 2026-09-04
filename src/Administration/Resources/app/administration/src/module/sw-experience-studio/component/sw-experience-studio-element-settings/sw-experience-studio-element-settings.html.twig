@@ -1,0 +1,91 @@
+{% block sw_experience_studio_element_settings %}
+<div class="sw-experience-studio-element-settings">
+    <div class="sw-experience-studio-element-settings__content">
+        <mt-empty-state
+            v-if="!hasSelectedElement"
+            icon="regular-sliders-xs"
+            :description="$t('sw-experience-studio.detail.elementSettings.emptyState')"
+        />
+
+        <mt-empty-state
+            v-else-if="isLoadingSettings"
+            icon="regular-hourglass"
+            :description="$t('sw-experience-studio.detail.elementSettings.loading')"
+        />
+
+        <mt-empty-state
+            v-else-if="hasTypeLoadError"
+            icon="regular-exclamation-triangle"
+            :description="$t('sw-experience-studio.detail.elementSettings.typeLoadError')"
+        />
+
+        <mt-empty-state
+            v-else-if="!hasSelectedElementType"
+            icon="regular-puzzle-piece"
+            :description="$t('sw-experience-studio.detail.elementSettings.typeMissing')"
+        />
+
+        <div
+            v-else
+            :key="selectedElementId"
+            class="sw-experience-studio-element-settings__tabs-area"
+        >
+            <mt-tabs
+                class="sw-experience-studio-element-settings__tabs"
+                position-identifier="sw-experience-studio-element-settings"
+                :items="settingsTabItems"
+                default-item="element"
+                @new-item-active="onSettingsTabChange"
+            />
+
+            <div
+                v-if="activeSettingsTab === 'element'"
+                class="sw-experience-studio-element-settings__tab-panel"
+            >
+                <mt-empty-state
+                    v-if="showElementEmptyState"
+                    icon="regular-sliders-horizontal"
+                    :description="$t('sw-experience-studio.detail.elementSettings.noEditableProperties')"
+                />
+
+                <sw-experience-studio-settings-fields
+                    v-else
+                    :fields="elementFields"
+                    :values="elementPropertyValues"
+                    :allow-edit="allowEdit"
+                    :selected-element-type="selectedElementType"
+                    :is-inline-editing-active="isInlineEditingActive"
+                    :show-inline-text-hints="true"
+                    show-panels
+                    @update-field="onUpdateElementField"
+                />
+            </div>
+
+            <div
+                v-else-if="activeSettingsTab === 'layout'"
+                class="sw-experience-studio-element-settings__tab-panel"
+            >
+                <mt-empty-state
+                    v-if="hasStyleOptionLoadError"
+                    icon="regular-exclamation-triangle"
+                    :description="$t('sw-experience-studio.detail.elementSettings.styleLoadError')"
+                />
+
+                <mt-empty-state
+                    v-else-if="showLayoutEmptyState"
+                    icon="regular-sliders-horizontal"
+                    :description="$t('sw-experience-studio.detail.elementSettings.noEditableStyleOptions')"
+                />
+
+                <sw-experience-studio-settings-fields
+                    v-else
+                    :fields="layoutFields"
+                    :values="elementStyleValues"
+                    :allow-edit="allowEdit"
+                    @update-field="onUpdateLayoutField"
+                />
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

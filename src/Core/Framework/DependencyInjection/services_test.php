@@ -44,6 +44,12 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\Integration\App\TestAppServer;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
+use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoader;
+use Shopware\Core\Test\Stub\ContentSystem\TestMultiReferenceGatingLoaderConfigSerializer;
+use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoader;
+use Shopware\Core\Test\Stub\ContentSystem\TestNavigationShapedLoaderConfigSerializer;
+use Shopware\Core\Test\Stub\ContentSystem\TestStyleOptionLoader;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Messenger\TraceableMessageBus;
@@ -68,6 +74,24 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->defaults()
         ->public();
+
+    $services->set(TestElementTypeLoader::class)
+        ->tag('content_system.type_loader');
+
+    $services->set(TestStyleOptionLoader::class)
+        ->tag('content_system.style_option_loader');
+
+    $services->set(TestMultiReferenceGatingLoader::class)
+        ->tag('content_system.data_loader');
+
+    $services->set(TestMultiReferenceGatingLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
+
+    $services->set(TestNavigationShapedLoader::class)
+        ->tag('content_system.data_loader');
+
+    $services->set(TestNavigationShapedLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
 
     $services->set(TestPaymentHandler::class)
         ->args([

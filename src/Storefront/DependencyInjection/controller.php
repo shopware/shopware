@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\DependencyInjection;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
@@ -56,6 +57,8 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapFileRoute;
 use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -73,6 +76,7 @@ use Shopware\Storefront\Controller\CaptchaController;
 use Shopware\Storefront\Controller\CartLineItemController;
 use Shopware\Storefront\Controller\CheckoutController;
 use Shopware\Storefront\Controller\CmsController;
+use Shopware\Storefront\Controller\ContentSystemPreviewController;
 use Shopware\Storefront\Controller\ContextController;
 use Shopware\Storefront\Controller\ContextGatewayController;
 use Shopware\Storefront\Controller\CookieController;
@@ -453,6 +457,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('twig'),
             service(StorybookService::class),
+        ])
+        ->call('setContainer', [service('service_container')]);
+
+    $services->set(ContentSystemPreviewController::class)
+        ->public()
+        ->args([
+            service(ContentPreviewPayloadStore::class),
+            service(ContentPreviewPageBuilder::class),
+            service(Connection::class),
         ])
         ->call('setContainer', [service('service_container')]);
 };

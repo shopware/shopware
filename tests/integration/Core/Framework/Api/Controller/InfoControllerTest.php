@@ -660,6 +660,120 @@ class InfoControllerTest extends TestCase
         }
     }
 
+    public function testContentSystemEntityTypes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-entity-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('entityTypes', $data);
+        static::assertIsArray($data['entityTypes']);
+        static::assertContains('product', $data['entityTypes']);
+        static::assertContains('category', $data['entityTypes']);
+        static::assertContains('landing_page', $data['entityTypes']);
+    }
+
+    public function testContentSystemElementTypes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('types', $data);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            static::assertArrayHasKey('bindingSpecifications', $type);
+            $typesByName[$type['name']] = $type;
+        }
+
+        // The Image type declares its `media` reference property with `resolvedBy: mediaId`, so the binding
+        // loader synthesizes this type's own default specification: its id is the type name itself, its label
+        // falls back to the type's `meta.label`, and it wires the `media` reference from the entity loader
+        // against the undeclared `mediaId` storage key. A synthesized default carries no inputs.
+        static::assertArrayHasKey('Sw:Media:Image', $typesByName);
+        static::assertSame(
+            [
+                'id' => 'Sw:Media:Image',
+                'type' => 'Sw:Media:Image',
+                'label' => 'Image',
+                // 'Sw:Media:Image' === 'Sw:Media:Image', so this synthesized specification is the type's default.
+                'default' => true,
+                'resolves' => [
+                    'media' => ['loader' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                ],
+                'inputs' => [],
+            ],
+            $typesByName['Sw:Media:Image']['bindingSpecifications']['core:Sw:Media:Image'],
+        );
+
+        // A type with no registered specification carries an empty map, encoded as {} on the wire.
+        static::assertArrayHasKey('Sw:Content:Text', $typesByName);
+        static::assertSame([], $typesByName['Sw:Content:Text']['bindingSpecifications']);
+        static::assertStringContainsString('"bindingSpecifications":{}', $content);
+    }
+
+    public function testContentSystemElementTypesStorageSchema(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-element-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('types', $data);
+        static::assertIsArray($data['types']);
+
+        $typesByName = [];
+        foreach ($data['types'] as $type) {
+            static::assertArrayHasKey('storageSchema', $type);
+            $typesByName[$type['name']] = $type;
+        }
+
+        // content/text.yaml declares `text` as a translatable string with a default and no `required`, so the
+        // property tier publishes it as a non-required string carrying its default. The default itself is a
+        // long editorial paragraph, so only its presence and type are pinned.
+        static::assertArrayHasKey('Sw:Content:Text', $typesByName);
+        $text = $typesByName['Sw:Content:Text']['storageSchema']['text'];
+        static::assertSame('property', $text['kind']);
+        static::assertSame('string', $text['type']);
+        static::assertFalse($text['required']);
+        static::assertArrayHasKey('default', $text);
+        static::assertIsString($text['default']);
+
+        // media/image.yaml declares `media` with `resolvedBy: mediaId`, so the storage key is derived from the
+        // synthesized `core:Sw:Media:Image` specification's `resolves.media.config.property`, and its type is
+        // the entity loader's `referencedType` for that config key.
+        static::assertArrayHasKey('Sw:Media:Image', $typesByName);
+        static::assertSame(
+            ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => true],
+            $typesByName['Sw:Media:Image']['storageSchema']['mediaId'],
+        );
+
+        // The declared FQCN property is filled by the pipeline, never stored, so it contributes no entry.
+        static::assertArrayNotHasKey('media', $typesByName['Sw:Media:Image']['storageSchema']);
+    }
+
     public function testFetchMessageStats(): void
     {
         $statsService = $this->getContainer()->get(StatsService::class);

@@ -1,0 +1,707 @@
+{# ludtwig-ignore-file twig-json-encode-escape-js #}
+{% sw_extends '@Storefront/storefront/page/content/page.html.twig' %}
+
+{% block base_body_script %}
+    {{ parent() }}
+
+    {% set iconAlignLeft %}
+        {% sw_icon 'align-left' style { size: '12px' } %}
+    {% endset %}
+    {% set iconAlignCenter %}
+        {% sw_icon 'align-center' style { size: '12px' } %}
+    {% endset %}
+    {% set iconAlignRight %}
+        {% sw_icon 'align-right' style { size: '12px' } %}
+    {% endset %}
+    {% set iconAlignJustify %}
+        {% sw_icon 'align-justify' style { size: '12px' } %}
+    {% endset %}
+
+    <script>
+        (function () {
+            const ELEMENT_ID_ATTRIBUTE = 'data-element-id';
+            const TEXT_COMPONENT_CLASS = 'sw-text';
+            const HOVER_CLASS = 'sw-experience-studio-preview-hovered';
+            const INLINE_EDITING_CLASS = 'sw-experience-studio-preview-editing';
+            const TOOLBAR_CLASS = 'sw-experience-studio-preview-toolbar';
+            const ICON_ALIGN_LEFT = {{ iconAlignLeft|trim|json_encode|raw }};
+            const ICON_ALIGN_CENTER = {{ iconAlignCenter|trim|json_encode|raw }};
+            const ICON_ALIGN_RIGHT = {{ iconAlignRight|trim|json_encode|raw }};
+            const ICON_ALIGN_JUSTIFY = {{ iconAlignJustify|trim|json_encode|raw }};
+            const interactiveSelector = 'a, button, [role="button"], input[type="submit"], input[type="button"]';
+            let hoveredElement = null;
+            let activeEditableElement = null;
+            let activeEditableElementId = null;
+            let activeEditableOriginalHtml = '';
+            let toolbarElement = null;
+            let savedSelectionRange = null;
+            let emitChangeTimeout = null;
+
+            function emitPreviewMessage(type, payload) {
+                if (!window.parent || window.parent === window) {
+                    return;
+                }
+
+                window.parent.postMessage({
+                    source: 'sw-experience-studio-preview',
+                    type,
+                    ...payload,
+                }, '*');
+            }
+
+            function handleParentMessage(event) {
+                if (!window.parent || event.source !== window.parent) {
+                    return;
+                }
+
+                const payload = event.data;
+
+                if (!payload || payload.source !== 'sw-experience-studio-admin') {
+                    return;
+                }
+
+                if (payload.type === 'capture-scroll' && typeof payload.requestId === 'number') {
+                    emitPreviewMessage('scroll-position', {
+                        requestId: payload.requestId,
+                        top: window.scrollY,
+                        left: window.scrollX,
+                    });
+
+                    return;
+                }
+
+                if (
+                    payload.type === 'restore-scroll'
+                    && typeof payload.top === 'number'
+                    && typeof payload.left === 'number'
+                ) {
+                    const doc = document.documentElement;
+                    const body = document.body;
+                    const previousDocBehavior = doc.style.scrollBehavior;
+                    const previousBodyBehavior = body ? body.style.scrollBehavior : '';
+
+                    doc.style.scrollBehavior = 'auto';
+
+                    if (body) {
+                        body.style.scrollBehavior = 'auto';
+                    }
+
+                    window.scrollTo({
+                        left: payload.left,
+                        top: payload.top,
+                        behavior: 'auto',
+                    });
+
+                    window.requestAnimationFrame(function () {
+                        window.requestAnimationFrame(function () {
+                            doc.style.scrollBehavior = previousDocBehavior;
+
+                            if (body) {
+                                body.style.scrollBehavior = previousBodyBehavior;
+                            }
+
+                            emitPreviewMessage('scroll-restored', {
+                                requestId: typeof payload.requestId === 'number' ? payload.requestId : null,
+                            });
+                        });
+                    });
+                }
+            }
+
+            function isInteractiveTarget(target) {
+                return target instanceof Element && target.closest(interactiveSelector) !== null;
+            }
+
+            function getComponentRoot(target) {
+                if (!(target instanceof Element)) {
+                    return null;
+                }
+
+                return target.closest('[' + ELEMENT_ID_ATTRIBUTE + ']');
+            }
+
+            function setHoveredElement(element) {
+                if (hoveredElement === element) {
+                    return;
+                }
+
+                if (hoveredElement instanceof Element) {
+                    hoveredElement.classList.remove(HOVER_CLASS);
+                }
+
+                hoveredElement = element;
+
+                if (hoveredElement instanceof Element) {
+                    hoveredElement.classList.add(HOVER_CLASS);
+                }
+            }
+
+            function notifySelection(elementId) {
+                if (!elementId) {
+                    return;
+                }
+
+                emitPreviewMessage('select-element', {
+                    elementId,
+                });
+            }
+
+            function isTextEditableElement(element) {
+                return element instanceof Element && element.classList.contains(TEXT_COMPONENT_CLASS);
+            }
+
+            function hideToolbar() {
+                if (!(toolbarElement instanceof HTMLElement)) {
+                    return;
+                }
+
+                toolbarElement.style.display = 'none';
+            }
+
+            function isSelectionInsideActiveEditable() {
+                if (!(activeEditableElement instanceof Element)) {
+                    return false;
+                }
+
+                const selection = window.getSelection();
+
+                if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+                    return false;
+                }
+
+                const anchorNode = selection.anchorNode;
+                const focusNode = selection.focusNode;
+
+                if (!anchorNode || !focusNode) {
+                    return false;
+                }
+
+                return activeEditableElement.contains(anchorNode) && activeEditableElement.contains(focusNode);
+            }
+
+            function updateToolbarPosition() {
+                if (!(toolbarElement instanceof HTMLElement)) {
+                    return;
+                }
+
+                const selection = window.getSelection();
+
+                if (!selection || selection.rangeCount === 0) {
+                    hideToolbar();
+                    return;
+                }
+
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+
+                if (!rect || (rect.width === 0 && rect.height === 0)) {
+                    hideToolbar();
+                    return;
+                }
+
+                toolbarElement.style.display = 'flex';
+                toolbarElement.classList.remove(`${TOOLBAR_CLASS}--below`);
+                toolbarElement.style.maxWidth = `${Math.max(120, window.innerWidth - 16)}px`;
+
+                const toolbarWidth = toolbarElement.offsetWidth;
+                const toolbarHeight = toolbarElement.offsetHeight;
+
+                const centeredLeft = window.scrollX + rect.left + (rect.width / 2) - (toolbarWidth / 2);
+                const minLeft = window.scrollX + 8;
+                const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+                const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
+                const maxLeft = Math.max(minLeft, window.scrollX + viewportWidth - toolbarWidth - 8);
+                const resolvedLeft = Math.min(maxLeft, Math.max(minLeft, centeredLeft));
+
+                const spaceAbove = rect.top;
+                const spaceBelow = viewportHeight - rect.bottom;
+                const shouldPlaceBelow = spaceAbove < (toolbarHeight + 12) && spaceBelow > (toolbarHeight + 12);
+                const aboveTop = window.scrollY + rect.top - toolbarHeight - 10;
+                const belowTop = window.scrollY + rect.bottom + 10;
+                const minTop = window.scrollY + 8;
+                const maxTop = Math.max(minTop, window.scrollY + viewportHeight - toolbarHeight - 8);
+                const preferredTop = shouldPlaceBelow ? belowTop : aboveTop;
+                const resolvedTop = Math.min(maxTop, Math.max(minTop, preferredTop));
+
+                if (shouldPlaceBelow) {
+                    toolbarElement.classList.add(`${TOOLBAR_CLASS}--below`);
+                }
+
+                let finalTop = resolvedTop;
+                let finalLeft = resolvedLeft;
+
+                toolbarElement.style.top = `${finalTop}px`;
+                toolbarElement.style.left = `${finalLeft}px`;
+
+                // Final collision pass based on rendered box to avoid edge clipping.
+                const renderedRect = toolbarElement.getBoundingClientRect();
+                const overflowLeft = 8 - renderedRect.left;
+                const overflowRight = renderedRect.right - (viewportWidth - 8);
+                const overflowTop = 8 - renderedRect.top;
+                const overflowBottom = renderedRect.bottom - (viewportHeight - 8);
+
+                if (overflowLeft > 0) {
+                    finalLeft += overflowLeft;
+                } else if (overflowRight > 0) {
+                    finalLeft -= overflowRight;
+                }
+
+                if (overflowTop > 0) {
+                    finalTop += overflowTop;
+                } else if (overflowBottom > 0) {
+                    finalTop -= overflowBottom;
+                }
+
+                toolbarElement.style.top = `${finalTop}px`;
+                toolbarElement.style.left = `${finalLeft}px`;
+            }
+
+            function saveCurrentSelectionRange() {
+                const selection = window.getSelection();
+
+                if (!selection || selection.rangeCount === 0) {
+                    savedSelectionRange = null;
+                    return;
+                }
+
+                savedSelectionRange = selection.getRangeAt(0).cloneRange();
+            }
+
+            function restoreSelectionRange() {
+                if (!savedSelectionRange) {
+                    return false;
+                }
+
+                const selection = window.getSelection();
+
+                if (!selection) {
+                    return false;
+                }
+
+                selection.removeAllRanges();
+                selection.addRange(savedSelectionRange);
+
+                return true;
+            }
+
+            function emitInlineEditChangeDebounced() {
+                if (!(activeEditableElement instanceof Element) || !activeEditableElementId) {
+                    return;
+                }
+
+                if (emitChangeTimeout !== null) {
+                    window.clearTimeout(emitChangeTimeout);
+                }
+
+                emitChangeTimeout = window.setTimeout(() => {
+                    emitPreviewMessage('inline-edit-change', {
+                        elementId: activeEditableElementId,
+                        value: activeEditableElement.innerHTML,
+                    });
+                }, 120);
+            }
+
+            function deactivateInlineEditing() {
+                if (!(activeEditableElement instanceof Element)) {
+                    hideToolbar();
+                    return;
+                }
+
+                activeEditableElement.removeAttribute('contenteditable');
+                activeEditableElement.classList.remove(INLINE_EDITING_CLASS);
+                activeEditableElement = null;
+                activeEditableElementId = null;
+                activeEditableOriginalHtml = '';
+                savedSelectionRange = null;
+                hideToolbar();
+            }
+
+            function commitInlineEditing() {
+                if (!(activeEditableElement instanceof Element) || !activeEditableElementId) {
+                    deactivateInlineEditing();
+                    return;
+                }
+
+                if (emitChangeTimeout !== null) {
+                    window.clearTimeout(emitChangeTimeout);
+                    emitChangeTimeout = null;
+                }
+
+                emitPreviewMessage('inline-edit-commit', {
+                    elementId: activeEditableElementId,
+                    value: activeEditableElement.innerHTML,
+                });
+
+                deactivateInlineEditing();
+            }
+
+            function cancelInlineEditing() {
+                if (!(activeEditableElement instanceof Element) || !activeEditableElementId) {
+                    deactivateInlineEditing();
+                    return;
+                }
+
+                activeEditableElement.innerHTML = activeEditableOriginalHtml;
+
+                if (emitChangeTimeout !== null) {
+                    window.clearTimeout(emitChangeTimeout);
+                    emitChangeTimeout = null;
+                }
+
+                emitPreviewMessage('inline-edit-cancel', {
+                    elementId: activeEditableElementId,
+                });
+
+                deactivateInlineEditing();
+            }
+
+            function activateInlineEditing(element) {
+                if (!isTextEditableElement(element)) {
+                    return;
+                }
+
+                if (activeEditableElement === element) {
+                    return;
+                }
+
+                if (activeEditableElement !== null) {
+                    commitInlineEditing();
+                }
+
+                const elementId = element.getAttribute(ELEMENT_ID_ATTRIBUTE);
+
+                if (!elementId) {
+                    return;
+                }
+
+                let preservedRange = null;
+                const currentSelection = window.getSelection();
+                if (
+                    currentSelection
+                    && currentSelection.rangeCount > 0
+                    && !currentSelection.isCollapsed
+                    && element.contains(currentSelection.anchorNode)
+                    && element.contains(currentSelection.focusNode)
+                ) {
+                    preservedRange = currentSelection.getRangeAt(0).cloneRange();
+                }
+
+                activeEditableElement = element;
+                activeEditableElementId = elementId;
+                activeEditableOriginalHtml = element.innerHTML;
+                element.setAttribute('contenteditable', 'true');
+                element.classList.add(INLINE_EDITING_CLASS);
+                element.focus();
+
+                if (preservedRange) {
+                    const restoredSelection = window.getSelection();
+
+                    if (restoredSelection) {
+                        restoredSelection.removeAllRanges();
+                        restoredSelection.addRange(preservedRange);
+                        savedSelectionRange = preservedRange;
+                    }
+                }
+
+                emitPreviewMessage('inline-edit-start', {
+                    elementId,
+                });
+
+                notifySelection(elementId);
+
+                window.requestAnimationFrame(() => {
+                    if (!isSelectionInsideActiveEditable()) {
+                        hideToolbar();
+                        return;
+                    }
+
+                    saveCurrentSelectionRange();
+                    updateToolbarPosition();
+                });
+            }
+
+            function executeInlineCommand(type, value) {
+                if (!(activeEditableElement instanceof Element)) {
+                    return;
+                }
+
+                if (!restoreSelectionRange()) {
+                    return;
+                }
+
+                document.execCommand(type, false, value);
+                saveCurrentSelectionRange();
+                emitInlineEditChangeDebounced();
+                updateToolbarPosition();
+            }
+
+            function addToolbarSeparator(toolbar) {
+                const separator = document.createElement('span');
+                separator.className = `${TOOLBAR_CLASS}__separator`;
+                toolbar.appendChild(separator);
+            }
+
+            function addToolbarButton(toolbar, title, iconMarkup, command, commandValue, additionalClass) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `${TOOLBAR_CLASS}__button`;
+                if (typeof additionalClass === 'string' && additionalClass.length > 0) {
+                    button.classList.add(additionalClass);
+                }
+                button.innerHTML = iconMarkup;
+                button.setAttribute('aria-label', title);
+                button.title = title;
+                button.addEventListener('mousedown', function (event) {
+                    event.preventDefault();
+                });
+                button.addEventListener('click', function () {
+                    executeInlineCommand(command, commandValue);
+                });
+                toolbar.appendChild(button);
+            }
+
+            function createFormatSelect(toolbar) {
+                const wrapper = document.createElement('span');
+                wrapper.className = `${TOOLBAR_CLASS}__format-wrapper`;
+                const select = document.createElement('select');
+                select.className = `${TOOLBAR_CLASS}__select`;
+                const options = [
+                    ['p', '¶ Paragraph'],
+                    ['h1', 'H1'],
+                    ['h2', 'H2'],
+                    ['h3', 'H3'],
+                    ['blockquote', '❝ Blockquote'],
+                ];
+
+                options.forEach(function (option) {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option[0];
+                    optionElement.textContent = option[1];
+                    select.appendChild(optionElement);
+                });
+
+                select.addEventListener('change', function () {
+                    executeInlineCommand('formatBlock', select.value);
+                });
+
+                wrapper.appendChild(select);
+                toolbar.appendChild(wrapper);
+            }
+
+            function createToolbar() {
+                if (toolbarElement) {
+                    return toolbarElement;
+                }
+
+                const toolbar = document.createElement('div');
+                toolbar.className = TOOLBAR_CLASS;
+
+                createFormatSelect(toolbar);
+                addToolbarSeparator(toolbar);
+                addToolbarButton(toolbar, 'Bold', '<strong>B</strong>', 'bold');
+                addToolbarButton(toolbar, 'Italic', '<em>I</em>', 'italic');
+                addToolbarButton(toolbar, 'Underline', '<span style="text-decoration: underline;">U</span>', 'underline');
+                addToolbarButton(toolbar, 'Strikethrough', '<span style="text-decoration: line-through;">S</span>', 'strikeThrough');
+                addToolbarButton(toolbar, 'Subscript', 'x<sub>2</sub>', 'subscript');
+                addToolbarButton(toolbar, 'Superscript', 'x<sup>2</sup>', 'superscript');
+                addToolbarSeparator(toolbar);
+                addToolbarButton(toolbar, 'Align left', ICON_ALIGN_LEFT, 'justifyLeft', undefined, `${TOOLBAR_CLASS}__button--align`);
+                addToolbarButton(toolbar, 'Align center', ICON_ALIGN_CENTER, 'justifyCenter', undefined, `${TOOLBAR_CLASS}__button--align`);
+                addToolbarButton(toolbar, 'Align right', ICON_ALIGN_RIGHT, 'justifyRight', undefined, `${TOOLBAR_CLASS}__button--align`);
+                addToolbarButton(toolbar, 'Justify', ICON_ALIGN_JUSTIFY, 'justifyFull', undefined, `${TOOLBAR_CLASS}__button--align`);
+                addToolbarSeparator(toolbar);
+                addToolbarButton(toolbar, 'Bullet list', '•', 'insertUnorderedList');
+                addToolbarButton(toolbar, 'Numbered list', '1.', 'insertOrderedList');
+                addToolbarSeparator(toolbar);
+                addToolbarButton(toolbar, 'Remove format', '✕', 'removeFormat');
+
+                const linkButton = document.createElement('button');
+                linkButton.type = 'button';
+                linkButton.className = `${TOOLBAR_CLASS}__button`;
+                linkButton.innerHTML = '🔗';
+                linkButton.title = 'Link';
+                linkButton.setAttribute('aria-label', 'Link');
+                linkButton.addEventListener('mousedown', function (event) {
+                    event.preventDefault();
+                });
+                linkButton.addEventListener('click', function () {
+                    const linkValue = window.prompt('Enter link URL');
+
+                    if (!linkValue) {
+                        return;
+                    }
+
+                    executeInlineCommand('createLink', linkValue);
+                });
+                toolbar.appendChild(linkButton);
+
+                toolbarElement = toolbar;
+                document.body.appendChild(toolbarElement);
+
+                return toolbarElement;
+            }
+
+            const inspectStyle = document.createElement('style');
+            inspectStyle.textContent = ''
+                + 'html, body, a, button, [role="button"], input[type="submit"], input[type="button"] { cursor: crosshair !important; }'
+                + '.sw-experience-studio-preview-hovered { outline: 2px solid #0870ff !important; outline-offset: 2px !important; }'
+                + '.sw-experience-studio-preview-editing { outline: 2px solid #189eff !important; outline-offset: 2px !important; cursor: text !important; }'
+                + '.sw-experience-studio-preview-toolbar { position: absolute; z-index: 9999; display: none; gap: 4px; align-items: center; padding: 4px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.12); background: #1f2430; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38); }'
+                + '.sw-experience-studio-preview-toolbar, .sw-experience-studio-preview-toolbar * { cursor: default !important; }'
+                + '.sw-experience-studio-preview-toolbar::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; background: #1f2430; border-right: 1px solid rgba(255, 255, 255, 0.12); border-bottom: 1px solid rgba(255, 255, 255, 0.12); transform: translateX(-50%) rotate(45deg); }'
+                + '.sw-experience-studio-preview-toolbar.sw-experience-studio-preview-toolbar--below::after { top: -5px; bottom: auto; border-right: 0; border-bottom: 0; border-left: 1px solid rgba(255, 255, 255, 0.12); border-top: 1px solid rgba(255, 255, 255, 0.12); }'
+                + '.sw-experience-studio-preview-toolbar__button { min-width: 24px; height: 24px; border: 1px solid transparent; color: #e8ecf3; background: transparent; border-radius: 4px; padding: 0 5px; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer !important; }'
+                + '.sw-experience-studio-preview-toolbar__button:hover { background: #2f3545; border-color: rgba(255, 255, 255, 0.14); }'
+                + '.sw-experience-studio-preview-toolbar__button:active { background: #3a4255; }'
+                + '.sw-experience-studio-preview-toolbar__button .icon { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; margin: 0; padding: 0; background: transparent !important; border: 0 !important; box-shadow: none !important; color: inherit !important; }'
+                + '.sw-experience-studio-preview-toolbar__button .icon svg { width: 14px !important; height: 14px !important; display: block; vertical-align: middle; }'
+                + '.sw-experience-studio-preview-toolbar__button .icon svg path, .sw-experience-studio-preview-toolbar__button .icon svg g, .sw-experience-studio-preview-toolbar__button .icon svg use { fill: currentColor !important; stroke: currentColor !important; }'
+                + '.sw-experience-studio-preview-toolbar__button--align .icon { transform: translateY(-3px); }'
+                + '.sw-experience-studio-preview-toolbar__separator { width: 1px; height: 18px; background: rgba(255, 255, 255, 0.16); margin: 0 2px; }'
+                + '.sw-experience-studio-preview-toolbar__format-wrapper { position: relative; display: inline-flex; align-items: center; }'
+                + '.sw-experience-studio-preview-toolbar__format-wrapper::after { content: "▾"; position: absolute; right: 8px; color: #cdd5e1; font-size: 10px; pointer-events: none; }'
+                + '.sw-experience-studio-preview-toolbar__select { height: 24px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 4px; background: #2a3040; color: #e8ecf3; font-size: 12px; padding: 0 18px 0 8px; appearance: none; cursor: pointer !important; }'
+                + '.sw-experience-studio-preview-toolbar__select:focus { outline: 0; border-color: #5a8fff; box-shadow: 0 0 0 1px rgba(90, 143, 255, 0.45); }';
+            document.head.appendChild(inspectStyle);
+            createToolbar();
+
+            document.addEventListener('mousemove', function (event) {
+                setHoveredElement(getComponentRoot(event.target));
+            }, true);
+
+            document.addEventListener('mouseleave', function () {
+                setHoveredElement(null);
+            }, true);
+
+            document.addEventListener('click', function (event) {
+                const componentRoot = getComponentRoot(event.target);
+                const clickedToolbar = toolbarElement instanceof Element && toolbarElement.contains(event.target);
+
+                if (clickedToolbar) {
+                    return;
+                }
+
+                if (componentRoot instanceof Element) {
+                    notifySelection(componentRoot.getAttribute(ELEMENT_ID_ATTRIBUTE));
+                }
+
+                if (activeEditableElement instanceof Element) {
+                    if (activeEditableElement.contains(event.target)) {
+                        return;
+                    }
+
+                    commitInlineEditing();
+                }
+
+                if (!isInteractiveTarget(event.target)) {
+                    if (!(componentRoot instanceof Element)) {
+                        return;
+                    }
+                }
+
+                // Keep cookie-consent video placeholders interactive so their "accept" button
+                // can load the embed inside the preview. Selection/inline-edit handling above
+                // still runs; only the click suppression is skipped for these elements.
+                if (event.target instanceof Element && event.target.closest('.sw-media-embed-video__consent')) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            document.addEventListener('dblclick', function (event) {
+                const componentRoot = getComponentRoot(event.target);
+
+                if (!(componentRoot instanceof Element)) {
+                    return;
+                }
+
+                if (!isTextEditableElement(componentRoot)) {
+                    return;
+                }
+
+                activateInlineEditing(componentRoot);
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            document.addEventListener('selectionchange', function () {
+                if (!isSelectionInsideActiveEditable()) {
+                    hideToolbar();
+                    return;
+                }
+
+                saveCurrentSelectionRange();
+                updateToolbarPosition();
+            }, true);
+
+            document.addEventListener('input', function (event) {
+                if (!(activeEditableElement instanceof Element)) {
+                    return;
+                }
+
+                if (!activeEditableElement.contains(event.target)) {
+                    return;
+                }
+
+                emitInlineEditChangeDebounced();
+            }, true);
+
+            document.addEventListener('keydown', function (event) {
+                if (!(activeEditableElement instanceof Element)) {
+                    return;
+                }
+
+                if (!activeEditableElement.contains(event.target)) {
+                    return;
+                }
+
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    cancelInlineEditing();
+                    return;
+                }
+
+                if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    commitInlineEditing();
+                }
+            }, true);
+
+            window.addEventListener('blur', function () {
+                if (!(activeEditableElement instanceof Element)) {
+                    return;
+                }
+
+                commitInlineEditing();
+            });
+
+            document.addEventListener('submit', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+
+                if (event.target instanceof HTMLElement && event.target.isContentEditable) {
+                    return;
+                }
+
+                if (!isInteractiveTarget(event.target)) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            window.addEventListener('message', handleParentMessage);
+        })();
+    </script>
+{% endblock %}

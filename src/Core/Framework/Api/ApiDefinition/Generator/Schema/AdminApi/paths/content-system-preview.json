@@ -1,0 +1,70 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/_action/content-system/preview/entity/url": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Create a shareable preview URL for a draft layout",
+                "operationId": "contentSystemPreviewEntityUrl",
+                "description": "Stores an externally supplied, unsaved draft layout behind a short-lived token and returns a URL that renders it against real entity data. The layout is neither persisted nor required to have an assignment; the target entity only needs to exist. Before anything is stored, the draft is admitted through the same build that opening the returned URL runs, so a draft that build refuses is rejected with `400` and never becomes a token. A `SalesChannelContext` is synthesized from `salesChannelId` (optionally overridden by `languageId`/`currencyId`/`domainId`/`customerId`), and `queryParameters` are forwarded as the render request's query (where `elementId` selects a single element for partial preview). Requires the `content_layout:read` privilege. A missing or invalid envelope field, an `entityType` matching no source, or a layout with an intrinsic defect is rejected with `400`.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/ContentPreviewEntityRequest" },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Preview a single element against a product",
+                                    "value": {
+                                        "layout": [
+                                            {
+                                                "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40",
+                                                "component": "shopware/product-heading",
+                                                "properties": { "tag": "h1" },
+                                                "dataRequirements": {
+                                                    "product": { "key": "product", "source": "entity", "config": { "entity": "product", "property": "product_id" } }
+                                                }
+                                            }
+                                        ],
+                                        "entityType": "product",
+                                        "entityId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2b01",
+                                        "salesChannelId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2c02"
+                                    }
+                                },
+                                "withContextOverrides": {
+                                    "summary": "Preview with language and partial-render selection",
+                                    "value": {
+                                        "layout": [
+                                            { "id": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40", "component": "shopware/product-heading", "properties": { "tag": "h1" } }
+                                        ],
+                                        "entityType": "product",
+                                        "entityId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2b01",
+                                        "salesChannelId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2c02",
+                                        "languageId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2d03",
+                                        "queryParameters": { "elementId": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a40" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "A URL that renders the stored draft layout preview.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": { "url": { "type": "string" } },
+                                    "required": ["url"]
+                                }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" }
+                }
+            }
+        }
+    }
+}

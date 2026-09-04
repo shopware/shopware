@@ -12,6 +12,11 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistra
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentLayoutAssignableCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemStyleOptionCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
@@ -65,15 +70,13 @@ class Framework extends Bundle
         return new FrameworkExtension();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function build(ContainerBuilder $container): void
     {
         $container->setParameter('locale', 'en-GB');
 
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
+        $phpLoader->load('content-system.php');
         $phpLoader->load('http_discovery.php');
         $phpLoader->load('acl.php');
         $phpLoader->load('api.php');
@@ -137,6 +140,11 @@ class Framework extends Bundle
         $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new HttpCacheConfigCompilerPass());
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
+        $container->addCompilerPass(new ContentRouteCompilerPass());
+        $container->addCompilerPass(new ContentSystemDataLoaderCompilerPass());
+        $container->addCompilerPass(new ContentSystemElementTypeCompilerPass());
+        $container->addCompilerPass(new ContentSystemStyleOptionCompilerPass());
+        $container->addCompilerPass(new ContentLayoutAssignableCompilerPass());
         $container->addCompilerPass(new ScheduledTaskExecutorCompilerPass());
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());
         $container->addCompilerPass(new RedisConnectionsCompilerPass());

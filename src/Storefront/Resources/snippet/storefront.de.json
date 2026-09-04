@@ -19,7 +19,9 @@
     "menuLink": "Menü",
     "star": "*",
     "grossTaxInformation": "Preise inkl. MwSt. zzgl. Versandkosten",
+    "grossTaxInformationShort": "inkl. MwSt. zzgl. Versandkosten",
     "netTaxInformation": "Preise exkl. MwSt. zzgl. Versandkosten",
+    "netTaxInformationShort": "exkl. MwSt. zzgl. Versandkosten",
     "deliveryShippingFree": "Versandkostenfrei",
     "deliveryNotAvailable": "Diese Auswahl steht nicht zur Verfügung",
     "deliveryShipping": "Dieses Produkt erscheint am",
@@ -39,6 +41,7 @@
     "collapse": "Einklappen",
     "categories": "Kategorien",
     "showCategory": "%category% anzeigen",
+    "toggleSubcategories": "Unterkategorien von %category% ein- oder ausblenden",
     "required": "*",
     "privacyTitle": "Datenschutz",
     "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
@@ -545,8 +548,12 @@
     "createAccountButton": "Konto erstellen"
   },
   "listing": {
+    "filterTitle": "Filter",
     "filterTitleText": "Produkte filtern",
     "showResults": "Ergebnisse anzeigen",
+    "resultCount": "{1} %count% Produkt|[0,Inf[ %count% Produkte",
+    "layoutSwitchList": "Listenansicht",
+    "layoutSwitchGrid": "Rasteransicht",
     "boxUnitLabel": "Inhalt:",
     "boxLabelTopseller": "Tipp",
     "boxLabelNew": "Neu",
@@ -586,6 +593,9 @@
     "filterByManufacturerAriaLabel": "Filtern nach Hersteller",
     "filterByPriceAriaLabel": "Filtern nach Preis",
     "filterByRatingAriaLabel": "Filtern nach Mindestbewertung",
+    "filterButtonMore": "Mehr Filter",
+    "filterButtonLess": "Weniger Filter",
+    "filterSearchPlaceholder": "Suchen nach %displayName%",
     "filterClose": "Filter schließen",
     "defaultProductSortingLabel": "Name A-Z",
     "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an.",
@@ -595,7 +605,10 @@
     "regularPriceLabel": "Regulärer Preis:",
     "listPriceLabel": "Verkaufspreis:",
     "addToWishlist": "Zum Merkzettel hinzufügen",
-    "removeFromWishlist": "Vom Merkzettel entfernen"
+    "removeFromWishlist": "Vom Merkzettel entfernen",
+    "productSliderAriaLabel": "Produkt-Slider mit %total% Produkten",
+    "productSliderScrollBackward": "Vorherige Produkte",
+    "productSliderScrollForward": "Nächste Produkte"
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",
@@ -652,6 +665,7 @@
     "tabsPreviewMore": "Mehr",
     "descriptionTitle": "Produktinformationen",
     "priceUnitName": "Inhalt:",
+    "priceUnavailable": "Preis nicht verfügbar",
     "priceDataInfoUntil": "Bis",
     "priceDataInfoFrom": "Ab",
     "listPricePercentage": "(%price%% gespart)",
@@ -883,6 +897,21 @@
         "zoomIn": "Hineinzoomen",
         "zoomOut": "Herauszoomen",
         "zoomReset": "Zoom zurücksetzen"
+      },
+      "mediaGallery": {
+        "ariaLabel": "Mediengalerie mit %total% Elementen",
+        "lightboxTitle": "Vollbild-Mediengalerie",
+        "openLightboxAriaLabel": "Öffne Medienelement %index% in Vollbild-Galerie",
+        "counterDeviderLabel": "von",
+        "counterLabel": "Zeige",
+        "thumbnailNavAriaLabel": "Mediengalerie Vorschaunavigation",
+        "thumbnailNavScrollDown": "Nach unten scrollen",
+        "thumbnailNavScrollUp": "Nach oben scrollen",
+        "thumbnailNavScrollLeft": "Nach links scrollen",
+        "thumbnailNavScrollRight": "Nach rechts scrollen",
+        "thumbnailNavButtonAriaLabel": "Zeige Medienelement %index% von %total%",
+        "previousMedia": "Vorheriges Medienelement",
+        "nextMedia": "Nächstes Medienelement"
       },
       "productGallery": {
         "ariaLabel": "Produktgalerie mit %total% Elementen",

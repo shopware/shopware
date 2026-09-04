@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTag\ShippingMethodTagDefinition;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodTranslation\ShippingMethodTranslationDefinition;
 use Shopware\Core\Checkout\Shipping\Api\ShippingMethodTechnicalNameFkResolver;
+use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader;
+use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodLoaderConfigSerializer;
+use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
@@ -60,4 +63,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('shopware.sync.fk_resolver');
+
+    // Content System
+    $services->alias(AbstractShippingMethodRoute::class, ShippingMethodRoute::class);
+
+    $services->set(ShippingMethodDataLoader::class)
+        ->args([
+            service(AbstractShippingMethodRoute::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(ShippingMethodLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
 };

@@ -1,0 +1,207 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentLayoutDiagnosticsReport": {
+                "title": "Content layout diagnostics report",
+                "type": "object",
+                "description": "The well-formedness and resolvability report for a layout, produced by `LayoutDiagnostics` and normalized for the wire. `wellFormed` is the persistence-gate predicate; `resolvable` is the serving-gate predicate. Both are derived from `violations`: each violation carries a `scope` and `severity` derived from its `code`.",
+                "required": ["wellFormed", "resolvable", "violations"],
+                "properties": {
+                    "wellFormed": {
+                        "type": "boolean",
+                        "description": "True when there are no intrinsic-scope error violations. This is the predicate that gates persistence.",
+                        "readOnly": true
+                    },
+                    "resolvable": {
+                        "type": "boolean",
+                        "description": "True when there are no binding-scope error violations. Meaningful only when the layout was bound to a source (via `entityType`/`section` on the draft routes, or the layout's real bindings on the persisted routes); this is the predicate that gates serving.",
+                        "readOnly": true
+                    },
+                    "violations": {
+                        "type": "array",
+                        "description": "Every defect found in the layout, in no guaranteed order.",
+                        "items": {
+                            "$ref": "#/components/schemas/ContentLayoutViolation"
+                        },
+                        "readOnly": true
+                    }
+                }
+            },
+            "ContentLayoutViolation": {
+                "title": "Content layout violation",
+                "type": "object",
+                "description": "A single defect found in a layout, addressed by element id plus an optional property/context key. `scope` and `severity` are derived from `code` and are always consistent with it.",
+                "required": ["code", "scope", "severity", "elementId", "key", "message", "candidates"],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "enum": [
+                            "unregistered_component",
+                            "duplicate_element_id",
+                            "invalid_config",
+                            "mismatched_reference_type",
+                            "mismatched_property_type",
+                            "unknown_style_option",
+                            "orphaned_provider",
+                            "unresolved_required",
+                            "ambiguous_required",
+                            "broken_required_chain",
+                            "unresolved_optional",
+                            "unfilled_required_input"
+                        ],
+                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `mismatched_reference_type`, `mismatched_property_type`, `unknown_style_option`, `orphaned_provider`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`, `unfilled_required_input`) describe resolvability against a bound source. `mismatched_reference_type` flags a stored reference wiring whose resolved produced type is not assignable to the property's declared FQCN. `mismatched_property_type` flags a stored property value that disagrees with the primitive type its element type declares for that key; `key` carries the property name. `unknown_style_option` flags an element `style` entry naming an option the style option registry does not know; `key` carries the option name. `unfilled_required_input` flags a required reference whose stored wiring references an element property that holds no value."
+                    },
+                    "scope": {
+                        "type": "string",
+                        "enum": ["intrinsic", "binding"],
+                        "description": "Whether the defect is intrinsic to the layout or only meaningful relative to a bound source. Derived from `code`."
+                    },
+                    "severity": {
+                        "type": "string",
+                        "enum": ["error", "warning"],
+                        "description": "Whether the defect blocks the corresponding gate (`error`) or is advisory (`warning`). Derived from `code`."
+                    },
+                    "elementId": {
+                        "type": "string",
+                        "description": "The id of the element the defect was found on. Echoes the id present in the analyzed tree.",
+                        "example": "0188fa1b2c3d4e5f6a7b8c9d0e1f2a3b"
+                    },
+                    "key": {
+                        "type": ["string", "null"],
+                        "description": "The property or context key the defect concerns, or `null` when the defect is about the element as a whole."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A human-readable description of the defect."
+                    },
+                    "candidates": {
+                        "type": "array",
+                        "description": "For resolvability defects, the candidate sources that were considered (for example the ambiguous candidates of an `ambiguous_required`). Empty for defects with no candidate set.",
+                        "items": {
+                            "$ref": "#/components/schemas/ContentLayoutResolutionCandidate"
+                        }
+                    }
+                }
+            },
+            "ContentLayoutResolutions": {
+                "title": "Content layout resolutions",
+                "type": "object",
+                "description": "Per-element property resolutions, keyed by element id. Each value is the list of that element's declared properties with how each is (or is not) filled. Encodes as `{}` when empty (never `[]`). On the mutation routes this is restricted to the affected elements; on the diagnose route it covers the whole tree.",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/ContentLayoutPropertyResolution"
+                    }
+                },
+                "readOnly": true
+            },
+            "ContentLayoutPropertyResolution": {
+                "title": "Content layout property resolution",
+                "type": "object",
+                "description": "How a single declared property of an element type at a position is (or is not) filled. A `primitive` property carries a static value typed by `type`; a `reference` property is filled from a candidate source typed by `fqcn`, with `resolved` holding the conservatively chosen candidate (or `null`) and `candidates` the full set.",
+                "required": ["key", "kind", "required", "type", "default", "fqcn", "resolved", "candidates"],
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "description": "The declared property name."
+                    },
+                    "kind": {
+                        "type": "string",
+                        "enum": ["primitive", "reference"],
+                        "description": "`primitive` for a statically typed value, `reference` for an FQCN-typed value filled from context or a data loader."
+                    },
+                    "required": {
+                        "type": "boolean",
+                        "description": "Whether the element type declares this property as required."
+                    },
+                    "type": {
+                        "type": ["string", "null"],
+                        "description": "The primitive type name for a `primitive` property; `null` for a `reference` property (which uses `fqcn` instead)."
+                    },
+                    "default": {
+                        "description": "The declared default value for the property, if any. Any JSON type, or `null` when there is no default."
+                    },
+                    "fqcn": {
+                        "type": ["string", "null"],
+                        "description": "The class-string a `reference` property resolves to; `null` for a `primitive` property (which uses `type` instead)."
+                    },
+                    "resolved": {
+                        "description": "The conservatively chosen candidate that fills this property, or `null` when none could be chosen (no candidate, or an ambiguous set).",
+                        "oneOf": [
+                            { "$ref": "#/components/schemas/ContentLayoutResolutionCandidate" },
+                            { "type": "null" }
+                        ]
+                    },
+                    "candidates": {
+                        "type": "array",
+                        "description": "Every candidate source considered for a `reference` property (parent/root providers first, then data loaders). Empty for a `primitive` property.",
+                        "items": {
+                            "$ref": "#/components/schemas/ContentLayoutResolutionCandidate"
+                        }
+                    }
+                }
+            },
+            "ContentLayoutResolutionCandidate": {
+                "title": "Content layout resolution candidate",
+                "type": "object",
+                "description": "One possible source for filling a `reference` property: an ancestor/root context provider (`origin: parent`), a data loader (`origin: loader`), or the element's own applied wiring (`origin: stored`, only ever the `resolved` pick, never a `candidates` menu entry). The fields that apply depend on `origin`.",
+                "required": [
+                    "origin",
+                    "contextKey",
+                    "providerElementId",
+                    "path",
+                    "distribution",
+                    "contextType",
+                    "loaderSource",
+                    "configTemplate",
+                    "configComplete"
+                ],
+                "properties": {
+                    "origin": {
+                        "type": "string",
+                        "enum": ["parent", "loader", "stored"],
+                        "description": "Where the candidate value originates: a parent/root context provider (`parent`), a data loader (`loader`), or the element's own applied wiring (`stored`)."
+                    },
+                    "contextKey": {
+                        "type": ["string", "null"],
+                        "description": "For a `parent` candidate, the context key the value is provided under; `null` for a `loader` or `stored` candidate."
+                    },
+                    "providerElementId": {
+                        "type": ["string", "null"],
+                        "description": "For a `parent` candidate, the id of the providing element (or `null` for a root-ambient provider); `null` for a `loader` or `stored` candidate."
+                    },
+                    "path": {
+                        "type": ["string", "null"],
+                        "description": "For a `parent` candidate, the optional dot-notation path selecting a nested value from the provided context; `null` for a `loader` or `stored` candidate."
+                    },
+                    "distribution": {
+                        "type": ["string", "null"],
+                        "enum": ["broadcast", "indexed", "keyed", "sliced", "iterator", null],
+                        "description": "For a `parent` candidate, the distribution strategy the provider uses; `null` for a `loader` or `stored` candidate."
+                    },
+                    "contextType": {
+                        "type": ["string", "null"],
+                        "enum": ["single", "collection", null],
+                        "description": "For a `parent` candidate, whether the provided context is a single value or a collection; `null` for a `loader` or `stored` candidate."
+                    },
+                    "loaderSource": {
+                        "type": ["string", "null"],
+                        "description": "For a `loader` candidate, the data loader source (see `GET /api/_info/content-system-data-loaders.json`); `null` for a `parent` or `stored` candidate."
+                    },
+                    "configTemplate": {
+                        "type": ["object", "null"],
+                        "additionalProperties": true,
+                        "description": "For a `loader` candidate, the inferable loader configuration seed; `null` when none applies (including for a `stored` candidate)."
+                    },
+                    "configComplete": {
+                        "type": ["boolean", "null"],
+                        "description": "For a `loader` candidate, whether the loader config is complete enough to resolve without further input. `false` for a `parent` candidate; `null` for a `stored` candidate (it carries no loader-shaped fields — it is applied wiring, not an environment offer — so clients branch on `origin` before reading it)."
+                    }
+                }
+            }
+        }
+    }
+}

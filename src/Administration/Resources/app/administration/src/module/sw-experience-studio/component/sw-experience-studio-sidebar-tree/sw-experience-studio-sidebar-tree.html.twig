@@ -1,0 +1,60 @@
+{% block sw_experience_studio_sidebar_tree %}
+<div class="sw-experience-studio-sidebar-tree">
+    {% block sw_experience_studio_sidebar_tree_header %}
+    <div class="sw-experience-studio-sidebar-tree__header">
+        <h3>{{ $t('sw-experience-studio.detail.sidebarTree.title') }}</h3>
+
+        <button
+            v-tooltip="{
+                message: $t('sw-experience-studio.detail.sidebarTree.addElement'),
+                disabled: allowEdit
+            }"
+            class="sw-experience-studio-sidebar-tree__add-button"
+            type="button"
+            :disabled="!allowEdit || undefined"
+            :aria-label="$t('sw-experience-studio.detail.sidebarTree.addElement')"
+            @click="onAddRootElement($event)"
+        >
+            <mt-icon
+                name="regular-plus-xs"
+                size="12px"
+            />
+        </button>
+    </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_sidebar_tree_content %}
+    <div
+        v-droppable="rootDropConfig()"
+        class="sw-experience-studio-sidebar-tree__content"
+    >
+        <template v-if="hasElements">
+            {% block sw_experience_studio_sidebar_tree_nodes %}
+            <sw-experience-studio-sidebar-tree-node
+                v-for="(element, elementIndex) in layoutElements"
+                :key="element.id"
+                :element="element"
+                :selected-element-id="selectedElementId"
+                :allow-drag-and-drop="allowEdit"
+                :validate-move-target="validateMoveTarget"
+                :parent-element-id="null"
+                :parent-slot-name="null"
+                :index-in-parent="elementIndex"
+                @select-element="onSelectElement"
+                @add-element="onAddElement"
+                @duplicate-element="onDuplicateElement"
+                @delete-element="onDeleteElement"
+                @move-element="onMoveElement"
+            />
+            {% endblock %}
+        </template>
+
+        <mt-empty-state
+            v-else
+            icon="regular-sitemap"
+            :description="$t('sw-experience-studio.detail.sidebarTree.emptyState')"
+        />
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

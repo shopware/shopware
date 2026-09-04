@@ -1,0 +1,19 @@
+meta:
+  label: "Media Image"
+  description: "Fixture image type whose media reference resolves via resolvedBy with no authored bindings section."
+  icon: "regular-image"
+  category: "content"
+  copilot:
+    summary: "Fixture element for the resolvedBy synthesized-default round-trip test."
+    hints:
+      - "Requires a media entity."
+
+properties:
+  media:
+    type: Shopware\Core\Content\Media\MediaEntity
+    required: true
+    resolvedBy: mediaId
+    title: "Media"
+    description: "Hydrated media entity resolved from mediaId."
+    adminUI:
+      component: "media-field"

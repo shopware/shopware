@@ -1,0 +1,17 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    page = null
+%}
+
+{% set attributeDefaults = {
+    'data-page-id': page.id
+} %}
+
+<div class="sw-content-page" {{ attributes.defaults(attributeDefaults) }}>
+    {% for element in page.elements %}
+        {% sw_include '@Storefront/components/Sw/Content/_element.html.twig' with { element: element } only %}
+    {% endfor %}
+</div>

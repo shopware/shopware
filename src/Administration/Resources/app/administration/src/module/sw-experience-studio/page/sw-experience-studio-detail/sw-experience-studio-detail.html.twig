@@ -1,0 +1,115 @@
+{% block sw_experience_studio_detail %}
+<sw-page
+    class="sw-experience-studio-detail"
+    :show-search-bar="false"
+    :show-smart-bar="false"
+>
+    {% block sw_experience_studio_detail_content %}
+    <template #content>
+        <div class="sw-experience-studio-detail__content">
+            <sw-experience-studio-create-wizard
+                v-if="showCreateWizard"
+                :name="createWizardName"
+                :selected-type="createWizardSelectedType"
+                :type-options="layoutTypeOptions"
+                :is-loading-types="isLoadingLayoutTypes"
+                :type-load-error="layoutTypeLoadError"
+                @update:name="onCreateWizardNameChange"
+                @update:selected-type="onCreateWizardTypeChange"
+                @complete="onCreateWizardComplete"
+                @cancel="onCreateWizardCancel"
+            />
+
+            <template v-else>
+            {% block sw_experience_studio_detail_toolbar %}
+                <sw-experience-studio-toolbar
+                    :layout="layout"
+                    :is-loading="isLoading"
+                    :current-viewport="currentViewport"
+                    :allow-save="allowSave"
+                    :preview-sales-channel-id="previewSalesChannelId"
+                    :preview-entity-type="previewEntityType"
+                    :preview-entity-id="previewEntityId"
+                    :can-undo="canUndo"
+                    :can-redo="canRedo"
+                    @back="onClickBack"
+                    @viewport-change="onViewportChange"
+                    @preview-sales-channel-change="onPreviewSalesChannelChange"
+                    @preview-entity-id-change="onPreviewEntityIdChange"
+                    @save="onSave"
+                    @undo="onUndo"
+                    @redo="onRedo"
+                />
+            {% endblock %}
+
+            {% block sw_experience_studio_detail_workspace %}
+                <div class="sw-experience-studio-detail__workspace">
+                {% block sw_experience_studio_detail_sidebar_tree %}
+                    <sw-experience-studio-sidebar-tree
+                        class="sw-experience-studio-detail__sidebar-tree"
+                        :layout="layout"
+                        :selected-element-id="selectedElementId"
+                        :validate-move-target="validateMoveTarget"
+                        @select-element="onSelectElement"
+                        @add-element="onAddElement"
+                        @duplicate-element="onDuplicateElement"
+                        @delete-element="onDeleteElement"
+                        @move-element="onMoveElement"
+                    />
+                {% endblock %}
+
+                {% block sw_experience_studio_detail_preview %}
+                    <sw-experience-studio-preview
+                        class="sw-experience-studio-detail__preview"
+                        :layout="layout"
+                        :viewport="currentViewport"
+                        :sales-channel-id="previewSalesChannelId"
+                        :entity-type="previewEntityType"
+                        :entity-id="previewEntityId"
+                        :suspend-auto-reload="isInlineEditing"
+                        @select-element="onSelectElement"
+                        @inline-edit-start="onInlineEditStart"
+                        @inline-edit-change="onInlineEditChange"
+                        @inline-edit-commit="onInlineEditCommit"
+                        @inline-edit-cancel="onInlineEditCancel"
+                    />
+                {% endblock %}
+
+                {% block sw_experience_studio_detail_element_settings %}
+                    <sw-experience-studio-element-settings
+                        class="sw-experience-studio-detail__element-settings"
+                        :layout="layout"
+                        :selected-element-id="selectedElementId"
+                        :selected-element="selectedElement"
+                        :selected-element-type="selectedElementType"
+                        :style-options="styleOptionStore.optionsByName"
+                        :is-loading-types="elementTypeStore.isLoading"
+                        :is-loading-style-options="styleOptionStore.isLoading"
+                        :type-load-error="elementTypeStore.loadError"
+                        :style-option-load-error="styleOptionStore.loadError"
+                        :allow-edit="allowSave"
+                        :is-inline-editing-active="isInlineEditing"
+                        @update-properties="onElementSettingsChange"
+                        @update-style="onElementStyleChange"
+                    />
+                {% endblock %}
+                </div>
+            {% endblock %}
+
+                <sw-experience-studio-element-picker
+                    :open="isElementPickerOpen"
+                    :title="$t('sw-experience-studio.detail.elementPicker.title')"
+                    :elements="availablePickerElements"
+                    :top="pickerTop"
+                    :left="pickerLeft"
+                    @close="onCloseElementPicker"
+                    @select="onSelectElementType"
+                />
+            </template>
+
+            <sw-loader v-if="isLoading" />
+        </div>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

@@ -104,6 +104,7 @@
         "pentatrion/vite-bundle": "^8.1",
         "php-http/discovery": "^1.20",
         "phpseclib/phpseclib": "^3.0",
+        "phpstan/phpdoc-parser": "^2.3.0",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
         "psr/container": "^2.0.2",
@@ -175,6 +176,7 @@
         "symfony/translation-contracts": "~3.6.0",
         "symfony/twig-bridge": "~7.4.12",
         "symfony/twig-bundle": "~7.4.0",
+        "symfony/type-info": "^7.4 || ^8.0",
         "symfony/uid": "~7.4.9",
         "symfony/ux-twig-component": "~2.35.0",
         "symfony/validator": "~7.4.0",
@@ -405,8 +407,8 @@
         "build:js:storefront": [
             "@php bin/console bundle:dump",
             "@php bin/console feature:dump",
-            "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
+            "@npm:storefront run production",
             "@php bin/console assets:install",
             "@php bin/console theme:compile --sync || true"
         ],

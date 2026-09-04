@@ -1,0 +1,116 @@
+{
+  "sw-experience-studio": {
+    "general": {
+      "mainMenuItemGeneral": "Experience Studio",
+      "descriptionTextModule": "Verwalte Inhaltslayouts für das neue Content-System.",
+      "placeholderSearchBar": "Layouts durchsuchen ...",
+      "moduleTitle": "Experience Studio",
+      "createNewLayout": "Neues Layout erstellen"
+    },
+    "elements": {
+      "sw-grid-container": {
+        "panels": {
+          "general": "Allgemein",
+          "spacing": "Abstände",
+          "alignment": "Ausrichtung",
+          "border": "Rahmen",
+          "corners": "Ecken",
+          "shadow": "Schatten",
+          "background": "Hintergrund"
+        }
+      }
+    },
+    "list": {
+      "columnName": "Name",
+      "columnVersion": "Version",
+      "columnCreatedAt": "Erstellt am",
+      "columnUpdatedAt": "Aktualisiert am",
+      "emptyStateTitle": "Noch keine Inhaltslayouts",
+      "emptyStateSubline": "Erstelle Dein erstes Inhaltslayout, um loszulegen."
+    },
+    "createWizard": {
+      "title": "Inhaltslayout erstellen",
+      "description": "Wähle zuerst einen Namen und den Layout-Typ, bevor Du mit der Bearbeitung startest.",
+      "nameLabel": "Layout-Name",
+      "namePlaceholder": "Layout-Namen eingeben...",
+      "typeLabel": "Layout-Typ",
+      "typePlaceholder": "Layout-Typ auswählen...",
+      "loadingTypes": "Layout-Typen werden geladen...",
+      "typeLoadError": "Layout-Typen konnten nicht geladen werden.",
+      "noTypes": "Es sind keine Layout-Typen verfügbar.",
+      "start": "Bearbeitung starten",
+      "missingFields": "Bitte gib einen Layout-Namen und einen Layout-Typ an, bevor Du speicherst.",
+      "layoutTypes": {
+        "product": "Produkt",
+        "category": "Kategorie",
+        "landing_page": "Landingpage"
+      }
+    },
+    "detail": {
+      "toolbar": {
+        "undo": "Rückgängig",
+        "redo": "Wiederholen",
+        "viewportMobile": "Mobil",
+        "viewportTablet": "Tablet",
+        "viewportDesktop": "Desktop",
+        "previewEntity": "Entität",
+        "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
+        "previewSalesChannel": "Verkaufskanal",
+        "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
+        "save": "Layout speichern"
+      },
+      "sidebarTree": {
+        "title": "Struktur",
+        "emptyState": "Dieses Layout enthält noch keine Elemente.",
+        "addElement": "Element hinzufügen",
+        "addElementNoTypeAvailable": "Es ist kein registrierter Elementtyp zum Einfügen verfügbar.",
+        "addElementNotAllowed": "Dieses Element kann nicht in den ausgewählten Slot eingefügt werden.",
+        "configureElement": "Element konfigurieren",
+        "duplicateElement": "Element duplizieren",
+        "deleteElement": "Element löschen"
+      },
+      "preview": {
+        "title": "Vorschau",
+        "placeholder": "Die Storefront-Vorschau wird hier angezeigt.",
+        "missingSalesChannel": "Wähle einen Verkaufskanal aus, um die Vorschau zu laden.",
+        "missingEntityContext": "Dieses Layout ist noch keinem Produkt, keiner Kategorie und keiner Landingpage zugewiesen.",
+        "noElements": "Die Vorschau wurde geladen, aber es wurden keine Root-Elemente zurückgegeben.",
+        "emptySlot": "Dieser Slot enthält keine Elemente.",
+        "errorLoad": "Die Vorschau konnte nicht geladen werden."
+      },
+      "elementSettings": {
+        "title": "Element-Einstellungen",
+        "tabElement": "Element",
+        "tabLayout": "Layout",
+        "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten.",
+        "loading": "Element-Einstellungen werden geladen ...",
+        "typeLoadError": "Element-Einstellungen konnten nicht geladen werden.",
+        "styleLoadError": "Layout-Einstellungen konnten nicht geladen werden.",
+        "typeMissing": "Für diese Komponente wurde noch kein registrierter Elementtyp gefunden.",
+        "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften.",
+        "noEditableStyleOptions": "Es sind keine Layout-Stiloptionen verfügbar.",
+        "panelGeneral": "Allgemein",
+        "viewportSettings": "Viewport-Einstellungen",
+        "boxSpacingTop": "Oben",
+        "boxSpacingRight": "Rechts",
+        "boxSpacingBottom": "Unten",
+        "boxSpacingLeft": "Links",
+        "boxSpacingLinkSides": "Alle Seiten gemeinsam bearbeiten",
+        "boxSpacingUnlinkSides": "Seiten einzeln bearbeiten",
+        "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
+        "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv."
+      },
+      "elementPicker": {
+        "title": "Element hinzufügen",
+        "noElements": "Für diese Position sind keine Elementtypen verfügbar.",
+        "categoryHeadlines": {
+          "content": "Inhalt",
+          "commerce": "Commerce",
+          "layout": "Layout",
+          "other": "Sonstige"
+        }
+      },
+      "messageSaved": "Inhaltslayout erfolgreich gespeichert."
+    }
+  }
+}

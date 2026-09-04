@@ -75,6 +75,12 @@ class AppException extends HttpException
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
+    final public const CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED = 'FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED';
+    final public const CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE = 'FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE';
+    final public const CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED = 'FRAMEWORK__APP_STYLE_OPTION_LOAD_FAILED';
+    final public const CONTENT_SYSTEM_STYLE_OPTION_DUPLICATE = 'FRAMEWORK__APP_STYLE_OPTION_DUPLICATE';
+    final public const CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED = 'FRAMEWORK__APP_BINDING_SPECIFICATION_LOAD_FAILED';
+    final public const CONTENT_SYSTEM_BINDING_SPECIFICATION_DUPLICATE = 'FRAMEWORK__APP_BINDING_SPECIFICATION_DUPLICATE';
     final public const APP_REQUIREMENTS_NOT_MET = 'FRAMEWORK__APP_REQUIREMENTS_NOT_MET';
     final public const RE_REGISTRATION_FAILED = 'FRAMEWORK__APP_RE_REGISTRATION_FAILED';
     final public const CAPABILITY_NOT_GRANTED = 'FRAMEWORK__APP_CAPABILITY_NOT_GRANTED';
@@ -650,6 +656,31 @@ class AppException extends HttpException
     }
 
     /**
+     * @param list<string> $names
+     */
+    public static function contentSystemElementTypeDuplicate(array $names, string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE,
+            'Element type name collision while persisting types for "{{ source }}" (names: {{ names }}). A concurrent registration claimed the same name.',
+            ['source' => $source, 'names' => implode(', ', $names)],
+            $previous
+        );
+    }
+
+    public static function contentSystemElementTypeLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED,
+            'Failed to load element type from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    /**
      * @param list<string> $failedAppNames
      */
     public static function shopMoveFailed(array $failedAppNames): self
@@ -660,6 +691,56 @@ class AppException extends HttpException
             'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
             . 'retry each failed app with "bin/console app:secret:rotate <app-name>".',
             ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
+        );
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    public static function contentSystemStyleOptionDuplicate(array $names, string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CONTENT_SYSTEM_STYLE_OPTION_DUPLICATE,
+            'Style option name collision while persisting options for "{{ source }}" (names: {{ names }}). A concurrent registration claimed the same name.',
+            ['source' => $source, 'names' => implode(', ', $names)],
+            $previous
+        );
+    }
+
+    public static function contentSystemStyleOptionLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_SYSTEM_STYLE_OPTION_LOAD_FAILED,
+            'Failed to load style option from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    public static function contentSystemBindingSpecificationDuplicate(array $names, string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CONTENT_SYSTEM_BINDING_SPECIFICATION_DUPLICATE,
+            'Binding specification name collision while persisting bindings for "{{ source }}" (names: {{ names }}). A concurrent registration claimed the same name.',
+            ['source' => $source, 'names' => implode(', ', $names)],
+            $previous
+        );
+    }
+
+    public static function contentSystemBindingSpecificationLoadFailed(string $directory, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_SYSTEM_BINDING_SPECIFICATION_LOAD_FAILED,
+            'Failed to load binding specification from directory "{{ directory }}": {{ reason }}',
+            ['directory' => $directory, 'reason' => $reason],
+            $previous
         );
     }
 

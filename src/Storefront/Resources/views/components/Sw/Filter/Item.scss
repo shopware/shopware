@@ -1,0 +1,90 @@
+.sw-filter-item {
+    --sw-filter-item-dropdown-min-width: 180px;
+    --sw-filter-item-dropdown-max-width: 320px;
+    --sw-filter-item-icon-size: 0.8rem;
+    --sw-filter-item-icon-transition: all 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+
+    &.is--hidden {
+        display: none;
+    }
+
+    .sw-offcanvas.show & {
+        &.is--hidden {
+            display: block;
+        }
+    }
+}
+
+.sw-filter-item__btn {
+    padding-right: 2.2rem;
+
+    .sw-icon {
+        width: var(--sw-filter-item-icon-size);
+        height: var(--sw-filter-item-icon-size);
+        margin-left: 0.5rem;
+        position: absolute;
+        right: 0.5rem;
+        top: 0.7rem;
+        transition: var(--sw-filter-item-icon-transition);
+    }
+
+    .sw-icon--default-arrow-head-up {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .sw-icon--default-arrow-head-down {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    &[aria-expanded="true"] {
+        border-bottom-color: var(--bs-body-bg);
+        color: var(--bs-btn-active-color);
+        background-color: var(--bs-btn-active-bg);
+        border-color: var(--bs-btn-active-border-color);
+        // Ensure button is above dropdown to create the opened tab appearance
+        z-index: 1001;
+        border-bottom-color: var(--bs-body-bg);
+
+        .sw-icon--default-arrow-head-up {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .sw-icon--default-arrow-head-down {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    }
+}
+
+.is--collapse {
+    .sw-filter-item__btn {
+        width: 100%;
+    }
+}
+
+.sw-filter-item__dropdown {
+    --bs-dropdown-min-width: var(--sw-filter-item-dropdown-min-width);
+    --bs-dropdown-padding-y: 0;
+    --bs-dropdown-box-shadow: 0 8px 8px rgba(0, 0, 0, 0.1);
+    max-width: var(--sw-filter-item-dropdown-max-width);
+}
+
+.sw-filter-item__collapse {
+    border-left: var(--bs-border-width) solid var(--bs-border-color);
+    border-right: var(--bs-border-width) solid var(--bs-border-color);
+    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.sw-filter-item__count {
+    --bs-badge-padding-x: 0.5rem;
+    --bs-badge-padding-y: 0.2rem;
+    line-height: 1;
+    height: auto;
+
+    &.is--hidden {
+        display: none;
+    }
+}

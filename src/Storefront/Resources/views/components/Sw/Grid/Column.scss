@@ -1,0 +1,64 @@
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+.grid-column {
+    min-width: 100%;
+
+    @for $i from 1 through 12 {
+        &.span-#{$i} {
+            grid-column: span #{$i};
+        }
+    }
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            @for $i from 1 through 12 {
+                &.span-#{$breakpoint}-#{$i} {
+                    grid-column: span #{$i};
+                }
+            }
+        }
+    }
+
+    // TODO: This should be generic later and not bound to the grid-column, done on "slot" level (layout options)
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            &.d-#{$breakpoint}-hidden {
+                display: none !important;
+            }
+        }
+    }
+
+    &.align-start {
+        align-self: start;
+    }
+
+    &.align-end {
+        align-self: end;
+    }
+
+    &.align-center {
+        align-self: center;
+    }
+
+    &.align-stretch {
+        align-self: stretch;
+    }
+
+    &.justify-start {
+        justify-self: start;
+    }
+
+    &.justify-end {
+        justify-self: end;
+    }
+
+    &.justify-center {
+        justify-self: center;
+    }
+
+    &.justify-stretch {
+        justify-self: stretch;
+    }
+}

@@ -1,0 +1,73 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    listing = null,
+    slots = [],
+%}
+
+{% set listingCVA = cva({
+    base: 'sw-product-listing',
+}) %}
+
+{% set attributeDefaults = {
+    class: listingCVA.apply({}),
+    'data-component': 'Sw:Product:Listing',
+} %}
+
+{% set listingLayout = app.request.get('listingLayout') %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block filters %}
+        <twig:Slot name="filters-panel">
+            <twig:Sw:Filter:Panel
+                :totalCount="listing.total"
+                :currentSorting="listing.sorting"
+                :filterAggregations="listing.aggregations"
+                :availableSortings="listing.availableSortings">
+            </twig:Sw:Filter:Panel>
+        </twig:Slot>
+
+        <twig:Slot name="filters-active">
+            <twig:Sw:Filter:ActiveFilters />
+        </twig:Slot>
+    {% endblock %}
+
+    {% block content %}
+        {% if listing.total > 0 %}
+            <twig:Slot name="product-grid">
+                <twig:Sw:Grid:Container
+                    class="sw-product-listing__grid"
+                    :columns="listingLayout == 'horizontal' ? '1' : { xs: '1', sm: '2', md: '3', lg: '4', xl: '4' }"
+                    gap="16">
+                    {% for product in listing.elements %}
+                        <twig:Sw:Product:Card
+                            :product="product"
+                            :layout="listingLayout ? listingLayout : 'default'"
+                        />
+                    {% endfor %}
+                </twig:Sw:Grid:Container>
+            </twig:Slot>
+        {% else %}
+            <div class="sw-product-listing__grid container">
+                <twig:Sw:Alert type="info">
+                    {{ 'listing.emptyResultMessage'|trans|sw_sanitize }}
+                </twig:Sw:Alert>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block pagination %}
+        <twig:Slot name="pagination">
+            <twig:Sw:Content:Pagination
+                class="sw-product-listing__pagination"
+                :page="listing.page"
+                :total="listing.total"
+                :limit="listing.limit"
+                :scope="listing.entity"
+            />
+        </twig:Slot>
+    {% endblock %}
+
+</div>

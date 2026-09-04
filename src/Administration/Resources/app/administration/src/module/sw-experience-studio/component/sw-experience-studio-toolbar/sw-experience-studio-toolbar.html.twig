@@ -1,0 +1,138 @@
+{% block sw_experience_studio_toolbar %}
+<div class="sw-experience-studio-toolbar">
+    {% block sw_experience_studio_toolbar_left %}
+    <div class="sw-experience-studio-toolbar__left">
+        <div class="sw-experience-studio-toolbar__page-info">
+            {% block sw_experience_studio_toolbar_back_button %}
+            <a
+                class="sw-experience-studio-toolbar__back-btn"
+                role="link"
+                tabindex="0"
+                :aria-label="$t('global.default.back')"
+                @click="onBack"
+                @keyup.enter="onBack"
+            >
+                <mt-icon name="regular-times" />
+            </a>
+            {% endblock %}
+
+            {% block sw_experience_studio_toolbar_page_name %}
+            <h2 class="sw-experience-studio-toolbar__page-name">
+                {{ layoutName }}
+            </h2>
+            {% endblock %}
+        </div>
+
+        <div class="sw-experience-studio-toolbar__history-actions">
+            <button
+                class="sw-experience-studio-toolbar__history-action"
+                type="button"
+                :aria-label="$t('sw-experience-studio.detail.toolbar.undo')"
+                :disabled="!allowSave || !canUndo || undefined"
+                @click="onUndo"
+            >
+                <mt-icon
+                    name="regular-undo"
+                    size="18px"
+                />
+            </button>
+
+            <button
+                class="sw-experience-studio-toolbar__history-action"
+                type="button"
+                :aria-label="$t('sw-experience-studio.detail.toolbar.redo')"
+                :disabled="!allowSave || !canRedo || undefined"
+                @click="onRedo"
+            >
+                <mt-icon
+                    name="regular-redo"
+                    size="18px"
+                />
+            </button>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_toolbar_center %}
+    <div class="sw-experience-studio-toolbar__center">
+        <div class="sw-experience-studio-toolbar__device-actions">
+            {% block sw_experience_studio_toolbar_device_actions_mobile %}
+            <mt-icon
+                name="regular-mobile"
+                :class="{ 'is--active': currentViewport === 'mobile' }"
+                @click="onViewportChange('mobile')"
+            />
+            {% endblock %}
+
+            {% block sw_experience_studio_toolbar_device_actions_tablet_landscape %}
+            <mt-icon
+                name="regular-tablet"
+                :class="{ 'is--active': currentViewport === 'tablet-landscape' }"
+                @click="onViewportChange('tablet-landscape')"
+            />
+            {% endblock %}
+
+            {% block sw_experience_studio_toolbar_device_actions_desktop %}
+            <mt-icon
+                name="regular-desktop"
+                :class="{ 'is--active': currentViewport === 'desktop' }"
+                @click="onViewportChange('desktop')"
+            />
+            {% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_toolbar_right %}
+    <div class="sw-experience-studio-toolbar__right">
+        {% block sw_experience_studio_toolbar_entity_select %}
+        <div class="sw-experience-studio-toolbar__entity-field">
+            <label class="sw-experience-studio-toolbar__field-label">
+                {{ $t('sw-experience-studio.detail.toolbar.previewEntity') }}
+            </label>
+
+            <sw-entity-single-select
+                class="sw-experience-studio-toolbar__entity-select"
+                :entity="previewEntityType"
+                size="small"
+                :value="previewEntityId"
+                :placeholder="$t('sw-experience-studio.detail.toolbar.previewEntityPlaceholder')"
+                :show-clearable-button="false"
+                :disabled="isLoading || !previewEntityType || undefined"
+                @update:value="onPreviewEntityIdChange"
+            />
+        </div>
+        {% endblock %}
+
+        {% block sw_experience_studio_toolbar_sales_channel_select %}
+        <div class="sw-experience-studio-toolbar__sales-channel-field">
+            <label class="sw-experience-studio-toolbar__field-label">
+                {{ $t('sw-experience-studio.detail.toolbar.previewSalesChannel') }}
+            </label>
+
+            <sw-entity-single-select
+                class="sw-experience-studio-toolbar__sales-channel-select"
+                entity="sales_channel"
+                size="small"
+                :value="previewSalesChannelId"
+                :criteria="salesChannelCriteria"
+                :placeholder="$t('sw-experience-studio.detail.toolbar.previewSalesChannelPlaceholder')"
+                :show-clearable-button="false"
+                :disabled="isLoading || undefined"
+                @update:value="onPreviewSalesChannelChange"
+            />
+        </div>
+        {% endblock %}
+
+        <mt-button
+            variant="primary"
+            :disabled="!allowSave || isLoading || undefined"
+            :is-loading="isLoading"
+            @click="onSave"
+        >
+            {{ $t('sw-experience-studio.detail.toolbar.save') }}
+        </mt-button>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

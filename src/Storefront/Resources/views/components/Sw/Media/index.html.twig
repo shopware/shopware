@@ -1,0 +1,32 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    media,
+    previewMode = false,
+    autoplay = false,
+%}
+
+{% set mediaType = media.getMediaType().getName() %}
+{% set isSpatial = media.isSpatialObject() %}
+
+{% if isSpatial %}
+    <twig:Sw:Media:Spatial {{ ...attributes }} 
+        :media="media"
+        :previewMode="previewMode"
+    >
+    </twig:Sw:Media:Spatial>
+{% elseif mediaType === 'VIDEO' %}
+    <twig:Sw:Media:Video {{ ...attributes }}
+        :media="media"
+        :previewMode="previewMode"
+        :autoplay="autoplay"
+    >
+    </twig:Sw:Media:Video>
+{% else %}
+    <twig:Sw:Media:Image {{ ...attributes }}
+        :media="media"
+    >
+    </twig:Sw:Media:Image>
+{% endif %}

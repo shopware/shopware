@@ -18,6 +18,7 @@ import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
 import type MediaService from 'src/core/service/api/media.api.service';
+import type ContentSystemElementTypeApiService from 'src/core/service/api/content-system-element-type.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type UserActivityService from 'src/app/service/user-activity.service';
 import type { FullState } from 'src/core/factory/state.factory';
@@ -100,6 +101,7 @@ import type { FileValidationService } from './app/service/file-validation.servic
 import type SnackbarService from './app/service/snackbar.service';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
+import type { ExperienceStudioEditorStore } from './module/sw-experience-studio/store/experience-studio-editor.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
 import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
@@ -254,6 +256,11 @@ declare global {
         cmsElementFavorites: cmsElementFavoritesService;
         cmsPageTypeService: CmsPageTypeService;
         cmsService: CmsService;
+        contentSystemLayoutDraftMutationService: $TSFixMe;
+        contentSystemEntityTypeService: $TSFixMe;
+        contentSystemElementTypeService: ContentSystemElementTypeApiService;
+        contentSystemStyleOptionService: $TSFixMe;
+        contentSystemPreviewService: $TSFixMe;
         configService: ConfigApiService;
         contextStoreService: StoreContextService;
         customEntityDefinitionService: CustomEntityDefinitionService;
@@ -414,6 +421,7 @@ declare global {
         extensionSdkModules: ExtensionSdkModules;
         extensions: Extensions;
         error: ErrorStore;
+        experienceStudioEditor: ExperienceStudioEditorStore;
         context: ContextStore;
         adminHelpCenter: AdminHelpCenterStore;
         actionButtons: ActionButtonsStore;

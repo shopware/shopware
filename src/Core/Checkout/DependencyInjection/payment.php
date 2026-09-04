@@ -25,6 +25,8 @@ use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
 use Shopware\Core\Checkout\Payment\Cleanup\CleanupPaymentTokenTask;
 use Shopware\Core\Checkout\Payment\Cleanup\CleanupPaymentTokenTaskHandler;
+use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodDataLoader;
+use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodLoaderConfigSerializer;
 use Shopware\Core\Checkout\Payment\Controller\PaymentController;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentDistinguishableNameGenerator;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentDistinguishableNameSubscriber;
@@ -33,6 +35,7 @@ use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodIndexer;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodValidator;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
+use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition;
@@ -238,4 +241,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('shopware.sync.fk_resolver');
+
+    // Content System
+    $services->alias(AbstractPaymentMethodRoute::class, PaymentMethodRoute::class);
+
+    $services->set(PaymentMethodDataLoader::class)
+        ->args([
+            service(AbstractPaymentMethodRoute::class),
+        ])
+        ->tag('content_system.data_loader');
+
+    $services->set(PaymentMethodLoaderConfigSerializer::class)
+        ->tag('content_system.config_serializer');
 };

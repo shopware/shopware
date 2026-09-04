@@ -15,6 +15,15 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature;
@@ -38,6 +47,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type StyleOptionSchema from StyleOptionSpecification
+ * @phpstan-import-type BindingSpecificationSchema from BindingSpecification
+ * @phpstan-import-type StoredSchemaEntry from StoredSchemaResolver
+ */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class InfoController extends AbstractController
@@ -59,6 +73,12 @@ class InfoController extends AbstractController
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ContentSystemDataLoaderSchemaGenerator $dataLoaderSchemaGenerator,
+        private readonly AbstractContentSystemElementTypeRegistry $elementTypeRegistry,
+        private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
+        private readonly RootSourceRegistry $rootSourceRegistry,
+        private readonly AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry,
+        private readonly StoredSchemaResolver $storedSchemaResolver,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
     ) {
@@ -139,6 +159,18 @@ class InfoController extends AbstractController
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT);
 
         return new JsonResponse($data);
+    }
+
+    #[Route(path: '/api/_info/content-system-data-loaders.json', name: 'api.info.content-system-data-loaders', methods: ['GET'])]
+    public function contentSystemDataLoaders(): JsonResponse
+    {
+        return new JsonResponse($this->dataLoaderSchemaGenerator->getSchema());
+    }
+
+    #[Route(path: '/api/_info/content-system-entity-types.json', name: 'api.info.content-system-entity-types', methods: ['GET'])]
+    public function contentSystemEntityTypes(): JsonResponse
+    {
+        return new JsonResponse(['entityTypes' => $this->rootSourceRegistry->entityRootSources()]);
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]
@@ -248,6 +280,71 @@ class InfoController extends AbstractController
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
+    }
+
+    #[Route(path: '/api/_info/content-system-element-types.json', name: 'api.info.content-system-element-types', methods: ['GET'])]
+    public function getContentSystemElementTypes(): JsonResponse
+    {
+        $types = array_map(
+            fn (ContentSystemElementTypeSpecification $def) => $this->elementTypeSchema($def),
+            array_values($this->elementTypeRegistry->all())
+        );
+
+        // styleOptions are universal (settable on every type), so they are folded in here as well as served standalone.
+        // Cast to an object so an empty option set serializes as {} (the OpenAPI type: object), not [].
+        return new JsonResponse(['types' => $types, 'styleOptions' => (object) $this->styleOptionSchemas()]);
+    }
+
+    #[Route(path: '/api/_info/content-system-style-options.json', name: 'api.info.content-system-style-options', methods: ['GET'])]
+    public function getContentSystemStyleOptions(): JsonResponse
+    {
+        // Cast to an object so an empty option set serializes as {} (the OpenAPI type: object), not [].
+        return new JsonResponse(['styleOptions' => (object) $this->styleOptionSchemas()]);
+    }
+
+    /**
+     * bindingSpecifications are folded into each type entry (mirrors the styleOptions precedent), keyed by
+     * source-qualified id. Cast to an object so a type with none serializes {} (the OpenAPI type: object), not [].
+     *
+     * storageSchema is folded in the same way, keyed by stored key: what an element of this type stores, as
+     * opposed to the spec's own properties, which is the hydrated output schema. Cast to an object so a type
+     * that stores nothing serializes {} (the OpenAPI type: object), not [].
+     *
+     * @return array<string, mixed> the type's ElementTypeSchema plus the folded bindingSpecifications and
+     *                              storageSchema objects
+     */
+    private function elementTypeSchema(ContentSystemElementTypeSpecification $def): array
+    {
+        $schema = $def->toSchema();
+        $schema['bindingSpecifications'] = (object) $this->bindingSpecificationSchemasForType($def->name());
+        $schema['storageSchema'] = (object) $this->storedSchemaResolver->resolve($def);
+
+        return $schema;
+    }
+
+    /**
+     * @return array<string, StyleOptionSchema> the registered style options keyed by their wire name
+     */
+    private function styleOptionSchemas(): array
+    {
+        return array_map(
+            static fn (StyleOptionSpecification $spec) => $spec->toSchema(),
+            $this->styleOptionRegistry->allResolved()
+        );
+    }
+
+    /**
+     * @return array<string, BindingSpecificationSchema> keyed by qualified id ("source:id"), filtered to the given type
+     */
+    private function bindingSpecificationSchemasForType(string $type): array
+    {
+        $schemas = [];
+
+        foreach ($this->bindingSpecificationRegistry->byType($type) as $specification) {
+            $schemas[$specification->qualifiedId()] = $specification->toSchema();
+        }
+
+        return $schemas;
     }
 
     /**

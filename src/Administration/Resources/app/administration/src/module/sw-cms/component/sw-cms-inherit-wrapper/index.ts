@@ -103,12 +103,17 @@ export default Shopware.Component.wrapComponentConfig({
         supportsInheritance() {
             return !!this.contentEntity;
         },
+        isSystemDefaultLanguage() {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
+        },
         /**
          * Fields are inherited if the layout is used on a content page (product, category, landing page)
          * and the field is not overridden in the <entity>.slot_config
          */
         isInherited() {
-            return this.supportsInheritance && isUndefined(get(this.childConfig, this.field));
+            return (
+                this.supportsInheritance && !this.isSystemDefaultLanguage && isUndefined(get(this.childConfig, this.field))
+            );
         },
         fullPath() {
             return this.field.concat('.', this.fieldPath);

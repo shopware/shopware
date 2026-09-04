@@ -148,6 +148,15 @@ class OrderConverter
         $data['languageId'] = $context->getLanguageId();
 
         $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());
+
+        // a nested line item has to reference its parent in the version the rows are written in,
+        // the reference version field defaults to the live version otherwise
+        foreach ($convertedLineItems as $key => $convertedLineItem) {
+            if (isset($convertedLineItem['parentId'])) {
+                $convertedLineItems[$key]['parentVersionId'] = $context->getContext()->getVersionId();
+            }
+        }
+
         $shippingAddresses = [];
 
         if ($conversionContext->shouldIncludeDeliveries()) {

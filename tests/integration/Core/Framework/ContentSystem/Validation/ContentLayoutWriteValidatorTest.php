@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Validation;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -131,6 +132,69 @@ class ContentLayoutWriteValidatorTest extends TestCase
         }
 
         static::assertNull($this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+    }
+
+    /**
+     * The element-local wiring rules, rejected on the write rather than at the first render: the codec throws
+     * inside the layout field's normalize, which remaps it onto the write as a constraint violation carrying
+     * the codec's own error code, so the caller sees a 400 and no row is stored.
+     *
+     * @param array<string, mixed> $wiring
+     */
+    #[DataProvider('elementLocalWiringDefectProvider')]
+    #[TestDox('rejects a layout carrying $_dataName and stores no row')]
+    public function testRejectsAnElementLocalWiringDefectOnWrite(array $wiring, string $expectedErrorCode): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+
+        $payload = $this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId);
+        $payload['layout'] = [
+            [
+                'id' => $this->ids->get('element'),
+                'component' => TestElementTypeLoader::RESOLVABLE,
+                'properties' => [],
+                ...$wiring,
+            ],
+        ];
+
+        try {
+            $this->repository()->create([$payload], $context);
+            static::fail('Expected the write to reject the element-local wiring defect.');
+        } catch (WriteException $exception) {
+            static::assertSame($expectedErrorCode, iterator_to_array($exception->getErrors(), false)[0]['code']);
+        }
+
+        static::assertNull($this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function elementLocalWiringDefectProvider(): iterable
+    {
+        yield 'two consumers landing on one base key' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => false],
+                'category' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'product'],
+            ]],
+            ContentSystemException::PROPERTY_ALIAS_COLLISION,
+        ];
+
+        yield 'a redistributing consumer keyed by a dotted path' => [
+            ['acceptsContext' => [
+                'product.manufacturer' => ['type' => 'single', 'required' => false, 'redistribute' => true],
+            ]],
+            ContentSystemException::REDISTRIBUTE_DOTTED_PATH,
+        ];
+
+        yield 'a redistributing consumer whose derived key an authored provider holds' => [
+            [
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => false, 'redistribute' => true]],
+            ],
+            ContentSystemException::REDISTRIBUTE_CONFLICT,
+        ];
     }
 
     #[TestDox('bypasses every check when the write context carries the skip flag')]

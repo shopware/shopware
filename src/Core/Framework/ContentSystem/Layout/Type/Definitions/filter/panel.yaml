@@ -10,7 +10,6 @@ meta:
       - "Place it anywhere on a category layout. It does not have to sit inside the product listing."
       - "Sorting and the layout switch belong to the Product Listing element, not here."
       - "Turning a filter off hides its control. A link already carrying that filter still narrows the listing, so shared URLs keep working."
-      - "Use additional filter slots to extend built-in filters."
 
 properties:
   productListing:
@@ -104,9 +103,3 @@ properties:
       visibleWhen:
         field: "showPropertyFilter"
         equals: true
-
-slots:
-  - name: additional-filters-start
-    description: "Container slot for custom filters rendered before the built-in filters."
-  - name: additional-filters-end
-    description: "Container slot for custom filters rendered after the built-in filters."

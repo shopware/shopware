@@ -10,7 +10,6 @@
     showShippingFreeFilter = true,
     showPropertyFilter = true,
     visibleFilterCount = 3,
-    slots = [],
     displayType = 'inline',
     navigationId = null,
     propertyAllowList = null,
@@ -167,14 +166,10 @@
     <twig:Sw:Content:Offcanvas id="filter-offcanvas" title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
         <div class="sw-filter-panel__filter">
 
-            <twig:Slot name="additional-filters-start"></twig:Slot>
-
             {{ filterTemplate }}
 
-            <twig:Slot name="additional-filters-end"></twig:Slot>
-
             {# Expand or collapse hidden filters #}
-            {% if filterAggregations is not empty and filterAggregations|length > visibleFilterCount %}
+            {% if filterAggregations is not empty %}
                 <twig:Sw:Button
                     variant="filter"
                     class="sw-filter-panel__expand d-none d-md-block"

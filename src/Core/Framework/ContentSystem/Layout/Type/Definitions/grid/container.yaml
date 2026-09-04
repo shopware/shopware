@@ -14,7 +14,7 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
     required: false
     title: "Product Listing"
-    description: "Listing result loaded by this container and provided to its children via context."
+    description: "Listing result this container loads once and provides to its children via context, so a filter panel and a product listing beside it share one load."
 
   mode:
     type: string

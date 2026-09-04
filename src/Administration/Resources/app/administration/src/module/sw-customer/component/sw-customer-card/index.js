@@ -57,9 +57,6 @@ export default {
     },
 
     computed: {
-        /**
-         * A company account may have no contact person, so the avatar falls back to the company name.
-         */
         avatarName() {
             const name = customerDisplayName(this.customer).split(' ');
 

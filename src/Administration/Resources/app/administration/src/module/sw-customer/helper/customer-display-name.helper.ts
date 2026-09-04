@@ -11,10 +11,6 @@ type NameableCustomer = {
     company?: string | null;
 };
 
-/**
- * The account holder of a company account is the legal entity, so it is named by its company.
- * Mirrors `CustomerEntity::getDisplayName()`.
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function customerDisplayName(customer?: NameableCustomer | null, lastNameFirst = false): string {
     if (!customer) {

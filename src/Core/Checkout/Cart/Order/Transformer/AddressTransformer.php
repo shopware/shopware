@@ -74,7 +74,6 @@ class AddressTransformer
 
         $addressArray['id'] = Uuid::randomHex();
 
-        // required on the snapshot, so the keys survive even when a company account has no contact person
         $addressArray['firstName'] = $address->getFirstName();
         $addressArray['lastName'] = $address->getLastName();
 

@@ -213,10 +213,6 @@ export default {
     },
 
     methods: {
-        /**
-         * Company accounts created before the company name moved onto the account only carry it on
-         * the address, so it is filled in here instead of failing validation on the next save.
-         */
         backfillCompanyFromAddress() {
             if (this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
                 return;

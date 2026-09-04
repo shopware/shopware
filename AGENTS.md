@@ -63,7 +63,7 @@ When a task matches a skill, open `.agents/skills/<name>/SKILL.md` and follow it
 
 - `shopware-knowledge-capture` — saving durable knowledge; routing it to AGENTS, coding guidelines, README, ADR, skills, or local notes.
 - `shopware-change-scope` — root-cause analysis, boyscouting, and cleanup scope.
-- `shopware-release-docs` — release notes, upgrade notes, developer-facing changelog decisions.
+- `shopware-release-docs` — RELEASE_INFO / UPGRADE entries; the old `changelog/_unreleased/` format is gone.
 - `shopware-pr-hygiene` — PR templates, conventional titles, review follow-up commits.
 - `shopware-php-code` — PHP architecture, API schema, migrations, deprecations, BC-sensitive code.
 - `shopware-admin-js` — Administration JavaScript, TypeScript, Vue, ACL, Jest.

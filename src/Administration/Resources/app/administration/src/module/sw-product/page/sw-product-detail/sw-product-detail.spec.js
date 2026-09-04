@@ -781,7 +781,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     it('should handle success response correctly', async () => {
         wrapper.vm.updateSeoPromises = [Promise.resolve()];
         Shopware.Store.get('swProductDetail').setLoading = jest.fn();
-        Shopware.Store.get('error').resetApiErrors = jest.fn();
+        jest.spyOn(Shopware.Store.get('error'), 'resetApiErrors');
         wrapper.vm.loadProduct = jest.fn();
 
         Shopware.Utils.EventBus.emit = jest.fn();
@@ -797,12 +797,54 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-finish');
         expect(wrapper.vm.isSaveSuccessful).toBe(true);
-        expect(Shopware.Store.get('error').resetApiErrors).not.toHaveBeenCalled();
+        expect(Shopware.Store.get('error').resetApiErrors).toHaveBeenCalled();
         expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
             'product',
             false,
         ]);
         expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it.each([
+        'success',
+        'empty',
+    ])('should discard the api errors of the previous save when the save finished with "%s"', async (response) => {
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.updateSeoPromises = [];
+
+        Shopware.Store.get('error').addApiError({
+            expression: 'product.1234.guaranteeMonths',
+            error: {
+                code: 'INVALID_GARAN_GUARANTEE_MONTHS',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+            },
+        });
+
+        wrapper.vm.onSaveFinished(response);
+        await flushPromises();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(Shopware.Store.get('error').api).toEqual({});
+    });
+
+    it('should keep the api errors when the save failed', async () => {
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.updateSeoPromises = [];
+
+        Shopware.Store.get('error').addApiError({
+            expression: 'product.1234.guaranteeMonths',
+            error: {
+                code: 'INVALID_GARAN_GUARANTEE_MONTHS',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+            },
+        });
+
+        wrapper.vm.onSaveFinished({ response: { data: { errors: [{ detail: 'nope' }] } } });
+        await flushPromises();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(Shopware.Store.get('error').api.product['1234'].guaranteeMonths).toBeDefined();
     });
 
     it('should handle duplicate product number error correctly', async () => {

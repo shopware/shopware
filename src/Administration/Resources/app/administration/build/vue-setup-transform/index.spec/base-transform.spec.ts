@@ -108,7 +108,8 @@ describe('build/vue-setup-transform base transforms', () => {
         // The one end-to-end assertion for base lowering: the author body stays native (macros in place,
         // `declare global` untouched, every binding renamed to its __swSetupAuthor_ alias), the template
         // keeps its content with a generated `:data="$dataScope"` added to the <sw-block>, and a single
-        // footer re-declares the original names by destructuring attachOverrides().
+        // footer re-declares the original names by destructuring attachOverrides() and hands the props
+        // and the public ones to defineExpose().
         //
         // Whitespace-insensitive on both sides, because the transform does not beautify its output - the
         // Vue round-trip below is what guarantees the result is still valid code.
@@ -154,6 +155,13 @@ describe('build/vue-setup-transform base transforms', () => {
                     internalNote: __swSetupAuthor_internalNote,
                 },
             });
+
+            defineExpose({
+                ...Shopware.Component.getExposedProps(),
+                title,
+                count,
+                doubled,
+            });
             </script>
         `;
 
@@ -178,6 +186,40 @@ describe('build/vue-setup-transform base transforms', () => {
         expect(result).toContain("import ChildComponent from './child.vue';");
         expect(result).toContain('public: {},');
         expect(result).toContain('private: {},');
+        // A component with nothing public still exposes its props, so a template ref keeps resolving
+        // them after the switch from the instance proxy to the exposed proxy.
+        expect(result).toContain('defineExpose({\n    ...Shopware.Component.getExposedProps(),\n});');
+    });
+
+    it('exposes the public entries to a parent and keeps private bindings out of the generated defineExpose()', () => {
+        const source = stripIndent`
+            <template><div>{{ opened }}</div></template>
+            <script setup>
+            import { ref } from 'vue';
+
+            const opened = ref(false);
+            const internalNote = ref('secret');
+
+            function openTreeItem() {
+                opened.value = true;
+            }
+
+            swDefinePublic({
+                opened,
+                openTreeItem,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-expose-surface.vue').code;
+
+        // swDefinePublic() is the whole parent-facing surface: the generated call sits after the
+        // destructure, so it hands out the override-aware bindings rather than the author aliases.
+        expect(result).toContain(
+            'defineExpose({\n    ...Shopware.Component.getExposedProps(),\n    opened,\n    openTreeItem,\n});',
+        );
+        expect(result).not.toContain('internalNote,\n});');
+        expectVueCompilerScriptToCompile(result, 'base-expose-surface.vue');
     });
 
     it('supports macro-only script setup blocks with empty state', () => {

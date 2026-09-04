@@ -13,6 +13,23 @@ const vueParser = require('vue-eslint-parser');
 const rule = require('./valid-shopware-setup');
 
 /**
+ * The generated-only defineExpose() diagnostic. One per mode, because each mode rejects the marker the
+ * other one would be told to reach for.
+ *
+ * @type {string}
+ */
+const EXPOSE_MESSAGE_BASE = 'defineExpose() is not supported inside Shopware setup blocks. '
+    + 'Use swDefinePublic({ ... }) instead, which will call it for you automatically.';
+
+/**
+ * @type {string}
+ */
+const EXPOSE_MESSAGE_OVERRIDE = 'defineExpose() is not supported inside Shopware setup blocks. '
+    + 'The base component owns the exposed API and its swDefinePublic() entries generate it, so a binding '
+    + 'this override replaces is already what a parent reads. '
+    + 'Declare replacement bindings with swDefineOverride({ ... }) instead.';
+
+/**
  * Shared tester configured for Vue SFC script parsing.
  *
  * @type {import('eslint').RuleTester}
@@ -82,15 +99,6 @@ swDefinePublic({ count });
             filename: 'base-emits.vue',
             code: `<script setup lang="ts">
 const emit = defineEmits<{ save: [id: string] }>();
-const count = 1;
-swDefinePublic({ count });
-</script>`,
-        },
-        {
-            filename: 'base-expose.vue',
-            code: `<script setup>
-function focus() {}
-defineExpose({ focus });
 const count = 1;
 swDefinePublic({ count });
 </script>`,
@@ -243,6 +251,19 @@ swDefineOverride({});
             ],
         },
         {
+            filename: 'base-expose.vue',
+            code: `<script setup>
+function focus() {}
+defineExpose({ focus });
+swDefinePublic({ focus });
+</script>`,
+            errors: [
+                {
+                    message: EXPOSE_MESSAGE_BASE,
+                },
+            ],
+        },
+        {
             filename: 'override-expose.override.vue',
             code: `<script setup>
 defineExpose({});
@@ -250,7 +271,7 @@ swDefineOverride({});
 </script>`,
             errors: [
                 {
-                    message: 'defineExpose() is only supported in base Shopware setup blocks.',
+                    message: EXPOSE_MESSAGE_OVERRIDE,
                 },
             ],
         },

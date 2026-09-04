@@ -3,8 +3,9 @@
  */
 
 /**
- * Covers Vue macros the transform rejects: unsupported macros such as `defineModel()` (nested
- * calls stay untouched, like compiler-sfc), and base-only macros used in override mode.
+ * Covers Vue macros the transform rejects: unsupported macros such as `defineModel()` and
+ * `defineExpose()` (nested calls stay untouched, like compiler-sfc), and base-only macros used in
+ * override mode.
  */
 
 import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
@@ -14,6 +15,10 @@ describe('build/vue-setup-transform unsupported macros', () => {
         [
             'defineModel()',
             'Vue macro defineModel() is not supported inside Shopware setup blocks.',
+        ],
+        [
+            'defineExpose({})',
+            'defineExpose() is not supported inside Shopware setup blocks.',
         ],
     ])('rejects unsupported Vue macro %s', (macro, expectedMessage) => {
         const source = stripIndent`
@@ -86,7 +91,9 @@ describe('build/vue-setup-transform unsupported macros', () => {
         );
     });
 
-    it('rejects defineExpose() in override mode', () => {
+    // An override cannot be told to use swDefinePublic(): that marker is itself rejected in override
+    // mode, so the advice would only swap one error for the next.
+    it('sends an override authoring defineExpose() to swDefineOverride(), not swDefinePublic()', () => {
         const source = stripIndent`
             <script setup lang="ts">
             defineExpose({});
@@ -95,7 +102,21 @@ describe('build/vue-setup-transform unsupported macros', () => {
         `;
 
         expect(() => transformShopwareSetupSfc(source, 'override-expose.override.vue')).toThrow(
-            'defineExpose() is only supported in base Shopware setup blocks.',
+            'Declare replacement bindings with swDefineOverride({ ... }) instead.',
+        );
+    });
+
+    it('points an authored defineExpose() at swDefinePublic() instead', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            const count = 1;
+            defineExpose({ count });
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-expose.vue')).toThrow(
+            'Use swDefinePublic({ ... }) instead, which will call it for you automatically.',
         );
     });
 

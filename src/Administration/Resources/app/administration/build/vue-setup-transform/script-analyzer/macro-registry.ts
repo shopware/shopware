@@ -49,8 +49,13 @@ type MacroCallEntry = {
 type MacroRule = {
     /** Modes whose analysis accepts this name at the top level. Empty = rejected everywhere. */
     modes: ShopwareSetupMode[];
-    /** Error for a top-level call in a mode not listed in `modes` (or for empty `modes`). */
-    wrongModeMessage: string;
+    /**
+     * Error for a top-level call in a mode not listed in `modes` (or for empty `modes`).
+     *
+     * A per-mode record when the remedy differs: a macro rejected in both modes cannot point base and
+     * override authors at the same replacement, because each mode rejects the other's marker.
+     */
+    wrongModeMessage: string | Record<ShopwareSetupMode, string>;
     /** Error for the second top-level call of this name. Omit for no multiplicity limit. */
     duplicateMessage?: string;
     /**
@@ -106,8 +111,19 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
     },
     defineExpose: {
         vueBuiltin: true,
-        modes: ['base'],
-        wrongModeMessage: 'defineExpose() is only supported in base Shopware setup blocks.',
+        modes: [],
+        wrongModeMessage: {
+            base: [
+                'defineExpose() is not supported inside Shopware setup blocks.',
+                'Use swDefinePublic({ ... }) instead, which will call it for you automatically.',
+            ].join(' '),
+            override: [
+                'defineExpose() is not supported inside Shopware setup blocks.',
+                'The base component owns the exposed API and its swDefinePublic() entries generate it, so a binding',
+                'this override replaces is already what a parent reads.',
+                'Declare replacement bindings with swDefineOverride({ ... }) instead.',
+            ].join(' '),
+        },
     },
     defineOptions: {
         vueBuiltin: true,
@@ -188,6 +204,11 @@ const MACRO_RULES: Record<MacroName, MacroRule> = {
 };
 
 const MACRO_NAMES = Object.keys(MACRO_RULES) as MacroName[];
+
+/** Picks the mode's wrong-mode error, for the rules that word their remedy per mode. */
+function getWrongModeMessage(rule: MacroRule, mode: ShopwareSetupMode): string {
+    return typeof rule.wrongModeMessage === 'string' ? rule.wrongModeMessage : rule.wrongModeMessage[mode];
+}
 
 function isMacroName(name: string): name is MacroName {
     return name in MACRO_RULES;
@@ -271,7 +292,10 @@ function assertMacroRules(entries: MacroCallEntry[], mode: ShopwareSetupMode, sc
         const named = entriesFor(name);
 
         if (!rule.modes.includes(mode) && named.length > 0) {
-            throw new ShopwareSetupTransformError(rule.wrongModeMessage, absoluteRange(named[0].call, scriptOffset));
+            throw new ShopwareSetupTransformError(
+                getWrongModeMessage(rule, mode),
+                absoluteRange(named[0].call, scriptOffset),
+            );
         }
     });
 
@@ -343,7 +367,7 @@ function getWrongModeWalkChecks(mode: ShopwareSetupMode): { name: MacroName; mes
         (name) => MACRO_RULES[name].rejectAnywhereInWrongMode && !MACRO_RULES[name].modes.includes(mode),
     ).map((name) => ({
         name,
-        message: MACRO_RULES[name].wrongModeMessage,
+        message: getWrongModeMessage(MACRO_RULES[name], mode),
     }));
 }
 

@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -227,5 +229,70 @@ class EntityReadToolTest extends TestCase
         static::assertFalse($data['success']);
         static::assertStringContainsString('unknown_entity', $data['error']);
         static::assertStringContainsString('shopware://entities', $data['error']);
+    }
+
+    #[TestDox('A malformed "includes" that makes the builder throw the base DataAbstractionLayerException is answered with its detail')]
+    public function testAMalformedCriteriaIsAnsweredWithTheParserDetail(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willThrowException(
+            DataAbstractionLayerException::expectedArrayWithType('includes', 'string')
+        );
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityReadTool(
+            $registry,
+            $criteriaBuilder,
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
+        );
+
+        $data = json_decode(
+            ($tool)('product', 'prod-123', '{"includes":"id"}'),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('includes', $data['error']);
+    }
+
+    public function testAnUnexpectedThrowableStillPropagates(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willThrowException(new \RuntimeException('bug, not bad input'));
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityReadTool(
+            $registry,
+            $criteriaBuilder,
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
+        );
+
+        $this->expectExceptionObject(new \RuntimeException('bug, not bad input'));
+
+        ($tool)('product', 'prod-123');
     }
 }

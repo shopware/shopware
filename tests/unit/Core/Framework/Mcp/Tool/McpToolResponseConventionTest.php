@@ -4,11 +4,15 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
@@ -282,6 +286,80 @@ class McpToolResponseConventionTest extends TestCase
         static::assertArrayHasKey('resourceUri', $result['_meta']);
         static::assertArrayNotHasKey('query', $result['_meta']);
     }
+
+    public function testInvalidCriteriaErrorCarriesTheParserMessageForADirectThrow(): void
+    {
+        $helper = new McpToolResponseTestHelper();
+
+        $result = json_decode(
+            $helper->callInvalidCriteriaError(
+                new InvalidAggregationQueryException('The aggregations parameter has to be a list of aggregations.')
+            ),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertFalse($result['success']);
+        static::assertSame('The aggregations parameter has to be a list of aggregations.', $result['error']);
+    }
+
+    #[TestDox('The pointer of each rejected element is named, because the caller cannot infer which one was wrong')]
+    public function testInvalidCriteriaErrorNamesThePointerOfEachRejectedElement(): void
+    {
+        $exception = new SearchRequestException();
+        $exception->add(
+            new InvalidAggregationQueryException('The aggregation should contain a "field".'),
+            '/aggregations/0/avg/field'
+        );
+        $exception->add(
+            DataAbstractionLayerException::invalidFilterQuery('The filter should contain a "field".', '/filter/1/equals/field'),
+            '/filter/1/equals/field'
+        );
+
+        $result = json_decode(
+            (new McpToolResponseTestHelper())->callInvalidCriteriaError($exception),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('/aggregations/0/avg/field', $result['error']);
+        static::assertStringContainsString('The aggregation should contain a "field".', $result['error']);
+        static::assertStringContainsString('/filter/1/equals/field', $result['error']);
+    }
+
+    #[TestDox('The base DataAbstractionLayerException the builder throws for e.g. {"includes":"id"} is handled, not only its subclasses')]
+    public function testInvalidCriteriaErrorHandlesTheBaseClassThrownDirectly(): void
+    {
+        $result = json_decode(
+            (new McpToolResponseTestHelper())->callInvalidCriteriaError(
+                DataAbstractionLayerException::expectedArrayWithType('includes', 'string')
+            ),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('includes', $result['error']);
+        static::assertStringContainsString('array', $result['error']);
+    }
+
+    public function testInvalidCriteriaErrorFallsBackToTheMessageWhenThereAreNoDetails(): void
+    {
+        $result = json_decode(
+            (new McpToolResponseTestHelper())->callInvalidCriteriaError(new SearchRequestException()),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertFalse($result['success']);
+        static::assertNotSame('', $result['error']);
+        static::assertStringNotContainsString('Invalid criteria: ', $result['error']);
+    }
 }
 
 /**
@@ -317,5 +395,10 @@ class McpToolResponseTestHelper extends McpToolResponse
     public function callDryRun(Connection $connection, Context $context, callable $operation): string
     {
         return $this->executeWithDryRun($connection, $context, $operation);
+    }
+
+    public function callInvalidCriteriaError(SearchRequestException|DataAbstractionLayerException $e): string
+    {
+        return $this->invalidCriteriaError($e);
     }
 }

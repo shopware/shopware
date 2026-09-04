@@ -3,9 +3,12 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Capability\Attribute\Schema;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -42,8 +45,14 @@ class EntityReadTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(string $entity, string $id, string $criteria = '{}'): string
-    {
+    public function __invoke(
+        #[Schema(description: 'Entity name to read, e.g. "order" or "product". See the shopware://entities resource for the full list.')]
+        string $entity,
+        #[Schema(description: 'The entity\'s UUID (32-character hex). To find a record by any other field, use shopware-entity-search instead.')]
+        string $id,
+        #[Schema(description: 'A JSON OBJECT of Admin API criteria, as a string — most usefully "associations" to include related data, e.g. {"associations":{"lineItems":{}}} on an order, and "includes" to trim the response. Defaults to no criteria.')]
+        string $criteria = '{}',
+    ): string {
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {
@@ -62,12 +71,18 @@ class EntityReadTool extends McpToolResponse
         $definition = $this->registry->getByEntityName($entity);
         $repository = $this->registry->getRepository($entity);
 
-        $criteriaObj = $this->criteriaBuilder->fromArray(
-            $payload,
-            new Criteria([$id]),
-            $definition,
-            $context,
-        );
+        try {
+            $criteriaObj = $this->criteriaBuilder->fromArray(
+                $payload,
+                new Criteria([$id]),
+                $definition,
+                $context,
+            );
+        } catch (SearchRequestException|DataAbstractionLayerException $e) {
+            // Scoped to this call on purpose: a DAL failure from the read
+            // below is a bug, not bad input, and must still reach the log.
+            return $this->invalidCriteriaError($e);
+        }
 
         // Criteria can reference associated entities that require their own read privileges
         // (same association ACL model as the Admin API).

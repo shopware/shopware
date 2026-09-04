@@ -73,7 +73,7 @@ Shopware.Module.register('sw-users-permissions', {
     description: 'sw-users-permissions.general.label',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#848A96',
+    color: 'var(--color-module-neutral-default)',
     icon: 'regular-user',
     favicon: 'icon-module-settings.svg',
     entity: 'user',

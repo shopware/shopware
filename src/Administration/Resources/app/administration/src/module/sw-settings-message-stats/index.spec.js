@@ -21,7 +21,7 @@ describe('src/module/sw-settings-message-stats/index.js', () => {
             description: 'sw-settings-message-stats.general.descriptionTextModule',
             version: '1.0.0',
             targetVersion: '1.0.0',
-            color: '#848A96',
+            color: 'var(--color-module-neutral-default)',
             icon: 'regular-cog',
             favicon: 'icon-module-settings.svg',
             routes: expect.any(Object),

@@ -16,7 +16,7 @@ Module.register('sw-settings-document', {
     name: 'settings-document',
     title: 'sw-settings-document.general.mainMenuItemGeneral',
     description: 'sw-settings-document.general.description',
-    color: '#848A96',
+    color: 'var(--color-module-neutral-default)',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'document',

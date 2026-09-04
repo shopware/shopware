@@ -1009,7 +1009,7 @@ export default {
                     {
                         name: 'sales-channel',
                         icon: saleChannelType?.iconName ?? 'regular-server',
-                        color: '#0870FF',
+                        color: 'var(--color-module-brand-default)',
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,
                         route: {

@@ -96,7 +96,7 @@ Shopware.Module.register('sw-extension', {
     type: 'core',
     title: 'sw-extension-store.title',
     description: 'sw-extension-store.descriptionTextModule',
-    color: '#0870FF',
+    color: 'var(--color-module-brand-default)',
     icon: 'regular-plug',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -230,7 +230,7 @@ Shopware.Module.register('sw-extension', {
         {
             id: 'sw-extension',
             label: 'sw-extension.mainMenu.mainMenuItemExtensionStore',
-            color: '#0870FF',
+            color: 'var(--color-module-brand-default)',
             icon: 'regular-plug',
             position: 80,
         },

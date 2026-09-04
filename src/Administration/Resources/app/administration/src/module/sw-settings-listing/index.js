@@ -41,7 +41,7 @@ Module.register('sw-settings-listing', {
     description: 'sw-settings-listing.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#848A96',
+    color: 'var(--color-module-neutral-default)',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'store_settings',

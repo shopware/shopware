@@ -1,0 +1,13 @@
+// Module colours, one per palette hue. Modules declare them as their manifest
+// colour so every module of an admin area shares one value that follows the theme.
+:root {
+    --color-module-brand-default: #0069fc;
+    --color-module-neutral-default: #616a78;
+    --color-module-red-default: #d60014;
+    --color-module-orange-default: #b84c00;
+    --color-module-yellow-default: #946400;
+    --color-module-green-default: #326e36;
+    --color-module-cyan-default: #00739a;
+    --color-module-purple-default: #7837ff;
+    --color-module-pink-default: #ce0662;
+}

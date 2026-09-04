@@ -16,7 +16,7 @@ Shopware.Module.register('sw-dashboard', {
     description: 'sw-dashboard.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#0870FF',
+    color: 'var(--color-module-brand-default)',
     icon: 'regular-dashboard',
     favicon: 'icon-module-dashboard.svg',
 
@@ -33,7 +33,7 @@ Shopware.Module.register('sw-dashboard', {
         {
             id: 'sw-dashboard',
             label: 'sw-dashboard.general.mainMenuItemGeneral',
-            color: '#0870FF',
+            color: 'var(--color-module-brand-default)',
             icon: 'regular-dashboard',
             path: 'sw.dashboard.index',
             position: 10,

@@ -84,6 +84,16 @@
         />
         {% endblock %}
 
+        {% block sw_customer_base_form_company_field %}
+        <mt-text-field
+            v-if="isBusinessAccountType"
+            v-model="customer.company"
+            name="sw-field--customer-company"
+            required
+            :label="$t('sw-customer.baseForm.labelCompany')"
+        />
+        {% endblock %}
+
         {% block sw_customer_base_form_vat_id_field %}
         <mt-text-field
             v-if="isBusinessAccountType"

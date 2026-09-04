@@ -45,7 +45,11 @@ export default {
         },
 
         validCompanyField() {
-            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ? this.address.company?.trim().length : true;
+            if (this.customer.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                return true;
+            }
+
+            return !!this.customer.company?.trim().length || !!this.address.company?.trim().length;
         },
 
         languageRepository() {
@@ -185,6 +189,11 @@ export default {
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
                 hasError = true;
+            }
+
+            // the account holds the company name, the address mirrors it so documents keep naming the buyer
+            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS && this.customer.company?.trim().length) {
+                this.address.company = this.customer.company;
             }
 
             if (hasError) {

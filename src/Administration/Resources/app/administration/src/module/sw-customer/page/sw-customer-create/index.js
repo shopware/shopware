@@ -94,7 +94,7 @@ export default {
 
             this.loadLanguage(salesChannelId).then((languageId) => {
                 if (this.customer) {
-                    this.customer.languageId = languageId;
+                    this.customer.languageId = languageId || Shopware.Context.api.languageId;
                 }
             });
         },

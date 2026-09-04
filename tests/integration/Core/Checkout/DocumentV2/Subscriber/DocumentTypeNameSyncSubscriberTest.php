@@ -44,9 +44,7 @@ class DocumentTypeNameSyncSubscriberTest extends TestCase
 
     public function testTypeNameIsWrittenForSalesChannelConfigWrite(): void
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('type_name of document_base_config_sales_channel table was removed.');
-        }
+        Feature::skipTestIfActive('v6.8.0.0', $this);
 
         $context = Context::createDefaultContext();
         $documentTypeId = $this->getDocumentTypeId('invoice', $context);

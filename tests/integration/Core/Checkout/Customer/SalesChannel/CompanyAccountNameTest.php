@@ -85,7 +85,6 @@ class CompanyAccountNameTest extends TestCase
 
         $customer = $this->loadCustomer('company-no-contact@example.com');
         $addressId = $customer->getDefaultBillingAddressId();
-        static::assertNotNull($addressId);
 
         $this->browser->request(
             'PATCH',

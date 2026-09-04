@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Validator\Constraints\Length;
 
 /**
  * Resolves whether a commercial customer still has to provide a contact person.
@@ -31,5 +33,18 @@ final class CompanyAccountNameFields
     public static function areVisible(SystemConfigService $systemConfigService, ?string $salesChannelId): bool
     {
         return $systemConfigService->getBool(self::CONFIG_SHOW, $salesChannelId);
+    }
+
+    /**
+     * Drops the blank check from the person name while keeping its length limit. Only properties the
+     * definition already carries are touched, so relaxing never introduces a constraint of its own.
+     */
+    public static function relax(DataValidationDefinition $validation, Length $firstName, Length $lastName): void
+    {
+        foreach (['firstName' => $firstName, 'lastName' => $lastName] as $property => $length) {
+            if ($validation->getProperty($property) !== []) {
+                $validation->set($property, $length);
+            }
+        }
     }
 }

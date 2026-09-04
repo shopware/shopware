@@ -183,11 +183,20 @@ class CustomerEntity extends Entity implements \Stringable
      * `company` is read before `accountType` because `accountType` is a typed property without a
      * default and would throw on an entity that never had one set.
      */
+    /**
+     * `accountType` is a typed property without a default, so an entity that never had one set
+     * would throw on a plain read.
+     */
+    public function isBusinessAccount(): bool
+    {
+        return isset($this->accountType) && $this->accountType === self::ACCOUNT_TYPE_BUSINESS;
+    }
+
     public function getDisplayName(): string
     {
         $company = trim($this->company ?? '');
 
-        if ($company !== '' && $this->getAccountType() === self::ACCOUNT_TYPE_BUSINESS) {
+        if ($company !== '' && $this->isBusinessAccount()) {
             return $company;
         }
 

@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartGatewayResult;
@@ -364,6 +365,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             $addressValidationFactory ?? static::createStub(DataValidationFactoryInterface::class),
             $validator ?? static::createStub(DataValidator::class),
             static::createStub(AbstractTranslator::class),
+            static::createStub(SystemConfigService::class),
         );
     }
 

@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -449,9 +449,11 @@ class RegisterRoute extends AbstractRegisterRoute
         // the account name is copied onto the billing address, so it has to be relaxed in step
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
-            $validation
-                ->set('firstName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
-                ->set('lastName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG'));
+            CompanyAccountNameFields::relax(
+                $validation,
+                new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'),
+                new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG')
+            );
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $address->get('countryId')));
@@ -492,9 +494,11 @@ class RegisterRoute extends AbstractRegisterRoute
         // `set` replaces every constraint for the property, so the length limits are re-added.
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
-            $validation
-                ->set('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
-                ->set('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
+            CompanyAccountNameFields::relax(
+                $validation,
+                new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME),
+                new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
+            );
         }
 
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());

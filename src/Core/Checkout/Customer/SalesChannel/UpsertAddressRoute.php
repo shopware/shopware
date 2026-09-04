@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -174,9 +174,11 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         // an address created without a contact person has to stay editable without inventing one
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !$nameFieldsRequired) {
-            $validation
-                ->set('firstName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
-                ->set('lastName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG'));
+            CompanyAccountNameFields::relax(
+                $validation,
+                new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'),
+                new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG')
+            );
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));

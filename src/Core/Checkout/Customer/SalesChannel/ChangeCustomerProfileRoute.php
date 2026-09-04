@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -25,11 +25,11 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Length;
@@ -90,9 +90,11 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
             if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
                 // a company account is identified by its company name, so the contact person is optional
-                $validation
-                    ->set('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
-                    ->set('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME));
+                CompanyAccountNameFields::relax(
+                    $validation,
+                    new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME),
+                    new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
+                );
             }
 
             $billingAddress = $customer->getDefaultBillingAddress();

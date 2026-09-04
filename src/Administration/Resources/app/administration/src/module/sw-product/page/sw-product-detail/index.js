@@ -1261,14 +1261,12 @@ export default {
                 return;
             }
 
+            Shopware.Store.get('error').resetApiErrors();
+
             if (this.updateSeoPromises.length === 0) {
                 this.isSaveSuccessful = true;
 
                 return;
-            }
-
-            if (response === 'empty') {
-                response = 'success';
             }
 
             Shopware.Store.get('swProductDetail').setLoading([
@@ -1281,23 +1279,7 @@ export default {
                     Shopware.Utils.EventBus.emit('sw-product-detail-save-finish');
                 })
                 .then(() => {
-                    switch (response) {
-                        case 'empty': {
-                            this.isSaveSuccessful = true;
-                            Shopware.Store.get('error').resetApiErrors();
-                            break;
-                        }
-
-                        case 'success': {
-                            this.isSaveSuccessful = true;
-
-                            break;
-                        }
-
-                        default: {
-                            break;
-                        }
-                    }
+                    this.isSaveSuccessful = true;
                 })
                 .catch(() => Promise.resolve())
                 .finally(() => {

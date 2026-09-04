@@ -243,6 +243,12 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 `CartException::invalidChildQuantity()` now returns the error code `CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY` (constant `CartException::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE`) instead of reusing `CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY`. Previously both `invalidChildQuantity()` and `invalidQuantity()` shared the same error code, so the shared storefront message `The quantity (%quantity%) is incorrect.` was rendered with an empty `%quantity%` placeholder for the child quantity case (`invalidChildQuantity()` never provided that parameter). If you match on the previous error code to detect invalid child quantities, switch to the new code.
 ## Administration
 
+### Module colors follow the navigation group
+
+Module color is now an indication of the navigation group instead of a property of the module. The first-level navigation entry of a group declares the color once, by name — `blue`, `brand`, `cyan`, `emerald`, `green`, `orange`, `pink`, `pumpkin`, `purple`, `red`, `slate`, `yellow` or `zinc` — and every module below it inherits it. A name resolves to a shade chosen for the current UI color mode, so a group renders consistently in light and dark mode.
+
+Adding a module to an existing group needs no color. Raw color values keep working, deprecated; see `UPGRADE-6.8.md`.
+
 ### Optional order confirmation mail for Administration-created orders
 
 When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.

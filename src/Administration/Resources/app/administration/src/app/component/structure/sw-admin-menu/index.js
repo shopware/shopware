@@ -1,4 +1,5 @@
 import { createFocusTrap } from 'focus-trap';
+import { applyGroupColors } from 'src/app/service/module-color.service';
 import template from './sw-admin-menu.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
@@ -124,12 +125,14 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         navigationEntries() {
-            return [
+            // Resolved across all sources at once, so an app or extension module added to a core
+            // group takes its color
+            return applyGroupColors([
                 ...this.adminModuleNavigation,
                 ...this.appModuleNavigation,
                 ...this.extensionModuleNavigation,
                 ...this.customEntityDefinitionService.getMenuEntries(),
-            ];
+            ]);
         },
 
         mainMenuEntries() {

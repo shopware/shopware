@@ -1,3 +1,4 @@
+import { resolveManifestModuleColor } from 'src/app/service/module-color.service';
 import template from './sw-page.html.twig';
 import './sw-page.scss';
 
@@ -105,8 +106,10 @@ export default {
                 return this.headerBorderColor;
             }
 
-            if (this.module?.color) {
-                return this.module.color;
+            const moduleColor = resolveManifestModuleColor(this.module);
+
+            if (moduleColor) {
+                return moduleColor;
             }
 
             return '#d8dde6';

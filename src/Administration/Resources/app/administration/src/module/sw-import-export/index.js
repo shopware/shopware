@@ -92,7 +92,6 @@ Shopware.Module.register('sw-import-export', {
     description: 'sw-import-export.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
     icon: 'regular-cog',
     entity: 'import_export_profile',
     routePrefixPath: 'sw/import-export',

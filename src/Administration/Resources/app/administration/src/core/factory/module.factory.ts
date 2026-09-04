@@ -11,6 +11,7 @@ import type { NavigationGuard, RouteLocationNamedRaw, RouteRecordRedirectOption,
 import type { App } from 'vue';
 import type { ComponentConfig } from './async-component.factory';
 import type { Snippets } from './locale.factory';
+import type { ModuleColorName } from 'src/app/service/module-color.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -59,7 +60,13 @@ interface Navigation {
     label?: string;
     position?: number;
     privilege?: string;
-    color?: string;
+    /**
+     * The color of the navigation group this entry opens, as a name from `MODULE_COLOR_NAMES`.
+     * Only read on a first-level entry; entries below one inherit the color of their group.
+     *
+     * @deprecated tag:v6.9.0 - Raw color values are deprecated, declare a color name instead.
+     */
+    color?: ModuleColorName | (string & Record<never, never>);
     icon?: string;
 }
 
@@ -113,7 +120,13 @@ export interface ModuleManifest {
     description?: string;
     version?: string;
     targetVersion?: string;
-    color?: string;
+    /**
+     * Only read for a module that belongs to no navigation group and no settings group. Every
+     * other module inherits the color of its group.
+     *
+     * @deprecated tag:v6.9.0 - Raw color values are deprecated, declare a color name instead.
+     */
+    color?: ModuleColorName | (string & Record<never, never>);
     icon?: string;
     favicon?: string;
     defaultSearchConfiguration?: {

@@ -24,7 +24,6 @@ Module.register('sw-property', {
     description: 'sw-property.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
     icon: 'regular-products',
     favicon: 'icon-module-products.svg',
     entity: 'property_group',

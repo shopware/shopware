@@ -18,7 +18,6 @@ Module.register('sw-settings', {
     type: 'core',
     name: 'settings',
     title: 'sw-settings.general.mainMenuItemGeneral',
-    color: '#9AA8B5',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
 
@@ -59,8 +58,8 @@ Module.register('sw-settings', {
     navigation: [
         {
             id: 'sw-settings',
+            color: 'slate',
             label: 'sw-settings.general.mainMenuItemGeneral',
-            color: '#9AA8B5',
             icon: 'regular-cog',
             path: 'sw.settings.index',
             position: 90,

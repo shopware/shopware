@@ -45,7 +45,6 @@ Module.register('sw-category', {
     description: 'sw-category.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-green-500)',
     icon: 'regular-products',
     favicon: 'icon-module-products.svg',
     entity: 'category',
@@ -61,7 +60,6 @@ Module.register('sw-category', {
             {
                 name: manifest.name,
                 icon: manifest.icon,
-                color: manifest.color,
                 label: labelType,
                 entity: manifest.entity,
                 route: manifest.routes.index,
@@ -70,7 +68,6 @@ Module.register('sw-category', {
             {
                 name: manifest.name,
                 icon: manifest.icon,
-                color: manifest.color,
                 route: {
                     ...manifest.routes.landingPageDetail,
                     params: { id: 'create' },

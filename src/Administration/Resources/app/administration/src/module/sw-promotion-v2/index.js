@@ -67,7 +67,6 @@ Module.register('sw-promotion-v2', {
     description: 'sw-promotion-v2.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#FFD700',
     icon: 'regular-megaphone',
     favicon: 'icon-module-marketing.svg',
     entity: 'promotion',
@@ -158,8 +157,8 @@ Module.register('sw-promotion-v2', {
     navigation: [
         {
             id: 'sw-marketing',
+            color: 'yellow',
             label: 'global.sw-admin-menu.navigation.mainMenuItemMarketing',
-            color: '#FFD700',
             icon: 'regular-megaphone',
             position: 60,
             privilege: 'promotion.viewer',
@@ -168,7 +167,6 @@ Module.register('sw-promotion-v2', {
             id: 'sw-promotion-v2',
             path: 'sw.promotion.v2.index',
             label: 'sw-promotion-v2.general.mainMenuItemGeneral',
-            color: '#FFD700',
             icon: 'regular-megaphone',
             position: 100,
             parent: 'sw-marketing',

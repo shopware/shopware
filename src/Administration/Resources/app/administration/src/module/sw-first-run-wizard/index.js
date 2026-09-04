@@ -46,7 +46,6 @@ Module.register('sw-first-run-wizard', {
     description: 'First Run Wizard to set up languages and plugins after the installation process',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#F19D12',
 
     routes: {
         index: {

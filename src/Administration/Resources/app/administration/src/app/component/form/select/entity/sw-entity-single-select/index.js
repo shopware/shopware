@@ -275,10 +275,20 @@ Component.register('sw-entity-single-select', {
             }
 
             this.isLoading = true;
-            return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
-                if (!item) {
-                    this.$emit('update:value', null);
-                }
+            return this.repository
+                .get(
+                    this.value,
+                    { ...this.context, inheritance: true },
+                    this.criteria,
+                    this.getCacheOptions([
+                        'selected',
+                        this.value,
+                    ]),
+                )
+                .then((item) => {
+                    if (!item && !this.disabled) {
+                        this.$emit('update:value', null);
+                    }
 
                 this.criteria.setIds([]);
 

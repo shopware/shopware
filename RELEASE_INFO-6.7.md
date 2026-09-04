@@ -248,6 +248,10 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### Order drafts are cleaned up when leaving the detail page
+
+Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.
+
 ### Optional order confirmation mail for Administration-created orders
 
 When creating an order in the Administration, the options step now includes a "Send order confirmation email to customer" switch. It is enabled by default to preserve the existing behavior; clearing it creates the order normally without sending the order confirmation mail for that order. Storefront checkout behavior is unchanged.

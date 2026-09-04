@@ -280,20 +280,22 @@ export default Component.wrapComponentConfig({
         },
 
         updatePromotionList() {
-            // Update data and isInvalid flag for each item in promotionCodeTags
-            this.promotionCodeTags = this.promotionCodeTags.map((tag: PromotionCodeTag): PromotionCodeTag => {
+            // Synchronize the tags with the applied promotion line items and discard rejected codes
+            this.promotionCodeTags = this.promotionCodeTags.flatMap((tag: PromotionCodeTag): PromotionCodeTag[] => {
                 const matchedItem = this.promotionCodeLineItems.find(
                     (lineItem: LineItem): boolean => lineItem.payload?.code === tag.code,
                 );
 
                 if (matchedItem) {
-                    return {
-                        ...matchedItem.payload,
-                        isInvalid: false,
-                    } as PromotionCodeTag;
+                    return [
+                        {
+                            ...matchedItem.payload,
+                            isInvalid: false,
+                        } as PromotionCodeTag,
+                    ];
                 }
 
-                return { ...tag, isInvalid: true } as PromotionCodeTag;
+                return [];
             });
 
             // Add new items from promotionCodeLineItems which promotionCodeTags doesn't contain

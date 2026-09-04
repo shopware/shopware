@@ -151,6 +151,9 @@ class ShopwareClass implements CustomShopwareProperties {
         getExposedProps: getExposedProps,
         overrideComponentSetup: overrideComponentSetup,
 
+        /**
+         * @private
+         */
         registerNativeExtensionTargets: registerNativeExtensionTargets,
         /**
          * @private

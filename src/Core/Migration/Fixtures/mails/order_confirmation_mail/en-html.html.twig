@@ -72,20 +72,20 @@
                                 </div>
                             {% endif %}
                         {% endif %}
+
+                        {% if nestedItem.productId is defined and nestedItem.productId %}
+                            {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}
+                            {% if garanLabelDataUri %}
+                                <div style="padding-top: 5px;{% if nestingLevel > 0 %} padding-left: {{ (nestingLevel + 1) * 10 }}px;{% endif %}">
+                                    <img src="{{ garanLabelDataUri }}" width="195" height="30" style="display:block; max-width:195px; height:auto;" alt="GARAN label showing the commercial guarantee for this product"/>
+                                </div>
+                            {% endif %}
+                        {% endif %}
                     </td>
                     <td style="text-align: center">{{ nestedItem.quantity }}</td>
                     <td>{{ nestedItem.unitPrice|currency(currencyIsoCode) }}</td>
                     <td>{{ nestedItem.totalPrice|currency(currencyIsoCode) }}</td>
                 </tr>
-
-                {% if nestedItem.productId is defined and nestedItem.productId %}
-                    {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}
-                    {% if garanLabelDataUri %}
-                        <tr>
-                            <td colspan="6"><img src="{{ garanLabelDataUri }}" alt="" /></td>
-                        </tr>
-                    {% endif %}
-                {% endif %}
 
                 {% if nestedItem.children.count > 0 %}
                     {% set nestingLevel = nestingLevel + 1 %}

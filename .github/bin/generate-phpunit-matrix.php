@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/lib/feature-flags.php';
+
 // Emits the `strategy.matrix` object only — `fail-fast` is set statically by the calling
 // workflow, because zizmor cannot audit a file whose whole `strategy:` is an expression.
 //
@@ -20,9 +22,11 @@ $integrationTests = [
 ];
 
 if ($major) {
-    // Nightly major-flag run: each integration shard once on a single PHP/DB (migration excluded — php.yml already runs it major).
+    // Nightly major-flag run: each integration shard once on a single PHP/DB (migration excluded — php.yml already runs it major),
+    // and once per in-flight major, so a major's release state is validated without the next major's changes active.
     echo \json_encode([
         'test' => $integrationTests,
+        'major' => shopware_major_lanes(),
         'php' => ['8.2'],
         'db' => ['mysql:8.0'],
         'opensearch' => ['opensearchproject/opensearch:3'],

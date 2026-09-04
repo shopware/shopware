@@ -22,6 +22,6 @@
 
 // Mixed into the page background so the tint follows the theme
 .sw-media-folder-thumbnail.is--colored path {
-    fill: color-mix(in srgb, var(--sw-media-folder-thumbnail-color) 12%, var(--color-background-primary-default));
+    fill: color-mix(in srgb, var(--sw-media-folder-thumbnail-color) 12%, var(--color-background-secondary-default));
     stroke: var(--sw-media-folder-thumbnail-color);
 }

@@ -103,7 +103,7 @@ class ContentDiagnoseControllerTest extends TestCase
      */
     #[DataProvider('elementLocalWiringDefectProvider')]
     #[TestDox('reports $_dataName as an invalid_config violation attributed to the offending element')]
-    public function testDiagnoseReportsAnElementLocalWiringDefect(array $wiring, string $expectedMessageFragment): void
+    public function testDiagnoseReportsAnElementLocalWiringDefect(array $wiring, string $expectedMessage): void
     {
         $elementId = $this->ids->get('element');
 
@@ -121,7 +121,7 @@ class ContentDiagnoseControllerTest extends TestCase
 
         static::assertCount(1, $violations);
         static::assertSame($elementId, $violations[0]['elementId']);
-        static::assertStringContainsString($expectedMessageFragment, $violations[0]['message']);
+        static::assertSame($expectedMessage, $violations[0]['message']);
     }
 
     /**
@@ -134,14 +134,14 @@ class ContentDiagnoseControllerTest extends TestCase
                 'product' => ['type' => 'single', 'required' => false],
                 'category' => ['type' => 'single', 'required' => false, 'propertyAlias' => 'product'],
             ]],
-            'Each propertyAlias must be unique within an element',
+            'Property key "product" is used by both context "product" and "category". Each propertyAlias must be unique within an element.',
         ];
 
         yield 'a redistributing consumer keyed by a dotted path' => [
             ['acceptsContext' => [
                 'product.manufacturer' => ['type' => 'single', 'required' => false, 'redistribute' => true],
             ]],
-            'uses dot notation and cannot be redistributed',
+            'Context key "product.manufacturer" uses dot notation and cannot be redistributed. Only base keys support redistribution.',
         ];
 
         yield 'a redistributing consumer whose derived key an authored provider holds' => [
@@ -149,7 +149,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
                 'acceptsContext' => ['product' => ['type' => 'single', 'required' => false, 'redistribute' => true]],
             ],
-            'has both redistribute:true and explicit providesContext',
+            'Context key "product" has both redistribute:true and explicit providesContext. Use one or the other.',
         ];
     }
 

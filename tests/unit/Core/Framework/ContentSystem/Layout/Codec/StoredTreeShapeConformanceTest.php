@@ -416,6 +416,28 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
+        yield 'a redistributing consumer whose propertyAlias names a key an authored provider holds' => [
+            self::forest([
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => [
+                    'category' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'propertyAlias' => 'product'],
+                ],
+            ]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a redistributing consumer whose propertyAlias avoids the provider key' => [
+            self::forest([
+                'providesContext' => ['other' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => [
+                    'category' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'propertyAlias' => 'product'],
+                ],
+            ]),
+            self::ACCEPTED,
+            '',
+        ];
+
         yield 'a forest whose root keys are not a sequential list' => [
             [
                 0 => ['id' => 'root-1', 'component' => 'core:text'],

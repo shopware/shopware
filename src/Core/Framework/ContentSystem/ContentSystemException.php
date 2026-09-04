@@ -113,7 +113,8 @@ class ContentSystemException extends HttpException
      * raised on the element-local write path ({@see StoredElementCodec::decode()}). Three of them
      * ({@see PROPERTY_ALIAS_COLLISION}, {@see REDISTRIBUTE_DOTTED_PATH}, {@see REDISTRIBUTE_CONFLICT}) are
      * additionally raised at render time, by {@see WiringPlanner}, for the trees that never passed the write
-     * boundary; the other two are raised on the write path alone.
+     * boundary; the other two are raised on the write path alone. Those three also surface when the codec
+     * decodes an already-persisted row carrying such a defect, which is unreadable by design, with no repair.
      */
     public const CLIENT_DEFECT_CODES = [
         self::DATA_LOADER_NOT_REGISTERED,

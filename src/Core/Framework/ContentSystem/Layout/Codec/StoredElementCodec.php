@@ -200,10 +200,8 @@ final class StoredElementCodec
      * per-consumer combination violation anywhere in the element throws before any rule here, whatever order
      * the consumers sit in.
      *
-     * The three rules and their identification of the offender are {@see WiringPlanner::validatePropertyAliases()}
-     * and {@see WiringPlanner::validateRedistribution()}, replicated so a tree the render would reject never
-     * reaches storage. The planner keeps them: a migration or a raw-SQL write reaches the render without
-     * passing here.
+     * The three rules are replicated from {@see WiringPlanner}, so a tree the render would reject never
+     * reaches storage; the planner keeps its own copy for writes that bypass the DAL boundary.
      *
      * @param array<string, ContextConsumer> $consumers
      * @param array<string, ContextProvider> $providers

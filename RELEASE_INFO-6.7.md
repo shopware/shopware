@@ -209,6 +209,12 @@ Two consequences for operators:
 
 Product breadcrumbs are generated again when the product's main category — or its only assigned category — is configured with "Hide in navigation". The flag only removes a category from the navigation menus; it no longer prevents the category from serving as the breadcrumb source on product detail pages, in `GET /store-api/breadcrumb/{id}`, and in product exports. When the breadcrumb category is determined automatically from several assigned categories, visible categories are still preferred over hidden ones. Inactive categories remain excluded.
 
+### Order and category tags are versioned
+
+Tag assignments of orders and categories are now part of the entity version. Creating a version copies the existing assignments into it, and reading, filtering or aggregating `tags` returns the assignments of the version in the context instead of the live ones. Assignments made in a version reach the live entity on merge and are dropped when the version is discarded.
+
+The tag association routes and a nested `tags` payload on the order or category both write the mapping for the version in the request context. Writing `order_tag` or `category_tag` rows directly assigns the live version unless the payload carries `orderVersionId` or `categoryVersionId`.
+
 ### An already ordered cart cannot be ordered a second time
 
 `POST /store-api/checkout/order` re-checks inside its cart lock whether the cart is still stored, and answers `404 CHECKOUT__CART_TOKEN_NOT_FOUND` when it is not. Two overlapping submits of the same cart — two browser tabs on the checkout confirm page, a retried request — previously produced two orders whenever the second request had loaded its cart before the first one deleted it, because that stale cart still passed the cart hash check.

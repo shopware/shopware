@@ -94,12 +94,24 @@ function fetchAuditReport(): AuditResult {
         }
     }
 
+    let parsed: unknown;
     try {
-        return JSON.parse(auditRaw) as AuditResult;
+        parsed = JSON.parse(auditRaw);
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         throw new Error(`Failed to parse npm audit JSON: ${message}`);
     }
+
+    // npm signals registry problems with a zero-exit JSON payload that has no "vulnerabilities" section.
+    const report = parsed as { vulnerabilities?: unknown; error?: { summary?: string; detail?: string } };
+    if (!report.vulnerabilities || typeof report.vulnerabilities !== 'object') {
+        const summary = report.error?.summary?.trim();
+        const detail = report.error?.detail?.trim();
+        const reason = [summary, detail].filter(Boolean).join(' - ') || 'no "vulnerabilities" section in the report';
+        throw new Error(`npm audit did not return a usable report: ${reason}`);
+    }
+
+    return report as AuditResult;
 }
 
 function isIgnored(via: AuditVia, ignoredGHSAs: Set<string>, ignoredCVEs: Set<string>): boolean {

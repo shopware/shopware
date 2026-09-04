@@ -22,6 +22,8 @@ final class HttpErrorClassifier
             $statusCode >= 300 && $statusCode < 400 => ErrorClassification::TransientRedirect,
             $statusCode === 429 => ErrorClassification::TransientRateLimit,
             $statusCode === 404, $statusCode === 408, $statusCode >= 500 && $statusCode < 600 => ErrorClassification::TransientServer,
+            $statusCode === 401, $statusCode === 403 => ErrorClassification::NonTransientAuth,
+            $statusCode === 410 => ErrorClassification::NonTransientEndpoint,
             default => ErrorClassification::NonTransientPayload,
         };
     }

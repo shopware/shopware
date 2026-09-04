@@ -121,7 +121,7 @@ class WebhookHealthServiceTest extends TestCase
         return new WebhookHealthService(
             $connection,
             static::createStub(WebhookOutboxStore::class),
-            new HealthConfig([300, 600, 1200, 2400, 3600, 14400], 5),
+            new HealthConfig([300, 600, 1200, 2400, 3600, 14400], 5, 3),
             new MockClock(),
         );
     }

@@ -4,9 +4,11 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Webhook;
 
 /**
@@ -58,7 +60,7 @@ class WebhookLoader
      */
     public function getWebhooks(): array
     {
-        $sql = <<<'SQL'
+        $select = <<<'SQL'
             SELECT
                 LOWER(HEX(w.id)) as webhookId,
                 w.name as webhookName,
@@ -74,10 +76,21 @@ class WebhookLoader
                 LOWER(HEX(a.acl_role_id)) as appAclRoleId
             FROM webhook w
             LEFT JOIN app a ON (a.id = w.app_id)
-            WHERE w.active = 1
         SQL;
 
-        $webhooks = $this->connection->fetchAllAssociative($sql);
+        // Health-managed inactive webhooks must still reach the dispatch gate.
+        $params = [];
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            $sql = $select . "\n            LEFT JOIN webhook_health wh ON (wh.webhook_id = w.id)"
+                . "\n            WHERE w.active = 1 OR wh.endpoint_state = :suspended";
+            $params = [
+                'suspended' => EndpointState::Suspended->value,
+            ];
+        } else {
+            $sql = $select . "\n            WHERE w.active = 1";
+        }
+
+        $webhooks = $this->connection->fetchAllAssociative($sql, $params);
 
         return array_map(
             static fn (array $webhook) => new Webhook(

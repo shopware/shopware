@@ -1840,7 +1840,6 @@ In short this means we replaced the following components:
 * `sw-datepicker` with `mt-datepicker`
 * `sw-password-field` with `mt-password-field`
 * `sw-colorpicker` with `mt-colorpicker`
-* `sw-external-link` with `mt-external-link`
 * `sw-skeleton-bar` with `mt-skeleton-bar`
 * `sw-email-field` with `mt-email-field`
 * `sw-url-field` with `mt-url-field`
@@ -2489,38 +2488,6 @@ Before:
 After:
 ```html
 <mt-colorpicker @update:model-value="onUpdateValue" />
-```
-## Removal of "sw-external-link":
-The old "sw-external-link" component will be removed in the next major version. Please use the new "mt-external-link" component instead.
-
-We will provide you with a codemod (ESLint rule) to automatically convert your codebase to use the new "mt-external-link" component.
-
-If you don't want to use the codemod, you can manually replace all occurrences of "sw-external-link" with "mt-external-link".
-
-Following changes are necessary:
-
-### "sw-external-link" is removed
-Replace all component names from "sw-external-link" with "mt-external-link"
-
-Before:
-```html
-<sw-external-link>Hello World</sw-external-link>
-```
-After:
-```html
-<mt-external-link>Hello World</mt-external-link>
-```
-
-### "sw-external-link" property "icon" is removed
-The "icon" property is removed from the "mt-external-link" component. There is no replacement for this property.
-
-Before:
-```html
-<sw-external-link icon="world">Hello World</sw-external-link>
-```
-After:
-```html
-<mt-external-link>Hello World</mt-external-link>
 ```
 ## Removal of "sw-skeleton-bar":
 The old "sw-skeleton-bar" component will be removed in the next major version. Please use the new "mt-skeleton-bar" component instead.

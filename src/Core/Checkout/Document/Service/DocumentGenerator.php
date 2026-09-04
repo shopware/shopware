@@ -327,7 +327,7 @@ class DocumentGenerator
         $result = (bool) $statement->fetchOne();
 
         if ($result) {
-            throw DocumentException::documentNumberAlreadyExistsException($documentNumber);
+            throw DocumentException::documentNumberAlreadyExistsException($documentNumber, $documentTypeName);
         }
     }
 

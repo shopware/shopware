@@ -321,13 +321,15 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function documentNumberAlreadyExists(string $documentNumber): self
+    public static function documentNumberAlreadyExists(string $documentNumber, string $documentType = ''): self
     {
         return new self(
             Response::HTTP_CONFLICT,
             self::DOCUMENT_NUMBER_ALREADY_EXISTS,
-            'Document with number "{{ documentNumber }}" already exists.',
-            ['documentNumber' => $documentNumber],
+            $documentType !== ''
+                ? 'Document with number "{{ documentNumber }}" already exists for document type "{{ documentType }}".'
+                : 'Document with number "{{ documentNumber }}" already exists.',
+            ['documentNumber' => $documentNumber, 'documentType' => $documentType],
         );
     }
 

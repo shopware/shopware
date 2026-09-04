@@ -4,6 +4,9 @@
 
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
+import useTheme from 'src/app/composables/use-theme';
+
+const addSnackbar = jest.fn();
 
 const routes = [
     {
@@ -142,6 +145,9 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
                 userActivityApiService: {
                     increment: jest.fn(() => Promise.resolve()),
                 },
+                snackbarService: {
+                    addSnackbar,
+                },
             },
         },
     });
@@ -165,6 +171,12 @@ describe('src/app/component/structure/sw-desktop', () => {
             appUrlReachable: true,
             enableStagingMode: false,
         };
+    });
+
+    afterEach(() => {
+        addSnackbar.mockClear();
+        useTheme().setTheme('system');
+        localStorage.removeItem('mt-theme');
     });
 
     it('should be update userConfig when at index route', async () => {
@@ -284,5 +296,45 @@ describe('src/app/component/structure/sw-desktop', () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.find('.sw-staging-bar').exists()).toBeFalsy();
+    });
+    it('should cycle the theme with the C T shortcut and confirm the change', async () => {
+        const wrapper = await createWrapper();
+        useTheme().setTheme('system');
+
+        expect(wrapper.vm.$options.shortcuts.CT).toBe('onCycleTheme');
+
+        await wrapper.vm.onCycleTheme();
+        expect(useTheme().theme.value).toBe('light');
+
+        await wrapper.vm.onCycleTheme();
+        expect(useTheme().theme.value).toBe('dark');
+
+        await wrapper.vm.onCycleTheme();
+        expect(useTheme().theme.value).toBe('system');
+
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenLastCalledWith({
+            'core.userTheme': { theme: 'system' },
+        });
+        expect(addSnackbar).toHaveBeenCalledTimes(3);
+        expect(addSnackbar).toHaveBeenLastCalledWith({
+            message: 'global.sw-desktop.theme.changed',
+            variant: 'success',
+        });
+    });
+
+    it('should show an error when the theme could not be saved', async () => {
+        Shopware.Service('userConfigService').upsert.mockRejectedValueOnce(new Error('failed'));
+
+        const wrapper = await createWrapper();
+        useTheme().setTheme('system');
+
+        await wrapper.vm.onCycleTheme();
+
+        expect(useTheme().theme.value).toBe('system');
+        expect(addSnackbar).toHaveBeenCalledTimes(1);
+        expect(addSnackbar).toHaveBeenCalledWith({
+            message: 'global.sw-desktop.theme.saveError',
+            variant: 'error',
+        });
     });
 });

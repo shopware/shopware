@@ -68,7 +68,16 @@
       "notificationLoadingDataErrorMessage": "Error loading data"
     },
     "sw-desktop": {
-      "stagingBarText": "The Shop is in staging mode."
+      "stagingBarText": "The Shop is in staging mode.",
+      "theme": {
+        "changed": "Appearance changed to \"{theme}\"",
+        "saveError": "The appearance could not be changed",
+        "names": {
+          "system": "System",
+          "light": "Light",
+          "dark": "Dark"
+        }
+      }
     },
     "sw-skip-link": {
       "label": "Skip to content"
@@ -1550,6 +1559,10 @@
     "keyboardShortcutSpecialShortcutFocusSearch": "F",
     "functionSpecialShortcutOpenFilters": "Open filters",
     "keyboardShortcutSpecialShortcutOpenFilters": "O F",
+    "functionSpecialShortcutToggleNavigation": "Toggle navigation",
+    "keyboardShortcutSpecialShortcutToggleNavigation": "S",
+    "functionSpecialShortcutCycleTheme": "Switch appearance",
+    "keyboardShortcutSpecialShortcutCycleTheme": "C T",
     "functionSpecialShortcutShortcutListing": "Keyboard shortcuts",
     "keyboardShortcutSpecialShortcutShortcutListing": "Shift-?",
     "functionSpecialShortcutSaveDetailView": "Save current view",

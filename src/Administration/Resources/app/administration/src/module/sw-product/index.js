@@ -122,7 +122,6 @@ Module.register('sw-product', {
     description: 'sw-product.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
     icon: 'regular-products',
     favicon: 'icon-module-products.svg',
     entity: 'product',
@@ -265,15 +264,14 @@ Module.register('sw-product', {
     navigation: [
         {
             id: 'sw-catalogue',
+            color: 'emerald',
             label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
-            color: '#57D9A3',
             icon: 'regular-products',
             position: 20,
         },
         {
             id: 'sw-product',
             label: 'sw-product.general.mainMenuItemGeneral',
-            color: '#57D9A3',
             path: 'sw.product.index',
             icon: 'regular-products',
             parent: 'sw-catalogue',

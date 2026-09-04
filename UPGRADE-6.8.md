@@ -1253,6 +1253,57 @@ The method must raise the stored increment state to at least the given value wit
 
 # Administration
 
+## `--color-emerald-*` resolves to the Meteor emerald ramp
+
+The Administration defined its own `$color-emerald-50` … `$color-emerald-900` ramp, described in the source as "moderate lime green", and `global.scss` re-emitted it as `--color-emerald-*` on `:root` after Meteor's tokens had been loaded. The Administration's values therefore overrode the Meteor primitives of the same name.
+
+That ramp was removed, so `--color-emerald-*` now resolves to the Meteor emerald ramp — a mint rather than a green:
+
+| Custom property | Before | After |
+|---|---|---|
+| `--color-emerald-300` | `#73de7e` | `#74f0af` |
+| `--color-emerald-500` | `#37d046` | `#57d998` |
+| `--color-emerald-600` | `#31cb3f` | `#00b472` |
+
+Styling that used `--color-emerald-*` for a green renders in a mint now. Use `--color-green-*` for a green. The `$color-emerald-*` SCSS variables are gone; they had no consumers outside their own declaration. The Installer keeps its own ramp in its own stylesheet and is unaffected.
+
+## Module colors are inherited from the navigation group
+
+The color of an Administration module is no longer a property of the module. It indicates the navigation group the module belongs to, so the first-level navigation entry of a group declares it once and every entry below it inherits it.
+
+A first-level entry declares the color as a name instead of a value. Available names are `blue`, `brand`, `cyan`, `emerald`, `green`, `orange`, `pink`, `pumpkin`, `purple`, `red`, `slate`, `yellow` and `zinc`. Each name resolves to a shade chosen for the current UI color mode. An unknown name renders the neutral icon color and warns.
+
+Adding a module to an existing group needs no color at all:
+
+```javascript
+Shopware.Module.register('swag-my-module', {
+    navigation: [
+        {
+            id: 'swag-my-module',
+            parent: 'sw-catalogue',
+            path: 'swag.my.module.index',
+        },
+    ],
+});
+```
+
+Adding a group picks one name:
+
+```javascript
+Shopware.Module.register('swag-my-group', {
+    navigation: [
+        {
+            id: 'swag-my-group',
+            color: 'purple',
+        },
+    ],
+});
+```
+
+Raw color values on `Module.register({ color })` and on a navigation entry are deprecated and will be removed in 6.9.0. They still render and log a deprecation warning.
+
+An entry inherits from the closest entry above it that declares a color, so a navigation entry that declares one keeps it and passes it to its own children. A module that declares nothing takes the color of its group, and a module that is only reachable through the settings list takes the settings color.
+
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
 The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.

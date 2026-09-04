@@ -17,7 +17,6 @@ Module.register('sw-inactivity-login', {
     description: 'global.sw-inactivity-login.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#F19D12',
 
     routes: {
         index: {

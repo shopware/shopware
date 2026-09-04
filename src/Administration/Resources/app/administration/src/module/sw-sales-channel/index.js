@@ -100,7 +100,7 @@ Module.register('sw-sales-channel', {
     description: 'The module for managing Sales Channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-green-500)',
+    color: 'emerald',
     icon: 'regular-server',
     entity: 'sales_channel',
 
@@ -115,7 +115,6 @@ Module.register('sw-sales-channel', {
             {
                 name: manifest.name,
                 icon: manifest.icon,
-                color: manifest.color,
                 label: labelType,
                 entity: manifest.entity,
                 route: manifest.routes.list,

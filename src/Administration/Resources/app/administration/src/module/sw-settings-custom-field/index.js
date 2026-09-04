@@ -72,7 +72,6 @@ Module.register('sw-settings-custom-field', {
     name: 'settings-custom-field',
     title: 'sw-settings-custom-field.general.mainMenuItemGeneral',
     description: 'sw-settings-custom-field.general.description',
-    color: '#9AA8B5',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'custom-field-set',

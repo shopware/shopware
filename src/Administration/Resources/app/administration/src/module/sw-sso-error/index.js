@@ -20,7 +20,6 @@ Module.register('sw-sso-error', {
     description: 'global.sw-sso-error.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#f1122c',
 
     routes: {
         index: {

@@ -1,0 +1,40 @@
+/**
+ * Module indication colors.
+ *
+ * A first-level navigation entry declares one of these by name (`color: 'emerald'`); every module
+ * below it inherits the resolved value. Light mode uses the 600 step of a hue and dark mode the 300
+ * step, so a group keeps its hue while the icon stays legible on the sidebar surface in both modes.
+ *
+ * Keep the names in sync with `MODULE_COLOR_NAMES` in `src/app/service/module-color.service.ts`.
+ */
+:root {
+    --sw-module-color-blue: var(--color-blue-600);
+    --sw-module-color-brand: var(--color-brand-600);
+    --sw-module-color-cyan: var(--color-cyan-600);
+    --sw-module-color-emerald: var(--color-emerald-600);
+    --sw-module-color-green: var(--color-green-600);
+    --sw-module-color-orange: var(--color-orange-600);
+    --sw-module-color-pink: var(--color-pink-600);
+    --sw-module-color-pumpkin: var(--color-pumpkin-600);
+    --sw-module-color-purple: var(--color-purple-600);
+    --sw-module-color-red: var(--color-red-600);
+    --sw-module-color-slate: var(--color-slate-600);
+    --sw-module-color-yellow: var(--color-yellow-600);
+    --sw-module-color-zinc: var(--color-zinc-600);
+}
+
+[data-theme="dark"] {
+    --sw-module-color-blue: var(--color-blue-300);
+    --sw-module-color-brand: var(--color-brand-300);
+    --sw-module-color-cyan: var(--color-cyan-300);
+    --sw-module-color-emerald: var(--color-emerald-300);
+    --sw-module-color-green: var(--color-green-300);
+    --sw-module-color-orange: var(--color-orange-300);
+    --sw-module-color-pink: var(--color-pink-300);
+    --sw-module-color-pumpkin: var(--color-pumpkin-300);
+    --sw-module-color-purple: var(--color-purple-300);
+    --sw-module-color-red: var(--color-red-300);
+    --sw-module-color-slate: var(--color-slate-300);
+    --sw-module-color-yellow: var(--color-yellow-300);
+    --sw-module-color-zinc: var(--color-zinc-300);
+}

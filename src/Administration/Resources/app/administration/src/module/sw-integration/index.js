@@ -19,7 +19,6 @@ Module.register('sw-integration', {
     description: 'The module for managing integrations.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'integration',

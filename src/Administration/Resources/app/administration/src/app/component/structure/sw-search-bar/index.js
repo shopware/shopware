@@ -1,4 +1,5 @@
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+import { resolveManifestModuleColor, NEUTRAL_MODULE_COLOR } from 'src/app/service/module-color.service';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
@@ -849,11 +850,7 @@ export default {
 
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            if (!module) {
-                return '#5C738A';
-            }
-
-            return module.manifest.color || '#5C738A';
+            return resolveManifestModuleColor(module?.manifest) ?? NEUTRAL_MODULE_COLOR;
         },
 
         getTypeIconColor(entityName) {
@@ -951,7 +948,8 @@ export default {
 
             const route = manifest?.routes?.index || manifest?.routes?.list;
 
-            const { name, icon, color, entity, routes } = manifest;
+            const { name, icon, entity, routes } = manifest;
+            const color = resolveManifestModuleColor(manifest);
             const entities = [];
 
             if (match && routes.index) {
@@ -1004,7 +1002,7 @@ export default {
                     {
                         name: 'sales-channel',
                         icon: saleChannelType?.iconName ?? 'regular-server',
-                        color: '#14D7A5',
+                        color: this.getEntityIconColor('sales_channel'),
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,
                         route: {

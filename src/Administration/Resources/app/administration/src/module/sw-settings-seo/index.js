@@ -17,7 +17,6 @@ Module.register('sw-settings-seo', {
     name: 'settings-seo',
     title: 'sw-settings-seo.general.mainMenuItemGeneral',
     description: 'SEO section in the settings module',
-    color: '#9AA8B5',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.svg',
     entity: 'seo',

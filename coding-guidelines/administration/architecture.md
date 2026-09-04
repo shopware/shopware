@@ -28,6 +28,7 @@ These rules apply to code under `src/Administration/Resources/app/administration
 - Keep business logic out of templates.
 - Prefer composables for new shared Vue logic. Do not add new mixin-based APIs unless you are extending legacy code.
 - Use BEM-style class names and Meteor design tokens for Administration styling. Avoid inline styles.
+- Do not give a module a color. The color indicates the navigation group, so the first-level navigation entry of the group declares it once, by name, and every module below it inherits it. Inheritance takes the closest entry above one that declares a color, so a subtree can declare its own and pass it down, but keep group colors on the first-level entry. The names are `blue`, `brand`, `cyan`, `emerald`, `green`, `orange`, `pink`, `pumpkin`, `purple`, `red`, `slate`, `yellow` and `zinc`; each resolves to a shade picked for the current UI color mode. An unknown name falls back to the neutral icon color and warns. Only a module that belongs to no navigation group and no settings group declares a name of its own.
 
 ## Data access
 

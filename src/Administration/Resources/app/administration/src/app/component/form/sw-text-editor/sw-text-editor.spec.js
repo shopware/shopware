@@ -150,6 +150,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     afterEach(() => {
         document.getSelection().removeAllRanges();
+        jest.restoreAllMocks();
     });
 
     it('should toggle placeholder', async () => {
@@ -1041,6 +1042,104 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         const selection = document.getSelection();
         expect(selection.toString()).toBe('Hello World');
+    });
+
+    it('should remove browser-generated style spans after applying text alignment', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        await addTextToEditor(wrapper, 'abc');
+        await addAndCheckSelection(wrapper, contentEditor.element, 0, 3, 'abc');
+
+        jest.spyOn(document, 'execCommand').mockImplementation((command) => {
+            if (command !== 'justifyCenter') {
+                return;
+            }
+
+            contentEditor.element.innerHTML =
+                '<p style="text-align: center;"><span style="background-color: transparent; color: rgb(30, 30, 36);">abc</span></p>';
+        });
+
+        wrapper.vm.onTextStyleChange('justifyCenter');
+
+        const expectedContent = '<p style="text-align: center;">abc</p>';
+        const emittedValues = wrapper.emitted('update:value');
+
+        expect(contentEditor.element.innerHTML).toBe(expectedContent);
+        expect(emittedValues[emittedValues.length - 1][0]).toBe(expectedContent);
+    });
+
+    it('should remove browser-generated font size spans after applying text alignment', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        await addTextToEditor(wrapper, 'abc');
+        await addAndCheckSelection(wrapper, contentEditor.element, 0, 3, 'abc');
+
+        jest.spyOn(document, 'execCommand').mockImplementation((command) => {
+            if (command !== 'justifyCenter') {
+                return;
+            }
+
+            contentEditor.element.innerHTML = '<p style="text-align: center;"><span style="font-size: 14px;">abc</span></p>';
+        });
+
+        wrapper.vm.onTextStyleChange('justifyCenter');
+
+        expect(contentEditor.element.innerHTML).toBe('<p style="text-align: center;">abc</p>');
+    });
+
+    it('should normalize browser-generated divs after applying text alignment', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+
+        await addTextToEditor(wrapper, 'abc');
+        await addAndCheckSelection(wrapper, contentEditor.element, 0, 3, 'abc');
+
+        jest.spyOn(document, 'execCommand').mockImplementation((command) => {
+            if (command !== 'justifyCenter') {
+                return;
+            }
+
+            contentEditor.element.innerHTML =
+                '<div style="text-align: center;"><span style="font-size: 14px;">abc</span></div>';
+        });
+
+        wrapper.vm.onTextStyleChange('justifyCenter');
+
+        expect(contentEditor.element.innerHTML).toBe('<p style="text-align: center;">abc</p>');
+    });
+
+    it('should keep intentional spans when normalizing text alignment markup', async () => {
+        wrapper = await createWrapper();
+
+        const contentEditor = wrapper.find('.sw-text-editor__content-editor');
+        const browserGeneratedAlignmentContent = [
+            '<p style="text-align: center;">',
+            '<span data-foo="bar" style="background-color: transparent; color: rgb(30, 30, 36);">keep attribute</span>',
+            '<span style="background-color: transparent; color: rgb(30, 30, 36); font-weight: bold;">keep style</span>',
+            '<span style="color: rgb(255, 0, 0);">keep color</span>',
+            '</p>',
+            '<p><span style="background-color: transparent; color: rgb(30, 30, 36);">keep outside alignment</span></p>',
+        ].join('');
+
+        await addTextToEditor(wrapper, 'abc');
+        await addAndCheckSelection(wrapper, contentEditor.element, 0, 3, 'abc');
+
+        jest.spyOn(document, 'execCommand').mockImplementation((command) => {
+            if (command !== 'justifyCenter') {
+                return;
+            }
+
+            contentEditor.element.innerHTML = browserGeneratedAlignmentContent;
+        });
+
+        wrapper.vm.onTextStyleChange('justifyCenter');
+
+        expect(contentEditor.element.innerHTML).toBe(browserGeneratedAlignmentContent);
     });
 
     it('should fix loose text nodes and wrap them in paragraphs on "Enter" key press', async () => {

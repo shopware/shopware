@@ -44,5 +44,7 @@ class Migration1788531955MakeProductGuaranteeConfirmedInheritable extends Migrat
                 ['limit' => ParameterType::INTEGER]
             );
         } while ($affectedRows === self::UPDATE_LIMIT);
+
+        $this->registerIndexer($connection, 'product.indexer');
     }
 }

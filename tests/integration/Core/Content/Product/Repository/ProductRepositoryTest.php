@@ -1685,11 +1685,11 @@ class ProductRepositoryTest extends TestCase
 
         $variants = $this->repository->search(new Criteria($ids->getList(['red', 'green'])), $context);
 
-        $red = $variants->get($ids->get('red'));
+        $red = $variants->getEntities()->get($ids->get('red'));
         static::assertInstanceOf(ProductEntity::class, $red);
         static::assertTrue($red->isGuaranteeConfirmed());
 
-        $green = $variants->get($ids->get('green'));
+        $green = $variants->getEntities()->get($ids->get('green'));
         static::assertInstanceOf(ProductEntity::class, $green);
         static::assertFalse($green->isGuaranteeConfirmed());
     }

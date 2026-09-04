@@ -763,6 +763,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredElementCodec::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
+            service(ContentSystemLayoutPresetRegistry::class),
         ]);
 
     // Persisted Layout Mutation (load by id, mutate, commit through the gates)

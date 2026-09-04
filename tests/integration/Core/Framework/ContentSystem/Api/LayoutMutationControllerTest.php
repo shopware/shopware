@@ -174,6 +174,43 @@ class LayoutMutationControllerTest extends TestCase
         static::assertNotSame('incoming', $body['affectedElementIds'][0]);
     }
 
+    #[TestDox('inserts a core preset subtree at the root in a single mutation with server-minted ids')]
+    public function testInsertPreset(): void
+    {
+        $body = $this->mutate('insert-preset', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::RESOLVABLE)],
+            'presetId' => 'core.media-and-text',
+        ]);
+
+        static::assertCount(2, $body['layout']);
+        static::assertSame('block-a', $body['layout'][0]['id']);
+
+        $container = $body['layout'][1];
+        static::assertSame('Sw:Grid:Container', $container['component']);
+        static::assertCount(2, $container['slots']['content']);
+        static::assertSame('Sw:Media:Image', $container['slots']['content'][0]['component']);
+        static::assertSame('Sw:Content:Text', $container['slots']['content'][1]['component']);
+
+        static::assertSame($container['id'], $body['affectedElementIds'][0]);
+        static::assertNotContains('block-a', $body['affectedElementIds']);
+        static::assertArrayHasKey('resolutions', $body);
+    }
+
+    #[TestDox('rejects an unknown preset id with a 404')]
+    public function testInsertPresetRejectsUnknownPreset(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . 'insert-preset', [
+            'layout' => [$this->element('block-a', TestElementTypeLoader::RESOLVABLE)],
+            'presetId' => 'core.does-not-exist',
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::LAYOUT_PRESET_NOT_FOUND, array_column($body['errors'], 'code'));
+    }
+
     #[TestDox('rejects a structural impossibility with a 400 without persisting')]
     public function testStructuralImpossibilityReturns400(): void
     {

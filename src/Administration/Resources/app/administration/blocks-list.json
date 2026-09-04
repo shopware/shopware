@@ -1675,6 +1675,7 @@
  "sw_customer_base_form_email_field",
  "sw_customer_base_form_first_name_field",
  "sw_customer_base_form_first_salutation_field",
+ "sw_customer_base_form_language_field",
  "sw_customer_base_form_last_name_field",
  "sw_customer_base_form_password_field",
  "sw_customer_base_form_sales_channel_field",

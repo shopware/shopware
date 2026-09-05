@@ -99,6 +99,7 @@ export default defineConfig(async () => {
                 // real shopware.js on disk.  The mock also assigns to globalThis so
                 // legacy components that do `({ Shopware } = window)` still work.
                 alias: {
+                    src: path.resolve(configDir, 'src'),
                     shopware: path.resolve(configDir, '__mocks__/shopware.ts'),
                 },
             },

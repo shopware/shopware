@@ -48,6 +48,8 @@ final readonly class ElementDataResolver
      * value's fingerprint has to be taken from what the LOADER returned rather than from whatever the response
      * finally carries.
      *
+     * @param array<string, mixed> $deliveredContext
+     *
      * @return array<string, ResolvedLoaderValue> every requirement's resolved value, keyed by requirement key
      */
     public function resolve(
@@ -55,12 +57,13 @@ final readonly class ElementDataResolver
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
+        array $deliveredContext = [],
     ): array {
         if ($stored->dataRequirements === []) {
             return [];
         }
 
-        $properties = $this->unwrapProperties($stored->properties());
+        $properties = array_merge($this->unwrapProperties($stored->properties()), $deliveredContext);
         $resolved = [];
 
         foreach ($stored->dataRequirements as $key => $requirement) {

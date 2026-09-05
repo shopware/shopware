@@ -6,6 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfig;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfigSerializer;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
@@ -118,10 +124,9 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
-     * The ordering claim: loading completes over the whole forest before any distribution starts. The parent
-     * stores no `product` of its own, so the only thing that can reach the child is the value the parent's
-     * loader produced — and it is compared by identity, so no stored value could stand in for it. Compute the
-     * deliveries before the loads and the parent distributes nothing, leaving the child's map empty.
+     * The parent loads before it distributes, so a value produced by its loader can reach the child even
+     * though the parent stores no `product` of its own. The value is compared by identity, so no stored value
+     * could stand in for it.
      */
     #[TestDox('delivers a parent loader resolved value to its consuming child in full mode')]
     public function testFullModeDeliversAParentLoadedValueToItsConsumingChild(): void
@@ -139,6 +144,65 @@ class ElementLoweringTest extends TestCase
         $tree = $this->lower($this->loaderReturning(ContentDataLoaderResult::cached($loaded)), [$parent]);
 
         static::assertSame(['product' => $loaded], $tree[0]->slots['main'][0]->properties);
+    }
+
+    /**
+     * The child loader references `product` through its empty config's declared default. The parent has to
+     * load and distribute that object before the child resolves its inputs; resolving every loader before
+     * context delivery would make the second call receive null instead.
+     */
+    #[TestDox('resolves a child loader object input from context delivered by its parent')]
+    public function testFullModeResolvesChildLoaderInputFromParentContext(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setUniqueIdentifier('product-id');
+        $product->setParentId('parent-id');
+        $configuratorSettings = new PropertyGroupCollection();
+        $context = static::createStub(SalesChannelContext::class);
+        $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
+        $configuratorLoader->expects($this->once())->method('load')->with($product, $context)->willReturn($configuratorSettings);
+        $parentLoader = $this->loaderReturning(ContentDataLoaderResult::cached($product));
+        $productConfiguratorLoader = new ProductConfiguratorDataLoader($configuratorLoader);
+        $provider = static::createStub(DataLoaderProvider::class);
+        $provider->method('get')->willReturnMap([
+            ['entity', $parentLoader],
+            [ProductConfiguratorDataLoader::SOURCE, $productConfiguratorLoader],
+        ]);
+
+        $child = StoredElementBuilder::create('Sw:VariantSelection', 'child-1')
+            ->withConsumer('product', ContextType::Single)
+            ->withDataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig())
+            ->build();
+        $parent = StoredElementBuilder::create('Sw:Section', 'parent-1')
+            ->withDataRequirement('product', 'entity', new StubLoaderConfig())
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('main', [$child])
+            ->build();
+
+        $tree = (new ElementLowering(
+            new ElementDataResolver(
+                $provider,
+                new LoaderInputResolver(),
+                new LoaderValueIdentityFactory(
+                    new DataLoaderConfigSerializerProvider(new ServiceLocator([
+                        'entity' => static fn (): StubLoaderConfigSerializer => new StubLoaderConfigSerializer(),
+                        ProductConfiguratorDataLoader::SOURCE => static fn (): ProductConfiguratorLoaderConfigSerializer => new ProductConfiguratorLoaderConfigSerializer(),
+                    ])),
+                    new ConfigCanonicalizer(),
+                    new ValueFingerprinter(),
+                ),
+            ),
+            new ContextDeliveryResolver(new ContextDistributor(new ContextPathResolver())),
+            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry()))
+        ))->lower(
+            [$parent],
+            RenderingMode::FULL,
+            $context,
+            new Request(),
+            new RenderingCacheContext()
+        )->tree;
+
+        static::assertSame($configuratorSettings, $tree[0]->slots['main'][0]->properties['configuratorSettings']);
     }
 
     /**
@@ -252,6 +316,10 @@ class ElementLoweringTest extends TestCase
         $specs = [
             'Sw:Section' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Section')->build(),
             'Sw:Box' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Box')->build(),
+            'Sw:VariantSelection' => ContentSystemElementTypeSpecificationBuilder::create('Sw:VariantSelection')
+                ->reference('product', SalesChannelProductEntity::class)
+                ->reference('configuratorSettings', PropertyGroupCollection::class)
+                ->build(),
             'Sw:Product' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Product')
                 ->reference('product', StubStruct::class)
                 ->build(),

@@ -13,23 +13,19 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Turns one stored forest into the rendered forest it serves as. The three render layers underneath it each
  * answer one question about one thing — {@see ElementDataResolver} runs a single element's data requirements,
- * {@see ContextDeliveryResolver} answers what a whole forest's elements received, {@see RenderedTreeFactory}
- * mints the tree — and this is the one place that owns the step as a whole. The forest-wide data walk lives
- * here because no other layer is in a position to do it: the data resolver sees one element at a time, and
- * the delivery resolver takes the loader values already collected.
+ * {@see ContextDeliveryResolver} answers what one loaded element delivers to its direct children,
+ * {@see RenderedTreeFactory} mints the tree — and this is the one place that owns the step as a whole. The
+ * forest-wide data and delivery walk lives here because both resolvers see one element at a time.
  *
- * Ordering is the substance of this class. In FULL mode loading completes over the WHOLE forest before any
- * distribution starts, because a provider may hand a loaded value on to a child: process an element's
- * distribution before a later element has loaded, and the value that element was going to provide is not
- * there yet. That is why {@see ContextDeliveryResolver::resolve()} takes the loader values as an argument
- * rather than resolving them itself, and this class is what fills that argument.
+ * Ordering is the substance of this class. In FULL mode an element's data loads before its context is
+ * distributed to direct children, and a child loads only after receiving that context. This preserves the
+ * data dependency represented by a parent provider and child consumer.
  *
- * The data walk is pre-order and descends slot by slot: an element loads before the elements under it, and
- * each slot's children load in declaration order. What that order buys is narrower than it looks:
- * {@see RenderingCacheContext::disable()} is an irreversible flag and {@see RenderingCacheContext::addTags()}
- * dedupes, so neither the disabled state nor the tag SET depends on it — only the tag list's first-occurrence
- * order does, along with whatever order a loader's own side effects are sensitive to. Those two are what the
- * order is fixed for; nothing else in the module's output depends on it.
+ * The walk is pre-order and descends slot by slot: an element loads and distributes before the elements under
+ * it, and each slot's children follow declaration order. Besides making the parent-to-child data dependency
+ * possible, this fixes the order of loader side effects and the cache tag list's first occurrences. The cache
+ * disabled state and the tag set remain order-independent because disabling is irreversible and
+ * {@see RenderingCacheContext::addTags()} deduplicates tags.
  *
  * @internal
  */
@@ -65,77 +61,50 @@ final readonly class ElementLowering
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
         }
 
-        $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
+        $loaderValues = [];
+        $deliveries = [];
 
-        // Context distribution is about dataflow, not about where a value came from, so it sees the plain
-        // values: a provider hands a child what it renders, and the identity beside it means nothing there.
-        $deliveries = $this->deliveryResolver->resolve($forest, $this->plainValues($loaderValues));
+        foreach ($forest as $root) {
+            $this->lowerElement($root, $context, $request, $cacheContext, $loaderValues, $deliveries, new ContextDelivery($root->id));
+        }
+
+        $deliveries = new ContextDeliveryIndex($deliveries);
 
         return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
     }
 
     /**
      * @param array<string, array<string, ResolvedLoaderValue>> $loaderValues
-     *
-     * @return array<string, array<string, mixed>>
+     * @param array<string, ContextDelivery> $deliveries
      */
-    private function plainValues(array $loaderValues): array
-    {
-        return array_map(
-            static fn (array $values): array => array_map(
-                static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value,
-                $values
-            ),
-            $loaderValues
-        );
-    }
-
-    /**
-     * An element whose requirements resolved to nothing contributes no entry at all. Both readers of this map
-     * take `$loaderValues[$id] ?? []`, so an absent entry and an empty one are the same fact to them, and the
-     * map that holds only elements that actually ran a loader is the one that says so. An element whose
-     * loader ran and found nothing is a different case and does get an entry: {@see ElementDataResolver}
-     * returns the requirement key at `null` there, and that present null is what makes the rendered property
-     * exist as null instead of being dropped.
-     *
-     * @param list<StoredElement> $forest
-     *
-     * @return array<string, array<string, ResolvedLoaderValue>> element id => requirement key => resolved value
-     */
-    private function resolveLoaderValues(
-        array $forest,
-        SalesChannelContext $context,
-        Request $request,
-        RenderingCacheContext $cacheContext,
-    ): array {
-        $values = [];
-
-        foreach ($forest as $root) {
-            $this->collectLoaderValues($root, $context, $request, $cacheContext, $values);
-        }
-
-        return $values;
-    }
-
-    /**
-     * @param array<string, array<string, ResolvedLoaderValue>> $values
-     */
-    private function collectLoaderValues(
+    private function lowerElement(
         StoredElement $element,
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
-        array &$values,
+        array &$loaderValues,
+        array &$deliveries,
+        ContextDelivery $delivery,
     ): void {
-        $resolved = $this->dataResolver->resolve($element, $context, $request, $cacheContext);
+        $deliveries[$element->id] = $delivery;
+        $resolved = $this->dataResolver->resolve($element, $context, $request, $cacheContext, $delivery->context);
 
         if ($resolved !== []) {
-            $values[$element->id] = $resolved;
+            $loaderValues[$element->id] = $resolved;
         }
 
-        foreach ($element->slots as $children) {
-            foreach ($children as $child) {
-                $this->collectLoaderValues($child, $context, $request, $cacheContext, $values);
+        $plainValues = [];
+        foreach ($resolved as $key => $value) {
+            $plainValues[$key] = $value->value;
+        }
+
+        $childDeliveries = $this->deliveryResolver->resolveDirectChildren($element, $plainValues, $delivery->context);
+        $childIndex = 0;
+
+        foreach ($element->slots as $slotChildren) {
+            foreach ($slotChildren as $child) {
+                $this->lowerElement($child, $context, $request, $cacheContext, $loaderValues, $deliveries, $childDeliveries[$childIndex] ?? new ContextDelivery($child->id));
+                ++$childIndex;
             }
         }
     }

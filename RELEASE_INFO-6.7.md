@@ -704,6 +704,19 @@ The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving 
 
 When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
 
+### Outdated Elasticsearch indices are removed automatically
+
+An index that no longer serves an alias could only be removed by hand, and `es:index:cleanup` never covered the admin search indices: it builds its pattern from the storefront index prefix (`sw_<entity>_*`), which never matches an admin index (`sw-admin-<name>_<timestamp>`), and it uses the storefront client instead of the admin one. Removing a leftover admin index therefore meant running `es:admin:reset`, which deletes every admin index including the live ones.
+
+Two additions:
+
+* `bin/console es:admin:index:cleanup` lists the admin indices without an alias and deletes them after confirmation. Aliased indices are kept. The command fails when admin Elasticsearch is disabled.
+* A new `shopware.elasticsearch.cleanup.indices` scheduled task deletes outdated storefront and admin indices once a day. It runs when Elasticsearch or admin Elasticsearch is enabled.
+
+An index that is currently being built has no alias either, so the scheduled task needs two more conditions: it skips every index listed in `elasticsearch_index_task` or `admin_elasticsearch_index_task`, and it only deletes indices created longer ago than `elasticsearch.index_cleanup_minimum_age` (one week by default, `SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE` in seconds). The default is deliberately generous because deleting an index cannot be undone; lower it when outdated indices take up too much disk, and raise it when a full indexing run can take longer than a week. An index whose creation date cannot be read is never deleted by the task.
+
+`es:index:cleanup` itself is unchanged.
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:

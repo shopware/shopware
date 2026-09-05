@@ -5,6 +5,11 @@ elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
+    # Minimum age in seconds an index without an alias must reach before the cleanup scheduled task deletes it.
+    # A running reindex writes to an index that carries no alias yet, so this threshold must stay comfortably
+    # above the duration of a full indexing run. It defaults to a week because deleting an index is not
+    # reversible, while keeping a few outdated ones only costs disk. Applies to storefront and admin indices.
+    index_cleanup_minimum_age: "%env(int:SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE)%"
     # Injects sw_dimension_normalize into the technical-term chains so
     # "5 x 70"/"5×70" collapse to one token. See SEARCH_ARCHITECTURE.md §4.
     # Toggling requires a full reindex.
@@ -299,6 +304,7 @@ parameters:
     env(OPENSEARCH_URL): ""
     env(SHOPWARE_ES_INDEX_PREFIX): "sw"
     env(SHOPWARE_ES_THROW_EXCEPTION): "1"
+    env(SHOPWARE_ES_INDEX_CLEANUP_MINIMUM_AGE): "604800"
     env(SHOPWARE_ADMIN_ES_ENABLED): ""
     env(ADMIN_OPENSEARCH_URL): ""
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"

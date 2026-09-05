@@ -79,6 +79,34 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         static::assertCount(2, $detector->getAllUsedIndices());
     }
 
+    public function testGetOutdatedOnlyReturnsIndicesOlderThanTheThreshold(): void
+    {
+        $threshold = new \DateTimeImmutable('2026-08-11 12:00:00');
+
+        $indices = static::createStub(IndicesNamespace::class);
+        $indices
+            ->method('get')
+            ->willReturn([
+                'aliased' => $this->index('sw_product_1000', ['sw_product'], '2020-01-01 00:00:00'),
+                'old' => $this->index('sw_product_2000', [], '2026-08-10 12:00:00'),
+                'young' => $this->index('sw_product_3000', [], '2026-08-12 11:59:00'),
+                'undated' => [
+                    'aliases' => [],
+                    'settings' => ['index' => ['provided_name' => 'sw_product_4000']],
+                ],
+            ]);
+
+        $client = static::createStub(Client::class);
+        $client->method('indices')->willReturn($indices);
+
+        $registry = static::createStub(ElasticsearchRegistry::class);
+        $registry->method('getDefinitions')->willReturn([static::createStub(ElasticsearchProductDefinition::class)]);
+
+        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, static::createStub(ElasticsearchHelper::class));
+
+        static::assertSame(['sw_product_2000'], $detector->getOutdated($threshold));
+    }
+
     public function testDoesNothingWithoutIndices(): void
     {
         $indices = $this->createMock(IndicesNamespace::class);
@@ -96,5 +124,23 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 
         $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper);
         static::assertEmpty($detector->get());
+    }
+
+    /**
+     * @param array<string> $aliases
+     *
+     * @return array{aliases: array<string>, settings: array<mixed>}
+     */
+    private function index(string $name, array $aliases, string $createdAt): array
+    {
+        return [
+            'aliases' => $aliases,
+            'settings' => [
+                'index' => [
+                    'provided_name' => $name,
+                    'creation_date' => (string) ((new \DateTimeImmutable($createdAt))->getTimestamp() * 1000),
+                ],
+            ],
+        ];
     }
 }

@@ -4,7 +4,7 @@
  * @sw-package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 describe('components/base/sw-product-variants-configurator-restrictions', () => {
     async function createWrapper() {
@@ -105,9 +105,6 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                     'sw-loader': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                    'mt-floating-ui': {
-                        template: '<div><slot /></div>',
-                    },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
@@ -282,12 +279,13 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         const contextButton = wrapper.find('.sw-context-button');
         await contextButton.trigger('click');
         await flushPromises();
-        expect(wrapper.find('.sw-context-menu').exists()).toBe(true);
+        const documentBody = new DOMWrapper(document.body);
+        expect(documentBody.find('.sw-context-menu').exists()).toBe(true);
 
-        const contextMenuItem = wrapper.findAllComponents('.sw-context-menu-item');
+        const contextMenuItem = documentBody.findAll('.sw-context-menu-item');
         await contextMenuItem.at(0).trigger('click');
 
-        expect(wrapper.find('.sw-context-menu').exists()).toBe(false);
+        expect(documentBody.find('.sw-context-menu').exists()).toBe(false);
         expect(wrapper.vm.actualRestriction).toEqual({
             id: 'restriction1',
             values: [
@@ -310,11 +308,12 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         await wrapper.find('.sw-context-button').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-context-menu').exists()).toBe(true);
-        const contextMenuItem = wrapper.findAllComponents('.sw-context-menu-item');
+        const documentBody = new DOMWrapper(document.body);
+        expect(documentBody.find('.sw-context-menu').exists()).toBe(true);
+        const contextMenuItem = documentBody.findAll('.sw-context-menu-item');
 
         await contextMenuItem.at(1).trigger('click');
-        expect(wrapper.find('.sw-context-menu').exists()).toBe(false);
+        expect(documentBody.find('.sw-context-menu').exists()).toBe(false);
         expect(wrapper.vm.product.variantRestrictions).toEqual([]);
     });
 
@@ -468,7 +467,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         await wrapper.find('.sw-select-selection-list').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await wrapper.findByText('button', 'global.default.save').trigger('click');
 
         expect(wrapper.vm.product.variantRestrictions).toEqual([

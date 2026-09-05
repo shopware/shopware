@@ -1,6 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
-import { config, mount } from '@vue/test-utils';
+import { config, DOMWrapper, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -285,9 +285,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                'mt-floating-ui': {
-                    template: '<div><slot /></div>',
-                },
                 'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
                 'sw-page': {
                     template: `
@@ -834,7 +831,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         ruleRepositoryMock.search.mockClear();
 
-        await wrapper.find('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
         await flushPromises();
 
         expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);

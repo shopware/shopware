@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}) {
     return mount(await wrapTestComponent('sw-bulk-edit-change-type', { sync: true }), {
@@ -43,7 +43,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectClear = wrapper.find('.sw-select-option--1');
+        const selectClear = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectClear.text()).toBe('sw-bulk-edit.changeTypes.clear');
         await selectClear.trigger('click');
         await flushPromises();
@@ -67,7 +67,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectClear = wrapper.find('.sw-select-option--1');
+        const selectClear = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectClear.text()).toBe('sw-bulk-edit.changeTypes.clear');
         await selectClear.trigger('click');
         await flushPromises();
@@ -77,7 +77,7 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectAdd = wrapper.find('.sw-select-option--2');
+        const selectAdd = new DOMWrapper(document.body).get('.sw-select-option--2');
         expect(selectAdd.text()).toBe('global.default.add');
         await selectAdd.trigger('click');
 
@@ -98,10 +98,10 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type', () => {
         await selection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectClear = wrapper.find('.sw-select-option--0');
+        const selectClear = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(selectClear.text()).toBe('global.default.add');
 
-        const selectRemove = wrapper.find('.sw-select-option--1');
+        const selectRemove = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectRemove.text()).toBe('global.default.remove');
     });
 });

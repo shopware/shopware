@@ -35,15 +35,23 @@ class JoinGroupBuilder
      * - A `JoinGroup` is generated when a to-many association is filtered with a `not-filter`
      * - A `JoinGroup` is generated when a to-many association is filtered by more than one `multi-filter`
      * - An "empty" filter will not lead to a join group (example `new EqualsFilter('product.tags.id', null)`)
+     * - A `JoinGroup` is generated for every to-many association when `$spillToSubQueries` is set
+     *
+     * MySQL and MariaDB can only reference 61 tables per join. A `JoinGroup` is
+     * resolved as a correlated `EXISTS` sub query, which is a query block of its
+     * own and therefore does not consume one of those 61 slots. `$spillToSubQueries`
+     * is set by the query builder when a criteria would otherwise exceed the limit,
+     * so a query that used to fail with error 1116 can be executed.
      *
      * @param list<Filter> $filters
      * @param list<string> $additionalFields
+     * @param list<string> $keepJoined association paths that must keep a real join, because sortings or groupings reference them
      *
      * @return list<Filter>
      */
-    public function group(array $filters, EntityDefinition $definition, array $additionalFields = []): array
+    public function group(array $filters, EntityDefinition $definition, array $additionalFields = [], bool $spillToSubQueries = false, array $keepJoined = []): array
     {
-        $mapped = $this->recursion($filters, $definition, MultiFilter::CONNECTION_AND, false);
+        $mapped = $this->recursion($filters, $definition, MultiFilter::CONNECTION_AND, false, $spillToSubQueries);
 
         $new = [];
         if (\array_key_exists(self::NOT_RELEVANT, $mapped)) {
@@ -62,6 +70,12 @@ class JoinGroupBuilder
 
             foreach ($groups as $path => $groupFilters) {
                 $relevant = \in_array($path, $duplicates, true) || $negated;
+
+                // The criteria does not fit into a single join, so every association
+                // that is only referenced by filters is moved into a sub query.
+                if ($spillToSubQueries && !\in_array($path, $keepJoined, true)) {
+                    $relevant = true;
+                }
 
                 if (!$relevant) {
                     $new = array_merge($new, $groupFilters);
@@ -82,13 +96,40 @@ class JoinGroupBuilder
     }
 
     /**
+     * Returns the path to the first to-many association of the accessor, or null when it traverses none.
+     */
+    public static function findToManyPath(EntityDefinition $definition, string $accessor): ?string
+    {
+        $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $accessor, false);
+
+        // contains later the path to the first to many association
+        $path = [$definition->getEntityName()];
+
+        /** @var Field $field */
+        foreach ($fields as $field) {
+            if (!$field instanceof AssociationField) {
+                break;
+            }
+
+            // if to many not already detected, continue with path building
+            $path[] = $field->getPropertyName();
+
+            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+                return implode('.', $path);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param array<Filter> $filters
      *
      * @return array<string, mixed> Returned array shape looks like this:
      *                              array<string(random-uuid), array{self::NOT_RELEVANT?: list<Filter>, operator: MultiFilter::CONNECTION_*, negated: bool, string(association-name): list<Filter>}>
      *                              `association-name` is different for each call, but such array shape could not be handled by PHPStan, see https://github.com/phpstan/phpstan/issues/8438
      */
-    private function recursion(array $filters, EntityDefinition $definition, string $operator, bool $negated): array
+    private function recursion(array $filters, EntityDefinition $definition, string $operator, bool $negated, bool $spillToSubQueries): array
     {
         $mapped = [];
 
@@ -97,7 +138,7 @@ class JoinGroupBuilder
 
         foreach ($filters as $filter) {
             if ($filter instanceof MultiFilter) {
-                $nested = $this->recursion($filter->getQueries(), $definition, $filter->getOperator(), $filter instanceof NotFilter || $negated);
+                $nested = $this->recursion($filter->getQueries(), $definition, $filter->getOperator(), $filter instanceof NotFilter || $negated, $spillToSubQueries);
                 $mapped = array_merge_recursive($mapped, $nested);
 
                 continue;
@@ -111,7 +152,7 @@ class JoinGroupBuilder
             }
 
             // find the first to many association path
-            $association = $this->findToManyPath($filter, $definition);
+            $association = $this->findToManyPathOfFilter($filter, $definition);
             if ($association === null) {
                 // filters which not point to a to-many association are not relevant
                 $mapped[self::NOT_RELEVANT][] = $filter;
@@ -120,7 +161,7 @@ class JoinGroupBuilder
             }
 
             // checks if the current filter should check if the records has entries for the to many association
-            if ($this->isEmptyFilter($filter)) {
+            if ($this->isEmptyFilter($filter, $spillToSubQueries)) {
                 $mapped[self::NOT_RELEVANT][] = $filter;
 
                 continue;
@@ -137,7 +178,7 @@ class JoinGroupBuilder
         return $mapped;
     }
 
-    private function findToManyPath(SingleFieldFilter $filter, EntityDefinition $definition): ?string
+    private function findToManyPathOfFilter(SingleFieldFilter $filter, EntityDefinition $definition): ?string
     {
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $filter->getField(), false);
 
@@ -145,48 +186,29 @@ class JoinGroupBuilder
             return null;
         }
 
-        // contains later the path to the first to many association
-        $path = [$definition->getEntityName()];
+        $path = self::findToManyPath($definition, $filter->getField());
 
-        $found = false;
-
-        /** @var Field $field */
-        foreach ($fields as $field) {
-            if (!$field instanceof AssociationField) {
-                break;
-            }
-
-            // if to many not already detected, continue with path building
-            $path[] = $field->getPropertyName();
-
-            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
-                $found = true;
-
-                break;
-            }
-        }
         $field = array_pop($fields);
 
         $filter->setIsPrimary($field->is(PrimaryKey::class));
 
-        if ($found) {
-            return implode('.', $path);
-        }
-
-        return null;
+        return $path;
     }
 
-    private function isEmptyFilter(SingleFieldFilter $filter): bool
+    private function isEmptyFilter(SingleFieldFilter $filter, bool $spillToSubQueries): bool
     {
         if (!$filter instanceof EqualsFilter) {
             return false;
         }
 
-        if (!$filter->isPrimary()) {
+        if ($filter->getValue() !== null) {
             return false;
         }
 
-        return $filter->getValue() === null;
+        // A null check has to keep its left join. Inside an `EXISTS` sub query it
+        // would stop matching the records that have no associated row at all,
+        // which is exactly what such a filter looks for.
+        return $spillToSubQueries || $filter->isPrimary();
     }
 
     /**

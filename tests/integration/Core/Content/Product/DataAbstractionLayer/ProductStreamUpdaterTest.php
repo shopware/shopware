@@ -350,6 +350,173 @@ class ProductStreamUpdaterTest extends TestCase
         $this->assertProductIsInStream($productId, $streamId);
     }
 
+    /**
+     * Regression test for https://github.com/shopware/shopware/issues/10770.
+     *
+     * A product stream whose conditions traverse many associations used to produce
+     * the error 1116 ("Too many tables; MariaDB can only use 61 tables in a join")
+     * while indexing, because every condition added its joins to one query. The DAL
+     * now resolves the filter-only associations of such a criteria as `EXISTS` sub
+     * queries, which do not count towards the limit.
+     */
+    public function testIndexingHandlesStreamsWithMoreThanSixtyOneConditions(): void
+    {
+        $streamId = Uuid::randomHex();
+
+        $conditions = $this->buildManyDistinctAssociationConditions();
+        static::assertGreaterThan(61, \count($conditions));
+
+        $writtenEvent = $this->productStreamRepository->create([
+            [
+                'id' => $streamId,
+                'name' => 'large-stream',
+                // Shape the Administration always produces: a root OR container
+                // holding AND groups, see the `getOrContainerData()` /
+                // `getAndContainerData()` helpers of `product-stream-condition.service.js`.
+                'filters' => [
+                    [
+                        'type' => 'multi',
+                        'operator' => 'OR',
+                        'queries' => [
+                            [
+                                'type' => 'multi',
+                                'operator' => 'AND',
+                                'queries' => $conditions,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
+        $update = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $update);
+        $productStreamIndexer->handle($update);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        // Without the fix both calls build a single criteria that joins far more
+        // than 61 tables and throw Doctrine\DBAL\Exception with
+        // SQLSTATE[HY000]: General error: 1116 (Too many tables ...).
+        $message = new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext());
+        $this->productStreamUpdater->handle($message);
+
+        $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
+
+        // The conditions reference relations that do not exist, so the product must
+        // not be mapped - the point is that the stream can be indexed at all.
+        $this->assertProductIsNotInStream($productId, $streamId);
+
+        // ... while a stream the product does match is still indexed correctly
+        $matchingStreamId = $this->createStream([[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $this->productStreamUpdater->handle(
+            new ProductStreamMappingIndexingMessage($matchingStreamId, null, Context::createDefaultContext())
+        );
+
+        $this->assertProductIsInStream($productId, $matchingStreamId);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $conditions
+     */
+    private function createStream(array $conditions): string
+    {
+        $streamId = Uuid::randomHex();
+
+        $writtenEvent = $this->productStreamRepository->create([
+            [
+                'id' => $streamId,
+                'name' => 'stream-' . $streamId,
+                'filters' => $conditions,
+            ],
+        ], Context::createDefaultContext());
+
+        $indexer = static::getContainer()->get(ProductStreamIndexer::class);
+        $message = $indexer->update($writtenEvent);
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
+        $indexer->handle($message);
+
+        return $streamId;
+    }
+
+    private function assertProductIsNotInStream(string $productId, string $streamId): void
+    {
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('streams');
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotContains($streamId, $product->getStreamIds() ?? []);
+    }
+
+    /**
+     * Builds a list of AND conditions whose fields each traverse a DISTINCT
+     * association path. Distinct paths each add their own SQL join(s), so the
+     * full conjunction joins well over 61 tables in a single query — while any
+     * chunk of <= CONDITION_CHUNK_SIZE conditions stays comfortably below the
+     * limit. (Repeating the SAME path would be collapsed into one join / an
+     * EXISTS subquery and would NOT reproduce the issue.)
+     *
+     * The conditions carry a value on purpose. A null check keeps its left join
+     * even when the criteria spills into sub queries, because inside an `EXISTS`
+     * it would stop matching records without the association at all.
+     *
+     * @return list<array<string, string>>
+     */
+    private function buildManyDistinctAssociationConditions(): array
+    {
+        // Each leaf traverses at least one association (and most a translation),
+        // so it contributes one or more joins that cannot be shared with the others.
+        $leaves = [
+            'manufacturer.name',
+            'tax.name',
+            'unit.name',
+            'deliveryTime.name',
+            'cmsPage.name',
+            'featureSet.name',
+            'cover.id',
+            'categories.name',
+            'properties.name',
+            'options.name',
+            'tags.name',
+            'categoriesRo.name',
+            'media.id',
+            'prices.quantityStart',
+            'visibilities.id',
+            'productReviews.id',
+            'mainCategories.id',
+            'seoUrls.id',
+            'crossSellings.id',
+            'configuratorSettings.id',
+        ];
+
+        // Re-root every leaf through self-referencing to-one associations to
+        // multiply the number of distinct paths far beyond the 61-table limit.
+        // The created product has neither a parent nor a canonical product, so
+        // every one of these paths resolves to NULL for it.
+        $prefixes = ['parent.', 'canonicalProduct.', 'parent.parent.', 'canonicalProduct.parent.'];
+
+        $conditions = [];
+        foreach ($prefixes as $prefix) {
+            foreach ($leaves as $leaf) {
+                $conditions[] = [
+                    'type' => 'equals',
+                    'field' => $prefix . $leaf,
+                    'value' => Uuid::randomHex(),
+                ];
+            }
+        }
+
+        return $conditions;
+    }
+
     private function createProduct(string $productId): void
     {
         $this->productRepository->create(

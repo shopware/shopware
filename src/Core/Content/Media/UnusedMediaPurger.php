@@ -242,7 +242,9 @@ class UnusedMediaPurger
     {
         $criteria = new Criteria();
 
-        foreach ($this->mediaRepo->getDefinition()->getFields() as $field) {
+        $fields = $this->mediaRepo->getDefinition()->getFields();
+
+        foreach ($fields as $field) {
             if (!$field instanceof AssociationField) {
                 continue;
             }
@@ -262,6 +264,15 @@ class UnusedMediaPurger
             }
 
             if ($this->isInsideTopLevelDomain(MediaDefinition::ENTITY_NAME, $definition)) {
+                continue;
+            }
+
+            // When a specific folder entity is provided, only check the
+            // association that belongs to that entity. This avoids building
+            // a massive query with LEFT JOINs across all ~25 media
+            // associations, which can exceed MySQL's MAX_JOIN_SIZE on
+            // large datasets.
+            if ($folderEntity !== null && $definition->getEntityName() !== $folderEntity) {
                 continue;
             }
 

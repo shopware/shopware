@@ -390,9 +390,6 @@ function globalErrorHandlingInterceptor(client) {
  * @param {Object} data
  */
 function handleErrorStates({ status, errors, error = null, data }) {
-    // Get $tc for translations and bind the Vue component scope to make it working
-    const viewRoot = Shopware.Application.view.root;
-
     // Handle sync-api errors
     if (status === 400 && (error?.response?.config?.url ?? '').includes('_action/sync')) {
         if (!data) {
@@ -443,12 +440,17 @@ function handleErrorStates({ status, errors, error = null, data }) {
         });
     }
 
+    // Only show the notification after storeSessionExpiredInterceptor has already retried.
+    // storeSessionRequestRetries is set on the config before the retry fires, so it is >= 1
+    // on the final (failed) attempt and undefined on the first attempt that will be retried.
+    // When error is null (sync-api recursive call) there is no retry mechanism, so always show.
     if (
         status === 403 &&
         [
             'FRAMEWORK__STORE_SESSION_EXPIRED',
             'FRAMEWORK__STORE_SHOP_SECRET_INVALID',
-        ].includes(errors[0]?.code)
+        ].includes(errors[0]?.code) &&
+        (error === null || (error?.config?.storeSessionRequestRetries ?? 0) >= 1)
     ) {
         Shopware.Store.get('notification').createNotification({
             variant: 'warning',
@@ -461,7 +463,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 {
                     label: Shopware.Snippet.tc('sw-extension.errors.storeSessionExpired.actionLabel'),
                     method: () => {
-                        viewRoot.$router.push({
+                        Shopware.Application.view.router?.push({
                             name: 'sw.extension.my-extensions.account',
                         });
                     },

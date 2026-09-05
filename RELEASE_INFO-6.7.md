@@ -704,6 +704,29 @@ The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving 
 
 When updating an Elasticsearch/OpenSearch mapping references an analyzer/normalizer that the live index's analysis settings do not define (for example after an update introduced a new analyzer), `putMapping` fails with `analyzer [...] has not been configured in mappings`. Analysis settings are fixed at index creation and cannot be added to a live index, so this is now handled like the other unrecoverable mapping errors: the affected entity is scheduled for a reindex into a freshly created index, which rebuilds it with the current analysis settings instead of leaving the outdated mapping in place.
 
+### Admin search indices go live only after their indexing run finished
+
+`es:admin:index` moved each alias to the newly built index right after it queued the indexing messages, before any of them was handled. Admin search was served by an almost empty index for as long as the queue took to drain, and the index it replaced was deleted in the same step, so there was nothing to fall back to. `admin_elasticsearch_index_task.doc_count` recorded the size of a run but was never read or decremented, so nothing knew how far a run had come.
+
+Admin indexing now follows the same lifecycle as the storefront:
+
+* Every indexing message subtracts its documents from `admin_elasticsearch_index_task.doc_count` after it was written successfully. A batch that fails does not subtract, so a retried or dead-lettered batch leaves the alias on the previous index instead of promoting an incomplete one.
+* A new `shopware.elasticsearch.admin.create.alias` scheduled task runs every five minutes, moves the alias to indices whose remaining count reached zero, and deletes the index each one replaces. `es:admin:index --no-queue` still swaps inside the command, because it handles its messages inline.
+* While a run is in progress an entity has two indices, the one the alias serves and the one being built, and `AdminSearchRegistry::refresh()` writes live updates to both. They previously only reached the index being built, so they were invisible in admin search until the swap.
+* A row of a run that never finished is removed when the entity is indexed again, so its index is no longer recorded as a write target.
+
+Moving an alias adds it to the new index before the index it replaces is deleted, so admin search can briefly see both. That is unchanged.
+
+### `es:status` reports every indexed entity
+
+`es:status` only read the `product` row of `elasticsearch_index_task`, so a running category, manufacturer or custom-entity indexing run was reported as `completed`. It now lists every pending indexing task with its index, alias, remaining document count, and whether it is still indexing or waiting for the alias swap.
+
+The product-specific progress bar is replaced by that remaining count. Its total came from a live `product` count instead of from the recorded task, so it was an approximation and could not be generalised to other entities. `ElasticsearchStatusCommand` no longer needs `ConsoleProgressTrait` because of that; the trait and the `getSubscribedEvents()`, `startProgress()`, `advanceProgress()` and `finishProgress()` methods it adds to the command are deprecated and will be removed in 6.8.
+
+### New `es:admin:status` command
+
+Admin indexing had no status output, and the only indirect signal, the `message_queue_stats` entry for `AdminSearchIndexingMessage`, is gone in 6.8. `bin/console es:admin:status` reports the admin cluster health plus one row per entity with its index, alias, remaining document count, and whether it is live, still indexing, or waiting for its alias swap.
+
 ### Built-in translation system configurable via `shopware.translation`
 
 The built-in translation system's configuration (previously only editable by decorating `AbstractTranslationConfigLoader`) can now be overridden through the standard Symfony configuration in `config/packages`. Add a `shopware.translation` section to override individual options; any option left unset falls back to the shipped defaults in `translation.yaml`:

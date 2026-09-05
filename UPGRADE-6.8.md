@@ -41,6 +41,9 @@ Nothing is removed from the `Shopware.Component` global — generated component 
 Write native setup SFCs instead. The build-time transform emits these calls for you: a base component (`sw-thing.vue`) keeps its `<script setup>` body and gains a generated `attachOverrides(...)` footer, and an override (`sw-thing.override.vue`) registers its callback through `overrideComponentSetup()`. Extension points are declared with `swDefinePublic({ ... })` in the base and consumed with `swDefineOverride({ ... })` in the override.
 
 See `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md` for the authoring rules.
+## `es:status` no longer renders a progress bar
+
+`Shopware\Elasticsearch\Framework\Command\ElasticsearchStatusCommand` stops using `ConsoleProgressTrait`. The `getSubscribedEvents()`, `startProgress()`, `advanceProgress()` and `finishProgress()` methods it provided are removed. The command never registered as an event subscriber, so those methods never ran; the remaining document count per entity replaces the progress bar.
 
 ## Locale-aware sorting for product property group options
 

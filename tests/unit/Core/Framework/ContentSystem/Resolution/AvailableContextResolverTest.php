@@ -344,10 +344,10 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('does not back an ancestor provider from a dotted root-scoped consumer that carries no property alias')]
     public function testDottedRootScopedConsumerWithoutAPropertyAliasBacksNoProvider(): void
     {
-        // The landing key is compared verbatim, and this is the shape that makes the difference visible. The
-        // consumer resolves through the ambient `product` and lands its value under the FULL key
-        // `product.manufacturer`, so the provider reading `product` finds nothing at render. Comparing only the
-        // landing key's first segment would call this backed and feed a downstream consumer from nowhere.
+        // The property key the consumer writes is compared verbatim, and this is the shape that makes the
+        // difference visible. The consumer resolves through the ambient `product` and writes its value under
+        // the FULL key `product.manufacturer`, so the provider reading `product` finds nothing at render.
+        // Comparing only the base key would call this backed and feed a downstream consumer from nowhere.
         $child = new StoredElement('child-1', 'Sw:Block');
         $root = new StoredElement(
             'root-1',
@@ -395,7 +395,7 @@ class AvailableContextResolverTest extends TestCase
     #[TestDox('does not back an ancestor provider whose root-scoped consumer names a key the bound source does not supply')]
     public function testAmbientContextDoesNotBackAProviderWhoseConsumerKeyNoAmbientEntrySupplies(): void
     {
-        // The consumer lands on the provider's own key, so the landing rule alone would accept it, but it asks
+        // The consumer writes the provider's own key, so the written-key rule alone would accept it, but it asks
         // for `category` while the bound source supplies `product`. Nothing is delivered to this ancestor at
         // render time and its provider stays unbacked. The FQCNs match either way, which is precisely what the
         // type-only judgment this replaces went on.

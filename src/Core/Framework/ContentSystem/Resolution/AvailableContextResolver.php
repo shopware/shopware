@@ -167,16 +167,16 @@ class AvailableContextResolver
 
     /**
      * The ambient entries this element can receive UNDER the provider key being judged. An entry counts only
-     * where the element declares a {@see ConsumerScope::Root} consumer whose landing key is exactly that
-     * provider key and whose consumer key the entry supplies, matched with {@see ContextPathResolver::matches()}
+     * where the element declares a {@see ConsumerScope::Root} consumer that writes exactly that provider key
+     * and whose consumer key the entry supplies, matched with {@see ContextPathResolver::matches()}
      * so a consumer hanging below the ambient key as a dot path counts as delivery resolves it.
      *
-     * Both halves mirror runtime, and the landing key is compared VERBATIM because runtime writes it verbatim.
-     * An ambient value reaches an element only through that element's own root-scoped consumers
-     * (ContextDeliveryResolver's overlay), landing under `propertyAlias ?? consumerKey`, and a provider reads
-     * its own key off the working map (ContextDistributor's null gate skips a provider whose key holds
-     * nothing). So a dotted consumer carrying no alias lands under its full dotted key, which no provider key
-     * reads, and comparing only that key's first segment would back a provider render leaves unfed. Judging
+     * Both halves mirror runtime, and the property key the consumer writes is compared VERBATIM because
+     * runtime writes it verbatim. An ambient value reaches an element only through that element's own
+     * root-scoped consumers (ContextDeliveryResolver's overlay), delivered under `propertyAlias ?? consumerKey`,
+     * and a provider reads its own key off the working map (ContextDistributor's null gate skips a provider
+     * whose key holds nothing). So a dotted consumer carrying no alias writes its full dotted key, which no
+     * provider key reads, and comparing only that key's base segment would back a provider render leaves unfed. Judging
      * against the whole ambient set instead backs a consumer-less ancestor's provider on a bare FQCN match,
      * and that phantom exposure then satisfies a required parent-scope consumer downstream that render never
      * feeds.

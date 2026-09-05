@@ -118,15 +118,16 @@ final readonly class ContextDeliveryResolver
      *
      * Matching is the rule parent delivery uses, against ambient keys instead of provider keys: a consumer
      * key matching an ambient key exactly takes the value as it stands, and one hanging below it as a dot
-     * path resolves through it. Landing key is `propertyAlias ?? consumerKey`, again as in parent delivery.
+     * path resolves through it. The value is delivered under `propertyAlias ?? consumerKey`, again as in
+     * parent delivery.
      *
      * An ambient `null` delivers nothing and writes no key, matching the provider null gate in
      * {@see ContextDistributor::distribute()}: a key absent from a delivery is one nothing delivered, and an
      * ambient null must not be turned into the present null that means a resolution ran and found nothing.
      *
-     * Root-scoped writes land after the parent's, so they win a shared landing key. Nothing can produce that
-     * collision today (`WiringPlanner::validatePropertyAliases()` makes an element's landing keys unique
-     * across both scopes), so the order is defensive rather than a rule anything relies on.
+     * Root-scoped writes run after the parent's, so they win a shared property key. Nothing can produce that
+     * collision today (`WiringPlanner::validatePropertyAliases()` makes the base keys an element's consumers
+     * write unique across both scopes), so the order is defensive rather than a rule anything relies on.
      *
      * @param array<string, mixed> $ambientContext
      */

@@ -1,0 +1,67 @@
+{# ludtwig-ignore-file #}
+{# @sw-package discovery #}
+{# @internal #}
+
+{% props
+    product = null,
+    newTab = false,
+    preview = false,
+%}
+
+{% set manufacturerCVA = cva({
+    base: 'sw-product-manufacturer',
+}) %}
+
+<div class="{{ manufacturerCVA.apply({}, attributes.render('class')) }}" {{ attributes.defaults({}) }}>
+    {% if product is null or product.manufacturer is null %}
+        {% block fallback %}
+            {% if preview %}
+                {{ 'detail.manufacturerUnavailable'|trans|sw_sanitize }}
+            {% endif %}
+        {% endblock %}
+    {% else %}
+        {% set manufacturer = product.manufacturer %}
+
+        {% set manufacturerName = manufacturer.translated.name %}
+        {% set manufacturerLink = manufacturer.translated.link %}
+        {% set manufacturerLinkHasScheme = manufacturerLink matches '/^[a-zA-Z][a-zA-Z0-9+.-]*:/' or manufacturerLink starts with '/' %}
+        {% set manufacturerLinkHref = manufacturerLink ? (manufacturerLinkHasScheme ? manufacturerLink : 'https://' ~ manufacturerLink) : null %}
+
+        {% set linkAttributes = {
+            href: manufacturerLinkHref,
+            class: 'sw-product-manufacturer__link',
+        } %}
+
+        {% if newTab %}
+            {% set linkAttributes = linkAttributes|merge({
+                target: '_blank',
+                rel: 'noreferrer noopener',
+            }) %}
+        {% endif %}
+
+        {% block link %}
+            {% if manufacturerLinkHref %}
+                <a {{ attributes.nested('link').defaults(linkAttributes) }}>
+            {% endif %}
+
+            {% if manufacturer.media %}
+                {% block media %}
+                    <twig:Sw:Media:Image
+                        {{ ...attributes.nested('image').defaults({ class: 'sw-product-manufacturer__image' }) }}
+                        :media="manufacturer.media"
+                        :alt="manufacturerName"
+                        sizes="200px"
+                    />
+                {% endblock %}
+            {% else %}
+                {% block name %}
+                    <span {{ attributes.nested('name').defaults({ class: 'sw-product-manufacturer__name' }) }}>{{ manufacturerName }}</span>
+                {% endblock %}
+            {% endif %}
+
+            {% if manufacturerLinkHref %}
+                </a>
+            {% endif %}
+        {% endblock %}
+    {% endif %}
+</div>

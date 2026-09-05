@@ -7,6 +7,10 @@
 {% set elementProperties = element.properties %}
 {% set elementProperties = elementProperties|merge({ 'data-element-id': element.id }) %}
 
+{% if app.request.attributes.get('_route') === 'frontend.content-system.preview' %}
+    {% set elementProperties = elementProperties|merge({ preview: true }) %}
+{% endif %}
+
 {% if element.slots is not empty %}
     {% set elementProperties = elementProperties|merge({ slots: element.slots }) %}
 {% endif %}

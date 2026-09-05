@@ -54,13 +54,13 @@ type ContentLayoutDraftMutationDiagnostics = {
 };
 
 /**
- * How a reference property is (or could be) filled: `parent` (an ancestor/root context), `loader` (a data
- * loader), or `stored` (the element's own applied wiring).
+ * How a reference property is (or could be) filled: `parent` (an ancestor's provider), `root` (the layout's
+ * root-ambient context), `loader` (a data loader), or `stored` (the element's own applied wiring).
  *
  * @private
  */
 export type ContentSystemResolutionCandidate = {
-    origin: 'parent' | 'loader' | 'stored';
+    origin: 'parent' | 'root' | 'loader' | 'stored';
     contextKey: string | null;
     providerElementId: string | null;
     path: string | null;

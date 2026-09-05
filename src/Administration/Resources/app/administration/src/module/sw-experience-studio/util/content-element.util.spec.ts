@@ -141,6 +141,32 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
             candidates: [],
         });
 
+        const root = (
+            key: string,
+            contextKey: string,
+            contextType: 'single' | 'collection',
+            required: boolean,
+        ): ContentSystemPropertyResolution => ({
+            key,
+            kind: 'reference',
+            required,
+            type: null,
+            default: null,
+            fqcn: 'App\\Entity',
+            resolved: {
+                origin: 'root',
+                contextKey,
+                providerElementId: null,
+                path: null,
+                distribution: 'broadcast',
+                contextType,
+                loaderSource: null,
+                configTemplate: null,
+                configComplete: false,
+            },
+            candidates: [],
+        });
+
         const nonParent = (
             key: string,
             resolved: ContentSystemPropertyResolution['resolved'],
@@ -226,6 +252,50 @@ describe('module/sw-experience-studio/util/content-element.util', () => {
                 {
                     e1: [parent('product', 'product', 'single', true)],
                     e2: [parent('product', 'product', 'single', true)],
+                },
+            );
+
+            expect(withConsumer.acceptsContext).toEqual(authored);
+            expect(withRequirement.acceptsContext).toBeUndefined();
+        });
+
+        it('writes a root-scoped consumer for each root-resolved property', () => {
+            const price: ContentElementNode = { id: 'p1', component: 'Sw:Product:PriceDisplay' };
+
+            applyResolvedContextConsumers([price], {
+                p1: [
+                    root('product', 'product', 'single', true),
+                    root('reviews', 'reviews', 'collection', false),
+                ],
+            });
+
+            expect(price.acceptsContext).toEqual({
+                product: { type: 'single', required: true, scope: 'root' },
+                reviews: { type: 'collection', required: false, scope: 'root' },
+            });
+        });
+
+        it('never overrides authored wiring for a root-resolved property', () => {
+            const authored = { product: { type: 'single', required: true, propertyAlias: 'item' } };
+            const withConsumer: ContentElementNode = {
+                id: 'e1',
+                component: 'Sw:Test',
+                acceptsContext: cloneDeep(authored),
+            };
+            const withRequirement: ContentElementNode = {
+                id: 'e2',
+                component: 'Sw:Test',
+                dataRequirements: { product: { source: 'entity', config: { entityName: 'product', id: 'abc' } } },
+            };
+
+            applyResolvedContextConsumers(
+                [
+                    withConsumer,
+                    withRequirement,
+                ],
+                {
+                    e1: [root('product', 'product', 'single', true)],
+                    e2: [root('product', 'product', 'single', true)],
                 },
             );
 

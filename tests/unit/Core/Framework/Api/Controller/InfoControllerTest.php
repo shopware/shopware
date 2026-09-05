@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
@@ -21,7 +22,9 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
@@ -29,6 +32,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -119,6 +123,59 @@ class InfoControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    #[TestDox('returns one root-source entry per known root source, in order, with its kind and provided context')]
+    public function testContentSystemRootSources(): void
+    {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
+        $rootSourceRegistry = static::createStub(RootSourceRegistry::class);
+        $rootSourceRegistry->method('knownRootSources')->willReturn(['product', 'header', 'none']);
+        $rootSourceRegistry->method('entityRootSources')->willReturn(['product']);
+        $rootSourceRegistry->method('resolve')->willReturnCallback(
+            static fn (string $rootSource): array => $rootSource === 'product' ? [new ProvidedContext(
+                contextKey: 'product',
+                fqcn: SalesChannelProductEntity::class,
+                contextType: ContextType::Single,
+                providerElementId: null,
+                distribution: DistributionStrategy::Broadcast,
+                path: null,
+                root: true,
+            )] : []
+        );
+
+        $controller = $this->createController(rootSourceRegistry: $rootSourceRegistry);
+        $response = $controller->contentSystemRootSources(Context::createDefaultContext());
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        static::assertSame([
+            'rootSources' => [
+                [
+                    'id' => 'product',
+                    'kind' => 'entity',
+                    'providedContext' => [[
+                        'contextKey' => 'product',
+                        'fqcn' => SalesChannelProductEntity::class,
+                        'contextType' => 'single',
+                        'distribution' => 'broadcast',
+                    ]],
+                ],
+                [
+                    'id' => 'header',
+                    'kind' => 'section',
+                    'providedContext' => [],
+                ],
+                [
+                    'id' => 'none',
+                    'kind' => 'none',
+                    'providedContext' => [],
+                ],
+            ],
+        ], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     #[TestDox('returns the registered style options keyed by wire name with their derived schema')]

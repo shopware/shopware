@@ -140,6 +140,71 @@ class AdminProductStreamControllerTest extends TestCase
         static::assertNotContains('v.2.2', $names);
     }
 
+    public function testRepeatedPropertyFiltersInAndPreview(): void
+    {
+        $this->ids->create('rot');
+        $this->ids->create('grün');
+
+        $data = [
+            'page' => 1,
+            'limit' => 25,
+            'filter' => [
+                [
+                    'field' => null,
+                    'type' => 'multi',
+                    'operator' => 'OR',
+                    'value' => null,
+                    'parameters' => null,
+                    'queries' => [
+                        [
+                            'field' => null,
+                            'type' => 'multi',
+                            'operator' => 'AND',
+                            'value' => null,
+                            'parameters' => null,
+                            'queries' => [
+                                [
+                                    'field' => 'properties.id',
+                                    'type' => 'equals',
+                                    'operator' => null,
+                                    'value' => $this->ids->get('rot'),
+                                    'parameters' => null,
+                                    'queries' => [],
+                                ],
+                                [
+                                    'field' => 'properties.id',
+                                    'type' => 'equalsAny',
+                                    'operator' => null,
+                                    'value' => $this->ids->get('grün'),
+                                    'parameters' => null,
+                                    'queries' => [],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_admin/product-stream-preview/' . TestDefaults::SALES_CHANNEL,
+            $data
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(3, $content['elements']);
+        $names = array_column($content['elements'], 'name');
+        static::assertContains('v.1.1', $names);
+        static::assertContains('v.1.2', $names);
+        static::assertNotContains('v.2.1', $names);
+        static::assertNotContains('v.2.2', $names);
+    }
+
     private function prepareTestData(): void
     {
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');

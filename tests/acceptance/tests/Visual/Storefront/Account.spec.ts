@@ -15,14 +15,8 @@ test.skip(
         Login,
     }) => {
         const countryId = await DefaultSalesChannel.salesChannel.countryId;
-        const salutationId = await DefaultSalesChannel.salesChannel.salutationId;
+        const salutation = await TestDataService.getSalutation();
         const customer = await TestDataService.createCustomer({
-            firstName: 'John',
-            lastName: 'Goldblum',
-            customerNumber: '12345',
-            email: 'johngoldblum@example.com',
-            password: 'shopware',
-            createdAt: '2025-09-04T06:36:38.101+00:00',
             defaultShippingAddress: {
                 firstName: 'John',
                 lastName: 'Doe',
@@ -30,7 +24,7 @@ test.skip(
                 street: 'Ebbinghoff 10',
                 zipcode: '48624',
                 countryId: countryId,
-                salutationId: salutationId,
+                salutationId: salutation.id,
             },
             defaultBillingAddress: {
                 firstName: 'John',
@@ -39,7 +33,7 @@ test.skip(
                 street: 'Ebbinghoff 10',
                 zipcode: '48624',
                 countryId: countryId,
-                salutationId: salutationId,
+                salutationId: salutation.id,
             },
         });
 

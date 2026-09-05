@@ -12,6 +12,9 @@ inputs:
   coverage:
     default: "false"
     description: "Run with cobertura coverage (written to coverage.xml for ./.github/actions/phpunit-upload)"
+  phpunit-options:
+    default: ""
+    description: "Extra CLI options appended to the PHPUnit call (preview: `--display-phpunit-notices` on the PHPUnit 12 arm; PHPUnit 11 does not know the flag)"
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
 # inherit it, so this action stays flag-agnostic. Environment setup (PHP, database, webserver, test install)
@@ -23,9 +26,9 @@ runs:
     - name: Run PHPUnit testsuite
       if: ${{ inputs.test-testsuite != '' }}
       shell: bash
-      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} --testsuite "${{ inputs.test-testsuite }}"
+      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} ${{ inputs.phpunit-options }} --testsuite "${{ inputs.test-testsuite }}"
 
     - name: Run PHPUnit path
       if: ${{ inputs.test-path != '' }}
       shell: bash
-      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} -- tests/integration/${{ inputs.test-path }}
+      run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml ${{ inputs.coverage == 'true' && '--coverage-cobertura coverage.xml' || '' }} ${{ inputs.phpunit-options }} -- tests/integration/${{ inputs.test-path }}

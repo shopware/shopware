@@ -13,7 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -23,12 +25,86 @@ use Shopware\Core\System\Language\LanguageDefinition;
 class PrimaryKeyResolver
 {
     /**
+     * The primary keys resolved by {@see warmUp()}, as entity name => update-by value => id.
+     *
+     * Only records that already existed when the window was announced are in here. A value without a record must not
+     * be remembered: a row of the same window may still create it, and the rows behind that one have to find it.
+     *
+     * @var array<string, array<string, string>>
+     */
+    private array $resolvedPrimaryKeys = [];
+
+    /**
      * @internal
      */
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         private readonly AbstractFieldSerializer $fieldSerializer
     ) {
+    }
+
+    /**
+     * Resolves the primary keys of a whole window of records with one query, so that
+     * {@see resolvePrimaryKeyFromUpdatedBy()} does not have to look up one record at a time.
+     *
+     * Only an update-by field that is a plain field of the entity can be batched: its value has to be read back next
+     * to the id to map the rows onto the records, which is not possible for a path into an association such as
+     * `translations.DEFAULT.name`. Those keep resolving per record, as do the values that have no record yet.
+     *
+     * @param list<array<string, mixed>> $records
+     */
+    public function warmUp(Config $config, ?EntityDefinition $definition, array $records): void
+    {
+        if (!$definition || $records === []) {
+            return;
+        }
+
+        $updateByField = $config->getUpdateBy()->get($definition->getEntityName())?->getMappedKey();
+
+        if ($updateByField === null || $updateByField === '' || str_contains($updateByField, '.')) {
+            return;
+        }
+
+        $field = $definition->getField($updateByField);
+
+        if ($field === null || $field instanceof IdField) {
+            return;
+        }
+
+        $context = Context::createDefaultContext();
+        $entityName = $definition->getEntityName();
+
+        // Only the current window is kept: a later window has to see the records the windows before it wrote, so a
+        // value that had no record must not stay unresolved for the rest of the import.
+        $this->resolvedPrimaryKeys = [];
+
+        $values = [];
+        foreach ($records as $record) {
+            $value = $record[$updateByField] ?? null;
+
+            if ($value === null) {
+                continue;
+            }
+
+            $value = $this->fieldSerializer->deserialize($config, $field, $value);
+
+            if (\is_scalar($value)) {
+                $values[(string) $value] = true;
+            }
+        }
+
+        if ($values === []) {
+            return;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter($updateByField, array_keys($values)));
+        $criteria->addFields([$updateByField]);
+
+        foreach ($this->definitionInstanceRegistry->getRepository($entityName)->search($criteria, $context)->getEntities() as $entity) {
+            \assert($entity instanceof PartialEntity);
+            $this->resolvedPrimaryKeys[$entityName][(string) $entity->get($updateByField)] = (string) $entity->get('id');
+        }
     }
 
     /**
@@ -109,6 +185,15 @@ class PrimaryKeyResolver
             $updateByValue = $this->fieldSerializer->deserialize($config, $field, $updateByValue);
         }
 
+        $resolved = $this->resolvedPrimaryKeys[$definition->getEntityName()] ?? [];
+
+        // already resolved for the whole window by warmUp()
+        if (\is_scalar($updateByValue) && isset($resolved[(string) $updateByValue])) {
+            $record[$primaryKeyProperty] = $resolved[(string) $updateByValue];
+
+            return $record;
+        }
+
         $criteria->addFilter(new EqualsFilter(
             $updateByField,
             $updateByValue
@@ -161,7 +246,8 @@ class PrimaryKeyResolver
             return implode('.', $updateByFieldPath);
         }
 
-        if (empty($updateByFieldPath[1])) {
+        // a translated update-by field needs the locale of the translation, e.g. `translations.DEFAULT.name`
+        if (($updateByFieldPath[1] ?? '') === '') {
             return null;
         }
 
@@ -206,7 +292,7 @@ class PrimaryKeyResolver
             $updatedBy = $config->getUpdateBy()->get($manyToManyDefinition->getEntityName());
             $record = \is_array($record) ? $record : iterator_to_array($record);
 
-            if (!$updatedBy || empty($record[$field->getPropertyName()])) {
+            if (!$updatedBy || ($record[$field->getPropertyName()] ?? '') === '') {
                 continue;
             }
 

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Scaffolding;
 
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
@@ -27,6 +29,7 @@ final class StoredTreePreparer
     public function __construct(
         private readonly VirtualRootWrapper $virtualRootWrapper,
         private readonly PartialRenderer $partialRenderer,
+        private readonly DataLoaderConfigSerializerProvider $configSerializers,
     ) {
     }
 
@@ -129,10 +132,11 @@ final class StoredTreePreparer
     }
 
     /**
-     * Rewrites the string values of an element's own property map and recurses into its slot children.
+     * Rewrites the string values of an element's own property map, resolves the placeholders in each of its
+     * data requirement's loader config, and recurses into its slot children.
      *
-     * A list or map value is handed on untouched, string leaves inside it included: a placeholder is a
-     * property of the authored value, and reaching into a container would resolve tokens the authoring
+     * A list or map property value is handed on untouched, string leaves inside it included: a placeholder is
+     * a property of the authored value, and reaching into a container would resolve tokens the authoring
      * surface never offered to resolve.
      */
     private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values): StoredElement
@@ -144,6 +148,19 @@ final class StoredTreePreparer
                 : $value;
         }
 
+        $dataRequirements = [];
+        foreach ($element->dataRequirements as $key => $requirement) {
+            $dataRequirements[$key] = new DataRequirement(
+                $requirement->key,
+                $requirement->source,
+                $this->configSerializers->decode(
+                    $requirement->source,
+                    $this->configSerializers->encode($requirement->source, $requirement->config),
+                    $values,
+                ),
+            );
+        }
+
         $slots = [];
         foreach ($element->slots as $slotName => $children) {
             $slots[$slotName] = array_map(
@@ -152,7 +169,7 @@ final class StoredTreePreparer
             );
         }
 
-        return $element->withProperties($properties)->withSlots($slots);
+        return $element->withProperties($properties)->withDataRequirements($dataRequirements)->withSlots($slots);
     }
 
     /**

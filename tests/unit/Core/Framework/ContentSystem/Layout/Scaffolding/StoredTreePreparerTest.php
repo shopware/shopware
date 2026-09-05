@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -263,11 +264,50 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('Product {{productId}}', $prepared[0]->property('title')?->asString());
     }
 
-    private function preparer(): StoredTreePreparer
+    #[TestDox('resolves the placeholders in an element data requirement loader config, keyed by the requirement source')]
+    public function testPrepareResolvesDataRequirementConfig(): void
+    {
+        $element = new StoredElement('root-id', 'breadcrumb', [
+            'breadcrumb' => new DataRequirement('breadcrumb', 'breadcrumb', new LanguageLoaderConfig()),
+        ]);
+
+        $decoded = new LanguageLoaderConfig();
+        $capturedSource = null;
+        $capturedData = null;
+        $capturedValues = null;
+
+        $serializers = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $serializers->method('encode')->willReturn(['type' => '{{entityType}}']);
+        $serializers->method('decode')->willReturnCallback(
+            function (string $source, array $data, ?PlaceholderValues $values) use (&$capturedSource, &$capturedData, &$capturedValues, $decoded) {
+                $capturedSource = $source;
+                $capturedData = $data;
+                $capturedValues = $values;
+
+                return $decoded;
+            }
+        );
+
+        $placeholderValues = PlaceholderValues::from(['entityType' => 'category']);
+
+        $prepared = $this->preparer($serializers)->prepare(
+            [$element],
+            new RenderingSpecification([], $placeholderValues, new Request()),
+            RenderingMode::FULL,
+        )->tree;
+
+        static::assertSame('breadcrumb', $capturedSource);
+        static::assertSame(['type' => '{{entityType}}'], $capturedData);
+        static::assertSame($placeholderValues, $capturedValues);
+        static::assertSame($decoded, $prepared[0]->dataRequirements['breadcrumb']->config);
+    }
+
+    private function preparer(?DataLoaderConfigSerializerProvider $configSerializers = null): StoredTreePreparer
     {
         return new StoredTreePreparer(
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            $configSerializers ?? static::createStub(DataLoaderConfigSerializerProvider::class),
         );
     }
 

@@ -72,6 +72,8 @@ class ContentPipelineTest extends TestCase
 {
     private ElementLowering $lowering;
 
+    private DataLoaderConfigSerializerProvider $configSerializers;
+
     private EventDispatcherInterface&Stub $eventDispatcher;
 
     private IdsCollection $ids;
@@ -876,6 +878,7 @@ class ContentPipelineTest extends TestCase
         $preparation = (new StoredTreePreparer(
             $wrapper,
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
         ))->prepare($layout->elements, $specification, RenderingMode::SKELETON);
 
         // Fixture guard, and what makes the order observable at all: both finishing steps are live, because
@@ -1247,6 +1250,7 @@ class ContentPipelineTest extends TestCase
             new StoredTreePreparer(
                 new VirtualRootWrapper(),
                 new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+                $this->configSerializers,
             ),
             new WiringPlanner(new ProviderDeliveryKeyResolver()),
             $this->lowering,
@@ -1277,12 +1281,14 @@ class ContentPipelineTest extends TestCase
             $serializers[$source] = static fn (): StubLoaderConfigSerializer => new StubLoaderConfigSerializer();
         }
 
+        $this->configSerializers = new DataLoaderConfigSerializerProvider(new ServiceLocator($serializers));
+
         return new ElementLowering(
             new ElementDataResolver(
                 new DataLoaderProvider(new ServiceLocator($factories)),
                 new LoaderInputResolver(),
                 new LoaderValueIdentityFactory(
-                    new DataLoaderConfigSerializerProvider(new ServiceLocator($serializers)),
+                    $this->configSerializers,
                     new ConfigCanonicalizer(),
                     new ValueFingerprinter(),
                 ),

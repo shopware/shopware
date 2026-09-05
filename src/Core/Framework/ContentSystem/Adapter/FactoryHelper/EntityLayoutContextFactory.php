@@ -104,6 +104,7 @@ class EntityLayoutContextFactory
         return new SpecificationData(
             dataRequirements: array_values($definition->getPageDataRequirements()),
             placeholderValues: $this->layoutResolver->resolvePlaceholders(
+                $definition->getContentLayoutEntityType(),
                 $definition->getContentLayoutEntityIdField(),
                 $entityId,
                 $request,

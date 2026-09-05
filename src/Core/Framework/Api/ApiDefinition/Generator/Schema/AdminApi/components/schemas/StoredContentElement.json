@@ -63,7 +63,7 @@
                     },
                     "acceptsContext": {
                         "type": "object",
-                        "description": "Context this element receives from its ancestors, keyed by context key. Omitted when the element consumes no context.",
+                        "description": "Context this element receives, keyed by context key. Each entry's `scope` names where the value comes from: the context an ancestor provides (`parent`, the default), or the layout's root-ambient context (`root`). Omitted when the element consumes no context.",
                         "additionalProperties": {
                             "$ref": "#/components/schemas/ContentElementContextConsumer"
                         }
@@ -172,7 +172,7 @@
             "ContentElementContextConsumer": {
                 "title": "Content element context consumer",
                 "type": "object",
-                "description": "Declares a context value an element receives from its ancestors. The received value is written into the element property named by the context key (or `propertyAlias` when set).",
+                "description": "Declares a context value an element receives, from an ancestor (`scope` `parent`, the default) or from the layout's root-ambient context (`scope` `root`). The received value is written into the element property named by the context key (or `propertyAlias` when set).",
                 "required": ["type", "required"],
                 "properties": {
                     "type": {
@@ -196,6 +196,12 @@
                     "propertyAlias": {
                         "type": ["string", "null"],
                         "description": "Optional element property name the received value is stored under, instead of the context key. Must not contain a dot."
+                    },
+                    "scope": {
+                        "type": "string",
+                        "enum": ["parent", "root"],
+                        "description": "Where the consumed value comes from: `parent` matches the context an ancestor provides, `root` matches the layout's root-ambient context. Defaults to `parent` when absent, and is present on output only when `root`. Cannot be combined with `redistribute` being `true`: a root-scoped consumer has nothing to relay.",
+                        "example": "root"
                     }
                 }
             }

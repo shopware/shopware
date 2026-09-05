@@ -647,9 +647,10 @@ class LayoutDiagnostics
             $candidates,
             // Stored never reaches this filter: ElementResolver never adds a Stored candidate to
             // PropertyResolution::candidates (it is only ever the resolved pick). The arm exists solely to
-            // keep this match exhaustive over the three-case CandidateOrigin enum.
+            // keep this match exhaustive over the four-case CandidateOrigin enum.
             static fn (ResolutionCandidate $candidate): bool => match ($candidate->origin) {
                 CandidateOrigin::Parent => true,
+                CandidateOrigin::Root => true,
                 CandidateOrigin::Loader => $candidate->configComplete,
                 CandidateOrigin::Stored => false,
             },

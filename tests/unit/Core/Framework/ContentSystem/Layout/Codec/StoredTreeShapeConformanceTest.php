@@ -361,6 +361,66 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
+        // The consumer scope, whose accepted and rejected rows sit one edit apart on the scope axis alone.
+        // A null row is carried beside the out-of-enum row because Symfony's Choice skips null the way Type
+        // and Collection do, so only an explicit NotNull keeps the descriptor from admitting what decode
+        // rejects.
+        yield 'a root-scoped consumer' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => 'root'],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a consumer declaring the parent scope explicitly' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => 'parent'],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a root-scoped consumer keyed by a dotted path' => [
+            self::forest(['acceptsContext' => [
+                'product.cover' => ['type' => 'single', 'required' => true, 'scope' => 'root'],
+            ]]),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a root-scoped consumer that also redistributes' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'scope' => 'root'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a consumer scope outside the enum' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => 'ancestor'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a non-string consumer scope' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => 42],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
+        yield 'a null consumer scope' => [
+            self::forest(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'scope' => null],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
         // The element-local wiring tier: each rule judges one element's consumer map against itself or against
         // that element's own provider map, so both sides can and must state it. Each rejected row is paired
         // with the accepted sibling one edit away on the tested axis alone.

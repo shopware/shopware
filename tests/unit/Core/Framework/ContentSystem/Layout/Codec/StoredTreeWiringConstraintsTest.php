@@ -360,6 +360,28 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
             '[0][acceptsContext][items][propertyAlias]',
             'This value should be a simple property name without dot notation.',
         ];
+
+        yield 'a root-scoped consumer that also redistributes' => [
+            ['acceptsContext' => [
+                'items' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'scope' => 'root'],
+            ]],
+            '[0][acceptsContext][items][scope]',
+            'This value must not be combined with "redistribute" set to true.',
+        ];
+
+        // Choice skips a null the way Type and Collection do, so the field's own NotNull is what keeps a
+        // written null out of the write. Without it the descriptor would admit a payload decode refuses.
+        yield 'a null consumer scope' => [
+            ['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'scope' => null]]],
+            '[0][acceptsContext][items][scope]',
+            'This value should not be null.',
+        ];
+
+        yield 'a consumer scope outside the enum' => [
+            ['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'scope' => 'ancestor']]],
+            '[0][acceptsContext][items][scope]',
+            'The value you selected is not a valid choice.',
+        ];
     }
 
     /**
@@ -477,6 +499,24 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
             ],
         ];
 
+        yield 'a root-scoped consumer that does not redistribute' => [
+            ['acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'scope' => 'root']]],
+        ];
+
+        // The scope rule reads `redistribute`, so a parent-scoped consumer that does redistribute is the
+        // sibling one edit away from the rejected row and proves the rule is not judged on `redistribute`
+        // alone.
+        yield 'a redistributing consumer declaring the parent scope explicitly' => [
+            ['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'scope' => 'parent'],
+            ]],
+        ];
+
+        // Dot notation in the context key is a path into the root struct here, which the scope leaves alone.
+        yield 'a root-scoped consumer keyed by a dotted path' => [
+            ['acceptsContext' => ['product.cover' => ['type' => 'single', 'required' => true, 'scope' => 'root']]],
+        ];
+
         yield 'a consumer alias equal to an authored provider key' => [
             [
                 'providesContext' => [
@@ -514,6 +554,23 @@ class StoredTreeWiringConstraintsTest extends StoredTreeConstraintsTestCase
             ]],
             [
                 '[0][acceptsContext][product.manufacturer]',
+                '[0][acceptsContext][product.manufacturer][redistribute]',
+            ],
+        ];
+
+        // The codec's counterpart stops at the combination tier's scope rule; the descriptor owes the dotted
+        // redistribute key beside it, so the writer sees both edits at once.
+        yield 'a root-scoped consumer redistributing under a dotted key' => [
+            ['acceptsContext' => [
+                'product.manufacturer' => [
+                    'type' => 'single',
+                    'required' => true,
+                    'redistribute' => true,
+                    'scope' => 'root',
+                ],
+            ]],
+            [
+                '[0][acceptsContext][product.manufacturer][scope]',
                 '[0][acceptsContext][product.manufacturer][redistribute]',
             ],
         ];

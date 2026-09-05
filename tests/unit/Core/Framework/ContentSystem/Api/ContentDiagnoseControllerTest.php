@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
@@ -293,6 +294,7 @@ class ContentDiagnoseControllerTest extends TestCase
             $mapResolver,
             static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(AbstractContentSystemStyleOptionRegistry::class),
+            new ContextPathResolver(),
         );
     }
 

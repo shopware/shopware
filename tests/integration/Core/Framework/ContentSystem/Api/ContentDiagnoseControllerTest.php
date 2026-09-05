@@ -124,6 +124,52 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertArrayHasKey('resolvable', $body['diagnostics']);
     }
 
+    #[TestDox('serves a root-ambient candidate as origin root with a null provider element id at every depth, beside the ancestor-provided parent candidate')]
+    public function testDiagnoseServesRootAndParentOriginsForANestedElement(): void
+    {
+        // Sw:Product:PriceDisplay declares a SalesChannelProductEntity `product` property, and the `product`
+        // root source supplies exactly that FQCN as root-ambient context, so both elements are offered it. The
+        // root element additionally provides its own `product` downstream, which is what puts a second,
+        // element-addressed candidate beside the ambient one on the child.
+        $rootId = $this->ids->get('provider-root');
+        $childId = $this->ids->get('nested-child');
+
+        $body = $this->diagnose([
+            'rootSource' => 'product',
+            'layout' => [[
+                'id' => $rootId,
+                'component' => 'Sw:Product:PriceDisplay',
+                'properties' => [],
+                'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'slots' => ['content' => [[
+                    'id' => $childId,
+                    'component' => 'Sw:Product:PriceDisplay',
+                    'properties' => [],
+                ]]],
+            ]],
+        ]);
+
+        $topLevelRoots = $this->candidatesWithOrigin($this->productResolution($body, $rootId), 'root');
+        $nested = $this->productResolution($body, $childId);
+        $nestedRoots = $this->candidatesWithOrigin($nested, 'root');
+        $nestedParents = $this->candidatesWithOrigin($nested, 'parent');
+
+        // Depth-independence: the ambient offer reaches the nested element with no wiring in between, and it
+        // carries no provider address, because no element supplies it.
+        static::assertCount(1, $topLevelRoots);
+        static::assertNull($topLevelRoots[0]['providerElementId']);
+        static::assertCount(1, $nestedRoots);
+        static::assertNull($nestedRoots[0]['providerElementId']);
+        static::assertSame('product', $nestedRoots[0]['contextKey']);
+
+        // Element-provided context keeps the `parent` origin and names the ancestor that provides it.
+        static::assertCount(1, $nestedParents);
+        static::assertSame($rootId, $nestedParents[0]['providerElementId']);
+
+        // Root outranks Parent in the default pick.
+        static::assertSame('root', $nested['resolved']['origin']);
+    }
+
     #[TestDox('treats an empty rootSource as absent and reports intrinsic well-formedness without gating')]
     public function testDiagnoseTreatsEmptyRootSourceAsAbsent(): void
     {
@@ -197,6 +243,44 @@ class ContentDiagnoseControllerTest extends TestCase
             ],
             'Context key "product" has both redistribute:true and explicit providesContext. Use one or the other.',
         ];
+    }
+
+    /**
+     * The `product` property resolution of one element, off the diagnose body's resolutions map.
+     *
+     * @param array<string, mixed> $body
+     *
+     * @return array<string, mixed>
+     */
+    private function productResolution(array $body, string $elementId): array
+    {
+        static::assertIsArray($body['resolutions']);
+        static::assertArrayHasKey($elementId, $body['resolutions']);
+        static::assertIsArray($body['resolutions'][$elementId]);
+
+        $matches = array_values(array_filter(
+            $body['resolutions'][$elementId],
+            static fn (array $resolution): bool => $resolution['key'] === 'product',
+        ));
+
+        static::assertCount(1, $matches);
+
+        return $matches[0];
+    }
+
+    /**
+     * @param array<string, mixed> $resolution
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function candidatesWithOrigin(array $resolution, string $origin): array
+    {
+        static::assertIsArray($resolution['candidates']);
+
+        return array_values(array_filter(
+            $resolution['candidates'],
+            static fn (array $candidate): bool => $candidate['origin'] === $origin,
+        ));
     }
 
     /**

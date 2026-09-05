@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
-use Composer\Semver\VersionParser;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
@@ -36,8 +35,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
-use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
-use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -78,19 +76,17 @@ class AppManager
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly EntityRepository $languageRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly ConfigValidator $configValidator,
         private readonly EntityRepository $integrationRepository,
         private readonly EntityRepository $aclRoleRepository,
         private readonly AssetService $assetService,
         private readonly ScriptExecutor $scriptExecutor,
         private readonly string $projectDir,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
-        private readonly string $shopwareVersion,
         private readonly AppFeatureValidator $appFeatureValidator,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
         private readonly DeletedAppsGateway $deletedAppsGateway,
-        private readonly AppRequirementsValidator $requirementsValidator,
+        private readonly ManifestValidator $manifestValidator,
         private readonly ClockInterface $clock,
     ) {
     }
@@ -109,8 +105,7 @@ class AppManager
             return;
         }
 
-        $this->ensureIsCompatible($manifest);
-        $this->ensureMeetsRequirements($manifest);
+        $this->refuseInvalidManifest($manifest, $context, $parameters->strictValidation);
 
         if ($app !== null) {
             throw AppException::alreadyInstalled($appName);
@@ -188,8 +183,7 @@ class AppManager
 
     public function update(Manifest $manifest, AppUpdateParameters $parameters, AppEntity $app, Context $context): void
     {
-        $this->ensureIsCompatible($manifest);
-        $this->ensureMeetsRequirements($manifest);
+        $this->refuseInvalidManifest($manifest, $context, $parameters->strictValidation);
 
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
@@ -280,6 +274,21 @@ class AppManager
         $this->activeAppsLoader->reset();
     }
 
+    private function refuseInvalidManifest(Manifest $manifest, Context $context, bool $strict): void
+    {
+        $result = $this->manifestValidator->validate($manifest, $context);
+
+        if ($result->isOk()) {
+            return;
+        }
+
+        foreach ($result->errors as $error) {
+            if ($strict || $error->isBlocking()) {
+                throw AppException::validationFailedFromError($error);
+            }
+        }
+    }
+
     private function recoverInstallation(
         Manifest $manifest,
         AppInstallParameters $parameters,
@@ -316,8 +325,7 @@ class AppManager
         if ($resumeInstallation) {
             // These checks belong to installation, not credential repair. Run them before recovery clears
             // the only durable pending marker, otherwise a failed validation would strand the app row.
-            $this->ensureIsCompatible($manifest);
-            $this->ensureMeetsRequirements($manifest);
+            $this->refuseInvalidManifest($manifest, $context, $parameters->strictValidation);
         }
 
         $this->appSecretRotationService->rotateNow(
@@ -366,14 +374,6 @@ class AppManager
 
         $event = new PostAppDeletedEvent($app->getName(), $app->getSourceType(), $context, $keepUserData);
         $this->eventDispatcher->dispatch($event);
-    }
-
-    private function ensureIsCompatible(Manifest $manifest): void
-    {
-        $versionParser = new VersionParser();
-        if (!$manifest->getMetadata()->getCompatibility()->matches($versionParser->parseConstraints($this->shopwareVersion))) {
-            throw AppException::notCompatible($manifest->getMetadata()->getName());
-        }
     }
 
     private function dispatchInstalled(AppEntity $app, Manifest $manifest, Context $context): void
@@ -737,12 +737,6 @@ class AppManager
             return false;
         }
 
-        $configError = $this->configValidator->validate($manifest, null)->first();
-        if ($configError) {
-            // only one error can be in the returned collection
-            throw AppException::invalidConfiguration($manifest->getMetadata()->getName(), $configError);
-        }
-
         $this->systemConfigService->saveConfig($config, $app->getName() . '.config.', $install);
 
         return true;
@@ -766,14 +760,6 @@ class AppManager
     {
         foreach ($this->lifecycleHandlers as $handler) {
             $callback($handler);
-        }
-    }
-
-    private function ensureMeetsRequirements(Manifest $manifest): void
-    {
-        $violations = $this->requirementsValidator->validate($manifest);
-        if ($violations !== []) {
-            throw AppException::requirementsNotMet(...$violations);
         }
     }
 }

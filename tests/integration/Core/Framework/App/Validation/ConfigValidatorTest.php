@@ -29,7 +29,7 @@ class ConfigValidatorTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
 
         $violations = $this->configValidator->validate($manifest, null);
-        static::assertCount(0, $violations->getElements());
+        static::assertCount(0, $violations);
     }
 
     public function testValidateReturnsErrors(): void
@@ -38,9 +38,9 @@ class ConfigValidatorTest extends TestCase
 
         $violations = $this->configValidator->validate($manifest, null);
 
-        static::assertCount(1, $violations->getElements());
-        static::assertInstanceOf(ConfigurationError::class, $violations->first());
-        static::assertStringContainsString('The following custom components are not allowed to be used in app configuration:', $violations->first()->getMessage());
-        static::assertStringContainsString('- test', $violations->first()->getMessage());
+        static::assertCount(1, $violations);
+        static::assertInstanceOf(ConfigurationError::class, $violations[0]);
+        static::assertStringContainsString('The following custom components are not allowed to be used in app configuration:', $violations[0]->getMessage());
+        static::assertStringContainsString('- test', $violations[0]->getMessage());
     }
 }

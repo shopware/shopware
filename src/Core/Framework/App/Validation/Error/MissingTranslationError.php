@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class MissingTranslationError extends Error
+class MissingTranslationError implements Error
 {
-    private const KEY = 'manifest-missing-translation';
+    private readonly string $message;
 
     /**
      * @param array<string, array<string>> $missingTranslations
@@ -27,17 +28,30 @@ class MissingTranslationError extends Error
             $validations[] = $field . ': ' . implode(', ', $missingTranslation);
         }
 
-        $message = \sprintf(
+        $this->message = \sprintf(
             "Missing translations for \"%s\":\n- %s",
             $xmlClassName,
             implode("\n- ", $validations)
         );
-
-        parent::__construct($message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return $this->message;
+    }
+
+    public function getErrorCode(): string
+    {
+        return AppException::VALIDATION_FAILED;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function isBlocking(): bool
+    {
+        return false;
     }
 }

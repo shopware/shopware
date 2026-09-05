@@ -59,9 +59,9 @@ class HookableEventDescriberValidationTest extends TestCase
         $validations = $this->hookableValidator->validate($manifest, Context::createDefaultContext());
 
         static::assertCount(1, $validations);
-        static::assertInstanceOf(MissingPermissionError::class, $validations->first());
+        static::assertInstanceOf(MissingPermissionError::class, $validations[0]);
         static::assertSame('The following permissions are missing:
-- described:read', $validations->first()->getMessage());
+- described:read', $validations[0]->getMessage());
     }
 
     private function createAppWithAclRole(string $appName): void
@@ -95,7 +95,7 @@ class TestHookableEventDescriber implements HookableEventDescriber
         return [];
     }
 
-    public function describeForValidation(Manifest $manifest): array
+    public function describePermittedFor(Manifest $manifest): array
     {
         return [
             new HookableEventDescription('test.described.event', 'Test described event.', ['described:read']),

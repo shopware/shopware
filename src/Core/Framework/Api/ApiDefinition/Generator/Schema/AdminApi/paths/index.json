@@ -21,6 +21,13 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "only": {
+                    "description": "Array of specific indexers\/updaters to execute.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 },
                 "type": "object"

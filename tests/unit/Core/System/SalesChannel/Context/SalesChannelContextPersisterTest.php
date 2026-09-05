@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -82,7 +83,12 @@ class SalesChannelContextPersisterTest extends TestCase
         ]);
 
         static::assertSame(
-            ['type' => 'customer', 'expired' => false, 'token' => $customerToken],
+            [
+                'type' => 'customer',
+                'expired' => false,
+                'token' => $customerToken,
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+            ],
             $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId)
         );
     }

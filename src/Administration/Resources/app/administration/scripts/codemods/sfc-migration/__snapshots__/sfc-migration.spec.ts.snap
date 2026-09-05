@@ -373,6 +373,44 @@ swDefinePublic({
 }
 `;
 
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-meta-info-page 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_meta_info_page">
+        <div class="sw-meta-info-page">{{ identifier }}</div>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import useCreateTitle from 'src/app/composables/use-create-title';
+import useMetaInfo from 'src/app/composables/use-meta-info';
+
+const createTitle = useCreateTitle();
+
+const identifier = computed(function () {
+    return product.value ? product.value.name : '';
+});
+
+const product = ref(null);
+
+useMetaInfo(function () {
+    return {
+        title: createTitle(identifier.value),
+    };
+});
+
+swDefinePublic({
+    product,
+    identifier,
+});
+</script>
+",
+}
+`;
+
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-callback 1`] = `
 {
   "outcome": "full",
@@ -1406,7 +1444,6 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
   "outcome": "partial",
   "reasons": [
     "unsupported inject declaration (only the array form is migrated)",
-    "convert 'metaInfo' manually",
     "convert 'shortcuts' manually",
     "unmapped this.$device",
   ],
@@ -1418,6 +1455,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 <script setup>
 import { ref } from 'vue';
+import useMetaInfo from 'src/app/composables/use-meta-info';
 
 const onSave = function () {
     if (this.$device.getViewportWidth() > 500) {
@@ -1427,19 +1465,18 @@ const onSave = function () {
 
 const title = ref('Partial');
 
+useMetaInfo(function () {
+    return {
+        title: title.value,
+    };
+});
+
 // TODO(sfc-migration): unsupported inject declaration (only the array form is migrated) — original code:
 // inject: {
 //         feature: {
 //             from: 'feature',
 //             default: null,
 //         },
-//     }
-
-// TODO(sfc-migration): convert 'metaInfo' manually — original code:
-// metaInfo() {
-//         return {
-//             title: this.title,
-//         };
 //     }
 
 // TODO(sfc-migration): convert 'shortcuts' manually — original code:

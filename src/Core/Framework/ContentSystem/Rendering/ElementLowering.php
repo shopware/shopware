@@ -115,7 +115,7 @@ final readonly class ElementLowering
 
     /**
      * The specification carries its page-level requirements as a list, while a data run reads them keyed by
-     * requirement key — the shape a {@see StoredElement} holds its own in.
+     * requirement key, the shape a {@see StoredElement} holds its own in.
      *
      * @param list<DataRequirement> $requirements
      *

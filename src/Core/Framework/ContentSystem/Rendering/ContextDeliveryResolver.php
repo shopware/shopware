@@ -29,7 +29,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * TWO SOURCES REACH AN ELEMENT HERE, and only one of them is the walk. A {@see ConsumerScope::Parent}
  * consumer is filled by the distribution above, one hop at a time. A {@see ConsumerScope::Root} consumer is
  * filled from the root-ambient map, which is an argument to `resolve()` rather than anything read off the
- * tree — so it reaches an element at ANY depth with no intermediate wiring, and the partial prune cannot
+ * tree, so it reaches an element at ANY depth with no intermediate wiring, and the partial prune cannot
  * change what it holds.
  *
  * @internal
@@ -121,12 +121,12 @@ final readonly class ContextDeliveryResolver
      * path resolves through it. Landing key is `propertyAlias ?? consumerKey`, again as in parent delivery.
      *
      * An ambient `null` delivers nothing and writes no key, matching the provider null gate in
-     * {@see ContextDistributor::distribute()} — a key absent from a delivery is one nothing delivered, and an
+     * {@see ContextDistributor::distribute()}: a key absent from a delivery is one nothing delivered, and an
      * ambient null must not be turned into the present null that means a resolution ran and found nothing.
      *
      * Root-scoped writes land after the parent's, so they win a shared landing key. Nothing can produce that
-     * collision today — `WiringPlanner::validatePropertyAliases()` makes an element's landing keys unique
-     * across both scopes — so the order is defensive rather than a rule anything relies on.
+     * collision today (`WiringPlanner::validatePropertyAliases()` makes an element's landing keys unique
+     * across both scopes), so the order is defensive rather than a rule anything relies on.
      *
      * @param array<string, mixed> $ambientContext
      */
@@ -169,7 +169,7 @@ final readonly class ContextDeliveryResolver
     /**
      * An exact match hands on the SAME PHP instance, which is what makes the value-index instance map collapse
      * a root delivery onto the ambient loader value's ref. A dot path resolves through the value, which needs
-     * a {@see Struct} to traverse — a required consumer that cannot get one fails naming this element, an
+     * a {@see Struct} to traverse: a required consumer that cannot get one fails naming this element, an
      * optional one takes an explicit null.
      */
     private function ambientValueFor(

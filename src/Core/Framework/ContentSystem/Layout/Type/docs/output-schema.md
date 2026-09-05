@@ -16,7 +16,7 @@ The property key is the connecting identifier across all systems:
 
 - Type spec: `properties.product` — "this element has a property called `product`"
 - Element storage: `dataRequirements.product` — "load `product` via this data loader"
-- Element storage: `acceptsContext.product` — "receive `product` from a parent, or from the layout's root-ambient context under `scope: root`"
+- Element storage: `acceptsContext.product`: "receive `product` from a parent, or from the layout's root-ambient context under `scope: root`"
 - Render step: `RenderedElementFactory` writes the resolved loader value onto the rendered element under key `product`
 - API output: `properties.product` — serialized SalesChannelProductEntity
 

@@ -38,7 +38,7 @@ class AvailableContextResolver
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly ElementResolver $elementResolver,
         private readonly ProviderDeliveryKeyResolver $providerDeliveryKeys,
-        private readonly ContextPathResolver $contextPaths,
+        private readonly ContextPathResolver $pathResolver,
     ) {
     }
 
@@ -199,7 +199,7 @@ class AvailableContextResolver
                     continue;
                 }
 
-                if (!$this->contextPaths->matches($provided->contextKey, (string) $consumerKey)) {
+                if (!$this->pathResolver->matches($provided->contextKey, (string) $consumerKey)) {
                     continue;
                 }
 

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Scaffolding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
-use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
@@ -17,9 +16,7 @@ use Shopware\Core\Framework\Log\Package;
  * The wrapper has two roles and no third. It CARRIES the page-level placeholder values, so the ambient
  * resolution of the page-level data requirements has an element to resolve its loader inputs against; and it
  * is the SCAFFOLD the wrap/unwrap pair unwinds, which is what gives a multi-root layout a single node the
- * partial prune can keep. It is minted with no data requirements and no context definitions, so it loads
- * nothing and distributes nothing to the roots in its slot: root-ambient context reaches an element through
- * its own root-scoped consumers instead, at any depth ({@see ContextDeliveryResolver}).
+ * partial prune can keep.
  *
  * Every method here is typed against one of the two split models, matching where in the pipeline it runs.
  * `requiresWrapping()`, `wrap()` and `isVirtualRoot()` take {@see StoredElement}: {@see StoredTreePreparer}
@@ -61,8 +58,8 @@ final class VirtualRootWrapper
     /**
      * Creates the virtual root wrapper holding the actual layout roots in a single slot.
      *
-     * It carries the placeholder values and nothing else — an empty data-requirement map and empty context
-     * definitions — so the page-level requirements load exactly once, through the ambient path, and no value
+     * It carries the placeholder values and nothing else (an empty data-requirement map and empty context
+     * definitions), so the page-level requirements load exactly once, through the ambient path, and no value
      * is broadcast from here to the roots underneath.
      *
      * The placeholder values arrive as raw scalars and are wrapped here, which makes this one of the

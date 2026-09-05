@@ -62,7 +62,7 @@ final readonly class ElementDataResolver
     /**
      * The same run with the requirements supplied separately, for the page-level requirements the virtual root
      * carries none of: they belong to the rendering specification, not to any element, while their
-     * `propertyReference` inputs still have to dereference against SOME element's stored properties — the
+     * `propertyReference` inputs still have to dereference against SOME element's stored properties: the
      * wrapper's, which is where the placeholder values live. `$inputSource` is that element and nothing more;
      * its own `dataRequirements` are not consulted, so it cannot load twice.
      *

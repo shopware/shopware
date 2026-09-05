@@ -138,7 +138,7 @@ final readonly class ContextDistributor
 
     /**
      * A child accepts a provider key when any of its PARENT-scoped consumer keys matches it exactly or hangs
-     * below it as a dot path. One child counts once however many of its keys match — it occupies a single
+     * below it as a dot path. One child counts once however many of its keys match: it occupies a single
      * position in the distribution and then fills every matching key from that one value.
      *
      * A {@see ConsumerScope::Root} consumer is skipped here and in {@see deliverTo()}, the two places that

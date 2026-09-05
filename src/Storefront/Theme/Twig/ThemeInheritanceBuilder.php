@@ -153,10 +153,6 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             return true;
         }
 
-        if ($bundle === StorefrontPluginRegistry::BASE_THEME_NAME) {
-            return true;
-        }
-
-        return false;
+        return $bundle === StorefrontPluginRegistry::BASE_THEME_NAME;
     }
 }

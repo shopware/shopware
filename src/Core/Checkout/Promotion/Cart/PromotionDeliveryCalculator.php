@@ -226,11 +226,7 @@ class PromotionDeliveryCalculator
                 return false;
             }
 
-            if ($discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT) {
-                return true;
-            }
-
-            return false;
+            return $discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT;
         });
 
         // if there are no fixed price lineItems we may return all discount line items and calculate them

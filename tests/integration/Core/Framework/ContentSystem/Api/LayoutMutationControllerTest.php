@@ -401,6 +401,26 @@ class LayoutMutationControllerTest extends TestCase
         static::assertTrue($body['diagnostics']['wellFormed']);
     }
 
+    #[TestDox('mirrors a resolved root-ambient reference onto a freshly inserted element as a root-scope acceptsContext consumer')]
+    public function testInsertElementMirrorsRootContextConsumerOntoCreatedElement(): void
+    {
+        // Sw:Product:PriceDisplay declares a bare SalesChannelProductEntity "product" reference: no resolvedBy
+        // (so no default binding fills it) and no self-provided key, and the "product" root source offers that
+        // exact FQCN, so every mirror skip clears and the live resolver, not a hand-built candidate, proves it.
+        $body = $this->mutate('insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Product:PriceDisplay',
+            'rootSource' => 'product',
+        ]);
+
+        $inserted = $body['layout'][0];
+        static::assertArrayNotHasKey('product', $inserted['dataRequirements'] ?? []);
+        static::assertSame(
+            ['type' => 'single', 'required' => false, 'scope' => 'root'],
+            $inserted['acceptsContext']['product'],
+        );
+    }
+
     /**
      * @param array<string, mixed> $payload
      *

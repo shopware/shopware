@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerBaseKey;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
@@ -133,20 +134,16 @@ class PageContextConsumerWiring
      */
     private function collidesOnBaseKey(string $writtenKey, array $consumers): bool
     {
-        $baseKey = $this->baseKey($writtenKey);
+        $consumerBaseKey = new ConsumerBaseKey();
+        $baseKey = $consumerBaseKey->of($writtenKey);
 
         foreach ($consumers as $consumerKey => $consumer) {
-            if ($this->baseKey($consumer->propertyAlias ?? $consumerKey) === $baseKey) {
+            if ($consumerBaseKey->of($consumer->propertyAlias ?? $consumerKey) === $baseKey) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private function baseKey(string $key): string
-    {
-        return str_contains($key, '.') ? substr($key, 0, (int) strpos($key, '.')) : $key;
     }
 
     /**

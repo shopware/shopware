@@ -1,0 +1,23 @@
+{
+    "name": "swag/test3",
+    "description": "Test 3 description",
+    "version": "dev-codex/some-fix",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG",
+            "role": "Manufacturer"
+        }
+    ],
+    "require": {
+        "shopware/platform": "6.4.*@dev"
+    },
+    "extra": {
+        "shopware-plugin-class": "Swag\\Test3",
+        "label": {
+            "en-GB": "Test plugin",
+            "de-DE": "Test plugin"
+        }
+    }
+}

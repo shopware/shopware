@@ -40,7 +40,7 @@ class PluginFinderTest extends TestCase
             new ExceptionCollection(),
             new NullIO()
         );
-        static::assertCount(2, $plugins);
+        static::assertCount(3, $plugins);
         static::assertSame($plugins['Swag\Test']->getBaseClass(), 'Swag\Test');
     }
 
@@ -82,5 +82,24 @@ class PluginFinderTest extends TestCase
         static::assertSame(__DIR__ . '/_fixture/ComposerProject/vendor/swag/test2', $plugins['Swag\Test2']->getPath());
         // version info is still from local, as that might be more up to date
         static::assertSame('v2.0.1', $plugins['Swag\Test2']->getComposerPackage()->getPrettyVersion());
+    }
+
+    /*
+     * Swag\Test3 is required by the root composer.json as "dev-codex/some-fix as 3.0.0". The installed
+     * repository only contains the branch version, so the root inline alias has to be resolved to report
+     * the plugin version as "3.0.0" instead of the incomparable "dev-codex/some-fix".
+     */
+    public function testResolvesRootInlineAliasesForVendorPlugins(): void
+    {
+        $plugins = (new PluginFinder(new PackageProvider()))->findPlugins(
+            __DIR__ . '/_fixture/LocallyInstalledPlugins',
+            __DIR__ . '/_fixture/ComposerProject',
+            new ExceptionCollection(),
+            new NullIO()
+        );
+
+        static::assertInstanceOf(PluginFromFileSystemStruct::class, $plugins['Swag\Test3']);
+        static::assertSame('3.0.0', $plugins['Swag\Test3']->getComposerPackage()->getPrettyVersion());
+        static::assertSame('3.0.0.0', $plugins['Swag\Test3']->getComposerPackage()->getVersion());
     }
 }

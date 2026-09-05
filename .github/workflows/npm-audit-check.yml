@@ -146,6 +146,10 @@ jobs:
     if: ${{ always() && github.event_name == 'schedule' && needs.audit-packages.result == 'failure' }}
     needs: audit-packages
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # octo-sts, for the project board write
+      issues: write
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -165,10 +169,18 @@ jobs:
             "$RUNNER_TEMP/npm-audit-results" \
             "$RUNNER_TEMP/npm-audit-issue-payload.json"
 
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ManageProjects
+
       - name: Create or update audit issue
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           ISSUE_PAYLOAD_FILE: ${{ runner.temp }}/npm-audit-issue-payload.json
+          STS_TOKEN: ${{ steps.sts.outputs.token }}
         with:
           script: |
             const fs = require('node:fs');
@@ -202,6 +214,43 @@ jobs:
               repo: context.repo.repo,
               title: payload.issueTitle,
               body: payload.issueBody,
+              labels: ['domain/framework'],
+              type: 'Task',
             });
 
             core.info(`Created issue #${createdIssue.data.number}`);
+
+            // Put the new issue onto the Framework board in the triage lane. Needs the ManageProjects
+            // token; without it the issue is still created, just not added to the board.
+            if (!process.env.STS_TOKEN) {
+              core.warning('No project token available: issue not added to the Framework board.');
+              return;
+            }
+
+            const projects = getOctokit(process.env.STS_TOKEN);
+
+            const { organization } = await projects.graphql(`query {
+              organization(login: "${context.repo.owner}") {
+                projectV2(number: 27) {
+                  id
+                  field(name: "Status") { ... on ProjectV2SingleSelectField { id options { id name } } }
+                }
+              }
+            }`);
+
+            const project = organization?.projectV2;
+            const option = project?.field?.options?.find((candidate) => candidate.name === 'To Triage');
+            if (!project || !option) {
+              core.warning('Framework board or its "To Triage" status was not found; issue left off the board.');
+              return;
+            }
+
+            const { addProjectV2ItemById } = await projects.graphql(`mutation($project: ID!, $content: ID!) {
+              addProjectV2ItemById(input: {projectId: $project, contentId: $content}) { item { id } }
+            }`, { project: project.id, content: createdIssue.data.node_id });
+
+            await projects.graphql(`mutation($project: ID!, $item: ID!, $field: ID!, $option: String!) {
+              updateProjectV2ItemFieldValue(input: {projectId: $project, itemId: $item, fieldId: $field, value: {singleSelectOptionId: $option}}) { projectV2Item { id } }
+            }`, { project: project.id, item: addProjectV2ItemById.item.id, field: project.field.id, option: option.id });
+
+            core.info(`Added issue #${createdIssue.data.number} to the Framework board (To Triage).`);

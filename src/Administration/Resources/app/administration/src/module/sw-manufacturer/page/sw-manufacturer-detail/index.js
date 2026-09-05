@@ -183,8 +183,8 @@ export default {
             return this.manufacturerRepository.hasChanges(this.manufacturer);
         },
 
-        saveOnLanguageChange() {
-            return this.onSave();
+        async saveOnLanguageChange() {
+            await this.saveManufacturer();
         },
 
         onChangeLanguage() {
@@ -227,35 +227,46 @@ export default {
             });
         },
 
-        onSave() {
+        async saveManufacturer() {
             if (!this.acl.can('product_manufacturer.editor')) {
-                return;
+                return false;
             }
 
             this.isLoading = true;
 
-            this.manufacturerRepository
-                .save(this.manufacturer)
-                .then(() => {
-                    this.isLoading = false;
-                    this.isSaveSuccessful = true;
-                    if (this.manufacturerId === null) {
-                        this.$router.push({
-                            name: 'sw.manufacturer.detail',
-                            params: { id: this.manufacturer.id },
-                        });
-                        return;
-                    }
+            try {
+                await this.manufacturerRepository.save(this.manufacturer);
 
-                    this.loadEntityData();
-                })
-                .catch((exception) => {
-                    this.isLoading = false;
-                    this.createNotificationError({
-                        message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
-                    });
-                    throw exception;
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+
+                return true;
+            } catch (exception) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });
+
+                throw exception;
+            }
+        },
+
+        async onSave() {
+            const saveSuccessful = await this.saveManufacturer();
+
+            if (!saveSuccessful) {
+                return;
+            }
+
+            if (this.manufacturerId === null) {
+                this.$router.push({
+                    name: 'sw.manufacturer.detail',
+                    params: { id: this.manufacturer.id },
+                });
+                return;
+            }
+
+            this.loadEntityData();
         },
 
         onCancel() {

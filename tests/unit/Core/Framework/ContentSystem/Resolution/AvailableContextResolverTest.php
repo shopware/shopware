@@ -7,12 +7,14 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
@@ -239,10 +241,39 @@ class AvailableContextResolverTest extends TestCase
     public function testAmbientContextBacksAnAncestorProviderExposedAsElementProvided(): void
     {
         // The sanctioned way root-derived data becomes element-provided: the ancestor's own `product` property
-        // is filled from the ambient set (its root-scoped consumer's job at runtime), which backs its declared
+        // is filled from the ambient set through its own root-scoped consumer, which is what backs its declared
         // provider, and what it hands downstream carries its own address and root:false. No loader can back the
         // provider here, so the ambient set is the only thing that can, and dropping it from the backing
         // judgment collapses this to the ambient entry alone.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                ['product' => new ContextConsumer(ContextType::Single, required: true, scope: ConsumerScope::Root)],
+            ),
+        );
+
+        $available = $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $this->rootAmbientProductContext());
+
+        static::assertCount(2, $available);
+        static::assertSame('root-1', $available[0]->providerElementId);
+        static::assertFalse($available[0]->root);
+        static::assertNull($available[1]->providerElementId);
+        static::assertTrue($available[1]->root);
+    }
+
+    #[TestDox('does not back an ancestor provider from the root-ambient set when that ancestor declares no root-scoped consumer')]
+    public function testAmbientContextDoesNotBackAProviderWithoutARootScopedConsumer(): void
+    {
+        // The negative half of the rule above, and the same fixture minus the consumer. Nothing delivers an
+        // ambient value into this ancestor at render time, so its declared provider stays unbacked and the
+        // child sees the ambient entry alone. Judging the whole ambient set instead mints a phantom exposure
+        // here, which then satisfies a required parent-scope consumer downstream that render never feeds.
         $child = new StoredElement('child-1', 'Sw:Block');
         $root = new StoredElement(
             'root-1',
@@ -256,13 +287,171 @@ class AvailableContextResolverTest extends TestCase
             ),
         );
 
+        $rootContext = $this->rootAmbientProductContext();
+
+        static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
+    }
+
+    #[TestDox('does not back an ancestor provider from the root-ambient set through a parent-scoped consumer')]
+    public function testAmbientContextDoesNotBackAProviderThroughAParentScopedConsumer(): void
+    {
+        // The scope split, on the backing side. This consumer lands on the provider's own key and names the
+        // ambient key, so both other clauses accept it, and only its scope disqualifies it. The ambient map
+        // fills root-scoped consumers alone, so a parent-scoped one is fed by an ancestor or by nothing, and
+        // this element is top-level.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                ['product' => new ContextConsumer(ContextType::Single, required: true)],
+            ),
+        );
+
+        $rootContext = $this->rootAmbientProductContext();
+
+        static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
+    }
+
+    #[TestDox('does not back an ancestor provider whose key the ancestor root-scoped consumer lands beside rather than on')]
+    public function testAmbientContextDoesNotBackAProviderWhenTheConsumerLandsOnAnotherKey(): void
+    {
+        // The ancestor does receive the ambient value, but its propertyAlias files it under `item`, while the
+        // provider distributes whatever sits under `product`. A root-scoped consumer is therefore not backing
+        // by its presence: what it lands on has to be the provider's own key.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                ['product' => new ContextConsumer(ContextType::Single, required: true, propertyAlias: 'item', scope: ConsumerScope::Root)],
+            ),
+        );
+
+        $rootContext = $this->rootAmbientProductContext();
+
+        static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
+    }
+
+    #[TestDox('does not back an ancestor provider from a dotted root-scoped consumer that carries no property alias')]
+    public function testDottedRootScopedConsumerWithoutAPropertyAliasBacksNoProvider(): void
+    {
+        // The landing key is compared verbatim, and this is the shape that makes the difference visible. The
+        // consumer resolves through the ambient `product` and lands its value under the FULL key
+        // `product.manufacturer`, so the provider reading `product` finds nothing at render. Comparing only the
+        // landing key's first segment would call this backed and feed a downstream consumer from nowhere.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                ['product.manufacturer' => new ContextConsumer(ContextType::Single, required: true, scope: ConsumerScope::Root)],
+            ),
+        );
+
+        $rootContext = $this->rootAmbientProductContext();
+
+        static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
+    }
+
+    #[TestDox('backs an ancestor provider from a dotted root-scoped consumer whose property alias is the provider key')]
+    public function testDottedRootScopedConsumerAliasedOntoTheProviderKeyBacksIt(): void
+    {
+        // The same consumer, now aliased onto the provider's key, is the shape that DOES back it: the overlay
+        // writes the resolved value under `product`, which is the key the provider distributes from. Dropping
+        // the alias from the comparison and matching on the consumer key alone loses this backing.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                ['product.manufacturer' => new ContextConsumer(ContextType::Single, required: true, propertyAlias: 'product', scope: ConsumerScope::Root)],
+            ),
+        );
+
         $available = $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $this->rootAmbientProductContext());
 
         static::assertCount(2, $available);
         static::assertSame('root-1', $available[0]->providerElementId);
         static::assertFalse($available[0]->root);
-        static::assertNull($available[1]->providerElementId);
-        static::assertTrue($available[1]->root);
+    }
+
+    #[TestDox('does not back an ancestor provider whose root-scoped consumer names a key the bound source does not supply')]
+    public function testAmbientContextDoesNotBackAProviderWhoseConsumerKeyNoAmbientEntrySupplies(): void
+    {
+        // The consumer lands on the provider's own key, so the landing rule alone would accept it, but it asks
+        // for `category` while the bound source supplies `product`. Nothing is delivered to this ancestor at
+        // render time and its provider stays unbacked. The FQCNs match either way, which is precisely what the
+        // type-only judgment this replaces went on.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                ['category' => new ContextConsumer(ContextType::Single, required: true, propertyAlias: 'product', scope: ConsumerScope::Root)],
+            ),
+        );
+
+        $rootContext = $this->rootAmbientProductContext();
+
+        static::assertSame($rootContext, $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext));
+    }
+
+    #[TestDox('backs an ancestor provider from the single ambient entry its root-scoped consumer names, beside a second offer of the same type')]
+    public function testAmbientBackingSelectsTheConsumedEntryAmongOffersOfOneType(): void
+    {
+        // Two ambient entries carry the same FQCN and only one is addressed by the ancestor's consumer. Judging
+        // the whole ambient set makes the provider's own property ambiguous (two Root candidates, which
+        // ElementResolver::pickDefault refuses to choose between) and loses a backing the runtime has: delivery
+        // hands this element the `product` entry alone.
+        $child = new StoredElement('child-1', 'Sw:Block');
+        $root = new StoredElement(
+            'root-1',
+            'Sw:Provider',
+            [],
+            [],
+            ['content' => [$child]],
+            new ContextDefinitions(
+                ['product' => new ContextProvider(ContextType::Single, BroadcastDistributionConfig::simple())],
+                ['product' => new ContextConsumer(ContextType::Single, required: true, scope: ConsumerScope::Root)],
+            ),
+        );
+
+        $rootContext = [...$this->rootAmbientProductContext(), new ProvidedContext(
+            contextKey: 'featuredProduct',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: null,
+            distribution: DistributionStrategy::Broadcast,
+            root: true,
+        )];
+
+        $available = $this->resolverWithoutLoaderBacking()->resolve('child-1', [$root], $rootContext);
+
+        static::assertCount(3, $available);
+        static::assertSame('root-1', $available[0]->providerElementId);
+        static::assertSame('product', $available[0]->contextKey);
+        static::assertFalse($available[0]->root);
     }
 
     #[TestDox('returns an empty set for an unknown element id')]
@@ -436,6 +625,6 @@ class AvailableContextResolverTest extends TestCase
 
         $elementResolver = new ElementResolver($registry, $typeResolver, $configSerializers, static::createStub(DataLoaderProvider::class));
 
-        return new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver());
+        return new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver());
     }
 }

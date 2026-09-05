@@ -287,7 +287,7 @@ class ContentDiagnoseControllerTest extends TestCase
         );
 
         return new LayoutDiagnostics(
-            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver()),
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver()),
             $elementResolver,
             $registry,
             new RootContextMapper(static::createStub(DataLoaderProvider::class)),

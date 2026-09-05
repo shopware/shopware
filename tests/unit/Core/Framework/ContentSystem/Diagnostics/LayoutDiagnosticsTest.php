@@ -233,7 +233,7 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame('Required root-scoped context "category" is supplied by no bound source.', $error->message);
     }
 
-    #[TestDox('does not flag a required root-scoped consumer whose key exists only as element-provided context')]
+    #[TestDox('produces a broken_required_chain binding error for a required root-scoped consumer whose key exists only as element-provided context')]
     public function testRootScopeConsumerIsNotSatisfiedByElementProvidedContext(): void
     {
         // The mirror of the exclusivity pin: a root-scoped consumer draws on the ambient half alone, so an
@@ -1123,7 +1123,7 @@ class LayoutDiagnosticsTest extends TestCase
         );
 
         return new LayoutDiagnostics(
-            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver()),
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver()),
             $elementResolver,
             $registry,
             new RootContextMapper($loaderProvider),

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Resolution;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -36,6 +38,7 @@ class AvailableContextResolver
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly ElementResolver $elementResolver,
         private readonly ProviderDeliveryKeyResolver $providerDeliveryKeys,
+        private readonly ContextPathResolver $contextPaths,
     ) {
     }
 
@@ -81,8 +84,9 @@ class AvailableContextResolver
      * element-provided even when the value it relays originated at the root.
      *
      * @param list<ProvidedContext> $incoming context this element received off the ancestor chain
-     * @param list<ProvidedContext> $ambient the layout's root-ambient context, reachable by this element's own
-     *                                       root-scoped consumers and therefore able to back its providers
+     * @param list<ProvidedContext> $ambient the layout's root-ambient context; only the entries this element's
+     *                                       own root-scoped consumers land on a provider's key can back that
+     *                                       provider, which {@see ambientReceivableFor()} selects per key
      *
      * @return list<ProvidedContext>
      */
@@ -97,7 +101,9 @@ class AvailableContextResolver
                 continue;
             }
 
-            if (!$this->providerResolves($element, (string) $contextKey, [...$incoming, ...$ambient])) {
+            $receivable = $this->ambientReceivableFor($element, (string) $contextKey, $ambient);
+
+            if (!$this->providerResolves($element, (string) $contextKey, [...$incoming, ...$receivable])) {
                 continue;
             }
 
@@ -137,9 +143,10 @@ class AvailableContextResolver
      * Level-2 backing: a declared provider delivers only when its own property resolves at its position.
      * Reuses {@see ElementResolver} (the single source of truth), so the parent (received-context), root,
      * loader, and ambiguity rules that decide a consumed property's verdict also decide a provider's backing.
-     * The available set it judges against is the chain incoming plus the root-ambient set, so a provider
-     * property filled through the element's own root-scoped consumer backs the provider, and what that
-     * provider then hands downstream is element-provided.
+     * The available set it judges against is the chain incoming plus the ambient entries
+     * {@see ambientReceivableFor()} selects for this key alone, so a provider property filled through the
+     * element's own root-scoped consumer backs the provider, and what that provider then hands downstream is
+     * element-provided.
      *
      * @param list<ProvidedContext> $available
      */
@@ -156,6 +163,53 @@ class AvailableContextResolver
         }
 
         return false;
+    }
+
+    /**
+     * The ambient entries this element can receive UNDER the provider key being judged. An entry counts only
+     * where the element declares a {@see ConsumerScope::Root} consumer whose landing key is exactly that
+     * provider key and whose consumer key the entry supplies, matched with {@see ContextPathResolver::matches()}
+     * so a consumer hanging below the ambient key as a dot path counts as delivery resolves it.
+     *
+     * Both halves mirror runtime, and the landing key is compared VERBATIM because runtime writes it verbatim.
+     * An ambient value reaches an element only through that element's own root-scoped consumers
+     * (ContextDeliveryResolver's overlay), landing under `propertyAlias ?? consumerKey`, and a provider reads
+     * its own key off the working map (ContextDistributor's null gate skips a provider whose key holds
+     * nothing). So a dotted consumer carrying no alias lands under its full dotted key, which no provider key
+     * reads, and comparing only that key's first segment would back a provider render leaves unfed. Judging
+     * against the whole ambient set instead backs a consumer-less ancestor's provider on a bare FQCN match,
+     * and that phantom exposure then satisfies a required parent-scope consumer downstream that render never
+     * feeds.
+     *
+     * @param list<ProvidedContext> $ambient
+     *
+     * @return list<ProvidedContext>
+     */
+    private function ambientReceivableFor(StoredElement $element, string $providerKey, array $ambient): array
+    {
+        $receivable = [];
+
+        foreach ($ambient as $provided) {
+            foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+                if ($consumer->scope !== ConsumerScope::Root) {
+                    continue;
+                }
+
+                if (($consumer->propertyAlias ?? (string) $consumerKey) !== $providerKey) {
+                    continue;
+                }
+
+                if (!$this->contextPaths->matches($provided->contextKey, (string) $consumerKey)) {
+                    continue;
+                }
+
+                $receivable[] = $provided;
+
+                break;
+            }
+        }
+
+        return $receivable;
     }
 
     /**

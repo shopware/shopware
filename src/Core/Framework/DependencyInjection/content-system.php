@@ -621,6 +621,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemElementTypeRegistry::class),
             service(ElementResolver::class),
             service(ProviderDeliveryKeyResolver::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(ElementResolver::class)

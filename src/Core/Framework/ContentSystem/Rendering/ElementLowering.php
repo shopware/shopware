@@ -32,6 +32,8 @@ use Symfony\Component\HttpFoundation\Request;
  * dereference against. The resulting map is handed to {@see ContextDeliveryResolver::resolve()} as the
  * root-ambient context, which is the only route by which it reaches an element. It is an explicit input on
  * that call rather than something read off the tree, so the partial prune cannot take root context with it.
+ * The same map is also filed into the forest's loader values under the wrapper's own id, which on a partial
+ * render that pruned the wrapper away addresses no element of that forest and is read by nothing.
  *
  * The data walk is pre-order and descends slot by slot: an element loads before the elements under it, and
  * each slot's children load in declaration order. What that order buys is narrower than it looks:

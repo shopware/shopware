@@ -129,8 +129,10 @@ class ContentDiagnoseControllerTest extends TestCase
     {
         // Sw:Product:PriceDisplay declares a SalesChannelProductEntity `product` property, and the `product`
         // root source supplies exactly that FQCN as root-ambient context, so both elements are offered it. The
-        // root element additionally provides its own `product` downstream, which is what puts a second,
-        // element-addressed candidate beside the ambient one on the child.
+        // root element takes that ambient value through its own root-scoped consumer, which is what backs the
+        // `product` it provides downstream and puts a second, element-addressed candidate beside the ambient
+        // one on the child. Without that consumer nothing would deliver a value into the root element at
+        // render, and its provider would be exposed to no one.
         $rootId = $this->ids->get('provider-root');
         $childId = $this->ids->get('nested-child');
 
@@ -141,6 +143,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 'component' => 'Sw:Product:PriceDisplay',
                 'properties' => [],
                 'providesContext' => ['product' => ['type' => 'single', 'distribution' => 'broadcast']],
+                'acceptsContext' => ['product' => ['type' => 'single', 'required' => true, 'scope' => 'root']],
                 'slots' => ['content' => [[
                     'id' => $childId,
                     'component' => 'Sw:Product:PriceDisplay',

@@ -7,14 +7,14 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Maps a bound source's page data requirements to the root-ambient context it supplies to a layout's
- * top-level elements, by resolving each requirement's produced FQCN via its data loader. The
- * page context is exposed exactly as the {@see VirtualRootWrapper} exposes it at runtime: broadcast Single.
+ * Maps a bound source's page data requirements to the layout's root-ambient context, by resolving each
+ * requirement's produced FQCN via its data loader. Every entry is minted broadcast Single, marked
+ * root-ambient ({@see ProvidedContext::$root}) and carrying no provider element id: root context is
+ * ambient rather than provided from an element address.
  * One mapping path, shared by the entity sources' providedRootContext override and the diagnostics core.
  *
  * @internal
@@ -46,8 +46,9 @@ class RootContextMapper
                 contextKey: $requirement->key,
                 fqcn: $this->resolveType($requirement),
                 contextType: ContextType::Single,
-                providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
+                providerElementId: null,
                 distribution: DistributionStrategy::Broadcast,
+                root: true,
             );
         }
 

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -117,6 +118,10 @@ class AppRegistrationServiceTest extends TestCase
             \hash_hmac('sha256', $json, $appSecret),
             $confirmationReq->getHeaderLine('shopware-shop-signature')
         );
+
+        // A fresh install has no earlier secret, so it must NOT send the previous-signature header that a
+        // re-registration uses.
+        static::assertFalse($confirmationReq->hasHeader('shopware-shop-signature-previous'));
 
         static::assertNotEmpty($confirmationReq->getHeaderLine('sw-version'));
         static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
@@ -236,7 +241,8 @@ class AppRegistrationServiceTest extends TestCase
             $this->shopUrl,
             $shopIdMock,
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            new NativeClock(),
+            new NullLogger(),
         );
 
         static::expectException(AppRegistrationException::class);

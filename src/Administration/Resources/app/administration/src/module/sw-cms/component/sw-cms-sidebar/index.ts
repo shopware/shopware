@@ -635,6 +635,10 @@ export default Shopware.Component.wrapComponentConfig({
         onSectionDelete(sectionId: string) {
             Shopware.Store.get('cmsPage').removeSelectedSection();
             this.page.sections!.remove(sectionId);
+        },
+
+        onNavigatorSectionDelete(sectionId: string) {
+            this.onSectionDelete(sectionId);
             this.$emit('page-save');
         },
 
@@ -648,7 +652,10 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
                 Shopware.Store.get('cmsPage').removeSelectedBlock();
             }
+        },
 
+        onNavigatorBlockDelete(block: Entity<'cms_block'>, section: Entity<'cms_section'>) {
+            this.onBlockDelete(block, section);
             this.$emit('page-save', true);
         },
 

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { ContentElementNode } from '../content-element.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
@@ -54,13 +54,13 @@ type ContentLayoutDraftMutationDiagnostics = {
 };
 
 /**
- * How a reference property is (or could be) filled: `parent` (an ancestor/root context), `loader` (a data
- * loader), or `stored` (the element's own applied wiring).
+ * How a reference property is (or could be) filled: `parent` (an ancestor's provider), `root` (the layout's
+ * root-ambient context), `loader` (a data loader), or `stored` (the element's own applied wiring).
  *
  * @private
  */
 export type ContentSystemResolutionCandidate = {
-    origin: 'parent' | 'loader' | 'stored';
+    origin: 'parent' | 'root' | 'loader' | 'stored';
     contextKey: string | null;
     providerElementId: string | null;
     path: string | null;
@@ -104,7 +104,7 @@ export type ContentLayoutDraftMutationResponse = {
  * Gateway for stateless content layout draft mutations.
  */
 class ContentSystemLayoutDraftMutationApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'content-system') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'contentSystemLayoutDraftMutationService';
     }

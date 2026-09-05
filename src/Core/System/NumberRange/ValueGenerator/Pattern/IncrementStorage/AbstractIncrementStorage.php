@@ -3,21 +3,25 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 
+/**
+ * @phpstan-import-type ValueGeneratorConfig from AbstractValueGenerator
+ */
 #[Package('framework')]
 abstract class AbstractIncrementStorage
 {
     /**
      * Reserves and fetches the next increment atomically
      *
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param ValueGeneratorConfig $config
      */
     abstract public function reserve(array $config): int;
 
     /**
      * Fetches the next increment value without reserving it
      *
-     * @param array{id: string, pattern: string, start: ?int} $config
+     * @param ValueGeneratorConfig $config
      */
     abstract public function preview(array $config): int;
 
@@ -34,6 +38,16 @@ abstract class AbstractIncrementStorage
      * Note: Calling this method and overwriting the current increment state may lead to duplicated increments!
      */
     abstract public function set(string $configurationId, int $value): void;
+
+    /**
+     * @deprecated tag:v6.8.0 - Becomes abstract and has to be implemented with v6.8.0
+     *
+     * Raises the current increment state to at least the given value without lowering an existing higher state.
+     */
+    public function increaseToAtLeast(string $configurationId, int $value): void
+    {
+        $this->getDecorated()->increaseToAtLeast($configurationId, $value);
+    }
 
     abstract public function getDecorated(): self;
 }

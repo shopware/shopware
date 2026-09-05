@@ -6,26 +6,35 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
 trait PromotionCartInformationTrait
 {
     /**
-     * Adds a new error to the cart if the promotion for
-     * the provided code was not found as active and valid promotion.
+     * @deprecated tag:v6.8.0 - Use $cart->addErrors(new PromotionNotFoundError($code)) directly.
      */
     private function addPromotionNotFoundError(string $code, Cart $cart): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', '$cart->addErrors(new PromotionNotFoundError($code))')
+        );
+
         $cart->addErrors(new PromotionNotFoundError($code));
     }
 
     /**
-     * Adds a new error to the cart if the promotion has been found
-     * but somehow is not eligible for the current cart.
+     * @deprecated tag:v6.8.0 - Use $cart->addErrors(new PromotionNotEligibleError($name)) directly.
      */
     private function addPromotionNotEligibleError(string $name, Cart $cart): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', '$cart->addErrors(new PromotionNotEligibleError($name))')
+        );
+
         $cart->addErrors(new PromotionNotEligibleError($name));
     }
 
@@ -35,6 +44,15 @@ trait PromotionCartInformationTrait
     private function addPromotionAlreadyRedeemedError(string $code, Cart $cart): void
     {
         $cart->addErrors(new PromotionNotEligibleError($code, 'already-redeemed', [], true));
+    }
+
+    /**
+     * Adds a persistent error when a promotion is already present in the cart and the customer
+     * tries to add it again through another (individual) code. A promotion applies only once per cart.
+     */
+    private function addPromotionAlreadyAddedError(string $code, Cart $cart): void
+    {
+        $cart->addErrors(new PromotionNotEligibleError($code, 'already-added', [], true));
     }
 
     /**

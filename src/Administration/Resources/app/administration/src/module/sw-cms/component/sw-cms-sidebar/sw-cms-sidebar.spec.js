@@ -25,6 +25,10 @@ function getBlockCollection(blocks) {
     return new EntityCollection(blocks, 'blocks', null, null, blocks);
 }
 
+function getSectionCollection(sections) {
+    return new EntityCollection(sections, 'sections', null, null, sections);
+}
+
 async function createWrapper(
     { cmsBlockRegistry } = { cmsBlockRegistry: null },
     pageType = 'product_list',
@@ -72,6 +76,9 @@ async function createWrapper(
             removeSelectedBlock() {
                 this.selectedBlock = null;
             },
+            removeSelectedSection() {
+                this.selectedSection = null;
+            },
             setSection(section) {
                 this.removeSelectedBlock();
                 this.setSelectedSection(section);
@@ -86,30 +93,34 @@ async function createWrapper(
         {
             props: {
                 page: {
-                    sections: [
+                    sections: getSectionCollection([
                         new Entity('1111', 'section', {
                             type: 'sidebar',
                             blocks: getBlockCollection([
                                 {
                                     id: '1a2b',
+                                    sectionId: '1111',
                                     sectionPosition: 'main',
                                     type: 'foo-bar',
                                     slots: [],
                                 },
                                 {
                                     id: '3cd4',
+                                    sectionId: '1111',
                                     sectionPosition: 'sidebar',
                                     type: 'foo-bar',
                                     slots: [],
                                 },
                                 {
                                     id: '5ef6',
+                                    sectionId: '1111',
                                     sectionPosition: 'sidebar',
                                     type: 'foo-bar-removed',
                                     slots: [],
                                 },
                                 {
                                     id: '7gh8',
+                                    sectionId: '1111',
                                     sectionPosition: 'main',
                                     type: 'foo-bar-removed',
                                     slots: [],
@@ -121,13 +132,14 @@ async function createWrapper(
                             blocks: getBlockCollection([
                                 {
                                     id: 'abcd',
+                                    sectionId: '2222',
                                     sectionPosition: 'main',
                                     type: 'some-type',
                                     slots: [],
                                 },
                             ]),
                         }),
-                    ],
+                    ]),
                     type: pageType,
                 },
             },

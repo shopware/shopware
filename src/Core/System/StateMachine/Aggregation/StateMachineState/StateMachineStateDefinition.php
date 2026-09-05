@@ -26,6 +26,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachi
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class StateMachineStateDefinition extends EntityDefinition
 {

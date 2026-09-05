@@ -43,8 +43,17 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing. This endpoint can be opened up by setting `shopware.api.api_browser.auth_required` to `false`."
                     }
-                }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
             }
         }
     }

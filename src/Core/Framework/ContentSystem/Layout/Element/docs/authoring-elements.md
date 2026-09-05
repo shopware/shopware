@@ -51,7 +51,7 @@ Placeholders (like `{{productId}}`) must be assigned to properties before data l
 - `slots` - Named containers with arrays of child elements
 - `dataRequirements` - Data loading declarations
 - `providesContext` - Data shared with descendant elements
-- `acceptsContext` - Data received from ancestor elements
+- `acceptsContext` - Data received from ancestor elements, or from the layout's root-ambient context when the entry declares `scope: "root"`
 - `attributedSpecifications` - System bookkeeping mapping a wired key to the binding specification that wired it (see [Binding/README.md](../../../Binding/README.md)). Re-derived on every save, so hand-editing it has no effect; never part of the Store API response.
 
 ## Slots

@@ -2,13 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
@@ -18,7 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Callback;
-use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -46,6 +38,10 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * Tree-global invariants are deliberately absent: this descriptor sees one element at a time and cannot decide
  * whether an id repeats across the forest.
  *
+ * The context-wiring cluster — both wiring maps and the rule spanning them — lives in
+ * {@see StoredTreeWiringConstraints}, which this class composes and whose constraints it attaches at the two
+ * field positions and, for the cross-map rule, whole-element in {@see elementConstraints()}.
+ *
  * Anything this descriptor accepts, {@see StoredElementCodec} must be able to decode, or a payload passes the
  * write and then throws on every later read. Two composition helpers keep that agreement from being forgotten
  * one field at a time: {@see nonNull()} pairs a value's type assertion with its null rejection, and
@@ -57,10 +53,13 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[Package('framework')]
 final class StoredTreeConstraints
 {
+    private readonly StoredTreeWiringConstraints $wiring;
+
     public function __construct(
         private readonly AbstractContentSystemStyleOptionRegistry $registry,
         private readonly StyleOptionConstraintDeriver $deriver,
     ) {
+        $this->wiring = new StoredTreeWiringConstraints();
     }
 
     /**
@@ -98,8 +97,8 @@ final class StoredTreeConstraints
                     'properties' => new Optional($this->stringKeyedMap(new Callback($this->validatePropertyValueDepth(...)))),
                     'dataRequirements' => new Optional($this->dataRequirementConstraints()),
                     'slots' => new Optional($this->slotConstraints($depth)),
-                    'providesContext' => new Optional($this->contextProviderConstraints()),
-                    'acceptsContext' => new Optional($this->contextConsumerConstraints()),
+                    'providesContext' => new Optional($this->wiring->contextProviderConstraints()),
+                    'acceptsContext' => new Optional($this->wiring->contextConsumerConstraints()),
                     'style' => new Optional($this->styleConstraints()),
                     'attributedSpecifications' => new Optional($this->stringKeyedMap(...$this->nonNull(new Type('string')))),
                 ],
@@ -109,6 +108,9 @@ final class StoredTreeConstraints
             // Whole-element, because the declaration a property value is judged against is reached through this
             // element's own `component`; the `Collection` above sees one field at a time and cannot pair them.
             new PropertyTypeConformance(),
+            // Whole-element for the same reason: the rule spans `acceptsContext` and `providesContext`, and
+            // neither the `Collection` above nor a per-entry constraint sees both maps.
+            new Callback($this->wiring->validateRedistributeProviderConflicts(...)),
         ];
     }
 
@@ -330,118 +332,6 @@ final class StoredTreeConstraints
                 ),
             )
         );
-    }
-
-    /**
-     * A provider entry is itself a string-keyed map — the two declared fields plus the declared strategy's
-     * own fields — so it carries the key check its {@see StoredElementCodec} counterpart applies to it.
-     *
-     * @return list<Constraint>
-     */
-    private function contextProviderConstraints(): array
-    {
-        return $this->stringKeyedMap(
-            ...$this->nonNull(
-                new Type('array'),
-                new Callback($this->validateStringKeys(...)),
-                new Collection(
-                    fields: [
-                        'type' => [new NotBlank(), new Choice(choices: ContextType::values())],
-                        'distribution' => [new NotBlank(), new Choice(choices: DistributionStrategy::values())],
-                    ],
-                    allowExtraFields: true,
-                    allowMissingFields: false
-                ),
-                new Callback($this->validateDistributionFields(...)),
-            )
-        );
-    }
-
-    /**
-     * The fields a provider carries beyond `type` and `distribution` depend on the declared strategy, which the
-     * `Collection` above admits as extra fields; each strategy's own constraint set is applied here.
-     */
-    private function validateDistributionFields(mixed $value, ExecutionContextInterface $context): void
-    {
-        if (!\is_array($value) || !isset($value['distribution'])) {
-            return;
-        }
-
-        $configClass = match ($value['distribution']) {
-            'broadcast' => BroadcastDistributionConfig::class,
-            'indexed' => IndexedDistributionConfig::class,
-            'iterator' => IteratorDistributionConfig::class,
-            'keyed' => KeyedDistributionConfig::class,
-            'sliced' => SlicedDistributionConfig::class,
-            default => null,
-        };
-
-        if ($configClass === null) {
-            return;
-        }
-
-        foreach ($configClass::buildConstraints() as $fieldName => $fieldConstraints) {
-            $fieldValue = $value[$fieldName] ?? null;
-
-            foreach ($fieldConstraints as $constraint) {
-                $violations = $context->getValidator()->validate($fieldValue, $constraint);
-
-                foreach ($violations as $violation) {
-                    $context->buildViolation((string) $violation->getMessage())
-                        ->atPath("[$fieldName]")
-                        ->addViolation();
-                }
-            }
-        }
-    }
-
-    /**
-     * @return list<Constraint>
-     */
-    private function contextConsumerConstraints(): array
-    {
-        return $this->stringKeyedMap(
-            ...$this->nonNull(
-                new Type('array'),
-                new Collection(
-                    fields: [
-                        'type' => [new NotBlank(), new Choice(choices: ContextType::values())],
-                        'required' => $this->nonNull(new Type('bool')),
-                        'redistribute' => new Optional([new Type('bool')]),
-                        'consumerAlias' => new Optional([new Type('string')]),
-                        'propertyAlias' => new Optional([new Type('string')]),
-                    ],
-                    allowExtraFields: false,
-                    allowMissingFields: false
-                ),
-                new Callback($this->validateConsumerAliases(...)),
-            )
-        );
-    }
-
-    /**
-     * The two cross-field consumer rules {@see StoredElementCodec} enforces on decode: a consumer alias
-     * renames the context this consumer redistributes, so it means nothing without `redistribute`, and a
-     * property alias names one property on this element, so it carries no dot notation.
-     */
-    private function validateConsumerAliases(mixed $value, ExecutionContextInterface $context): void
-    {
-        if (!\is_array($value)) {
-            return;
-        }
-
-        if (($value['consumerAlias'] ?? null) !== null && ($value['redistribute'] ?? false) !== true) {
-            $context->buildViolation('This value requires "redistribute" to be true.')
-                ->atPath('[consumerAlias]')
-                ->addViolation();
-        }
-
-        $propertyAlias = $value['propertyAlias'] ?? null;
-        if (\is_string($propertyAlias) && str_contains($propertyAlias, '.')) {
-            $context->buildViolation('This value should be a simple property name without dot notation.')
-                ->atPath('[propertyAlias]')
-                ->addViolation();
-        }
     }
 
     /**

@@ -77,6 +77,7 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\ContextDefinitions',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\ContextProvider',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\ContextConsumer',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\ConsumerScope',
         'Shopware\\Core\\Framework\\ContentSystem\\Hydration\\DataContext\\ContextType',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\Distribution\\DistributionConfig',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Context\\Distribution\\DistributionStrategy',

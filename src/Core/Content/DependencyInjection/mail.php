@@ -13,14 +13,18 @@ use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\Mail\Service\SendMailTemplate;
 use Shopware\Core\Content\Mail\Subscriber\FailedMessageSubscriber;
+use Shopware\Core\Content\Mail\Telemetry\MailGroupResolver;
+use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Content\Mail\Transport\MailerTransportLoader;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTokenProvider;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -74,6 +78,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service(LanguageLocaleCodeProvider::class),
             service(MailTemplateContentBuilder::class),
+            service(MailMetricsInstrumentor::class),
+        ]);
+
+    $services->set(MailGroupResolver::class);
+
+    $services->set(MailMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(MailGroupResolver::class),
         ]);
 
     $services->set(SendMailTemplate::class)
@@ -92,7 +105,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MediaService::class),
             service('media.repository'),
             service(DocumentGenerator::class),
-            service(Connection::class),
+            service('document.repository'),
+            service('monolog.logger.business_events'),
+            service(DocumentResolver::class),
         ]);
 
     $services->set(MailPayloadFactory::class);

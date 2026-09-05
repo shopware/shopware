@@ -153,6 +153,12 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             ->filter(static fn (LineItem $lineItem) => $lineItem->getType() === PromotionProcessor::LINE_ITEM_TYPE && $lineItem->getPayloadValue('promotionId') === $removedLineItem->getPayloadValue('promotionId'));
 
         foreach ($lineItemsOfSamePromotion as $lineItemOfSamePromotion) {
+            // a sibling discount may already have been removed by a nested call to this
+            // method, triggered by the event dispatched below for an earlier sibling
+            if (!$cart->has($lineItemOfSamePromotion->getId())) {
+                continue;
+            }
+
             $cart->remove($lineItemOfSamePromotion->getId());
 
             $this->eventDispatcher->dispatch(new BeforeLineItemRemovedEvent($lineItemOfSamePromotion, $cart, $context));

@@ -33,16 +33,20 @@ class WorkerMessageTimingHelperTest extends TestCase
         static::assertNull($helper->elapsedMs(new \stdClass()));
     }
 
-    public function testElapsedMsConsumesTheEntrySoASecondCallReturnsNull(): void
+    public function testElapsedMsIsNonConsuming(): void
     {
         $helper = new WorkerMessageTimingHelper();
         $message = new \stdClass();
 
         $helper->start($message);
 
-        static::assertIsFloat($helper->elapsedMs($message));
-        // the entry is cleared on read, so a second read for the same message has no timing to report
-        static::assertNull($helper->elapsedMs($message));
+        // messenger and scheduled-task collectors read the same entry independently of listener order
+        $first = $helper->elapsedMs($message);
+        $second = $helper->elapsedMs($message);
+
+        static::assertIsFloat($first);
+        static::assertIsFloat($second);
+        static::assertGreaterThanOrEqual($first, $second);
     }
 
     public function testTracksEachMessageIndependently(): void

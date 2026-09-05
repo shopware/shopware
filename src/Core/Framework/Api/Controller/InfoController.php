@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -171,6 +173,29 @@ class InfoController extends AbstractController
     public function contentSystemEntityTypes(): JsonResponse
     {
         return new JsonResponse(['entityTypes' => $this->rootSourceRegistry->entityRootSources()]);
+    }
+
+    #[Route(path: '/api/_info/content-system-root-sources.json', name: 'api.info.content-system-root-sources', methods: ['GET'])]
+    public function contentSystemRootSources(Context $context): JsonResponse
+    {
+        $rootSources = array_map(
+            fn (string $rootSource): array => [
+                'id' => $rootSource,
+                'kind' => $this->contentSystemRootSourceKind($rootSource),
+                'providedContext' => array_map(
+                    static fn (ProvidedContext $provided): array => [
+                        'contextKey' => $provided->contextKey,
+                        'fqcn' => $provided->fqcn,
+                        'contextType' => $provided->contextType->value,
+                        'distribution' => $provided->distribution->value,
+                    ],
+                    $this->rootSourceRegistry->resolve($rootSource, $context)
+                ),
+            ],
+            $this->rootSourceRegistry->knownRootSources()
+        );
+
+        return new JsonResponse(['rootSources' => $rootSources]);
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]
@@ -345,6 +370,23 @@ class InfoController extends AbstractController
         }
 
         return $schemas;
+    }
+
+    /**
+     * "none" for the NoneSpecificationSource id, "entity" for an entity-type root source, "section" for the rest
+     * (the section keys header and footer).
+     */
+    private function contentSystemRootSourceKind(string $rootSource): string
+    {
+        if ($rootSource === NoneSpecificationSource::ROOT_SOURCE) {
+            return 'none';
+        }
+
+        if (\in_array($rootSource, $this->rootSourceRegistry->entityRootSources(), true)) {
+            return 'entity';
+        }
+
+        return 'section';
     }
 
     /**

@@ -33,6 +33,7 @@ use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteValidator;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
@@ -46,6 +47,7 @@ use Shopware\Core\Content\Media\File\FileService;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Content\Media\File\SvgContentValidator;
+use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaFolderService;
@@ -170,16 +172,28 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // region File Services
     $services->set(FileService::class);
 
+    $services->set(TrustedUrlResolver::class)
+        ->args([
+            null,
+            param('shopware.media.enable_url_validation'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
     $services->set(FileFetcher::class)
         ->args([
             service(FileUrlValidatorInterface::class),
             service(FileService::class),
+            service(TrustedUrlResolver::class),
+            service('http_client'),
             param('shopware.media.enable_url_upload_feature'),
             param('shopware.media.enable_url_validation'),
             param('shopware.media.url_upload_max_size'),
         ]);
 
-    $services->set(FileUrlValidatorInterface::class, FileUrlValidator::class);
+    $services->set(FileUrlValidatorInterface::class, FileUrlValidator::class)
+        ->args([
+            service(TrustedUrlResolver::class),
+        ]);
 
     $services->set(FileContentValidationStrategy::class)
         ->args([
@@ -268,6 +282,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('media_thumbnail.repository'),
+            service('shopware.filesystem.public'),
+            service('shopware.filesystem.private'),
             param('shopware.media.remote_thumbnails.enable'),
         ])
         ->tag('console.command');
@@ -419,6 +435,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('media_thumbnail.repository'),
             service('media_thumbnail_size.repository'),
             service(FileUrlValidatorInterface::class),
+            service(TrustedUrlResolver::class),
             param('shopware.media.enable_url_validation'),
         ]);
 
@@ -469,6 +486,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(MediaFileExtensionListProvider::class),
         ]);
+
+    $services->set(MediaFileExtensionWriteValidator::class)
+        ->args([
+            service(MediaFileExtensionListProvider::class),
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(PresignedMediaUploadService::class)
         ->args([

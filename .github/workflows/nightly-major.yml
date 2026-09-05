@@ -19,16 +19,46 @@ jobs:
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       profile: nightly
+      currents: false
       major: only
   integration-major:
     uses: ./.github/workflows/integration-major.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
 
+  # Commercial arm: dispatch the plugin's integration-major workflow so the upcoming major's
+  # feature flags are also exercised with SwagCommercial installed (the regular downstream's
+  # major arm only runs whatever ref dispatched it; this one is pinned to the major schedule).
+  commercial-major:
+    name: Commercial (major)
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    steps:
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ShopwareDownstream
+      - name: Commercial
+        uses: shopware/github-actions/downstream@main
+        if: steps.sts.outputs.token
+        env:
+          NEW_LOGIC: 1
+        with:
+          repo: shopware/SwagCommercial
+          workflow: integration-major.yaml
+          ref: .auto
+          timeout: 60m
+          poll_interval: 1m
+          token: ${{ steps.sts.outputs.token }}
+          upstream-token: ${{ github.token }}
+
   # turn a red major matrix into a domain-grouped tracking issue, aggregated from
   # the junit-phpunit-* artifacts integration-major.yml uploads on scheduled failures
   report-phpunit-failures:
-    if: always() && github.event_name == 'schedule' && needs.integration-major.result == 'failure'
+    # the aggregation script skips branches that are neither trunk nor maintenance-shaped
+    if: always() && needs.integration-major.result == 'failure'
     needs:
       - integration-major
     uses: ./.github/workflows/report-phpunit-failures.yml
@@ -36,4 +66,4 @@ jobs:
       contents: read
       issues: write
     with:
-      report-title: "[nightly] Nightly Major PHPUnit failures"
+      report-title: "[nightly] Nightly Major test failures"

@@ -32,7 +32,10 @@ class HealthCheckControllerTest extends TestCase
 
     public function testCheck(): void
     {
-        $response = $this->createHealthCheckController()->check(Context::createDefaultContext());
+        $controller = $this->createHealthCheckController();
+        $this->systemChecker->expects($this->never())->method('check');
+
+        $response = $controller->check(Context::createDefaultContext());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertFalse($response->isCacheable());
@@ -82,7 +85,10 @@ class HealthCheckControllerTest extends TestCase
 
     public function testEventIsDispatched(): void
     {
-        $response = $this->createHealthCheckController()->check(Context::createDefaultContext());
+        $controller = $this->createHealthCheckController();
+        $this->systemChecker->expects($this->never())->method('check');
+
+        $response = $controller->check(Context::createDefaultContext());
 
         static::assertCount(1, $this->eventDispatcher->getEvents());
         static::assertInstanceOf(HealthCheckEvent::class, $this->eventDispatcher->getEvents()[0]);
@@ -98,6 +104,8 @@ class HealthCheckControllerTest extends TestCase
         ?string $validBearer = null
     ): void {
         $controller = $this->createHealthCheckController($staticToken, $validBearer);
+        $this->systemChecker->expects($expectedOAuthServerException ? $this->never() : $this->once())
+            ->method('check');
         $request = Request::create('');
         if ($headerValue !== null) {
             $request->headers->set(HealthCheckController::HEADER_AUTHORIZATION, $headerValue);

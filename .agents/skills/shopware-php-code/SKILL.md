@@ -22,6 +22,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 - Prefer existing Shopware extension mechanisms over new provider interfaces when they already express the contract, for example Twig inheritance, DAL entities, Admin API routes, or explicit Twig blocks.
 - Be conservative with DTOs/value objects. Add one only when it expresses a meaningful domain concept, crosses a real boundary, or simplifies a public contract. Prefer scalars or arrays for simple internal data, and do not create DTOs solely to model private handoffs inside one class.
 - For transparent struct-style value objects, prefer public readonly properties over private properties plus trivial getters.
+- Name the arguments when a call passes several values that do not describe themselves — `true`, `false`, `0`, `1`, `[]`, `null` — or when naming lets you skip defaults you only passed in order to reach a later argument. Leave a short, self-explaining call positional.
 
 ## Public Surface
 
@@ -61,3 +62,4 @@ Prefer the existing Shopware extension point over a new abstraction.
 - Read `coding-guidelines/core/extendability.md` and `coding-guidelines/core/decorator-pattern.md` when adding or changing extension points.
 - Read `coding-guidelines/core/database-migations.md` when adding or changing migrations.
 - Read `coding-guidelines/core/feature-flags.md` when adding feature-flagged behavior, deprecations, or BC branches.
+- Read `coding-guidelines/core/6.5-new-php-language-features.md` when reaching for a newer language feature, named arguments included.

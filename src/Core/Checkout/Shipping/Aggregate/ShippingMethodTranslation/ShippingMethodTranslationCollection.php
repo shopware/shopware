@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ShippingMethodTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class ShippingMethodTranslationCollection extends EntityCollection

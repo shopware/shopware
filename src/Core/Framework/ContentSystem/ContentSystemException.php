@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
+use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -44,6 +45,7 @@ class ContentSystemException extends HttpException
     public const CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE = 'CONTENT_SYSTEM__CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE';
     public const PROPERTY_ALIAS_WITH_DOT_NOTATION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_WITH_DOT_NOTATION';
     public const PROPERTY_ALIAS_COLLISION = 'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION';
+    public const ROOT_SCOPE_WITH_REDISTRIBUTE = 'CONTENT_SYSTEM__ROOT_SCOPE_WITH_REDISTRIBUTE';
     public const PROVIDER_DELIVERY_COLLISION = 'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION';
     public const ROUTES_ALREADY_LOADED = 'CONTENT_SYSTEM__ROUTES_ALREADY_LOADED';
     public const MISSING_EXTENDS_ANNOTATION = 'CONTENT_SYSTEM__MISSING_EXTENDS_ANNOTATION';
@@ -106,6 +108,15 @@ class ContentSystemException extends HttpException
      * {@see INVALID_MAP_KEY} is one of them because a JSON object member named "5" arrives as an integer PHP
      * array key: a numeric property, data-requirement, slot or context key is a malformed payload the client
      * sent, which is why the DAL write path already rejects it as a layout write rejection rather than a fault.
+     *
+     * The six element-definition context-wiring codes are here for the same reason: each names a defect in a
+     * single element's own consumer or provider map, which the client authored and can correct, and each is
+     * raised on the element-local write path ({@see StoredElementCodec::decode()}). Four of them
+     * ({@see PROPERTY_ALIAS_COLLISION}, {@see REDISTRIBUTE_DOTTED_PATH}, {@see REDISTRIBUTE_CONFLICT},
+     * {@see ROOT_SCOPE_WITH_REDISTRIBUTE}) are additionally raised at render time, by {@see WiringPlanner}, for
+     * the trees that never passed the write boundary; the other two are raised on the write path alone. Those
+     * four also surface when the codec decodes an already-persisted row carrying such a defect, which is
+     * unreadable by design, with no repair.
      */
     public const CLIENT_DEFECT_CODES = [
         self::DATA_LOADER_NOT_REGISTERED,
@@ -115,6 +126,10 @@ class ContentSystemException extends HttpException
         self::INVALID_FIELD_VALUE_RANGE,
         self::CONSUMER_ALIAS_WITHOUT_REDISTRIBUTE,
         self::PROPERTY_ALIAS_WITH_DOT_NOTATION,
+        self::PROPERTY_ALIAS_COLLISION,
+        self::REDISTRIBUTE_DOTTED_PATH,
+        self::REDISTRIBUTE_CONFLICT,
+        self::ROOT_SCOPE_WITH_REDISTRIBUTE,
         self::PROVIDER_DELIVERY_COLLISION,
         self::INVALID_MAP_KEY,
         self::INVALID_ELEMENT_ID,
@@ -470,6 +485,19 @@ class ContentSystemException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::REDISTRIBUTE_CONFLICT,
             'Context key "{{ key }}" has both redistribute:true and explicit providesContext. Use one or the other.',
+            ['key' => $contextKey]
+        );
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public static function rootScopeWithRedistribute(string $contextKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ROOT_SCOPE_WITH_REDISTRIBUTE,
+            'Context key "{{ key }}" has scope:root and redistribute:true. A root-scoped consumer does not relay; a descendant reaches root context with a root-scoped consumer of its own.',
             ['key' => $contextKey]
         );
     }

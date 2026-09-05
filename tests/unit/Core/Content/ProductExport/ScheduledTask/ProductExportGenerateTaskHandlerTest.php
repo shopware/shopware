@@ -2,12 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\ScheduledTask;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -65,6 +67,30 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         } else {
             static::assertCount(0, $messageBusMock->getMessages());
         }
+    }
+
+    public function testFetchesStorefrontAndHeadlessSalesChannels(): void
+    {
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->with(
+                static::stringContains('`type_id` IN (:typeIds)'),
+                ['typeIds' => Uuid::fromHexToBytesList(ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS)],
+                ['typeIds' => ArrayParameterType::BINARY]
+            )
+            ->willReturn([]);
+
+        $handler = new ProductExportGenerateTaskHandler(
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
+            $connection,
+            new CollectingMessageBus(),
+            new NativeClock(),
+        );
+
+        $handler->run();
     }
 
     public static function shouldBeRunDataProvider(): \Generator

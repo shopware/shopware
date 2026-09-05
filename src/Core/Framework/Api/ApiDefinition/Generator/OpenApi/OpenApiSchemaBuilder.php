@@ -62,9 +62,26 @@ class OpenApiSchemaBuilder
     {
         $url = (string) EnvironmentHelper::getVariable('APP_URL', '');
 
+        if ($this->shouldUseRelativeServerUrl($url)) {
+            return [
+                new Server(['url' => self::API[$api]['url']]),
+            ];
+        }
+
         return [
             new Server(['url' => rtrim($url, '/') . self::API[$api]['url']]),
         ];
+    }
+
+    private function shouldUseRelativeServerUrl(string $url): bool
+    {
+        if (EnvironmentHelper::getVariable('APP_ENV', 'prod') !== 'prod') {
+            return false;
+        }
+
+        $host = parse_url($url, \PHP_URL_HOST);
+
+        return \is_string($host) && \in_array($host, ['localhost', '127.0.0.1', '::1'], true);
     }
 
     private function createInfo(string $api, string $version): Info
@@ -104,7 +121,7 @@ EOF,
         }
 
         $components->merge(array_values($this->createSecurityScheme($api)));
-        $components->merge(array_values($this->createDefaultResponses()));
+        $components->merge(array_values($this->createDefaultResponses($api)));
     }
 
     /**
@@ -432,16 +449,21 @@ EOF,
     /**
      * @return OpenApiResponse[]
      */
-    private function createDefaultResponses(): array
+    private function createDefaultResponses(string $api): array
     {
-        return [
+        $responses = [
             Response::HTTP_NOT_FOUND => $this->createErrorResponse(Response::HTTP_NOT_FOUND, 'Not Found', 'Resource with given parameter was not found.'),
             Response::HTTP_FORBIDDEN => $this->createErrorResponse(Response::HTTP_FORBIDDEN, 'Forbidden', 'This operation is restricted to logged in users.'),
             Response::HTTP_UNAUTHORIZED => $this->createErrorResponse(Response::HTTP_UNAUTHORIZED, 'Unauthorized', 'Authorization information is missing or invalid.'),
             Response::HTTP_BAD_REQUEST => $this->createErrorResponse(Response::HTTP_BAD_REQUEST, 'Bad Request', 'Bad parameters for this endpoint. See documentation for the correct ones.'),
             Response::HTTP_TOO_MANY_REQUESTS => $this->createErrorResponse(Response::HTTP_TOO_MANY_REQUESTS, 'Too Many Requests', 'Rate limit exceeded. Please wait before retrying.'),
-            Response::HTTP_NO_CONTENT => new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]),
         ];
+
+        if ($api !== DefinitionService::STORE_API) {
+            $responses[Response::HTTP_NO_CONTENT] = new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]);
+        }
+
+        return $responses;
     }
 
     private function createErrorResponse(int $statusCode, string $title, string $description): OpenApiResponse

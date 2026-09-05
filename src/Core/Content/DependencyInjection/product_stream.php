@@ -48,7 +48,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDefinition::class),
             service('event_dispatcher'),
         ])
-        ->tag('shopware.entity_indexer', ['priority' => 100]);
+        // Must run before ProductIndexer so it compiles stream filters before ProductStreamUpdater creates mappings.
+        ->tag('shopware.entity_indexer', ['priority' => 110]);
 
     $services->set(UpdateProductStreamMappingTask::class)
         ->tag('shopware.scheduled.task');
@@ -58,6 +59,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('scheduled_task.repository'),
             service('logger'),
             service('product_stream.repository'),
+            service('messenger.default_bus'),
         ])
         ->tag('messenger.message_handler');
 };

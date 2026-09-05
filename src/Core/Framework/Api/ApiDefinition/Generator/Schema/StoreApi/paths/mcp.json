@@ -9,7 +9,7 @@
                     "Experimental"
                 ],
                 "summary": "MCP JSON-RPC endpoint (Store API)",
-                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages. Requires a valid Store API access key. Streaming responses are delivered as a `text/event-stream` body on this POST operation; a standalone GET SSE stream is not supported. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages. Requires a valid Store API access key. Streaming responses are delivered as a `text/event-stream` body on this POST operation; a standalone GET SSE stream is not supported. Browser clients are supported: the CORS preflight is answered before routing with the `Access-Control-Allow-*` headers, including `mcp-session-id` and `mcp-protocol-version` in the allowed and exposed headers. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpPost",
                 "parameters": [
                     {
@@ -846,20 +846,6 @@
                         "ApiKey": []
                     }
                 ]
-            },
-            "options": {
-                "tags": [
-                    "MCP",
-                    "Experimental"
-                ],
-                "summary": "MCP CORS preflight (Store API)",
-                "description": "Handles CORS preflight requests for the Store API MCP endpoint. Answered before routing; the response carries the `Access-Control-Allow-*` headers including `mcp-session-id` and `mcp-protocol-version`. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
-                "operationId": "storeApiMcpOptions",
-                "responses": {
-                    "200": {
-                        "description": "CORS preflight accepted."
-                    }
-                }
             }
         }
     }

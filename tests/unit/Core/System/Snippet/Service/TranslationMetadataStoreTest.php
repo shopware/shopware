@@ -21,6 +21,7 @@ use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollect
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * @internal
@@ -252,9 +253,101 @@ class TranslationMetadataStoreTest extends TestCase
         static::assertArrayHasKey('es-ES', $metadata);
     }
 
+    public function testGetTranslationListMergesInstalledAndRemoteState(): void
+    {
+        // remote offers a newer it-IT, an unchanged es-ES and a ro-RO that is not installed locally
+        $this->initClient([
+            ['locale' => 'it-IT', 'updatedAt' => '2025-09-12T11:26:28.974+00:00', 'progress' => 99],
+            ['locale' => 'es-ES', 'updatedAt' => '2025-08-07T11:26:28.974+00:00', 'progress' => 100],
+            ['locale' => 'ro-RO', 'updatedAt' => '2025-09-10T11:26:28.974+00:00', 'progress' => 90],
+        ]);
+
+        $store = $this->getTranslationMetadataStore();
+        $store->save($this->getMetadataCollection());
+
+        $byLocale = array_column($store->getTranslationList(), null, 'locale');
+
+        // it-IT: installed at an older version than the remote => update available, local install marker stays
+        static::assertSame(99, $byLocale['it-IT']['progress']);
+        static::assertNotNull($byLocale['it-IT']['lastUpdate']);
+        static::assertTrue($byLocale['it-IT']['updateAvailable']);
+
+        // es-ES: installed and remote share the same version => no update available
+        static::assertSame(100, $byLocale['es-ES']['progress']);
+        static::assertNotNull($byLocale['es-ES']['lastUpdate']);
+        static::assertFalse($byLocale['es-ES']['updateAvailable']);
+
+        // ro-RO: remote progress is reported even though it is not installed
+        static::assertSame(90, $byLocale['ro-RO']['progress']);
+        static::assertNull($byLocale['ro-RO']['lastUpdate']);
+        static::assertFalse($byLocale['ro-RO']['updateAvailable']);
+
+        static::assertFalse($byLocale['it-IT']['isPseudoLanguage']);
+    }
+
+    public function testGetTranslationListDegradesWhenRemoteMetadataUnavailable(): void
+    {
+        $client = static::createStub(ClientInterface::class);
+        $client->method('request')->willThrowException(
+            new ClientException('Error', new Request('GET', 'localhost'), new Response())
+        );
+        $this->client = $client;
+
+        $store = $this->getTranslationMetadataStore();
+        $store->save($this->getMetadataCollection());
+
+        $byLocale = array_column($store->getTranslationList(), null, 'locale');
+
+        // remote down => no progress, no update flag; local install marker (lastUpdate) stays
+        static::assertNull($byLocale['it-IT']['progress']);
+        static::assertFalse($byLocale['it-IT']['updateAvailable']);
+        static::assertNotNull($byLocale['it-IT']['lastUpdate']);
+    }
+
+    public function testGetTranslationListFlagsPseudoLanguages(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['fr-FR', 'ach-UG'],
+            [],
+            new LanguageCollection([
+                new Language('fr-FR', 'Français'),
+                new Language('ach-UG', 'Acholi (Pseudo Language)'),
+            ]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
+            null,
+            null,
+            ['ach-UG'],
+        );
+        $this->initClient([]);
+
+        $byLocale = array_column($this->getTranslationMetadataStore()->getTranslationList(), null, 'locale');
+
+        static::assertTrue($byLocale['ach-UG']['isPseudoLanguage']);
+        static::assertFalse($byLocale['fr-FR']['isPseudoLanguage']);
+    }
+
+    public function testTranslationListCachesRemoteMetadataAcrossCalls(): void
+    {
+        $response = new Response(body: (string) json_encode([
+            ['locale' => 'es-ES', 'updatedAt' => '2025-08-07T11:26:28.974+00:00', 'progress' => 100],
+        ], \JSON_THROW_ON_ERROR));
+
+        $client = $this->createMock(ClientInterface::class);
+        // The list path fetches the remote metadata once and serves the second call from the cache.
+        $client->expects($this->once())->method('request')->willReturn($response);
+
+        $store = new TranslationMetadataStore($this->config, $client, $this->filesystem, new ArrayAdapter());
+
+        $store->getTranslationList();
+        $store->getTranslationList();
+    }
+
     private function getTranslationMetadataStore(): TranslationMetadataStore
     {
-        return new TranslationMetadataStore($this->config, $this->client, $this->filesystem);
+        return new TranslationMetadataStore($this->config, $this->client, $this->filesystem, new ArrayAdapter());
     }
 
     /**

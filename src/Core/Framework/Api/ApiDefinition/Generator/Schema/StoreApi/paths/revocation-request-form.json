@@ -72,6 +72,14 @@
                 "responses": {
                     "200": {
                         "description": "Message sent successfully."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted revocation request data failed validation, e.g. a missing email address or order number."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

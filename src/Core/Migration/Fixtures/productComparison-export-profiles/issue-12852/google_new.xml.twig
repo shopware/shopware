@@ -10,7 +10,7 @@
     {%- if productTypeCategory -%}
         <g:product_type>{{ productTypeCategory.breadCrumb|slice(1)|join(' > ')|raw|escape }}</g:product_type>
     {%- endif -%}
-    <link>{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}</link>
+    <link>{{ entitySeoUrl('product', product.id) }}</link>
     {% if product.cover.media is defined %}<g:image_link>{{ product.cover.media.url }}</g:image_link>{% endif %}
     <g:condition>new</g:condition>
     <g:availability>

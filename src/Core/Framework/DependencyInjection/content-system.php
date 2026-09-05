@@ -311,6 +311,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContextDeliveryResolver::class)
         ->args([
             service(ContextDistributor::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(RenderedTreeFactory::class)
@@ -621,6 +622,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemElementTypeRegistry::class),
             service(ElementResolver::class),
             service(ProviderDeliveryKeyResolver::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(ElementResolver::class)
@@ -645,6 +647,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemDataLoaderMapResolver::class),
             service(DataLoaderConfigSerializerProvider::class),
             service(ContentSystemStyleOptionRegistry::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(LayoutGate::class)

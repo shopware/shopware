@@ -21,14 +21,10 @@ final class CoreStoreApiSchemaMigrationScopeProvider implements StoreApiSchemaMi
 
     private readonly string $schemaPath;
 
-    private readonly string $allowlistPath;
-
     public function __construct(
         ?string $schemaPath = null,
-        ?string $allowlistPath = null,
     ) {
         $this->schemaPath = $schemaPath ?? __DIR__ . '/Schema/StoreApi';
-        $this->allowlistPath = $allowlistPath ?? __DIR__ . '/StoreApiPhpGeneratedSchemaAllowlist.json';
     }
 
     public function getScope(): string
@@ -44,11 +40,6 @@ final class CoreStoreApiSchemaMigrationScopeProvider implements StoreApiSchemaMi
     public function getSchemaPaths(): array
     {
         return [$this->schemaPath];
-    }
-
-    public function getAllowlistPath(): string
-    {
-        return $this->allowlistPath;
     }
 
     public function includesAllDefinitions(): bool

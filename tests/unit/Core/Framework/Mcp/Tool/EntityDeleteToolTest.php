@@ -108,7 +108,7 @@ class EntityDeleteToolTest extends TestCase
         $events->method('getEvents')->willReturn(new NestedEventCollection([$writtenEvent]));
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('delete')->willReturn($events);
+        $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '["abc"]', true));
@@ -126,7 +126,7 @@ class EntityDeleteToolTest extends TestCase
         $connection->expects($this->once())->method('rollBack');
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('delete')->willThrowException(new \RuntimeException('FK constraint'));
+        $repository->expects($this->once())->method('delete')->willThrowException(new \RuntimeException('FK constraint'));
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '["abc"]', true));
@@ -145,7 +145,7 @@ class EntityDeleteToolTest extends TestCase
         $events->method('getEvents')->willReturn(new NestedEventCollection());
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('delete')->willReturn($events);
+        $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '["abc123"]', false));

@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 final class RevocationRequestEvent extends Event implements SalesChannelAware, MailAware, ScalarValuesAware, FlowEventAware
 {

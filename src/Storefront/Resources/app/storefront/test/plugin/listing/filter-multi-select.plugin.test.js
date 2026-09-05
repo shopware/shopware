@@ -3,6 +3,7 @@ import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plug
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 
 let mockElement = null;
+let mockElementButton = null;
 
 describe('FilterMultiSelect tests', () => {
     let filterMultiSelectPlugin = undefined;
@@ -10,6 +11,7 @@ describe('FilterMultiSelect tests', () => {
     beforeEach(() => {
         // create mocks
         mockElement = document.createElement('div');
+        mockElement.setAttribute('aria-busy', 'true');
 
         const cmsElementProductListingWrapper = document.createElement('div');
         cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
@@ -20,8 +22,10 @@ describe('FilterMultiSelect tests', () => {
         const mockElementInput = document.createElement('Input');
         mockElementInput.classList.add('filter-multi-select-checkbox');
 
-        const mockElementButton = document.createElement('button');
+        mockElementButton = document.createElement('button');
         mockElementButton.classList.add('filter-panel-item-toggle');
+        mockElementButton.setAttribute('disabled', 'disabled');
+        mockElementButton.setAttribute('data-filter-loading', '');
 
         mockElement.appendChild(cmsElementProductListingWrapper);
         mockElement.appendChild(mockElementInput);
@@ -44,6 +48,12 @@ describe('FilterMultiSelect tests', () => {
 
     test('filter multi select plugin exists', () => {
         expect(typeof filterMultiSelectPlugin).toBe('object');
+    });
+
+    test('enables the filter after its event handlers are registered', () => {
+        expect(mockElement.getAttribute('aria-busy')).toBeNull();
+        expect(mockElementButton.getAttribute('disabled')).toBeNull();
+        expect(mockElementButton.getAttribute('data-filter-loading')).toBeNull();
     });
 
     test('element state attribute is set when disableFilter get called', () => {

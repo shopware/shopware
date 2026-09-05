@@ -195,12 +195,10 @@ class ElementResolver
     }
 
     /**
-     * Deterministic, conservative default selection over three ordered pools. Root outranks Parent: the page's
-     * root context is the more relevant source in the default storefront layouts. Ambiguity inside the
-     * preferred pool is still ambiguity, so two Root candidates return null rather than falling through to a
-     * lone Parent candidate; `wire-context` is the deliberate path out of that. Returns null when no source is
-     * unambiguously correct; the diagnostics layer turns that into ambiguous_required / unresolved_required for
-     * required properties.
+     * Root outranks Parent (the page's root context is the more relevant source in the default storefront
+     * layouts), and ambiguity inside the preferred pool never falls through to the next one. Null means no
+     * source is unambiguously correct; the diagnostics layer turns that into ambiguous_required /
+     * unresolved_required for required properties.
      *
      * @param list<ResolutionCandidate> $contextOffers Root and Parent candidates, in availability order
      * @param list<ResolutionCandidate> $loaders

@@ -13,14 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Computes the context available at an element's position with one formula for every depth: the ancestor-chain
- * exposure plus the root-ambient set appended verbatim. Each ancestor exposes to its direct children only the
- * declared providers that resolve on it (Level 2) plus the redistribute consumers whose key actually flows into
- * it along the CHAIN. This mirrors runtime delivery (ContentPipeline's redistribute-derivation step turning
- * redistribute flags into broadcast providers + ContextDistributor delivering to direct children only), so the
- * gate honors the rule that element-provided context travels past direct children solely via explicit
- * redistribution, while root-ambient context reaches every depth directly and never rides a chain.
- * Section-agnostic: the root-ambient set is passed in (entity assignment yields the page entity; header/footer
- * yield nothing).
+ * exposure plus the root-ambient set appended verbatim, mirroring runtime delivery. Section-agnostic: the
+ * root-ambient set is passed in (entity assignment yields the page entity; header/footer yield nothing).
  *
  * Public Core service so the diagnostics kernel and the future mutation operations share one context walk.
  *
@@ -84,9 +78,8 @@ class AvailableContextResolver
      * element-provided even when the value it relays originated at the root.
      *
      * @param list<ProvidedContext> $incoming context this element received off the ancestor chain
-     * @param list<ProvidedContext> $ambient the layout's root-ambient context; only the entries this element's
-     *                                       own root-scoped consumers land on a provider's key can back that
-     *                                       provider, which {@see ambientReceivableFor()} selects per key
+     * @param list<ProvidedContext> $ambient the layout's root-ambient context, filtered per provider key by
+     *                                       {@see ambientReceivableFor()}
      *
      * @return list<ProvidedContext>
      */
@@ -166,20 +159,14 @@ class AvailableContextResolver
     }
 
     /**
-     * The ambient entries this element can receive UNDER the provider key being judged. An entry counts only
-     * where the element declares a {@see ConsumerScope::Root} consumer that writes exactly that provider key
-     * and whose consumer key the entry supplies, matched with {@see ContextPathResolver::matches()}
-     * so a consumer hanging below the ambient key as a dot path counts as delivery resolves it.
+     * The ambient entries this element can receive UNDER the provider key being judged: those its own
+     * {@see ConsumerScope::Root} consumers write to exactly that key, the consumer key matched against the
+     * ambient key with {@see ContextPathResolver::matches()}.
      *
-     * Both halves mirror runtime, and the property key the consumer writes is compared VERBATIM because
-     * runtime writes it verbatim. An ambient value reaches an element only through that element's own
-     * root-scoped consumers (ContextDeliveryResolver's overlay), delivered under `propertyAlias ?? consumerKey`,
-     * and a provider reads its own key off the working map (ContextDistributor's null gate skips a provider
-     * whose key holds nothing). So a dotted consumer carrying no alias writes its full dotted key, which no
-     * provider key reads, and comparing only that key's base segment would back a provider render leaves unfed. Judging
-     * against the whole ambient set instead backs a consumer-less ancestor's provider on a bare FQCN match,
-     * and that phantom exposure then satisfies a required parent-scope consumer downstream that render never
-     * feeds.
+     * The property key the consumer writes (`propertyAlias ?? consumerKey`) is compared VERBATIM because the
+     * delivery overlay writes it verbatim: a dotted consumer carrying no alias writes its full dotted key,
+     * which no provider key reads, so comparing only its base segment would back a provider render leaves
+     * unfed.
      *
      * @param list<ProvidedContext> $ambient
      *

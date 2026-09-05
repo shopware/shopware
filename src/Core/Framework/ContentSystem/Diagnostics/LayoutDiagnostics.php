@@ -670,10 +670,8 @@ class LayoutDiagnostics
 
     /**
      * A required consumer whose key nothing in scope supplies. The two scopes draw from disjoint halves of the
-     * available set, which is what keeps the uniform availability formula honest: {@see AvailableContextResolver}
-     * appends the root-ambient set at every depth, so without the split a required parent-scope consumer for a
-     * root-only key would pass this gate and then render nothing, because delivery hands root-ambient values to
-     * root-scoped consumers alone.
+     * available set; without the split a required parent-scope consumer for a root-only key would pass this
+     * gate and then render nothing.
      *
      * @param list<ProvidedContext> $available
      *

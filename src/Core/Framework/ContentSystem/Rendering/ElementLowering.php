@@ -84,9 +84,7 @@ final readonly class ElementLowering
         $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
         $ambient = [];
 
-        // Both halves gate the ambient run, and each rules out a different nothing-to-do: a specification
-        // with no page-level requirements, and a forest the preparation refused to wrap (which is the same
-        // condition seen from the other side, plus the empty forest).
+        // No wrapper or no page-level requirements: nothing ambient to resolve.
         if ($virtualRoot !== null && $pageDataRequirements !== []) {
             $ambient = $this->dataResolver->resolveRequirements(
                 $virtualRoot,
@@ -114,9 +112,6 @@ final readonly class ElementLowering
     }
 
     /**
-     * The specification carries its page-level requirements as a list, while a data run reads them keyed by
-     * requirement key, the shape a {@see StoredElement} holds its own in.
-     *
      * @param list<DataRequirement> $requirements
      *
      * @return array<string, DataRequirement>

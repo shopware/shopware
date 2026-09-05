@@ -115,6 +115,34 @@ jobs:
     with:
       report-title: "[nightly] Nightly test failures"
 
+  nightly-health-report:
+    name: Nightly health report
+    runs-on: ubuntu-24.04
+    if: always() && github.repository == 'shopware/shopware'
+    needs:
+      - redis
+      - admin
+      - integration
+      - visual-tests
+      - php
+      - storefront
+      - downstream
+      - prepare-release
+      - nightly-other-branches
+    permissions:
+      actions: read
+      contents: read
+    env:
+      CURRENT_JOB_NAME: Nightly health report
+      GITHUB_TOKEN: ${{ github.token }}
+      SLACK_WORKFLOW_URL: ${{ secrets.SLACK_ATS_WORKFLOW_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+
+      - name: Report nightly health to Slack
+        run: node .github/bin/js/nightly-slack-report.mjs
+
   # we need this for our LTS, because gh only runs scheduled for the default branch
   nightly-other-branches:
     runs-on: ubuntu-24.04

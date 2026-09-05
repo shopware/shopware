@@ -44,6 +44,89 @@ class CheapestPriceContainer extends Struct
 
     public function resolve(Context $context): ?CheapestPrice
     {
+        return $this->doResolve($context, false);
+    }
+
+    /**
+     * Like {@see self::resolve()} but also excludes variants that are
+     * closeout and currently out of stock, so the storefront never picks
+     * such a variant as the cheapest one when
+     * `core.listing.hideCloseoutProductsWhenOutOfStock` is enabled.
+     *
+     * @see https://github.com/shopware/shopware/issues/16239
+     */
+    public function resolveExcludingHiddenCloseoutVariants(Context $context): ?CheapestPrice
+    {
+        return $this->doResolve($context, true);
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'cheapest_price_container';
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getValue(): array
+    {
+        return $this->value;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getPricesForVariant(string $variantId): array
+    {
+        return $this->value[$variantId] ?? [];
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getVariantIds(): array
+    {
+        return \array_keys($this->value);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getDefault(): ?array
+    {
+        return $this->default;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getRuleIds(): array
+    {
+        if ($this->ruleIds === null) {
+            $ruleIds = [];
+
+            foreach ($this->value as $group) {
+                foreach ($group as $price) {
+                    /** @var string|null $ruleId */
+                    $ruleId = $price['rule_id'] ?? null;
+                    if ($ruleId === null) {
+                        continue;
+                    }
+
+                    $ruleIds[$price['rule_id']] = true;
+                }
+            }
+
+            /** @var list<string> $ruleIds */
+            $ruleIds = array_keys($ruleIds);
+            $this->ruleIds = $ruleIds;
+        }
+
+        return $this->ruleIds;
+    }
+
+    private function doResolve(Context $context, bool $hideCloseoutOutOfStock): ?CheapestPrice
+    {
         $ruleIds = $context->getRuleIds();
         $ruleIds[] = 'default';
 
@@ -62,6 +145,11 @@ class CheapestPriceContainer extends Struct
 
                 // Check sales channel availability
                 if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
+                    continue;
+                }
+
+                // Exclude hidden closeout variants that are out of stock (see issue #16239)
+                if ($hideCloseoutOutOfStock && $this->isHiddenCloseoutVariant($price)) {
                     continue;
                 }
 
@@ -159,71 +247,6 @@ class CheapestPriceContainer extends Struct
         return $object;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'cheapest_price_container';
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getValue(): array
-    {
-        return $this->value;
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getPricesForVariant(string $variantId): array
-    {
-        return $this->value[$variantId] ?? [];
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getVariantIds(): array
-    {
-        return \array_keys($this->value);
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function getDefault(): ?array
-    {
-        return $this->default;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getRuleIds(): array
-    {
-        if ($this->ruleIds === null) {
-            $ruleIds = [];
-
-            foreach ($this->value as $group) {
-                foreach ($group as $price) {
-                    /** @var string|null $ruleId */
-                    $ruleId = $price['rule_id'] ?? null;
-                    if ($ruleId === null) {
-                        continue;
-                    }
-
-                    $ruleIds[$price['rule_id']] = true;
-                }
-            }
-
-            /** @var list<string> $ruleIds */
-            $ruleIds = array_keys($ruleIds);
-            $this->ruleIds = $ruleIds;
-        }
-
-        return $this->ruleIds;
-    }
-
     /**
      * @param array<mixed> $prices
      *
@@ -299,5 +322,22 @@ class CheapestPriceContainer extends Struct
         $salesChannelIds = $price['sales_channel_ids'] ?? [];
 
         return \in_array($salesChannelId, $salesChannelIds, true);
+    }
+
+    /**
+     * Mirrors the ProductCloseoutFilter used in listing queries:
+     * a variant counts as "hidden" when it is a closeout product AND
+     * currently not available (out of stock and no longer reorderable).
+     *
+     * @param array<mixed> $price
+     */
+    private function isHiddenCloseoutVariant(array $price): bool
+    {
+        // Backwards compatible with price rows indexed prior to the availability fix (issue #16239)
+        if (!\array_key_exists('is_closeout', $price) || !\array_key_exists('available', $price)) {
+            return false;
+        }
+
+        return (bool) $price['is_closeout'] && !(bool) $price['available'];
     }
 }

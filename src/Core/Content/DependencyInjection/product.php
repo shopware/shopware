@@ -133,6 +133,7 @@ use Shopware\Core\Content\Product\Stock\AvailableStockMirrorSubscriber;
 use Shopware\Core\Content\Product\Stock\LoadProductStockSubscriber;
 use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockStorage;
+use Shopware\Core\Content\Product\Subscriber\CheapestPriceAvailabilitySubscriber;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
@@ -144,6 +145,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
@@ -344,6 +346,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(CheapestPriceAvailabilitySubscriber::class)
+        ->args([
+            service(Connection::class),
+            service(EntityIndexerRegistry::class),
+            service('messenger.default_bus'),
+        ])
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ProductDescriptionTeaserBuilder::class)
         ->args([

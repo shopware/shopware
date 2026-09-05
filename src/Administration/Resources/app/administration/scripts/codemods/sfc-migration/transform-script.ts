@@ -41,6 +41,7 @@ import {
     renderWatcher,
     resolveMixins,
 } from './option-handlers';
+import { rewritePublishedData } from './rewrite-published-data';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
 
 type ScriptResult = {
@@ -155,6 +156,7 @@ function renderScript(
     collected: Collected,
     watchers: CollectedWatcher[],
     composables: ResolvedComposable[],
+    publishesData: boolean,
 ): string {
     const usesEmit = ctx.helpers.has('emit');
     const usesProps = ctx.helpers.has('props');
@@ -185,6 +187,7 @@ function renderScript(
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
+        publishesData ? "import usePublishedData from 'src/app/composables/use-published-data';" : null,
         ...composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`),
     ]
         .filter(Boolean)
@@ -304,6 +307,7 @@ function transformScript(
         templateComponentTags: transformOptions.templateComponentTags,
         templateRefs: new Set(),
         helpers: new Set(),
+        rewrittenRanges: [],
         inferredEmits: [],
         reports: [],
     };
@@ -390,6 +394,8 @@ function transformScript(
         },
     });
 
+    const publishesData = rewritePublishedData(ctx, options);
+
     if (collected.createdFn) {
         collected.rewriteFns.push(collected.createdFn);
     }
@@ -448,7 +454,7 @@ function transformScript(
     // --- render ------------------------------------------------------------------------------------
 
     return {
-        script: renderScript(ctx, collected, watchers, composables),
+        script: renderScript(ctx, collected, watchers, composables, publishesData),
         moduleScript,
         reasons: reasonsOf('todo'),
     };

@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Schema;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
@@ -25,7 +25,7 @@ class CustomEntitySchemaUpdater
 
     public function __construct(
         private readonly Connection $connection,
-        private readonly LockFactory $lockFactory,
+        private readonly LockManager $lockManager,
         private readonly SchemaUpdater $schemaUpdater
     ) {
     }
@@ -48,9 +48,9 @@ class CustomEntitySchemaUpdater
 
     private function lock(\Closure $closure): void
     {
-        $lock = $this->lockFactory->createLock('custom-entity::schema-update', 30);
+        $lock = $this->lockManager->acquire('custom-entity::schema-update', ttl: 30, blocking: true);
 
-        if ($lock->acquire(true)) {
+        if ($lock !== null) {
             $closure();
 
             $lock->release();

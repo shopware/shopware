@@ -3,13 +3,13 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
-use Symfony\Component\Lock\LockFactory;
 
 /**
  * @phpstan-import-type RedisTypeHint from RedisConnectionFactory
@@ -26,7 +26,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
          * @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future)
          */
         private $redis,
-        private readonly LockFactory $lockFactory,
+        private readonly LockManager $lockManager,
         private readonly EntityRepository $numberRangeRepository
     ) {
     }
@@ -54,24 +54,18 @@ class IncrementRedisStorage extends AbstractIncrementStorage
 
         // if the configured start value is greater than the current increment
         // we need a lock so that the value be only set once to the start value
-        $lock = $this->lockFactory->createLock('number-range-' . $config['id']);
+        return $this->lockManager->executeLocked(
+            'number-range-' . $config['id'],
+            function () use ($key, $start, $increment): int {
+                // to set the current increment to the new configured start we use incrementBy, rather than simply setting the new start value
+                // to prevent issues where maybe the increment value is already increment to higher value by competing requests
+                $newIncr = $this->redis->incrBy($key, $start - $increment); // // @phpstan-ignore-line - because multiple redis implementations phpstan doesn't like this
+                \assert(\is_int($newIncr));
 
-        if (!$lock->acquire()) {
-            // we can't acquire the lock, meaning another request will increase the increment value to the new start value
-            // so we can use the current increment for now
-            return $increment;
-        }
-
-        try {
-            // to set the current increment to the new configured start we use incrementBy, rather than simply setting the new start value
-            // to prevent issues where maybe the increment value is already increment to higher value by competing requests
-            $newIncr = $this->redis->incrBy($key, $start - $increment); // // @phpstan-ignore-line - because multiple redis implementations phpstan doesn't like this
-            \assert(\is_int($newIncr));
-
-            return $newIncr;
-        } finally {
-            $lock->release();
-        }
+                return $newIncr;
+            },
+            static fn (): int => $increment,
+        );
     }
 
     /**
@@ -123,24 +117,23 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     public function increaseToAtLeast(string $configurationId, int $value): void
     {
         $key = $this->getKey($configurationId);
-        $lock = $this->lockFactory->createLock('number-range-' . $configurationId);
-        if (!$lock->acquire(true)) {
-            return;
-        }
+        $this->lockManager->executeLocked(
+            'number-range-' . $configurationId,
+            function () use ($key, $value): void {
+                $currentValue = $this->redis->get($key);
+                $currentValue = $currentValue === false || $currentValue === null ? 0 : (int) $currentValue;
 
-        try {
-            $currentValue = $this->redis->get($key);
-            $currentValue = $currentValue === false || $currentValue === null ? 0 : (int) $currentValue;
+                $increment = $value - $currentValue;
+                if ($increment <= 0) {
+                    return;
+                }
 
-            $increment = $value - $currentValue;
-            if ($increment <= 0) {
-                return;
-            }
-
-            $this->redis->incrBy($key, $increment); // @phpstan-ignore-line - because multiple redis implementations phpStan doesn't like this
-        } finally {
-            $lock->release();
-        }
+                $this->redis->incrBy($key, $increment); // @phpstan-ignore-line - because multiple redis implementations phpStan doesn't like this
+            },
+            static function (): void {
+            },
+            blocking: true,
+        );
     }
 
     public function getDecorated(): AbstractIncrementStorage

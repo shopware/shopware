@@ -4,6 +4,7 @@ namespace Shopware\Core\System\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition;
@@ -85,7 +86,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(IncrementRedisStorage::class)
         ->args([
             service('shopware.number_range.redis'),
-            service('lock.factory'),
+            service(LockManager::class),
             service('number_range.repository'),
         ])
         ->tag('shopware.value_generator_connector', ['storage' => 'redis']);

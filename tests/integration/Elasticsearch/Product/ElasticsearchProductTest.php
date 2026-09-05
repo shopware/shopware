@@ -886,26 +886,29 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('m2'), $result->getKeys());
             static::assertContains($data->get('m3'), $result->getKeys());
 
+            // product-1
             $bucket = $result->get($data->get('m1'));
             static::assertNotNull($bucket);
             static::assertSame(1, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
-            static::assertSame(0.0, $price->getSum());
+            static::assertSame(50.0, $price->getSum());
 
+            // product-2, product-3 and product-4
             $bucket = $result->get($data->get('m2'));
             static::assertNotNull($bucket);
             static::assertSame(3, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
-            static::assertSame(0.0, $price->getSum());
+            static::assertSame(450.0, $price->getSum());
 
+            // product-5 and product-6
             $bucket = $result->get($data->get('m3'));
             static::assertNotNull($bucket);
             static::assertSame(2, $bucket->getCount());
             $price = $bucket->getResult();
             static::assertInstanceOf(SumResult::class, $price);
-            static::assertSame(0.0, $price->getSum());
+            static::assertSame(550.0, $price->getSum());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -2106,6 +2109,42 @@ class ElasticsearchProductTest extends TestCase
     {
         foreach (require __DIR__ . '/Fixture/CheapestPriceSorting.php' as $name => $data) {
             yield $name => $data;
+        }
+    }
+
+    public function testPriceSorting(): void
+    {
+        $ids = self::$indexedIds;
+
+        try {
+            // the plain price of the record itself, inherited from the parent when the variant has none:
+            // v.4.1 = 60, p.1 = 70, v.4.2 = 70, v.2.2 = 79, v.2.1 = 80 (parent), p.5 = 110, v.6.1 = 120 (parent)
+            $expected = array_values($ids->getList(['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'p.5', 'v.6.1']));
+
+            $searcher = $this->createEntitySearcher();
+
+            $criteria = new Criteria($expected);
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addSorting(new FieldSorting('product.price', FieldSorting::ASCENDING));
+            // autoIncrement breaks the 70 tie, productNumber cannot (see assertSorting())
+            $criteria->addSorting(new FieldSorting('product.autoIncrement', FieldSorting::ASCENDING));
+
+            $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+            static::assertSame($expected, array_values($result->getIds()));
+
+            $criteria = new Criteria($expected);
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addSorting(new FieldSorting('product.price', FieldSorting::DESCENDING));
+            $criteria->addSorting(new FieldSorting('product.autoIncrement', FieldSorting::DESCENDING));
+
+            $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+            static::assertSame(array_reverse($expected), array_values($result->getIds()));
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
         }
     }
 

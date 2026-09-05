@@ -111,14 +111,23 @@ class ServiceLifecycle
     }
 
     /**
-     * Re-evaluate every installed service and uninstall any whose installation-gating requirements are
-     * no longer met (e.g. services were disabled as a unit).
+     * Re-evaluate every installed service against its requirements: uninstall any whose
+     * installation-gating requirements are no longer met (e.g. services were disabled as a unit), and
+     * activate any that is inactive although its requirements do not permit a state change.
      */
     public function reevaluateInstalled(Context $context): void
     {
         foreach ($this->serviceStorage->findAll($context) as $service) {
             if (!$this->requirementsValidator->isSatisfied($service->requirements, Gate::INSTALLATION)) {
                 $this->uninstall($service->name, $context);
+
+                continue;
+            }
+
+            if (!$service->active && !$this->requirementsValidator->permitsStateChange($service->requirements)) {
+                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+                    $this->appManager->activate($service->app, $context);
+                });
             }
         }
     }

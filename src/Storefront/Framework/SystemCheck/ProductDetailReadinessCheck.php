@@ -2,8 +2,10 @@
 
 namespace Shopware\Storefront\Framework\SystemCheck;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
@@ -11,6 +13,8 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
@@ -27,10 +31,14 @@ class ProductDetailReadinessCheck extends BaseCheck
 
     private const MESSAGE_FAILURE = 'Some or all product detail pages are unhealthy.';
 
+    /**
+     * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
+     */
     public function __construct(
         private readonly SalesChannelDomainUtil $util,
-        private readonly Connection $connection,
         private readonly AbstractSalesChannelDomainProvider $domainProvider,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
     ) {
     }
 
@@ -65,7 +73,7 @@ class ProductDetailReadinessCheck extends BaseCheck
         $extra = [];
         $requestStatus = [];
         foreach ($domains as $salesChannelId => $domain) {
-            $productId = $this->fetchActiveProductIdBySalesChannelId($salesChannelId);
+            $productId = $this->fetchVisibleProductId($salesChannelId);
 
             if ($productId === null) {
                 continue;
@@ -99,28 +107,26 @@ class ProductDetailReadinessCheck extends BaseCheck
         );
     }
 
-    private function fetchActiveProductIdBySalesChannelId(string $salesChannelId): ?string
+    /**
+     * @description The product is resolved through the sales channel repository on purpose, so the same criteria
+     * processing the storefront applies is used: SalesChannelProductDefinition::processCriteria() adds the
+     * ProductAvailableFilter that ProductDetailRoute uses, and extensions restricting product visibility by rules
+     * (for example via the sales_channel.product.process.criteria event) are taken into account as well.
+     * Otherwise the check could pick a product the storefront refuses to render for an anonymous visitor,
+     * which would report an intentional restriction as an unhealthy product detail page.
+     */
+    private function fetchVisibleProductId(string $salesChannelId): ?string
     {
-        $sql = <<<'SQL'
-            SELECT LOWER(HEX(p.id)) as product_id
-            FROM product p
-            WHERE
-                p.version_id = :versionId
-                AND p.active = 1
-                AND p.stock > 0
-                AND EXISTS (
-                    SELECT 1 FROM product_visibility pv
-                    WHERE pv.product_id = p.id
-                        AND pv.product_version_id = p.version_id
-                        AND pv.sales_channel_id = :salesChannelId
-                )
-            ORDER BY p.id
-            LIMIT 1;
-        SQL;
+        $context = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
 
-        return $this->connection->fetchOne(
-            $sql,
-            ['salesChannelId' => Uuid::fromHexToBytes($salesChannelId), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-        ) ?: null;
+        $criteria = new Criteria();
+        $criteria->setTitle('product-detail-readiness-check');
+        // product.available covers the closeout handling of ProductDetailRoute::addCloseoutFilter()
+        $criteria->addFilter(new EqualsFilter('available', true));
+        // pick the same product on every run, so the check result is reproducible
+        $criteria->addSorting(new FieldSorting('id'));
+        $criteria->setLimit(1);
+
+        return $this->productRepository->searchIds($criteria, $context)->firstId();
     }
 }

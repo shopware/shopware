@@ -612,6 +612,11 @@ Removing the language that the same write assigns as the new default is now reje
 
 ## Core
 
+### Services are reset between requests in long running runtimes
+
+Services tagged with `kernel.reset` are now reset between two requests handled by the same kernel instance, as in a plain Symfony application. Previously the reset never ran, so resettable services kept their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole). Extensions that relied on state surviving across requests in such runtimes must move that state to an explicit cache or store; in PHP-FPM setups nothing changes.
+
+As part of this change Symfony's `http_cache` service is no longer registered (`framework.http_cache.enabled` is now `false`) — HTTP caching keeps being handled by Shopware's own cache layer, which decorates `http_kernel`. Projects that referenced the `http_cache` service or enabled it in their own configuration must remove those references.
 ### Document V1/V2 file compatibility
 
 Document V1 and Document V2 can now open and download each other's files, including legacy files in the V2 archive download.

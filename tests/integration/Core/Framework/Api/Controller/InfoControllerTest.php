@@ -11,11 +11,13 @@ use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\CustomerAware;
@@ -678,6 +680,50 @@ class InfoControllerTest extends TestCase
         static::assertContains('product', $data['entityTypes']);
         static::assertContains('category', $data['entityTypes']);
         static::assertContains('landing_page', $data['entityTypes']);
+    }
+
+    public function testContentSystemRootSources(): void
+    {
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-root-sources.json');
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('rootSources', $data);
+        static::assertIsArray($data['rootSources']);
+
+        $registry = static::getContainer()->get(RootSourceRegistry::class);
+        static::assertInstanceOf(RootSourceRegistry::class, $registry);
+
+        static::assertSame(
+            $registry->knownRootSources(),
+            array_column($data['rootSources'], 'id'),
+        );
+
+        $byId = array_column($data['rootSources'], null, 'id');
+
+        static::assertArrayHasKey('product', $byId);
+        static::assertSame('entity', $byId['product']['kind']);
+        static::assertSame([[
+            'contextKey' => 'product',
+            'fqcn' => SalesChannelProductEntity::class,
+            'contextType' => 'single',
+            'distribution' => 'broadcast',
+        ]], $byId['product']['providedContext']);
+
+        static::assertArrayHasKey('header', $byId);
+        static::assertSame('section', $byId['header']['kind']);
+        static::assertSame([], $byId['header']['providedContext']);
+
+        static::assertArrayHasKey('none', $byId);
+        static::assertSame('none', $byId['none']['kind']);
+        static::assertSame([], $byId['none']['providedContext']);
     }
 
     public function testContentSystemElementTypes(): void

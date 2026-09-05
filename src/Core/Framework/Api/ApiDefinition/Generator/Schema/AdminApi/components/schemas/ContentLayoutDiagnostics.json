@@ -147,7 +147,7 @@
             "ContentLayoutResolutionCandidate": {
                 "title": "Content layout resolution candidate",
                 "type": "object",
-                "description": "One possible source for filling a `reference` property: an ancestor/root context provider (`origin: parent`), a data loader (`origin: loader`), or the element's own applied wiring (`origin: stored`, only ever the `resolved` pick, never a `candidates` menu entry). The fields that apply depend on `origin`.",
+                "description": "One possible source for filling a `reference` property: an ancestor context provider (`origin: parent`), the layout's root-ambient context (`origin: root`), a data loader (`origin: loader`), or the element's own applied wiring (`origin: stored`, only ever the `resolved` pick, never a `candidates` menu entry). The fields that apply depend on `origin`.",
                 "required": [
                     "origin",
                     "contextKey",
@@ -162,34 +162,34 @@
                 "properties": {
                     "origin": {
                         "type": "string",
-                        "enum": ["parent", "loader", "stored"],
-                        "description": "Where the candidate value originates: a parent/root context provider (`parent`), a data loader (`loader`), or the element's own applied wiring (`stored`)."
+                        "enum": ["parent", "loader", "stored", "root"],
+                        "description": "Where the candidate value originates: an ancestor context provider (`parent`), the layout's root-ambient context supplied by its bound root source (`root`), a data loader (`loader`), or the element's own applied wiring (`stored`). Candidates are offers, listed whenever the source's type fits the property and independently of the wiring the element carries; the origin tells a client which wiring to write."
                     },
                     "contextKey": {
                         "type": ["string", "null"],
-                        "description": "For a `parent` candidate, the context key the value is provided under; `null` for a `loader` or `stored` candidate."
+                        "description": "For a `parent` or `root` candidate, the context key the value is provided under; `null` for a `loader` or `stored` candidate."
                     },
                     "providerElementId": {
                         "type": ["string", "null"],
-                        "description": "For a `parent` candidate, the id of the providing element (or `null` for a root-ambient provider); `null` for a `loader` or `stored` candidate."
+                        "description": "For a `parent` candidate, the id of the providing element; `null` for a `root` candidate, whose value comes from the layout's bound root source and not from an element, and `null` for a `loader` or `stored` candidate."
                     },
                     "path": {
                         "type": ["string", "null"],
-                        "description": "For a `parent` candidate, the optional dot-notation path selecting a nested value from the provided context; `null` for a `loader` or `stored` candidate."
+                        "description": "For a `parent` or `root` candidate, the optional dot-notation path selecting a nested value from the provided context; `null` for a `loader` or `stored` candidate."
                     },
                     "distribution": {
                         "type": ["string", "null"],
                         "enum": ["broadcast", "indexed", "keyed", "sliced", "iterator", null],
-                        "description": "For a `parent` candidate, the distribution strategy the provider uses; `null` for a `loader` or `stored` candidate."
+                        "description": "For a `parent` or `root` candidate, the distribution strategy the provider uses; `null` for a `loader` or `stored` candidate."
                     },
                     "contextType": {
                         "type": ["string", "null"],
                         "enum": ["single", "collection", null],
-                        "description": "For a `parent` candidate, whether the provided context is a single value or a collection; `null` for a `loader` or `stored` candidate."
+                        "description": "For a `parent` or `root` candidate, whether the provided context is a single value or a collection; `null` for a `loader` or `stored` candidate."
                     },
                     "loaderSource": {
                         "type": ["string", "null"],
-                        "description": "For a `loader` candidate, the data loader source (see `GET /api/_info/content-system-data-loaders.json`); `null` for a `parent` or `stored` candidate."
+                        "description": "For a `loader` candidate, the data loader source (see `GET /api/_info/content-system-data-loaders.json`); `null` for a `parent`, `root` or `stored` candidate."
                     },
                     "configTemplate": {
                         "type": ["object", "null"],
@@ -198,7 +198,7 @@
                     },
                     "configComplete": {
                         "type": ["boolean", "null"],
-                        "description": "For a `loader` candidate, whether the loader config is complete enough to resolve without further input. `false` for a `parent` candidate; `null` for a `stored` candidate (it carries no loader-shaped fields — it is applied wiring, not an environment offer — so clients branch on `origin` before reading it)."
+                        "description": "For a `loader` candidate, whether the loader config is complete enough to resolve without further input. `false` for a `parent` and for a `root` candidate; `null` for a `stored` candidate, which carries no loader-shaped fields (it is applied wiring, not an environment offer), so clients branch on `origin` before reading it."
                     }
                 }
             }

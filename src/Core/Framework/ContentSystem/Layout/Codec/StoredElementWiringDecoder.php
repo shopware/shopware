@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -23,7 +24,8 @@ use Shopware\Core\Framework\Log\Package;
  * keeps everything else about the element wire shape.
  *
  * Wiring is judged in two tiers and first hit throws. Per consumer, inside {@see decodeConsumers()}: a
- * `consumerAlias` without `redistribute`, and a `propertyAlias` carrying dot notation. Then, once that map is
+ * `consumerAlias` without `redistribute`, a `propertyAlias` carrying dot notation, and a `scope` of
+ * {@see ConsumerScope::Root} combined with `redistribute`. Then, once that map is
  * complete, the element-local tier in {@see rejectInvalidElementWiring()}: base-key uniqueness across the
  * consumer map, a `redistribute` consumer keyed by a dotted path, and a `redistribute` consumer whose derived
  * provider key an authored provider already holds. The tiers are ordered, not interleaved, so a per-consumer
@@ -57,6 +59,7 @@ final class StoredElementWiringDecoder
         'redistribute',
         'consumerAlias',
         'propertyAlias',
+        'scope',
     ];
 
     /**
@@ -162,6 +165,8 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::invalidFieldValueType($path . '.propertyAlias', 'string', get_debug_type($propertyAlias));
             }
 
+            $scope = $this->consumerScope($config, $path);
+
             if ($consumerAlias !== null && !$redistribute) {
                 throw ContentSystemException::consumerAliasWithoutRedistribute($key);
             }
@@ -170,12 +175,17 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::propertyAliasWithDotNotation($key, $propertyAlias);
             }
 
+            if ($scope === ConsumerScope::Root && $redistribute) {
+                throw ContentSystemException::rootScopeWithRedistribute($key);
+            }
+
             $consumers[$key] = new ContextConsumer(
                 type: $contextType,
                 required: $required,
                 redistribute: $redistribute,
                 consumerAlias: $consumerAlias,
                 propertyAlias: $propertyAlias,
+                scope: $scope,
             );
         }
 
@@ -225,6 +235,32 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::redistributeConflict($contextKey);
             }
         }
+    }
+
+    /**
+     * A consumer's scope. Absent means {@see ConsumerScope::Parent}; a present value must name a case, so a
+     * present null is a decode failure rather than a silent default.
+     *
+     * @param array<array-key, mixed> $config
+     */
+    private function consumerScope(array $config, string $path): ConsumerScope
+    {
+        if (!\array_key_exists('scope', $config)) {
+            return ConsumerScope::Parent;
+        }
+
+        $scope = $config['scope'];
+        $consumerScope = \is_string($scope) ? ConsumerScope::tryFrom($scope) : null;
+
+        if ($consumerScope === null) {
+            throw ContentSystemException::invalidFieldValueType(
+                $path . '.scope',
+                implode('|', ConsumerScope::values()),
+                get_debug_type($scope)
+            );
+        }
+
+        return $consumerScope;
     }
 
     /**

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
-use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -24,6 +23,12 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(RootContextMapper::class)]
 class RootContextMapperTest extends TestCase
 {
+    /**
+     * The two fields that make the entry root-ambient are asserted beside the mapped ones: the flag is what
+     * marks it, and the absent provider element id is the other half of that. Both are pinned, because the
+     * virtual-root sentinel this used to write is not a provider address, and a mutation of either field
+     * alone would otherwise pass.
+     */
     #[TestDox('maps a page requirement to a broadcast single root context with the loader-resolved FQCN')]
     public function testMapsRequirementToRootContext(): void
     {
@@ -42,7 +47,8 @@ class RootContextMapperTest extends TestCase
         static::assertSame(SalesChannelProductEntity::class, $contexts[0]->fqcn);
         static::assertSame(ContextType::Single, $contexts[0]->contextType);
         static::assertSame(DistributionStrategy::Broadcast, $contexts[0]->distribution);
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $contexts[0]->providerElementId);
+        static::assertTrue($contexts[0]->root);
+        static::assertNull($contexts[0]->providerElementId);
     }
 
     #[TestDox('maps an empty requirement set to no root context')]

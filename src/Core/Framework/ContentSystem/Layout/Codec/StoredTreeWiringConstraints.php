@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
@@ -82,11 +83,15 @@ final class StoredTreeWiringConstraints
                             'redistribute' => new Optional([new Type('bool')]),
                             'consumerAlias' => new Optional([new Type('string')]),
                             'propertyAlias' => new Optional([new Type('string')]),
+                            // NotNull beside the Choice, because Choice skips a null value: without it a
+                            // present null would pass the write and then fail every decode.
+                            'scope' => new Optional($this->nonNull(new Choice(choices: ConsumerScope::values()))),
                         ],
                         allowExtraFields: false,
                         allowMissingFields: false
                     ),
                     new Callback($this->validateConsumerAliases(...)),
+                    new Callback($this->validateConsumerScope(...)),
                 )
             ),
             // Map-level, because both rules are judged per entry against the entry's own map key, which a
@@ -205,6 +210,26 @@ final class StoredTreeWiringConstraints
                 ->atPath('[propertyAlias]')
                 ->addViolation();
         }
+    }
+
+    /**
+     * The combination rule {@see StoredElementWiringDecoder} enforces on decode beside the two alias rules: a
+     * root-scoped consumer takes the layout's root-ambient context directly, so it has nothing to relay and
+     * cannot declare `redistribute`. Reported on the consumer's own `scope`, the field that decides it.
+     */
+    private function validateConsumerScope(mixed $value, ExecutionContextInterface $context): void
+    {
+        if (!\is_array($value)) {
+            return;
+        }
+
+        if (($value['scope'] ?? null) !== ConsumerScope::Root->value || ($value['redistribute'] ?? false) !== true) {
+            return;
+        }
+
+        $context->buildViolation('This value must not be combined with "redistribute" set to true.')
+            ->atPath('[scope]')
+            ->addViolation();
     }
 
     /**

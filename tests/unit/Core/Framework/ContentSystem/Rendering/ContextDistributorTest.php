@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
@@ -274,6 +275,51 @@ class ContextDistributorTest extends TestCase
         static::assertSame(['items' => 'first-item'], $deliveries[1]->context);
     }
 
+    /**
+     * A root-scoped consumer is filled from the layout's root-ambient map, never off the parent chain, so it
+     * is invisible to this class. For an indexed strategy that means it takes no POSITION: without the skip
+     * the two children below would be positions zero and one, and the parent-scoped one would receive the
+     * SECOND item rather than the first — an off-by-one nothing about the delivered key set would show.
+     */
+    #[TestDox('gives a root-scoped consumer no position in an indexed distribution')]
+    public function testRootScopedConsumerTakesNoIndexedPosition(): void
+    {
+        $children = [
+            $this->rootScopedConsumerOf('child-1', 'items'),
+            $this->consumerOf('child-2', 'items'),
+        ];
+        $parent = $this->providerOf('items', IndexedDistributionConfig::simple());
+
+        $deliveries = $this->distributor()->distribute($parent, ['items' => ['first-item', 'second-item']], $children);
+
+        static::assertSame([], $deliveries[0]->context);
+        static::assertSame(['items' => 'first-item'], $deliveries[1]->context);
+    }
+
+    /**
+     * The second scope skip, the one inside the per-key write. This child matches the provider key through
+     * its PARENT-scoped consumer, so it does take a position and the write loop does run over its consumer
+     * map — and the root-scoped key in that same map must still be left alone. A fixture whose only consumer
+     * were root-scoped could not discriminate: it never reaches the write loop at all.
+     */
+    #[TestDox('writes no key for a root-scoped consumer of a child that matched through a parent-scope consumer')]
+    public function testRootScopedConsumerKeyIsSkippedOnAChildThatMatchedThroughParentScope(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('product', ContextType::Single)
+            ->withConsumer('product.cover', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $parent = $this->providerOf('product', BroadcastDistributionConfig::simple());
+
+        $deliveries = $this->distributor()->distribute(
+            $parent,
+            ['product' => new StubContextStruct('parent-cover')],
+            [$child]
+        );
+
+        static::assertSame(['product'], array_keys($deliveries[0]->context));
+    }
+
     #[TestDox('reports the key a keyed distribution selected on as a distribution referenced key')]
     public function testKeyedDistributionReportsItsKeyProperty(): void
     {
@@ -436,6 +482,13 @@ class ContextDistributorTest extends TestCase
     {
         return StoredElementBuilder::create('Sw:Box', $id)
             ->withConsumer($contextKey, ContextType::Single)
+            ->build();
+    }
+
+    private function rootScopedConsumerOf(string $id, string $contextKey): StoredElement
+    {
+        return StoredElementBuilder::create('Sw:Box', $id)
+            ->withConsumer($contextKey, ContextType::Single, scope: ConsumerScope::Root)
             ->build();
     }
 

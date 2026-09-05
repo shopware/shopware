@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Resolution;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -10,14 +12,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Computes the context available at an element's position by simulating the redistribution chain top-down
- * along the located ancestor path. Each ancestor exposes to its direct children only the declared providers
- * that resolve on it (Level 2) plus the redistribute consumers whose key actually flows into it. This mirrors
- * runtime delivery (ContentPipeline's redistribute-derivation step turning redistribute flags into broadcast providers +
- * ContextDistributor delivering to direct children only), so the gate honors the rule that context
- * travels past direct children solely via explicit redistribution. A top-level element sees the bound source's
- * root-ambient context. Section-agnostic: the root-ambient set is passed in (entity assignment yields the page
- * entity; header/footer yield nothing).
+ * Computes the context available at an element's position with one formula for every depth: the ancestor-chain
+ * exposure plus the root-ambient set appended verbatim, mirroring runtime delivery. Section-agnostic: the
+ * root-ambient set is passed in (entity assignment yields the page entity; header/footer yield nothing).
  *
  * Public Core service so the diagnostics kernel and the future mutation operations share one context walk.
  *
@@ -35,12 +32,14 @@ class AvailableContextResolver
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly ElementResolver $elementResolver,
         private readonly ProviderDeliveryKeyResolver $providerDeliveryKeys,
+        private readonly ContextPathResolver $pathResolver,
     ) {
     }
 
     /**
      * @param list<StoredElement> $tree the layout's root elements
-     * @param list<ProvidedContext> $rootContext root-ambient context for top-level elements (broadcast Single)
+     * @param list<ProvidedContext> $rootContext the layout's root-ambient context (broadcast Single), available
+     *                                           at every depth
      *
      * @throws ContentSystemException when an element on the target's path carries two child-facing key
      *                                producers — authored providers, redistribute consumers, or one of
@@ -56,35 +55,35 @@ class AvailableContextResolver
             return [];
         }
 
-        ['ancestors' => $ancestors, 'topLevel' => $topLevel, 'target' => $target] = $location;
+        ['ancestors' => $ancestors, 'target' => $target] = $location;
 
-        // The target's own provider set is judged too, and before the top-level early return: a top-level
-        // element is the only element of its path, so skipping it would leave its providers unchecked.
+        // The target's own provider set is judged too: a top-level element has no ancestors, so skipping it
+        // would leave its providers unchecked.
         $this->providerDeliveryKeys->resolve($target->contextDefinitions, $target->id);
 
-        if ($topLevel) {
-            return $rootContext;
-        }
-
-        $incoming = $rootContext;
+        $incoming = [];
 
         foreach ($ancestors as $ancestor) {
             $this->providerDeliveryKeys->resolve($ancestor->contextDefinitions, $ancestor->id);
-            $incoming = $this->expose($ancestor, $incoming);
+            $incoming = $this->expose($ancestor, $incoming, $rootContext);
         }
 
-        return $incoming;
+        return [...$incoming, ...$rootContext];
     }
 
     /**
      * The context an element delivers to its direct children: its declared providers that resolve on it, plus
-     * the keys it re-broadcasts via redistribute consumers whose key is present in its own incoming set.
+     * the keys it re-broadcasts via redistribute consumers whose key is present in its own CHAIN incoming set.
+     * Both mint sites leave {@see ProvidedContext::$root} at its `false` default: an ancestor's exposure is
+     * element-provided even when the value it relays originated at the root.
      *
-     * @param list<ProvidedContext> $incoming context available to this element from its parent
+     * @param list<ProvidedContext> $incoming context this element received off the ancestor chain
+     * @param list<ProvidedContext> $ambient the layout's root-ambient context, filtered per provider key by
+     *                                       {@see ambientReceivableFor()}
      *
      * @return list<ProvidedContext>
      */
-    private function expose(StoredElement $element, array $incoming): array
+    private function expose(StoredElement $element, array $incoming, array $ambient): array
     {
         $exposed = [];
 
@@ -95,7 +94,9 @@ class AvailableContextResolver
                 continue;
             }
 
-            if (!$this->providerResolves($element, (string) $contextKey, $incoming)) {
+            $receivable = $this->ambientReceivableFor($element, (string) $contextKey, $ambient);
+
+            if (!$this->providerResolves($element, (string) $contextKey, [...$incoming, ...$receivable])) {
                 continue;
             }
 
@@ -133,14 +134,18 @@ class AvailableContextResolver
 
     /**
      * Level-2 backing: a declared provider delivers only when its own property resolves at its position.
-     * Reuses {@see ElementResolver} (the single source of truth), so the parent (received-context), loader,
-     * and ambiguity rules that decide a consumed property's verdict also decide a provider's backing.
+     * Reuses {@see ElementResolver} (the single source of truth), so the parent (received-context), root,
+     * loader, and ambiguity rules that decide a consumed property's verdict also decide a provider's backing.
+     * The available set it judges against is the chain incoming plus the ambient entries
+     * {@see ambientReceivableFor()} selects for this key alone, so a provider property filled through the
+     * element's own root-scoped consumer backs the provider, and what that provider then hands downstream is
+     * element-provided.
      *
-     * @param list<ProvidedContext> $incoming
+     * @param list<ProvidedContext> $available
      */
-    private function providerResolves(StoredElement $element, string $key, array $incoming): bool
+    private function providerResolves(StoredElement $element, string $key, array $available): bool
     {
-        $resolutions = $this->elementResolver->resolve($element, new ResolutionContext($element->id, $incoming));
+        $resolutions = $this->elementResolver->resolve($element, new ResolutionContext($element->id, $available));
 
         foreach ($resolutions as $resolution) {
             if ($resolution->key !== $key) {
@@ -154,7 +159,49 @@ class AvailableContextResolver
     }
 
     /**
-     * @param list<ProvidedContext> $incoming
+     * The ambient entries this element can receive UNDER the provider key being judged: those its own
+     * {@see ConsumerScope::Root} consumers write to exactly that key, the consumer key matched against the
+     * ambient key with {@see ContextPathResolver::matches()}.
+     *
+     * The property key the consumer writes (`propertyAlias ?? consumerKey`) is compared VERBATIM because the
+     * delivery overlay writes it verbatim: a dotted consumer carrying no alias writes its full dotted key,
+     * which no provider key reads, so comparing only its base segment would back a provider render leaves
+     * unfed.
+     *
+     * @param list<ProvidedContext> $ambient
+     *
+     * @return list<ProvidedContext>
+     */
+    private function ambientReceivableFor(StoredElement $element, string $providerKey, array $ambient): array
+    {
+        $receivable = [];
+
+        foreach ($ambient as $provided) {
+            foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+                if ($consumer->scope !== ConsumerScope::Root) {
+                    continue;
+                }
+
+                if (($consumer->propertyAlias ?? (string) $consumerKey) !== $providerKey) {
+                    continue;
+                }
+
+                if (!$this->pathResolver->matches($provided->contextKey, (string) $consumerKey)) {
+                    continue;
+                }
+
+                $receivable[] = $provided;
+
+                break;
+            }
+        }
+
+        return $receivable;
+    }
+
+    /**
+     * @param list<ProvidedContext> $incoming the CHAIN incoming set only: a redistribute consumer relays what it
+     *                                        received off its parent, never the root-ambient set
      */
     private function firstWithKey(array $incoming, string $key): ?ProvidedContext
     {
@@ -170,19 +217,19 @@ class AvailableContextResolver
     /**
      * @param list<StoredElement> $tree
      *
-     * @return array{ancestors: list<StoredElement>, topLevel: bool, target: StoredElement}|null the ancestor path (root..parent), the target element, and the top-level flag, or null if not found
+     * @return array{ancestors: list<StoredElement>, target: StoredElement}|null the ancestor path (root..parent) and the target element, or null if not found
      */
     private function locate(array $tree, string $targetElementId): ?array
     {
         foreach ($tree as $root) {
             if ($root->id === $targetElementId) {
-                return ['ancestors' => [], 'topLevel' => true, 'target' => $root];
+                return ['ancestors' => [], 'target' => $root];
             }
 
             $found = $this->search($root, [$root], $targetElementId);
 
             if ($found !== null) {
-                return ['ancestors' => $found['ancestors'], 'topLevel' => false, 'target' => $found['target']];
+                return $found;
             }
         }
 

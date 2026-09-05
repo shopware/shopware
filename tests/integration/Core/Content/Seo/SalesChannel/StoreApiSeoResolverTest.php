@@ -173,8 +173,8 @@ class StoreApiSeoResolverTest extends TestCase
 
     /**
      * A single-element layout assigned to the fixture category, whose root consumes the category root source's
-     * page-level `category` context undotted and unaliased. An unaliased consumer takes the delivered value as
-     * it stands, so the hydrated — and seo-aware — `CategoryEntity` becomes the value of the root's `category`
+     * root-ambient `category` context through a root-scoped consumer, undotted and unaliased. An unaliased
+     * consumer takes the delivered value as it stands, so the hydrated, seo-aware `CategoryEntity` becomes the value of the root's `category`
      * property rather than a scalar off it. No shipped element type declares an entity-typed property that a
      * data loader could fill with a product, so the page-level context is the only shipped way to put a
      * seo-aware entity on a rendered property.
@@ -193,7 +193,7 @@ class StoreApiSeoResolverTest extends TestCase
                 'component' => 'Sw:Grid:Container',
                 'properties' => [],
                 'acceptsContext' => [
-                    'category' => ['type' => 'single', 'required' => false],
+                    'category' => ['type' => 'single', 'required' => false, 'scope' => 'root'],
                 ],
             ]],
         ]], $context);

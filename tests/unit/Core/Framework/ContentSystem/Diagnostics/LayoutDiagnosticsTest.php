@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\Violation;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
@@ -33,7 +35,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
-use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
@@ -42,6 +43,7 @@ use Shopware\Core\Framework\ContentSystem\Resolution\AvailableContextResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
@@ -61,16 +63,8 @@ class LayoutDiagnosticsTest extends TestCase
     {
         $tree = [new StoredElement('root-1', 'Sw:Block')];
 
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: SalesChannelProductEntity::class,
-            contextType: ContextType::Single,
-            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            distribution: DistributionStrategy::Broadcast,
-        )];
-
         $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
-            ->analyze($tree, $rootContext)->report;
+            ->analyze($tree, $this->rootAmbientProductContext())->report;
 
         static::assertSame([], $report->bindingErrors());
     }
@@ -126,25 +120,19 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame([], $report->intrinsicErrors());
     }
 
-    #[TestDox('emits no unfilled_required_input when parent context satisfies a required reference instead of stored wiring')]
-    public function testParentContextSatisfiedReferenceDoesNotGateOnUnfilledInput(): void
+    #[TestDox('emits no unfilled_required_input when available context satisfies a required reference instead of stored wiring')]
+    public function testContextSatisfiedReferenceDoesNotGateOnUnfilledInput(): void
     {
         // The element also carries a stored requirement for "product", but its loader produces CategoryEntity —
         // not the declared SalesChannelProductEntity — so ElementResolver's Stored candidate fails to resolve
-        // and the sole matching parent context wins the pick instead. This isolates the "origin !== Stored"
+        // and the sole matching context offer wins the pick instead. This isolates the "origin !== Stored"
         // guard: the stored requirement is genuinely present, so if that guard were removed, execution would
         // reach the unfilled-input check below and gate on the empty "productId", turning bindingErrors() non-empty.
         $element = StoredElementBuilder::create('Sw:Block', 'root-1')
             ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
             ->build();
 
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: SalesChannelProductEntity::class,
-            contextType: ContextType::Single,
-            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            distribution: DistributionStrategy::Broadcast,
-        )];
+        $rootContext = $this->rootAmbientProductContext();
 
         $report = $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
@@ -161,29 +149,218 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame([], $report->bindingErrors());
     }
 
-    #[TestDox('does not flag a deep required consumer when an intermediate redistributes the matching root-ambient context')]
+    #[TestDox('does not flag a deep required consumer when an intermediate redistributes matching element-provided context')]
     public function testRedistributingIntermediateSatisfiesDeepRequiredChain(): void
     {
-        $level2 = StoredElementBuilder::create('Sw:Block', 'level-2')
+        $level3 = StoredElementBuilder::create('Sw:Block', 'level-3')
             ->withConsumer('product', ContextType::Single, required: true)
             ->build();
-        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
+        $level2 = StoredElementBuilder::create('Sw:Block', 'level-2')
             ->withConsumer('product', ContextType::Single, redistribute: true)
+            ->withSlot('content', [$level3])
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
             ->withSlot('content', [$level2])
             ->build();
 
-        $rootContext = [new ProvidedContext(
-            contextKey: 'product',
-            fqcn: SalesChannelProductEntity::class,
-            contextType: ContextType::Single,
-            providerElementId: VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            distribution: DistributionStrategy::Broadcast,
-        )];
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
 
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
-            ->analyze([$root], $rootContext)->report;
+        $report = $this->diagnostics(
+            [
+                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+            ],
+            map: $this->loaderConfigMap('entity', new LoaderConfigSpecification([])),
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$root], [])->report;
 
         static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('produces a broken_required_chain binding error for a required parent-scope consumer whose key exists only in the root-ambient context')]
+    public function testParentScopeConsumerIsNotSatisfiedByRootAmbientContext(): void
+    {
+        // The exclusivity pin. The uniform availability formula appends the root-ambient set at every depth, so
+        // without the scope split this consumer would pass the gate and then render nothing: delivery hands a
+        // root-ambient value to root-scoped consumers alone.
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withConsumer('product', ContextType::Single, required: true)
+            ->build();
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$element], $this->rootAmbientProductContext())->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
+        static::assertSame('product', $error->key);
+        static::assertSame('Required context "product" is provided by no ancestor.', $error->message);
+    }
+
+    #[TestDox('does not flag a required root-scoped consumer whose key the root-ambient context supplies, at any depth')]
+    public function testRootScopeConsumerIsSatisfiedByRootAmbientContextAtDepth(): void
+    {
+        $deep = StoredElementBuilder::create('Sw:Block', 'deep-1')
+            ->withConsumer('product', ContextType::Single, required: true, scope: ConsumerScope::Root)
+            ->build();
+        $level2 = StoredElementBuilder::create('Sw:Block', 'level-2')
+            ->withSlot('content', [$deep])
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
+            ->withSlot('content', [$level2])
+            ->build();
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$root], $this->rootAmbientProductContext())->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('produces a broken_required_chain binding error naming the root source for a required root-scoped consumer the bound source does not supply')]
+    public function testRootScopeConsumerWithoutMatchingAmbientKeyIsBroken(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withConsumer('category', ContextType::Single, required: true, scope: ConsumerScope::Root)
+            ->build();
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$element], $this->rootAmbientProductContext())->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
+        static::assertSame('Required root-scoped context "category" is supplied by no bound source.', $error->message);
+    }
+
+    #[TestDox('produces a broken_required_chain binding error for a required root-scoped consumer whose key exists only as element-provided context')]
+    public function testRootScopeConsumerIsNotSatisfiedByElementProvidedContext(): void
+    {
+        // The mirror of the exclusivity pin: a root-scoped consumer draws on the ambient half alone, so an
+        // ancestor providing the same key answers for nothing.
+        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
+            ->withConsumer('product', ContextType::Single, required: true, scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withSlot('content', [$child])
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $report = $this->diagnostics(
+            [
+                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+            ],
+            map: $this->loaderConfigMap('entity', new LoaderConfigSpecification([])),
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$root], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::BrokenRequiredChain, $error->code);
+        static::assertSame('child-1', $error->elementId);
+    }
+
+    #[TestDox('treats a required dotted parent-scope consumer whose base segment names an ancestor-provided key as satisfied')]
+    public function testDottedParentScopeConsumerIsSatisfiedByItsBaseKey(): void
+    {
+        // The exact-key comparison this replaces false-positived every required dotted consumer that delivery
+        // would in fact resolve through the base struct. No root-ambient set is passed, so only the
+        // element-provided half can satisfy this consumer.
+        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
+            ->withConsumer('product.manufacturer', ContextType::Single, required: true)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Provider', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withSlot('content', [$child])
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+
+        $report = $this->diagnostics(
+            [
+                'Sw:Provider' => ContentSystemElementTypeSpecificationBuilder::create('Sw:Provider')->reference('product', SalesChannelProductEntity::class)->build(),
+                'Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build(),
+            ],
+            map: $this->loaderConfigMap('entity', new LoaderConfigSpecification([])),
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$root], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('treats a required dotted root-scoped consumer whose base segment names a root-ambient key as satisfied')]
+    public function testDottedRootScopeConsumerIsSatisfiedByItsBaseKey(): void
+    {
+        // The root half of the same rule, and no element in this tree provides anything, so the ambient entry is
+        // the only thing that can satisfy the consumer. A fixture that also carried an ancestor-provided
+        // `product` would pass even with the scope filter removed, proving nothing about the root half.
+        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
+            ->withConsumer('product.manufacturer', ContextType::Single, required: true, scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
+            ->withSlot('content', [$child])
+            ->build();
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$root], $this->rootAmbientProductContext())->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits an orphaned_provider warning for a provider whose only consumer in scope is root-scoped')]
+    public function testProviderConsumedOnlyByARootScopedConsumerIsOrphaned(): void
+    {
+        // A root-scoped consumer takes its value from the layout's bound source, so the provider under the same
+        // key feeds nothing and is as orphaned as one with no consumer at all.
+        $child = StoredElementBuilder::create('Sw:Block', 'child-1')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Block', 'root-1')
+            ->withProvider('product', BroadcastDistributionConfig::simple())
+            ->withSlot('content', [$child])
+            ->build();
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])->analyze([$root], null)->report;
+
+        $warning = $this->single(array_filter($report->violations, static fn (Violation $v): bool => $v->code === ViolationCode::OrphanedProvider));
+        static::assertSame('root-1', $warning->elementId);
+        static::assertSame('product', $warning->key);
+    }
+
+    #[TestDox('counts a Root candidate as usable, so two competing root-ambient offers are ambiguous_required rather than unresolved_required')]
+    public function testTwoRootCandidatesAreAmbiguousRequired(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
+
+        $rootContext = [
+            $this->rootAmbientProductContext()[0],
+            new ProvidedContext(
+                contextKey: 'featuredProduct',
+                fqcn: SalesChannelProductEntity::class,
+                contextType: ContextType::Single,
+                providerElementId: null,
+                distribution: DistributionStrategy::Broadcast,
+                root: true,
+            ),
+        ];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()])
+            ->analyze($tree, $rootContext)->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::AmbiguousRequired, $error->code);
+        // Pins that both candidates really carry the Root origin. Without it the test also passes when the flag
+        // mapping misclassifies them as Parent, which would leave the Root arm of the usable filter untested.
+        static::assertSame(
+            [CandidateOrigin::Root, CandidateOrigin::Root],
+            array_map(static fn (ResolutionCandidate $candidate): CandidateOrigin => $candidate->origin, $error->candidates),
+        );
     }
 
     #[TestDox('backs a declared provider via valid applied wiring so a descendant consumer requiring that context is no longer broken_required_chain')]
@@ -861,6 +1038,23 @@ class LayoutDiagnosticsTest extends TestCase
     }
 
     /**
+     * The shape the root-source registry mints: marked root-ambient and carrying no provider element id.
+     *
+     * @return list<ProvidedContext>
+     */
+    private function rootAmbientProductContext(): array
+    {
+        return [new ProvidedContext(
+            contextKey: 'product',
+            fqcn: SalesChannelProductEntity::class,
+            contextType: ContextType::Single,
+            providerElementId: null,
+            distribution: DistributionStrategy::Broadcast,
+            root: true,
+        )];
+    }
+
+    /**
      * An element whose required `product` reference is wired to the media loader, whose one required
      * propertyReference config key targets `productId`.
      *
@@ -929,13 +1123,14 @@ class LayoutDiagnosticsTest extends TestCase
         );
 
         return new LayoutDiagnostics(
-            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver()),
+            new AvailableContextResolver($registry, $elementResolver, new ProviderDeliveryKeyResolver(), new ContextPathResolver()),
             $elementResolver,
             $registry,
             new RootContextMapper($loaderProvider),
             $typeResolver,
             $serializers,
             $styleOptionRegistry ?? $this->styleOptionRegistry([]),
+            new ContextPathResolver(),
         );
     }
 

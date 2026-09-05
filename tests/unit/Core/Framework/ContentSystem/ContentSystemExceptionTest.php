@@ -58,6 +58,7 @@ class ContentSystemExceptionTest extends TestCase
             'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION',
             'CONTENT_SYSTEM__REDISTRIBUTE_DOTTED_PATH',
             'CONTENT_SYSTEM__REDISTRIBUTE_CONFLICT',
+            'CONTENT_SYSTEM__ROOT_SCOPE_WITH_REDISTRIBUTE',
             'CONTENT_SYSTEM__PROVIDER_DELIVERY_COLLISION',
             'CONTENT_SYSTEM__INVALID_MAP_KEY',
             'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
@@ -115,6 +116,7 @@ class ContentSystemExceptionTest extends TestCase
         // catalogue membership is pinned by a separate test.
         yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
         yield 'a provider delivery collision as a client defect' => [ContentSystemException::providerDeliveryCollision('item', 'product', 'category', 'el-1'), true];
+        yield 'a root scope combined with redistribute as a client defect' => [ContentSystemException::rootScopeWithRedistribute('product'), true];
         // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
         yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
         // A served layout is stored data, not client input, so a corrupt forest is an internal fault.
@@ -145,6 +147,15 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__INVALID_ELEMENT_ID',
             '12',
+        ];
+
+        // An element-definition wiring defect the client authored and can correct, so a 400 like its five
+        // siblings rather than the 500 the two rows above take.
+        yield 'root scope with redistribute' => [
+            ContentSystemException::rootScopeWithRedistribute('product'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__ROOT_SCOPE_WITH_REDISTRIBUTE',
+            'product',
         ];
 
         yield 'preview payload invalid' => [

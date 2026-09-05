@@ -36,8 +36,11 @@ export function applyResolvedContextConsumers(
             const resolved = resolution.resolved;
             const contextKey = resolved?.contextKey;
 
-            // Only parent-provided (context) resolutions become consumers; loader/stored fill themselves.
-            if (!resolved || resolved.origin !== 'parent' || typeof contextKey !== 'string' || contextKey.length === 0) {
+            // Only context resolutions become consumers; loader/stored fill themselves.
+            const isParent = resolved?.origin === 'parent';
+            const isRoot = resolved?.origin === 'root';
+
+            if (!resolved || (!isParent && !isRoot) || typeof contextKey !== 'string' || contextKey.length === 0) {
                 continue;
             }
 
@@ -46,10 +49,17 @@ export function applyResolvedContextConsumers(
                 continue;
             }
 
-            additions[contextKey] = {
-                type: resolved.contextType ?? 'single',
-                required: resolution.required,
-            };
+            // A root-ambient offer is consumed with scope 'root': it reaches the element directly, at any depth.
+            additions[contextKey] = isRoot
+                ? {
+                      type: resolved.contextType ?? 'single',
+                      required: resolution.required,
+                      scope: 'root',
+                  }
+                : {
+                      type: resolved.contextType ?? 'single',
+                      required: resolution.required,
+                  };
         }
 
         if (Object.keys(additions).length > 0) {

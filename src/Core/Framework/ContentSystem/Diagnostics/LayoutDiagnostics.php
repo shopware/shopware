@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\ContentSystem\Diagnostics;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformance;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
@@ -44,6 +46,7 @@ class LayoutDiagnostics
         private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly AbstractContentSystemStyleOptionRegistry $styleOptionRegistry,
+        private readonly ContextPathResolver $contextPathResolver,
     ) {
     }
 
@@ -397,7 +400,9 @@ class LayoutDiagnostics
     }
 
     /**
-     * A provider whose key is consumed by no descendant element is orphaned (warning, non-blocking).
+     * A provider whose key is consumed by no descendant element is orphaned (warning, non-blocking). A
+     * root-scoped consumer does not count as consuming it: that consumer takes its value from the layout's
+     * root-ambient set, so the provider under the same key feeds nothing.
      *
      * @return list<Violation>
      */
@@ -412,6 +417,10 @@ class LayoutDiagnostics
         $consumedKeys = [];
         foreach ($this->flatten($this->directChildren($element)) as $descendant) {
             foreach ($descendant->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+                if ($consumer->scope === ConsumerScope::Root) {
+                    continue;
+                }
+
                 $consumedKeys[$consumerKey] = true;
             }
         }
@@ -635,9 +644,9 @@ class LayoutDiagnostics
     }
 
     /**
-     * Candidates the resolver could actually select: a parent (received-context) provider, or a loader whose
-     * config is complete. Incomplete loaders cannot be picked, so 0 parents + N incomplete loaders is
-     * unresolved, not ambiguous.
+     * Candidates the resolver could actually select: a parent (received-context) provider, a root-ambient offer,
+     * or a loader whose config is complete. Incomplete loaders cannot be picked, so 0 context offers + N
+     * incomplete loaders is unresolved, not ambiguous.
      *
      * @param list<ResolutionCandidate> $candidates
      */
@@ -647,9 +656,10 @@ class LayoutDiagnostics
             $candidates,
             // Stored never reaches this filter: ElementResolver never adds a Stored candidate to
             // PropertyResolution::candidates (it is only ever the resolved pick). The arm exists solely to
-            // keep this match exhaustive over the three-case CandidateOrigin enum.
+            // keep this match exhaustive over the four-case CandidateOrigin enum.
             static fn (ResolutionCandidate $candidate): bool => match ($candidate->origin) {
                 CandidateOrigin::Parent => true,
+                CandidateOrigin::Root => true,
                 CandidateOrigin::Loader => $candidate->configComplete,
                 CandidateOrigin::Stored => false,
             },
@@ -659,32 +669,62 @@ class LayoutDiagnostics
     }
 
     /**
+     * A required consumer whose key nothing in scope supplies. The two scopes draw from disjoint halves of the
+     * available set; without the split a required parent-scope consumer for a root-only key would pass this
+     * gate and then render nothing.
+     *
      * @param list<ProvidedContext> $available
      *
      * @return list<Violation>
      */
     private function brokenChainViolations(StoredElement $element, array $available): array
     {
-        $availableKeys = [];
-        foreach ($available as $provided) {
-            $availableKeys[$provided->contextKey] = true;
-        }
-
         $violations = [];
+
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if (!$consumer->required || isset($availableKeys[$consumerKey])) {
+            if (!$consumer->required || $this->isSatisfied($available, (string) $consumerKey, $consumer->scope)) {
                 continue;
             }
+
+            $message = $consumer->scope === ConsumerScope::Root
+                ? \sprintf('Required root-scoped context "%s" is supplied by no bound source.', $consumerKey)
+                : \sprintf('Required context "%s" is provided by no ancestor.', $consumerKey);
 
             $violations[] = new Violation(
                 ViolationCode::BrokenRequiredChain,
                 $element->id,
                 (string) $consumerKey,
-                \sprintf('Required context "%s" is provided by no ancestor or bound source.', $consumerKey),
+                $message,
             );
         }
 
         return $violations;
+    }
+
+    /**
+     * One matching rule for both scopes: an available entry supplies a consumer when its key is the consumer key
+     * or the base of the consumer's dot path ({@see ContextPathResolver::matches()}, the same predicate delivery
+     * matches on, so a required dotted consumer delivery would resolve is not reported broken). The entry must
+     * come from the half the consumer's scope draws on: a `Parent` consumer takes only element-provided entries,
+     * a `Root` consumer only root-ambient ones.
+     *
+     * @param list<ProvidedContext> $available
+     */
+    private function isSatisfied(array $available, string $consumerKey, ConsumerScope $scope): bool
+    {
+        $wantsRoot = $scope === ConsumerScope::Root;
+
+        foreach ($available as $provided) {
+            if ($provided->root !== $wantsRoot) {
+                continue;
+            }
+
+            if ($this->contextPathResolver->matches($provided->contextKey, $consumerKey)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

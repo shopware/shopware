@@ -101,6 +101,7 @@
             <directory suffix=".php">src/Core/Test/Integration</directory>
             <!-- src/Core/Test/Stub: shipped test doubles; only the stubs with dedicated unit tests count toward coverage -->
             <directory suffix=".php">src/Core/Test/Stub/Checkout</directory>
+            <directory suffix=".php">src/Core/Test/Stub/ContentSystem</directory>
             <directory suffix=".php">src/Core/Test/Stub/Flow</directory>
             <directory suffix=".php">src/Core/Test/Stub/Framework/Adapter</directory>
             <directory suffix=".php">src/Core/Test/Stub/Framework/DataAbstractionLayer</directory>

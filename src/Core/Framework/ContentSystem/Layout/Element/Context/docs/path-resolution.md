@@ -1,6 +1,6 @@
 # Context Path Resolution
 
-How a consumer addresses a nested property of the context an ancestor exposes.
+How a consumer addresses a nested property of the context an ancestor exposes, or of the layout's root-ambient context.
 
 Consumers can request nested properties from context using dot notation. When a provider exposes an entity like `product`, consumers can access nested properties without loading the full entity themselves.
 
@@ -59,7 +59,8 @@ Consumers can request nested properties from context using dot notation. When a 
 - `manufacturer-name` receives only `product.manufacturer.name` (string)
 - Supports arbitrary nesting depth: `product.manufacturer.country.code`
 - Works only with Shopware Struct objects (all DAL entities)
-- Path resolution happens automatically during context distribution
+- Path resolution happens automatically during context delivery
+- A `scope: "root"` consumer addresses the root-ambient context by the same rule: `product.cover` resolves through the root `product` struct exactly as it resolves through a delivered one
 
 **Required vs Optional**:
 - `required: true` - Throws exception if path cannot be resolved (property missing, intermediate null, non-Struct value)

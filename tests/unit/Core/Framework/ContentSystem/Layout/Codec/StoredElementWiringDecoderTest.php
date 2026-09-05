@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
@@ -107,6 +108,62 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
         try {
             $this->codec()->decode($wire);
             static::fail('Expected decode to reject the doubly defective element.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame($expected->getErrorCode(), $exception->getErrorCode());
+            static::assertSame($expected->getMessage(), $exception->getMessage());
+        }
+    }
+
+    /**
+     * A consumer's scope, which decides whether it matches an ancestor's provided context or the layout's
+     * root-ambient context. The absent case is the one that carries a rule rather than a value: an authored
+     * consumer that never mentions `scope` is parent-scoped, and a decode that returned anything else would
+     * re-point every consumer stored before the key existed.
+     *
+     * @param array<string, mixed> $consumer
+     * @param array<string, mixed> $expectedWire
+     */
+    #[DataProvider('decodesConsumerScopeProvider')]
+    #[TestDox('decodes $_dataName')]
+    public function testDecodeReadsTheConsumerScope(array $consumer, ConsumerScope $expected, array $expectedWire): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['acceptsContext' => ['product' => $consumer]]));
+
+        static::assertSame($expected, $element->contextDefinitions->getAllConsumers()['product']->scope);
+    }
+
+    /**
+     * What a decoded consumer writes back for its scope. The parent case carries the rule: it is the absent
+     * key's meaning, so writing it would change the stored shape of every consumer authored before the key
+     * existed without changing what any of them do. Asserted here rather than against
+     * {@see ContextConsumer} directly, which `phpunit.xml.dist` excludes from the coverage source.
+     *
+     * @param array<string, mixed> $consumer
+     * @param array<string, mixed> $expectedWire
+     */
+    #[DataProvider('decodesConsumerScopeProvider')]
+    #[TestDox('writes back $_dataName')]
+    public function testDecodedConsumerEncodesItsScopeOnlyWhenRoot(array $consumer, ConsumerScope $expected, array $expectedWire): void
+    {
+        $element = $this->codec()->decode(self::baseWire(['acceptsContext' => ['product' => $consumer]]));
+
+        static::assertSame($expectedWire, $element->contextDefinitions->getAllConsumers()['product']->jsonSerialize());
+    }
+
+    /**
+     * A root-scoped consumer takes root-ambient context directly, so it has nothing to hand on and cannot
+     * declare `redistribute`. The rule sits in the per-consumer combination tier, beside the two alias rules.
+     */
+    #[TestDox('rejects a root-scoped consumer that also redistributes')]
+    public function testDecodeRejectsARootScopedRedistributingConsumer(): void
+    {
+        $expected = ContentSystemException::rootScopeWithRedistribute('product');
+
+        try {
+            $this->codec()->decode(self::baseWire(['acceptsContext' => [
+                'product' => ['type' => 'single', 'required' => true, 'redistribute' => true, 'scope' => 'root'],
+            ]]));
+            static::fail('Expected decode to reject the root-scoped redistributing consumer.');
         } catch (ContentSystemException $exception) {
             static::assertSame($expected->getErrorCode(), $exception->getErrorCode());
             static::assertSame($expected->getMessage(), $exception->getMessage());
@@ -273,6 +330,21 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
             ContentSystemException::propertyAliasCollision('product', 'product', 'category'),
         ];
 
+        // The scope rule sits at the end of the combination tier, so a consumer that is both root-scoped while
+        // redistributing and keyed by a dotted path is reported by the combination tier, not by the
+        // element-local dotted-redistribute rule that would otherwise claim it.
+        yield 'the root-scope rule for a root-scoped consumer redistributing under a dotted key' => [
+            self::baseWire(['acceptsContext' => [
+                'product.manufacturer' => [
+                    'type' => 'single',
+                    'required' => true,
+                    'redistribute' => true,
+                    'scope' => 'root',
+                ],
+            ]]),
+            ContentSystemException::rootScopeWithRedistribute('product.manufacturer'),
+        ];
+
         // Tier-major, not consumer-major: the earlier consumer's element-local violation waits for the whole
         // combination tier, so the later consumer's combination violation is what decode reports.
         yield 'the combination rule for a later consumer over an earlier cross-map violation' => [
@@ -284,6 +356,38 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
                 ],
             ]),
             ContentSystemException::propertyAliasWithDotNotation('late', 'nested.key'),
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, ConsumerScope, array<string, mixed>}>
+     */
+    public static function decodesConsumerScopeProvider(): iterable
+    {
+        yield 'a consumer declaring no scope as parent-scoped' => [
+            ['type' => 'single', 'required' => true],
+            ConsumerScope::Parent,
+            ['type' => 'single', 'required' => true],
+        ];
+
+        yield 'a consumer declaring the parent scope explicitly' => [
+            ['type' => 'single', 'required' => true, 'scope' => 'parent'],
+            ConsumerScope::Parent,
+            ['type' => 'single', 'required' => true],
+        ];
+
+        yield 'a root-scoped consumer' => [
+            ['type' => 'single', 'required' => true, 'scope' => 'root'],
+            ConsumerScope::Root,
+            ['type' => 'single', 'required' => true, 'scope' => 'root'],
+        ];
+
+        // The scope key is written last, after the two aliases, which is what a round trip through the
+        // composing codec compares against the payload it was given.
+        yield 'a root-scoped consumer carrying a property alias' => [
+            ['type' => 'single', 'required' => true, 'propertyAlias' => 'entry', 'scope' => 'root'],
+            ConsumerScope::Root,
+            ['type' => 'single', 'required' => true, 'propertyAlias' => 'entry', 'scope' => 'root'],
         ];
     }
 
@@ -399,6 +503,23 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
         yield 'a consumer entry with a non-string propertyAlias' => [
             self::baseWire(['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'propertyAlias' => 42]]]),
             ContentSystemException::invalidFieldValueType('acceptsContext[items].propertyAlias', 'string', 'int'),
+        ];
+
+        // A present `scope` must name a case. The null row is what separates absent from present-null: the
+        // absent key is the parent default, while a written null is a payload the client got wrong.
+        yield 'a consumer entry with a scope outside the enum' => [
+            self::baseWire(['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'scope' => 'ancestor']]]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items].scope', implode('|', ConsumerScope::values()), 'string'),
+        ];
+
+        yield 'a consumer entry with a null scope' => [
+            self::baseWire(['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'scope' => null]]]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items].scope', implode('|', ConsumerScope::values()), 'null'),
+        ];
+
+        yield 'a consumer entry with a non-string scope' => [
+            self::baseWire(['acceptsContext' => ['items' => ['type' => 'single', 'required' => true, 'scope' => 42]]]),
+            ContentSystemException::invalidFieldValueType('acceptsContext[items].scope', implode('|', ConsumerScope::values()), 'int'),
         ];
 
         yield 'an unknown key inside a consumer entry' => [

@@ -1,0 +1,50 @@
+# Fast checks for the issue-reproduction action: ESLint, node:test unit/integration suites, and the
+# plain-bash script tests. Path-filtered so it only runs when that action changes — it costs nothing
+# on the pushes that don't touch it. Deliberately does NOT exercise the docker/Playwright/live-shop
+# paths; those are proven by the end-to-end sample runs, not mocked here.
+name: reproduce-action-tests
+
+on:
+  push:
+    paths:
+      - '.github/actions/reproduce/**'
+      - '.github/workflows/reproduce-action-tests.yml'
+  pull_request:
+    paths:
+      - '.github/actions/reproduce/**'
+      - '.github/workflows/reproduce-action-tests.yml'
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: .github/actions/reproduce
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: .github/actions/reproduce/package-lock.json
+      - run: npm ci
+      - name: Type-check (tsc --noEmit, strict)
+        run: npm run typecheck
+      - name: Syntax-check boilerplate .mjs (excluded from tsc + ESLint — Playwright/browser context)
+        run: find . -path ./node_modules -prune -o -name '*.mjs' -print0 | xargs -0 -n1 node --check
+      - name: ESLint
+        run: npm run lint
+      - name: Unit & integration tests
+        run: npm test
+      - name: Bash script tests
+        run: npm run test:bash
+      - name: Smoke-run the CLI via the runtime's exact invocation (type-stripping)
+        # Proves repro.ts strips-and-runs under the same `node --experimental-strip-types` the
+        # workflow wrapper uses — not just under `node --test`. No command -> exit 2 by contract.
+        run: |
+          node --experimental-strip-types cli/repro.ts >/dev/null 2>&1 && rc=0 || rc=$?
+          test "$rc" = 2 && echo "CLI strips-and-runs (exit $rc as expected)"

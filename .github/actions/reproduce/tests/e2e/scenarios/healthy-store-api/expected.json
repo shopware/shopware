@@ -1,0 +1,7 @@
+{
+  "verdict": "not_reproducible",
+  "reported": "not_reproduced",
+  "trunk": "not_reproduced",
+  "commentIncludes": ["/store-api/context"],
+  "notes": "Healthy assertion (context reachable + returns a token) passes on any live shop, so both legs are not_reproduced → not_reproducible. Proves the http executor → verify → verdict → comment spine."
+}

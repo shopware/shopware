@@ -1,0 +1,7 @@
+{
+  "verdict": "not_reproducible",
+  "reported": "not_reproduced",
+  "trunk": "not_reproduced",
+  "commentIncludes": ["toBeVisible"],
+  "notes": "Synthetic playwright scenario: the storefront home renders, so both legs are not_reproduced → not_reproducible. Exercises the playwright executor + PW sandbox arming + screenshot evidence. Requires a provisioned shop + docker + browser (CI / local-real only)."
+}

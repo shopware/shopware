@@ -45,6 +45,8 @@ final readonly class ContextDelivery
      * belongs to, and which stored keys a parent's distribution config dereferenced by name to produce it.
      *
      * @param array<string, mixed> $context keyed by the key the value was delivered under
+     *
+     * @codeCoverageIgnore
      */
     public function withContext(array $context): self
     {

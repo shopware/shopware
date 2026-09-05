@@ -371,6 +371,26 @@ class ContextDeliveryResolverTest extends TestCase
     }
 
     /**
+     * The optional twin of the rejection above: a dotted path needs a Struct to traverse, and an optional
+     * consumer that cannot get one takes a PRESENT null (a resolution ran and found nothing), unlike the
+     * ambient null below, which writes no key.
+     */
+    #[TestDox('delivers a present null to an optional dotted root-scoped consumer over a non-Struct ambient value')]
+    public function testOptionalDottedRootScopedConsumerTakesANullOverANonStructAmbientValue(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$child])
+            ->build();
+
+        $index = $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct']);
+
+        static::assertSame(['product.cover' => null], $index->all()['child-1']->context);
+    }
+
+    /**
      * Present-null and key-absent are different states, so this asserts the WHOLE map rather than that the
      * key holds null: a rendered null means a resolution ran and found nothing, and an ambient null must not
      * be able to manufacture one.

@@ -489,6 +489,9 @@ class ContentSystemException extends HttpException
         );
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public static function rootScopeWithRedistribute(string $contextKey): self
     {
         return new self(

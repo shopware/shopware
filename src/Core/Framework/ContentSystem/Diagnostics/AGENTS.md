@@ -11,7 +11,7 @@
 - `ViolationCode` - `enum: string`. Single source of truth for scope and severity. See README for the full mapping table.
 - `ViolationScope` - `enum: string`. Cases: `Intrinsic`, `Binding`. `@internal`.
 - `ViolationSeverity` - `enum: string`. Cases: `Error`, `Warning`. `@internal`.
-- `RootContextMapper` - `map(array<DataRequirement> $requirements): list<ProvidedContext>` maps a bound source's page data requirements to the root-ambient context for `analyze()` (each context broadcast `Single` from the virtual root). Also exposes `resolveType(DataRequirement): string`, used by the diagnostics core to detect `InvalidConfig`.
+- `RootContextMapper` - `map(array<DataRequirement> $requirements): list<ProvidedContext>` maps a bound source's page data requirements to the root-ambient context for `analyze()` (each entry broadcast `Single`, marked `root: true`, and carrying a null `providerElementId`, because root context is ambient rather than provided from an element address). Also exposes `resolveType(DataRequirement): string`, used by the diagnostics core to detect `InvalidConfig`.
 
 ## Constraints
 

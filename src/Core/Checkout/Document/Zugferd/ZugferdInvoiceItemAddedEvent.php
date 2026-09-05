@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]

@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ */
 #[Package('after-sales')]
 class DocumentFileRendererRegistry
 {

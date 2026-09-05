@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
 #[Package('after-sales')]
+#[NamespaceChange(version: 'v6.9.0', newLocation: 'Shopware\\Core\\Checkout\\DocumentV2\\Service\\ReferenceInvoiceLoader')]
 final readonly class ReferenceInvoiceLoader
 {
     /**

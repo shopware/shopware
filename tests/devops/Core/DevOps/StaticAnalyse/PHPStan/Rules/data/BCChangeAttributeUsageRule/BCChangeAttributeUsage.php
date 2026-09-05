@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
+use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
@@ -370,4 +371,14 @@ class ValidHierarchyChange extends OldHierarchyParent
     public function providedByProtectedNewParent(): void
     {
     }
+}
+
+#[NamespaceChange(version: 'v6.8.0', newLocation: 'Shopware\\Core\\Some\\Other\\Location')]
+class NamespaceChangeWithWrongLocation
+{
+}
+
+#[NamespaceChange(version: 'v6.8.0', newLocation: 'Shopware\\Core\\Some\\Other\\NamespaceChangeWithCorrectLocation')]
+class NamespaceChangeWithCorrectLocation
+{
 }

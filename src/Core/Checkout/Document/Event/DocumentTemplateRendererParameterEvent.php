@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Checkout\Document\Event;
 
+use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ExtendableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Instead create own provider extending {@link AbstractDocumentDataProvider} and extend the render data via `provideRenderingData()`.
+ *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]

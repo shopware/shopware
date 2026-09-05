@@ -11,6 +11,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ *
  * @internal
  */
 #[Package('after-sales')]

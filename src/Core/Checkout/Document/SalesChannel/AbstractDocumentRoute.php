@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\SalesChannel;
 
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Framework\Deprecation\BCChange\NamespaceChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  * This route is used to get the generated document from a documentId
  */
 #[Package('after-sales')]
+#[NamespaceChange(version: 'v6.9.0', newLocation: 'Shopware\\Core\\Checkout\\DocumentV2\\SalesChannel\\AbstractDocumentRoute')]
 abstract class AbstractDocumentRoute
 {
     abstract public function getDecorated(): AbstractDocumentRoute;

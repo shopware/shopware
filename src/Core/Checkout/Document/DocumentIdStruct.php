@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Api\Sync\FkReference;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed.
+ *
  * @internal
  */
 #[Package('framework')]

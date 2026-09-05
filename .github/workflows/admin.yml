@@ -63,15 +63,24 @@ jobs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
     runs-on: ubuntu-24.04
-    name: "Jest Admin (unit)"
+    name: "Jest Admin (unit, shard ${{ matrix.shard }})"
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     env:
       NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
+      # 4 vCPU / 16 GB runners: 4 workers x 2 GB leaves headroom for the main process
+      JEST_WORKER_IDLE_MEMORY_LIMIT: 2GB
+      JEST_CACHE_DIR: ${{ github.workspace }}/src/Administration/Resources/app/administration/.jestcache
 
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
+          # Jest and the entity schema dump never connect to MySQL
+          mysql-version: skip
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
@@ -79,20 +88,76 @@ jobs:
         run: composer run framework:schema:dump
 
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: src/Administration/Resources/app/administration/package-lock.json
 
+      - name: Cache admin node_modules
+        id: node-modules
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: src/Administration/Resources/app/administration/node_modules
+          # No restore-keys on purpose: only an exact lockfile + patches match may
+          # skip npm ci, stale dependencies must never be restored
+          # (postinstall applies patch-package, so the patches dir is part of the key)
+          key: admin-node-modules-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json') }}-${{ hashFiles('src/Administration/Resources/app/administration/patches/**') }}
+
       - name: Install admin dependencies
-        run: npm --prefix src/Administration/Resources/app/administration ci
+        if: steps.node-modules.outputs.cache-hit != 'true'
+        run: npm --prefix src/Administration/Resources/app/administration ci --no-audit --prefer-offline
+
+      - name: Cache Jest transform cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.JEST_CACHE_DIR }}
+          # Per-shard keys: each shard only transforms the files its tests load.
+          # Jest cache entries are content-hashed, so stale restores just miss.
+          key: jest-admin-${{ runner.os }}-shard-${{ matrix.shard }}-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/jest.config.ts') }}
+          restore-keys: |
+            jest-admin-${{ runner.os }}-shard-${{ matrix.shard }}-
 
       - name: Generate unit test setup artifacts
         run: npm --prefix src/Administration/Resources/app/administration run unit-setup
 
       - name: Run Jest Admin unit
-        run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
+        run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent --shard=${{ matrix.shard }}/4
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: build/artifacts/jest/cobertura-coverage.xml
+          flags: jest-admin
+          disable_search: true
+
+  admin-e2e:
+    needs:
+      - markdown-only-changes
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    runs-on: ubuntu-24.04
+    name: "Jest Admin (extension tooling e2e)"
+    env:
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+
+    steps:
+      # install-admin covers node setup, node_modules cache, unit-setup and the entity
+      # schema mock; the e2e specs run the real toolchain and take minutes, so they
+      # stay out of the sharded unit job to keep its shards balanced
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          mysql-version: skip
+          install-admin: true
+          skip-js-build: true
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Run extension tooling e2e specs
+        run: npm --prefix src/Administration/Resources/app/administration run unit:e2e -- --silent
 
       - name: Upload coverage
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
@@ -136,6 +201,7 @@ jobs:
       - markdown-only-changes
       - lint
       - admin
+      - admin-e2e
       - license-check
 
     runs-on: Ubuntu-latest
@@ -144,5 +210,5 @@ jobs:
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
         with:
           # allowed-failures: docs, linters
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, license-check' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, admin, admin-e2e, license-check' || '' }}
           jobs: ${{ toJSON(needs) }}

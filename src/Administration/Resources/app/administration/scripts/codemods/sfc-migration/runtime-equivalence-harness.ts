@@ -16,6 +16,7 @@ import { parse as parseScript } from '@babel/parser';
 import { parse, compileScript, compileTemplate } from '@vue/compiler-sfc';
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import * as Vue from 'vue';
+import { createMemoryHistory, createRouter, type Router } from 'vue-router';
 import { createRequire } from 'node:module';
 import { Script, createContext } from 'node:vm';
 import { attachOverrides, _overridesMap } from '../../../src/app/adapter/composition-extension-system';
@@ -29,6 +30,8 @@ type RuntimeMountOptions = {
     plugins?: Vue.Plugin[];
     useConvertedTemplate?: boolean;
 };
+
+type RoutedMount = { wrapper: VueWrapper; router: Router };
 
 type RuntimeProbe = {
     events: unknown[];
@@ -295,6 +298,59 @@ function mountGeneratedPair(
     ];
 }
 
+/**
+ * An in-component route guard only runs for a component the router itself renders, so a fixture that
+ * declares one is mounted behind a `<router-view />` as a route component instead of directly.
+ * `/leave` is where a navigation away from it goes.
+ */
+function mountRouted(component: Vue.Component, options: RuntimeMountOptions): RoutedMount {
+    const router = createRouter({
+        history: createMemoryHistory(),
+        routes: [
+            { path: '/:id?', name: 'fixture', component },
+            { path: '/leave', name: 'leave', component: { template: '<div />' } },
+        ],
+    });
+
+    const wrapper = mount({ template: '<router-view />' }, {
+        global: globalMountOptions(
+            {
+                ...options,
+                plugins: [
+                    ...(options.plugins ?? []),
+                    router,
+                ],
+            },
+            options.useConvertedTemplate ?? false,
+        ),
+    } as never) as VueWrapper;
+
+    return { wrapper, router };
+}
+
+function mountRoutedOriginal(fixture: RuntimeFixture, options: RuntimeMountOptions = {}): RoutedMount {
+    return mountRouted(compileOptionsComponent(fixture), options);
+}
+
+function mountRoutedGenerated(
+    fixture: RuntimeFixture,
+    result: ConvertResult,
+    options: RuntimeMountOptions = {},
+): RoutedMount {
+    if (!result.sfc) {
+        throw new Error(`Cannot mount ${fixture.name}: conversion produced no SFC`);
+    }
+
+    return mountRouted(
+        compileGeneratedComponent(
+            result.sfc,
+            `${fixture.name}.vue`,
+            options.useConvertedTemplate ? undefined : OBSERVER_TEMPLATE,
+        ),
+        options,
+    );
+}
+
 async function runEquivalentOrConservative(
     fixture: RuntimeFixture,
     exercise: (original: VueWrapper, generated: VueWrapper) => Promise<void> | void,
@@ -317,6 +373,7 @@ async function runEquivalentOrConservative(
 }
 
 export {
+    type RoutedMount,
     type RuntimeMountOptions,
     convertFixture,
     flushPromises,
@@ -324,6 +381,8 @@ export {
     mountGeneratedPair,
     mountOriginal,
     mountOriginalPair,
+    mountRoutedGenerated,
+    mountRoutedOriginal,
     resetOverrides,
     runEquivalentOrConservative,
     setProbe,

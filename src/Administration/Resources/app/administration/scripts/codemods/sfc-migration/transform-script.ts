@@ -171,6 +171,7 @@ function renderScript(
     const routerImports = [
         ...(ctx.helpers.has('router') ? ['useRouter'] : []),
         ...(ctx.helpers.has('route') ? ['useRoute'] : []),
+        ...[...new Set(collected.routeGuards.map((entry) => entry.guard))],
     ];
 
     const mixinEvents = [
@@ -274,6 +275,7 @@ function renderScript(
         refBlock || null,
         ...watchers.map((watcher) => renderWatcher(ctx, watcher)),
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
+        ...collected.routeGuards.map(({ guard, fn }) => `${guard}(${arrowText(ctx, fn)});`),
         collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
         ...siteTodos.map(todoBlock),
         publicNames.length > 0
@@ -394,7 +396,10 @@ function transformScript(
         collected.rewriteFns.push(collected.createdFn);
     }
 
-    for (const { fn } of collected.hooks) {
+    for (const { fn } of [
+        ...collected.hooks,
+        ...collected.routeGuards,
+    ]) {
         collected.rewriteFns.push(fn);
     }
 

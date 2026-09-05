@@ -172,6 +172,29 @@ const ROUTE_WATCH_FIXTURE = runtimeFixture(
     `,
 );
 
+const ROUTE_GUARD_FIXTURE = runtimeFixture(
+    'sw-runtime-route-guards',
+    `
+        export default {
+            data() {
+                return { blocked: true };
+            },
+            beforeRouteUpdate(to) {
+                globalThis.__runtimeEquivalenceProbe.push('update:' + to.params.id);
+            },
+            beforeRouteLeave(to, from, next) {
+                globalThis.__runtimeEquivalenceProbe.push('leave:' + this.blocked);
+                next(!this.blocked);
+            },
+            methods: {
+                allow() {
+                    this.blocked = false;
+                },
+            },
+        };
+    `,
+);
+
 const CLASS_THIS_FIXTURE = runtimeFixture(
     'sw-runtime-class-this',
     `
@@ -368,6 +391,7 @@ export {
     MODULE_BINDING_FIXTURE,
     PARAMETERIZED_DATA_FIXTURE,
     PROP_INJECT_DATA_FIXTURE,
+    ROUTE_GUARD_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
     SIBLING_DATA_FIXTURE,

@@ -65,6 +65,15 @@ final class ProductStreamWriteResultHelper
             $ids[] = $stateId;
         }
 
+        // deletes carry only the primary key, partial updates only the changed fields; the change set
+        // requested by ProductStreamFilterChangeSetSubscriber holds the previous row state
+        $beforeId = self::normalizeStreamId(
+            $writeResult->getChangeSet()?->getBefore('product_stream_id')
+        );
+        if ($beforeId !== null) {
+            $ids[] = $beforeId;
+        }
+
         return $ids;
     }
 

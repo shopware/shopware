@@ -1,20 +1,45 @@
 meta:
   label: "Filter Panel"
-  description: "Product listing filter panel with sorting and layout switch actions."
+  description: "Product listing filter panel."
   icon: "regular-filter-s"
   category: "commerce"
   copilot:
-    summary: "Listing filter and sorting panel."
+    summary: "Listing filter panel."
     hints:
-      - "Bind listing aggregations and sortings."
-      - "Use additional filter slots to extend built-in filters."
+      - "The listing is loaded per request from the page's category, no configuration needed."
+      - "Place it anywhere on a category layout. It does not have to sit inside the product listing."
+      - "Sorting and the layout switch belong to the Product Listing element, not here."
+      - "Turning a filter off hides its control. A link already carrying that filter still narrows the listing, so shared URLs keep working."
 
 properties:
-  showLayoutSwitch:
-    type: boolean
-    title: "Show Layout Switch"
-    description: "Whether to show listing layout toggle actions."
-    default: true
+  productListing:
+    type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
+    required: true
+    title: "Product Listing"
+    description: "Hydrated listing result. The panel reads its aggregations to build the filters."
+    resolvedBy:
+      product_listing: {}
+
+  navigationId:
+    type: string
+    title: "Navigation ID"
+    description: "Category id the product_listing loader loads from. Resolved per request from the layout's category root, so it needs no editorial input."
+    default: "{{categoryId}}"
+    adminUI:
+      helpText: "Filled automatically from the page you are on, so leave this as it is."
+
+  displayType:
+    type: string
+    title: "Display Type"
+    description: "How the filters are arranged. `inline` lays them out as a row of buttons opening floating menus; `vertical` gives each its own full-width row that expands in place."
+    default: "inline"
+    enum:
+      - "inline"
+      - "vertical"
+    adminUI:
+      component: "select"
+      panel: "filter"
+      helpText: "Use vertical when the panel sits in a narrow column, so the filters sit one below another and expand in place instead of opening floating menus."
 
   visibleFilterCount:
     type: integer
@@ -23,3 +48,58 @@ properties:
     default: 3
     adminUI:
       component: "number"
+      panel: "filter"
+
+  showPriceFilter:
+    type: boolean
+    title: "Filter by Price"
+    description: "Whether the price range filter is offered."
+    default: true
+    adminUI:
+      panel: "filter"
+
+  showRatingFilter:
+    type: boolean
+    title: "Filter by Rating"
+    description: "Whether the minimum rating filter is offered."
+    default: true
+    adminUI:
+      panel: "filter"
+
+  showManufacturerFilter:
+    type: boolean
+    title: "Filter by Manufacturer"
+    description: "Whether the manufacturer filter is offered."
+    default: true
+    adminUI:
+      panel: "filter"
+
+  showShippingFreeFilter:
+    type: boolean
+    title: "Filter for Free Shipping"
+    description: "Whether the free shipping filter is offered."
+    default: true
+    adminUI:
+      panel: "filter"
+
+  showPropertyFilter:
+    type: boolean
+    title: "Filter by Properties"
+    description: "Whether the property group filters are offered."
+    default: true
+    adminUI:
+      panel: "filter"
+
+  propertyAllowList:
+    type: string
+    title: "Filterable Properties"
+    description: "Comma-separated property_group ids whose filters the panel offers. Empty offers every filterable group of the matching products."
+    required: false
+    adminUI:
+      component: "entity-multi"
+      entity: "property_group"
+      panel: "filter"
+      helpText: "Restrict the property filters to the groups that matter on this page, for example only colour and size."
+      visibleWhen:
+        field: "showPropertyFilter"
+        equals: true

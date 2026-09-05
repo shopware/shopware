@@ -14,9 +14,17 @@ export default class FilterPanel extends ShopwareComponent {
             return;
         }
 
+        this.filterItems = this.el.querySelectorAll('.sw-filter-item');
+
+        if (this.filterItems.length <= this.options.visibleFilterCount) {
+            this.expandButton.remove();
+            this.expandButton = null;
+
+            return;
+        }
+
         this.expandText = this.expandButton.querySelector('.sw-filter-panel__expand-text');
         this.collapseText = this.expandButton.querySelector('.sw-filter-panel__collapse-text');
-        this.filterItems = this.el.querySelectorAll('.sw-filter-item');
 
         this.filtersExpanded = false;
 

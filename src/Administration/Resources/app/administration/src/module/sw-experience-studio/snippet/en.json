@@ -18,6 +18,16 @@
           "shadow": "Shadow",
           "background": "Background"
         }
+      },
+      "sw-filter-panel": {
+        "panels": {
+          "filter": "Filter"
+        }
+      },
+      "sw-product-listing": {
+        "panels": {
+          "sorting": "Sorting"
+        }
       }
     },
     "list": {

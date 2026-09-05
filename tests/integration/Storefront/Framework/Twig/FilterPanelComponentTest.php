@@ -1,0 +1,294 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Property\PropertyGroupEntity;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Twig\Environment;
+
+/**
+ * @internal
+ */
+#[Package('discovery')]
+class FilterPanelComponentTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+
+    /**
+     * The canonicity test only validates bindings that exist, so dropping `resolvedBy` would pass it while
+     * leaving the element unwired.
+     */
+    public function testElementTypeBindsTheListingLoader(): void
+    {
+        $registry = static::getContainer()->get(ContentSystemBindingSpecificationRegistry::class);
+        static::assertInstanceOf(AbstractContentSystemBindingSpecificationRegistry::class, $registry);
+
+        $specification = $registry->all()['core:Sw:Filter:Panel'] ?? null;
+        static::assertInstanceOf(BindingSpecification::class, $specification);
+        static::assertSame('Sw:Filter:Panel', $specification->type());
+
+        $binding = $specification->resolves()['productListing'] ?? null;
+        static::assertInstanceOf(LoaderBinding::class, $binding);
+        static::assertSame('product_listing', $binding->loader);
+
+        // The loader reads `navigationId` by default. Naming that key in the binding would be read as
+        // a resolvedBy storage key and rejected for colliding with the declared property of the same
+        // name, so the default has to stay implicit.
+        static::assertArrayNotHasKey('property', $binding->config);
+    }
+
+    /**
+     * One layout serves every category page, so a stored id would be right on one and wrong on all the others.
+     */
+    public function testNavigationIdFollowsThePageInsteadOfBeingConfigured(): void
+    {
+        static::assertSame('{{categoryId}}', $this->properties()['navigationId']->toSchema()['default']);
+
+        // A required primitive with a default is reported unresolved until a write seeds it, so the
+        // placeholder-carrying property has to stay optional.
+        static::assertFalse($this->properties()['navigationId']->required());
+    }
+
+    /**
+     * The class mirrors the value while the Bootstrap mechanism each one turns on stays an implementation
+     * detail of the markup, so the mapping between the three is worth pinning.
+     */
+    public function testDisplayTypeReachesTheFilterItems(): void
+    {
+        $aggregations = $this->manufacturerAggregation('Shopware AG');
+
+        $inline = $this->render(['productListing' => $this->listing($aggregations), 'displayType' => 'inline']);
+        $vertical = $this->render(['productListing' => $this->listing($aggregations), 'displayType' => 'vertical']);
+
+        static::assertStringContainsString('is--inline', $inline);
+        static::assertStringContainsString('data-bs-toggle="dropdown"', $inline);
+        static::assertStringNotContainsString('data-bs-target="#filter-item-', $inline);
+
+        static::assertStringContainsString('is--vertical', $vertical);
+        static::assertStringContainsString('data-bs-toggle="collapse"', $vertical);
+        static::assertStringContainsString('data-bs-target="#filter-item-', $vertical);
+    }
+
+    public function testRendersFiltersFromTheAggregations(): void
+    {
+        $html = $this->render(['productListing' => $this->listing($this->manufacturerAggregation('Shopware AG'))]);
+
+        static::assertStringContainsString('data-component="Sw:Filter:Panel"', $html);
+        static::assertStringContainsString('Shopware AG', $html);
+    }
+
+    /**
+     * The panel owns the summary, so a panel in one grid column takes its chips along instead of leaving them
+     * stranded next to the product grid. It has to be a descendant, not a second root: Sw:Grid:Container lays
+     * its children out as grid items, so a second root element would claim the next cell and push the
+     * neighbouring element onto a new row.
+     */
+    public function testRendersTheSummaryInsideItsSingleRootElement(): void
+    {
+        $html = $this->render(['productListing' => $this->listing($this->manufacturerAggregation('Shopware AG'))]);
+
+        $document = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $document->loadHTML('<!DOCTYPE html><html><body>' . $html . '</body></html>');
+        libxml_clear_errors();
+
+        $body = $document->getElementsByTagName('body')->item(0);
+        static::assertInstanceOf(\DOMElement::class, $body);
+
+        $roots = [];
+        foreach ($body->childNodes as $node) {
+            if ($node instanceof \DOMElement) {
+                $roots[] = $node;
+            }
+        }
+
+        static::assertCount(1, $roots);
+        static::assertStringContainsString('sw-filter-panel', $roots[0]->getAttribute('class'));
+
+        $summaries = (new \DOMXPath($document))->query('//*[@data-component="Sw:Filter:ActiveFilters"]');
+        static::assertInstanceOf(\DOMNodeList::class, $summaries);
+        static::assertCount(1, $summaries);
+    }
+
+    /**
+     * Degrading to a filterless panel instead of failing the render matches Sw:Media:Image.
+     */
+    public function testRendersWithoutFiltersWhenTheListingIsMissing(): void
+    {
+        $html = $this->render([]);
+
+        static::assertStringContainsString('data-component="Sw:Filter:Panel"', $html);
+        static::assertStringNotContainsString('data-component="Sw:Filter:Item"', $html);
+    }
+
+    /**
+     * The free shipping filter is a panel item like the others, so it takes the same wrapper and collapse
+     * behaviour instead of sitting loose among them.
+     */
+    public function testRendersTheFreeShippingFilterAsAFilterItem(): void
+    {
+        $html = $this->render(['productListing' => $this->listing($this->shippingFreeAggregation())]);
+
+        static::assertStringContainsString('data-component="Sw:Filter:Type:BooleanFilter"', $html);
+        static::assertSame(1, substr_count($html, 'data-component="Sw:Filter:Item"'));
+
+        // Only the wrapper may carry the item class; a second one would be counted twice by the panel's
+        // collapse, which selects `.sw-filter-item` to decide what `visibleFilterCount` hides.
+        static::assertStringNotContainsString('sw-boolean-filter sw-filter sw-filter-item', $html);
+    }
+
+    /**
+     * The toggles are the panel's only say over which filters it offers, so they have to act on the render.
+     * They used to be applied by switching the matching listing filter handler off through a request
+     * parameter, which no longer happens now that the panel does not shape the query.
+     */
+    public function testADisabledToggleHidesOnlyItsOwnFilter(): void
+    {
+        $aggregations = new AggregationResultCollection([
+            new EntityResult('manufacturer', new ProductManufacturerCollection([$this->manufacturer('Shopware AG')])),
+            new MaxResult('shipping-free', 1),
+        ]);
+
+        $html = $this->render([
+            'productListing' => $this->listing($aggregations),
+            'showManufacturerFilter' => false,
+        ]);
+
+        static::assertStringNotContainsString('name="manufacturer"', $html);
+        static::assertStringContainsString('name="shipping-free"', $html);
+    }
+
+    /**
+     * The allow list restricts which property groups get a control, like the legacy element's own whitelist.
+     * It never filtered products there either, so a link carrying an excluded option still narrows the listing.
+     */
+    public function testThePropertyAllowListOffersOnlyTheListedGroups(): void
+    {
+        $colour = $this->propertyGroup('Colour');
+        $size = $this->propertyGroup('Size');
+
+        $html = $this->render([
+            'productListing' => $this->listing(new AggregationResultCollection([
+                new EntityResult('properties', new PropertyGroupCollection([$colour, $size])),
+            ])),
+            'propertyAllowList' => ' ' . strtoupper($colour->getId()) . ' ,',
+        ]);
+
+        static::assertStringContainsString('Colour', $html);
+        static::assertStringNotContainsString('Size', $html);
+    }
+
+    /**
+     * An empty allow list is the documented "offer every filterable group" case, so it must not be read as
+     * "offer none".
+     */
+    public function testAnEmptyPropertyAllowListOffersEveryGroup(): void
+    {
+        $html = $this->render([
+            'productListing' => $this->listing(new AggregationResultCollection([
+                new EntityResult('properties', new PropertyGroupCollection([
+                    $this->propertyGroup('Colour'),
+                    $this->propertyGroup('Size'),
+                ])),
+            ])),
+            'propertyAllowList' => '',
+        ]);
+
+        static::assertStringContainsString('Colour', $html);
+        static::assertStringContainsString('Size', $html);
+    }
+
+    private function propertyGroup(string $name): PropertyGroupEntity
+    {
+        $group = new PropertyGroupEntity();
+        $group->setId(Uuid::randomHex());
+        $group->setTranslated(['name' => $name]);
+        $group->setDisplayType('text');
+        $group->setOptions(new PropertyGroupOptionCollection());
+
+        return $group;
+    }
+
+    /**
+     * @return array<string, PropertySpecification>
+     */
+    private function properties(): array
+    {
+        $types = static::getContainer()->get(ContentSystemElementTypeRegistry::class);
+        static::assertInstanceOf(AbstractContentSystemElementTypeRegistry::class, $types);
+
+        return $types->get('Sw:Filter:Panel')->properties();
+    }
+
+    /**
+     * @param array<string, mixed> $props
+     */
+    private function render(array $props): string
+    {
+        $twig = static::getContainer()->get('twig');
+        static::assertInstanceOf(Environment::class, $twig);
+
+        return $twig
+            ->createTemplate('{{ component(\'Sw:Filter:Panel\', props) }}')
+            ->render(['props' => $props]);
+    }
+
+    private function listing(AggregationResultCollection $aggregations): ProductListingResult
+    {
+        return ProductListingResult::fromSearchResult(new EntitySearchResult(
+            ProductDefinition::ENTITY_NAME,
+            0,
+            new ProductCollection(),
+            $aggregations,
+            new Criteria(),
+            Context::createDefaultContext()
+        ), new ProductSortingCollection());
+    }
+
+    private function manufacturerAggregation(string $name): AggregationResultCollection
+    {
+        return new AggregationResultCollection([
+            new EntityResult('manufacturer', new ProductManufacturerCollection([$this->manufacturer($name)])),
+        ]);
+    }
+
+    private function manufacturer(string $name): ProductManufacturerEntity
+    {
+        $manufacturer = new ProductManufacturerEntity();
+        $manufacturer->setId(Uuid::randomHex());
+        $manufacturer->setTranslated(['name' => $name]);
+
+        return $manufacturer;
+    }
+
+    private function shippingFreeAggregation(): AggregationResultCollection
+    {
+        return new AggregationResultCollection([
+            new MaxResult('shipping-free', 1),
+        ]);
+    }
+}

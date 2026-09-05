@@ -7,3 +7,12 @@
     opacity: 0;
     transform: translateY(10px);
 }
+
+.sw-product-listing__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: end;
+    gap: var(--spacer-sm);
+    margin-bottom: var(--spacer-sm);
+}

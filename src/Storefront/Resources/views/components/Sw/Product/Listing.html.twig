@@ -4,8 +4,18 @@
 
 {% props
     listing = null,
+    showSorting = true,
+    showLayoutSwitch = true,
     slots = [],
+    navigationId = null,
+    limit = null,
+    page = null,
+    defaultSorting = null,
 %}
+
+{% set totalCount = listing.total ?? 0 %}
+{% set currentSorting = listing.sorting %}
+{% set availableSortings = listing.availableSortings %}
 
 {% set listingCVA = cva({
     base: 'sw-product-listing',
@@ -19,19 +29,20 @@
 {% set listingLayout = app.request.get('listingLayout') %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
-    {% block filters %}
-        <twig:Slot name="filters-panel">
-            <twig:Sw:Filter:Panel
-                :totalCount="listing.total"
-                :currentSorting="listing.sorting"
-                :filterAggregations="listing.aggregations"
-                :availableSortings="listing.availableSortings">
-            </twig:Sw:Filter:Panel>
-        </twig:Slot>
+    {% block actions %}
+        <div class="sw-product-listing__actions container">
+            <span class="sw-product-listing__counter text-light-emphasis text-nowrap d-none d-lg-inline-block">
+                {{ 'listing.resultCount'|trans({ '%count%': totalCount })|sw_sanitize }}
+            </span>
 
-        <twig:Slot name="filters-active">
-            <twig:Sw:Filter:ActiveFilters />
-        </twig:Slot>
+            {% if showSorting and availableSortings and availableSortings.elements and availableSortings.elements|length > 0 %}
+                <twig:Sw:Product:Sorting :currentSorting="currentSorting" :sortings="availableSortings.elements" />
+            {% endif %}
+
+            {% if showLayoutSwitch %}
+                <twig:Sw:Product:LayoutSwitch />
+            {% endif %}
+        </div>
     {% endblock %}
 
     {% block content %}

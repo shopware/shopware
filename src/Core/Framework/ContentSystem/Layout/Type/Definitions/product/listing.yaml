@@ -1,24 +1,35 @@
 meta:
   label: "Product Listing"
-  description: "Displays a category product listing with filters, grid, and pagination slots."
+  description: "Displays a category product listing with grid and pagination slots."
   icon: "regular-products"
   category: "commerce"
   copilot:
     summary: "Category product listing component."
     hints:
-      - "Provide navigationId to load listing data."
-      - "Use slots to customize filters, grid, and pagination."
+      - "The listing is loaded per request from the page's category, no configuration needed."
+      - "Filters are a separate Filter Panel element. Place one alongside the listing."
+      - "Use slots to customize the grid and pagination."
 
 properties:
   navigationId:
     type: string
     title: "Navigation ID"
-    description: "Category or navigation id used by product_listing loader."
+    description: "Category id the product_listing loader loads from. Resolved per request from the layout's category root, so it needs no editorial input."
+    default: "{{categoryId}}"
+    adminUI:
+      helpText: "Filled automatically from the page you are on, so leave this as it is."
 
   listing:
     type: Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult
     title: "Listing"
     description: "Hydrated listing result containing products, sorting, and aggregations."
+    resolvedBy:
+      product_listing:
+        associations:
+          - cover
+          - cover.media
+          - cover.media.thumbnails
+          - manufacturer
 
   limit:
     type: integer
@@ -36,11 +47,39 @@ properties:
     adminUI:
       component: "number"
 
+  showSorting:
+    type: boolean
+    title: "Show Sorting"
+    description: "Whether the sorting select is offered."
+    default: true
+    adminUI:
+      panel: "sorting"
+
+  defaultSorting:
+    type: string
+    title: "Default Sorting"
+    description: "Sorting preselected when the request carries no explicit order. A visitor's own choice always wins."
+    required: false
+    adminUI:
+      component: "entity-single-select"
+      entity: "product_sorting"
+      panel: "sorting"
+      props:
+        labelProperty: "label"
+        showClearableButton: true
+      visibleWhen:
+        field: "showSorting"
+        equals: true
+
+  showLayoutSwitch:
+    type: boolean
+    title: "Show Layout Switch"
+    description: "Whether to show listing layout toggle actions."
+    default: true
+    adminUI:
+      panel: "sorting"
+
 slots:
-  - name: filters-panel
-    description: "Container slot for filter panel component."
-  - name: filters-active
-    description: "Container slot for active filters summary."
   - name: product-grid
     description: "Container slot for product grid rendering."
   - name: pagination

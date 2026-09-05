@@ -1,6 +1,6 @@
 .sw-filter-panel {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: start;
     gap: 0.5rem;
     background-color: var(--bs-body-bg);
@@ -19,18 +19,18 @@
     gap: 0.5rem;
 }
 
-.is--collapse .sw-filter-panel__filter {
+.sw-filter-panel.is--vertical {
     flex-direction: column;
-    align-items: start;
+    align-items: stretch;
 }
 
-.sw-filter-panel__actions {
-    display: inline-flex;
-    align-items: center;
-    justify-content: end;
-    gap: 0.5rem;
+.is--vertical .sw-filter-panel__filter {
+    flex-direction: column;
+    align-items: stretch;
+    flex-grow: 1;
 }
 
-.sw-filter-panel__counter {
-    line-height: 40px;
+.sw-filter-panel > .sw-active-filters {
+    flex: 0 0 100%;
+    margin-bottom: 0;
 }

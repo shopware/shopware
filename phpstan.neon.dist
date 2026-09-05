@@ -38,6 +38,9 @@ parameters:
         # Danger rule test fixtures
         - tests/unit/Core/DevOps/StaticAnalyze/Danger/Rules/_fixtures/*
 
+        # Generated test files
+        - tests/unit/Core/Framework/Api/OpenApi/_fixtures
+
     universalObjectCratesClasses:
         - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
 

@@ -24,6 +24,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             productRepositoryMock: undefined,
             templateType: 'default',
             options: [],
+            taxIdBuckets: undefined,
         },
     ) {
         const productEntity = productEntityOverride === undefined ? { metaTitle: 'test' } : productEntityOverride;
@@ -270,10 +271,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                             }
 
                             if (entity === 'product') {
-                                if (customMocks.productRepositoryMock) {
-                                    return customMocks.productRepositoryMock;
-                                }
-
                                 return {
                                     create: () => ({
                                         isNew: () => true,
@@ -286,6 +283,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
                                         return Promise.resolve(productEntity);
                                     },
+                                    search: () =>
+                                        Promise.resolve({
+                                            aggregations: {
+                                                taxIds: {
+                                                    buckets: customMocks.taxIdBuckets ?? [
+                                                        { key: 'rate1' },
+                                                    ],
+                                                },
+                                            },
+                                        }),
+                                    ...customMocks.productRepositoryMock,
                                 };
                             }
 
@@ -691,7 +699,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.bulkEditProduct.price.value).toBeTruthy();
     });
 
-    it('should add default taxId when price is changed without selecting tax change', async () => {
+    it('should not change the taxId when price is changed without selecting tax change', async () => {
         const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
@@ -705,10 +713,52 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.onProcessData();
 
-        const taxChangeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'taxId');
-        expect(taxChangeField).toBeDefined();
-        expect(taxChangeField.type).toBe('overwrite');
-        expect(taxChangeField.value).toBe('rate1');
+        expect(wrapper.vm.bulkEditSelected.find((field) => field.field === 'taxId')).toBeUndefined();
+    });
+
+    it('should use the tax rate shared by all selected products for the price calculation', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        expect(wrapper.vm.taxRate).toEqual(
+            expect.objectContaining({
+                id: 'rate1',
+                taxRate: 19,
+            }),
+        );
+
+        wrapper.vm.pricesFormFields
+            .filter((field) => field.config.componentName === 'sw-price-field')
+            .forEach((field) => {
+                expect(field.config.netDisabled).toBe(false);
+                expect(field.config.netHelpText).toBeNull();
+            });
+    });
+
+    it('should not preselect a tax rate when the selected products use different tax rates', async () => {
+        const wrapper = await createWrapper(
+            {},
+            { name: 'sw.bulk.edit.product', params: { parentId: 'null' } },
+            {
+                taxIdBuckets: [
+                    { key: 'rate1' },
+                    { key: 'rate2' },
+                ],
+            },
+        );
+
+        await flushPromises();
+
+        expect(wrapper.vm.taxRate).toEqual({});
+
+        // Without a single tax rate no net value can be entered, only a gross value.
+        wrapper.vm.pricesFormFields
+            .filter((field) => field.config.componentName === 'sw-price-field')
+            .forEach((field) => {
+                expect(field.config.netDisabled).toBe(true);
+                expect(field.config.netHelpText).toBe('sw-bulk-edit.product.prices.netHelpTextMixedTaxRates');
+            });
     });
 
     it('should be getting the list price when the price field is exists', async () => {
@@ -1312,6 +1362,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await wrapper.vm.getParentProduct();
 
         expect(wrapper.vm.parentProduct).toStrictEqual({});
+    });
+
+    it('should load the tax of the parent product to calculate variant prices', async () => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.productCriteria.hasAssociation('tax')).toBe(true);
     });
 
     it('should get parent product successful', async () => {

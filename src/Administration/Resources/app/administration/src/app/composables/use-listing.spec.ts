@@ -211,6 +211,22 @@ describe('src/app/composables/use-listing', () => {
         expect(router.currentRoute.value.query).toMatchObject({ term: 'shirt', page: '1' });
     });
 
+    it('resets the search term when the same listing route is opened again without a query', async () => {
+        const { listing, router } = await mountListing();
+
+        listing.onSearch('shirt');
+        await flushPromises();
+        expect(listing.term.value).toBe('shirt');
+
+        // Opening the already active admin menu item navigates to the listing route without a query.
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listing.term.value).toBeUndefined();
+        expect(listing.page.value).toBe(1);
+        expect(router.currentRoute.value.query.term).toBeUndefined();
+    });
+
     it('toggles the sort direction when the same column is sorted twice', async () => {
         const { listing, router } = await mountListing({ sortBy: 'name' });
 

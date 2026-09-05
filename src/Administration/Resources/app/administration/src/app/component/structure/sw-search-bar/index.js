@@ -233,6 +233,16 @@ export default {
             this.searchTerm = newValue.query.term ? newValue.query.term : '';
         },
 
+        // Watch for changes of the term of the listing this search bar belongs to, e.g. when the listing is reset
+        initialSearch(newValue) {
+            // Do not modify the search term when the user is currently typing
+            if (this.isActive) {
+                return;
+            }
+
+            this.searchTerm = newValue;
+        },
+
         '$route.name': {
             handler(to, from) {
                 if (from === undefined || to === from) {

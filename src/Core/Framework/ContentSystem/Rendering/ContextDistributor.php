@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
@@ -136,13 +137,22 @@ final readonly class ContextDistributor
     }
 
     /**
-     * A child accepts a provider key when any of its consumer keys matches it exactly or hangs below it as a
-     * dot path. One child counts once however many of its keys match — it occupies a single position in the
-     * distribution and then fills every matching key from that one value.
+     * A child accepts a provider key when any of its PARENT-scoped consumer keys matches it exactly or hangs
+     * below it as a dot path. One child counts once however many of its keys match — it occupies a single
+     * position in the distribution and then fills every matching key from that one value.
+     *
+     * A {@see ConsumerScope::Root} consumer is skipped here and in {@see deliverTo()}, the two places that
+     * read the consumer map, so it is invisible to parent distribution end to end: it takes no position in an
+     * indexed or sliced hand-out and receives no parent value. Its value comes from the root-ambient map
+     * instead, which {@see ContextDeliveryResolver} overlays.
      */
     private function acceptsContext(StoredElement $child, string $consumerKey): bool
     {
-        foreach (array_keys($child->contextDefinitions->getAllConsumers()) as $declaredKey) {
+        foreach ($child->contextDefinitions->getAllConsumers() as $declaredKey => $consumer) {
+            if ($consumer->scope === ConsumerScope::Root) {
+                continue;
+            }
+
             if ($this->pathResolver->matches($consumerKey, $declaredKey)) {
                 return true;
             }
@@ -182,10 +192,13 @@ final readonly class ContextDistributor
     }
 
     /**
-     * Writes one distributed value into every consumer key of this child that matches the provider key. An
-     * exact match takes the value as it stands; a dot path resolves through it, which needs a
+     * Writes one distributed value into every PARENT-scoped consumer key of this child that matches the
+     * provider key. An exact match takes the value as it stands; a dot path resolves through it, which needs a
      * {@see Struct} to traverse — a required consumer that cannot get one fails naming this child, an
      * optional one takes an explicit null.
+     *
+     * The scope skip repeats {@see acceptsContext()}'s, because the two run against the same consumer map for
+     * different questions and a root-scoped consumer must be absent from both answers.
      *
      * @param array<string, mixed> $context
      *
@@ -194,6 +207,10 @@ final readonly class ContextDistributor
     private function deliverTo(StoredElement $child, string $providerKey, mixed $data, array $context): array
     {
         foreach ($child->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+            if ($consumer->scope === ConsumerScope::Root) {
+                continue;
+            }
+
             if (!$this->pathResolver->matches($providerKey, $consumerKey)) {
                 continue;
             }

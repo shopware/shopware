@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\ContextDistributor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StubContextStruct;
 
 /**
  * @internal
@@ -34,7 +36,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], []);
+        $index = $this->resolver()->resolve([$root], [], []);
 
         static::assertSame(['product' => 'product-data'], $index->all()['child-1']->context);
     }
@@ -49,7 +51,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product'), $bystander])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], []);
+        $index = $this->resolver()->resolve([$root], [], []);
 
         static::assertSame(['root-1', 'child-1', 'child-2'], array_keys($index->all()));
         static::assertTrue($index->all()['root-1']->isEmpty());
@@ -64,7 +66,7 @@ class ContextDeliveryResolverTest extends TestCase
             $this->providerRoot('root-2', 'child-2', 'second-data'),
         ];
 
-        $index = $this->resolver()->resolve($forest, []);
+        $index = $this->resolver()->resolve($forest, [], []);
 
         static::assertSame(['product' => 'first-data'], $index->all()['child-1']->context);
         static::assertSame(['product' => 'second-data'], $index->all()['child-2']->context);
@@ -90,7 +92,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$middle])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], []);
+        $index = $this->resolver()->resolve([$root], [], []);
 
         static::assertSame(['product' => 'product-data'], $index->all()['child-1']->context);
         static::assertSame(['product' => 'product-data'], $index->all()['grandchild-1']->context);
@@ -111,7 +113,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('right', [$this->consumer('child-3', 'items')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], []);
+        $index = $this->resolver()->resolve([$root], [], []);
 
         static::assertSame(['items' => 'first-item'], $index->all()['child-1']->context);
         static::assertSame(['items' => 'second-item'], $index->all()['child-2']->context);
@@ -126,7 +128,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']]);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], []);
 
         static::assertSame(['product' => 'loaded-data'], $index->all()['child-1']->context);
     }
@@ -140,7 +142,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']]);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => 'loaded-data']], []);
 
         static::assertSame(['product' => 'loaded-data'], $index->all()['child-1']->context);
     }
@@ -161,7 +163,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$middle])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], []);
+        $index = $this->resolver()->resolve([$root], [], []);
 
         static::assertSame(['product' => 'inherited-data'], $index->all()['grandchild-1']->context);
     }
@@ -182,7 +184,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$this->consumer('child-1', 'product')])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => null]]);
+        $index = $this->resolver()->resolve([$root], ['root-1' => ['product' => null]], []);
 
         static::assertSame([], $index->all()['child-1']->context);
     }
@@ -208,7 +210,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], []);
+        $index = $this->resolver()->resolve([$root], [], []);
 
         static::assertSame(['data_key' => 'present', 'items' => null], $index->all()['child-1']->context);
     }
@@ -226,7 +228,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $index = $this->resolver()->resolve([$root], []);
+        $index = $this->resolver()->resolve([$root], [], []);
 
         static::assertSame(['data_key'], $index->all()['child-1']->distributionReferencedKeys);
     }
@@ -241,7 +243,7 @@ class ContextDeliveryResolverTest extends TestCase
             ->withSlot('main', [$child])
             ->build();
 
-        $this->resolver()->resolve([$root], []);
+        $this->resolver()->resolve([$root], [], []);
 
         static::assertSame([], $child->properties());
         static::assertSame(['product' => 'product-data'], array_map(
@@ -253,7 +255,7 @@ class ContextDeliveryResolverTest extends TestCase
     #[TestDox('returns an empty index for an empty forest')]
     public function testEmptyForestYieldsAnEmptyIndex(): void
     {
-        $index = $this->resolver()->resolve([], []);
+        $index = $this->resolver()->resolve([], [], []);
 
         static::assertSame([], $index->all());
     }
@@ -261,7 +263,7 @@ class ContextDeliveryResolverTest extends TestCase
     #[TestDox('reports an element id it never walked as absent rather than as having received nothing')]
     public function testAnIdOutsideTheForestIsAbsentFromTheIndex(): void
     {
-        $index = $this->resolver()->resolve([$this->providerRoot('root-1', 'child-1', 'product-data')], []);
+        $index = $this->resolver()->resolve([$this->providerRoot('root-1', 'child-1', 'product-data')], [], []);
 
         static::assertTrue($index->has('child-1'));
         static::assertFalse($index->has('not-in-this-forest'));
@@ -283,12 +285,211 @@ class ContextDeliveryResolverTest extends TestCase
             ContentSystemException::contextPathNotResolvable('product.name', 'child-1', 'Context data is not a Struct instance')
         );
 
-        $this->resolver()->resolve([$root], []);
+        $this->resolver()->resolve([$root], [], []);
+    }
+
+    /**
+     * The depth claim, and the reason the ambient map is an argument rather than a tree lookup: nothing
+     * between the root and the grandchild is wired, so a mechanism that walked the tree to find root context
+     * would have to stop at the first unwired ancestor and deliver nothing here.
+     */
+    #[TestDox('delivers a root-ambient value to a root-scoped consumer three levels down with no wiring in between')]
+    public function testRootScopedConsumerReceivesAmbientContextAtDepth(): void
+    {
+        $grandchild = $this->rootScopedConsumer('grandchild-1', 'language');
+        $middle = StoredElementBuilder::create('Sw:Section', 'child-1')
+            ->withSlot('main', [$grandchild])
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$middle])
+            ->build();
+
+        // Fixture guard: no element on the path declares a provider, so nothing can be handed down a hop
+        // at a time and the ambient argument is the only possible source.
+        static::assertSame([], $root->contextDefinitions->getAllProviders());
+        static::assertSame([], $middle->contextDefinitions->getAllProviders());
+
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+
+        static::assertSame(['language' => 'page-language'], $index->all()['grandchild-1']->context);
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    /**
+     * The exclusivity pin. Both consumers name the same ambient key and differ only in scope, so a delivery
+     * rule that ignored scope would fill both and this test would report the same map twice.
+     */
+    #[TestDox('fills a root-scoped consumer from the ambient map and leaves a parent-scope consumer of the same key empty')]
+    public function testParentScopeConsumerReceivesNothingFromTheAmbientMap(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                $this->rootScopedConsumer('root-scoped-1', 'language'),
+                $this->consumer('parent-scoped-1', 'language'),
+            ])
+            ->build();
+
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+
+        static::assertSame(['language' => 'page-language'], $index->all()['root-scoped-1']->context);
+        static::assertSame([], $index->all()['parent-scoped-1']->context);
+    }
+
+    #[TestDox('resolves a dotted root-scoped consumer key through the ambient struct')]
+    public function testDottedRootScopedConsumerResolvesThroughTheAmbientStruct(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$this->rootScopedConsumer('child-1', 'product.cover')])
+            ->build();
+
+        $index = $this->resolver()->resolve(
+            [$root],
+            [],
+            ['product' => new StubContextStruct('page-cover')]
+        );
+
+        static::assertSame(['product.cover' => 'page-cover'], $index->all()['child-1']->context);
+    }
+
+    #[TestDox('throws naming the element when a required dotted root-scoped consumer cannot resolve its path')]
+    public function testRequiredDottedRootScopedConsumerRejectsANonStructAmbientValue(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('product.cover', ContextType::Single, required: true, scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$child])
+            ->build();
+
+        $this->expectExceptionObject(ContentSystemException::contextPathNotResolvable(
+            'product.cover',
+            'child-1',
+            'Context data is not a Struct instance'
+        ));
+
+        $this->resolver()->resolve([$root], [], ['product' => 'not-a-struct']);
+    }
+
+    /**
+     * Present-null and key-absent are different states, so this asserts the WHOLE map rather than that the
+     * key holds null: a rendered null means a resolution ran and found nothing, and an ambient null must not
+     * be able to manufacture one.
+     */
+    #[TestDox('writes no key at all when the ambient value under a root-scoped consumer key is null')]
+    public function testAmbientNullDeliversNothingAndWritesNoKey(): void
+    {
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$this->rootScopedConsumer('child-1', 'language')])
+            ->build();
+
+        $index = $this->resolver()->resolve([$root], [], ['language' => null]);
+
+        static::assertSame([], $index->all()['child-1']->context);
+    }
+
+    #[TestDox('lands a root-ambient value under the property alias when the root-scoped consumer declares one')]
+    public function testRootScopedConsumerLandsUnderItsPropertyAlias(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withConsumer('language', ContextType::Single, propertyAlias: 'pageLanguage', scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$child])
+            ->build();
+
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+
+        static::assertSame(['pageLanguage' => 'page-language'], $index->all()['child-1']->context);
+    }
+
+    /**
+     * The ordering pin: the root-scoped overlay is applied to an element's delivery BEFORE its working map is
+     * read, so a value it received ambiently is in the map its own providers distribute from. Apply the
+     * overlay after — or record the pre-overlay delivery and distribute from that — and the middle element
+     * hands its child nothing, while its own map still reads correctly.
+     */
+    #[TestDox('lets an element re-provide a value it received through its own root-scoped consumer')]
+    public function testARootDeliveredValueEntersTheWorkingMapItsProvidersDistributeFrom(): void
+    {
+        $grandchild = $this->consumer('grandchild-1', 'language');
+        $middle = StoredElementBuilder::create('Sw:Section', 'child-1')
+            ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+            ->withProvider('language', BroadcastDistributionConfig::simple())
+            ->withSlot('main', [$grandchild])
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$middle])
+            ->build();
+
+        // Fixture guard: the middle element stores nothing under the key it provides, so the only value it
+        // can hand on is the one the ambient overlay put into its working map.
+        static::assertNull($middle->property('language'));
+
+        $index = $this->resolver()->resolve([$root], [], ['language' => 'page-language']);
+
+        static::assertSame(['language' => 'page-language'], $index->all()['child-1']->context);
+        static::assertSame(['language' => 'page-language'], $index->all()['grandchild-1']->context);
+    }
+
+    /**
+     * The overlay replaces the delivery object, so everything the parent's distribution round put on it
+     * has to survive the swap. `distributionReferencedKeys` is the field that can silently vanish: it
+     * decides which stored keys the child renders, and an overlay that rebuilt the delivery from the
+     * context map alone would drop it while every delivered value still looked right. The child here
+     * needs BOTH halves — a keyed distribution names `data_key` against it, and a root-scoped consumer
+     * overlays it — because a child with only one of the two never exercises the swap.
+     */
+    #[TestDox('keeps the distribution referenced keys of a child whose delivery the root overlay replaced')]
+    public function testTheRootOverlayPreservesDistributionReferencedKeys(): void
+    {
+        $child = StoredElementBuilder::create('Sw:Box', 'child-1')
+            ->withProperty('data_key', 'present')
+            ->withConsumer('items', ContextType::Single)
+            ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withProperty('items', ['present' => 'present-item'])
+            ->withProvider('items', KeyedDistributionConfig::simple())
+            ->withSlot('main', [$child])
+            ->build();
+
+        $delivery = $this->resolver()->resolve([$root], [], ['language' => 'page-language'])->all()['child-1'];
+
+        // Fixture guard: the overlay really did run, so the delivery really was replaced.
+        static::assertSame(
+            ['items' => 'present-item', 'language' => 'page-language'],
+            $delivery->context
+        );
+        static::assertSame(['data_key'], $delivery->distributionReferencedKeys);
+        static::assertSame('child-1', $delivery->elementId);
+    }
+
+    #[TestDox('hands an exact-key root delivery the same instance the ambient map holds')]
+    public function testExactKeyRootDeliveryHandsOnTheSameInstance(): void
+    {
+        $ambientValue = new StubContextStruct('page-cover');
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$this->rootScopedConsumer('child-1', 'product')])
+            ->build();
+
+        $index = $this->resolver()->resolve([$root], [], ['product' => $ambientValue]);
+
+        static::assertSame($ambientValue, $index->all()['child-1']->context['product']);
     }
 
     private function resolver(): ContextDeliveryResolver
     {
-        return new ContextDeliveryResolver(new ContextDistributor(new ContextPathResolver()));
+        return new ContextDeliveryResolver(
+            new ContextDistributor(new ContextPathResolver()),
+            new ContextPathResolver()
+        );
+    }
+
+    private function rootScopedConsumer(string $id, string $contextKey): StoredElement
+    {
+        return StoredElementBuilder::create('Sw:Box', $id)
+            ->withConsumer($contextKey, ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
     }
 
     private function consumer(string $id, string $contextKey): StoredElement

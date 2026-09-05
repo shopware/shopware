@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvide
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueFingerprinter;
@@ -200,6 +201,100 @@ class ElementDataResolverTest extends TestCase
         static::assertSame([], $resolved);
     }
 
+    /**
+     * The page-level case: the requirements belong to the rendering specification, so they arrive as an
+     * argument while the element beside them is only the map a `propertyReference` input dereferences
+     * against. The reference resolving to the wrapper's placeholder value is what proves the two roles are
+     * genuinely separate here.
+     */
+    #[TestDox('runs requirements supplied as an argument against the stored properties of the given input source')]
+    public function testSuppliedRequirementsRunAgainstTheInputSourceProperties(): void
+    {
+        $captured = null;
+        $loader = $this->loader();
+        $loader->method('load')->willReturnCallback(
+            static function (LoaderInputs $inputs) use (&$captured): ContentDataLoaderResult {
+                $captured = $inputs;
+
+                return ContentDataLoaderResult::cached(new StubStruct());
+            }
+        );
+
+        $inputSource = StoredElementBuilder::create('Sw:Internal:PageContext', 'wrapper-1')
+            ->withProperty('activeId', 'the-placeholder-id')
+            ->build();
+
+        // Fixture guard: the input source declares no requirement of its own, so everything that runs below
+        // came from the supplied map.
+        static::assertSame([], $inputSource->dataRequirements);
+
+        $resolved = $this->resolveRequirementsWith(
+            $loader,
+            $inputSource,
+            ['language' => new DataRequirement('language', 'entity', $this->config())]
+        );
+
+        static::assertSame(['language'], array_keys($resolved));
+        static::assertInstanceOf(LoaderInputs::class, $captured);
+        static::assertSame('the-placeholder-id', $captured->get('activeProperty'));
+    }
+
+    /**
+     * The no-double-loading guarantee at this seam: the input source's own requirement map is never read, so
+     * an element that carries requirements AND serves as an input source runs only what it was handed. The
+     * call-count expectation is the claim — the returned map's shape alone cannot tell one run from two.
+     */
+    #[TestDox('never runs the input source own data requirements when the requirements are supplied')]
+    public function testSuppliedRequirementsIgnoreTheInputSourceOwnRequirements(): void
+    {
+        $loader = $this->createMock(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([
+            new ConfigKeySpecification('entity', ConfigKeyKind::EntityName, 'string', required: true),
+            new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false),
+        ]));
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+
+        $inputSource = $this->elementWithRequirement('product');
+
+        // Fixture guard: the input source really does carry a requirement of its own, so a run that read it
+        // would call the loader a second time.
+        static::assertSame(['product'], array_keys($inputSource->dataRequirements));
+
+        $provider = static::createStub(DataLoaderProvider::class);
+        $provider->method('get')->willReturn($loader);
+
+        $resolved = (new ElementDataResolver($provider, new LoaderInputResolver(), $this->identityFactory()))
+            ->resolveRequirements(
+                $inputSource,
+                ['language' => new DataRequirement('language', 'entity', $this->config())],
+                static::createStub(SalesChannelContext::class),
+                new Request(),
+                new RenderingCacheContext()
+            );
+
+        static::assertSame(['language'], array_keys($resolved));
+    }
+
+    #[TestDox('returns an empty map for an empty supplied requirement map without asking for a loader')]
+    public function testEmptySuppliedRequirementsNeverReachTheProvider(): void
+    {
+        $provider = $this->createMock(DataLoaderProvider::class);
+        $provider->expects($this->never())->method('get');
+
+        $resolved = (new ElementDataResolver($provider, new LoaderInputResolver(), $this->identityFactory()))
+            ->resolveRequirements(
+                $this->elementWithRequirement('product'),
+                [],
+                static::createStub(SalesChannelContext::class),
+                new Request(),
+                new RenderingCacheContext()
+            );
+
+        static::assertSame([], $resolved);
+    }
+
     private function elementWithRequirement(string $key, string $activeId = 'the-active-id'): StoredElement
     {
         return StoredElementBuilder::create('Sw:ProductBox', 'element-1')
@@ -235,6 +330,30 @@ class ElementDataResolverTest extends TestCase
             new ConfigCanonicalizer(),
             new ValueFingerprinter(),
         );
+    }
+
+    /**
+     * @param AbstractContentDataLoader<Struct>&Stub $loader
+     * @param array<string, DataRequirement> $requirements
+     *
+     * @return array<string, ResolvedLoaderValue>
+     */
+    private function resolveRequirementsWith(
+        AbstractContentDataLoader&Stub $loader,
+        StoredElement $inputSource,
+        array $requirements,
+    ): array {
+        $provider = static::createStub(DataLoaderProvider::class);
+        $provider->method('get')->willReturn($loader);
+
+        return (new ElementDataResolver($provider, new LoaderInputResolver(), $this->identityFactory()))
+            ->resolveRequirements(
+                $inputSource,
+                $requirements,
+                static::createStub(SalesChannelContext::class),
+                new Request(),
+                new RenderingCacheContext()
+            );
     }
 
     /**

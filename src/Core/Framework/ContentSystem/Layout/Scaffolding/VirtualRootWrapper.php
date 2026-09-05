@@ -3,22 +3,23 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Scaffolding;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Handles virtual root wrapping and unwrapping for page-level context distribution.
+ * Wraps a layout's roots in one synthetic root before the render step and takes it off again after, a
+ * temporary structural modification (scaffolding) the stored forest carries only while it is being rendered.
  *
- * Virtual root is a temporary structural modification (scaffolding) that wraps actual layout
- * roots to enable page-level data requirements to be distributed as broadcast context.
+ * The wrapper has two roles and no third. It CARRIES the page-level placeholder values, so the ambient
+ * resolution of the page-level data requirements has an element to resolve its loader inputs against; and it
+ * is the SCAFFOLD the wrap/unwrap pair unwinds, which is what gives a multi-root layout a single node the
+ * partial prune can keep. It is minted with no data requirements and no context definitions, so it loads
+ * nothing and distributes nothing to the roots in its slot: root-ambient context reaches an element through
+ * its own root-scoped consumers instead, at any depth ({@see ContextDeliveryResolver}).
  *
  * Every method here is typed against one of the two split models, matching where in the pipeline it runs.
  * `requiresWrapping()`, `wrap()` and `isVirtualRoot()` take {@see StoredElement}: {@see StoredTreePreparer}
@@ -36,9 +37,11 @@ final class VirtualRootWrapper
     private const VIRTUAL_ROOT_SLOT_NAME = '__page_roots__';
 
     /**
-     * Determines if virtual root wrapping is required.
+     * Whether the render wraps at all: page-level data requirements exist AND the layout has roots to wrap.
      *
-     * Virtual root is needed when page-level data requirements exist and layout has content roots to wrap.
+     * Both halves are load-bearing, and neither is about distribution. Page-level requirements resolve their
+     * loader inputs against the placeholder values this wrapper carries, so with no requirements there is
+     * nothing to carry them for; with no roots there is nothing to wrap around and no forest to scaffold.
      *
      * @param list<StoredElement> $elements
      */
@@ -56,10 +59,11 @@ final class VirtualRootWrapper
     }
 
     /**
-     * Creates virtual root wrapper containing actual layout roots.
+     * Creates the virtual root wrapper holding the actual layout roots in a single slot.
      *
-     * Virtual root contains layout-level data requirements, exposes loaded data
-     * as broadcast context providers, and has actual roots as children in a single slot.
+     * It carries the placeholder values and nothing else — an empty data-requirement map and empty context
+     * definitions — so the page-level requirements load exactly once, through the ambient path, and no value
+     * is broadcast from here to the roots underneath.
      *
      * The placeholder values arrive as raw scalars and are wrapped here, which makes this one of the
      * sanctioned {@see StoredValue} mint sites. Their keys can never be numeric: `PlaceholderValues::from()`
@@ -72,10 +76,9 @@ final class VirtualRootWrapper
         return new StoredElement(
             self::VIRTUAL_ROOT_ID,
             self::VIRTUAL_ROOT_TYPE,
-            $this->indexDataRequirements($specification->dataRequirements),
+            [],
             array_map(StoredValue::fromDecoded(...), $specification->placeholderValues->all()),
             [self::VIRTUAL_ROOT_SLOT_NAME => $actualRoots],
-            $this->createContextDefinitions($specification->dataRequirements)
         );
     }
 
@@ -115,42 +118,5 @@ final class VirtualRootWrapper
     public function isVirtualRoot(StoredElement $element): bool
     {
         return $element->id === self::VIRTUAL_ROOT_ID;
-    }
-
-    /**
-     * Index data requirements by key for O(1) lookups.
-     *
-     * @param array<DataRequirement> $requirements
-     *
-     * @return array<string, DataRequirement>
-     */
-    private function indexDataRequirements(array $requirements): array
-    {
-        $indexed = [];
-
-        foreach ($requirements as $requirement) {
-            $indexed[$requirement->key] = $requirement;
-        }
-
-        return $indexed;
-    }
-
-    /**
-     * Create broadcast providers for layout-level data requirements.
-     *
-     * @param array<DataRequirement> $layoutDataRequirements
-     */
-    private function createContextDefinitions(array $layoutDataRequirements): ContextDefinitions
-    {
-        $providers = [];
-
-        foreach ($layoutDataRequirements as $requirement) {
-            $providers[$requirement->key] = new ContextProvider(
-                ContextType::Single,
-                BroadcastDistributionConfig::simple()
-            );
-        }
-
-        return new ContextDefinitions($providers, []);
     }
 }

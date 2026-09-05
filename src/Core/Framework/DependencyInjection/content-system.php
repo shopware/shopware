@@ -310,6 +310,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContextDeliveryResolver::class)
         ->args([
             service(ContextDistributor::class),
+            service(ContextPathResolver::class),
         ]);
 
     $services->set(RenderedTreeFactory::class)

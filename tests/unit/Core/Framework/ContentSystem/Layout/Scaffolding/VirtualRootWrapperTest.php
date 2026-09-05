@@ -72,8 +72,8 @@ class VirtualRootWrapperTest extends TestCase
         ];
     }
 
-    #[TestDox('creates virtual root with correct identity and broadcast providers')]
-    public function testWrapCreatesVirtualRootWithBroadcastProviders(): void
+    #[TestDox('creates virtual root with correct identity')]
+    public function testWrapCreatesVirtualRootWithItsReservedIdentity(): void
     {
         $virtualRoot = $this->wrapper->wrap(
             [StoredElementBuilder::create('Sw:Text')->build()],
@@ -82,7 +82,29 @@ class VirtualRootWrapperTest extends TestCase
 
         static::assertSame('__page_context_root__', $virtualRoot->id);
         static::assertSame('Sw:Internal:PageContext', $virtualRoot->component);
-        static::assertArrayHasKey('language', $virtualRoot->contextDefinitions->getAllProviders());
+    }
+
+    /**
+     * The wrapper carries placeholder values and scaffolding, and nothing else. Both facts have to be pinned
+     * as whole-value emptiness rather than by absence of one key: a requirement filed here would load the
+     * page-level data a SECOND time, on top of the ambient run, and a provider filed here would broadcast it
+     * to every top-level element whose parent-scope consumer names the key — the delivery this mechanism
+     * replaced. The specification really does declare a page-level requirement, so an implementation that
+     * copied either one across would fail here.
+     */
+    #[TestDox('mints the virtual root with no data requirements and no context definitions')]
+    public function testWrapCarriesNeitherRequirementsNorContextDefinitions(): void
+    {
+        $specification = $this->specificationWithLanguageRequirement();
+
+        // Fixture guard: there IS a page-level requirement to copy across, so both assertions can fail.
+        static::assertCount(1, $specification->dataRequirements);
+
+        $virtualRoot = $this->wrapper->wrap([StoredElementBuilder::create('Sw:Text')->build()], $specification);
+
+        static::assertSame([], $virtualRoot->dataRequirements);
+        static::assertSame([], $virtualRoot->contextDefinitions->getAllProviders());
+        static::assertSame([], $virtualRoot->contextDefinitions->getAllConsumers());
     }
 
     #[TestDox('holds the actual roots as a plain list under the page roots slot')]

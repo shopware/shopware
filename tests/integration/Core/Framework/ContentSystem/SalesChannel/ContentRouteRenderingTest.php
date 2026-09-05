@@ -14,6 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Event\RenderedTreeFinalizationEvent;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
@@ -235,13 +236,13 @@ class ContentRouteRenderingTest extends TestCase
         }
     }
 
-    #[TestDox('distributes the page-level context of the root source to a consuming layout root')]
+    #[TestDox('delivers the page-level context of the root source to a root-scoped layout root')]
     public function testPageLevelContextReachesTheConsumingRoot(): void
     {
         $this->createNestedLayout();
 
-        // The wrap only happens because the root source declares page data requirements, and it is only
-        // observable because the stored root really consumes one of them.
+        // The page-level requirement the ambient run resolves really is declared by the root source, and the
+        // stored root really consumes it, root-scoped.
         static::assertContains('category', $this->pageDataRequirementKeys());
         $this->assertStoredPageContextConsumer();
 
@@ -252,7 +253,7 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame(
             $this->ids->get('category'),
             $root['properties'][self::PAGE_CONTEXT_PROPERTY] ?? null,
-            'The page-level context must reach the consuming root through the virtual-root wrap/unwrap lifecycle.',
+            'The page-level context must reach the root-scoped consumer through the root-ambient delivery.',
         );
     }
 
@@ -725,10 +726,9 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame([$this->ids->get('inner-grid'), $this->ids->get('text')], $servedIds);
         static::assertNotContains($this->ids->get('root-grid'), $servedIds);
 
-        // The ancestor was still in the tree when the render step ran: context is distributed parent to child
-        // only, so a target that carries the redistributed page-level value can only have received it from an
-        // ancestor the prune kept. The value's absence would mean the prune had already dropped the ancestor,
-        // leaving nothing for the extract to remove.
+        // Root-ambient delivery is independent of what the prune kept, so the target carries the page-level
+        // value on a partial render exactly as it does on a whole-layout one. Nothing on the path relays it,
+        // and the extract that just removed the ancestor cannot take it away either.
         static::assertIsArray($partialRoots[0]['properties'] ?? null);
         static::assertSame(
             $this->ids->get('category'),
@@ -1440,12 +1440,15 @@ class ContentRouteRenderingTest extends TestCase
             'properties' => [],
             'style' => ['col-span' => ['xs' => 6]],
             // Consuming the page-level context the category root source declares is what makes the
-            // virtual-root wrap/unwrap lifecycle observable in the response at all.
+            // virtual-root wrap/unwrap lifecycle observable in the response at all. Root scope is what
+            // page-level context is delivered to, at any depth; a parent-scope consumer of this key would
+            // receive nothing, the wrapper broadcasting nothing to the roots below it.
             'acceptsContext' => [
                 self::PAGE_CONTEXT_KEY => [
                     'type' => 'single',
                     'required' => false,
                     'propertyAlias' => self::PAGE_CONTEXT_PROPERTY,
+                    'scope' => 'root',
                 ],
             ],
             'slots' => [
@@ -1477,10 +1480,11 @@ class ContentRouteRenderingTest extends TestCase
     }
 
     /**
-     * A partial-render target that is itself a context consumer: the root grid redistributes the page-level
-     * `category` context it receives, and the nested target consumes `category.id` out of that redistribution.
-     * The target therefore answers `requiresParentData()` true, so the pre-render prune keeps the ancestor for
-     * the sake of that delivery and the post-render extract is the only step that removes it again.
+     * A partial-render target that is itself a context consumer: the nested target takes the page-level
+     * `category.id` through a root-scoped consumer, so it answers `requiresParentData()` true and the
+     * pre-render prune keeps the ancestor above it, which the post-render extract is then the only step to
+     * remove again. The ancestor carries no wiring of its own: the target reaches root context directly, so
+     * nothing on the path has to relay it.
      *
      * Deliberately a second builder rather than a variation of `createNestedLayout()`: that fixture backs most
      * of this file, and there the only context consumer is the root itself.
@@ -1492,15 +1496,6 @@ class ContentRouteRenderingTest extends TestCase
             'id' => $this->ids->get('root-grid'),
             'component' => 'Sw:Grid:Container',
             'properties' => [],
-            // Undotted, because a redistributing consumer may not be keyed by a path, and unaliased, so the
-            // derived broadcast provider hands the category on to children under the key they declare.
-            'acceptsContext' => [
-                'category' => [
-                    'type' => 'single',
-                    'required' => false,
-                    'redistribute' => true,
-                ],
-            ],
             'slots' => [
                 'content' => [[
                     'id' => $this->ids->get('inner-grid'),
@@ -1511,6 +1506,7 @@ class ContentRouteRenderingTest extends TestCase
                             'type' => 'single',
                             'required' => false,
                             'propertyAlias' => self::PAGE_CONTEXT_PROPERTY,
+                            'scope' => 'root',
                         ],
                     ],
                     'slots' => [
@@ -1558,6 +1554,7 @@ class ContentRouteRenderingTest extends TestCase
                 self::SEO_CONTEXT_PROPERTY => [
                     'type' => 'single',
                     'required' => false,
+                    'scope' => 'root',
                 ],
             ],
         ]]);
@@ -1750,6 +1747,11 @@ class ContentRouteRenderingTest extends TestCase
         static::assertTrue($consumer['redistribute'] ?? false);
     }
 
+    /**
+     * The scope is part of the guard rather than incidental: page-level context is delivered to root-scoped
+     * consumers and to nothing else, so a fixture that lost the scope on its way through the write path would
+     * make every assertion downstream of it a claim about a consumer that receives nothing.
+     */
     private function assertStoredPageContextConsumer(): void
     {
         $root = $this->storedRoots()[0];
@@ -1757,6 +1759,7 @@ class ContentRouteRenderingTest extends TestCase
 
         static::assertNotNull($consumer, 'The persisted root must really consume the page-level context key.');
         static::assertSame(self::PAGE_CONTEXT_PROPERTY, $consumer->propertyAlias);
+        static::assertSame(ConsumerScope::Root, $consumer->scope);
     }
 
     /**

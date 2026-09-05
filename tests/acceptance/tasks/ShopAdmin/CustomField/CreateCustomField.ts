@@ -3,7 +3,7 @@ import type { FixtureTypes, Task } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
 export const CreateCustomField = base.extend<{ CreateCustomField: Task }, FixtureTypes>({
-    CreateCustomField: async ({ AdminCustomFieldDetail, InstanceMeta }, use) => {
+    CreateCustomField: async ({ ShopAdmin, AdminCustomFieldDetail, InstanceMeta }, use) => {
         const task = (customFieldName: string, customFieldTypeText: 'Text field' | 'Number field') => {
             return async function CreateCustomField() {
                 await AdminCustomFieldDetail.newCustomFieldButton.click();
@@ -20,6 +20,10 @@ export const CreateCustomField = base.extend<{ CreateCustomField: Task }, Fixtur
                 await AdminCustomFieldDetail.customFieldTechnicalNameInput.fill(customFieldName);
                 await AdminCustomFieldDetail.customFieldLabelEnglishGBInput.fill(customFieldName);
                 await AdminCustomFieldDetail.customFieldAddButton.click();
+
+                // Wait for the "New custom field" modal to fully close; otherwise its
+                // overlay intercepts pointer events on the list underneath (flaky click).
+                await ShopAdmin.expects(AdminCustomFieldDetail.newCustomFieldDialog).toBeHidden();
             };
         };
         await use(task);

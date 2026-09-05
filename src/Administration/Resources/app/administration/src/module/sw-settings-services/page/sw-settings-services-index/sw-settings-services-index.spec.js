@@ -291,4 +291,18 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         expect(errorBanner.props('variant')).toBe('critical');
         expect(errorBanner.text()).toContain('failed loading services');
     });
+
+    it('keeps local service management available when registry metadata cannot be loaded', async () => {
+        Shopware.Service('serviceRegistryClient').getCurrentRevision.mockRejectedValueOnce(
+            new Error('failed loading registry metadata'),
+        );
+
+        const page = await mountPage();
+        await flushPromises();
+
+        expect(page.findComponent(SwSettingsServicesHero).exists()).toBe(true);
+        expect(page.find('.sw-settings-services-index__registry-error').exists()).toBe(true);
+        expect(page.findComponent(SwSettingsServicesGrantPermissionsCard).exists()).toBe(false);
+        expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(2);
+    });
 });

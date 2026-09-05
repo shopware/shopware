@@ -1,6 +1,16 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
-import { expect } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
+
+const servicesDashboardBannerConfig = {
+    'core.hide-services-dashboard-banner': [false],
+};
+
+async function showServicesDashboardBanner(page: Page): Promise<void> {
+    await page.evaluate(async (config) => {
+        await Shopware.Service('userConfigService').upsert(config);
+    }, servicesDashboardBannerConfig);
+}
 
 test.describe('Shopware Services', () => {
     test.describe.configure({ mode: 'serial' });
@@ -14,6 +24,7 @@ test.describe('Shopware Services', () => {
         initialServicesState = await AdminShopwareServices.deactivateServicesButton
             .isVisible({ timeout: 5000 })
             .catch(() => false);
+        await showServicesDashboardBanner(AdminShopwareServices.page);
     });
 
     test.afterAll(async ({ ShopAdmin, AdminShopwareServices, InstanceMeta }) => {
@@ -37,6 +48,8 @@ test.describe('Shopware Services', () => {
                         timeout: 15000,
                     });
                 }
+
+                await showServicesDashboardBanner(AdminShopwareServices.page);
             } catch (error) {
                 console.error('Failed to restore Shopware Services state:', error);
             }

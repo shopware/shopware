@@ -38,6 +38,17 @@ class RemoveElementTest extends TestCase
         static::assertSame([], $remove->affected());
     }
 
+    #[TestDox('creates nothing: removal mints no node')]
+    public function testRemoveCreatesNothing(): void
+    {
+        $tree = new StoredTree([new StoredElement('keep', 'Sw:Block'), new StoredElement('drop', 'Sw:Block')]);
+
+        $remove = new RemoveElement('drop');
+        $remove->apply($tree);
+
+        static::assertSame([], $remove->created());
+    }
+
     #[TestDox('removes a nested element while keeping its siblings')]
     public function testRemoveNestedElementKeepsSiblings(): void
     {

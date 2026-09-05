@@ -171,6 +171,19 @@ class MoveElementTest extends TestCase
         yield 'onto a descendant' => ['child'];
     }
 
+    #[TestDox('creates nothing: the moved subtree keeps every node it had')]
+    public function testMoveCreatesNothing(): void
+    {
+        $tree = new StoredTree([new StoredElement('parent', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('el', 'Sw:Card')],
+        ])]);
+
+        $move = new MoveElement('el');
+        $move->apply($tree);
+
+        static::assertSame([], $move->created());
+    }
+
     #[TestDox('rejects moving an element absent from the tree with a 400')]
     public function testMoveMissingElementRejected(): void
     {

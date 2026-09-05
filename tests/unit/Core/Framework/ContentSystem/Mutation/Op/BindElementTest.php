@@ -93,6 +93,17 @@ class BindElementTest extends TestCase
         static::assertSame(['el'], $bind->affected());
     }
 
+    #[TestDox('creates nothing: binding keeps the element node it wired')]
+    public function testBindCreatesNothing(): void
+    {
+        $config = static::createStub(AbstractContentDataLoaderConfig::class);
+        $bind = new BindElement($this->registry(), 'spec-1', 'el', $this->applicator($config));
+
+        $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Product')]));
+
+        static::assertSame([], $bind->created());
+    }
+
     #[TestDox('does not overwrite an authored explicit null on the input key with the default')]
     public function testBindKeepsAuthoredExplicitNullOverDefault(): void
     {

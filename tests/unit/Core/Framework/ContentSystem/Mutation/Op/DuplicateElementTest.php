@@ -61,6 +61,22 @@ class DuplicateElementTest extends TestCase
         static::assertSame([$clone->id, $clonedChild->id], $duplicate->affected());
     }
 
+    #[TestDox('reports the whole clone subtree as created and never the original it copied')]
+    public function testDuplicateCreatedIsTheWholeCloneSubtree(): void
+    {
+        $tree = new StoredTree([new StoredElement('root', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('child', 'Sw:Block')],
+        ])]);
+
+        $duplicate = new DuplicateElement('root');
+        $result = $duplicate->apply($tree);
+
+        $clone = $result->roots[1];
+        static::assertSame([$clone->id, $clone->slots['content'][0]->id], $duplicate->created());
+        static::assertNotContains('root', $duplicate->created());
+        static::assertNotContains('child', $duplicate->created());
+    }
+
     #[TestDox('reports only the clone id as affected when the duplicated element has no children')]
     public function testDuplicateLeafAffectedIsCloneIdOnly(): void
     {

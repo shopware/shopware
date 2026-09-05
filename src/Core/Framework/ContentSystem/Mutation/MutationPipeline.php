@@ -31,10 +31,13 @@ class MutationPipeline
 
         $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext);
 
-        // Wire the page-context consumers into the mutated tree from the analysis, so the returned (and, on the
-        // persisted route, stored) layout carries the distribution wiring every consumer needs.
-        $mutated = $this->contextWiring->apply($mutated, $analysis->resolutions, $rootContext ?? []);
+        $wired = $this->contextWiring->apply($mutated, $analysis->resolutions, $mutation->created());
 
-        return MutationResult::fromAnalyzedMutation($mutated, $analysis, $mutation);
+        // Re-analyze only when the wiring changed the tree, so the returned diagnostics and resolutions describe the returned tree.
+        if ($wired !== $mutated) {
+            $analysis = $this->diagnostics->analyze($wired->roots, $rootContext);
+        }
+
+        return MutationResult::fromAnalyzedMutation($wired, $analysis, $mutation);
     }
 }

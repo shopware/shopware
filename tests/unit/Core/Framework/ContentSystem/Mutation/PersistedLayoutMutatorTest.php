@@ -323,6 +323,11 @@ class PersistedLayoutMutatorTest extends TestCase
                 return [];
             }
 
+            public function created(): array
+            {
+                return [];
+            }
+
             public function orphaned(): array
             {
                 return [new StoredElement($this->orphanId, 'Sw:Block')];

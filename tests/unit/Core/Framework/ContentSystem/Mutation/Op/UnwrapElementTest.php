@@ -74,6 +74,19 @@ class UnwrapElementTest extends TestCase
         static::assertSame(['a', 'grandchild', 'b'], $unwrap->affected());
     }
 
+    #[TestDox('creates nothing: the hoisted children keep the nodes they had')]
+    public function testUnwrapCreatesNothing(): void
+    {
+        $tree = new StoredTree([new StoredElement('container', 'Sw:Container', [], [], [
+            'content' => [new StoredElement('a', 'Sw:Block')],
+        ])]);
+
+        $unwrap = new UnwrapElement('container');
+        $unwrap->apply($tree);
+
+        static::assertSame([], $unwrap->created());
+    }
+
     #[TestDox('reports the removed containers own static properties and consumed wiring, not its provided context')]
     public function testUnwrapReportsContainerOwnConfig(): void
     {

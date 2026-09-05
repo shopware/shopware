@@ -5,21 +5,34 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutAnalysis;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\PageContextConsumerWiring;
+use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
+use Shopware\Core\Framework\ContentSystem\Resolution\ResolutionCandidate;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -106,18 +119,115 @@ class MutationPipelineTest extends TestCase
         static::assertSame($report, $result->diagnostics);
     }
 
-    #[TestDox('wires the page-context consumers into the returned layout')]
-    public function testRunWiresContextConsumers(): void
+    #[TestDox('mirrors the proven consumers of the created elements into the returned layout')]
+    public function testRunMirrorsConsumersOfCreatedElements(): void
     {
-        $price = new StoredElement('p1', 'Sw:Product:PriceDisplay');
-        $resolutions = ['p1' => [new PropertyResolution('product', PropertyKind::Reference, false, null, null, 'App\\Product')]];
-        $rootContext = [new ProvidedContext('product', 'App\\Product', ContextType::Single, null, DistributionStrategy::Broadcast)];
+        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
 
-        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
+        $pipeline = $this->pipeline($this->diagnosticsResolvingProduct());
 
-        $result = $pipeline->run($this->mutation(new StoredTree([$price]), ['p1']), $this->inputTree(), $rootContext);
+        $result = $pipeline->run($this->mutation($mutated, ['p1'], created: ['p1']), $this->inputTree(), null);
 
-        static::assertArrayHasKey('product', $result->layout->roots[0]->contextDefinitions->getAllConsumers());
+        $consumers = $result->layout->roots[0]->contextDefinitions->getAllConsumers();
+        static::assertArrayHasKey('product', $consumers);
+        static::assertSame(ConsumerScope::Parent, $consumers['product']->scope);
+    }
+
+    #[TestDox('re-analyzes the wired tree and assembles the result from that second analysis, not the first')]
+    public function testRunReanalyzesTheWiredTree(): void
+    {
+        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
+        $secondReport = new DiagnosticsReport([]);
+
+        $analyzed = [];
+        $secondPassResolutions = [];
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics->expects($this->exactly(2))
+            ->method('analyze')
+            ->willReturnCallback(function (array $roots) use (&$analyzed, &$secondPassResolutions, $secondReport): LayoutAnalysis {
+                $analyzed[] = $roots;
+
+                if (\count($analyzed) === 1) {
+                    return new LayoutAnalysis(new DiagnosticsReport([]), $this->productResolutions($roots));
+                }
+
+                // A distinct marker key on the second pass's resolutions, so a result that paired the second
+                // report with the first pass's resolutions (rather than this second payload) fails the assertion.
+                $secondPassResolutions = $this->productResolutions($roots, marked: true);
+
+                return new LayoutAnalysis($secondReport, $secondPassResolutions);
+            });
+
+        $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['p1'], created: ['p1']), $this->inputTree(), null);
+
+        static::assertSame($secondReport, $result->diagnostics);
+        static::assertSame($mutated->roots, $analyzed[0]);
+        static::assertSame($result->layout->roots, $analyzed[1]);
+        static::assertNotSame($mutated->roots, $analyzed[1]);
+        static::assertSame($secondPassResolutions, $result->resolutions);
+    }
+
+    #[TestDox('runs a single analysis pass when the wiring leaves the mutated tree untouched')]
+    public function testRunAnalyzesOnceWhenNothingIsWired(): void
+    {
+        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
+
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics->expects($this->once())
+            ->method('analyze')
+            ->willReturnCallback(fn (array $roots): LayoutAnalysis => new LayoutAnalysis(new DiagnosticsReport([]), $this->productResolutions($roots)));
+
+        $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['p1'], created: []), $this->inputTree(), null);
+
+        static::assertSame($mutated, $result->layout);
+    }
+
+    #[TestDox('leaves an unwired but still provable element unwired through a non-creating move')]
+    public function testUnwiredConsumerSurvivesANonCreatingMove(): void
+    {
+        $tree = $this->unwiredTree();
+
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics->expects($this->once())
+            ->method('analyze')
+            ->willReturnCallback(fn (array $roots): LayoutAnalysis => new LayoutAnalysis(new DiagnosticsReport([]), $this->productResolutions($roots)));
+
+        $result = $this->pipeline($diagnostics)->run(new MoveElement('el-1'), $tree, null);
+
+        $moved = $result->layout->roots[1];
+        static::assertSame('el-1', $moved->id);
+        static::assertSame([], $moved->contextDefinitions->getAllConsumers());
+    }
+
+    #[TestDox('restores the consumer of an unwired element when a replace re-scaffolds its node')]
+    public function testReplaceRestoresTheUnwiredConsumer(): void
+    {
+        $replace = new ReplaceElement(
+            $this->typeRegistry(),
+            'el-1',
+            'Sw:New',
+            static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+        );
+
+        $result = $this->pipeline($this->diagnosticsResolvingProduct())->run($replace, $this->unwiredTree(), null);
+
+        $replaced = $result->layout->roots[0]->slots['content'][0];
+        static::assertSame('el-1', $replaced->id);
+        static::assertArrayHasKey('product', $replaced->contextDefinitions->getAllConsumers());
+    }
+
+    #[TestDox('wires the clone of an unwired element and leaves the unwired original alone')]
+    public function testDuplicateWiresTheCloneOnly(): void
+    {
+        $result = $this->pipeline($this->diagnosticsResolvingProduct())->run(new DuplicateElement('el-1'), $this->unwiredTree(), null);
+
+        $children = $result->layout->roots[0]->slots['content'];
+        static::assertCount(2, $children);
+        static::assertSame('el-1', $children[0]->id);
+        static::assertSame([], $children[0]->contextDefinitions->getAllConsumers());
+        static::assertNotSame('el-1', $children[1]->id);
+        static::assertArrayHasKey('product', $children[1]->contextDefinitions->getAllConsumers());
     }
 
     private function pipeline(LayoutDiagnostics $diagnostics): MutationPipeline
@@ -131,10 +241,70 @@ class MutationPipelineTest extends TestCase
     }
 
     /**
+     * A container holding one element whose `product` reference stays provable while the element carries no
+     * consumer for it, which is the state an explicit unwiring leaves behind.
+     */
+    private function unwiredTree(): StoredTree
+    {
+        $element = StoredElementBuilder::create('Sw:Old', 'el-1')->build();
+
+        return new StoredTree([
+            StoredElementBuilder::create('Sw:Grid:Container', 'parent')->withSlot('content', [$element])->build(),
+        ]);
+    }
+
+    private function typeRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        $specs = ['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')->build()];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturnCallback(static fn (string $name): bool => isset($specs[$name]));
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        return $registry;
+    }
+
+    /**
+     * @param array<StoredElement> $roots
+     *
+     * @return array<string, list<PropertyResolution>>
+     */
+    private function productResolutions(array $roots, bool $marked = false): array
+    {
+        $resolutions = [];
+        $key = $marked ? 'product-second-pass' : 'product';
+
+        foreach ((new StoredTree(array_values($roots)))->ids() as $id) {
+            $resolutions[$id] = [new PropertyResolution(
+                $key,
+                PropertyKind::Reference,
+                true,
+                null,
+                null,
+                'App\\Product',
+                new ResolutionCandidate(CandidateOrigin::Parent, $key, null, null, DistributionStrategy::Broadcast, ContextType::Single),
+            )];
+        }
+
+        return $resolutions;
+    }
+
+    private function diagnosticsResolvingProduct(): LayoutDiagnostics
+    {
+        $diagnostics = static::createStub(LayoutDiagnostics::class);
+        $diagnostics->method('analyze')->willReturnCallback(
+            fn (array $roots): LayoutAnalysis => new LayoutAnalysis(new DiagnosticsReport([]), $this->productResolutions($roots))
+        );
+
+        return $diagnostics;
+    }
+
+    /**
      * @param list<StoredElement> $orphaned
      * @param list<string> $affected
      * @param list<string> $droppedWiring
      * @param array<string, StoredValue> $droppedProperties
+     * @param list<string> $created
      */
     private function mutation(
         StoredTree $appliedTree,
@@ -143,6 +313,7 @@ class MutationPipelineTest extends TestCase
         array $droppedWiring = [],
         array $droppedProperties = [],
         ?StoredTree $expectedInputTree = null,
+        array $created = [],
     ): LayoutMutation {
         if ($expectedInputTree !== null) {
             $mutation = $this->createMock(LayoutMutation::class);
@@ -156,6 +327,7 @@ class MutationPipelineTest extends TestCase
         }
 
         $mutation->method('affected')->willReturn($affected);
+        $mutation->method('created')->willReturn($created);
         $mutation->method('orphaned')->willReturn($orphaned);
         $mutation->method('droppedWiring')->willReturn($droppedWiring);
         $mutation->method('droppedProperties')->willReturn($droppedProperties);

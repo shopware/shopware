@@ -52,6 +52,20 @@ class ReplaceElementTest extends TestCase
         static::assertSame('Sw:New', $result->roots[0]->component);
     }
 
+    #[TestDox('reports the re-scaffolded node as created and never the children it carried over')]
+    public function testReplaceCreatedIsTheReplacementNodeOnly(): void
+    {
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', [], [], [
+            'content' => [new StoredElement('child', 'Sw:Block')],
+        ])]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame('child', $result->roots[0]->slots['content'][0]->id);
+        static::assertSame(['el'], $replace->created());
+    }
+
     #[TestDox('keeps wiring whose key matches a new-type reference property and does not report it as dropped')]
     public function testReplaceKeepsMatchingWiring(): void
     {

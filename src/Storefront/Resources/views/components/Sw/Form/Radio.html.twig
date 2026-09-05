@@ -1,0 +1,77 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name,
+    value = '1',
+    id = "#{name}-#{value}",
+    label = null,
+    checked = false,
+    disabled = false,
+    inline = false,
+    describedBy = null,
+    validationRules = null,
+    violationPath = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    formViolations = formViolations|default(null),
+    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+    additionalClass = null,
+    additionalInputClass = null,
+%}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-radio form-check mb-2',
+    variants: {
+        inline: {
+            true: 'form-check-inline',
+            false: null,
+        },
+    },
+}) %}
+
+{% set radioCVA = cva({
+    base: 'sw-form-radio__control sw-form-field__control form-check-input',
+    variants: {
+        isInvalid: {
+            true: 'is-invalid',
+            false: null,
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({ inline }, additionalClass),
+} %}
+
+{% set radioAttributeDefaults = {
+    class: radioCVA.apply({ isInvalid }, additionalInputClass),
+    type: 'radio',
+    id: id,
+    name: name,
+    value: value,
+    'aria-describedby': describedBy is not null ? describedBy : false,
+    'aria-required': required ? 'true' : false,
+    'aria-invalid': isInvalid ? 'true' : false,
+    'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
+    checked: checked,
+    disabled: disabled,
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block control %}
+        <input {{ attributes.nested('control').defaults(radioAttributeDefaults) }}>
+    {% endblock %}
+
+    {% block label %}
+        <twig:Sw:Form:Label
+            :fieldId="id"
+            :label="label"
+            variant="check"
+        />
+    {% endblock %}
+</div>

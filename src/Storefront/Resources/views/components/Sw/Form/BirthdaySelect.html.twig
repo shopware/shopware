@@ -1,0 +1,105 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    label = 'account.personalBirthdayLabel'|trans|sw_sanitize,
+    namePrefix = null,
+    idPrefix = '',
+    day = null,
+    month = null,
+    year = null,
+    yearRange = 120,
+    validationRules = null,
+    formViolations = formViolations|default(null),
+    dayViolationPath = '/birthdayDay',
+    monthViolationPath = '/birthdayMonth',
+    yearViolationPath = '/birthdayYear',
+    required = validationRules is not empty and 'required' in validationRules,
+    additionalClass = null,
+%}
+
+{% set currentYear = 'now'|date('Y') %}
+
+{% set dayName = namePrefix ? namePrefix ~ '[birthdayDay]' : 'birthdayDay' %}
+{% set monthName = namePrefix ? namePrefix ~ '[birthdayMonth]' : 'birthdayMonth' %}
+{% set yearName = namePrefix ? namePrefix ~ '[birthdayYear]' : 'birthdayYear' %}
+
+{% set dayId = idPrefix ~ 'birthdayDay' %}
+{% set monthId = idPrefix ~ 'birthdayMonth' %}
+{% set yearId = idPrefix ~ 'birthdayYear' %}
+
+{% set dayLabel = 'account.personalBirthdaySelectDay'|trans|sw_sanitize %}
+{% set monthLabel = 'account.personalBirthdaySelectMonth'|trans|sw_sanitize %}
+{% set yearLabel = 'account.personalBirthdaySelectYear'|trans|sw_sanitize %}
+
+{% set dayOptions = range(1, 31)|map(dayValue => { value: dayValue, label: dayValue }) %}
+{% set monthOptions = range(1, 12)|map(monthValue => { value: monthValue, label: monthValue }) %}
+{% set yearOptions = range(currentYear, currentYear - yearRange)|map(yearValue => { value: yearValue, label: yearValue }) %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-birthday-select form-group',
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({}, additionalClass),
+} %}
+
+<fieldset {{ attributes.defaults(attributeDefaults) }}>
+    {% block label %}
+        <twig:Sw:Form:FieldsetLabel
+            :label="label"
+            :required="required"
+        />
+    {% endblock %}
+
+    <div {{ attributes.nested('fields').defaults({ class: 'sw-form-birthday-select__fields row g-2' }) }}>
+        {% block day %}
+            <twig:Sw:Form:Select
+                :name="dayName"
+                :id="dayId"
+                :ariaLabel="dayLabel"
+                :placeholder="dayLabel"
+                :value="day"
+                :options="dayOptions"
+                :validationRules="validationRules"
+                :formViolations="formViolations"
+                :violationPath="dayViolationPath"
+                autocomplete="bday-day"
+                additionalClass="sw-form-birthday-select__day col-4 mb-0"
+            />
+        {% endblock %}
+
+        {% block month %}
+            <twig:Sw:Form:Select
+                :name="monthName"
+                :id="monthId"
+                :ariaLabel="monthLabel"
+                :placeholder="monthLabel"
+                :value="month"
+                :options="monthOptions"
+                :validationRules="validationRules"
+                :formViolations="formViolations"
+                :violationPath="monthViolationPath"
+                autocomplete="bday-month"
+                additionalClass="sw-form-birthday-select__month col-4 mb-0"
+            />
+        {% endblock %}
+
+        {% block year %}
+            <twig:Sw:Form:Select
+                :name="yearName"
+                :id="yearId"
+                :ariaLabel="yearLabel"
+                :placeholder="yearLabel"
+                :value="year"
+                :options="yearOptions"
+                :validationRules="validationRules"
+                :formViolations="formViolations"
+                :violationPath="yearViolationPath"
+                autocomplete="bday-year"
+                additionalClass="sw-form-birthday-select__year col-4 mb-0"
+            />
+        {% endblock %}
+    </div>
+</fieldset>

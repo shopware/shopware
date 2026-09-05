@@ -1,0 +1,133 @@
+{
+    "title": "Sw/Form/Radio",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:Radio"
+        },
+        "template": "<twig:Sw:Form:Radio name=\"sizeChoice\" value=\"sm\" label=\"Small\" />"
+    },
+    "argTypes": {
+        "name": {
+            "control": "text",
+            "description": "Name attribute shared by all radios of the group. Required.",
+            "required": true
+        },
+        "value": {
+            "control": "text",
+            "description": "Value submitted when this radio is checked.",
+            "table": {
+                "defaultValue": {
+                    "summary": "1"
+                }
+            }
+        },
+        "id": {
+            "control": "text",
+            "description": "Id of the radio.",
+            "table": {
+                "defaultValue": {
+                    "summary": "name-value"
+                }
+            }
+        },
+        "label": {
+            "control": "text",
+            "description": "Label next to the radio."
+        },
+        "checked": {
+            "control": "boolean",
+            "description": "Checked state of the radio.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "disabled": {
+            "control": "boolean",
+            "description": "Disabled attribute of the radio.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "inline": {
+            "control": "boolean",
+            "description": "Lays the radio out in a row with its siblings.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "describedBy": {
+            "control": "text",
+            "description": "Id of the feedback element of the surrounding group. Sw:Form:RadioGroup passes its own."
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation."
+        },
+        "violationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of the group are stored under."
+        },
+        "formViolations": {
+            "control": false,
+            "description": "ConstraintViolationException holding the server-side violations of the request. Defaults to the `formViolations` Twig global; pass it explicitly to render a field outside a request scope.",
+            "type": "ConstraintViolationException",
+            "table": {
+                "readonly": true,
+                "defaultValue": {
+                    "summary": "formViolations"
+                }
+            }
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders aria-required. The required marker belongs to the legend of the group.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "isInvalid": {
+            "control": "boolean",
+            "description": "Marks the control invalid.",
+            "table": {
+                "defaultValue": {
+                    "summary": "violationPath has violations"
+                }
+            }
+        },
+        "additionalClass": {
+            "control": "text",
+            "description": "Additional classes on the form-check wrapper. Migration alias for the `class` attribute on the component tag; both are merged."
+        },
+        "additionalInputClass": {
+            "control": "text",
+            "description": "Additional classes on the radio. Migration alias for the `control:class` attribute; both are merged."
+        }
+    },
+    "stories": [
+        {
+            "name": "Radio",
+            "args": {
+                "name": "sizeChoice",
+                "value": "sm",
+                "label": "Small"
+            }
+        },
+        {
+            "name": "Checked",
+            "args": {
+                "name": "sizeChoice",
+                "value": "md",
+                "label": "Medium",
+                "checked": true
+            }
+        }
+    ]
+}

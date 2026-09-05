@@ -1,0 +1,34 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    id = null,
+    violationPath = null,
+    violationLabel = null,
+    formViolations = formViolations|default(null),
+    hasViolations = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+%}
+
+{% set feedbackCVA = cva({
+    base: 'sw-form-feedback form-field-feedback',
+}) %}
+
+{% set attributeDefaults = {
+    class: feedbackCVA.apply({}),
+    id: id is not null ? id : false,
+} %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+    {% block violations %}
+        {% if hasViolations and violationPath is not empty %}
+            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
+                formViolations: formViolations|default(null),
+                violationPath: violationPath,
+                violationLabel: violationLabel,
+            } only %}
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}{% endblock %}
+</div>

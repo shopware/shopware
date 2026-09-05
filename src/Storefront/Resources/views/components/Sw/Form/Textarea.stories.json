@@ -1,0 +1,162 @@
+{
+    "title": "Sw/Form/Textarea",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:Textarea"
+        },
+        "template": "<twig:Sw:Form:Textarea name=\"content\" label=\"Your review\" validationRules=\"required,minLength\" minlength=\"40\" />"
+    },
+    "argTypes": {
+        "name": {
+            "control": "text",
+            "description": "Name attribute of the textarea. Required.",
+            "required": true
+        },
+        "id": {
+            "control": "text",
+            "description": "Id of the textarea. The label, description and feedback element are derived from it.",
+            "table": {
+                "defaultValue": {
+                    "summary": "name"
+                }
+            }
+        },
+        "label": {
+            "control": "text",
+            "description": "Visible label of the field. Without it no label element is rendered."
+        },
+        "ariaLabel": {
+            "control": "text",
+            "description": "Accessible name for fields that have no visible label."
+        },
+        "value": {
+            "control": "text",
+            "description": "Initial content of the textarea. Can also be passed as the default content of the component."
+        },
+        "placeholder": {
+            "control": "text",
+            "description": "Placeholder attribute of the textarea."
+        },
+        "description": {
+            "control": "text",
+            "description": "Hint below the field. Linked to the textarea via aria-describedby."
+        },
+        "autocomplete": {
+            "control": "text",
+            "description": "Autocomplete attribute of the textarea."
+        },
+        "rows": {
+            "control": "number",
+            "description": "Rows attribute of the textarea.",
+            "table": {
+                "defaultValue": {
+                    "summary": 8
+                }
+            }
+        },
+        "minlength": {
+            "control": "number",
+            "description": "Minlength attribute of the textarea."
+        },
+        "maxlength": {
+            "control": "number",
+            "description": "Maxlength attribute of the textarea."
+        },
+        "size": {
+            "control": "select",
+            "options": [
+                "sm",
+                "lg"
+            ],
+            "description": "Bootstrap sizing of the control."
+        },
+        "disabled": {
+            "control": "boolean",
+            "description": "Disabled attribute of the textarea.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "readonly": {
+            "control": "boolean",
+            "description": "Readonly attribute of the textarea.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation."
+        },
+        "violationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of this field are stored under."
+        },
+        "violationLabel": {
+            "control": "text",
+            "description": "Field name used in server-side violation messages instead of the property path."
+        },
+        "formViolations": {
+            "control": false,
+            "description": "ConstraintViolationException holding the server-side violations of the request. Defaults to the `formViolations` Twig global; pass it explicitly to render a field outside a request scope.",
+            "type": "ConstraintViolationException",
+            "table": {
+                "readonly": true,
+                "defaultValue": {
+                    "summary": "formViolations"
+                }
+            }
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders the required marker and aria-required.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "isInvalid": {
+            "control": "boolean",
+            "description": "Marks the control invalid.",
+            "table": {
+                "defaultValue": {
+                    "summary": "violationPath has violations"
+                }
+            }
+        },
+        "additionalClass": {
+            "control": "text",
+            "description": "Additional classes on the form-group wrapper. Migration alias for the `class` attribute on the component tag; both are merged."
+        },
+        "additionalInputClass": {
+            "control": "text",
+            "description": "Additional classes on the textarea. Migration alias for the `control:class` attribute; both are merged."
+        }
+    },
+    "stories": [
+        {
+            "name": "Textarea",
+            "args": {
+                "name": "content",
+                "label": "Your review",
+                "validationRules": "required,minLength",
+                "minlength": 40,
+                "rows": 8
+            }
+        },
+        {
+            "name": "Compact",
+            "args": {
+                "name": "comment",
+                "label": "Comment",
+                "description": "Optional message for the delivery.",
+                "rows": 3
+            }
+        }
+    ]
+}

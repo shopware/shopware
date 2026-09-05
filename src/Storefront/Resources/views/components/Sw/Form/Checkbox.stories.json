@@ -1,0 +1,146 @@
+{
+    "title": "Sw/Form/Checkbox",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:Checkbox"
+        },
+        "template": "<twig:Sw:Form:Checkbox name=\"acceptedDataProtection\" label=\"I have read the data protection information.\" validationRules=\"required\" />"
+    },
+    "argTypes": {
+        "name": {
+            "control": "text",
+            "description": "Name attribute of the checkbox. Required.",
+            "required": true
+        },
+        "id": {
+            "control": "text",
+            "description": "Id of the checkbox. The label, description and feedback element are derived from it.",
+            "table": {
+                "defaultValue": {
+                    "summary": "name"
+                }
+            }
+        },
+        "label": {
+            "control": "text",
+            "description": "Label next to the checkbox."
+        },
+        "ariaLabel": {
+            "control": "text",
+            "description": "Accessible name for checkboxes that have no visible label. Ignored when `label` is set."
+        },
+        "value": {
+            "control": "text",
+            "description": "Value submitted when the checkbox is checked.",
+            "table": {
+                "defaultValue": {
+                    "summary": "1"
+                }
+            }
+        },
+        "checked": {
+            "control": "boolean",
+            "description": "Checked state of the checkbox.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "description": {
+            "control": "text",
+            "description": "Hint below the field. Linked to the checkbox via aria-describedby."
+        },
+        "variant": {
+            "control": "select",
+            "options": [
+                "default",
+                "switch"
+            ],
+            "description": "Renders the checkbox as a Bootstrap switch.",
+            "table": {
+                "defaultValue": {
+                    "summary": "default"
+                }
+            }
+        },
+        "disabled": {
+            "control": "boolean",
+            "description": "Disabled attribute of the checkbox.",
+            "table": {
+                "defaultValue": {
+                    "summary": false
+                }
+            }
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation."
+        },
+        "violationPath": {
+            "control": "text",
+            "description": "Key the server-side violations of this field are stored under."
+        },
+        "violationLabel": {
+            "control": "text",
+            "description": "Field name used in server-side violation messages instead of the property path."
+        },
+        "formViolations": {
+            "control": false,
+            "description": "ConstraintViolationException holding the server-side violations of the request. Defaults to the `formViolations` Twig global; pass it explicitly to render a field outside a request scope.",
+            "type": "ConstraintViolationException",
+            "table": {
+                "readonly": true,
+                "defaultValue": {
+                    "summary": "formViolations"
+                }
+            }
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders the required marker and aria-required.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "isInvalid": {
+            "control": "boolean",
+            "description": "Marks the control invalid.",
+            "table": {
+                "defaultValue": {
+                    "summary": "violationPath has violations"
+                }
+            }
+        },
+        "additionalClass": {
+            "control": "text",
+            "description": "Additional classes on the form-group wrapper. Migration alias for the `class` attribute on the component tag; both are merged."
+        },
+        "additionalInputClass": {
+            "control": "text",
+            "description": "Additional classes on the checkbox. Migration alias for the `control:class` attribute; both are merged."
+        }
+    },
+    "stories": [
+        {
+            "name": "Checkbox",
+            "args": {
+                "name": "acceptedDataProtection",
+                "label": "I have read the data protection information.",
+                "validationRules": "required"
+            }
+        },
+        {
+            "name": "Switch",
+            "args": {
+                "name": "newsletter",
+                "label": "Subscribe to the newsletter",
+                "description": "You can unsubscribe at any time.",
+                "variant": "switch",
+                "checked": true
+            }
+        }
+    ]
+}

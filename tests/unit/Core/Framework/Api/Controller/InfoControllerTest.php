@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
@@ -286,6 +287,27 @@ class InfoControllerTest extends TestCase
     {
         yield 'queue stats' => ['api.info.queue'];
         yield 'message stats' => ['api.info.message-stats'];
+    }
+
+    public function testConfigDispatchesMediaFileExtensionWhitelistEventOnlyOnce(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $dispatchCount = 0;
+        $this->eventDispatcher->addListener(
+            MediaFileExtensionWhitelistEvent::class,
+            function () use (&$dispatchCount): void {
+                ++$dispatchCount;
+            }
+        );
+
+        $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+
+        static::assertSame(
+            1,
+            $dispatchCount,
+            'MediaFileExtensionWhitelistEvent must be dispatched exactly once per /api/_info/config request'
+        );
     }
 
     /**

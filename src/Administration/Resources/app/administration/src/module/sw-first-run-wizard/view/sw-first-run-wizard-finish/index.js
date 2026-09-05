@@ -1,3 +1,4 @@
+import { isShopwareStoreUnavailable } from 'src/core/helper/air-gapped.helper';
 import template from './sw-first-run-wizard-finish.html.twig';
 import './sw-first-run-wizard-finish.scss';
 
@@ -48,9 +49,7 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement =
-                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
-            const prevRoute = disabledExtensionManagement ? 'shopware.account' : 'store';
+            const prevRoute = isShopwareStoreUnavailable() ? 'shopware.account' : 'store';
 
             return [
                 {

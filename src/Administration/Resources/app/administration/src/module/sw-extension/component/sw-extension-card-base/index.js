@@ -1,3 +1,4 @@
+import { isAirGapped } from 'src/core/helper/air-gapped.helper';
 import template from './sw-extension-card-base.html.twig';
 import './sw-extension-card-base.scss';
 
@@ -243,6 +244,10 @@ export default {
             return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
 
+        shopwareStoreUnavailable() {
+            return isAirGapped() || this.extensionManagementDisabled;
+        },
+
         showContextMenu() {
             if (this.isInstalled && this.extension.configurable) {
                 return true;
@@ -264,12 +269,12 @@ export default {
                 return true;
             }
 
-            if (!this.extensionManagementDisabled && this.isUpdateable) {
+            if (!this.shopwareStoreUnavailable && this.isUpdateable) {
                 return true;
             }
 
             if (
-                !this.extensionManagementDisabled &&
+                !this.shopwareStoreUnavailable &&
                 this.extension.storeLicense &&
                 this.extension.storeLicense.variant === 'rent' &&
                 this.extension.storeLicense.expirationDate === null

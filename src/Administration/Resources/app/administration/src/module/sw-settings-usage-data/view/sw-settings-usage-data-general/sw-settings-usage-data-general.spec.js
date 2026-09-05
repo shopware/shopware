@@ -36,4 +36,19 @@ describe('src/module/sw-settings-usage-data/view/sw-settings-usage-data-general'
 
         expect(wrapper.findComponent(SwSettingsUsageDataStoreDataConsent).exists()).toBe(true);
     });
+
+    it('hides consent when the installation is air-gapped', async () => {
+        Shopware.Store.get('context').app.config.settings = {
+            ...Shopware.Store.get('context').app.config.settings,
+            airGapped: true,
+        };
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent(SwSettingsUsageDataStoreDataConsent).exists()).toBe(false);
+        expect(wrapper.find('.sw-settings-usage-data-general__air-gapped').exists()).toBe(true);
+
+        Shopware.Store.get('context').app.config.settings.airGapped = false;
+    });
 });

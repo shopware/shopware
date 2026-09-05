@@ -1,3 +1,4 @@
+import { isShopwareStoreUnavailable } from 'src/core/helper/air-gapped.helper';
 import template from './sw-first-run-wizard-mailer-selection.html.twig';
 import './sw-first-run-wizard-mailer-selection.scss';
 
@@ -30,9 +31,7 @@ export default {
         },
 
         buttonConfig() {
-            const disabledExtensionManagement =
-                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
-            const nextRoute = disabledExtensionManagement ? 'shopware.account' : 'paypal.info';
+            const nextRoute = isShopwareStoreUnavailable() ? 'shopware.account' : 'paypal.info';
 
             return [
                 {

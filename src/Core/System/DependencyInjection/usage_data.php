@@ -7,6 +7,7 @@
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider as FrameworkShopIdProvider;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -43,6 +44,7 @@ return static function (ContainerConfigurator $container): void {
             new Reference('clock'),
             new Reference(ConsentService::class),
             '%shopware.usage_data.collection_enabled%',
+            new Reference(AirGappedMode::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -82,6 +84,7 @@ return static function (ContainerConfigurator $container): void {
             new Reference('clock'),
             '%kernel.environment%',
             '%shopware.usage_data.gateway.dispatch_enabled%',
+            new Reference(AirGappedMode::class),
         ]);
 
     $services->set(IterateEntitiesQueryBuilder::class)
@@ -103,6 +106,7 @@ return static function (ContainerConfigurator $container): void {
             new Reference(SystemConfigService::class),
             new Reference(ConsentService::class),
             '%shopware.usage_data.collection_enabled%',
+            new Reference(AirGappedMode::class),
         ]);
 
     $services->set(ManyToManyAssociationService::class)
@@ -123,6 +127,7 @@ return static function (ContainerConfigurator $container): void {
             new Reference(SystemConfigService::class),
             new Reference(InstanceService::class),
             '%env(APP_URL)%',
+            new Reference(AirGappedMode::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -143,6 +148,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             new Reference('shopware.usage_data.gateway.client'),
             new Reference(ShopIdProvider::class),
+            new Reference(AirGappedMode::class),
         ]);
 
     $services->set(CollectEntityDataTask::class)

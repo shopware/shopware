@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\JWT\JWTDecoder;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\Store\InAppPurchase\Subscriber\InAppPurchaseConfigSu
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
+use Shopware\Core\Framework\Store\Services\AirGappedStoreRequestMiddleware;
 use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
@@ -335,6 +337,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(RetryFailedStoreRequestMiddleware::class)
         ->public()
         ->tag('shopware.store_client.middleware');
+
+    $services->set(AirGappedStoreRequestMiddleware::class)
+        ->args([
+            service(AirGappedMode::class),
+        ])
+        ->tag('shopware.store_client.middleware')
+        ->tag('shopware.frw_client.middleware');
 
     $services->set(TrackingEventClient::class)
         ->args([

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\UsageData\Client;
 
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,11 +17,16 @@ class GatewayClient
     public function __construct(
         private readonly HttpClientInterface $client,
         private readonly ShopIdProvider $shopIdProvider,
+        private readonly AirGappedMode $airGappedMode,
     ) {
     }
 
     public function isGatewayAllowsPush(): bool
     {
+        if ($this->airGappedMode->isEnabled()) {
+            return false;
+        }
+
         $response = $this->client->request(
             Request::METHOD_GET,
             '/killswitch',

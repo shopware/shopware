@@ -14,6 +14,16 @@
         v-if="!suspended"
         #content
     >
+        <mt-empty-state
+            v-if="airGapped"
+            class="sw-settings-services-index__air-gapped"
+            :centered="true"
+            icon="regular-lock"
+            :headline="$t('sw-settings-services.index.air-gapped-title')"
+            :description="$t('sw-settings-services.index.air-gapped-description')"
+        />
+
+        <template v-else>
         <sw-extension-component-section
             position-identifier="sw-settings-services-header"
         />
@@ -125,5 +135,6 @@
         <sw-extension-component-section
             position-identifier="sw-settings-services-footer"
         />
+        </template>
     </template>
 </sw-page>

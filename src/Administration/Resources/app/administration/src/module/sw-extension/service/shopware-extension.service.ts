@@ -1,3 +1,4 @@
+import { isShopwareStoreUnavailable } from 'src/core/helper/air-gapped.helper';
 import type { RouteLocationNamedRaw, RouteLocation } from 'vue-router';
 import type { AppModulesService, AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 import type StoreApiService from 'src/core/service/api/store.api.service';
@@ -99,7 +100,7 @@ export default class ShopwareExtensionService {
         Shopware.Store.get('shopwareExtensions').loadMyExtensions();
 
         try {
-            if (!Shopware.Store.get('context').app.config?.settings?.disableExtensionManagement && refreshExtensions) {
+            if (!isShopwareStoreUnavailable() && refreshExtensions) {
                 await this.extensionStoreActionService.refresh();
             }
 

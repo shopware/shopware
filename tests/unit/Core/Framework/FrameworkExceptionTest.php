@@ -57,4 +57,16 @@ class FrameworkExceptionTest extends TestCase
 
         static::assertEquals(new \InvalidArgumentException('error message'), $exception);
     }
+
+    public function testAirGapped(): void
+    {
+        $exception = FrameworkException::airGapped();
+
+        static::assertSame(Response::HTTP_SERVICE_UNAVAILABLE, $exception->getStatusCode());
+        static::assertSame('FRAMEWORK__AIR_GAPPED', $exception->getErrorCode());
+        static::assertSame(
+            'This installation is air-gapped. Shopware-operated cloud services are disabled.',
+            $exception->getMessage()
+        );
+    }
 }

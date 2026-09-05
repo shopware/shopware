@@ -4,6 +4,7 @@ namespace Shopware\Core\System\UsageData\EntitySync;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\StoreService;
@@ -30,6 +31,7 @@ class EntityDispatcher
         private readonly ClockInterface $clock,
         private readonly string $environment,
         private readonly bool $dispatchEnabled,
+        private readonly AirGappedMode $airGappedMode,
     ) {
     }
 
@@ -43,7 +45,7 @@ class EntityDispatcher
         \DateTimeImmutable $runDate,
         string $shopId
     ): void {
-        if (!$this->dispatchEnabled) {
+        if (!$this->dispatchEnabled || $this->airGappedMode->isEnabled()) {
             return;
         }
 

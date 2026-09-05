@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentStatus;
@@ -36,6 +37,7 @@ class EntityDeleteSubscriber implements EventSubscriberInterface
         private readonly ClockInterface $clock,
         private readonly ConsentService $consentService,
         private readonly bool $collectionEnabled,
+        private readonly AirGappedMode $airGappedMode,
     ) {
     }
 
@@ -48,7 +50,7 @@ class EntityDeleteSubscriber implements EventSubscriberInterface
 
     public function handleEntityDeleteEvent(EntityDeleteEvent $event): void
     {
-        if (!$this->collectionEnabled) {
+        if (!$this->collectionEnabled || $this->airGappedMode->isEnabled()) {
             return;
         }
 

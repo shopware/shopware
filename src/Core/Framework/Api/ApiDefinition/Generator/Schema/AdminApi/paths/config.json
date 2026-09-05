@@ -110,7 +110,8 @@
                     },
                     "enableHtmlSanitizer": true,
                     "enableStagingMode": false,
-                    "disableExtensionManagement": false
+                    "disableExtensionManagement": false,
+                    "airGapped": false
                   },
                   "inAppPurchases": []
                 }

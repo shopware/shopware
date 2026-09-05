@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\UsageData\Consent;
 
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\StoreService;
@@ -26,6 +27,7 @@ class ConsentReporter implements EventSubscriberInterface
         private readonly SystemConfigService $systemConfigService,
         private readonly InstanceService $instanceService,
         private readonly string $appUrl,
+        private readonly AirGappedMode $airGappedMode,
     ) {
     }
 
@@ -57,6 +59,10 @@ class ConsentReporter implements EventSubscriberInterface
 
     private function reportConsentState(string $consentState): void
     {
+        if ($this->airGappedMode->isEnabled()) {
+            return;
+        }
+
         $payload = [
             'app_url' => $this->appUrl,
             'consent_state' => $consentState,

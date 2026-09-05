@@ -1014,6 +1014,11 @@
                 },
                 "runtime_extension_management": {
                     "type": "boolean"
+                },
+                "air_gapped": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When true, Shopware does not call Shopware-operated SaaS or content hosts (Store, updates, translations, usage data, Services registry, product analytics)."
                 }
             },
             "title": "Deployment"

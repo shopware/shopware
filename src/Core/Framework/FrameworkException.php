@@ -30,6 +30,7 @@ class FrameworkException extends HttpException
     private const INVALID_OPTIONS = 'FRAMEWORK__INVALID_OPTIONS';
     private const ASSOCIATION_NOT_FOUND = 'FRAMEWORK__ASSOCIATION_NOT_FOUND';
     private const CREATE_FROM_ERROR = 'FRAMEWORK__CREATE_FROM_ERROR';
+    private const AIR_GAPPED = 'FRAMEWORK__AIR_GAPPED';
 
     public static function projectDirNotExists(string $dir, ?\Throwable $e = null): self
     {
@@ -164,6 +165,15 @@ class FrameworkException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CREATE_FROM_ERROR,
             $message
+        );
+    }
+
+    public static function airGapped(): self
+    {
+        return new self(
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            self::AIR_GAPPED,
+            'This installation is air-gapped. Shopware-operated cloud services are disabled.',
         );
     }
 }

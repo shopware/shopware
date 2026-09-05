@@ -28,6 +28,17 @@
         </mt-banner>
 
         <mt-banner
+            v-if="airGapped"
+            class="sw-extension-my-extensions-listing__air-gapped-warning"
+            variant="attention"
+            :title="$t('sw-extension-store.component.sw-extension-my-extensions-listing.alertAirGapped.title')"
+        >
+            <div>
+                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.alertAirGapped.description') }}
+            </div>
+        </mt-banner>
+
+        <mt-banner
             v-if="extensionManagementDisabled"
             class="sw-extension-my-extensions-listing__runtime-extension-warning"
             variant="attention"
@@ -55,7 +66,10 @@
             :headline="emptyStateHeadline"
             :description="emptyStateDescription"
         >
-            <template #button>
+            <template
+                v-if="!airGapped"
+                #button
+            >
                 <mt-button
                     variant="secondary"
                     @click="isThemeRoute ? openThemesStore() : openStore()"

@@ -136,6 +136,7 @@ class InfoControllerTest extends TestCase
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
                 'disableExtensionManagement' => false,
+                'airGapped' => false,
                 'minSearchTermLength' => 2,
             ],
             'inAppPurchases' => [],

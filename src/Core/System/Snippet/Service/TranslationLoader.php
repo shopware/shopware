@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Deployment\AirGappedMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -63,6 +64,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         private readonly ClientInterface $client,
         private readonly TranslationConfig $config,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AirGappedMode $airGappedMode,
     ) {
     }
 
@@ -125,6 +127,8 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
 
     public function download(string $locale): void
     {
+        $this->airGappedMode->denyShopwareOperatedHttp();
+
         if (!$this->config->languages->has($locale)) {
             throw SnippetException::languageDoesNotExist($locale);
         }

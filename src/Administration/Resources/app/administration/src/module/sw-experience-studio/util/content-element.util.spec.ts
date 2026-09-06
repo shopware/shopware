@@ -1,9 +1,5 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
-import {
-    findElementLocation,
-    updateElementPropertiesInLayout,
-    updateElementStyleInLayout,
-} from './content-element.util';
+import { findElementLocation, updateElementPropertiesInLayout, updateElementStyleInLayout } from './content-element.util';
 
 const { cloneDeep } = Shopware.Utils.object;
 

@@ -26,16 +26,18 @@ use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 #[CoversClass(UnwrapElement::class)]
 class UnwrapElementTest extends TestCase
 {
-    #[TestDox('replaces the container with its slot children at the root')]
+    #[TestDox('replaces the container with its slot children at the root and creates nothing')]
     public function testUnwrapReplacesContainerWithChildren(): void
     {
         $tree = new StoredTree([new StoredElement('container', 'Sw:Container', [], [], [
             'content' => [new StoredElement('a', 'Sw:Block'), new StoredElement('b', 'Sw:Block')],
         ])]);
 
-        $result = (new UnwrapElement('container'))->apply($tree);
+        $unwrap = new UnwrapElement('container');
+        $result = $unwrap->apply($tree);
 
         static::assertSame(['a', 'b'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots));
+        static::assertSame([], $unwrap->created());
     }
 
     #[TestDox('hoists the children into the parent slot at the container position')]
@@ -74,6 +76,19 @@ class UnwrapElementTest extends TestCase
         static::assertSame(['a', 'grandchild', 'b'], $unwrap->affected());
     }
 
+    #[TestDox('flattens children across all container slots in slot order')]
+    public function testUnwrapFlattensAllSlots(): void
+    {
+        $tree = new StoredTree([new StoredElement('container', 'Sw:Container', [], [], [
+            'header' => [new StoredElement('a', 'Sw:Block')],
+            'body' => [new StoredElement('b', 'Sw:Block')],
+        ])]);
+
+        $result = (new UnwrapElement('container'))->apply($tree);
+
+        static::assertSame(['a', 'b'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots));
+    }
+
     #[TestDox('reports the removed containers own static properties and consumed wiring, not its provided context')]
     public function testUnwrapReportsContainerOwnConfig(): void
     {
@@ -97,19 +112,6 @@ class UnwrapElementTest extends TestCase
             array_map(static fn (StoredValue $value): mixed => $value->jsonSerialize(), $unwrap->droppedProperties())
         );
         static::assertSame(['hero', 'theme'], $unwrap->droppedWiring());
-    }
-
-    #[TestDox('flattens children across all container slots in slot order')]
-    public function testUnwrapFlattensAllSlots(): void
-    {
-        $tree = new StoredTree([new StoredElement('container', 'Sw:Container', [], [], [
-            'header' => [new StoredElement('a', 'Sw:Block')],
-            'body' => [new StoredElement('b', 'Sw:Block')],
-        ])]);
-
-        $result = (new UnwrapElement('container'))->apply($tree);
-
-        static::assertSame(['a', 'b'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots));
     }
 
     #[TestDox('removes an empty container and hoists nothing')]

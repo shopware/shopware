@@ -91,6 +91,8 @@ final class ReplaceElement extends AbstractLayoutMutation
 
         // Whole subtree, not just the replaced element: a kept descendant may re-resolve if the new type drops a provider it consumed.
         $this->affected = $this->subtreeIds($replacement);
+        // Carried-over children keep their nodes; only the replaced node itself is re-scaffolded.
+        $this->created = [$replacement->id];
 
         return $tree->replace($this->elementId, $replacement);
     }

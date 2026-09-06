@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Codec;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerBaseKey;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
@@ -35,7 +36,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * payload table precisely to catch a divergence that sharing would hide instead of surface.
  *
  * The composition helpers {@see nonNull()} and {@see stringKeyedMap()} are duplicated from
- * {@see StoredTreeConstraints} rather than shared, keeping this class free of collaborators.
+ * {@see StoredTreeConstraints} rather than shared. {@see ConsumerBaseKey} is the one shared collaborator,
+ * constructed locally where {@see validateConsumerBaseKeys()} needs it, since it carries the base-key split
+ * every one of these independent implementations otherwise duplicates.
  *
  * @internal
  */
@@ -249,6 +252,7 @@ final class StoredTreeWiringConstraints
         }
 
         $holders = [];
+        $consumerBaseKey = new ConsumerBaseKey();
 
         foreach ($value as $contextKey => $consumer) {
             if (!\is_string($contextKey) || !\is_array($consumer)) {
@@ -261,9 +265,7 @@ final class StoredTreeWiringConstraints
             }
 
             $propertyKey = $propertyAlias ?? $contextKey;
-            $baseKey = str_contains($propertyKey, '.')
-                ? substr($propertyKey, 0, (int) strpos($propertyKey, '.'))
-                : $propertyKey;
+            $baseKey = $consumerBaseKey->of($propertyKey);
 
             if (\array_key_exists($baseKey, $holders)) {
                 $context->buildViolation('This consumer writes the property key {{ key }}, which context {{ first }} already writes.')

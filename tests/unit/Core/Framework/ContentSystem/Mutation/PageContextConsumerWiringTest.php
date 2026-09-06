@@ -70,23 +70,6 @@ class PageContextConsumerWiringTest extends TestCase
         static::assertFalse($consumers['product']->redistribute);
     }
 
-    #[TestDox('leaves an element outside the created set unwired even when its reference is proven')]
-    public function testLeavesUncreatedElementUnwired(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
-            ->withConsumer('authored', ContextType::Single)
-            ->build();
-        $resolutions = ['p1' => [
-            $this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product')),
-            $this->reference('page', true, $this->candidate(CandidateOrigin::Root, 'page')),
-        ]];
-
-        $wired = (new PageContextConsumerWiring())->apply(new StoredTree([$element]), $resolutions, ['other-id']);
-
-        static::assertSame($element->contextDefinitions->getAllConsumers(), $this->consumers($wired->roots[0]));
-        static::assertSame(['authored'], array_keys($this->consumers($wired->roots[0])));
-    }
-
     #[TestDox('mirrors one consumer per proven reference when an element consumes two context keys')]
     public function testMirrorsOneConsumerPerProvenReference(): void
     {
@@ -105,38 +88,31 @@ class PageContextConsumerWiringTest extends TestCase
         static::assertSame(ContextType::Collection, $consumers['page']->type);
     }
 
-    #[TestDox('keys a cross-key parent mirror by the resolved candidate context key and aliases it to the written property key')]
-    public function testKeysTheConsumerByTheCandidateContextKey(): void
+    /**
+     * @return iterable<string, array{0: CandidateOrigin, 1: bool, 2: ConsumerScope}>
+     */
+    public static function crossKeyOriginProvider(): iterable
     {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
-
-        $wired = (new PageContextConsumerWiring())->apply(
-            new StoredTree([$element]),
-            ['p1' => [$this->reference('crossSellProduct', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
-            ['p1'],
-        );
-
-        $consumers = $this->consumers($wired->roots[0]);
-        static::assertSame(['product'], array_keys($consumers));
-        static::assertSame('crossSellProduct', $consumers['product']->propertyAlias);
-        static::assertSame(ConsumerScope::Parent, $consumers['product']->scope);
+        yield 'parent origin' => [CandidateOrigin::Parent, true, ConsumerScope::Parent];
+        yield 'root origin' => [CandidateOrigin::Root, false, ConsumerScope::Root];
     }
 
-    #[TestDox('keys a cross-key root mirror by the resolved candidate context key and aliases it to the written property key')]
-    public function testKeysTheRootConsumerByTheCandidateContextKey(): void
+    #[DataProvider('crossKeyOriginProvider')]
+    #[TestDox('keys a cross-key mirror by the resolved candidate context key and aliases it to the written property key')]
+    public function testKeysTheConsumerByTheCandidateContextKey(CandidateOrigin $origin, bool $required, ConsumerScope $scope): void
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
 
         $wired = (new PageContextConsumerWiring())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('crossSellProduct', false, $this->candidate(CandidateOrigin::Root, 'product'))]],
+            ['p1' => [$this->reference('crossSellProduct', $required, $this->candidate($origin, 'product'))]],
             ['p1'],
         );
 
         $consumers = $this->consumers($wired->roots[0]);
         static::assertSame(['product'], array_keys($consumers));
-        static::assertSame(ConsumerScope::Root, $consumers['product']->scope);
         static::assertSame('crossSellProduct', $consumers['product']->propertyAlias);
+        static::assertSame($scope, $consumers['product']->scope);
     }
 
     #[TestDox('mirrors a cross-key reference even though the element provides the candidate context key, because the provider skip is matched against the written property key')]
@@ -156,22 +132,6 @@ class PageContextConsumerWiringTest extends TestCase
         static::assertSame(['product'], array_keys($consumers));
         static::assertSame('crossSellProduct', $consumers['product']->propertyAlias);
         static::assertSame(ConsumerScope::Parent, $consumers['product']->scope);
-    }
-
-    #[TestDox('mirrors nothing for a cross-key resolution whose written property key contains a dot, because the decoder rejects a dotted propertyAlias')]
-    public function testMirrorsNothingForCrossKeyResolutionWithDottedWrittenKey(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
-        $tree = new StoredTree([$element]);
-
-        $wired = (new PageContextConsumerWiring())->apply(
-            $tree,
-            ['p1' => [$this->reference('product.name', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
-            ['p1'],
-        );
-
-        static::assertSame($tree, $wired);
-        static::assertSame([], $this->consumers($wired->roots[0]));
     }
 
     #[TestDox('mirrors an equal dotted key as a consumer with no propertyAlias, because a dotted consumer key without an alias is legal')]
@@ -227,6 +187,38 @@ class PageContextConsumerWiringTest extends TestCase
         static::assertArrayHasKey('product', $this->consumers($wired->roots[1]));
     }
 
+    #[TestDox('mirrors only the first of two resolutions sharing a resolved context key, skipping the second')]
+    public function testSameContextKeyResolutionsMirrorOnlyTheFirst(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
+        $resolutions = ['p1' => [
+            $this->reference('firstProperty', false, $this->candidate(CandidateOrigin::Parent, 'product')),
+            $this->reference('secondProperty', true, $this->candidate(CandidateOrigin::Parent, 'product')),
+        ]];
+
+        $wired = (new PageContextConsumerWiring())->apply(new StoredTree([$element]), $resolutions, ['p1']);
+
+        $consumers = $this->consumers($wired->roots[0]);
+        static::assertSame(['product'], array_keys($consumers));
+        static::assertFalse($consumers['product']->required);
+    }
+
+    #[TestDox('mirrors normally when the written property key does not collide with any existing consumer base key')]
+    public function testMirrorsWhenNoBaseKeyCollides(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+            ->withConsumer('other', ContextType::Single)
+            ->build();
+
+        $wired = (new PageContextConsumerWiring())->apply(
+            new StoredTree([$element]),
+            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        );
+
+        static::assertSame(['other', 'product'], array_keys($this->consumers($wired->roots[0])));
+    }
+
     #[TestDox('never overwrites a consumer the element already carries under the same key')]
     public function testNeverOverwritesExistingConsumer(): void
     {
@@ -244,28 +236,30 @@ class PageContextConsumerWiringTest extends TestCase
         static::assertSame($authored, $this->consumers($wired->roots[0])['product']);
     }
 
-    #[TestDox('the first of two resolutions sharing a resolved context key wins, and the second is skipped')]
-    public function testSameContextKeyResolutionsMirrorOnlyTheFirst(): void
+    /**
+     * @return iterable<string, array{0: StoredElement, 1: string}>
+     */
+    public static function baseKeyCollisionProvider(): iterable
     {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
-        $resolutions = ['p1' => [
-            $this->reference('firstProperty', false, $this->candidate(CandidateOrigin::Parent, 'product')),
-            $this->reference('secondProperty', true, $this->candidate(CandidateOrigin::Parent, 'product')),
-        ]];
+        yield 'existing consumer aliased to the written property' => [
+            StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                ->withConsumer('x', ContextType::Single, false, false, null, 'product')
+                ->build(),
+            'x',
+        ];
 
-        $wired = (new PageContextConsumerWiring())->apply(new StoredTree([$element]), $resolutions, ['p1']);
-
-        $consumers = $this->consumers($wired->roots[0]);
-        static::assertSame(['product'], array_keys($consumers));
-        static::assertFalse($consumers['product']->required);
+        yield 'existing dotted consumer key sharing the first segment' => [
+            StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                ->withConsumer('product.name', ContextType::Single)
+                ->build(),
+            'product.name',
+        ];
     }
 
-    #[TestDox('skips a base-key collision against an existing consumer aliased to the same written property')]
-    public function testSkipsBaseKeyCollisionViaExistingAlias(): void
+    #[DataProvider('baseKeyCollisionProvider')]
+    #[TestDox('skips a base-key collision against an existing consumer')]
+    public function testSkipsBaseKeyCollision(StoredElement $element, string $survivingKey): void
     {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
-            ->withConsumer('x', ContextType::Single, false, false, null, 'product')
-            ->build();
         $tree = new StoredTree([$element]);
 
         $wired = (new PageContextConsumerWiring())->apply(
@@ -275,41 +269,7 @@ class PageContextConsumerWiringTest extends TestCase
         );
 
         static::assertSame($tree, $wired);
-        static::assertSame(['x'], array_keys($this->consumers($wired->roots[0])));
-    }
-
-    #[TestDox('skips a base-key collision against an existing dotted consumer key sharing the first segment')]
-    public function testSkipsBaseKeyCollisionViaDottedExistingKey(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
-            ->withConsumer('product.name', ContextType::Single)
-            ->build();
-        $tree = new StoredTree([$element]);
-
-        $wired = (new PageContextConsumerWiring())->apply(
-            $tree,
-            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'y'))]],
-            ['p1'],
-        );
-
-        static::assertSame($tree, $wired);
-        static::assertSame(['product.name'], array_keys($this->consumers($wired->roots[0])));
-    }
-
-    #[TestDox('mirrors normally when the written property key does not collide with any existing consumer base key')]
-    public function testMirrorsWhenNoBaseKeyCollides(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
-            ->withConsumer('other', ContextType::Single)
-            ->build();
-
-        $wired = (new PageContextConsumerWiring())->apply(
-            new StoredTree([$element]),
-            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
-            ['p1'],
-        );
-
-        static::assertSame(['other', 'product'], array_keys($this->consumers($wired->roots[0])));
+        static::assertSame([$survivingKey], array_keys($this->consumers($wired->roots[0])));
     }
 
     #[TestDox('skips a key the element already fills from a data requirement')]
@@ -346,6 +306,39 @@ class PageContextConsumerWiringTest extends TestCase
         static::assertSame([], $this->consumers($wired->roots[0]));
     }
 
+    #[TestDox('leaves an element outside the created set unwired even when its reference is proven')]
+    public function testLeavesUncreatedElementUnwired(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+            ->withConsumer('authored', ContextType::Single)
+            ->build();
+        $resolutions = ['p1' => [
+            $this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product')),
+            $this->reference('page', true, $this->candidate(CandidateOrigin::Root, 'page')),
+        ]];
+
+        $wired = (new PageContextConsumerWiring())->apply(new StoredTree([$element]), $resolutions, ['other-id']);
+
+        static::assertSame($element->contextDefinitions->getAllConsumers(), $this->consumers($wired->roots[0]));
+        static::assertSame(['authored'], array_keys($this->consumers($wired->roots[0])));
+    }
+
+    #[TestDox('mirrors nothing for a cross-key resolution whose written property key contains a dot, because the decoder rejects a dotted propertyAlias')]
+    public function testMirrorsNothingForCrossKeyResolutionWithDottedWrittenKey(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
+        $tree = new StoredTree([$element]);
+
+        $wired = (new PageContextConsumerWiring())->apply(
+            $tree,
+            ['p1' => [$this->reference('product.name', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        );
+
+        static::assertSame($tree, $wired);
+        static::assertSame([], $this->consumers($wired->roots[0]));
+    }
+
     #[TestDox('mirrors nothing for a reference the resolution did not prove')]
     public function testMirrorsNothingForUnprovenReference(): void
     {
@@ -371,8 +364,8 @@ class PageContextConsumerWiringTest extends TestCase
         yield 'stored origin' => [CandidateOrigin::Stored];
     }
 
-    #[TestDox('mirrors nothing for a reference a loader or the element own wiring already fills')]
     #[DataProvider('selfFillingOriginProvider')]
+    #[TestDox('mirrors nothing for a reference a loader or the element own wiring already fills')]
     public function testMirrorsNothingForSelfFillingOrigin(CandidateOrigin $origin): void
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
@@ -388,48 +381,55 @@ class PageContextConsumerWiringTest extends TestCase
         static::assertSame([], $this->consumers($wired->roots[0]));
     }
 
-    #[TestDox('mirrors nothing for a primitive resolution carrying a proven candidate')]
-    public function testMirrorsNothingForPrimitiveKind(): void
+    /**
+     * One row per guard in PageContextConsumerWiring::consumerFor().
+     *
+     * @return iterable<string, array{0: PropertyResolution}>
+     */
+    public static function unmirrorableResolutionProvider(): iterable
     {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
-        $tree = new StoredTree([$element]);
-        $primitive = new PropertyResolution(
+        yield 'primitive kind' => [new PropertyResolution(
             'product',
             PropertyKind::Primitive,
             true,
             'string',
             null,
             null,
-            $this->candidate(CandidateOrigin::Parent, 'product'),
-        );
+            new ResolutionCandidate(CandidateOrigin::Parent, 'product', null, null, DistributionStrategy::Broadcast, ContextType::Single),
+        )];
 
-        $wired = (new PageContextConsumerWiring())->apply($tree, ['p1' => [$primitive]], ['p1']);
+        yield 'proven candidate carrying no context type' => [new PropertyResolution(
+            'product',
+            PropertyKind::Reference,
+            true,
+            null,
+            null,
+            self::PRODUCT_FQCN,
+            new ResolutionCandidate(CandidateOrigin::Parent, 'product', null, null, DistributionStrategy::Broadcast, null),
+        )];
 
-        static::assertSame($tree, $wired);
+        yield 'proven candidate carrying an empty context key' => [new PropertyResolution(
+            'product',
+            PropertyKind::Reference,
+            true,
+            null,
+            null,
+            self::PRODUCT_FQCN,
+            new ResolutionCandidate(CandidateOrigin::Parent, '', null, null, DistributionStrategy::Broadcast, ContextType::Single),
+        )];
     }
 
-    #[TestDox('mirrors nothing for a proven candidate carrying no context type')]
-    public function testMirrorsNothingWithoutContextType(): void
+    #[DataProvider('unmirrorableResolutionProvider')]
+    #[TestDox('mirrors nothing for a resolution a consumer guard rejects')]
+    public function testMirrorsNothingForUnmirrorableResolution(PropertyResolution $resolution): void
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $tree = new StoredTree([$element]);
-        $candidate = new ResolutionCandidate(CandidateOrigin::Parent, 'product', null, null, DistributionStrategy::Broadcast, null);
 
-        $wired = (new PageContextConsumerWiring())->apply($tree, ['p1' => [$this->reference('product', true, $candidate)]], ['p1']);
-
-        static::assertSame($tree, $wired);
-    }
-
-    #[TestDox('mirrors nothing for a proven candidate carrying an empty context key')]
-    public function testMirrorsNothingWithoutContextKey(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
-        $tree = new StoredTree([$element]);
-        $candidate = $this->candidate(CandidateOrigin::Parent, '');
-
-        $wired = (new PageContextConsumerWiring())->apply($tree, ['p1' => [$this->reference('product', true, $candidate)]], ['p1']);
+        $wired = (new PageContextConsumerWiring())->apply($tree, ['p1' => [$resolution]], ['p1']);
 
         static::assertSame($tree, $wired);
+        static::assertSame([], $this->consumers($wired->roots[0]));
     }
 
     #[TestDox('returns the identical tree instance when the created set is empty')]
@@ -445,6 +445,22 @@ class PageContextConsumerWiringTest extends TestCase
         );
 
         static::assertSame($tree, $wired);
+    }
+
+    #[TestDox('returns the identical tree instance when the created id names no element in the tree')]
+    public function testReturnsIdenticalTreeForCreatedIdAbsentFromTree(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
+        $tree = new StoredTree([$element]);
+
+        $wired = (new PageContextConsumerWiring())->apply(
+            $tree,
+            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['ghost'],
+        );
+
+        static::assertSame($tree, $wired);
+        static::assertSame([], $this->consumers($wired->roots[0]));
     }
 
     #[TestDox('returns the identical tree instance when a created element has no resolutions at all')]

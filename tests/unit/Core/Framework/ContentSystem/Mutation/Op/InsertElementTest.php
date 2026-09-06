@@ -49,16 +49,6 @@ class InsertElementTest extends TestCase
         static::assertTrue(Uuid::isValid($result->roots[1]->id));
         static::assertTrue($result->roots[1]->style->isEmpty());
         static::assertSame([$result->roots[1]->id], $insert->affected());
-    }
-
-    #[TestDox('reports the minted id as the only created element')]
-    public function testInsertCreatedIsTheMintedIdOnly(): void
-    {
-        $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
-
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $insert->apply($tree);
-
         static::assertSame([$result->roots[1]->id], $insert->created());
     }
 

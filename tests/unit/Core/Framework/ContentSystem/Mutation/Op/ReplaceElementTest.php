@@ -60,9 +60,8 @@ class ReplaceElementTest extends TestCase
         ])]);
 
         $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-        $result = $replace->apply($tree);
+        $replace->apply($tree);
 
-        static::assertSame('child', $result->roots[0]->slots['content'][0]->id);
         static::assertSame(['el'], $replace->created());
     }
 
@@ -141,31 +140,6 @@ class ReplaceElementTest extends TestCase
         static::assertSame('Authored', $result->roots[0]->property('headline')?->jsonSerialize());
     }
 
-    #[TestDox('preserves carried wiring for a shared key but still fill-applies the default for a key the carry left unwired')]
-    public function testReplacePreservesCarriedWiringButFillAppliesDefaultForUnwiredKey(): void
-    {
-        $carriedConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
-
-        $old = StoredElementBuilder::create('Sw:Old', 'el')
-            ->withDataRequirement('product', 'entity', $carriedConfig)
-            ->withAttributedSpecification('product', 'core:carried-spec')
-            ->build();
-
-        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', [
-            'product' => new LoaderBinding('entity', ['entity' => 'product', 'property' => 'productId']),
-            'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'galleryIds']),
-        ], [], 'core');
-
-        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator($newConfig));
-        $result = $replace->apply(new StoredTree([$old]));
-
-        static::assertSame($carriedConfig, $result->roots[0]->dataRequirements['product']->config);
-        static::assertSame($newConfig, $result->roots[0]->dataRequirements['gallery']->config);
-        static::assertSame('entity_collection', $result->roots[0]->dataRequirements['gallery']->source);
-        static::assertSame(['product' => 'core:carried-spec', 'gallery' => 'core:Sw:New'], $result->roots[0]->attributedSpecifications);
-    }
-
     /**
      * @param array<int, string>|string $propertyValue
      * @param array<int, string>|string $expectedValue
@@ -180,38 +154,6 @@ class ReplaceElementTest extends TestCase
         $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class))))->apply($tree);
 
         static::assertSame($expectedValue, $result->roots[0]->property($propertyKey)?->jsonSerialize());
-    }
-
-    #[TestDox('seeds the new type primitive default for a key the old element lacked')]
-    public function testReplaceSeedsNewTypeDefaultForAbsentKey(): void
-    {
-        $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
-
-        $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame('Default tagline', $result->roots[0]->property('tagline')?->jsonSerialize());
-    }
-
-    #[TestDox('seeds the new type default for a key whose type-incompatible old value was dropped')]
-    public function testReplaceSeedsNewTypeDefaultForDroppedIncompatibleKey(): void
-    {
-        $replace = new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
-
-        $result = $replace->apply(new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('count', 'not-an-int')->build()]));
-
-        static::assertSame(['count' => 'not-an-int'], $this->rawDrops($replace->droppedProperties()));
-        static::assertSame(7, $result->roots[0]->property('count')?->jsonSerialize());
-    }
-
-    #[TestDox('does not throw and applies no additional wiring when the new type has no default specification')]
-    public function testReplaceWithNoDefaultAppliesNothingExtra(): void
-    {
-        $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
-
-        static::assertSame([], $result->roots[0]->dataRequirements);
-        static::assertSame([], $result->roots[0]->attributedSpecifications);
     }
 
     #[TestDox('applies the declared-primitive rule, not the storage-key shape check, for a key that is both, dropping a value the primitive type rejects')]
@@ -335,21 +277,6 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['legacy'], $replace->droppedWiring());
     }
 
-    #[TestDox('keeps the attributed specification for a carried wired key and drops it for a wired key the new type no longer has')]
-    public function testReplaceKeepsAttributedSpecificationForCarriedKeyAndDropsForAbsentKey(): void
-    {
-        $old = StoredElementBuilder::create('Sw:Old', 'el')
-            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->withDataRequirement('legacy', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->withAttributedSpecification('product', 'spec-product')
-            ->withAttributedSpecification('legacy', 'spec-legacy')
-            ->build();
-
-        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply(new StoredTree([$old]));
-
-        static::assertSame(['product' => 'spec-product'], $result->roots[0]->attributedSpecifications);
-    }
-
     #[TestDox('reports a dropped context provider and consumer key once each')]
     public function testReplaceReportsDroppedContextWiring(): void
     {
@@ -390,6 +317,110 @@ class ReplaceElementTest extends TestCase
         $replace->apply($tree);
 
         static::assertSame(['el', 'child'], $replace->affected());
+    }
+
+    #[TestDox('preserves carried wiring for a shared key but still fill-applies the default for a key the carry left unwired')]
+    public function testReplacePreservesCarriedWiringButFillAppliesDefaultForUnwiredKey(): void
+    {
+        $carriedConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+
+        $old = StoredElementBuilder::create('Sw:Old', 'el')
+            ->withDataRequirement('product', 'entity', $carriedConfig)
+            ->withAttributedSpecification('product', 'core:carried-spec')
+            ->build();
+
+        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', [
+            'product' => new LoaderBinding('entity', ['entity' => 'product', 'property' => 'productId']),
+            'gallery' => new LoaderBinding('entity_collection', ['entity' => 'media', 'property' => 'galleryIds']),
+        ], [], 'core');
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator($newConfig));
+        $result = $replace->apply(new StoredTree([$old]));
+
+        static::assertSame($carriedConfig, $result->roots[0]->dataRequirements['product']->config);
+        static::assertSame($newConfig, $result->roots[0]->dataRequirements['gallery']->config);
+        static::assertSame('entity_collection', $result->roots[0]->dataRequirements['gallery']->source);
+        static::assertSame(['product' => 'core:carried-spec', 'gallery' => 'core:Sw:New'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('seeds the new type primitive default for a key the old element lacked')]
+    public function testReplaceSeedsNewTypeDefaultForAbsentKey(): void
+    {
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
+
+        $result = (new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+
+        static::assertSame('Default tagline', $result->roots[0]->property('tagline')?->jsonSerialize());
+    }
+
+    #[TestDox('seeds the new type default for a key whose type-incompatible old value was dropped')]
+    public function testReplaceSeedsNewTypeDefaultForDroppedIncompatibleKey(): void
+    {
+        $replace = new ReplaceElement($this->registryWithDefaults(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+
+        $result = $replace->apply(new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('count', 'not-an-int')->build()]));
+
+        static::assertSame(['count' => 'not-an-int'], $this->rawDrops($replace->droppedProperties()));
+        static::assertSame(7, $result->roots[0]->property('count')?->jsonSerialize());
+    }
+
+    #[TestDox('does not throw and applies no additional wiring when the new type has no default specification')]
+    public function testReplaceWithNoDefaultAppliesNothingExtra(): void
+    {
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old')]);
+
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply($tree);
+
+        static::assertSame([], $result->roots[0]->dataRequirements);
+        static::assertSame([], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('keeps the attributed specification for a carried wired key and drops it for a wired key the new type no longer has')]
+    public function testReplaceKeepsAttributedSpecificationForCarriedKeyAndDropsForAbsentKey(): void
+    {
+        $old = StoredElementBuilder::create('Sw:Old', 'el')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withDataRequirement('legacy', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withAttributedSpecification('product', 'spec-product')
+            ->withAttributedSpecification('legacy', 'spec-legacy')
+            ->build();
+
+        $result = (new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator()))->apply(new StoredTree([$old]));
+
+        static::assertSame(['product' => 'spec-product'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('rejects wiring whose key the new type declares as a primitive property and reports the key as dropped')]
+    public function testReplaceRejectsWiringUnderADeclaredPrimitiveKey(): void
+    {
+        // headline is a declared string primitive of Sw:New, so the wiring carry-over must keep reference keys only.
+        // The key IS present in the new type, so the presence check alone would carry this requirement onto a
+        // primitive property; only the isPrimitive() operand rejects it.
+        $requirement = new DataRequirement('headline', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
+        $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['headline' => $requirement])]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame([], $result->roots[0]->dataRequirements);
+        static::assertSame(['headline'], $replace->droppedWiring());
+    }
+
+    #[TestDox('drops a stored value whose storage key comes from a binding config with an invalid non-string property')]
+    public function testReplaceDropsStoredValueForInvalidStorageKeyPropertyConfig(): void
+    {
+        // A LoaderBinding config is untyped, so "property" can hold a list. carryableStorageKeys() registers a
+        // storage key only for a string, so this entry contributes none and the stored value falls through to
+        // droppedProperties; without the is_string() guard the list would be used as an array offset directly.
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('mediaId', 'media-1')->build()]);
+        $default = new BindingSpecification('Sw:New', 'Sw:New', 'New', ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => ['mediaId']])], [], 'core');
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry(['core:Sw:New' => $default]), $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)));
+        $result = $replace->apply($tree);
+
+        static::assertNull($result->roots[0]->property('mediaId'));
+        static::assertSame(['mediaId' => 'media-1'], $this->rawDrops($replace->droppedProperties()));
     }
 
     #[TestDox('rejects a new type with more than one default specification with a 409 naming the colliding qualified ids')]

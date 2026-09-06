@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
@@ -54,26 +55,12 @@ class MutationPipelineTest extends TestCase
 
         $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis($report, $resolutions)));
 
-        $result = $pipeline->run($this->mutation($mutated, ['new-1'], expectedInputTree: $tree), $tree, null);
+        $result = $pipeline->run($this->mutationExpecting($tree, $mutated, ['new-1']), $tree, null);
 
         static::assertSame($mutated, $result->layout);
         static::assertSame(['new-1'], $result->affectedElementIds);
         static::assertSame($report, $result->diagnostics);
         static::assertSame(['new-1'], array_keys($result->resolutions));
-    }
-
-    #[TestDox('returns no resolutions when the mutation affects nothing')]
-    public function testRunReturnsEmptyResolutionsWhenNothingAffected(): void
-    {
-        $resolutions = [
-            'new-1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')],
-        ];
-
-        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
-
-        $result = $pipeline->run($this->mutation(new StoredTree([new StoredElement('new-1', 'Sw:Card')]), []), $this->inputTree(), null);
-
-        static::assertSame([], $result->resolutions);
     }
 
     #[TestDox('passes orphaned subtrees, dropped wiring keys and dropped static property values from the op through to the result')]
@@ -117,6 +104,23 @@ class MutationPipelineTest extends TestCase
         $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['new-1']), $this->inputTree(), $rootContext);
 
         static::assertSame($report, $result->diagnostics);
+    }
+
+    #[TestDox('forwards the root context to the second diagnostics pass as well as the first')]
+    public function testRunForwardsRootContextToBothAnalyzePasses(): void
+    {
+        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
+        $rootContext = [new ProvidedContext('product', 'App\\Product', ContextType::Single, null, DistributionStrategy::Broadcast)];
+
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics->expects($this->exactly(2))
+            ->method('analyze')
+            ->with(static::anything(), static::identicalTo($rootContext))
+            ->willReturnCallback(fn (array $roots): LayoutAnalysis => new LayoutAnalysis(new DiagnosticsReport([]), $this->productResolutions($roots)));
+
+        $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['p1'], created: ['p1']), $this->inputTree(), $rootContext);
+
+        static::assertNotSame($mutated, $result->layout);
     }
 
     #[TestDox('mirrors the proven consumers of the created elements into the returned layout')]
@@ -167,21 +171,6 @@ class MutationPipelineTest extends TestCase
         static::assertSame($secondPassResolutions, $result->resolutions);
     }
 
-    #[TestDox('runs a single analysis pass when the wiring leaves the mutated tree untouched')]
-    public function testRunAnalyzesOnceWhenNothingIsWired(): void
-    {
-        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
-
-        $diagnostics = $this->createMock(LayoutDiagnostics::class);
-        $diagnostics->expects($this->once())
-            ->method('analyze')
-            ->willReturnCallback(fn (array $roots): LayoutAnalysis => new LayoutAnalysis(new DiagnosticsReport([]), $this->productResolutions($roots)));
-
-        $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['p1'], created: []), $this->inputTree(), null);
-
-        static::assertSame($mutated, $result->layout);
-    }
-
     #[TestDox('leaves an unwired but still provable element unwired through a non-creating move')]
     public function testUnwiredConsumerSurvivesANonCreatingMove(): void
     {
@@ -228,6 +217,38 @@ class MutationPipelineTest extends TestCase
         static::assertSame([], $children[0]->contextDefinitions->getAllConsumers());
         static::assertNotSame('el-1', $children[1]->id);
         static::assertArrayHasKey('product', $children[1]->contextDefinitions->getAllConsumers());
+    }
+
+    #[TestDox('returns no resolutions when the mutation affects nothing')]
+    public function testRunReturnsEmptyResolutionsWhenNothingAffected(): void
+    {
+        $resolutions = [
+            'new-1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')],
+        ];
+
+        $pipeline = $this->pipeline($this->diagnosticsReturning(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions)));
+
+        $result = $pipeline->run($this->mutation(new StoredTree([new StoredElement('new-1', 'Sw:Card')]), []), $this->inputTree(), null);
+
+        static::assertSame([], $result->resolutions);
+    }
+
+    #[TestDox('runs a single analysis pass when a created element proves no consumer to mirror')]
+    public function testRunAnalyzesOnceWhenNothingIsWired(): void
+    {
+        $mutated = new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
+        $resolutions = [
+            'p1' => [new PropertyResolution('headline', PropertyKind::Primitive, false, 'string', 'hi')],
+        ];
+
+        $diagnostics = $this->createMock(LayoutDiagnostics::class);
+        $diagnostics->expects($this->once())
+            ->method('analyze')
+            ->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), $resolutions));
+
+        $result = $this->pipeline($diagnostics)->run($this->mutation($mutated, ['p1'], created: ['p1']), $this->inputTree(), null);
+
+        static::assertSame($mutated, $result->layout);
     }
 
     private function pipeline(LayoutDiagnostics $diagnostics): MutationPipeline
@@ -312,27 +333,64 @@ class MutationPipelineTest extends TestCase
         array $orphaned = [],
         array $droppedWiring = [],
         array $droppedProperties = [],
-        ?StoredTree $expectedInputTree = null,
         array $created = [],
     ): LayoutMutation {
-        if ($expectedInputTree !== null) {
-            $mutation = $this->createMock(LayoutMutation::class);
-            $mutation->expects($this->once())
-                ->method('apply')
-                ->with(static::identicalTo($expectedInputTree))
-                ->willReturn($appliedTree);
-        } else {
-            $mutation = static::createStub(LayoutMutation::class);
-            $mutation->method('apply')->willReturn($appliedTree);
-        }
+        $mutation = static::createStub(LayoutMutation::class);
+        $mutation->method('apply')->willReturn($appliedTree);
 
+        $this->stubReporters($mutation, $affected, $orphaned, $droppedWiring, $droppedProperties, $created);
+
+        return $mutation;
+    }
+
+    /**
+     * @param list<StoredElement> $orphaned
+     * @param list<string> $affected
+     * @param list<string> $droppedWiring
+     * @param array<string, StoredValue> $droppedProperties
+     * @param list<string> $created
+     */
+    private function mutationExpecting(
+        StoredTree $expectedInputTree,
+        StoredTree $appliedTree,
+        array $affected,
+        array $orphaned = [],
+        array $droppedWiring = [],
+        array $droppedProperties = [],
+        array $created = [],
+    ): LayoutMutation {
+        $mutation = $this->createMock(LayoutMutation::class);
+        $mutation->expects($this->once())
+            ->method('apply')
+            ->with(static::identicalTo($expectedInputTree))
+            ->willReturn($appliedTree);
+
+        $this->stubReporters($mutation, $affected, $orphaned, $droppedWiring, $droppedProperties, $created);
+
+        return $mutation;
+    }
+
+    /**
+     * @param Stub&LayoutMutation $mutation
+     * @param list<string> $affected
+     * @param list<StoredElement> $orphaned
+     * @param list<string> $droppedWiring
+     * @param array<string, StoredValue> $droppedProperties
+     * @param list<string> $created
+     */
+    private function stubReporters(
+        Stub $mutation,
+        array $affected,
+        array $orphaned,
+        array $droppedWiring,
+        array $droppedProperties,
+        array $created,
+    ): void {
         $mutation->method('affected')->willReturn($affected);
         $mutation->method('created')->willReturn($created);
         $mutation->method('orphaned')->willReturn($orphaned);
         $mutation->method('droppedWiring')->willReturn($droppedWiring);
         $mutation->method('droppedProperties')->willReturn($droppedProperties);
-
-        return $mutation;
     }
 
     private function diagnosticsReturning(LayoutAnalysis $analysis): LayoutDiagnostics

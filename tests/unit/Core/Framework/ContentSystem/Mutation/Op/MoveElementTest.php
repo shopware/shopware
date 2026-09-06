@@ -24,7 +24,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 #[CoversClass(MoveElement::class)]
 class MoveElementTest extends TestCase
 {
-    #[TestDox('relocates the element and its subtree into the new parent slot, carries the parent attributed specifications over to the rebuilt parent, and reports the whole moved subtree as affected')]
+    #[TestDox('relocates the element and its subtree into the new parent slot, carries the parent attributed specifications over to the rebuilt parent, reports the whole moved subtree as affected, and creates nothing')]
     public function testMoveRelocatesSubtreeToNewParent(): void
     {
         $target = StoredElementBuilder::create('Sw:Block', 'target')
@@ -47,6 +47,24 @@ class MoveElementTest extends TestCase
         static::assertSame('movable', $moved[0]->id);
         static::assertSame('child', $moved[0]->slots['content'][0]->id);
         static::assertSame(['movable', 'child'], $move->affected());
+        static::assertSame([], $move->created());
+    }
+
+    #[TestDox('reuses the element current slot for a same-parent move that omits the new slot')]
+    public function testMoveSameParentWithoutSlotReusesCurrentSlot(): void
+    {
+        $parent = new StoredElement('parent', 'Sw:Block', [], [], [
+            'content' => [
+                new StoredElement('a', 'Sw:Block'),
+                new StoredElement('child', 'Sw:Block'),
+            ],
+        ]);
+
+        $move = new MoveElement('child', 'parent', null, 0);
+        $result = $move->apply(new StoredTree([$parent]));
+
+        static::assertSame(['child', 'a'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots[0]->slots['content']));
+        static::assertSame([], $move->affected());
     }
 
     /**
@@ -110,23 +128,6 @@ class MoveElementTest extends TestCase
         ];
     }
 
-    #[TestDox('reuses the element current slot for a same-parent move that omits the new slot')]
-    public function testMoveSameParentWithoutSlotReusesCurrentSlot(): void
-    {
-        $parent = new StoredElement('parent', 'Sw:Block', [], [], [
-            'content' => [
-                new StoredElement('a', 'Sw:Block'),
-                new StoredElement('child', 'Sw:Block'),
-            ],
-        ]);
-
-        $move = new MoveElement('child', 'parent', null, 0);
-        $result = $move->apply(new StoredTree([$parent]));
-
-        static::assertSame(['child', 'a'], array_map(static fn (StoredElement $e): string => $e->id, $result->roots[0]->slots['content']));
-        static::assertSame([], $move->affected());
-    }
-
     #[TestDox('moves a nested element out to the root and reports the moved subtree as affected')]
     public function testMoveToRootDetachesFromParent(): void
     {
@@ -169,19 +170,6 @@ class MoveElementTest extends TestCase
     {
         yield 'onto itself' => ['movable'];
         yield 'onto a descendant' => ['child'];
-    }
-
-    #[TestDox('creates nothing: the moved subtree keeps every node it had')]
-    public function testMoveCreatesNothing(): void
-    {
-        $tree = new StoredTree([new StoredElement('parent', 'Sw:Block', [], [], [
-            'content' => [new StoredElement('el', 'Sw:Card')],
-        ])]);
-
-        $move = new MoveElement('el');
-        $move->apply($tree);
-
-        static::assertSame([], $move->created());
     }
 
     #[TestDox('rejects moving an element absent from the tree with a 400')]

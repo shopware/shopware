@@ -88,19 +88,9 @@ class BindElementTest extends TestCase
 
         $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Product')]));
 
-        // Bind never detaches anything: orphaned()/droppedWiring()/droppedProperties() are always empty for
-        // this operation, so asserting them here would be trivially true regardless of the scenario above.
+        // Bind only rewires the existing node: it creates nothing, and never detaches anything, so
+        // orphaned()/droppedWiring()/droppedProperties() are always empty for this operation.
         static::assertSame(['el'], $bind->affected());
-    }
-
-    #[TestDox('creates nothing: binding keeps the element node it wired')]
-    public function testBindCreatesNothing(): void
-    {
-        $config = static::createStub(AbstractContentDataLoaderConfig::class);
-        $bind = new BindElement($this->registry(), 'spec-1', 'el', $this->applicator($config));
-
-        $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Product')]));
-
         static::assertSame([], $bind->created());
     }
 

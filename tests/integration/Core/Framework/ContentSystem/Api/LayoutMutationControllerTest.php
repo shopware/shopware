@@ -383,11 +383,8 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
     }
 
-    // These two tests cover the negative paths that need no shipped specification, and double as the
-    // bind-element route-wiring check: a 400 with this app-level error code (not a Symfony 404
-    // route-not-found body) proves the request reached LayoutMutationController::bind(). The positive
-    // round trip against the real shipped core:Sw:Media:Image default is
-    // testBindElementInlinesCoreSpecificationWiringAndAttribution.
+    // Doubles as the bind-element route-wiring check: a 400 with this app-level error code
+    // (not a Symfony 404 route-not-found body) proves the request reached LayoutMutationController::bind().
     #[TestDox('rejects an unknown bindingSpecificationId with a 400 and the bindingSpecificationNotFound code')]
     public function testBindElementRejectsUnknownBindingSpecification(): void
     {

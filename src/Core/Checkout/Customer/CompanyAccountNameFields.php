@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -56,12 +56,19 @@ final class CompanyAccountNameFields
         return new NotBlank(normalizer: static fn (mixed $value): mixed => \is_string($value) ? trim($value) : $value);
     }
 
-    public static function makeOptional(DataValidationDefinition $validation, Length $firstName, Length $lastName): void
+    public static function makeOptional(DataValidationDefinition $validation): void
     {
-        foreach (['firstName' => $firstName, 'lastName' => $lastName] as $property => $length) {
-            if ($validation->getProperty($property) !== []) {
-                $validation->set($property, $length);
+        foreach (['firstName', 'lastName'] as $property) {
+            $constraints = $validation->getProperty($property);
+
+            if ($constraints === []) {
+                continue;
             }
+
+            $validation->set($property, ...array_values(array_filter(
+                $constraints,
+                static fn (Constraint $constraint) => !$constraint instanceof NotBlank
+            )));
         }
     }
 

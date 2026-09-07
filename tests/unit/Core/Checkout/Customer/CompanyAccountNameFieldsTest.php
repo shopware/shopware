@@ -8,8 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 /**
  * @internal
@@ -59,6 +63,30 @@ class CompanyAccountNameFieldsTest extends TestCase
 
         static::assertSame('', $data->get('firstName'));
         static::assertFalse($data->has('lastName'));
+    }
+
+    public function testMakeOptionalKeepsEveryConstraintButNotBlank(): void
+    {
+        $length = new Length(max: 10);
+        $regex = new Regex(pattern: '/^[a-z]+$/');
+
+        $validation = new DataValidationDefinition('test');
+        $validation->add('firstName', new NotBlank(), $length, $regex);
+        $validation->add('lastName', new NotBlank(), $length);
+
+        CompanyAccountNameFields::makeOptional($validation);
+
+        static::assertSame([$length, $regex], $validation->getProperty('firstName'));
+        static::assertSame([$length], $validation->getProperty('lastName'));
+    }
+
+    public function testMakeOptionalLeavesUntouchedPropertiesAlone(): void
+    {
+        $validation = new DataValidationDefinition('test');
+
+        CompanyAccountNameFields::makeOptional($validation);
+
+        static::assertSame([], $validation->getProperties());
     }
 
     public function testCompanyNotBlankRejectsWhitespace(): void

@@ -31,7 +31,6 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('checkout')]
@@ -105,10 +104,11 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         $accountType = $data->get('accountType');
 
         if (!\is_string($accountType) || $accountType === '') {
-            $accountType = CustomerEntity::ACCOUNT_TYPE_PRIVATE;
+            $accountType = null;
         }
 
         $namesAreOptional = $customer->isBusinessAccount()
+            && $accountType !== CustomerEntity::ACCOUNT_TYPE_PRIVATE
             && !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
 
         if ($namesAreOptional) {
@@ -164,7 +164,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
     private function getValidationDefinition(
         DataBag $data,
-        string $accountType,
+        ?string $accountType,
         bool $namesAreOptional,
         bool $isCreate,
         SalesChannelContext $context
@@ -175,19 +175,15 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation = $this->addressValidationFactory->update($context);
         }
 
-        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())
-                || !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId()))
-        ) {
+        $requestSelectedBusiness = $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
+            && (bool) $this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId());
+
+        if ($namesAreOptional || $requestSelectedBusiness) {
             $validation->add('company', CompanyAccountNameFields::companyNotBlank());
         }
 
         if ($namesAreOptional) {
-            CompanyAccountNameFields::makeOptional(
-                $validation,
-                new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'),
-                new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG')
-            );
+            CompanyAccountNameFields::makeOptional($validation);
         }
 
         $validation->set('zipcode', new CustomerZipCode(countryId: $data->get('countryId')));

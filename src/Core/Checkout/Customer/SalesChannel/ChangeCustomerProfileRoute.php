@@ -32,7 +32,6 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -95,11 +94,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             }
 
             if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
-                CompanyAccountNameFields::makeOptional(
-                    $validation,
-                    new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME),
-                    new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
-                );
+                CompanyAccountNameFields::makeOptional($validation);
 
                 CompanyAccountNameFields::normalizeSubmitted($data);
             }

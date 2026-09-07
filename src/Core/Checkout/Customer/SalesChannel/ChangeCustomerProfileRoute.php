@@ -90,7 +90,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             : $customer->isBusinessAccount();
 
         if ($isBusinessAccount) {
-            $validation->add('company', new NotBlank());
+            if ($data->has('company')) {
+                $validation->add('company', CompanyAccountNameFields::companyNotBlank());
+            }
 
             if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
                 CompanyAccountNameFields::makeOptional(
@@ -98,6 +100,8 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
                     new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME),
                     new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME)
                 );
+
+                CompanyAccountNameFields::normalizeSubmitted($data);
             }
 
             $billingAddress = $customer->getDefaultBillingAddress();

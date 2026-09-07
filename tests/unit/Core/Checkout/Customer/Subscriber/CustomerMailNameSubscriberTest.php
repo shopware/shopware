@@ -73,6 +73,48 @@ class CustomerMailNameSubscriberTest extends TestCase
         static::assertSame('', $recovery->getCustomer()?->getLastName());
     }
 
+    public function testTheBlankRecipientNameIsFilledWithTheCompany(): void
+    {
+        $customer = $this->customer(CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', 'Acme GmbH');
+        $event = new MailBeforeValidateEvent(
+            ['recipients' => ['info@acme.example' => ' ']],
+            Context::createDefaultContext(),
+            ['customer' => $customer]
+        );
+
+        (new CustomerMailNameSubscriber())->onMailBeforeValidate($event);
+
+        static::assertSame(['info@acme.example' => 'Acme GmbH'], $event->getData()['recipients']);
+    }
+
+    public function testAnExistingRecipientNameIsKept(): void
+    {
+        $customer = $this->customer(CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', 'Acme GmbH');
+        $event = new MailBeforeValidateEvent(
+            ['recipients' => ['info@acme.example' => 'Purchasing']],
+            Context::createDefaultContext(),
+            ['customer' => $customer]
+        );
+
+        (new CustomerMailNameSubscriber())->onMailBeforeValidate($event);
+
+        static::assertSame(['info@acme.example' => 'Purchasing'], $event->getData()['recipients']);
+    }
+
+    public function testAnotherRecipientIsLeftAlone(): void
+    {
+        $customer = $this->customer(CustomerEntity::ACCOUNT_TYPE_BUSINESS, '', '', 'Acme GmbH');
+        $event = new MailBeforeValidateEvent(
+            ['recipients' => ['shop@example.com' => null]],
+            Context::createDefaultContext(),
+            ['customer' => $customer]
+        );
+
+        (new CustomerMailNameSubscriber())->onMailBeforeValidate($event);
+
+        static::assertSame(['shop@example.com' => null], $event->getData()['recipients']);
+    }
+
     /**
      * @return iterable<string, array{string, string, string, string|null, string}>
      */
@@ -103,6 +145,7 @@ class CustomerMailNameSubscriberTest extends TestCase
     {
         $customer = new CustomerEntity();
         $customer->setUniqueIdentifier('customer-id');
+        $customer->setEmail('info@acme.example');
         $customer->setAccountType($accountType);
         $customer->setFirstName($firstName);
         $customer->setLastName($lastName);

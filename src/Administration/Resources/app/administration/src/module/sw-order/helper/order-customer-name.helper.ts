@@ -27,7 +27,7 @@ export default function orderCustomerName(customer?: NameableOrderCustomer | nul
               .join(', ')
         : `${firstName} ${lastName}`.trim();
 
-    if (company === '' || personName === company) {
+    if (company === '' || personName === company || `${firstName} ${lastName}`.trim() === company) {
         return personName === '' ? company : personName;
     }
 

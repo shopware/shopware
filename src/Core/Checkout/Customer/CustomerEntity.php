@@ -185,13 +185,19 @@ class CustomerEntity extends Entity implements \Stringable
 
     public function getDisplayName(): string
     {
+        $personName = trim($this->getFirstName() . ' ' . $this->getLastName());
+
+        if ($personName !== '') {
+            return $personName;
+        }
+
         $company = trim($this->company ?? '');
 
         if ($company !== '' && $this->isBusinessAccount()) {
             return $company;
         }
 
-        return trim($this->getFirstName() . ' ' . $this->getLastName());
+        return $personName;
     }
 
     public function getGroupId(): string

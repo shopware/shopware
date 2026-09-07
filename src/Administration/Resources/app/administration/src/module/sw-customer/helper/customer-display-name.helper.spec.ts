@@ -23,12 +23,12 @@ describe('module/sw-customer/helper/customer-display-name.helper', () => {
             'Ada Lovelace',
         ],
         [
-            'company account uses the company',
+            'company account keeps an existing contact person',
             'business',
             'Ada',
             'Lovelace',
             'Acme GmbH',
-            'Acme GmbH',
+            'Ada Lovelace',
         ],
         [
             'company account without a contact person uses the company',

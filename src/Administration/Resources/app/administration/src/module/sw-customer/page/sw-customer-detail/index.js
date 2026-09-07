@@ -244,7 +244,6 @@ export default {
                     this.defaultCriteria,
                 );
                 this.customer = customer;
-                this.backfillCompanyFromAddress();
 
                 if (!this.customer) {
                     this.createNotificationError({
@@ -333,6 +332,8 @@ export default {
                     hasError = true;
                 }
             }
+
+            this.backfillCompanyFromAddress();
 
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();

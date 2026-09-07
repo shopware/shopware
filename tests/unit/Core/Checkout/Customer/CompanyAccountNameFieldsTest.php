@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
@@ -38,6 +39,35 @@ class CompanyAccountNameFieldsTest extends TestCase
 
         static::assertTrue(CompanyAccountNameFields::areRequired($config, TestDefaults::SALES_CHANNEL));
         static::assertTrue(CompanyAccountNameFields::areVisible($config, TestDefaults::SALES_CHANNEL));
+    }
+
+    public function testNormalizeFillsMissingNames(): void
+    {
+        $data = new DataBag(['company' => 'Acme GmbH']);
+
+        CompanyAccountNameFields::normalize($data);
+
+        static::assertSame('', $data->get('firstName'));
+        static::assertSame('', $data->get('lastName'));
+    }
+
+    public function testNormalizeSubmittedOnlyRewritesKeysTheRequestSent(): void
+    {
+        $data = new DataBag(['firstName' => null]);
+
+        CompanyAccountNameFields::normalizeSubmitted($data);
+
+        static::assertSame('', $data->get('firstName'));
+        static::assertFalse($data->has('lastName'));
+    }
+
+    public function testCompanyNotBlankRejectsWhitespace(): void
+    {
+        $normalizer = CompanyAccountNameFields::companyNotBlank()->normalizer;
+
+        static::assertIsCallable($normalizer);
+        static::assertSame('', $normalizer('   '));
+        static::assertNull($normalizer(null));
     }
 
     /**

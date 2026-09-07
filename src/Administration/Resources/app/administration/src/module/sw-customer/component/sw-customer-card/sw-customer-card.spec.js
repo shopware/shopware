@@ -90,6 +90,66 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         expect(wrapper.find('[aria-label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
     });
 
+    it('should keep the raw name fields for the avatar initials', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                accountType: 'business',
+                firstName: 'Ada',
+                lastName: 'van Halen',
+                company: 'Acme GmbH',
+            },
+        });
+
+        expect(wrapper.vm.avatarName).toEqual({ firstName: 'Ada', lastName: 'van Halen' });
+    });
+
+    it('should fall back to the company for the avatar of a nameless company account', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                accountType: 'business',
+                firstName: '',
+                lastName: '',
+                company: 'Acme GmbH',
+            },
+        });
+
+        expect(wrapper.vm.avatarName).toEqual({ firstName: 'Acme', lastName: 'GmbH' });
+    });
+
+    it('should keep the contact person in the card title', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                accountType: 'business',
+                firstName: 'Ada',
+                lastName: 'Lovelace',
+                company: 'Acme GmbH',
+            },
+        });
+
+        expect(wrapper.vm.fullName).toBe('Ada Lovelace - Acme GmbH');
+    });
+
+    it('should use the company as the card title without a contact person', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                accountType: 'business',
+                firstName: '',
+                lastName: '',
+                company: 'Acme GmbH',
+            },
+        });
+
+        expect(wrapper.vm.fullName).toBe('Acme GmbH');
+    });
+
     it('should hide vat fields when switching to private type', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

@@ -50,7 +50,7 @@ class CustomerTransformer
 
         if (trim($customer->getFirstName() . $lastName) === ''
             && ($company = trim($customer->getCompany() ?? '')) !== ''
-            && $customer->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            && $customer->isBusinessAccount()) {
             $lastName = $company;
         }
 

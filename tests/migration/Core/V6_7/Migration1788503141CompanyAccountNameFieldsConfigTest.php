@@ -8,9 +8,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1788503141CompanyAccountNameFieldsConfig;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
@@ -19,14 +20,16 @@ use Shopware\Core\Migration\V6_7\Migration1788503141CompanyAccountNameFieldsConf
 #[CoversClass(Migration1788503141CompanyAccountNameFieldsConfig::class)]
 class Migration1788503141CompanyAccountNameFieldsConfigTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use MigrationTestTrait;
+
+    private Connection $connection;
 
     protected function setUp(): void
     {
-        $connection = self::getContainer()->get(Connection::class);
+        $this->connection = KernelLifecycleManager::getConnection();
 
         foreach (self::keys() as [$key]) {
-            $connection->delete('system_config', ['configuration_key' => $key]);
+            $this->connection->delete('system_config', ['configuration_key' => $key]);
         }
     }
 
@@ -38,11 +41,9 @@ class Migration1788503141CompanyAccountNameFieldsConfigTest extends TestCase
     #[DataProvider('keys')]
     public function testMigrationWritesTheDefaultOnce(string $key): void
     {
-        $connection = self::getContainer()->get(Connection::class);
-
         $migration = new Migration1788503141CompanyAccountNameFieldsConfig();
-        $migration->update($connection);
-        $migration->update($connection);
+        $migration->update($this->connection);
+        $migration->update($this->connection);
 
         $values = $this->values($key);
         static::assertCount(1, $values);
@@ -52,21 +53,19 @@ class Migration1788503141CompanyAccountNameFieldsConfigTest extends TestCase
     #[DataProvider('keys')]
     public function testMigrationKeepsAnExistingChoice(string $key): void
     {
-        $connection = self::getContainer()->get(Connection::class);
-
         $migration = new Migration1788503141CompanyAccountNameFieldsConfig();
-        $migration->update($connection);
+        $migration->update($this->connection);
 
         $id = array_key_first($this->values($key));
         static::assertIsString($id);
 
-        $connection->update(
+        $this->connection->update(
             'system_config',
             ['configuration_value' => '{"_value": false}'],
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
-        $migration->update($connection);
+        $migration->update($this->connection);
 
         $values = $this->values($key);
         static::assertCount(1, $values);
@@ -89,7 +88,7 @@ class Migration1788503141CompanyAccountNameFieldsConfigTest extends TestCase
     {
         return array_map(
             static fn (string $json) => json_decode($json, true, 512, \JSON_THROW_ON_ERROR),
-            self::getContainer()->get(Connection::class)->fetchAllKeyValue(
+            $this->connection->fetchAllKeyValue(
                 'SELECT LOWER(HEX(`id`)), `configuration_value` FROM `system_config` WHERE `configuration_key` = ?',
                 [$key],
             )

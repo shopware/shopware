@@ -17,14 +17,18 @@ export default function customerDisplayName(customer?: NameableCustomer | null, 
         return '';
     }
 
-    const company = (customer.company ?? '').trim();
-
-    if (company !== '' && customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
-        return company;
-    }
-
     const firstName = (customer.firstName ?? '').trim();
     const lastName = (customer.lastName ?? '').trim();
+
+    if (firstName === '' && lastName === '') {
+        const company = (customer.company ?? '').trim();
+
+        if (company !== '' && customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+            return company;
+        }
+
+        return '';
+    }
 
     if (!lastNameFirst) {
         return `${firstName} ${lastName}`.trim();

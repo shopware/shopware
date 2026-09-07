@@ -74,6 +74,13 @@ describe('module/sw-order/helper/order-customer-name.helper', () => {
             null,
             'Lovelace',
         ],
+        [
+            'a company matching the natural order name is not repeated',
+            'Ada',
+            'Lovelace',
+            'Ada Lovelace',
+            'Lovelace, Ada',
+        ],
     ])('with the last name first: %s', (_name, firstName, lastName, company, expected) => {
         expect(orderCustomerName({ firstName, lastName, company }, true)).toBe(expected);
     });

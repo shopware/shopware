@@ -32,7 +32,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('checkout')]
@@ -106,13 +105,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
         $accountType = $data->get('accountType');
 
         if (!\is_string($accountType) || $accountType === '') {
-            $accountType = $customer->isBusinessAccount()
-                ? CustomerEntity::ACCOUNT_TYPE_BUSINESS
-                : CustomerEntity::ACCOUNT_TYPE_PRIVATE;
+            $accountType = CustomerEntity::ACCOUNT_TYPE_PRIVATE;
         }
 
-        // the checkout decides from the authenticated customer, so an address accepted here has to
-        // stay usable there. the request account type only drives the company requirement.
         $namesAreOptional = $customer->isBusinessAccount()
             && !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
 
@@ -180,13 +175,11 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation = $this->addressValidationFactory->update($context);
         }
 
-        $nameFieldsRequired = CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
-
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
-            && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection')
-                || !$nameFieldsRequired)
+            && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())
+                || !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId()))
         ) {
-            $validation->add('company', new NotBlank());
+            $validation->add('company', CompanyAccountNameFields::companyNotBlank());
         }
 
         if ($namesAreOptional) {

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
@@ -144,7 +145,7 @@ class RegisterRouteTest extends TestCase
         $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) use ($definition) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
-                $definition->add('company', new NotBlank());
+                $definition->add('company', CompanyAccountNameFields::companyNotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
 
                 static::assertSame($event->getDefinition()->getProperties(), $definition->getProperties());
@@ -209,7 +210,7 @@ class RegisterRouteTest extends TestCase
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
-                $definition->add('company', new NotBlank());
+                $definition->add('company', CompanyAccountNameFields::companyNotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: null));
                 $definition->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE));
 
@@ -272,7 +273,7 @@ class RegisterRouteTest extends TestCase
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
-                $definition->add('company', new NotBlank());
+                $definition->add('company', CompanyAccountNameFields::companyNotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
                 $definition->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE));
 

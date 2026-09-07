@@ -195,17 +195,21 @@ export default {
                 hasError = true;
             }
 
-            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
-                this.customer.company = this.resolvedCompany;
-                this.address.company = this.resolvedCompany;
-            }
-
             if (hasError) {
                 this.createNotificationError({
                     message: this.$t('sw-customer.detail.messageSaveError'),
                 });
                 this.isLoading = false;
                 return false;
+            }
+
+            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                this.customer.company = this.resolvedCompany;
+                this.address.company = this.resolvedCompany;
+                this.customer.firstName ??= '';
+                this.customer.lastName ??= '';
+                this.address.firstName ??= '';
+                this.address.lastName ??= '';
             }
 
             const languageId = await this.languageId;

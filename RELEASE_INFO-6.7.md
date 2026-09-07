@@ -129,7 +129,10 @@ Custom number range increment storages can implement `AbstractIncrementStorage::
 
 The first and last name fields of `customer`, `customer_address`, `order_customer` and `order_address` now carry the `AllowEmptyString` flag. The columns stay `NOT NULL` and the getters keep returning `string`, but an empty string is accepted on every write path, including the Admin API, for private accounts as well. Extensions that relied on the data abstraction layer rejecting an empty name must validate it themselves.
 
-`CustomerEntity::getDisplayName()` returns the company name for a commercial account and the person name otherwise. Prefer it over concatenating `firstName` and `lastName` when rendering a customer. `CustomerTransformer` fills the order customer snapshot from the company name when a commercial account has no contact person, so documents and mail templates keep naming the buyer.
+`CustomerEntity::getDisplayName()` returns the person name, and falls back to the company name when a commercial account has no contact person. Prefer it over concatenating `firstName` and `lastName` when rendering a customer. `CustomerTransformer` fills the order customer snapshot from the company name when a commercial account has no contact person, so documents and mail templates keep naming the buyer.
+
+The Administration changeset generator keeps an empty string instead of turning it into `null` when the field carries both the `Required` and the `AllowEmptyString` flag. Those fields reject `null`, so an empty string was impossible to save from the Administration before. Every other field is unchanged.
+
 
 ### Invoice buyer names no longer repeat the company name
 

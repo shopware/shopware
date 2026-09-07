@@ -58,11 +58,18 @@ export default {
 
     computed: {
         avatarName() {
-            const name = customerDisplayName(this.customer).split(' ');
+            const firstName = (this.customer.firstName ?? '').trim();
+            const lastName = (this.customer.lastName ?? '').trim();
+
+            if (firstName !== '' || lastName !== '') {
+                return { firstName, lastName };
+            }
+
+            const parts = customerDisplayName(this.customer).split(' ');
 
             return {
-                firstName: name[0] ?? '',
-                lastName: name.length > 1 ? name[name.length - 1] : '',
+                firstName: parts[0] ?? '',
+                lastName: parts.length > 1 ? parts[parts.length - 1] : '',
             };
         },
 
@@ -86,21 +93,19 @@ export default {
         },
 
         fullName() {
+            const personName = this.salutation(this.customer);
             const company = (this.customer.company ?? '').trim();
 
-            if (company !== '' && this.isBusinessAccountType) {
-                return company;
+            if (personName === '') {
+                return this.isBusinessAccountType ? company : '';
             }
 
-            const name = {
-                name: this.salutation(this.customer),
-                company: this.customer.company,
-            };
-
-            return Object.values(name)
-                .filter((item) => item !== null)
-                .join(' - ')
-                .trim();
+            return [
+                personName,
+                company,
+            ]
+                .filter((part) => part !== '')
+                .join(' - ');
         },
 
         salutationCriteria() {

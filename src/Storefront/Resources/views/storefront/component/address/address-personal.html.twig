@@ -153,10 +153,9 @@
             {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
             {% set companyNameFieldsRequired = companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
 
-            {% set personNameRequired = onlyCompanyRegistration
-                ? companyNameFieldsRequired
-                : (companyNameFieldsRequired or not config('core.loginRegistration.showAccountTypeSelection')) %}
-            {% set personNameShown = companyNameFieldsShown or not onlyCompanyRegistration %}
+            {% set companyOnlyForm = onlyCompanyRegistration or hasSelectedBusiness %}
+            {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}
+            {% set personNameShown = companyNameFieldsShown or not companyOnlyForm %}
 
             {% if personNameShown %}
             {% block component_address_personal_fields_first_name %}

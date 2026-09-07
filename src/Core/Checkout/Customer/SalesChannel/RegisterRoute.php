@@ -458,7 +458,7 @@ class RegisterRoute extends AbstractRegisterRoute
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && ($this->systemConfigService->get('core.loginRegistration.showAccountTypeSelection', $context->getSalesChannelId())
                 || !$this->nameFieldsRequiredForCompanyAccounts($context))) {
-            $validation->add('company', new NotBlank());
+            $validation->add('company', CompanyAccountNameFields::companyNotBlank());
         }
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS

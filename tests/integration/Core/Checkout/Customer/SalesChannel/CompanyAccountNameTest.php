@@ -112,6 +112,36 @@ class CompanyAccountNameTest extends TestCase
         );
     }
 
+    public function testProfileStaysSavableWithoutTheAccountTypeBlock(): void
+    {
+        $this->setNameFields(show: true, required: false);
+        $this->register($this->companyRegistrationData());
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $this->systemConfigService->set('core.loginRegistration.showAccountTypeSelection', false);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/change-profile',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => '',
+                'lastName' => '',
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        static::assertSame(
+            Response::HTTP_OK,
+            $this->browser->getResponse()->getStatusCode(),
+            'a form without the account type block never posts a company: ' . (string) $this->browser->getResponse()->getContent()
+        );
+
+        static::assertSame('Acme GmbH', $this->loadCustomer('company-no-contact@example.com')->getCompany());
+    }
+
     public function testCompanyAccountStillNeedsACompanyName(): void
     {
         $this->setNameFields(show: true, required: false);

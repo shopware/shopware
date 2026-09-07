@@ -235,8 +235,8 @@ class CustomerEntityTest extends TestCase
             CustomerEntity::ACCOUNT_TYPE_PRIVATE, 'Ada', 'Lovelace', 'Analytical Engines', 'Ada Lovelace',
         ];
 
-        yield 'company account uses the company' => [
-            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', 'Analytical Engines', 'Analytical Engines',
+        yield 'company account keeps an existing contact person' => [
+            CustomerEntity::ACCOUNT_TYPE_BUSINESS, 'Ada', 'Lovelace', 'Analytical Engines', 'Ada Lovelace',
         ];
 
         yield 'company account without a contact person uses the company' => [

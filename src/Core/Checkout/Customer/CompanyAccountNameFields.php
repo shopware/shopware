@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
@@ -39,6 +40,20 @@ final class CompanyAccountNameFields
                 $data->set($property, '');
             }
         }
+    }
+
+    public static function normalizeSubmitted(DataBag $data): void
+    {
+        foreach (['firstName', 'lastName'] as $property) {
+            if ($data->has($property) && $data->get($property) === null) {
+                $data->set($property, '');
+            }
+        }
+    }
+
+    public static function companyNotBlank(): NotBlank
+    {
+        return new NotBlank(normalizer: static fn (mixed $value): mixed => \is_string($value) ? trim($value) : $value);
     }
 
     public static function makeOptional(DataValidationDefinition $validation, Length $firstName, Length $lastName): void

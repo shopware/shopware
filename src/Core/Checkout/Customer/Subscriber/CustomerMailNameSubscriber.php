@@ -26,9 +26,12 @@ class CustomerMailNameSubscriber implements EventSubscriberInterface
         $templateData = $event->getTemplateData();
         $changed = false;
 
+        $renderCustomers = [];
+
         $customer = $this->renderCustomer($templateData['customer'] ?? null);
         if ($customer !== null) {
             $templateData['customer'] = $customer;
+            $renderCustomers[] = $customer;
             $changed = true;
         }
 
@@ -40,12 +43,40 @@ class CustomerMailNameSubscriber implements EventSubscriberInterface
                 $renderRecovery = clone $recovery;
                 $renderRecovery->setCustomer($recoveryCustomer);
                 $templateData['customerRecovery'] = $renderRecovery;
+                $renderCustomers[] = $recoveryCustomer;
                 $changed = true;
             }
         }
 
         if ($changed) {
             $event->setTemplateData($templateData);
+            $this->renameRecipients($event, $renderCustomers);
+        }
+    }
+
+    /**
+     * @param list<CustomerEntity> $renderCustomers
+     */
+    private function renameRecipients(MailBeforeValidateEvent $event, array $renderCustomers): void
+    {
+        $data = $event->getData();
+        $recipients = $data['recipients'] ?? [];
+        $changed = false;
+
+        foreach ($renderCustomers as $renderCustomer) {
+            $email = $renderCustomer->getEmail();
+
+            if (!\array_key_exists($email, $recipients) || trim((string) $recipients[$email]) !== '') {
+                continue;
+            }
+
+            $recipients[$email] = $renderCustomer->getLastName();
+            $changed = true;
+        }
+
+        if ($changed) {
+            $data['recipients'] = $recipients;
+            $event->setData($data);
         }
     }
 

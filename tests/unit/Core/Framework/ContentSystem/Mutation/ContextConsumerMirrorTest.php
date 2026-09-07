@@ -382,7 +382,8 @@ class ContextConsumerMirrorTest extends TestCase
     }
 
     /**
-     * One row per guard in ContextConsumerMirror::consumerFor().
+     * One row per guard in ContextConsumerMirror::consumerFor(), plus two extra rows for the integer-like
+     * context-key guard to cover both a zero and a negative integer-like string.
      *
      * @return iterable<string, array{0: PropertyResolution}>
      */
@@ -416,6 +417,26 @@ class ContextConsumerMirrorTest extends TestCase
             null,
             self::PRODUCT_FQCN,
             new ResolutionCandidate(CandidateOrigin::Parent, '', null, null, DistributionStrategy::Broadcast, ContextType::Single),
+        )];
+
+        yield 'proven candidate carrying an integer-like context key "0"' => [new PropertyResolution(
+            'product',
+            PropertyKind::Reference,
+            true,
+            null,
+            null,
+            self::PRODUCT_FQCN,
+            new ResolutionCandidate(CandidateOrigin::Parent, '0', null, null, DistributionStrategy::Broadcast, ContextType::Single),
+        )];
+
+        yield 'proven candidate carrying an integer-like context key "-7"' => [new PropertyResolution(
+            'product',
+            PropertyKind::Reference,
+            true,
+            null,
+            null,
+            self::PRODUCT_FQCN,
+            new ResolutionCandidate(CandidateOrigin::Parent, '-7', null, null, DistributionStrategy::Broadcast, ContextType::Single),
         )];
     }
 

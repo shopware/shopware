@@ -169,6 +169,12 @@ class ContextConsumerMirror
             return null;
         }
 
+        // An integer-like key ("0", "42") is coerced to an int array key on write below, and the decode gate
+        // ({@see StoredElementWiringDecoder::decodeConsumers()}) rejects a non-string consumer key.
+        if ((string) (int) $key === $key) {
+            return null;
+        }
+
         // The written property must be the reference property whose resolution proved the consumer, or delivery
         // fills a foreign key while the declared property stays empty.
         $propertyAlias = $resolution->key !== $key ? $resolution->key : null;

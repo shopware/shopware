@@ -10,9 +10,11 @@ public-surface allowlist. Only the draft pipeline calls it, so a persisted mutat
 ## What proves a consumer
 
 A resolution yields a consumer only when its `kind` is `Reference`, its `resolved` candidate is non-null with a
-non-empty `contextKey` and a non-null `contextType`, and that candidate's origin is `Parent` or `Root`
-(`scope: ConsumerScope::Root`). `Loader` and `Stored` origins fill themselves and are skipped, as is a `null`
-`resolved`.
+non-empty, non-integer-like `contextKey` and a non-null `contextType`, and that candidate's origin is `Parent` or
+`Root` (`scope: ConsumerScope::Root`). `Loader` and `Stored` origins fill themselves and are skipped, as is a `null`
+`resolved`. An integer-like `contextKey` (e.g. `"0"`, `"42"`) is skipped too: PHP coerces such a key to an int on
+the consumer-map write, and `StoredElementWiringDecoder::decodeConsumers()` rejects a non-string consumer key at
+decode time.
 
 The consumer is keyed by the resolved `contextKey`. It carries `propertyAlias: $resolution->key` whenever the
 resolution's own key differs from that `contextKey`, and `null` when they are equal, because the property key the

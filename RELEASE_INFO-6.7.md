@@ -1,3 +1,11 @@
+# 6.7.14.1
+
+## API
+
+### User and integration cloning is no longer available
+
+`POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
+
 # 6.7.14.0
 
 ## Features
@@ -11,10 +19,6 @@ Rule Builder and Flow Builder are now reachable from a dedicated top-level "Auto
 Apps can now modify or remove cookie consent groups and entries with an app script under `Resources/scripts/cookie-group-collect/`. The hook exposes the collected `cookieGroups` collection and the current sales channel context, and provides the `services.repository`, `services.store` and `services.config` script services. Scripts run after cookies from plugins and app manifests were collected, so an app can, for example, declare its cookies in the manifest and remove them when the related payment method is not active in the current sales channel — with full backwards compatibility, since older Shopware versions simply ignore scripts for unknown hooks.
 
 ## API
-
-### User and integration cloning is no longer available
-
-`POST /api/_action/clone/user/{id}` and `POST /api/_action/clone/integration/{id}` now return `403`. User and integration records can no longer be cloned through the Admin API.
 
 ### Added experimental Store API snippet endpoint
 

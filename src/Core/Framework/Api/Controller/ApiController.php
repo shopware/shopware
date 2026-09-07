@@ -650,7 +650,7 @@ class ApiController extends AbstractController
 
         $last = $pathSegments[\count($pathSegments) - 1];
 
-        if ($type === self::WRITE_CREATE && !empty($last['value'])) {
+        if ($type === self::WRITE_CREATE && $last['value'] !== null && $last['value'] !== '') {
             $methods = ['GET', 'PATCH', 'DELETE'];
 
             throw ApiException::methodNotAllowed($methods, \sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));

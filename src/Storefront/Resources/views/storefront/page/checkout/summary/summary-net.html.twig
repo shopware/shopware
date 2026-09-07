@@ -1,4 +1,14 @@
 {% block page_checkout_summary_net %}
+    {% block page_checkout_summary_net_hint %}
+        {% if summary.priceModifiers|filter(modifier => modifier.priceDefinition.taxExempt ?? modifier.taxExempt)|length > 0 %}
+            <dd class="col-12 checkout-aside-summary-hint summary-net-hint">
+                <small class="text-muted">
+                    {{ 'checkout.summaryNetHint'|trans|sw_sanitize }}
+                </small>
+            </dd>
+        {% endif %}
+    {% endblock %}
+
     {% block page_checkout_summary_net_label %}
         <dt class="col-7 checkout-aside-summary-label summary-net">
             {{ 'checkout.summaryNetPrice'|trans|sw_sanitize }}

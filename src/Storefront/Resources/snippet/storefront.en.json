@@ -480,6 +480,7 @@
     "summaryTotalPrice": "Grand total",
     "summaryTotalPriceRounded": "Rounded total",
     "summaryNetPrice": "Net total",
+    "summaryNetHint": "Net and VAT reflect the full value of the goods/services supplied. If part of the amount was already settled by a prepaid, VAT-neutral value voucher, the total below will be lower than net plus VAT.",
     "summaryTax": "plus %rate%% VAT",
     "summaryTaxLabeled": "plus %rate%% %label%",
     "summaryTaxInclude": "incl. %rate%% VAT",

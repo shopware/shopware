@@ -25,6 +25,7 @@ class OrderException extends HttpException
     final public const ORDER_ORDER_CANCELLED_CODE = 'CHECKOUT__ORDER_ORDER_CANCELLED';
     final public const ORDER_ORDER_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_NOT_FOUND';
     final public const ORDER_MISSING_ORDER_NUMBER_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_NUMBER';
+    final public const ORDER_MISSING_VERSION_ID_CODE = 'CHECKOUT__ORDER_MISSING_VERSION_ID';
     final public const ORDER_MISSING_TRANSACTIONS_CODE = 'CHECKOUT__ORDER_MISSING_TRANSACTIONS';
     final public const ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_NOT_FOUND';
     final public const ORDER_PAYMENT_METHOD_UNAVAILABLE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE';
@@ -147,6 +148,16 @@ class OrderException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::ORDER_MISSING_ORDER_NUMBER_CODE,
             'Order with id {{ orderId }} has no order number.',
+            ['orderId' => $orderId]
+        );
+    }
+
+    public static function missingVersionId(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ORDER_MISSING_VERSION_ID_CODE,
+            'Order with id {{ orderId }} has no version id.',
             ['orderId' => $orderId]
         );
     }

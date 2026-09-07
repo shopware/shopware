@@ -42,6 +42,10 @@ Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Web
 
 `\Shopware\Core\Framework\Event\EventData\EventDataCollection` is now `final` and `add()` takes `array $options = []` as third parameter.
 
+## `AmountCalculator::calculate()` has an `$additionalCosts` parameter
+
+`\Shopware\Core\Checkout\Cart\Price\AmountCalculator::calculate()` takes `?PriceCollection $additionalCosts = null` as fourth parameter. If you extend `AmountCalculator` and override `calculate()`, add the parameter to your signature and pass it to `parent::calculate()`.
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.

@@ -118,7 +118,8 @@ class CheckoutFinishPageLoader
             ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
             ->addAssociation('billingAddress.countryState')
-            ->addAssociation('currency');
+            ->addAssociation('currency')
+            ->addAssociation('priceModifications');
 
         if (!Feature::isActive('v6.8.0.0')) {
             $criteria

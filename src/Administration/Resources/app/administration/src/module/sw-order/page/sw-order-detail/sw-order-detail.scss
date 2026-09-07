@@ -34,14 +34,22 @@
             padding: 0;
         }
 
-        dd {
+        dd:not(.sw-order-detail__summary-actions-cell) {
             width: 160px;
             padding-right: 40px;
+        }
+
+        // The 3rd grid column (edit/delete/add icons) is sized to its own content instead of the
+        // fixed amount-column width above, so it stays compact instead of forcing a wide gap. It
+        // has no row divider of its own — the label/value cells already draw one across the row.
+        .sw-order-detail__summary-actions-cell {
+            width: auto;
+            border-bottom: none;
         }
     }
 
     .sw-order-detail__summary:has(.sw-order-saveable-field) {
-        dd {
+        dd:not(.sw-order-detail__summary-actions-cell) {
             width: 200px;
 
             &:has(.sw-order-saveable-field) {

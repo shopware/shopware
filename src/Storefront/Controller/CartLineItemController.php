@@ -2,14 +2,17 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartCodeClaimHandlerInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\PriceModifier\PriceModifierIdExtension;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
@@ -38,14 +41,17 @@ class CartLineItemController extends StorefrontController
 {
     /**
      * @internal
+     *
+     * @param iterable<CartCodeClaimHandlerInterface> $codeClaimHandlers
      */
     public function __construct(
         private readonly CartService $cartService,
-        private readonly PromotionItemBuilder $promotionItemBuilder,
         private readonly LineItemFactoryInterface $productLineItemFactory,
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly AbstractProductListRoute $productListRoute,
-        private readonly LineItemFactoryRegistry $lineItemFactoryRegistry
+        private readonly LineItemFactoryRegistry $lineItemFactoryRegistry,
+        private readonly LoggerInterface $logger,
+        private readonly iterable $codeClaimHandlers = []
     ) {
     }
 
@@ -136,14 +142,67 @@ class CartLineItemController extends StorefrontController
                     return $this->createActionResponse($request);
                 }
 
-                $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
+                $claimant = null;
+                foreach ($this->codeClaimHandlers as $handler) {
+                    if ($handler->claim($code, $context)) {
+                        if ($claimant instanceof CartCodeClaimHandlerInterface) {
+                            throw CartException::ambiguousCodeClaim($code, $claimant, $handler);
+                        }
 
-                $cart = $this->cartService->add($cart, $lineItem, $context);
+                        $claimant = $handler;
+                    }
+                }
+
+                if ($claimant instanceof CartCodeClaimHandlerInterface) {
+                    $cart = $claimant->handle($code, $cart, $context);
+
+                    $message = $claimant->getSuccessMessage();
+                    if ($message !== null) {
+                        $this->addFlash(self::SUCCESS, $this->trans($message));
+                    }
+                } else {
+                    // No handler claimed the code -- conclusively not a real promotion, so flash
+                    // directly instead of adding a placeholder line item just to re-derive that.
+                    $cart->addErrors(new PromotionNotFoundError($this->htmlSanitizer->sanitize($code, null, true)));
+                }
 
                 $this->traceErrors($cart);
+            } catch (CartException $e) {
+                if ($e->getErrorCode() === CartException::CART_AMBIGUOUS_CODE_CLAIM_CODE) {
+                    $this->logger->error($e->getMessage(), ['exception' => $e]);
+                }
+
+                $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             } catch (\Exception) {
                 $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }
+
+            return $this->createActionResponse($request);
+        });
+    }
+
+    /**
+     * Removes a PriceModifier by id, without any knowledge of what plugin produced or activated it.
+     * Only an id activated through PriceModifierIdExtension is removable; any other one (not active,
+     * or a modifier the customer can't remove, e.g. a mandatory fee) is reported as an error.
+     */
+    #[Route(path: '/checkout/price-modifier/delete/{id}', name: 'frontend.checkout.price-modifier.delete', defaults: ['XmlHttpRequest' => true], methods: ['POST', 'DELETE'])]
+    public function deletePriceModifier(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
+    {
+        return Profiler::trace('cart::delete-price-modifier', function () use ($cart, $id, $request, $context) {
+            $extension = $cart->getExtension(PriceModifierIdExtension::KEY);
+
+            if (!$extension instanceof PriceModifierIdExtension || !$extension->has($id)) {
+                $this->addFlash(self::DANGER, $this->trans('error.message-default'));
+
+                return $this->createActionResponse($request);
+            }
+
+            $extension->remove($id);
+            $cart->addExtension(PriceModifierIdExtension::KEY, $extension);
+            $this->cartService->recalculate($cart, $context);
+
+            $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
 
             return $this->createActionResponse($request);
         });

@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartCodeClaimHandlerInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -13,8 +15,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Checkout\PriceModifier\PriceModifierIdExtension;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -54,19 +56,20 @@ class CartLineItemControllerTest extends TestCase
 
     private ContainerInterface&Stub $container;
 
-    private PromotionItemBuilder&Stub $promotionItemBuilderMock;
-
     private AbstractProductListRoute&Stub $productListRouteMock;
 
     private ProductLineItemFactory&Stub $productLineItemFactoryMock;
+
+    private HtmlSanitizer&Stub $htmlSanitizerMock;
 
     protected function setUp(): void
     {
         $this->lineItemRegistryMock = static::createStub(LineItemFactoryRegistry::class);
         $this->cartService = static::createStub(CartService::class);
-        $this->promotionItemBuilderMock = static::createStub(PromotionItemBuilder::class);
         $this->productListRouteMock = static::createStub(AbstractProductListRoute::class);
         $this->productLineItemFactoryMock = static::createStub(ProductLineItemFactory::class);
+        $this->htmlSanitizerMock = static::createStub(HtmlSanitizer::class);
+        $this->htmlSanitizerMock->method('sanitize')->willReturnArgument(0);
 
         $this->controller = $this->getController();
 
@@ -551,23 +554,18 @@ class CartLineItemControllerTest extends TestCase
         $request = new Request([], ['code' => $code]);
         $cart = new Cart(Uuid::randomHex());
         $context = static::createStub(SalesChannelContext::class);
-        $uniqueKey = PromotionItemBuilder::PLACEHOLDER_PREFIX . $code;
-        $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
-        $item->setLabel($code);
-        $cart->addErrors(new PromotionCartAddedInformationError($item));
-
-        $this->promotionItemBuilderMock->method('buildPlaceholderItem')->willReturn($item);
 
         $cartService = $this->createMock(CartService::class);
-        $cartService->expects($this->once())
-            ->method('add')
-            ->with($cart, $item, $context)
-            ->willReturn($cart);
+        $cartService->expects($this->never())->method('add');
 
         $this->translatorCallback();
 
         $controller = $this->getController(cartService: $cartService);
         $controller->addPromotion($cart, $request, $context);
+
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotFoundError::class, $error);
+        static::assertSame($code, $error->getParameters()['code']);
     }
 
     public function testAddPromotionOtherExceptions(): void
@@ -577,24 +575,24 @@ class CartLineItemControllerTest extends TestCase
         $request = new Request([], ['code' => $code]);
         $cart = new Cart(Uuid::randomHex());
         $context = static::createStub(SalesChannelContext::class);
-        $uniqueKey = PromotionItemBuilder::PLACEHOLDER_PREFIX . $code;
-        $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
-        $item->setLabel($code);
-        $cart->addErrors(new GenericCartError('d', 's', [], 0, false, true, false));
-
-        $this->promotionItemBuilderMock->method('buildPlaceholderItem')->willReturn($item);
+        $existingError = new GenericCartError('d', 's', [], 0, false, true, false);
+        $cart->addErrors($existingError);
 
         $cartService = $this->createMock(CartService::class);
-        $cartService->expects($this->once())
-            ->method('add')
-            ->with($cart, $item, $context)
-            ->willReturn($cart);
+        $cartService->expects($this->never())->method('add');
 
         $session = new Session(new MockArraySessionStorage());
         $this->translatorCallback($session);
 
         $controller = $this->getController(cartService: $cartService);
         $controller->addPromotion($cart, $request, $context);
+
+        // The pre-existing error survives untouched, and the not-found error for this
+        // submission is added alongside it -- neither is dropped by the other.
+        $errors = $cart->getErrors()->getElements();
+        static::assertCount(2, $errors);
+        static::assertContains($existingError, $errors);
+        static::assertInstanceOf(PromotionNotFoundError::class, $cart->getErrors()->last());
     }
 
     public function testAddPromotionNoCode(): void
@@ -604,10 +602,6 @@ class CartLineItemControllerTest extends TestCase
         $request = new Request([], ['code' => $code]);
         $cart = new Cart(Uuid::randomHex());
         $context = static::createStub(SalesChannelContext::class);
-        $uniqueKey = PromotionItemBuilder::PLACEHOLDER_PREFIX . $code;
-        $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
-
-        $this->promotionItemBuilderMock->method('buildPlaceholderItem')->willReturn($item);
 
         $cartService = $this->createMock(CartService::class);
         $cartService->expects($this->never())
@@ -617,6 +611,96 @@ class CartLineItemControllerTest extends TestCase
 
         $controller = $this->getController(cartService: $cartService);
         $controller->addPromotion($cart, $request, $context);
+    }
+
+    public function testAddPromotionClaimedByHandlerSkipsPromotionFallback(): void
+    {
+        $code = Uuid::randomHex();
+
+        $request = new Request([], ['code' => $code]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = static::createStub(SalesChannelContext::class);
+        $handledCart = new Cart(Uuid::randomHex());
+
+        $handler = $this->createMock(CartCodeClaimHandlerInterface::class);
+        $handler->expects($this->once())->method('claim')->with($code, $context)->willReturn(true);
+        $handler->expects($this->once())->method('handle')->with($code, $cart, $context)->willReturn($handledCart);
+        $handler->method('getSuccessMessage')->willReturn('checkout.codeAddedSuccessful');
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->never())->method('add');
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $controller = $this->getController(cartService: $cartService, codeClaimHandlers: [$handler]);
+        $controller->addPromotion($cart, $request, $context);
+
+        static::assertArrayHasKey('success', $session->getFlashBag()->peekAll());
+    }
+
+    public function testAddPromotionNoHandlerClaimsFlashesNotFoundError(): void
+    {
+        $code = Uuid::randomHex();
+
+        $request = new Request([], ['code' => $code]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = static::createStub(SalesChannelContext::class);
+
+        $handler = $this->createMock(CartCodeClaimHandlerInterface::class);
+        $handler->expects($this->once())->method('claim')->with($code, $context)->willReturn(false);
+        $handler->expects($this->never())->method('handle');
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->never())->method('add');
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $controller = $this->getController(cartService: $cartService, codeClaimHandlers: [$handler]);
+        $controller->addPromotion($cart, $request, $context);
+
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotFoundError::class, $error);
+        static::assertSame($code, $error->getParameters()['code']);
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testAddPromotionAmbiguousClaimIsLoggedAndFlashedAsDanger(): void
+    {
+        $code = Uuid::randomHex();
+
+        $request = new Request([], ['code' => $code]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = static::createStub(SalesChannelContext::class);
+
+        $firstHandler = $this->createMock(CartCodeClaimHandlerInterface::class);
+        $firstHandler->method('claim')->with($code, $context)->willReturn(true);
+        $firstHandler->expects($this->never())->method('handle');
+
+        $secondHandler = $this->createMock(CartCodeClaimHandlerInterface::class);
+        $secondHandler->method('claim')->with($code, $context)->willReturn(true);
+        $secondHandler->expects($this->never())->method('handle');
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->never())->method('add');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                static::stringContains($code),
+                static::callback(static fn (array $context): bool => ($context['exception'] ?? null) instanceof CartException
+                    && $context['exception']->getErrorCode() === CartException::CART_AMBIGUOUS_CODE_CLAIM_CODE),
+            );
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $controller = $this->getController(cartService: $cartService, logger: $logger, codeClaimHandlers: [$firstHandler, $secondHandler]);
+        $controller->addPromotion($cart, $request, $context);
+
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
     }
 
     public function testChangeQuantity(): void
@@ -723,6 +807,56 @@ class CartLineItemControllerTest extends TestCase
         $controller->deleteLineItem($cart, $id, $request, $context);
 
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testDeletePriceModifierRemovesActiveIdAndRecalculates(): void
+    {
+        $id = Uuid::randomHex();
+        $otherId = Uuid::randomHex();
+
+        $extension = new PriceModifierIdExtension();
+        $extension->add($id);
+        $extension->add($otherId);
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->addExtension(PriceModifierIdExtension::KEY, $extension);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->once())
+            ->method('recalculate')
+            ->with(static::callback(static function (Cart $recalculated) use ($otherId): bool {
+                $ids = $recalculated->getExtensionOfType(PriceModifierIdExtension::KEY, PriceModifierIdExtension::class);
+
+                return $ids !== null && $ids->getIds() === [$otherId];
+            }), $context)
+            ->willReturn($cart);
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $controller = $this->getController(cartService: $cartService);
+        $controller->deletePriceModifier($cart, $id, new Request(), $context);
+
+        static::assertSame(['success'], array_keys($session->getFlashBag()->peekAll()));
+    }
+
+    public function testDeletePriceModifierWithIdNotActivatedThroughTheExtensionFlashesError(): void
+    {
+        // e.g. a mandatory fee: it has an id, but was never activated by the customer.
+        $extension = new PriceModifierIdExtension();
+        $extension->add(Uuid::randomHex());
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->addExtension(PriceModifierIdExtension::KEY, $extension);
+
+        $this->assertDeletePriceModifierIsRejected($cart, Uuid::randomHex());
+        static::assertCount(1, $extension->getIds());
+    }
+
+    public function testDeletePriceModifierWithoutAnyActiveIdsFlashesError(): void
+    {
+        $this->assertDeletePriceModifierIsRejected(new Cart(Uuid::randomHex()), Uuid::randomHex());
     }
 
     public function testDeleteLineItems(): void
@@ -878,19 +1012,39 @@ class CartLineItemControllerTest extends TestCase
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
     }
 
+    private function assertDeletePriceModifierIsRejected(Cart $cart, string $id): void
+    {
+        $cartService = $this->createMock(CartService::class);
+        $cartService->expects($this->never())->method('recalculate');
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $controller = $this->getController(cartService: $cartService);
+        $controller->deletePriceModifier($cart, $id, new Request(), static::createStub(SalesChannelContext::class));
+
+        static::assertSame(['danger'], array_keys($session->getFlashBag()->peekAll()));
+    }
+
+    /**
+     * @param iterable<CartCodeClaimHandlerInterface> $codeClaimHandlers
+     */
     private function getController(
         ?CartService $cartService = null,
         ?ProductLineItemFactory $productLineItemFactory = null,
         ?AbstractProductListRoute $productListRoute = null,
-        ?LineItemFactoryRegistry $lineItemRegistry = null
+        ?LineItemFactoryRegistry $lineItemRegistry = null,
+        ?LoggerInterface $logger = null,
+        iterable $codeClaimHandlers = []
     ): CartLineItemController {
         $controller = new CartLineItemController(
             $cartService ?? $this->cartService,
-            $this->promotionItemBuilderMock,
             $productLineItemFactory ?? $this->productLineItemFactoryMock,
-            static::createStub(HtmlSanitizer::class),
+            $this->htmlSanitizerMock,
             $productListRoute ?? $this->productListRouteMock,
             $lineItemRegistry ?? $this->lineItemRegistryMock,
+            $logger ?? static::createStub(LoggerInterface::class),
+            $codeClaimHandlers,
         );
 
         if (isset($this->container)) {

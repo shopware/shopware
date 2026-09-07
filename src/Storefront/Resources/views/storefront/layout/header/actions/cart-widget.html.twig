@@ -1,3 +1,11 @@
+{# positionPrice is deliberately just the line-item subtotal (see AmountCalculator) — add the
+   active price modifiers back in so the badge reflects a voucher/surcharge the way it will
+   actually be charged, while still leaving shipping out (unknown/irrelevant here). #}
+{% set headerCartTotal = page.cart.priceModifiers|reduce(
+    (carry, modifier) => carry + modifier.price.totalPrice,
+    page.cart.price.positionPrice
+) %}
+
 {% block layout_header_actions_cart_widget %}
     <span class="header-cart-icon">
         {% sw_icon 'bag' %}
@@ -6,7 +14,7 @@
         <span class="badge bg-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
     {% endif %}
     <span class="header-cart-total d-none d-sm-inline-block ms-sm-2">
-        {{ page.cart.price.positionPrice|currency }}
+        {{ headerCartTotal|currency }}
     </span>
 
     {# Live updates of the cart will be shown by the offcanvas #}
@@ -16,7 +24,7 @@
     >
         {{ 'checkout.cartScreenReaderUpdate'|trans({
                 '%count%': page.cart.lineItems|length,
-                '%total%': page.cart.price.positionPrice|currency,
+                '%total%': headerCartTotal|currency,
             })|sw_sanitize }}
     </span>
 {% endblock %}

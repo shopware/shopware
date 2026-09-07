@@ -28,12 +28,40 @@ Extends the basic offcanvas component with additional cart styles.
     }
 }
 
-.offcanvas-shipping-info {
+.offcanvas-shipping-info,
+.offcanvas-summary-price-modifier {
     justify-content: space-between;
 
     > * {
         width: initial;
     }
+}
+
+// A bare <input type="submit">, not a Bootstrap .btn — any .btn variant (even btn-sm) carries a
+// border, background and padding sized for buttons with text, which made a lone small "x" look
+// oversized in front of the label. This is deliberately unstyled beyond a compact clickable "x".
+.summary-price-modifier-remove-button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin-right: 6px;
+    font-size: 1rem;
+    line-height: 1;
+    vertical-align: middle;
+    color: $danger;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+        color: shade-color($danger, 20%);
+    }
+}
+
+.summary-price-modifier-info {
+    margin-left: 4px;
+    color: $secondary;
+    cursor: help;
+    vertical-align: middle;
 }
 
 .offcanvas-cart-promotion-form {
@@ -77,5 +105,9 @@ Extends the basic offcanvas component with additional cart styles.
     .summary-value,
     .shipping-value {
         text-align: right;
+    }
+
+    .summary-value.summary-price-modifier {
+        color: $success;
     }
 }

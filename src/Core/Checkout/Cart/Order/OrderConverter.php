@@ -59,6 +59,13 @@ class OrderConverter
 
     final public const ORIGINAL_ID = 'originalId';
 
+    /**
+     * Used by OrderPriceModificationCollector to resolve which order version's persisted rows to
+     * load — $context->getVersionId() reflects the live SalesChannelContext, not necessarily the
+     * order's own draft version.
+     */
+    final public const ORIGINAL_VERSION_ID = 'originalVersionId';
+
     final public const ORIGINAL_ADDRESS_ID = 'originalAddressId';
 
     final public const ORIGINAL_ADDRESS_VERSION_ID = 'originalAddressVersionId';
@@ -275,6 +282,12 @@ class OrderConverter
         $cart->setCampaignCode($order->getCampaignCode());
         $cart->setSource($order->getSource());
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
+
+        $orderVersionId = $order->getVersionId();
+        if ($orderVersionId === null) {
+            throw OrderException::missingVersionId($order->getId());
+        }
+        $cart->addExtension(self::ORIGINAL_VERSION_ID, new IdStruct($orderVersionId));
         $orderNumber = $order->getOrderNumber();
         if ($orderNumber === null) {
             throw OrderException::missingOrderNumber($order->getId());

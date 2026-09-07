@@ -35,6 +35,34 @@
 
 .checkout-aside-summary-value {
     text-align: right;
+
+    &.summary-price-modifier {
+        color: $success;
+    }
+}
+
+// A bare <input type="submit">, not a Bootstrap .btn — any .btn variant (even btn-sm) carries a
+// border, background and padding sized for buttons with text, which made a lone small "x" look
+// oversized in front of the label. This is deliberately unstyled beyond a compact clickable "x".
+// Scoped to dt.summary-price-modifier specifically (not a bare .summary-price-modifier-remove-button
+// selector) — the off-canvas cart uses the same button class on a <span>, with its own margin-right
+// in _offcanvas-cart.scss; an unscoped selector here would win that cascade too since both compile
+// into the same bundle with equal specificity.
+dt.summary-price-modifier .summary-price-modifier-remove-button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin-right: 0;
+    font-size: 1rem;
+    line-height: 1;
+    vertical-align: middle;
+    color: $danger;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+        color: shade-color($danger, 20%);
+    }
 }
 
 .checkout-aside-action {

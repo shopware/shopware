@@ -33,6 +33,8 @@
 
                 {% sw_include '@Storefront/storefront/page/checkout/summary/summary-shipping.html.twig' with { summary: summary, isoCode: isoCode } %}
 
+                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-price-modifiers.html.twig' with { summary: summary, isoCode: isoCode } %}
+
                 {% if summary.price.taxStatus == 'gross' %}
                     {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total.html.twig' with {
                         total: total,

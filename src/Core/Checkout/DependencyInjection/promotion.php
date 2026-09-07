@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionCartRule\PromotionCartRuleDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceDefinition;
@@ -38,6 +39,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscou
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetGroupScopeDiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\SetScopeDiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCartCodeClaimHandler;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryProcessor;
@@ -128,6 +130,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('shopware.cart.collector', ['priority' => 4900]);
+
+    $services->set(PromotionCartCodeClaimHandler::class)
+        ->args([
+            service(PromotionGateway::class),
+            service(PromotionItemBuilder::class),
+            service(CartService::class),
+        ])
+        ->tag('shopware.cart.code_claim_handler');
 
     $services->set(PromotionProcessor::class)
         ->args([

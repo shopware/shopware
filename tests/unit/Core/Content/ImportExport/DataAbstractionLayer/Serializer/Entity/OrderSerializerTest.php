@@ -526,6 +526,7 @@ class OrderSerializerTest extends TestCase
                 'primaryOrderTransactionId' => null,
                 'primaryOrderDeliveryVersionId' => null,
                 'primaryOrderTransactionVersionId' => null,
+                'priceModifications' => null,
             ]
         );
     }

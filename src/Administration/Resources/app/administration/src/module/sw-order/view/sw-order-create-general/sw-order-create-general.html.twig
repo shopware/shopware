@@ -81,8 +81,28 @@
                             </dd>
                         </template>
 
+                        <template
+                            v-for="(modifier, index) in cart.priceModifiers"
+                            :key="index"
+                        >
+                            <dt>{{ modifier.label }}</dt>
+                            <dd>{{ currencyFilter(modifier.price.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}</dd>
+                        </template>
+
                         <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $t('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                            <dt>
+                                <strong>{{ $t('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong>
+                                <mt-icon
+                                    v-if="cart.priceModifiers && cart.priceModifiers.some((modifier) => modifier.priceDefinition.taxExempt)"
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: $t('sw-order.createBase.summaryHintNetAmount')
+                                    }"
+                                    class="sw-order-create-summary__hint-icon"
+                                    name="regular-info-circle"
+                                    size="12px"
+                                />
+                            </dt>
                             <dd>
                                 <strong>{{ currencyFilter(cart.price ? cart.price.netPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
                             </dd>

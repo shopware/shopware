@@ -953,6 +953,80 @@ The new `shopware.app_system.enable_url_validation` option turns off app system 
 
 While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopware.app_system.allowed_private_ip_addresses` have no effect. Keep the validation enabled in production.
 
+## Core
+
+### Introduce extensible order price modification system
+
+Voucher, discount, and fee adjustments on an order are no longer faked as regular line items. A new entity, `order_price_modification`, represents each one as an individually addressable row — label, description, a signed amount, and an explicit `taxable`/`tax_exempt` treatment — with full CRUD via the Admin API. This replaces a line-item representation that couldn't distinguish an adjustment that must be re-taxed proportionally (e.g. a merchant discount) from one whose amount changes while its already-settled tax must not (e.g. a prepaid multi-purpose voucher whose VAT becomes due only at redemption) — a distinction whose absence could previously surface as a misleading negative tax amount in the order summary.
+
+Three new extension points, under the new `Shopware\Core\Checkout\PriceModifier` namespace, let a plugin contribute its own price modifications without decorating `Processor`, `AmountCalculator`, or `CartLineItemController`:
+
+- `PriceCollectorInterface` (tag `shopware.cart.price_collector`) collects the data a later adjustment needs.
+- `PriceProcessorInterface` (tag `shopware.cart.price_processor`) applies the actual reduction or surcharge and returns a `PriceModifierResult`. Next to `$additionalCosts`, it receives the `float $taxExemptAdjustment` every earlier processor already contributed, so a tax-exempt reduction can be capped against what is actually still left. If the aggregated tax-exempt reduction still exceeds the remaining total, `Processor` caps it and trims the tax-exempt reduction modifiers, the last one first, so the listed modifiers always add up to what was actually deducted. Both tags support a `priority` attribute and run identically whether the cart is a live storefront cart or an admin recalculation of an already-placed order.
+- `CartCodeClaimHandlerInterface` (tag `shopware.cart.code_claim_handler`, still under `Shopware\Core\Checkout\Cart`) lets a plugin claim a code submitted to `/checkout/promotion/add` and handle its own redemption instead of the default Shopware Promotion code path. If more than one registered handler claims the same code, the request now fails explicitly via `CartException::ambiguousCodeClaim()` instead of silently picking one.
+
+A new `AbstractOrderAwarePriceProcessor` base class gives a `PriceProcessorInterface` implementation the common "compute my own defaults only until an order exists, then defer to the persisted `order_price_modification` rows" behavior for free, so a subclass only needs to seed a new order once, at placement.
+
+A persisted row with a `percentage` price definition (`PriceModifierPercentagePriceDefinition`) keeps its effect on every later order recalculation: `OrderPriceModificationProcessor` recomputes it from the frozen, signed `percentage` (e.g. `-10.0` for 10% off) and `target` against the order's current goods and/or shipping costs. The persisted `price` of such a row is only the value at the time of placement.
+
+A row the checkout pipeline itself contributed (a non-NULL `type` column) has its `tax_rules` and `type` fields locked against a later API/Admin write once persisted. `tax_rules` is locked for tax reasons, so an edit made outside the Administration's own guarded flow can't retroactively misstate already-settled VAT (`CHECKOUT__ORDER_PRICE_MODIFICATION_TAX_LOCKED`); this includes switching between tax-exempt (`NULL`) and taxable across every tax rate (an empty collection). `type` is locked on every existing row for integrity reasons, since it's what marks a row as system-contributed (`CHECKOUT__ORDER_PRICE_MODIFICATION_TYPE_LOCKED`). Every other field (label, description, amount, direction) stays freely editable, a manually added row (`type` is NULL) keeps editable `tax_rules`, and deleting a row stays allowed — a replacement has to be added as a new, manual row.
+
+Each row also has a free-form JSON `payload` column where the contributing plugin can keep its own data, for example a redeemed voucher code. Pass it as the new `payload` constructor argument of `PriceModifier`. `CartTransformer` persists it unchanged when the order is placed, and `OrderPriceModificationProcessor` restores it on recalculation. Shopware never reads it. It's exposed as `PriceModifier::getPayload()` on the cart, as `OrderPriceModificationEntity::getPayload()` on the order, and as `payload` (alongside `description`, `type` and `referencedId`) in `OrderEntity::getPriceModifiers()`.
+
+A new generic DAL field type, `Shopware\Core\Framework\DataAbstractionLayer\Field\TaxRuleCollectionField`, backs the `tax_rules` column above and is reusable by any plugin field that needs to store a `TaxRuleCollection`.
+
+A `tax_exempt` modification's amount is now rounded via Shopware's own `CashRounding` service (the same mechanism `AmountCalculator` already uses for every other total) before it's accumulated across multiple rows and added to the cart/order total. A `taxable` modification was always safe here, since it's applied through `AbsolutePriceCalculator`/`QuantityPriceCalculator`, which round internally — but a `tax_exempt` amount deliberately bypasses both (that's the entire point of `PriceModifierResult::$taxExemptAdjustment`), so nothing was rounding it before. Without this, summing several persisted amounts, or a plugin computing one at runtime, could leave a long, imprecise float (e.g. `-0.30000000000000004` instead of `-0.3`) in the cart/order total.
+
+`Shopware\Core\Checkout\Cart\Price\AmountCalculator::calculate()` now accepts an optional fourth argument, `?PriceCollection $additionalCosts = null`. It is read via `func_get_arg()` and will become a real parameter in 6.8, so a class extending `AmountCalculator` that overrides `calculate()` should forward the fourth argument now. It is used internally by `Processor::applyPriceModifiers()` to fold a `taxable` modification into net/tax the same way `$shippingCosts` already is — without changing what `positionPrice`/subtotal means, since `$additionalCosts` (like `$shippingCosts`) is deliberately excluded from it.
+
+Order documents (invoices, credit notes) and the storefront checkout finish page now also load the new `priceModifications` association (`OrderDocumentCriteriaFactory`, `CheckoutFinishPageLoader`), so a placed order's modifications remain visible wherever the order is rendered afterwards.
+
+## Storefront
+
+### Active price modifications are now shown in the cart and checkout
+
+The header cart badge, off-canvas cart, and both checkout summary steps (cart and confirm) now list every active price modification by label and signed amount, with a remove button wired to the existing `/checkout/price-modifier/delete/{id}` route for every modification the customer activated (its id is listed in the cart's `PriceModifierIdExtension`; an id alone doesn't make a modification removable, e.g. a mandatory fee), and a hint text whenever a `tax_exempt` modification opens up a gap between the shown net price and the total (`checkout.summaryNetHint`). `Shopware\Core\Checkout\Cart\Cart` gained `getPriceModifiers()`/`setPriceModifiers()` (a `PriceModifierCollection`) as the carrier for this — purely descriptive, the actual monetary effect was already folded into `Cart::price` before this change.
+
+The remove button uses the theme's `$danger` colour. When a modification has a `description`, its label gets an info icon that shows the description in a tooltip. The icon is rendered by the new `@Storefront/storefront/component/checkout/price-modifier-info.html.twig` template, which takes the tooltip text as `info`. To show your own data instead, such as a voucher code kept in `payload`, override the `component_offcanvas_summary_price_modifier_info` block (off-canvas cart) and the `page_checkout_summary_price_modifier_info` block (checkout summary):
+
+```twig
+{% sw_extends '@Storefront/storefront/page/checkout/summary/summary-price-modifiers.html.twig' %}
+
+{% block page_checkout_summary_price_modifier_info %}
+    {% if modifier.type == 'SwagVoucher' %}
+        {% sw_include '@Storefront/storefront/component/checkout/price-modifier-info.html.twig' with {
+            info: modifier.payload.code
+        } %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+```
+
+A guest cart's active modifications now also survive login: `CartRestorer` carries their ids forward into the customer's cart via a new `PriceModifierIdExtension` during the guest→customer cart merge, so a modification a guest activated (e.g. via a claimed code) doesn't disappear when they log in mid-checkout.
+
+### A plugin can claim a submitted code before it becomes a Promotion
+
+`/checkout/promotion/add` now gives registered `CartCodeClaimHandlerInterface` implementations a chance to claim a submitted code before it falls back to the default Shopware Promotion code handling described above (exact algorithm below) — fully backward compatible when no handler is registered. A new route, `/checkout/price-modifier/delete/{id}` (`frontend.checkout.price-modifier.delete`), removes a cart-level price modification a `PriceCollectorInterface`/`PriceProcessorInterface` pair previously activated. An id that isn't active in `PriceModifierIdExtension` is rejected with an error flash instead of a success message, and the cart is left unchanged.
+
+The claim algorithm: each registered handler's `claim()` is called in turn, in iteration order (this tag supports no `priority` attribute, so that order isn't something a handler can rely on) — keep it cheap and side-effect-free, it runs for every non-blank submitted code before any actual handling. Iteration stops as soon as a *second* handler claims the code: `CartException::ambiguousCodeClaim()` is thrown immediately at that point, so any handler later in the order never has `claim()` called for that request — this is not an exhaustive scan of every handler in the ambiguous case. If exactly one handler claims the code, only that handler's `handle()` runs and its `getSuccessMessage()` is flashed on success. If none claim it, `checkout.promotion-not-found` is flashed directly — the code is never added to the cart as a placeholder line item.
+
+Shopware's own promotion codes now also participate in this mechanism via a new `PromotionCartCodeClaimHandler` (`Shopware\Core\Checkout\Promotion\Cart`), which claims a code only when it actually matches a real, active promotion (global or individual). This closes a gap where a plugin's handler claiming a code that also happened to be a live promotion code would silently win, with the promotion never applied and no error surfaced — that collision now goes through the same `ambiguousCodeClaim()` 409 as any other two-handler conflict.
+
+Because `PromotionCartCodeClaimHandler` already performs the real "does this code match a permitted promotion" lookup (the same `PermittedGlobalCodePromotions`/`PermittedIndividualCodePromotions` filters `PromotionCollector` itself uses) as part of every `claim()` call, `CartLineItemController::addPromotion()` no longer builds a placeholder promotion line item and re-runs a full cart recalculation just to reach that same "not found" conclusion a second time when nobody claims the code — it flashes `checkout.promotion-not-found` directly (via `PromotionNotFoundError`), leaving the cart itself untouched. The message and its `%code%` parameter are unchanged; only the round trip through cart recalculation is gone.
+
+This PR does not change any of the promotion code input's existing storefront-facing copy. The code input's label and placeholder (`checkout.addPromotionLabel`/`checkout.addPromotionPlaceholder`) are unchanged, and an ambiguous-claim failure is shown via the same generic error flash as any other cart error — there is no distinct customer-facing message for it, and no client-side error-code branching in the storefront JS (`offcanvas-cart.plugin.js`). A handler that wants different UX for its own codes has to supply it itself via `getSuccessMessage()` or by overriding templates.
+
+`Shopware\Storefront\Controller\CartLineItemController` (marked `@internal`) gained two new constructor dependencies (a logger, and the code-claim-handler iterator) to support this, and lost its now-unused `PromotionItemBuilder` dependency. Extensions that decorate this service should account for the new signature.
+
+## Administration
+
+### Order detail page: add, edit, and delete price modifications
+
+The order detail page can now add, edit, and delete `order_price_modification` rows directly, gated behind the existing `order.viewer`/`order.editor` privileges (extended with `order_price_modification:read`/`create`/`update`/`delete`). A row the checkout pipeline contributed (e.g. an applied voucher) displays its amount but can't be edited through this UI — only manually added rows can, matching the new tax lock described above.
+
+The order-creation screen (`sw-order-create-general`) shows the same per-modification summary line, but read-only — a modification can only be added, edited, or deleted once the order exists, via the order detail page above.
+
 # 6.7.14.2
 
 ## Critical Fixes

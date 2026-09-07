@@ -793,6 +793,7 @@ class OrderConverterTest extends TestCase
         $order = new OrderEntity();
         $order->setPrice($cartPrice);
         $order->setId(Uuid::randomHex());
+        $order->setVersionId(Defaults::LIVE_VERSION);
         $order->setBillingAddressId('order-address-id');
         $order->setCurrencyId('order-currency-id');
         $order->setLanguageId('order-language-id');

@@ -274,7 +274,8 @@ class CheckoutFinishPageLoaderTest extends TestCase
             ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
             ->addAssociation('billingAddress.countryState')
-            ->addAssociation('currency');
+            ->addAssociation('currency')
+            ->addAssociation('priceModifications');
 
         $orderRoute = $this->createMock(OrderRoute::class);
         $orderRoute->expects($this->once())

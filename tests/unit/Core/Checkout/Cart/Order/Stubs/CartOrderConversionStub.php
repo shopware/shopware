@@ -25,6 +25,10 @@ final class CartOrderConversionStub
                     'extensions' => [],
                     'id' => '10000',
                 ],
+                'originalVersionId' => [
+                    'extensions' => [],
+                    'id' => Defaults::LIVE_VERSION,
+                ],
             ],
             'price' => [
                 'netPrice' => 19.5,
@@ -242,6 +246,7 @@ final class CartOrderConversionStub
             'hash' => null,
             'states' => [],
             'persisted' => false,
+            'priceModifiers' => [],
         ];
     }
 
@@ -357,6 +362,7 @@ final class CartOrderConversionStub
                 'affiliateCode' => null,
                 'campaignCode' => null,
                 'source' => null,
+                'priceModifications' => [],
                 'itemRounding' => [
                     'decimals' => 2,
                     'extensions' => [],
@@ -510,6 +516,7 @@ final class CartOrderConversionStub
             'affiliateCode' => null,
             'campaignCode' => null,
             'source' => null,
+            'priceModifications' => [],
             'itemRounding' => [
                 'decimals' => 2,
                 'extensions' => [],

@@ -1,0 +1,17 @@
+{# Info icon revealing `info` on hover/focus, next to a price modifier's label in the off-canvas cart
+   and the checkout summary. Core passes the modifier's description; a plugin shows its own data
+   (e.g. a voucher code kept in modifier.payload) by overriding the surrounding
+   `*_price_modifier_info` block and including this template with its own `info`. #}
+{% block component_checkout_price_modifier_info %}
+    {% if info is not empty %}
+        <span
+            class="summary-price-modifier-info"
+            tabindex="0"
+            data-bs-toggle="tooltip"
+            title="{{ info|striptags }}"
+            aria-label="{{ info|striptags }}"
+        >
+            {% sw_icon 'info' style { size: 'xs' } %}
+        </span>
+    {% endif %}
+{% endblock %}

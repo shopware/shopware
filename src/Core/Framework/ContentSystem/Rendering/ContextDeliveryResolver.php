@@ -27,7 +27,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * filtering to the rendered union first would make it quietly stop delivering with nothing raising.
  *
  * A {@see ConsumerScope::Root} consumer is filled from the ambient map argument to {@see resolve()}, not by
- * the walk, so it receives at any depth with no intermediate wiring.
+ * a parent provider, so it receives at any depth with no intermediate wiring. {@see resolveRootContext()}
+ * exposes that tree-independent part separately for resolving an element's loader inputs.
  *
  * @internal
  */
@@ -43,10 +44,8 @@ final readonly class ContextDeliveryResolver
     /**
      * `$loaderValues` is keyed by element id, then by requirement key — the shape
      * {@see ElementDataResolver::resolve()} returns per element, collected for the forest. It arrives
-     * precomputed rather than being resolved here. The depth-first rendering path instead uses
-     * {@see self::resolveDirectChildren()} after loading each parent, allowing child loaders to consume the
-     * delivered context. An element with no entry simply has no loader values, which is the ordinary case and
-     * not an error.
+     * precomputed rather than being resolved here. An element with no entry simply has no loader values,
+     * which is the ordinary case and not an error.
      *
      * `$ambientContext` is the layout's root-ambient map, resolved once per render by {@see ElementLowering}
      * and passed in so root delivery never depends on tree shape. An empty map (SKELETON, no wrapper) delivers
@@ -70,32 +69,17 @@ final readonly class ContextDeliveryResolver
     }
 
     /**
-     * Resolves the context delivered by one element to its direct children.
+     * Resolves only the ambient, root-scoped context for one element. Unlike parent delivery this does not
+     * depend on loader values from another element, so callers may use it before the forest-wide walk.
      *
-     * This is used by the depth-first rendering walk so a child's data loaders can consume
-     * context provided by its parent.
-     *
-     * @param array<string, mixed> $loaderValues
-     * @param array<string, mixed> $receivedContext
-     *
-     * @return list<ContextDelivery>
+     * @param array<string, mixed> $ambientContext
      */
-    public function resolveDirectChildren(
+    public function resolveRootContext(
         StoredElement $element,
-        array $loaderValues,
-        array $receivedContext = [],
-    ): array {
-        $children = $this->childrenInDeliveryOrder($element);
-
-        if ($children === []) {
-            return [];
-        }
-
-        return $this->distributor->distribute(
-            $element,
-            $this->workingValues($element, [$element->id => $loaderValues], $receivedContext),
-            $children,
-        );
+        array $ambientContext,
+        ContextDelivery $delivery,
+    ): ContextDelivery {
+        return $this->overlayRootContext($element, $ambientContext, $delivery);
     }
 
     /**
@@ -132,14 +116,6 @@ final readonly class ContextDeliveryResolver
         foreach ($children as $index => $child) {
             $this->walk($child, $loaderValues, $ambientContext, $childDeliveries[$index], $deliveries);
         }
-    }
-
-    public function resolveRootContext(
-        StoredElement $element,
-        array $ambientContext,
-        ContextDelivery $delivery,
-    ): ContextDelivery {
-        return $this->overlayRootContext($element, $ambientContext, $delivery);
     }
 
     /**

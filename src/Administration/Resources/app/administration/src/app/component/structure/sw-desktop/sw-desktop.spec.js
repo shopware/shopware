@@ -4,9 +4,24 @@
 
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import useTheme from 'src/app/composables/use-theme';
+import useTheme, { DEFAULT_THEME } from 'src/app/composables/use-theme';
+import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
 
 const addSnackbar = jest.fn();
+const wrappers = [];
+
+// The shortcut plugin relies on the debounce delay to collect key sequences, the global mock runs immediately
+Shopware.Utils.debounce = function debounce(callback, delay) {
+    let timeout = null;
+
+    const execFunction = jest.fn(() => {
+        clearTimeout(timeout);
+        timeout = setTimeout(callback, delay);
+    });
+    execFunction.cancel = jest.fn(() => clearTimeout(timeout));
+
+    return execFunction;
+};
 
 const routes = [
     {
@@ -122,10 +137,12 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
 
     await router.push({ name: 'sw.dashboard.index' });
 
-    return mount(await wrapTestComponent('sw-desktop', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-desktop', { sync: true }), {
+        attachTo: document.body,
         global: {
             plugins: [
                 router,
+                shortcutPlugin,
             ],
             stubs: {
                 'sw-admin-menu': true,
@@ -151,6 +168,18 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
             },
         },
     });
+
+    wrappers.push(wrapper);
+
+    return wrapper;
+}
+
+async function pressKeys(wrapper, ...keys) {
+    for (const key of keys) {
+        await wrapper.trigger('keydown', { key });
+    }
+
+    await flushPromises();
 }
 
 describe('src/app/component/structure/sw-desktop', () => {
@@ -174,8 +203,9 @@ describe('src/app/component/structure/sw-desktop', () => {
     });
 
     afterEach(() => {
+        wrappers.splice(0).forEach((wrapper) => wrapper.unmount());
         addSnackbar.mockClear();
-        useTheme().setTheme('system');
+        useTheme().setTheme(DEFAULT_THEME);
         localStorage.removeItem('mt-theme');
     });
 
@@ -299,21 +329,18 @@ describe('src/app/component/structure/sw-desktop', () => {
     });
     it('should cycle the theme with the C T shortcut and confirm the change', async () => {
         const wrapper = await createWrapper();
-        useTheme().setTheme('system');
 
-        expect(wrapper.vm.$options.shortcuts.CT).toBe('onCycleTheme');
-
-        await wrapper.vm.onCycleTheme();
-        expect(useTheme().theme.value).toBe('light');
-
-        await wrapper.vm.onCycleTheme();
+        await pressKeys(wrapper, 'c', 't');
         expect(useTheme().theme.value).toBe('dark');
 
-        await wrapper.vm.onCycleTheme();
+        await pressKeys(wrapper, 'c', 't');
         expect(useTheme().theme.value).toBe('system');
 
+        await pressKeys(wrapper, 'c', 't');
+        expect(useTheme().theme.value).toBe('light');
+
         expect(Shopware.Service('userConfigService').upsert).toHaveBeenLastCalledWith({
-            'core.userTheme': { theme: 'system' },
+            'core.userTheme': { theme: 'light' },
         });
         expect(addSnackbar).toHaveBeenCalledTimes(3);
         expect(addSnackbar).toHaveBeenLastCalledWith({
@@ -326,11 +353,10 @@ describe('src/app/component/structure/sw-desktop', () => {
         Shopware.Service('userConfigService').upsert.mockRejectedValueOnce(new Error('failed'));
 
         const wrapper = await createWrapper();
-        useTheme().setTheme('system');
 
-        await wrapper.vm.onCycleTheme();
+        await pressKeys(wrapper, 'c', 't');
 
-        expect(useTheme().theme.value).toBe('system');
+        expect(useTheme().theme.value).toBe(DEFAULT_THEME);
         expect(addSnackbar).toHaveBeenCalledTimes(1);
         expect(addSnackbar).toHaveBeenCalledWith({
             message: 'global.sw-desktop.theme.saveError',

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Checkout\PriceModifier\PriceModifierCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
@@ -23,6 +24,8 @@ class Cart extends Struct
     use StateAwareTrait;
 
     protected CartPrice $price;
+
+    protected PriceModifierCollection $priceModifiers;
 
     protected LineItemCollection $lineItems;
 
@@ -73,6 +76,7 @@ class Cart extends Struct
         $this->errors = new ErrorCollection();
         $this->deliveries = new DeliveryCollection();
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
+        $this->priceModifiers = new PriceModifierCollection();
     }
 
     public function __clone()
@@ -164,6 +168,23 @@ class Cart extends Struct
     public function setPrice(CartPrice $price): void
     {
         $this->price = $price;
+    }
+
+    /**
+     * Human-readable price adjustments applied by any registered PriceProcessorInterface, purely
+     * for display — the monetary effect is already reflected in Cart::price.
+     *
+     * @see \Shopware\Core\Checkout\Order\OrderEntity::getPriceModifiers() for the equivalent once
+     *      persisted as an order.
+     */
+    public function getPriceModifiers(): PriceModifierCollection
+    {
+        return $this->priceModifiers;
+    }
+
+    public function setPriceModifiers(PriceModifierCollection $priceModifiers): void
+    {
+        $this->priceModifiers = $priceModifiers;
     }
 
     /**

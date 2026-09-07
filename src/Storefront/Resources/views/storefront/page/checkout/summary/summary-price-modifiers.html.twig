@@ -1,0 +1,73 @@
+{% block page_checkout_summary_price_modifiers %}
+    {% set removablePriceModifierIds = page.cart.extensions['cart-price-modifier-ids'] ?? null %}
+
+    {% for modifier in summary.priceModifiers %}
+        {# summary is page.cart on the cart/confirm steps (modifier is a PriceModifier struct, price
+           under modifier.price.totalPrice) but page.order on the finish page (modifier is
+           OrderEntity::getPriceModifiers()'s plain {label, description, amount, …, payload} array instead) — read
+           whichever one this modifier actually has, same fallback summary-net.html.twig's hint
+           already uses for the same two shapes. #}
+        {% set modifierAmount = modifier.price.totalPrice ?? modifier.amount %}
+
+        {% block page_checkout_summary_price_modifier %}
+            {% block page_checkout_summary_price_modifier_label %}
+                <dt class="col-7 checkout-aside-summary-label summary-price-modifier">
+                    {# Only ever shown for a live, pre-order cart (never page.order — a placed
+                       order's modifiers aren't customer-removable; that's the admin's
+                       order_price_modification editor). Genuinely generic, same as the off-canvas
+                       cart's equivalent button: gated on the modifier's id being active in
+                       PriceModifierIdExtension, not on any plugin identity -- an id alone doesn't
+                       make a modifier customer-removable, e.g. a mandatory fee. Redirects back to
+                       whichever checkout step this is actually rendered on (cart or confirm both
+                       show an editable summary). #}
+                    {% if modifier.id is not null and removablePriceModifierIds and removablePriceModifierIds.has(modifier.id) %}
+                        {% set loaderOptions = {
+                            skipLoadingIndicator: true
+                        } %}
+
+                        <form
+                            action="{{ path('frontend.checkout.price-modifier.delete', { id: modifier.id }) }}"
+                            method="post"
+                            data-form-submit-loader="true"
+                            data-form-submit-loader-options="{{ loaderOptions|json_encode }}"
+                            class="d-inline"
+                        >
+                            <input type="hidden" name="redirectTo" value="{{ app.request.attributes.get('_route') }}">
+                            <input
+                                type="submit"
+                                value="&times;"
+                                aria-label="{{ 'global.default.remove'|trans|striptags }}"
+                                title="{{ 'global.default.remove'|trans }}"
+                                class="summary-price-modifier-remove-button"
+                            >
+                        </form>
+                    {% endif %}
+
+                    {% set modifierLabel = modifier.label %}
+                    {% set isLabelTruncated = modifierLabel|length > 20 %}
+                    {% if isLabelTruncated %}
+                        {% set modifierLabel = modifierLabel|slice(0, 17) ~ '...' %}
+                    {% endif %}
+
+                    <span{% if isLabelTruncated %} title="{{ modifier.label|striptags }}"{% endif %}>{{ modifierLabel|sw_sanitize }}</span>
+
+                    {% block page_checkout_summary_price_modifier_info %}
+                        {% sw_include '@Storefront/storefront/component/checkout/price-modifier-info.html.twig' with {
+                            info: modifier.description
+                        } %}
+                    {% endblock %}
+                </dt>
+            {% endblock %}
+
+            {% block page_checkout_summary_price_modifier_value %}
+                <dd class="col-5 checkout-aside-summary-value summary-price-modifier">
+                    {% if modifierAmount < 0 %}
+                        &minus;
+                    {% endif %}
+
+                    {{ modifierAmount|abs|currency(isoCode) }}
+                </dd>
+            {% endblock %}
+        {% endblock %}
+    {% endfor %}
+{% endblock %}

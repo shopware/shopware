@@ -610,6 +610,77 @@ class AmountCalculatorTest extends TestCase
         static::assertEquals($expected, $amount);
     }
 
+    public function testAdditionalCostsFoldIntoNetAndTaxButAreExcludedFromPositionPrice(): void
+    {
+        $highTax = new TaxRuleCollection([new TaxRule(19)]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTotalRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $prices = new PriceCollection([
+            new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+        ]);
+        $additionalCosts = new PriceCollection([
+            new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
+        ]);
+
+        $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context, $additionalCosts);
+
+        // Same net/total/tax as "gross horizontal calculation sums two 19 percent prices" above (19.50
+        // + 14.20 merged as ordinary prices) -- $additionalCosts is taxed and totalled exactly like a
+        // second price would be.
+        static::assertSame(28.32, $cartPrice->getNetPrice());
+        static::assertSame(33.7, $cartPrice->getTotalPrice());
+        static::assertEquals(new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $cartPrice->getCalculatedTaxes());
+
+        // But, unlike a second price in $prices, it never touches positionPrice: that stays $prices
+        // alone, so a caller folding in a price modifier's amount doesn't silently change the subtotal.
+        static::assertSame(19.50, $cartPrice->getPositionPrice());
+    }
+
+    public function testAdditionalCostsAreMergedWithShippingCostsRatherThanReplacingThem(): void
+    {
+        $highTax = new TaxRuleCollection([new TaxRule(19)]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTotalRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
+
+        $calculator = new AmountCalculator(
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
+        );
+
+        $prices = new PriceCollection([
+            new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+        ]);
+        $shippingCosts = new PriceCollection([
+            new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
+        ]);
+        $additionalCosts = new PriceCollection([
+            new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
+        ]);
+
+        $withAdditionalCosts = $calculator->calculate($prices, $shippingCosts, $context, $additionalCosts);
+        $withPreMergedShippingCosts = $calculator->calculate($prices, $shippingCosts->merge($additionalCosts), $context);
+
+        // $additionalCosts must add to whatever $shippingCosts already carries, not replace it --
+        // otherwise a price modifier active alongside real shipping costs would silently drop them.
+        static::assertEquals($withPreMergedShippingCosts, $withAdditionalCosts);
+    }
+
     private static function price(): CalculatedPrice
     {
         return new CalculatedPrice(

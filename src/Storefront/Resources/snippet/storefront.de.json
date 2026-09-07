@@ -480,6 +480,7 @@
     "summaryTotalPrice": "Gesamtsumme",
     "summaryTotalPriceRounded": "Gesamtsumme gerundet",
     "summaryNetPrice": "Gesamtnettosumme",
+    "summaryNetHint": "Netto und MwSt. beziehen sich auf den vollen Wert der gelieferten Ware/Leistung. Wurde ein Teil des Betrags bereits durch einen vorausbezahlten, MwSt.-neutralen Wertgutschein beglichen, ist die Gesamtsumme unten niedriger als Netto zzgl. MwSt.",
     "summaryTax": "zzgl. %rate% % MwSt.",
     "summaryTaxLabeled": "zzgl. %rate% % %label%",
     "summaryTaxInclude": "inkl. %rate% % MwSt.",

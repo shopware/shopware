@@ -93,6 +93,65 @@
                 {% endif %}
             {% endblock %}
         {% endif %}
+
+        {% block component_offcanvas_summary_price_modifiers %}
+            {# Only modifiers activated through PriceModifierIdExtension are removable by the customer --
+               having an id alone doesn't make one removable, e.g. a mandatory fee. #}
+            {% set removablePriceModifierIds = page.cart.extensions['cart-price-modifier-ids'] ?? null %}
+
+            {% for modifier in page.cart.priceModifiers %}
+                {% block component_offcanvas_summary_price_modifier %}
+                    <div class="row offcanvas-summary-price-modifier js-cart-item">
+                        <span class="summary-label summary-price-modifier">
+                            {% if modifier.id is not null and removablePriceModifierIds and removablePriceModifierIds.has(modifier.id) %}
+                                {% set loaderOptions = {
+                                    skipLoadingIndicator: true
+                                } %}
+
+                                <form
+                                    action="{{ path('frontend.checkout.price-modifier.delete', { id: modifier.id }) }}"
+                                    method="post"
+                                    data-form-submit-loader="true"
+                                    data-form-submit-loader-options="{{ loaderOptions|json_encode }}"
+                                    class="js-offcanvas-cart-remove-product d-inline"
+                                >
+                                    <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
+                                    <input
+                                        type="submit"
+                                        value="&times;"
+                                        aria-label="{{ 'global.default.remove'|trans|striptags }}"
+                                        title="{{ 'global.default.remove'|trans }}"
+                                        class="summary-price-modifier-remove-button"
+                                    >
+                                </form>
+                            {% endif %}
+
+                            {% set modifierLabel = modifier.label %}
+                            {% set isLabelTruncated = modifierLabel|length > 20 %}
+                            {% if isLabelTruncated %}
+                                {% set modifierLabel = modifierLabel|slice(0, 17) ~ '...' %}
+                            {% endif %}
+
+                            <span{% if isLabelTruncated %} title="{{ modifier.label|striptags }}"{% endif %}>{{ modifierLabel|sw_sanitize }}</span>
+
+                            {% block component_offcanvas_summary_price_modifier_info %}
+                                {% sw_include '@Storefront/storefront/component/checkout/price-modifier-info.html.twig' with {
+                                    info: modifier.description
+                                } %}
+                            {% endblock %}
+                        </span>
+
+                        <span class="summary-value summary-price-modifier">
+                            {% if modifier.price.totalPrice < 0 %}
+                                &minus;
+                            {% endif %}
+
+                            {{ modifier.price.totalPrice|abs|currency }}
+                        </span>
+                    </div>
+                {% endblock %}
+            {% endfor %}
+        {% endblock %}
     </div>
 
     {% block component_offcanvas_summary_tax_info %}

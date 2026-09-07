@@ -160,10 +160,10 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         const descriptionInfos = wrapper.findAll('dd');
 
         expect(descriptionTitles[3].text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":10}');
-        expect(descriptionInfos[3].text()).toBe('€10.00');
+        expect(descriptionInfos[6].text()).toBe('€10.00');
 
         expect(descriptionTitles[4].text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":19}');
-        expect(descriptionInfos[4].text()).toBe('€19.00');
+        expect(descriptionInfos[8].text()).toBe('€19.00');
     });
 
     it('should able to edit shipping cost', async () => {

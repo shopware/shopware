@@ -6,9 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\PriceModifier\PriceModifierIdExtension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -260,5 +262,111 @@ class CartRestorerTest extends TestCase
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);
         static::assertSame($token, $result->getToken());
         static::assertTrue($eventIsThrown);
+    }
+
+    public function testRestoreMergesGuestPriceModifierIdsIntoExistingCustomerCartWithoutDuplicates(): void
+    {
+        $guestToken = 'guestToken';
+        $customerToken = 'customerToken';
+
+        $guestModifierIds = new PriceModifierIdExtension();
+        $guestModifierIds->add('guest-only-modifier');
+        $guestModifierIds->add('shared-modifier');
+        $guestCart = new Cart($guestToken);
+        $guestCart->addExtension(PriceModifierIdExtension::KEY, $guestModifierIds);
+
+        $customerModifierIds = new PriceModifierIdExtension();
+        $customerModifierIds->add('customer-only-modifier');
+        $customerModifierIds->add('shared-modifier');
+        $customerCart = new Cart($customerToken);
+        $customerCart->addExtension(PriceModifierIdExtension::KEY, $customerModifierIds);
+
+        $result = $this->restoreAndCaptureFinalCart($guestToken, $guestCart, $customerToken, $customerCart);
+
+        $mergedModifierIds = $result->getExtension(PriceModifierIdExtension::KEY);
+        static::assertInstanceOf(PriceModifierIdExtension::class, $mergedModifierIds);
+        // Customer's own ids are kept, the guest's new id is appended, and the id both carts
+        // already shared is not duplicated.
+        static::assertSame(['customer-only-modifier', 'shared-modifier', 'guest-only-modifier'], $mergedModifierIds->getIds());
+    }
+
+    public function testRestoreCopiesGuestPriceModifierIdsWhenCustomerCartHasNoneYet(): void
+    {
+        $guestToken = 'guestToken';
+        $customerToken = 'customerToken';
+
+        $guestModifierIds = new PriceModifierIdExtension();
+        $guestModifierIds->add('guest-modifier');
+        $guestCart = new Cart($guestToken);
+        $guestCart->addExtension(PriceModifierIdExtension::KEY, $guestModifierIds);
+
+        // The customer cart has no PriceModifierIdExtension of its own yet.
+        $customerCart = new Cart($customerToken);
+
+        $result = $this->restoreAndCaptureFinalCart($guestToken, $guestCart, $customerToken, $customerCart);
+
+        $mergedModifierIds = $result->getExtension(PriceModifierIdExtension::KEY);
+        static::assertInstanceOf(PriceModifierIdExtension::class, $mergedModifierIds);
+        static::assertSame(['guest-modifier'], $mergedModifierIds->getIds());
+    }
+
+    /**
+     * Drives CartRestorer::restoreByToken() far enough to reach enrichCustomerContext()'s
+     * PriceModifierIdExtension merge, and returns the exact Cart instance it hands to
+     * CartService::setCart() -- the final, persisted state of the restored cart.
+     */
+    private function restoreAndCaptureFinalCart(string $guestToken, Cart $guestCart, string $customerToken, Cart $customerCart): Cart
+    {
+        $currentContext = Generator::generateSalesChannelContext(token: $guestToken);
+        $customerContext = Generator::generateSalesChannelContext(token: $customerToken);
+
+        $this->persister->expects($this->once())->method('load')->willReturn([
+            'token' => $customerToken,
+            'expired' => false,
+        ]);
+
+        $this->salesChannelContextFactory->expects($this->once())->method('create')->willReturn($customerContext);
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService->method('getCart')->willReturnCallback(
+            static fn (string $token): Cart => match ($token) {
+                $guestToken => $guestCart,
+                $customerToken => $customerCart,
+                default => throw new \LogicException('Unexpected cart token: ' . $token),
+            }
+        );
+        // Guest cart has no line items in these tests, so enrichCustomerContext() takes the
+        // recalculate() branch, not mergeCart() -- recalculate() is a no-op here, since only the
+        // extension merge (which already happened directly on $customerCart) is under test.
+        $cartService->method('recalculate')->willReturnArgument(0);
+
+        $capturedCart = null;
+        $cartService->expects($this->once())
+            ->method('setCart')
+            ->willReturnCallback(function (Cart $cart) use (&$capturedCart): void {
+                $capturedCart = $cart;
+            });
+
+        // enrichCustomerContext()'s final step re-derives the cart it hands to setCart() from
+        // this call rather than reusing $restoredCart directly -- extensions survive because the
+        // real implementation reloads the same persisted cart, extensions included.
+        $cartCalculator = static::createStub(CartCalculator::class);
+        $cartCalculator->method('calculateByToken')->willReturn($customerCart);
+
+        $cartRestorer = new CartRestorer(
+            $this->salesChannelContextFactory,
+            $this->persister,
+            $cartService,
+            $cartCalculator,
+            $this->cartPersister,
+            $this->eventDispatcher,
+            $this->requestStack
+        );
+
+        $cartRestorer->restoreByToken('lookupToken', 'myCustomer', $currentContext);
+
+        static::assertInstanceOf(Cart::class, $capturedCart);
+
+        return $capturedCart;
     }
 }

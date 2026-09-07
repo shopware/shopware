@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderPriceModification\OrderPriceModificationCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderPriceModification\OrderPriceModificationEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -79,6 +81,8 @@ class OrderEntity extends Entity implements DocumentSourceEntity
     protected ?OrderDeliveryCollection $deliveries = null;
 
     protected ?OrderLineItemCollection $lineItems = null;
+
+    protected ?OrderPriceModificationCollection $priceModifications = null;
 
     protected ?OrderTransactionCollection $transactions = null;
 
@@ -205,6 +209,33 @@ class OrderEntity extends Entity implements DocumentSourceEntity
         $this->price = $price;
     }
 
+    /**
+     * Computed on the fly from priceModifications, not a persisted field — exists so Twig templates
+     * (checkout summary, invoice PDF) that already call order.priceModifiers keep working. Its own
+     * {label, description, amount, taxExempt, type, referencedId, payload} shape does not match
+     * PriceModifier's; requires priceModifications to be loaded.
+     *
+     * @return array<int, array{label: string, description: string|null, amount: float, taxExempt: bool, type: string|null, referencedId: string|null, payload: array<string, mixed>|null}>
+     *
+     * @see \Shopware\Core\Checkout\Cart\Cart::getPriceModifiers() for the pre-order equivalent.
+     */
+    public function getPriceModifiers(): array
+    {
+        if ($this->priceModifications === null) {
+            return [];
+        }
+
+        return array_values($this->priceModifications->map(static fn (OrderPriceModificationEntity $modification): array => [
+            'label' => $modification->getLabel(),
+            'description' => $modification->getDescription(),
+            'amount' => $modification->getPrice(), // already signed, no flip needed
+            'taxExempt' => $modification->isTaxExempt(),
+            'type' => $modification->getType(),
+            'referencedId' => $modification->getReferencedId(),
+            'payload' => $modification->getPayload(),
+        ]));
+    }
+
     public function getAmountTotal(): float
     {
         return $this->amountTotal;
@@ -318,6 +349,16 @@ class OrderEntity extends Entity implements DocumentSourceEntity
     public function setLineItems(OrderLineItemCollection $lineItems): void
     {
         $this->lineItems = $lineItems;
+    }
+
+    public function getPriceModifications(): ?OrderPriceModificationCollection
+    {
+        return $this->priceModifications;
+    }
+
+    public function setPriceModifications(OrderPriceModificationCollection $priceModifications): void
+    {
+        $this->priceModifications = $priceModifications;
     }
 
     public function getTransactions(): ?OrderTransactionCollection

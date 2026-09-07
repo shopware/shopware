@@ -26,8 +26,23 @@ class AmountCalculator
     ) {
     }
 
-    public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice
+    /**
+     * @deprecated tag:v6.8.0 - Parameter `?PriceCollection $additionalCosts = null` will be added
+     *
+     * $additionalCosts contributes to the total/tax like $shippingCosts, but is likewise excluded
+     * from CartPrice::positionPrice -- used to fold in a PriceProcessorInterface adjustment without
+     * changing what "subtotal" means.
+     */
+    public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context /* , ?PriceCollection $additionalCosts = null */): CartPrice
     {
+        // @deprecated tag:v6.8.0 - replace with the real `$additionalCosts` parameter
+        $additionalCosts = \func_num_args() > 3 ? \func_get_arg(3) : null;
+        \assert($additionalCosts === null || $additionalCosts instanceof PriceCollection);
+
+        if ($additionalCosts !== null && $additionalCosts->count() > 0) {
+            $shippingCosts = $shippingCosts->merge($additionalCosts);
+        }
+
         if ($context->getTaxState() === CartPrice::TAX_STATE_FREE) {
             return $this->calculateNetDeliveryAmount($prices, $shippingCosts);
         }

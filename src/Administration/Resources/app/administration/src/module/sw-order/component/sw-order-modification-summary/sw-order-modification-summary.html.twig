@@ -1,0 +1,116 @@
+{% block sw_order_modification_summary %}
+<template
+    v-for="modification in modifications"
+    :key="modification.id"
+>
+    {% block sw_order_modification_summary_row_label %}
+    <dt>
+        {{ modification.label }}
+        <mt-icon
+            v-if="modification.type || modification.referencedId"
+            v-tooltip="{
+                showDelay: 300,
+                message: typeTooltip(modification)
+            }"
+            class="sw-order-detail__summary-hint-icon"
+            name="regular-info-circle"
+            size="12px"
+        />
+    </dt>
+    {% endblock %}
+
+    {% block sw_order_modification_summary_row_amount %}
+    <dd>{{ currencyAmount(modification.price) }}</dd>
+    {% endblock %}
+
+    {% block sw_order_modification_summary_row_actions %}
+    <dd class="sw-order-modification-summary__actions sw-order-detail__summary-actions-cell">
+        <template v-if="editable && !isPercentageType(modification)">
+            <mt-button
+                class="sw-order-modification-summary__edit-action"
+                variant="secondary"
+                size="x-small"
+                square
+                :aria-label="$t('sw-order.detailBase.modificationEditLabel')"
+                @click="onEditModification(modification)"
+            >
+                <mt-icon name="regular-pencil-s" size="12px" />
+            </mt-button>
+
+            <mt-button
+                class="sw-order-modification-summary__delete-action"
+                variant="critical"
+                size="x-small"
+                square
+                :aria-label="$t('sw-order.detailBase.modificationDeleteLabel')"
+                @click="onDeleteRequest(modification)"
+            >
+                <mt-icon name="regular-trash" size="12px" />
+            </mt-button>
+        </template>
+    </dd>
+    {% endblock %}
+</template>
+
+{% block sw_order_modification_summary_add %}
+<template v-if="editable">
+    <dt class="sw-order-modification-summary__add-row"></dt>
+    <dd class="sw-order-modification-summary__add-row"></dd>
+    <dd class="sw-order-modification-summary__actions sw-order-detail__summary-actions-cell sw-order-modification-summary__add-row">
+        <mt-button
+            v-tooltip="{
+                showDelay: 300,
+                message: $t('sw-order.detailBase.modificationAddButton')
+            }"
+            variant="secondary"
+            size="x-small"
+            square
+            :aria-label="$t('sw-order.detailBase.modificationAddButton')"
+            @click="onAddModification"
+        >
+            <mt-icon name="regular-plus-s" size="12px" />
+        </mt-button>
+    </dd>
+</template>
+{% endblock %}
+
+{% block sw_order_modification_summary_modal %}
+<sw-order-modification-modal
+    v-if="showFormFor"
+    :modification="showFormFor"
+    :order="order"
+    @modal-close="onCloseForm"
+    @modal-save="onSaveModification"
+/>
+{% endblock %}
+
+{% block sw_order_modification_summary_delete_modal %}
+<sw-modal
+    v-if="showDeleteModal"
+    class="sw-order-modification-summary__delete-modal"
+    :title="$t('global.default.warning')"
+    variant="small"
+    @modal-close="onCloseDeleteModal"
+>
+    <p>{{ $t('sw-order.detailBase.modificationDeleteConfirmText') }}</p>
+
+    <template #modal-footer>
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="onCloseDeleteModal"
+        >
+            {{ $t('global.default.cancel') }}
+        </mt-button>
+
+        <mt-button
+            size="small"
+            variant="critical"
+            @click="onConfirmDelete"
+        >
+            {{ $t('global.default.delete') }}
+        </mt-button>
+    </template>
+</sw-modal>
+{% endblock %}
+{% endblock %}

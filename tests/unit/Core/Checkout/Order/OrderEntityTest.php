@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderPriceModification\OrderPriceModificationCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderPriceModification\OrderPriceModificationEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
@@ -80,6 +82,36 @@ class OrderEntityTest extends TestCase
         $order->setLineItems($collection);
 
         static::assertSame($collection, $order->getLineItems());
+    }
+
+    public function testGetPriceModifiersReturnsEmptyArrayWhenNotLoaded(): void
+    {
+        static::assertSame([], (new OrderEntity())->getPriceModifiers());
+    }
+
+    public function testGetPriceModifiersExposesDisplayDataAndPayload(): void
+    {
+        $modification = new OrderPriceModificationEntity();
+        $modification->setId('modification-1');
+        $modification->setLabel('Voucher');
+        $modification->setDescription('Summer campaign');
+        $modification->setPrice(-10.0);
+        $modification->setType('SwagVoucher');
+        $modification->setReferencedId('voucher');
+        $modification->setPayload(['code' => 'SUMMER-2026']);
+
+        $order = new OrderEntity();
+        $order->setPriceModifications(new OrderPriceModificationCollection([$modification]));
+
+        static::assertSame([[
+            'label' => 'Voucher',
+            'description' => 'Summer campaign',
+            'amount' => -10.0,
+            'taxExempt' => true,
+            'type' => 'SwagVoucher',
+            'referencedId' => 'voucher',
+            'payload' => ['code' => 'SUMMER-2026'],
+        ]], $order->getPriceModifiers());
     }
 
     private function createLineItem(string $id, ?string $parentId, int $position): OrderLineItemEntity

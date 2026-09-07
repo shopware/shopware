@@ -1,0 +1,14 @@
+.sw-order-modification-summary {
+    &__actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+    }
+
+    // Separates the "add" row from the last modification row above it — applied to every cell of
+    // the row so they stay vertically level with each other in the grid.
+    &__add-row {
+        margin-top: 12px;
+    }
+}

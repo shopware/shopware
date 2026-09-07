@@ -191,7 +191,8 @@
           "fixed_unit": "Fixed {value} for each specific product of set group {groupId}",
           "fixed": "Fixed {value} for each set group {groupId}"
         }
-      }
+      },
+      "summaryHintNetAmount": "Net and VAT reflect the full value of the goods/services supplied. If part of the amount was already settled by a prepaid, VAT-neutral value voucher, the total below will be lower than net plus VAT."
     },
     "detailBase": {
       "cardTitleDetails": "Details",
@@ -269,7 +270,28 @@
       "textConvertedProductLineItemsDescription": "Prices of these products cannot be recalculated. Please take extra care when editing the order.",
       "textDeleteLineItemConfirm": "Are you sure you want to delete the position ({label})?",
       "helpTextCustomerComment": "Customers can submit this comment, and any changes will be visible to them.",
-      "helpTextInternalComment": "This comment is for internal use only and will not be presented to customers."
+      "helpTextInternalComment": "This comment is for internal use only and will not be presented to customers.",
+      "modificationEditLabel": "Edit modification",
+      "modificationDeleteLabel": "Delete modification",
+      "modificationAddButton": "Add modification",
+      "modificationDeleteConfirmText": "Delete this modification? The order total will be recalculated.",
+      "modificationModalTitleAdd": "Add modification",
+      "modificationModalTitleEdit": "Edit modification",
+      "modificationFieldLabel": "Label",
+      "modificationFieldDescription": "Description",
+      "modificationFieldDirection": "Direction",
+      "modificationDirectionReduction": "Reduction",
+      "modificationDirectionSurcharge": "Surcharge",
+      "modificationFieldAmount": "Amount",
+      "modificationFieldAmountHelpText": "Enter a positive amount — combined with the direction above, it will be subtracted from or added to the order total.",
+      "modificationFieldTaxExempt": "Tax exempt",
+      "modificationFieldTaxExemptHelpText": "Off: adjusts price and VAT proportionally — use for a merchant-granted discount, a redeemed single-purpose voucher (Einzweck-Gutschein), or an ordinary taxed fee. On: adjusts price only, VAT stays on the original amount — use for a redeemed multi-purpose value voucher (Mehrzweck-Gutschein) that was already paid for and taxed at purchase.",
+      "modificationFieldTaxLockedHelpText": "This modification was created automatically during checkout. Its tax treatment can no longer be changed here.",
+      "modificationFieldTaxRateSelection": "Tax rates",
+      "modificationFieldTaxRateSelectionHelpText": "Selecting none applies the modification proportionally across every tax rate on the order.",
+      "modificationTypeLine": "Type: {type}",
+      "modificationReferencedIdLine": "Referenced ID: {referencedId}",
+      "summaryHintNetAmount": "Net and VAT reflect the full value of the goods/services supplied. If part of the amount was already settled by a prepaid, VAT-neutral value voucher, the total below will be lower than net plus VAT."
     },
     "lineItemType": {
       "credit": "Credit",

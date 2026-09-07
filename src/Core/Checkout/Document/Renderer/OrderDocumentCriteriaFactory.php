@@ -36,6 +36,7 @@ final class OrderDocumentCriteriaFactory
             'primaryOrderDelivery.shippingOrderAddress.country',
             'primaryOrderDelivery.shippingOrderAddress.countryState',
             'lineItems',
+            'priceModifications',
             'primaryOrderTransaction.paymentMethod',
             'primaryOrderTransaction.stateMachineState',
             'currency',

@@ -193,7 +193,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             $parameters['cancelledStateId'] = $cancelledStateId;
         }
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT LOWER(HEX(order_line_item.promotion_id)) as promotion_id,
                    COUNT(DISTINCT order_line_item.order_id) as total,
                    LOWER(HEX(order_customer.customer_id)) as customer_id
@@ -201,13 +201,15 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
                      INNER JOIN `order`
                                ON (`order`.id = order_line_item.order_id
                                    AND `order`.version_id = order_line_item.order_version_id
-                                   {$cancelledStateFilter})
+                                   #cancelledStateFilter#)
                      LEFT JOIN order_customer
                                ON (order_customer.order_id = order_line_item.order_id
                                    AND order_customer.order_version_id = order_line_item.order_version_id)
             WHERE order_line_item.promotion_id IN (:ids) AND order_line_item.version_id = :versionId AND order_line_item.type = :type
             GROUP BY order_line_item.promotion_id, order_customer.customer_id
         SQL;
+
+        $sql = str_replace('#cancelledStateFilter#', $cancelledStateFilter, $sql);
 
         /** @var list<array{promotion_id: string, total: numeric-string, customer_id: ?string}> $promotions */
         $promotions = $this->connection->fetchAllAssociative(

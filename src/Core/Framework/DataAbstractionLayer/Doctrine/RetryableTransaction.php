@@ -23,7 +23,22 @@ class RetryableTransaction
      */
     public static function retryable(Connection $connection, \Closure $closure)
     {
-        return self::retry($connection, $closure, 0, $connection->getTransactionNestingLevel());
+        return self::retry($connection, $closure, 0, $connection->getTransactionNestingLevel(), null);
+    }
+
+    /**
+     * @internal
+     *
+     * @template TReturn of mixed
+     *
+     * @param \Closure(Connection): TReturn $closure
+     * @param \Closure(): bool $shouldRetry Stops retries before callbacks with side effects are replayed
+     *
+     * @return TReturn
+     */
+    public static function retryableWithPredicate(Connection $connection, \Closure $closure, \Closure $shouldRetry)
+    {
+        return self::retry($connection, $closure, 0, $connection->getTransactionNestingLevel(), $shouldRetry);
     }
 
     /**
@@ -68,10 +83,11 @@ class RetryableTransaction
      * @template TReturn of mixed
      *
      * @param \Closure(Connection): TReturn $closure The function to execute transactionally.
+     * @param (\Closure(): bool)|null $shouldRetry
      *
      * @return TReturn
      */
-    private static function retry(Connection $connection, \Closure $closure, int $counter, int $transactionNestingLevel)
+    private static function retry(Connection $connection, \Closure $closure, int $counter, int $transactionNestingLevel, ?\Closure $shouldRetry)
     {
         ++$counter;
         try {
@@ -98,14 +114,14 @@ class RetryableTransaction
                 MeterProvider::meter()?->emit(new ConfiguredMetric('database.locks.count', 1));
             }
 
-            if ($counter > 10 || !$retryableException) {
+            if ($counter > 10 || !$retryableException || ($shouldRetry !== null && !$shouldRetry())) {
                 throw $retryableException ?? $e;
             }
 
             // Randomize sleep to prevent same execution delay for multiple statements
             usleep(random_int(10, 20));
 
-            return self::retry($connection, $closure, $counter, $transactionNestingLevel);
+            return self::retry($connection, $closure, $counter, $transactionNestingLevel, $shouldRetry);
         }
     }
 

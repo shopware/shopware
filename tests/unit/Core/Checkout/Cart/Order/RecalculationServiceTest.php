@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
+use Shopware\Core\Checkout\Cart\Order\Error\ProductPriceDefinitionRestoredError;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -28,11 +29,15 @@ use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -210,6 +215,110 @@ class RecalculationServiceTest extends TestCase
         );
 
         $recalculationService->recalculate($orderEntity->getId(), $this->context);
+    }
+
+    public function testRecalculateRestoresMissingProductPriceDefinition(): void
+    {
+        $order = $this->orderEntity();
+        $salesChannelContext = Generator::generateSalesChannelContext(baseContext: $this->context);
+        $salesChannelContext->setPermissions(OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS);
+
+        $cart = $this->getCart();
+
+        $customLineItem = new LineItem('custom-line-item', LineItem::CUSTOM_LINE_ITEM_TYPE);
+        $cart->add($customLineItem);
+
+        $productWithoutPrice = new LineItem('product-without-price', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $cart->add($productWithoutPrice);
+
+        $taxRules = new TaxRuleCollection([new TaxRule(19.0)]);
+        $productWithMissingDefinition = new LineItem(
+            'product-with-missing-definition',
+            LineItem::PRODUCT_LINE_ITEM_TYPE,
+            Uuid::randomHex(),
+            2,
+        );
+        $productWithMissingDefinition->setPrice(new CalculatedPrice(
+            12.5,
+            25.0,
+            new CalculatedTaxCollection(),
+            $taxRules,
+            2,
+            null,
+            ListPrice::createFromUnitPrice(12.5, 15.0),
+            new RegulationPrice(11.0),
+        ));
+        $cart->add($productWithMissingDefinition);
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'order',
+                1,
+                new OrderCollection([$order]),
+                null,
+                new Criteria(),
+                $this->context,
+            ),
+        );
+        $entityRepository->expects($this->once())->method('upsert');
+
+        $orderConverter = $this->createMock(OrderConverter::class);
+        $orderConverter->expects($this->once())
+            ->method('assembleSalesChannelContext')
+            ->willReturn($salesChannelContext);
+        $orderConverter->expects($this->once())
+            ->method('convertToCart')
+            ->willReturn($cart);
+        $orderConverter->expects($this->once())
+            ->method('convertToOrder')
+            ->willReturn(['lineItems' => []]);
+
+        $processor = $this->createMock(Processor::class);
+        $processor->expects($this->once())
+            ->method('process')
+            ->willReturn($cart);
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader->expects($this->once())
+            ->method('loadByCart')
+            ->willReturn(new RuleLoaderResult($cart, new RuleCollection()));
+
+        $recalculationService = new RecalculationService(
+            $entityRepository,
+            $orderConverter,
+            static::createStub(CartService::class),
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $entityRepository,
+            $processor,
+            $cartRuleLoader,
+            static::createStub(PromotionItemBuilder::class),
+            $this->lineItemFactoryRegistry(),
+        );
+
+        $errors = $recalculationService->recalculate($order->getId(), $this->context);
+
+        static::assertNull($customLineItem->getPriceDefinition());
+        static::assertNull($productWithoutPrice->getPriceDefinition());
+
+        $definition = $productWithMissingDefinition->getPriceDefinition();
+        static::assertInstanceOf(QuantityPriceDefinition::class, $definition);
+        static::assertSame(12.5, $definition->getPrice());
+        static::assertSame($taxRules, $definition->getTaxRules());
+        static::assertSame(2, $definition->getQuantity());
+        static::assertTrue($definition->isCalculated());
+        static::assertSame(15.0, $definition->getListPrice());
+        static::assertSame(11.0, $definition->getRegulationPrice());
+
+        $restoredErrors = $errors->filterInstance(ProductPriceDefinitionRestoredError::class);
+        static::assertCount(1, $restoredErrors);
+        $restoredError = $restoredErrors->first();
+        static::assertInstanceOf(ProductPriceDefinitionRestoredError::class, $restoredError);
+        static::assertSame($productWithMissingDefinition->getId(), $restoredError->getLineItemId());
+        static::assertSame($productWithMissingDefinition->getId(), $restoredError->getName());
     }
 
     public function testAddProductToOrder(): void

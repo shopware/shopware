@@ -12,10 +12,12 @@ use Shopware\Core\PlatformRequest;
  * the internal HTTP cache key, so the internal cache and external reverse proxies always
  * differentiate the same variants.
  *
+ * @codeCoverageIgnore - list of constants
+ *
  * @internal
  */
 #[Package('framework')]
-final class HttpCacheVariantHeaders
+final readonly class HttpCacheVariantHeaders
 {
     /**
      * `sw-cache-hash` is transported as a cookie/header; the other values are plain request headers.

@@ -6,7 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -38,7 +40,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
         );
 
@@ -59,7 +61,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Root, 'product'))]],
+            ['p1' => [self::reference('product', false, self::candidate(CandidateOrigin::Root, 'product'))]],
             ['p1'],
         );
 
@@ -75,8 +77,8 @@ class ContextConsumerMirrorTest extends TestCase
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $resolutions = ['p1' => [
-            $this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product')),
-            $this->reference('page', false, $this->candidate(CandidateOrigin::Root, 'page', ContextType::Collection)),
+            self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product')),
+            self::reference('page', false, self::candidate(CandidateOrigin::Root, 'page', ContextType::Collection)),
         ]];
 
         $wired = (new ContextConsumerMirror())->apply(new StoredTree([$element]), $resolutions, ['p1']);
@@ -105,7 +107,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('crossSellProduct', $required, $this->candidate($origin, 'product'))]],
+            ['p1' => [self::reference('crossSellProduct', $required, self::candidate($origin, 'product'))]],
             ['p1'],
         );
 
@@ -124,7 +126,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('crossSellProduct', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('crossSellProduct', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
         );
 
@@ -141,7 +143,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('product.name', true, $this->candidate(CandidateOrigin::Parent, 'product.name'))]],
+            ['p1' => [self::reference('product.name', true, self::candidate(CandidateOrigin::Parent, 'product.name'))]],
             ['p1'],
         );
 
@@ -159,7 +161,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$outer]),
-            ['price' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['price' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['price'],
         );
 
@@ -179,7 +181,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$untouched, $target]),
-            ['root1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['root1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['root1'],
         );
 
@@ -192,8 +194,8 @@ class ContextConsumerMirrorTest extends TestCase
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $resolutions = ['p1' => [
-            $this->reference('firstProperty', false, $this->candidate(CandidateOrigin::Parent, 'product')),
-            $this->reference('secondProperty', true, $this->candidate(CandidateOrigin::Parent, 'product')),
+            self::reference('firstProperty', false, self::candidate(CandidateOrigin::Parent, 'product')),
+            self::reference('secondProperty', true, self::candidate(CandidateOrigin::Parent, 'product')),
         ]];
 
         $wired = (new ContextConsumerMirror())->apply(new StoredTree([$element]), $resolutions, ['p1']);
@@ -212,7 +214,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
         );
 
@@ -229,7 +231,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
         );
 
@@ -237,7 +239,11 @@ class ContextConsumerMirrorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0: StoredElement, 1: string}>
+     * The written property key and the existing consumer's key each reduce to a base key, and either side may
+     * be the dotted one. The third row is the mirror image of the second: it dots the written key instead of
+     * the existing consumer's, so a comparison that reduced only the existing-consumer side fails it.
+     *
+     * @return iterable<string, array{0: StoredElement, 1: PropertyResolution, 2: string}>
      */
     public static function baseKeyCollisionProvider(): iterable
     {
@@ -245,6 +251,7 @@ class ContextConsumerMirrorTest extends TestCase
             StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
                 ->withConsumer('x', ContextType::Single, false, false, null, 'product')
                 ->build(),
+            self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'y')),
             'x',
         ];
 
@@ -252,21 +259,26 @@ class ContextConsumerMirrorTest extends TestCase
             StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
                 ->withConsumer('product.name', ContextType::Single)
                 ->build(),
+            self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'y')),
             'product.name',
+        ];
+
+        yield 'dotted written key against an undotted existing consumer key' => [
+            StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                ->withConsumer('product', ContextType::Single)
+                ->build(),
+            self::reference('product.sku', true, self::candidate(CandidateOrigin::Parent, 'product.sku')),
+            'product',
         ];
     }
 
     #[DataProvider('baseKeyCollisionProvider')]
     #[TestDox('skips a base-key collision against an existing consumer')]
-    public function testSkipsBaseKeyCollision(StoredElement $element, string $survivingKey): void
+    public function testSkipsBaseKeyCollision(StoredElement $element, PropertyResolution $resolution, string $survivingKey): void
     {
         $tree = new StoredTree([$element]);
 
-        $wired = (new ContextConsumerMirror())->apply(
-            $tree,
-            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'y'))]],
-            ['p1'],
-        );
+        $wired = (new ContextConsumerMirror())->apply($tree, ['p1' => [$resolution]], ['p1']);
 
         static::assertSame($tree, $wired);
         static::assertSame([$survivingKey], array_keys($this->consumers($wired->roots[0])));
@@ -281,7 +293,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
         );
 
@@ -298,7 +310,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
-            ['p1' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
         );
 
@@ -313,8 +325,8 @@ class ContextConsumerMirrorTest extends TestCase
             ->withConsumer('authored', ContextType::Single)
             ->build();
         $resolutions = ['p1' => [
-            $this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product')),
-            $this->reference('page', true, $this->candidate(CandidateOrigin::Root, 'page')),
+            self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product')),
+            self::reference('page', true, self::candidate(CandidateOrigin::Root, 'page')),
         ]];
 
         $wired = (new ContextConsumerMirror())->apply(new StoredTree([$element]), $resolutions, ['other-id']);
@@ -331,7 +343,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             $tree,
-            ['p1' => [$this->reference('product.name', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('product.name', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
         );
 
@@ -347,7 +359,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             $tree,
-            ['p1' => [$this->reference('product', true, null)]],
+            ['p1' => [self::reference('product', true, null)]],
             ['p1'],
         );
 
@@ -373,7 +385,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             $tree,
-            ['p1' => [$this->reference('product', true, $this->candidate($origin, 'product'))]],
+            ['p1' => [self::reference('product', true, self::candidate($origin, 'product'))]],
             ['p1'],
         );
 
@@ -461,7 +473,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             $tree,
-            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
             [],
         );
 
@@ -476,7 +488,7 @@ class ContextConsumerMirrorTest extends TestCase
 
         $wired = (new ContextConsumerMirror())->apply(
             $tree,
-            ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['ghost'],
         );
 
@@ -496,6 +508,265 @@ class ContextConsumerMirrorTest extends TestCase
     }
 
     /**
+     * Every mirroring scenario this class exercises, as the three arguments {@see ContextConsumerMirror::apply()}
+     * takes, so the decode-conformance test below runs over the same table the behavioural tests do. A scenario
+     * that mirrors nothing today rides along deliberately: three of those guards — the dotted `propertyAlias`,
+     * the base-key collision and the integer-like context key — exist because the consumer they would otherwise
+     * write is one the decode gate refuses, so the guard failing is the only way that consumer ever reaches this
+     * test. The remaining skip scenarios would write a legal consumer and are carried for completeness.
+     *
+     * @return iterable<string, array{0: StoredTree, 1: array<string, list<PropertyResolution>>, 2: list<string>}>
+     */
+    public static function mirroringScenarioProvider(): iterable
+    {
+        $plain = static fn (): StoredTree => new StoredTree([StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build()]);
+
+        yield 'a parent-origin reference' => [
+            $plain(),
+            ['p1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'a root-origin reference' => [
+            $plain(),
+            ['p1' => [self::reference('product', false, self::candidate(CandidateOrigin::Root, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'two proven references on one element' => [
+            $plain(),
+            ['p1' => [
+                self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product')),
+                self::reference('page', false, self::candidate(CandidateOrigin::Root, 'page', ContextType::Collection)),
+            ]],
+            ['p1'],
+        ];
+
+        yield 'a cross-key reference resolved off the parent chain' => [
+            $plain(),
+            ['p1' => [self::reference('crossSellProduct', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'a cross-key reference resolved off the root context' => [
+            $plain(),
+            ['p1' => [self::reference('crossSellProduct', false, self::candidate(CandidateOrigin::Root, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'a cross-key reference onto an element providing the candidate context key' => [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                    ->withProvider('product', BroadcastDistributionConfig::simple())
+                    ->build(),
+            ]),
+            ['p1' => [self::reference('crossSellProduct', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'an equal dotted key' => [
+            $plain(),
+            ['p1' => [self::reference('product.name', true, self::candidate(CandidateOrigin::Parent, 'product.name'))]],
+            ['p1'],
+        ];
+
+        yield 'a created element nested in a slot' => [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Grid:Container', 'outer')->withSlot('content', [
+                    StoredElementBuilder::create('Sw:Grid:Container', 'inner')->withSlot('content', [
+                        StoredElementBuilder::create('Sw:Product:PriceDisplay', 'price')->build(),
+                    ])->build(),
+                ])->build(),
+            ]),
+            ['price' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['price'],
+        ];
+
+        yield 'a created element under the second root' => [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Grid:Container', 'root0')->build(),
+                StoredElementBuilder::create('Sw:Product:PriceDisplay', 'root1')->build(),
+            ]),
+            ['root1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['root1'],
+        ];
+
+        yield 'two resolutions sharing one resolved context key' => [
+            $plain(),
+            ['p1' => [
+                self::reference('firstProperty', false, self::candidate(CandidateOrigin::Parent, 'product')),
+                self::reference('secondProperty', true, self::candidate(CandidateOrigin::Parent, 'product')),
+            ]],
+            ['p1'],
+        ];
+
+        yield 'a written property key colliding with no existing consumer base key' => [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                    ->withConsumer('other', ContextType::Single)
+                    ->build(),
+            ]),
+            ['p1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'a consumer the element already carries under the same key' => [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                    ->withConsumer('product', ContextType::Collection, true, false, null, 'item')
+                    ->build(),
+            ]),
+            ['p1' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        ];
+
+        foreach (self::baseKeyCollisionProvider() as $name => [$element, $resolution]) {
+            yield $name => [new StoredTree([$element]), ['p1' => [$resolution]], ['p1']];
+        }
+
+        yield 'a key the element already fills from a data requirement' => [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                    ->withDataRequirement('product', 'entity', new StubLoaderConfig())
+                    ->build(),
+            ]),
+            ['p1' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'a key the element itself provides' => [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                    ->withProvider('product', BroadcastDistributionConfig::simple())
+                    ->build(),
+            ]),
+            ['p1' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'an element outside the created set' => [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                    ->withConsumer('authored', ContextType::Single)
+                    ->build(),
+            ]),
+            ['p1' => [
+                self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product')),
+                self::reference('page', true, self::candidate(CandidateOrigin::Root, 'page')),
+            ]],
+            ['other-id'],
+        ];
+
+        yield 'a cross-key resolution whose written property key carries a dot' => [
+            $plain(),
+            ['p1' => [self::reference('product.name', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
+        ];
+
+        yield 'a reference the resolution did not prove' => [
+            $plain(),
+            ['p1' => [self::reference('product', true, null)]],
+            ['p1'],
+        ];
+
+        foreach (self::selfFillingOriginProvider() as $name => [$origin]) {
+            yield $name => [
+                $plain(),
+                ['p1' => [self::reference('product', true, self::candidate($origin, 'product'))]],
+                ['p1'],
+            ];
+        }
+
+        foreach (self::unmirrorableResolutionProvider() as $name => [$resolution]) {
+            yield $name => [$plain(), ['p1' => [$resolution]], ['p1']];
+        }
+
+        yield 'an empty created set' => [
+            $plain(),
+            ['p1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            [],
+        ];
+
+        yield 'a created id naming no element in the tree' => [
+            $plain(),
+            ['p1' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['ghost'],
+        ];
+
+        yield 'a created element with no resolutions at all' => [$plain(), [], ['p1']];
+    }
+
+    /**
+     * A mirrored consumer is written straight onto an in-memory tree, so nothing in the mirror itself proves the
+     * result survives the gate the client's next request puts it through: the element goes back out over HTTP,
+     * comes back in through {@see DraftLayoutDecoder}, and reaches {@see StoredElementWiringDecoder} — whose
+     * rules the mirror only hand-guards. This runs the encode shape the response carries, through the JSON round
+     * trip the wire performs, into that decoder. An integer-like consumer key is an integer array key before it
+     * is ever encoded, because PHP coerces it the moment the mirror assigns it; the round trip is here because it
+     * is what the HTTP boundary does, and it carries that key through as an integer for the decoder to refuse.
+     *
+     * The pin is that no decode step throws. The equality below is the narrower claim that encode and decode
+     * agree on the map, and it can only fail where a consumer decodes into something other than what was written.
+     *
+     * @param array<string, list<PropertyResolution>> $resolutions
+     * @param list<string> $createdElementIds
+     */
+    #[DataProvider('mirroringScenarioProvider')]
+    #[TestDox('writes wiring the decode gate reads back for $_dataName')]
+    public function testMirroredWiringSurvivesTheDecodeGate(StoredTree $tree, array $resolutions, array $createdElementIds): void
+    {
+        $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $createdElementIds);
+        $decoder = new StoredElementWiringDecoder();
+
+        foreach ($this->flatten($wired->roots) as $element) {
+            $wireShape = $this->roundTrip($element);
+
+            $consumers = $decoder->decodeConsumers($wireShape['acceptsContext'] ?? []);
+            $providers = $decoder->decodeProviders($wireShape['providesContext'] ?? []);
+            $decoder->rejectInvalidElementWiring($consumers, $providers);
+
+            static::assertEquals(
+                $element->contextDefinitions->getAllConsumers(),
+                $consumers,
+                \sprintf('Element "%s" does not decode back to the consumer map the mirror left on it.', $element->id)
+            );
+        }
+    }
+
+    /**
+     * The encoded element put through the JSON round trip the HTTP boundary performs, so PHP's array-key
+     * coercion applies to every wiring key exactly as it does on a real request body.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function roundTrip(StoredElement $element): array
+    {
+        return (array) json_decode(json_encode($element->jsonSerialize(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param list<StoredElement> $elements
+     *
+     * @return list<StoredElement>
+     */
+    private function flatten(array $elements): array
+    {
+        $flat = [];
+
+        foreach ($elements as $element) {
+            $flat[] = $element;
+
+            foreach ($element->slots as $children) {
+                foreach ($this->flatten($children) as $descendant) {
+                    $flat[] = $descendant;
+                }
+            }
+        }
+
+        return $flat;
+    }
+
+    /**
      * @return array<string, ContextConsumer>
      */
     private function consumers(StoredElement $element): array
@@ -503,12 +774,12 @@ class ContextConsumerMirrorTest extends TestCase
         return $element->contextDefinitions->getAllConsumers();
     }
 
-    private function reference(string $key, bool $required, ?ResolutionCandidate $resolved): PropertyResolution
+    private static function reference(string $key, bool $required, ?ResolutionCandidate $resolved): PropertyResolution
     {
         return new PropertyResolution($key, PropertyKind::Reference, $required, null, null, self::PRODUCT_FQCN, $resolved);
     }
 
-    private function candidate(CandidateOrigin $origin, string $contextKey, ContextType $type = ContextType::Single): ResolutionCandidate
+    private static function candidate(CandidateOrigin $origin, string $contextKey, ContextType $type = ContextType::Single): ResolutionCandidate
     {
         return new ResolutionCandidate($origin, $contextKey, null, null, DistributionStrategy::Broadcast, $type);
     }

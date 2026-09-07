@@ -41,6 +41,8 @@ final class InsertPreset extends AbstractLayoutMutation
             $this->affected = array_merge($this->affected, $this->subtreeIds($clone));
         }
 
+        $this->created = $this->affected;
+
         if ($this->parentElementId === null) {
             return $tree->insertAtRoot($this->index, $clones);
         }

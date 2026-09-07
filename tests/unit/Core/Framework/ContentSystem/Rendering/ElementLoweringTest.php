@@ -139,9 +139,10 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
-     * The parent loads before it distributes, so a value produced by its loader can reach the child even
-     * though the parent stores no `product` of its own. The value is compared by identity, so no stored value
-     * could stand in for it.
+     * The ordering claim: loading completes over the whole forest before any distribution starts. The parent
+     * stores no `product` of its own, so the only thing that can reach the child is the value the parent's
+     * loader produced — and it is compared by identity, so no stored value could stand in for it. Compute the
+     * deliveries before the loads and the parent distributes nothing, leaving the child's map empty.
      */
     #[TestDox('delivers a parent loader resolved value to its consuming child in full mode')]
     public function testFullModeDeliversAParentLoadedValueToItsConsumingChild(): void

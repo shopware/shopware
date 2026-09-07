@@ -27,8 +27,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * filtering to the rendered union first would make it quietly stop delivering with nothing raising.
  *
  * A {@see ConsumerScope::Root} consumer is filled from the ambient map argument to {@see resolve()}, not by
- * a parent provider, so it receives at any depth with no intermediate wiring. {@see resolveRootContext()}
- * exposes that tree-independent part separately for resolving an element's loader inputs.
+ * the walk, so it receives at any depth with no intermediate wiring. {@see resolveRootContext()} exposes that
+ * tree-independent part separately for resolving an element's loader inputs.
  *
  * @internal
  */
@@ -44,8 +44,10 @@ final readonly class ContextDeliveryResolver
     /**
      * `$loaderValues` is keyed by element id, then by requirement key — the shape
      * {@see ElementDataResolver::resolve()} returns per element, collected for the forest. It arrives
-     * precomputed rather than being resolved here. An element with no entry simply has no loader values,
-     * which is the ordinary case and not an error.
+     * precomputed rather than being resolved here because loading completes for the whole forest before any
+     * distribution starts: a provider may hand on a loaded value, so every load must already have happened
+     * by the time the first parent distributes. An element with no entry simply has no loader values, which
+     * is the ordinary case and not an error.
      *
      * `$ambientContext` is the layout's root-ambient map, resolved once per render by {@see ElementLowering}
      * and passed in so root delivery never depends on tree shape. An empty map (SKELETON, no wrapper) delivers
@@ -83,8 +85,10 @@ final readonly class ContextDeliveryResolver
     }
 
     /**
-     * Records what this element received before descending, so the index is filled in the same pre-order the
-     * distribution runs in and a parent's entry is always in place before its children's.
+     * The root-scoped overlay runs FIRST, before the working map is read: a root-delivered value must be in
+     * the working map for the element's own providers to hand it on, exactly as a parent-delivered one is.
+     * Records what this element received before descending, so a parent's entry is always in place before its
+     * children's.
      *
      * @param array<string, array<string, mixed>> $loaderValues
      * @param array<string, mixed> $ambientContext

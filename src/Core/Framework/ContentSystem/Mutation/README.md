@@ -30,7 +30,7 @@ itself is agnostic to whether the tree came from a request draft or a loaded `co
 1. **Apply** the operation to the decoded tree.
 2. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness
    output.
-3. **Mirror** the proven context consumers onto the elements the operation created, via `PageContextConsumerWiring`.
+3. **Mirror** the proven context consumers onto the elements the operation created, via `ContextConsumerMirror`.
    A tree that gained a consumer is diagnosed a second time, so the report and the resolutions always describe the
    tree the result carries; a tree that gained none comes back as the same instance and is diagnosed once.
 4. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the

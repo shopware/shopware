@@ -19,9 +19,11 @@ use Shopware\Core\Framework\Log\Package;
  * becomes a parent-scope consumer, a root-resolved one a {@see ConsumerScope::Root} consumer.
  *
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
-class PageContextConsumerWiring
+class ContextConsumerMirror
 {
     /**
      * @param array<string, list<PropertyResolution>> $resolutions per-element resolutions, keyed by element id

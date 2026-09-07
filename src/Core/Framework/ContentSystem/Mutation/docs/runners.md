@@ -7,11 +7,11 @@ through the same `MutationResult` named constructor.
 ## MutationPipeline
 
 `@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests). Constructor:
-`LayoutDiagnostics $diagnostics, PageContextConsumerWiring $contextWiring`.
+`LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror`.
 
 `run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
 already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()` via
-`PageContextConsumerWiring::apply()`, re-diagnoses when (and only when) the wiring returned a different `StoredTree`
+`ContextConsumerMirror::apply()`, re-diagnoses when (and only when) the wiring returned a different `StoredTree`
 instance, and hands the wired tree, the surviving analysis and the mutation to
 `MutationResult::fromAnalyzedMutation()`, which owns the restriction of the returned resolutions to the affected set
 (`array_intersect_key($analysis->resolutions, array_flip($affected))`).

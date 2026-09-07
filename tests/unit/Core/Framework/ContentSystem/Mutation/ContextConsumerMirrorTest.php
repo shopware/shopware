@@ -13,7 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
-use Shopware\Core\Framework\ContentSystem\Mutation\PageContextConsumerWiring;
+use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
@@ -26,8 +26,8 @@ use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(PageContextConsumerWiring::class)]
-class PageContextConsumerWiringTest extends TestCase
+#[CoversClass(ContextConsumerMirror::class)]
+class ContextConsumerMirrorTest extends TestCase
 {
     private const PRODUCT_FQCN = 'Shopware\\Core\\Content\\Product\\SalesChannel\\SalesChannelProductEntity';
 
@@ -36,7 +36,7 @@ class PageContextConsumerWiringTest extends TestCase
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
@@ -57,7 +57,7 @@ class PageContextConsumerWiringTest extends TestCase
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Root, 'product'))]],
             ['p1'],
@@ -79,7 +79,7 @@ class PageContextConsumerWiringTest extends TestCase
             $this->reference('page', false, $this->candidate(CandidateOrigin::Root, 'page', ContextType::Collection)),
         ]];
 
-        $wired = (new PageContextConsumerWiring())->apply(new StoredTree([$element]), $resolutions, ['p1']);
+        $wired = (new ContextConsumerMirror())->apply(new StoredTree([$element]), $resolutions, ['p1']);
 
         $consumers = $this->consumers($wired->roots[0]);
         static::assertSame(['product', 'page'], array_keys($consumers));
@@ -103,7 +103,7 @@ class PageContextConsumerWiringTest extends TestCase
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('crossSellProduct', $required, $this->candidate($origin, 'product'))]],
             ['p1'],
@@ -122,7 +122,7 @@ class PageContextConsumerWiringTest extends TestCase
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('crossSellProduct', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
@@ -139,7 +139,7 @@ class PageContextConsumerWiringTest extends TestCase
     {
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('product.name', true, $this->candidate(CandidateOrigin::Parent, 'product.name'))]],
             ['p1'],
@@ -157,7 +157,7 @@ class PageContextConsumerWiringTest extends TestCase
         $inner = StoredElementBuilder::create('Sw:Grid:Container', 'inner')->withSlot('content', [$price])->build();
         $outer = StoredElementBuilder::create('Sw:Grid:Container', 'outer')->withSlot('content', [$inner])->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$outer]),
             ['price' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['price'],
@@ -177,7 +177,7 @@ class PageContextConsumerWiringTest extends TestCase
         $untouched = StoredElementBuilder::create('Sw:Grid:Container', 'root0')->build();
         $target = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'root1')->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$untouched, $target]),
             ['root1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['root1'],
@@ -196,7 +196,7 @@ class PageContextConsumerWiringTest extends TestCase
             $this->reference('secondProperty', true, $this->candidate(CandidateOrigin::Parent, 'product')),
         ]];
 
-        $wired = (new PageContextConsumerWiring())->apply(new StoredTree([$element]), $resolutions, ['p1']);
+        $wired = (new ContextConsumerMirror())->apply(new StoredTree([$element]), $resolutions, ['p1']);
 
         $consumers = $this->consumers($wired->roots[0]);
         static::assertSame(['product'], array_keys($consumers));
@@ -210,7 +210,7 @@ class PageContextConsumerWiringTest extends TestCase
             ->withConsumer('other', ContextType::Single)
             ->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
@@ -227,7 +227,7 @@ class PageContextConsumerWiringTest extends TestCase
             ->build();
         $authored = $this->consumers($element)['product'];
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
@@ -262,7 +262,7 @@ class PageContextConsumerWiringTest extends TestCase
     {
         $tree = new StoredTree([$element]);
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             $tree,
             ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'y'))]],
             ['p1'],
@@ -279,7 +279,7 @@ class PageContextConsumerWiringTest extends TestCase
             ->withDataRequirement('product', 'entity', new StubLoaderConfig())
             ->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
@@ -296,7 +296,7 @@ class PageContextConsumerWiringTest extends TestCase
             ->withProvider('product', BroadcastDistributionConfig::simple())
             ->build();
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             new StoredTree([$element]),
             ['p1' => [$this->reference('product', false, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
@@ -317,7 +317,7 @@ class PageContextConsumerWiringTest extends TestCase
             $this->reference('page', true, $this->candidate(CandidateOrigin::Root, 'page')),
         ]];
 
-        $wired = (new PageContextConsumerWiring())->apply(new StoredTree([$element]), $resolutions, ['other-id']);
+        $wired = (new ContextConsumerMirror())->apply(new StoredTree([$element]), $resolutions, ['other-id']);
 
         static::assertSame($element->contextDefinitions->getAllConsumers(), $this->consumers($wired->roots[0]));
         static::assertSame(['authored'], array_keys($this->consumers($wired->roots[0])));
@@ -329,7 +329,7 @@ class PageContextConsumerWiringTest extends TestCase
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $tree = new StoredTree([$element]);
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             $tree,
             ['p1' => [$this->reference('product.name', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['p1'],
@@ -345,7 +345,7 @@ class PageContextConsumerWiringTest extends TestCase
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $tree = new StoredTree([$element]);
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             $tree,
             ['p1' => [$this->reference('product', true, null)]],
             ['p1'],
@@ -371,7 +371,7 @@ class PageContextConsumerWiringTest extends TestCase
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $tree = new StoredTree([$element]);
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             $tree,
             ['p1' => [$this->reference('product', true, $this->candidate($origin, 'product'))]],
             ['p1'],
@@ -382,7 +382,7 @@ class PageContextConsumerWiringTest extends TestCase
     }
 
     /**
-     * One row per guard in PageContextConsumerWiring::consumerFor().
+     * One row per guard in ContextConsumerMirror::consumerFor().
      *
      * @return iterable<string, array{0: PropertyResolution}>
      */
@@ -426,7 +426,7 @@ class PageContextConsumerWiringTest extends TestCase
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $tree = new StoredTree([$element]);
 
-        $wired = (new PageContextConsumerWiring())->apply($tree, ['p1' => [$resolution]], ['p1']);
+        $wired = (new ContextConsumerMirror())->apply($tree, ['p1' => [$resolution]], ['p1']);
 
         static::assertSame($tree, $wired);
         static::assertSame([], $this->consumers($wired->roots[0]));
@@ -438,7 +438,7 @@ class PageContextConsumerWiringTest extends TestCase
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $tree = new StoredTree([$element]);
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             $tree,
             ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             [],
@@ -453,7 +453,7 @@ class PageContextConsumerWiringTest extends TestCase
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $tree = new StoredTree([$element]);
 
-        $wired = (new PageContextConsumerWiring())->apply(
+        $wired = (new ContextConsumerMirror())->apply(
             $tree,
             ['p1' => [$this->reference('product', true, $this->candidate(CandidateOrigin::Parent, 'product'))]],
             ['ghost'],
@@ -469,7 +469,7 @@ class PageContextConsumerWiringTest extends TestCase
         $element = StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')->build();
         $tree = new StoredTree([$element]);
 
-        $wired = (new PageContextConsumerWiring())->apply($tree, [], ['p1']);
+        $wired = (new ContextConsumerMirror())->apply($tree, [], ['p1']);
 
         static::assertSame($tree, $wired);
     }

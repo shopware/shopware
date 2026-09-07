@@ -7,10 +7,6 @@
     value = '1',
     id = "#{name}-#{value}",
     label = null,
-    checked = false,
-    disabled = false,
-    inline = false,
-    describedBy = null,
     validationRules = null,
     violationPath = null,
     required = validationRules is not empty and 'required' in validationRules,
@@ -24,14 +20,14 @@
     ? (validationRules is empty ? 'required' : "required,#{validationRules}")
     : validationRules %}
 
+{% set controlAttributes = attributes.without('class', 'style') %}
+
+{% if label is not empty %}
+    {% set controlAttributes = controlAttributes.without('aria-label') %}
+{% endif %}
+
 {% set groupCVA = cva({
     base: 'sw-form-radio form-check mb-2',
-    variants: {
-        inline: {
-            true: 'form-check-inline',
-            false: null,
-        },
-    },
 }) %}
 
 {% set radioCVA = cva({
@@ -45,7 +41,7 @@
 }) %}
 
 {% set attributeDefaults = {
-    class: groupCVA.apply({ inline }, additionalClass),
+    class: groupCVA.apply({}, additionalClass),
 } %}
 
 {% set radioAttributeDefaults = {
@@ -54,17 +50,14 @@
     id: id,
     name: name,
     value: value,
-    'aria-describedby': describedBy is not null ? describedBy : false,
     'aria-required': required ? 'true' : false,
     'aria-invalid': isInvalid ? 'true' : false,
     'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
-    checked: checked,
-    disabled: disabled,
 } %}
 
-<div {{ attributes.defaults(attributeDefaults) }}>
+<div {{ attributes.only('class', 'style').defaults(attributeDefaults) }}>
     {% block control %}
-        <input {{ attributes.nested('control').defaults(radioAttributeDefaults) }}>
+        <input {{ controlAttributes.defaults(radioAttributeDefaults) }}>
     {% endblock %}
 
     {% block label %}

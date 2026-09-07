@@ -6,17 +6,8 @@
     name,
     id = name,
     label = null,
-    ariaLabel = null,
     value = null,
-    placeholder = null,
     description = null,
-    autocomplete = null,
-    minlength = null,
-    maxlength = null,
-    rows = 8,
-    size = null,
-    disabled = false,
-    readonly = false,
     validationRules = null,
     violationPath = null,
     violationLabel = null,
@@ -35,6 +26,12 @@
     ? (validationRules is empty ? 'required' : "required,#{validationRules}")
     : validationRules %}
 
+{% set controlAttributes = attributes.without('class', 'style') %}
+
+{% if label is not empty %}
+    {% set controlAttributes = controlAttributes.without('aria-label') %}
+{% endif %}
+
 {% set groupCVA = cva({
     base: 'sw-form-textarea sw-form-field form-group',
 }) %}
@@ -42,10 +39,6 @@
 {% set textareaCVA = cva({
     base: 'sw-form-textarea__control sw-form-field__control form-control',
     variants: {
-        size: {
-            sm: 'form-control-sm',
-            lg: 'form-control-lg',
-        },
         isInvalid: {
             true: 'is-invalid',
             false: null,
@@ -59,24 +52,17 @@
 } %}
 
 {% set textareaAttributeDefaults = {
-    class: textareaCVA.apply({ size, isInvalid }, additionalInputClass),
+    class: textareaCVA.apply({ isInvalid }, additionalInputClass),
     id: id,
     name: name,
-    rows: rows,
+    rows: 8,
     'aria-describedby': describedBy,
-    'aria-label': ariaLabel is not null and label is empty ? ariaLabel : false,
     'aria-required': required ? 'true' : false,
     'aria-invalid': isInvalid ? 'true' : false,
     'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
-    placeholder: placeholder is not null ? placeholder : false,
-    autocomplete: autocomplete is not null ? autocomplete : false,
-    minlength: minlength is not null ? minlength : false,
-    maxlength: maxlength is not null ? maxlength : false,
-    disabled: disabled,
-    readonly: readonly,
 } %}
 
-<div {{ attributes.defaults(attributeDefaults) }}>
+<div {{ attributes.only('class', 'style').defaults(attributeDefaults) }}>
     {% block label %}
         <twig:Sw:Form:Label
             :fieldId="id"
@@ -86,7 +72,7 @@
     {% endblock %}
 
     {% block control %}
-        <textarea {{ attributes.nested('control').defaults(textareaAttributeDefaults) }}>{% block content %}{{ value }}{% endblock %}</textarea>
+        <textarea {{ controlAttributes.defaults(textareaAttributeDefaults) }}>{% block content %}{{ value }}{% endblock %}</textarea>
     {% endblock %}
 
     {% block description %}

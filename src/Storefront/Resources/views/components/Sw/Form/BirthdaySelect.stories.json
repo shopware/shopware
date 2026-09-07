@@ -36,15 +36,6 @@
             "control": "number",
             "description": "Preselected year."
         },
-        "yearRange": {
-            "control": "number",
-            "description": "Number of years offered, counting back from the current one.",
-            "table": {
-                "defaultValue": {
-                    "summary": 120
-                }
-            }
-        },
         "validationRules": {
             "control": "text",
             "description": "Comma separated list of client-side validation rules, rendered as data-validation on each select."

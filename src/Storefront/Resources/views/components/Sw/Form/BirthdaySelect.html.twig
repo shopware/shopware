@@ -9,7 +9,6 @@
     day = null,
     month = null,
     year = null,
-    yearRange = 120,
     validationRules = null,
     formViolations = formViolations|default(null),
     dayViolationPath = '/birthdayDay',
@@ -20,6 +19,7 @@
 %}
 
 {% set currentYear = 'now'|date('Y') %}
+{% set startYear = currentYear - 120 %}
 
 {% set dayName = namePrefix ? namePrefix ~ '[birthdayDay]' : 'birthdayDay' %}
 {% set monthName = namePrefix ? namePrefix ~ '[birthdayMonth]' : 'birthdayMonth' %}
@@ -35,7 +35,7 @@
 
 {% set dayOptions = range(1, 31)|map(dayValue => { value: dayValue, label: dayValue }) %}
 {% set monthOptions = range(1, 12)|map(monthValue => { value: monthValue, label: monthValue }) %}
-{% set yearOptions = range(currentYear, currentYear - yearRange)|map(yearValue => { value: yearValue, label: yearValue }) %}
+{% set yearOptions = range(currentYear, startYear)|map(yearValue => { value: yearValue, label: yearValue }) %}
 
 {% set groupCVA = cva({
     base: 'sw-form-birthday-select form-group',
@@ -58,7 +58,7 @@
             <twig:Sw:Form:Select
                 :name="dayName"
                 :id="dayId"
-                :ariaLabel="dayLabel"
+                aria-label="{{ dayLabel }}"
                 :placeholder="dayLabel"
                 :value="day"
                 :options="dayOptions"
@@ -74,7 +74,7 @@
             <twig:Sw:Form:Select
                 :name="monthName"
                 :id="monthId"
-                :ariaLabel="monthLabel"
+                aria-label="{{ monthLabel }}"
                 :placeholder="monthLabel"
                 :value="month"
                 :options="monthOptions"
@@ -90,7 +90,7 @@
             <twig:Sw:Form:Select
                 :name="yearName"
                 :id="yearId"
-                :ariaLabel="yearLabel"
+                aria-label="{{ yearLabel }}"
                 :placeholder="yearLabel"
                 :value="year"
                 :options="yearOptions"

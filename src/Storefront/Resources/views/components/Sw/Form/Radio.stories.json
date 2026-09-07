@@ -36,34 +36,15 @@
         },
         "checked": {
             "control": "boolean",
-            "description": "Checked state of the radio.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
+            "description": "Checked state of the radio. Forwarded to the control."
         },
         "disabled": {
             "control": "boolean",
-            "description": "Disabled attribute of the radio.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
+            "description": "Disabled attribute of the radio. Forwarded to the control."
         },
-        "inline": {
-            "control": "boolean",
-            "description": "Lays the radio out in a row with its siblings.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
-        },
-        "describedBy": {
+        "aria-describedby": {
             "control": "text",
-            "description": "Id of the feedback element of the surrounding group. Sw:Form:RadioGroup passes its own."
+            "description": "Id of the feedback element of the surrounding group. Sw:Form:RadioGroup passes its own. Forwarded to the control."
         },
         "validationRules": {
             "control": "text",
@@ -108,7 +89,7 @@
         },
         "additionalInputClass": {
             "control": "text",
-            "description": "Additional classes on the radio. Migration alias for the `control:class` attribute; both are merged."
+            "description": "Additional classes on the radio. `class` on the component tag dresses the wrapper instead."
         }
     },
     "stories": [

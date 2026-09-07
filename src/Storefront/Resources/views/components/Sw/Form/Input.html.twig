@@ -7,16 +7,8 @@
     id = name,
     type = 'text',
     label = null,
-    ariaLabel = null,
     value = null,
-    placeholder = null,
     description = null,
-    autocomplete = null,
-    minlength = null,
-    maxlength = null,
-    size = null,
-    disabled = false,
-    readonly = false,
     validationRules = null,
     violationPath = null,
     violationLabel = null,
@@ -45,10 +37,6 @@
         type: {
             color: 'form-control-color',
         },
-        size: {
-            sm: 'form-control-sm',
-            lg: 'form-control-lg',
-        },
         isInvalid: {
             true: 'is-invalid',
             false: null,
@@ -62,37 +50,28 @@
 } %}
 
 {% set inputAttributeDefaults = {
-    class: inputCVA.apply({ type, size, isInvalid }, additionalInputClass),
+    class: inputCVA.apply({ type, isInvalid }, additionalInputClass),
     type: type,
     id: id,
     name: name,
     'aria-describedby': describedBy,
-    'aria-label': ariaLabel is not null and label is empty ? ariaLabel : false,
     'aria-required': required ? 'true' : false,
     'aria-invalid': isInvalid ? 'true' : false,
     'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
     value: value is not null ? value : false,
-    placeholder: placeholder is not null ? placeholder : false,
-    autocomplete: autocomplete is not null ? autocomplete : false,
-    minlength: minlength is not null ? minlength : false,
-    maxlength: maxlength is not null ? maxlength : false,
-    disabled: disabled,
-    readonly: readonly,
 } %}
 
-{% set hiddenAttributeDefaults = {
-    class: 'sw-form-input',
-    type: type,
-    id: id,
-    name: name,
-    value: value is not null ? value : false,
-} %}
+{% set controlAttributes = attributes.without('class', 'style') %}
+
+{% if label is not empty %}
+    {% set controlAttributes = controlAttributes.without('aria-label') %}
+{% endif %}
 
 {% if type == 'hidden' %}
-    <input {{ attributes.defaults(hiddenAttributeDefaults) }}>
+    <input {{ attributes.defaults({ class: 'sw-form-input', type: type, id: id, name: name, value: value is not null ? value : false }) }}>
 {% else %}
 
-<div {{ attributes.defaults(attributeDefaults) }}>
+<div {{ attributes.only('class', 'style').defaults(attributeDefaults) }}>
     {% block label %}
         <twig:Sw:Form:Label
             :fieldId="id"
@@ -102,7 +81,7 @@
     {% endblock %}
 
     {% block control %}
-        <input {{ attributes.nested('control').defaults(inputAttributeDefaults) }}>
+        <input {{ controlAttributes.defaults(inputAttributeDefaults) }}>
     {% endblock %}
 
     {% block description %}

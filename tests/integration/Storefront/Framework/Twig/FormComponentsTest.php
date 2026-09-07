@@ -17,7 +17,7 @@ use Twig\Environment;
  *
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class FormComponentsTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -93,28 +93,40 @@ class FormComponentsTest extends TestCase
     {
         $html = $this->render('Sw:Form:Input', [
             'name' => 'search',
-            'ariaLabel' => 'Search term',
+            'aria-label' => 'Search term',
         ]);
 
         static::assertStringNotContainsString('<label', $html);
         static::assertStringContainsString('aria-label="Search term"', $html);
     }
 
-    public function testInputSendsPlainAttributesToTheGroupAndPrefixedOnesToTheControl(): void
+    /**
+     * The control is the primary element: `class` and `style` dress the form-group wrapper and
+     * everything else lands on the control, so native input attributes need no props of their own.
+     */
+    public function testClassAndStyleDressTheWrapperAndEveryOtherAttributeReachesTheControl(): void
     {
         $html = $this->render('Sw:Form:Input', [
             'name' => 'firstName',
             'class' => 'col-sm-6',
-            'data-group-hook' => 'group',
-            'control:data-form-validation-equal' => 'passwordMatch',
+            'style' => 'order: 2',
+            'placeholder' => 'Jane',
+            'autocomplete' => 'section-personal given-name',
+            'maxlength' => 32,
+            'data-form-validation-equal' => 'passwordMatch',
         ]);
 
         static::assertStringContainsString('class="sw-form-input sw-form-field form-group col-sm-6"', $html);
-        static::assertMatchesRegularExpression('/<div[^>]*data-group-hook="group"/', $html);
-        static::assertDoesNotMatchRegularExpression('/<input[^>]*data-group-hook/', $html);
+        static::assertMatchesRegularExpression('/<div[^>]*style="order: 2"/', $html);
 
+        static::assertMatchesRegularExpression('/<input[^>]*placeholder="Jane"/', $html);
+        static::assertMatchesRegularExpression('/<input[^>]*autocomplete="section-personal given-name"/', $html);
+        static::assertMatchesRegularExpression('/<input[^>]*maxlength="32"/', $html);
         static::assertMatchesRegularExpression('/<input[^>]*data-form-validation-equal="passwordMatch"/', $html);
+
+        static::assertDoesNotMatchRegularExpression('/<div[^>]*placeholder/', $html);
         static::assertDoesNotMatchRegularExpression('/<div[^>]*data-form-validation-equal/', $html);
+        static::assertDoesNotMatchRegularExpression('/<input[^>]*style=/', $html);
     }
 
     public function testInputAppliesTheAdditionalClassProps(): void
@@ -226,18 +238,6 @@ class FormComponentsTest extends TestCase
         static::assertStringContainsString('class="sw-form-label form-check-label" for="acceptedDataProtection"', $html);
     }
 
-    public function testCheckboxRendersTheSwitchVariant(): void
-    {
-        $html = $this->render('Sw:Form:Checkbox', [
-            'name' => 'newsletter',
-            'label' => 'Subscribe',
-            'variant' => 'switch',
-        ]);
-
-        static::assertStringContainsString('class="sw-form-checkbox sw-form-field form-group form-check form-switch"', $html);
-        static::assertStringContainsString('role="switch"', $html);
-    }
-
     public function testRadioGroupWrapsTheOptionsInAFieldset(): void
     {
         $html = $this->render('Sw:Form:RadioGroup', [
@@ -290,10 +290,9 @@ class FormComponentsTest extends TestCase
             'name' => 'sizeChoice',
             'value' => 'sm',
             'label' => 'Small',
-            'inline' => true,
         ]);
 
-        static::assertStringContainsString('class="sw-form-radio form-check mb-2 form-check-inline"', $html);
+        static::assertStringContainsString('class="sw-form-radio form-check mb-2"', $html);
         static::assertStringContainsString('class="sw-form-radio__control sw-form-field__control form-check-input"', $html);
 
         // A standalone radio has no feedback element of its own, so it must not point at one.
@@ -357,15 +356,15 @@ class FormComponentsTest extends TestCase
         static::assertStringContainsString('id="billing-birthdayYear"', $html);
     }
 
-    public function testBirthdaySelectCoversTheConfiguredYearRange(): void
+    public function testBirthdaySelectCoversTheSameYearSpanAsItsPredecessor(): void
     {
         $currentYear = (int) date('Y');
 
-        $html = $this->render('Sw:Form:BirthdaySelect', ['yearRange' => 5]);
+        $html = $this->render('Sw:Form:BirthdaySelect', []);
 
         static::assertStringContainsString('<option value="' . $currentYear . '">', $html);
-        static::assertStringContainsString('<option value="' . ($currentYear - 5) . '">', $html);
-        static::assertStringNotContainsString('<option value="' . ($currentYear - 6) . '">', $html);
+        static::assertStringContainsString('<option value="' . ($currentYear - 120) . '">', $html);
+        static::assertStringNotContainsString('<option value="' . ($currentYear - 121) . '">', $html);
     }
 
     public function testRadioGroupLinksItsDescriptionToEveryRadio(): void
@@ -584,7 +583,7 @@ class FormComponentsTest extends TestCase
     {
         $html = $this->render('Sw:Form:Checkbox', [
             'name' => 'selectAll',
-            'ariaLabel' => 'Select all items',
+            'aria-label' => 'Select all items',
         ]);
 
         static::assertStringNotContainsString('<label', $html);
@@ -600,7 +599,7 @@ class FormComponentsTest extends TestCase
         $html = $this->render('Sw:Form:Input', [
             'name' => 'firstName',
             'label' => 'First name',
-            'ariaLabel' => 'Something else',
+            'aria-label' => 'Something else',
         ]);
 
         static::assertStringContainsString('First name', $html);

@@ -38,15 +38,6 @@
             "control": "text",
             "description": "Hint below the legend. Linked to the radios via aria-describedby."
         },
-        "inline": {
-            "control": "boolean",
-            "description": "Lays the radios out in a row.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
-        },
         "disabled": {
             "control": "boolean",
             "description": "Disables every radio of the group.",
@@ -122,24 +113,6 @@
                     {
                         "value": "lg",
                         "label": "Large"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "Inline",
-            "args": {
-                "name": "deliveryChoice",
-                "label": "Delivery",
-                "inline": true,
-                "options": [
-                    {
-                        "value": "standard",
-                        "label": "Standard"
-                    },
-                    {
-                        "value": "express",
-                        "label": "Express"
                     }
                 ]
             }

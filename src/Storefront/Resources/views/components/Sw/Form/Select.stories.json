@@ -25,9 +25,9 @@
             "control": "text",
             "description": "Visible label of the field. Without it no label element is rendered."
         },
-        "ariaLabel": {
+        "aria-label": {
             "control": "text",
-            "description": "Accessible name for selects that have no visible label."
+            "description": "Accessible name for selects that have no visible label. Forwarded to the control."
         },
         "value": {
             "control": "text",
@@ -57,24 +57,11 @@
         },
         "autocomplete": {
             "control": "text",
-            "description": "Autocomplete attribute of the select."
-        },
-        "size": {
-            "control": "select",
-            "options": [
-                "sm",
-                "lg"
-            ],
-            "description": "Bootstrap sizing of the control."
+            "description": "Autocomplete attribute of the select. Forwarded to the control."
         },
         "disabled": {
             "control": "boolean",
-            "description": "Disabled attribute of the select.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
+            "description": "Disabled attribute of the select. Forwarded to the control."
         },
         "validationRules": {
             "control": "text",
@@ -123,7 +110,7 @@
         },
         "additionalInputClass": {
             "control": "text",
-            "description": "Additional classes on the select. Migration alias for the `control:class` attribute; both are merged."
+            "description": "Additional classes on the select. `class` on the component tag dresses the wrapper instead."
         }
     },
     "stories": [

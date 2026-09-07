@@ -25,9 +25,9 @@
             "control": "text",
             "description": "Label next to the checkbox."
         },
-        "ariaLabel": {
+        "aria-label": {
             "control": "text",
-            "description": "Accessible name for checkboxes that have no visible label. Ignored when `label` is set."
+            "description": "Accessible name for checkboxes that have no visible label. Ignored when `label` is set. Forwarded to the control."
         },
         "value": {
             "control": "text",
@@ -40,38 +40,15 @@
         },
         "checked": {
             "control": "boolean",
-            "description": "Checked state of the checkbox.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
+            "description": "Checked state of the checkbox. Forwarded to the control."
         },
         "description": {
             "control": "text",
             "description": "Hint below the field. Linked to the checkbox via aria-describedby."
         },
-        "variant": {
-            "control": "select",
-            "options": [
-                "default",
-                "switch"
-            ],
-            "description": "Renders the checkbox as a Bootstrap switch.",
-            "table": {
-                "defaultValue": {
-                    "summary": "default"
-                }
-            }
-        },
         "disabled": {
             "control": "boolean",
-            "description": "Disabled attribute of the checkbox.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
+            "description": "Disabled attribute of the checkbox. Forwarded to the control."
         },
         "validationRules": {
             "control": "text",
@@ -120,7 +97,7 @@
         },
         "additionalInputClass": {
             "control": "text",
-            "description": "Additional classes on the checkbox. Migration alias for the `control:class` attribute; both are merged."
+            "description": "Additional classes on the checkbox. `class` on the component tag dresses the wrapper instead."
         }
     },
     "stories": [
@@ -130,16 +107,6 @@
                 "name": "acceptedDataProtection",
                 "label": "I have read the data protection information.",
                 "validationRules": "required"
-            }
-        },
-        {
-            "name": "Switch",
-            "args": {
-                "name": "newsletter",
-                "label": "Subscribe to the newsletter",
-                "description": "You can unsubscribe at any time.",
-                "variant": "switch",
-                "checked": true
             }
         }
     ]

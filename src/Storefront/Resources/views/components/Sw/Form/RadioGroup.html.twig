@@ -10,7 +10,6 @@
     value = null,
     description = null,
     disabled = false,
-    inline = false,
     validationRules = null,
     violationPath = null,
     violationLabel = null,
@@ -62,8 +61,7 @@
                 :label="option.label"
                 :checked="option.checked|default(option.value == value)"
                 :disabled="disabled or option.disabled|default(false)"
-                :inline="inline"
-                :describedBy="describedBy"
+                aria-describedby="{{ describedBy }}"
                 :validationRules="clientValidationRules"
                 :isInvalid="isInvalid"
             />

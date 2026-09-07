@@ -25,9 +25,9 @@
             "control": "text",
             "description": "Visible label of the field. Without it no label element is rendered."
         },
-        "ariaLabel": {
+        "aria-label": {
             "control": "text",
-            "description": "Accessible name for fields that have no visible label."
+            "description": "Accessible name for fields that have no visible label. Forwarded to the control."
         },
         "value": {
             "control": "text",
@@ -35,7 +35,7 @@
         },
         "placeholder": {
             "control": "text",
-            "description": "Placeholder attribute of the textarea."
+            "description": "Placeholder attribute of the textarea. Forwarded to the control."
         },
         "description": {
             "control": "text",
@@ -43,50 +43,27 @@
         },
         "autocomplete": {
             "control": "text",
-            "description": "Autocomplete attribute of the textarea."
+            "description": "Autocomplete attribute of the textarea. Forwarded to the control."
         },
         "rows": {
             "control": "number",
-            "description": "Rows attribute of the textarea.",
-            "table": {
-                "defaultValue": {
-                    "summary": 8
-                }
-            }
+            "description": "Rows attribute of the textarea. Forwarded to the control."
         },
         "minlength": {
             "control": "number",
-            "description": "Minlength attribute of the textarea."
+            "description": "Minlength attribute of the textarea. Forwarded to the control."
         },
         "maxlength": {
             "control": "number",
-            "description": "Maxlength attribute of the textarea."
-        },
-        "size": {
-            "control": "select",
-            "options": [
-                "sm",
-                "lg"
-            ],
-            "description": "Bootstrap sizing of the control."
+            "description": "Maxlength attribute of the textarea. Forwarded to the control."
         },
         "disabled": {
             "control": "boolean",
-            "description": "Disabled attribute of the textarea.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
+            "description": "Disabled attribute of the textarea. Forwarded to the control."
         },
         "readonly": {
             "control": "boolean",
-            "description": "Readonly attribute of the textarea.",
-            "table": {
-                "defaultValue": {
-                    "summary": false
-                }
-            }
+            "description": "Readonly attribute of the textarea. Forwarded to the control."
         },
         "validationRules": {
             "control": "text",
@@ -135,7 +112,7 @@
         },
         "additionalInputClass": {
             "control": "text",
-            "description": "Additional classes on the textarea. Migration alias for the `control:class` attribute; both are merged."
+            "description": "Additional classes on the textarea. `class` on the component tag dresses the wrapper instead."
         }
     },
     "stories": [

@@ -169,8 +169,7 @@ class ContextConsumerMirror
             return null;
         }
 
-        // An integer-like key ("0", "42") is coerced to an int array key on write below, and the decode gate
-        // ({@see StoredElementWiringDecoder::decodeConsumers()}) rejects a non-string consumer key.
+        // Integer-like keys ("0", "42") are coerced to int array keys on write below; {@see StoredElementWiringDecoder::decodeConsumers()} rejects a non-string consumer key.
         if ((string) (int) $key === $key) {
             return null;
         }

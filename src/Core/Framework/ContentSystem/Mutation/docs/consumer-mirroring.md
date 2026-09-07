@@ -58,8 +58,8 @@ reads.
 
 Restricting mirroring to `created()` is what makes an explicit unwiring durable: the ambient offer that proved the
 reference does not go away, so mirroring on a non-creating mutation would write back in the same response the
-consumer that was just removed. That durability holds through every mutation that does not re-create the node.
-`ReplaceElement` is the one exception: it re-scaffolds the target element under the same id, which counts as
-`created()`, so mirroring re-applies to it and restores every consumer the node's own resolutions still prove,
-including one an explicit unwiring had just removed. That is wanted: a type swap is a fresh scaffold, and the
-removal applied to the old node, not the new one.
+consumer that was just removed. That durability holds through every mutation except one: `ReplaceElement`
+re-scaffolds the target element under the same id, which counts as `created()` (see
+[replace-element.md](replace-element.md)), so mirroring re-applies to it and restores every consumer the node's own
+resolutions still prove, including one an explicit unwiring had just removed. That is wanted: a type swap is a
+fresh scaffold, and the removal applied to the old node, not the new one.

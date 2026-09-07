@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\System\StateMachine;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception as PdoException;
+use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -49,6 +51,7 @@ use Shopware\Core\System\StateMachine\StateMachineLocker;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\StateMachineTransitionResult;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -56,7 +59,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 #[Package('checkout')]
 #[CoversClass(StateMachineRegistry::class)]
-#[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineRegistryTest extends TestCase
 {
     private int $transactionalCalls = 0;
@@ -137,7 +139,7 @@ class StateMachineRegistryTest extends TestCase
 
         static::assertSame($fromPlace, $stateMachineStates->get('fromPlace'));
         static::assertSame($toPlace, $stateMachineStates->get('toPlace'));
-        static::assertSame(0, $this->transactionalCalls);
+        static::assertSame(1, $this->transactionalCalls);
         static::assertCount(5, $dispatcher->events);
 
         $historyEvent = $dispatcher->events[0]['event'];
@@ -280,7 +282,66 @@ class StateMachineRegistryTest extends TestCase
         static::assertSame([], $dispatcher->events);
     }
 
-    public function testLiveTransitionPropagatesWrittenEventFailureAfterBatchSucceeds(): void
+    public function testLiveTransitionRetriesContentionWithAFreshWriteContext(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([$this->createStateTransition('paid', $fromPlace, $toPlace)]);
+        $dispatcher = new CollectingEventDispatcher();
+        $entity = new ArrayEntity(['id' => $transition->getEntityId(), 'stateId' => $fromPlace->getId()]);
+        $entity->internalSetEntityData('order_transaction', new FieldVisibility([]));
+        $entityRepository = new StaticEntityRepository([new EntityCollection([$entity])]);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
+        $definition = new StateMachineRegistryTestEntityDefinition();
+        $definition->compile($definitionRegistry);
+        $definitionRegistry->method('getByEntityName')->willReturn($definition);
+        $definitionRegistry->method('getRepository')->willReturn($entityRepository);
+        $locker = static::createStub(StateMachineLocker::class);
+        $locker->method('locked')->willReturnCallback(static fn (Transition $transition, Context $context, \Closure $closure): StateMachineTransitionResult => $closure());
+        $entityWriter = $this->createMock(EntityWriterInterface::class);
+        $registry = new StateMachineRegistry(
+            new StaticEntityRepository([new StateMachineCollection([$stateMachine])]),
+            new StaticEntityRepository([new StateMachineStateCollection([$fromPlace])]),
+            StaticEntityRepository::of(StateMachineHistoryCollection::class),
+            $dispatcher,
+            $definitionRegistry,
+            $locker,
+            $this->createConnection(),
+            $entityWriter,
+        );
+        $attempts = 0;
+        $errorCallbacks = 0;
+        $failure = new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null);
+
+        $entityWriter->expects($this->exactly(2))->method('sync')
+            ->willReturnCallback(static function (array $operations, WriteContext $writeContext) use (&$attempts, &$errorCallbacks, $failure): WriteResult {
+                static::assertSame([], $writeContext->getExceptions()->getExceptions());
+                static::assertFalse($writeContext->hasState(WriteContext::STATE_WRITE_CALLBACKS_STARTED));
+
+                if (++$attempts === 1) {
+                    $writeContext->getExceptions()->add($failure);
+                    $writeContext->onWriteError(static function () use (&$errorCallbacks): void {
+                        ++$errorCallbacks;
+                    });
+
+                    throw $failure;
+                }
+
+                return new WriteResult([]);
+            });
+
+        $result = $registry->transition($transition, $context);
+
+        static::assertSame($toPlace, $result->get('toPlace'));
+        static::assertSame(2, $this->transactionalCalls);
+        static::assertSame(0, $errorCallbacks);
+        static::assertCount(3, $dispatcher->events);
+    }
+
+    #[DataProvider('writtenEventExceptionProvider')]
+    public function testLiveTransitionPropagatesWrittenEventFailureWithoutRetryingListeners(\Throwable $failure): void
     {
         $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
         $context = Context::createDefaultContext();
@@ -289,7 +350,7 @@ class StateMachineRegistryTest extends TestCase
         $stateMachine = $this->createStateMachine([
             $this->createStateTransition('paid', $fromPlace, $toPlace),
         ]);
-        $dispatcher = new FailingWrittenEventDispatcher();
+        $dispatcher = new FailingWrittenEventDispatcher($failure);
         $entityRepository = $this->createMock(EntityRepository::class);
         $historyRepository = $this->createMock(EntityRepository::class);
         $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $entityRepository, $historyRepository);
@@ -308,12 +369,21 @@ class StateMachineRegistryTest extends TestCase
         try {
             $fixture->registry->transition($transition, $context);
             static::fail('Expected the written-event listener to fail.');
-        } catch (\RuntimeException $exception) {
-            static::assertSame('written-event listener failed', $exception->getMessage());
+        } catch (\Throwable $exception) {
+            static::assertSame($failure, $exception);
         }
 
         static::assertCount(1, $dispatcher->events);
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $dispatcher->events[0]['event']);
+    }
+
+    /**
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function writtenEventExceptionProvider(): iterable
+    {
+        yield 'application listener failure' => [new \RuntimeException('written-event listener failed')];
+        yield 'database listener failure must not replay listeners' => [new DriverException(new PdoException('Record has changed since last read', 'HY000', 1020), null)];
     }
 
     public function testVersionedTransitionUsesRepositoriesInsideTransaction(): void
@@ -700,12 +770,16 @@ class CollectingEventDispatcher implements EventDispatcherInterface
  */
 class FailingWrittenEventDispatcher extends CollectingEventDispatcher
 {
+    public function __construct(private readonly \Throwable $failure)
+    {
+    }
+
     public function dispatch(object $event, ?string $eventName = null): object
     {
         parent::dispatch($event, $eventName);
 
         if ($event instanceof EntityWrittenContainerEvent) {
-            throw new \RuntimeException('written-event listener failed');
+            throw $this->failure;
         }
 
         return $event;

@@ -4,9 +4,9 @@
 
 ### Live state transition writes are batched
 
-Live state transitions now persist the history entry and new entity state in one retryable DAL batch. `EntityWriteEvent` subscribers can receive `state_machine_history` commands together with commands for the transitioned entity; use `getCommandsForEntity()` instead of assuming that an event contains commands for only one entity.
+Live state transitions now persist the history entry and new entity state in one retryable DAL batch. `EntityWriteEvent` subscribers can receive `state_machine_history` commands together with commands for the transitioned entity; use `getCommandsForEntity()` instead of assuming that an event contains commands for only one entity. Their pre-write work can run again on retry and must be idempotent.
 
-The subsequent entity-written container events remain separate and keep their history-before-state order. They are dispatched after the database batch succeeds, so an exception from a container-event listener no longer rolls back the persisted transition.
+The subsequent entity-written container events remain separate and keep their history-before-state order. Listener failures roll back the history and state together. Automatic contention retries stop once write-success callbacks begin, so those callbacks and entity-written listeners are not replayed.
 
 ### MariaDB record-change conflicts are retryable
 

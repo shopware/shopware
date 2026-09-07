@@ -195,6 +195,21 @@ const SHORTCUT_FIXTURE = runtimeFixture(
     `,
 );
 
+// A key that would break a naive single-quoted emit, to prove the render escapes it.
+const SHORTCUT_QUOTED_KEY_FIXTURE = runtimeFixture(
+    'sw-runtime-shortcut-quoted-key',
+    `
+        export default {
+            shortcuts: {
+                "a'b": 'onKey',
+            },
+            methods: {
+                onKey() {},
+            },
+        };
+    `,
+);
+
 const CLASS_THIS_FIXTURE = runtimeFixture(
     'sw-runtime-class-this',
     `
@@ -394,5 +409,6 @@ export {
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
     SHORTCUT_FIXTURE,
+    SHORTCUT_QUOTED_KEY_FIXTURE,
     SIBLING_DATA_FIXTURE,
 };

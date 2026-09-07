@@ -66,6 +66,27 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         static::assertNotSame($container['id'], $children[0]['id']);
     }
 
+    #[TestDox('carries per-viewport style through to the draft element')]
+    public function testCompileCarriesStyle(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured));
+
+        $style = ['col-span' => ['lg' => 3, 'md' => 4], 'display' => ['lg' => true, 'md' => false]];
+
+        $compiler->compile([
+            ['component' => 'Sw:Product:Listing', 'style' => $style],
+        ]);
+
+        static::assertSame($style, $captured[0]['style']);
+    }
+
+    #[TestDox('throws when style is not a mapping')]
+    public function testNonArrayStyleThrows(): void
+    {
+        $this->assertInvalidLayout([['component' => 'Sw:Content:Text', 'style' => 'nope']]);
+    }
+
     #[TestDox('re-encodes the decoded elements into the served payload')]
     public function testCompileEncodesDecodedElements(): void
     {

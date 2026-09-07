@@ -61,6 +61,15 @@ class LayoutPresetPayloadCompiler
             'properties' => $properties,
         ];
 
+        $style = $node['style'] ?? null;
+        if ($style !== null) {
+            if (!\is_array($style)) {
+                throw ContentSystemException::layoutPresetInvalidLayout(\sprintf('The "style" of "%s" must be a mapping.', $component));
+            }
+
+            $element['style'] = $style;
+        }
+
         $slots = $this->compileSlots($node['slots'] ?? null, $component);
         if ($slots !== []) {
             $element['slots'] = $slots;

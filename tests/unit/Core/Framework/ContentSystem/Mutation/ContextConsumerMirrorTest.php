@@ -114,6 +114,24 @@ class ContextConsumerMirrorTest extends TestCase
         static::assertSame(ConsumerScope::Parent, $consumers['product']->scope);
     }
 
+    /**
+     * Mirroring rebuilds the element's whole {@see ContextDefinitions}, carrying the providers over unchanged.
+     * Nothing else on the element reads them back, so a rebuild that dropped them is only observable here.
+     */
+    #[TestDox('preserves the providers an element already declares when mirroring writes a consumer onto it')]
+    public function testPreservesExistingProvidersOnARewiredElement(): void
+    {
+        [$tree, $resolutions, $created] = self::crossKeyReferenceOntoProvidingElementScenario();
+
+        $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $created);
+
+        static::assertArrayHasKey('product', $this->consumers($wired->roots[0]));
+        static::assertSame(
+            $tree->roots[0]->contextDefinitions->getAllProviders(),
+            $wired->roots[0]->contextDefinitions->getAllProviders()
+        );
+    }
+
     #[TestDox('mirrors an equal dotted key as a consumer with no propertyAlias, because a dotted consumer key without an alias is legal')]
     public function testMirrorsEqualDottedKeyWithoutAlias(): void
     {
@@ -139,6 +157,24 @@ class ContextConsumerMirrorTest extends TestCase
         static::assertArrayHasKey('product', $this->consumers($wiredInner->slots['content'][0]));
         static::assertSame([], $this->consumers($wiredInner));
         static::assertSame([], $this->consumers($wiredOuter));
+    }
+
+    /**
+     * The one input where both rebuild steps fire on the same element: it gains its own mirrored consumer
+     * through {@see StoredElement::withContextDefinitions()} and a rewired child through
+     * {@see StoredElement::withSlots()}. A rebuild that applied the second step to the pre-rebuild element
+     * would drop the consumer the first step wrote.
+     */
+    #[TestDox('mirrors onto a created container and the created child it holds in one pass')]
+    public function testMirrorsOntoCreatedContainerAndItsCreatedChild(): void
+    {
+        [$tree, $resolutions, $created] = self::createdContainerWithCreatedChildScenario();
+
+        $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $created);
+
+        $wiredOuter = $wired->roots[0];
+        static::assertSame(['page'], array_keys($this->consumers($wiredOuter)));
+        static::assertSame(['product'], array_keys($this->consumers($wiredOuter->slots['content'][0])));
     }
 
     #[TestDox('wires the created element under the second root, leaving the untouched first root the identical instance')]
@@ -188,9 +224,11 @@ class ContextConsumerMirrorTest extends TestCase
     /**
      * The written property key and the existing consumer's key each reduce to a base key, and either side may
      * be the dotted one. The third row is the mirror image of the second: it dots the written key instead of
-     * the existing consumer's, so a comparison that reduced only the existing-consumer side fails it.
+     * the existing consumer's, so a comparison that reduced only the existing-consumer side fails it. The
+     * fourth row puts the colliding consumer second, so a comparison that inspected only the first entry of
+     * the existing consumer map instead of looping it mirrors the reference and fails the row.
      *
-     * @return iterable<string, array{0: StoredElement, 1: PropertyResolution, 2: string}>
+     * @return iterable<string, array{0: StoredElement, 1: PropertyResolution, 2: list<string>}>
      */
     public static function baseKeyCollisionProvider(): iterable
     {
@@ -199,7 +237,7 @@ class ContextConsumerMirrorTest extends TestCase
                 ->withConsumer('x', ContextType::Single, false, false, null, 'product')
                 ->build(),
             self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'y')),
-            'x',
+            ['x'],
         ];
 
         yield 'existing dotted consumer key sharing the first segment' => [
@@ -207,7 +245,7 @@ class ContextConsumerMirrorTest extends TestCase
                 ->withConsumer('product.name', ContextType::Single)
                 ->build(),
             self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'y')),
-            'product.name',
+            ['product.name'],
         ];
 
         yield 'dotted written key against an undotted existing consumer key' => [
@@ -215,20 +253,42 @@ class ContextConsumerMirrorTest extends TestCase
                 ->withConsumer('product', ContextType::Single)
                 ->build(),
             self::reference('product.sku', true, self::candidate(CandidateOrigin::Parent, 'product.sku')),
-            'product',
+            ['product'],
+        ];
+
+        yield 'collision against the second of two existing consumers' => [
+            StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                ->withConsumer('unrelated', ContextType::Single)
+                ->withConsumer('product.name', ContextType::Single)
+                ->build(),
+            self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'y')),
+            ['unrelated', 'product.name'],
         ];
     }
 
+    /**
+     * @param list<string> $survivingKeys
+     */
     #[DataProvider('baseKeyCollisionProvider')]
     #[TestDox('skips a base-key collision against an existing consumer')]
-    public function testSkipsBaseKeyCollision(StoredElement $element, PropertyResolution $resolution, string $survivingKey): void
+    public function testSkipsBaseKeyCollision(StoredElement $element, PropertyResolution $resolution, array $survivingKeys): void
     {
         [$tree, $resolutions, $created] = self::baseKeyCollisionScenario($element, $resolution);
 
         $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $created);
 
         static::assertSame($tree, $wired);
-        static::assertSame([$survivingKey], array_keys($this->consumers($wired->roots[0])));
+        static::assertSame($survivingKeys, array_keys($this->consumers($wired->roots[0])));
+    }
+
+    #[TestDox('skips a second resolution whose written key base-collides with the consumer the first resolution wrote')]
+    public function testSkipsBaseKeyCollisionAgainstAConsumerWrittenInTheSameApply(): void
+    {
+        [$tree, $resolutions, $created] = self::accumulatedBaseKeyCollisionScenario();
+
+        $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $created);
+
+        static::assertSame(['productA'], array_keys($this->consumers($wired->roots[0])));
     }
 
     #[TestDox('skips a key the element already fills from a data requirement')]
@@ -240,6 +300,24 @@ class ContextConsumerMirrorTest extends TestCase
 
         static::assertArrayNotHasKey('product', $this->consumers($wired->roots[0]));
         static::assertSame([], $this->consumers($wired->roots[0]));
+    }
+
+    /**
+     * The data-requirement skip is matched against the written property key, so a requirement keyed on the
+     * resolved candidate context key does not suppress the mirror. This is the counterpart of
+     * {@see testMirrorsCrossKeyReferenceDespiteProvidingTheCandidateContextKey} for the requirement half of
+     * the same guard.
+     */
+    #[TestDox('mirrors a cross-key reference whose candidate context key, not its written property key, names a data requirement the element fills')]
+    public function testMirrorsCrossKeyReferenceDespiteADataRequirementOnTheCandidateContextKey(): void
+    {
+        [$tree, $resolutions, $created] = self::dataRequirementOnTheCandidateContextKeyScenario();
+
+        $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $created);
+
+        $consumers = $this->consumers($wired->roots[0]);
+        static::assertSame(['product'], array_keys($consumers));
+        static::assertSame('crossSellProduct', $consumers['product']->propertyAlias);
     }
 
     #[TestDox('skips a key the element itself provides')]
@@ -419,16 +497,6 @@ class ContextConsumerMirrorTest extends TestCase
         static::assertSame([], $this->consumers($wired->roots[0]));
     }
 
-    #[TestDox('returns the identical tree instance when the created set is empty')]
-    public function testReturnsIdenticalTreeForEmptyCreatedSet(): void
-    {
-        [$tree, $resolutions, $created] = self::emptyCreatedSetScenario();
-
-        $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $created);
-
-        static::assertSame($tree, $wired);
-    }
-
     #[TestDox('returns the identical tree instance when the created id names no element in the tree')]
     public function testReturnsIdenticalTreeForCreatedIdAbsentFromTree(): void
     {
@@ -480,8 +548,10 @@ class ContextConsumerMirrorTest extends TestCase
         yield 'a cross-key reference onto an element providing the candidate context key' => self::crossKeyReferenceOntoProvidingElementScenario();
         yield 'an equal dotted key' => self::equalDottedKeyScenario();
         yield 'a created element nested in a slot' => self::nestedCreatedElementScenario();
+        yield 'a created container holding a created child' => self::createdContainerWithCreatedChildScenario();
         yield 'a created element under the second root' => self::createdElementUnderSecondRootScenario();
         yield 'two resolutions sharing one resolved context key' => self::sharedContextKeyResolutionsScenario();
+        yield 'a second resolution base-colliding with the consumer the first wrote' => self::accumulatedBaseKeyCollisionScenario();
         yield 'a written property key colliding with no existing consumer base key' => self::noBaseKeyCollisionScenario();
         yield 'a consumer the element already carries under the same key' => self::existingConsumerSameKeyScenario();
 
@@ -490,6 +560,7 @@ class ContextConsumerMirrorTest extends TestCase
         }
 
         yield 'a key the element already fills from a data requirement' => self::dataRequirementFilledKeyScenario();
+        yield 'a data requirement on the candidate context key rather than the written property key' => self::dataRequirementOnTheCandidateContextKeyScenario();
         yield 'a key the element itself provides' => self::selfProvidedKeyScenario();
         yield 'an element outside the created set' => self::uncreatedElementScenario();
         yield 'a cross-key resolution whose written property key carries a dot' => self::dottedWrittenKeyScenario();
@@ -548,6 +619,16 @@ class ContextConsumerMirrorTest extends TestCase
                 \sprintf('Element "%s" does not decode back to the consumer map the mirror left on it.', $element->id)
             );
         }
+    }
+
+    #[TestDox('returns the identical tree instance when the created set is empty')]
+    public function testReturnsIdenticalTreeForEmptyCreatedSet(): void
+    {
+        [$tree, $resolutions, $created] = self::emptyCreatedSetScenario();
+
+        $wired = (new ContextConsumerMirror())->apply($tree, $resolutions, $created);
+
+        static::assertSame($tree, $wired);
     }
 
     private static function plainTree(): StoredTree
@@ -690,6 +771,56 @@ class ContextConsumerMirrorTest extends TestCase
             ]),
             ['price' => [self::reference('product', false, self::candidate(CandidateOrigin::Parent, 'product'))]],
             ['price'],
+        ];
+    }
+
+    /**
+     * @return array{0: StoredTree, 1: array<string, list<PropertyResolution>>, 2: list<string>}
+     */
+    private static function createdContainerWithCreatedChildScenario(): array
+    {
+        return [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Grid:Container', 'outer')->withSlot('content', [
+                    StoredElementBuilder::create('Sw:Product:PriceDisplay', 'price')->build(),
+                ])->build(),
+            ]),
+            [
+                'outer' => [self::reference('page', true, self::candidate(CandidateOrigin::Root, 'page'))],
+                'price' => [self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'product'))],
+            ],
+            ['outer', 'price'],
+        ];
+    }
+
+    /**
+     * @return array{0: StoredTree, 1: array<string, list<PropertyResolution>>, 2: list<string>}
+     */
+    private static function accumulatedBaseKeyCollisionScenario(): array
+    {
+        return [
+            self::plainTree(),
+            ['p1' => [
+                self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'productA')),
+                self::reference('product', true, self::candidate(CandidateOrigin::Parent, 'productB')),
+            ]],
+            ['p1'],
+        ];
+    }
+
+    /**
+     * @return array{0: StoredTree, 1: array<string, list<PropertyResolution>>, 2: list<string>}
+     */
+    private static function dataRequirementOnTheCandidateContextKeyScenario(): array
+    {
+        return [
+            new StoredTree([
+                StoredElementBuilder::create('Sw:Product:PriceDisplay', 'p1')
+                    ->withDataRequirement('product', 'entity', new StubLoaderConfig())
+                    ->build(),
+            ]),
+            ['p1' => [self::reference('crossSellProduct', true, self::candidate(CandidateOrigin::Parent, 'product'))]],
+            ['p1'],
         ];
     }
 

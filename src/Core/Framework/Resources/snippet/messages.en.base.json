@@ -11,6 +11,7 @@
         "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%",
         "promotion-discount-deleted": "Discount \"%name%\" has been removed",
         "promotion-discount-added": "Discount \"%name%\" has been added",
+        "promotion-discount-unknown-condition": "The discount \"%name%\" was removed because one of its conditions is no longer met.",
         "promotion-not-found": "Promo code \"%code%\" could not be found.",
         "auto-promotion-not-found": "Promotion \"%name%\" no longer valid!",
         "promotion-not-eligible": "Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.",

@@ -30,7 +30,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   markdown-only-changes:
@@ -66,10 +65,15 @@ jobs:
 
   acceptance:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     # Shards finish in under 20 minutes; without a cap a single hung step holds the job for GitHub's 6-hour default.
     timeout-minutes: 40
     needs: generate-acceptance-matrix
-    strategy: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-acceptance-matrix.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -140,6 +144,9 @@ jobs:
         run: npm run format
 
   acceptance-tests-changed:
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' }}
@@ -188,6 +195,9 @@ jobs:
           github-token: ${{ github.token }}
 
   acceptance-update:
+    permissions:
+      contents: read
+      id-token: write
     needs: tested-update-versions
     if: ${{ inputs.major != 'only' }}
     runs-on: ubuntu-24.04

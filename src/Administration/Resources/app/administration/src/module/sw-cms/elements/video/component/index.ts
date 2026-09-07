@@ -144,7 +144,7 @@ export default Component.wrapComponentConfig({
             if (!currentMedia || typeof currentMedia !== 'object') {
                 return;
             }
-            const metaData = currentMedia.metaData as { video?: { coverMediaId?: string } } | undefined;
+            const metaData = currentMedia.metaData as { video?: { coverMediaId?: EntityKey<'media'> } } | undefined;
             const coverMediaId = metaData?.video?.coverMediaId;
             if (!coverMediaId) {
                 return;
@@ -178,7 +178,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            const demoMedia = this.getDemoValue(elementConfig.value);
+            const demoMedia = this.getDemoValue(elementConfig.value) as EntityKey<'media'> | null;
 
             if (demoMedia && typeof demoMedia === 'object' && 'url' in demoMedia) {
                 this.mappedDemoMedia = demoMedia as Entity<'media'>;

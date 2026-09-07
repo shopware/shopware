@@ -107,6 +107,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.app_system.allow_unencrypted_traffic'),
             true,
             param('shopware.app_system.allowed_private_ip_addresses'),
+            param('shopware.app_system.enable_url_validation'),
         ]);
 
     $services->set(WebhookTargetValidator::class)
@@ -114,6 +115,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.app_system.allow_unencrypted_traffic'),
             param('shopware.app_system.allowed_private_ip_addresses'),
             service('shopware.webhook.trusted_url_resolver'),
+            param('shopware.app_system.enable_url_validation'),
         ]);
 
     $services->set(WebhookUrlWriteValidator::class)

@@ -121,6 +121,10 @@ test('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, Admi
         const flyout = page.locator('.sw-admin-menu__flyout-content');
         await ShopAdmin.expects(flyout).toBeVisible();
 
+        // Flatten the corners so they don't show whatever renders behind the flyout.
+        await page.addStyleTag({
+            content: '.sw-admin-menu__flyout-content { border-radius: 0 !important; }',
+        });
         await assertScreenshot(page, 'AdminMenu-Flyout.png', flyout);
 
         await page.mouse.move(1000, 400);

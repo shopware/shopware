@@ -12,11 +12,9 @@
     disabled = false,
     validationRules = null,
     violationPath = null,
-    violationLabel = null,
     required = validationRules is not empty and 'required' in validationRules,
     formViolations = formViolations|default(null),
     isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
-    additionalClass = null,
 %}
 
 {% set feedbackId = "#{id}-feedback" %}
@@ -32,7 +30,7 @@
 }) %}
 
 {% set attributeDefaults = {
-    class: groupCVA.apply({}, additionalClass),
+    class: groupCVA.apply({}),
     'data-violation-path': violationPath is not null ? violationPath : false,
 } %}
 
@@ -72,7 +70,6 @@
         <twig:Sw:Form:Feedback
             :id="feedbackId"
             :violationPath="violationPath"
-            :violationLabel="violationLabel"
             :formViolations="formViolations"
             :hasViolations="isInvalid"
         />

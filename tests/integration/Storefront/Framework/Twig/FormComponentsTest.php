@@ -129,15 +129,13 @@ class FormComponentsTest extends TestCase
         static::assertDoesNotMatchRegularExpression('/<input[^>]*style=/', $html);
     }
 
-    public function testInputAppliesTheAdditionalClassProps(): void
+    public function testAdditionalInputClassReachesTheControl(): void
     {
         $html = $this->render('Sw:Form:Input', [
             'name' => 'firstName',
-            'additionalClass' => 'col-sm-6',
             'additionalInputClass' => 'is--custom',
         ]);
 
-        static::assertStringContainsString('class="sw-form-input sw-form-field form-group col-sm-6"', $html);
         static::assertStringContainsString('class="sw-form-input__control sw-form-field__control form-control is--custom"', $html);
     }
 
@@ -525,12 +523,12 @@ class FormComponentsTest extends TestCase
         ]);
 
         static::assertStringContainsString('form-control is-invalid', $html);
-        static::assertStringContainsString('<div class="invalid-feedback">', $html);
+        static::assertStringContainsString('<div class="sw-form-feedback__message invalid-feedback">', $html);
         static::assertStringContainsString('Input should not be empty.', $html);
 
         // The message has to land inside the element the control points at.
         static::assertMatchesRegularExpression(
-            '/id="email-feedback"[^>]*>\s*<div class="invalid-feedback">/',
+            '/id="email-feedback"[^>]*>\s*<div class="sw-form-feedback__message invalid-feedback">/',
             $html
         );
     }

@@ -15,7 +15,6 @@
     monthViolationPath = '/birthdayMonth',
     yearViolationPath = '/birthdayYear',
     required = validationRules is not empty and 'required' in validationRules,
-    additionalClass = null,
 %}
 
 {% set currentYear = 'now'|date('Y') %}
@@ -42,7 +41,7 @@
 }) %}
 
 {% set attributeDefaults = {
-    class: groupCVA.apply({}, additionalClass),
+    class: groupCVA.apply({}),
 } %}
 
 <fieldset {{ attributes.defaults(attributeDefaults) }}>
@@ -66,7 +65,7 @@
                 :formViolations="formViolations"
                 :violationPath="dayViolationPath"
                 autocomplete="bday-day"
-                additionalClass="sw-form-birthday-select__day col-4 mb-0"
+                class="sw-form-birthday-select__day col-4 mb-0"
             />
         {% endblock %}
 
@@ -82,7 +81,7 @@
                 :formViolations="formViolations"
                 :violationPath="monthViolationPath"
                 autocomplete="bday-month"
-                additionalClass="sw-form-birthday-select__month col-4 mb-0"
+                class="sw-form-birthday-select__month col-4 mb-0"
             />
         {% endblock %}
 
@@ -98,7 +97,7 @@
                 :formViolations="formViolations"
                 :violationPath="yearViolationPath"
                 autocomplete="bday-year"
-                additionalClass="sw-form-birthday-select__year col-4 mb-0"
+                class="sw-form-birthday-select__year col-4 mb-0"
             />
         {% endblock %}
     </div>

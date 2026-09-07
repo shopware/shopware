@@ -8,11 +8,8 @@
     id = "#{name}-#{value}",
     label = null,
     validationRules = null,
-    violationPath = null,
     required = validationRules is not empty and 'required' in validationRules,
-    formViolations = formViolations|default(null),
-    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
-    additionalClass = null,
+    isInvalid = false,
     additionalInputClass = null,
 %}
 
@@ -41,7 +38,7 @@
 }) %}
 
 {% set attributeDefaults = {
-    class: groupCVA.apply({}, additionalClass),
+    class: groupCVA.apply({}),
 } %}
 
 {% set radioAttributeDefaults = {

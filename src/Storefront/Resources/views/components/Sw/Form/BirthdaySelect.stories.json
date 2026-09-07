@@ -86,10 +86,6 @@
                     "summary": "'required' in validationRules"
                 }
             }
-        },
-        "additionalClass": {
-            "control": "text",
-            "description": "Additional classes on the fieldset. Migration alias for the `class` attribute on the component tag; both are merged."
         }
     },
     "stories": [

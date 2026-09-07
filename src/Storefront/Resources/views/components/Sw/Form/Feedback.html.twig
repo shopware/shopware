@@ -5,7 +5,6 @@
 {% props
     id = null,
     violationPath = null,
-    violationLabel = null,
     formViolations = formViolations|default(null),
     hasViolations = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
 %}
@@ -22,11 +21,19 @@
 <div {{ attributes.defaults(attributeDefaults) }}>
     {% block violations %}
         {% if hasViolations and violationPath is not empty %}
-            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                formViolations: formViolations|default(null),
-                violationPath: violationPath,
-                violationLabel: violationLabel,
-            } only %}
+            {% for violation in formViolations.getViolations(violationPath) %}
+                {% set snippetName = violation.messageTemplate starts with 'VIOLATION::'
+                    ? "error.#{violation.messageTemplate}"
+                    : "error.#{violation.code}" %}
+
+                {% set fieldName = violation.propertyPath|split('/')|last|trim('/', 'left')|capitalize %}
+
+                {% set violationParams = { '%field%': fieldName }|merge(violation.parameters|default({})) %}
+
+                <div class="sw-form-feedback__message invalid-feedback">
+                    {{ snippetName|trans(violationParams)|sw_sanitize }}
+                </div>
+            {% endfor %}
         {% endif %}
     {% endblock %}
 

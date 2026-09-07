@@ -125,8 +125,8 @@ class AppBindingPoisonRowTest extends TestCase
     }
 
     /**
-     * @return EntityRepository<ContentLayoutCollection>
-     */
+    * @return EntityRepository<ContentLayoutCollection>
+    */
     private function contentLayoutRepository(): EntityRepository
     {
         $repository = $this->getContainer()->get('content_layout.repository');

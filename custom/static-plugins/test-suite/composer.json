@@ -1,0 +1,26 @@
+{
+    "name": "shopware/test-suite",
+    "description": "Standalone PHPUnit testing utilities for Shopware projects",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "phpunit/phpunit": "^11.5.19"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shopware\\TestSuite\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Shopware\\TestSuite\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

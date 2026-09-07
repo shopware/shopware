@@ -93,7 +93,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             $validation->add('company', new NotBlank());
 
             if (!CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId())) {
-                CompanyAccountNameFields::relax(
+                CompanyAccountNameFields::makeOptional(
                     $validation,
                     new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME),
                     new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME)

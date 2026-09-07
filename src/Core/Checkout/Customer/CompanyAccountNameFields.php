@@ -41,7 +41,7 @@ final class CompanyAccountNameFields
         }
     }
 
-    public static function relax(DataValidationDefinition $validation, Length $firstName, Length $lastName): void
+    public static function makeOptional(DataValidationDefinition $validation, Length $firstName, Length $lastName): void
     {
         foreach (['firstName' => $firstName, 'lastName' => $lastName] as $property => $length) {
             if ($validation->getProperty($property) !== []) {

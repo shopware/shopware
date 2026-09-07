@@ -463,7 +463,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
-            CompanyAccountNameFields::relax(
+            CompanyAccountNameFields::makeOptional(
                 $validation,
                 new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'),
                 new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG')
@@ -515,7 +515,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS
             && !$this->nameFieldsRequiredForCompanyAccounts($context)) {
-            CompanyAccountNameFields::relax(
+            CompanyAccountNameFields::makeOptional(
                 $validation,
                 new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME),
                 new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME)

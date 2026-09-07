@@ -114,7 +114,7 @@ class CheckoutConfirmPageLoader
         $this->validateShippingAddress($shippingAddress, $billingAddress, $cart, $context);
     }
 
-    private function relaxNameForCompanyAccounts(DataValidationDefinition $validation, SalesChannelContext $context): void
+    private function makeNameOptionalForCompanyAccounts(DataValidationDefinition $validation, SalesChannelContext $context): void
     {
         if ($context->getCustomer()?->isBusinessAccount() !== true) {
             return;
@@ -124,7 +124,7 @@ class CheckoutConfirmPageLoader
             return;
         }
 
-        CompanyAccountNameFields::relax(
+        CompanyAccountNameFields::makeOptional(
             $validation,
             new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'),
             new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG')
@@ -141,7 +141,7 @@ class CheckoutConfirmPageLoader
             $validation->set('zipcode', new CustomerZipCode(countryId: $billingAddress->getCountryId()));
         }
 
-        $this->relaxNameForCompanyAccounts($validation, $context);
+        $this->makeNameOptionalForCompanyAccounts($validation, $context);
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
@@ -168,7 +168,7 @@ class CheckoutConfirmPageLoader
             $validation->set('zipcode', new CustomerZipCode(countryId: $shippingAddress->getCountryId()));
         }
 
-        $this->relaxNameForCompanyAccounts($validation, $context);
+        $this->makeNameOptionalForCompanyAccounts($validation, $context);
 
         $validationEvent = new BuildValidationEvent($validation, new DataBag(), $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());

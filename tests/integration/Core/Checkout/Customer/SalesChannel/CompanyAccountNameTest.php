@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  *
- * Covers the whole path a company account without a contact person takes, because relaxing one
+ * Covers the whole path a company account without a contact person takes, because making optional one
  * validation entry point while another still rejects the empty name is not visible in isolation.
  */
 #[Package('checkout')]
@@ -149,7 +149,7 @@ class CompanyAccountNameTest extends TestCase
         static::assertSame(
             Response::HTTP_BAD_REQUEST,
             $this->browser->getResponse()->getStatusCode(),
-            'the relaxation is scoped to company accounts'
+            'the optional contact person is scoped to company accounts'
         );
     }
 

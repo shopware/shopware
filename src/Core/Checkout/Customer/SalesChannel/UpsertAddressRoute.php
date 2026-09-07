@@ -113,14 +113,14 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
 
         // the checkout decides from the authenticated customer, so an address accepted here has to
         // stay usable there. the request account type only drives the company requirement.
-        $relaxNames = $customer->isBusinessAccount()
+        $namesAreOptional = $customer->isBusinessAccount()
             && !CompanyAccountNameFields::areRequired($this->systemConfigService, $context->getSalesChannelId());
 
-        if ($relaxNames) {
+        if ($namesAreOptional) {
             CompanyAccountNameFields::normalize($data);
         }
 
-        $definition = $this->getValidationDefinition($data, $accountType, $relaxNames, $isCreate, $context);
+        $definition = $this->getValidationDefinition($data, $accountType, $namesAreOptional, $isCreate, $context);
         $this->validator->validate(array_merge(['id' => $addressId], $data->all()), $definition);
 
         $addressData = [
@@ -170,7 +170,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
     private function getValidationDefinition(
         DataBag $data,
         string $accountType,
-        bool $relaxNames,
+        bool $namesAreOptional,
         bool $isCreate,
         SalesChannelContext $context
     ): DataValidationDefinition {
@@ -189,8 +189,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             $validation->add('company', new NotBlank());
         }
 
-        if ($relaxNames) {
-            CompanyAccountNameFields::relax(
+        if ($namesAreOptional) {
+            CompanyAccountNameFields::makeOptional(
                 $validation,
                 new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'),
                 new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG')

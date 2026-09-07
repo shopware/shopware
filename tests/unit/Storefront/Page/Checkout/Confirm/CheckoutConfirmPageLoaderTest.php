@@ -355,7 +355,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $checkoutConfirmPageLoader->load(new Request(), $context);
     }
 
-    public function testCompanyAddressNamesAreRelaxedWhenTheShopOptsIn(): void
+    public function testCompanyAddressNamesAreOptionalWhenTheShopOptsIn(): void
     {
         $definitions = [
             new DataValidationDefinition('address.create'),

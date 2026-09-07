@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\PDO\Exception as PdoException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
@@ -56,13 +57,14 @@ class StockStorageTest extends TestCase
         $stockStorage->alter([], Context::createDefaultContext());
     }
 
-    public function testIndexDispatchesEventWhenProductBecomesUnavailable(): void
+    #[DataProvider('transactionNestingLevelProvider')]
+    public function testIndexDispatchesEventWhenProductBecomesUnavailable(int $transactionNestingLevel): void
     {
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $connection = static::createStub(Connection::class);
-        $connection->method('getTransactionNestingLevel')->willReturn(0);
+        $connection->method('getTransactionNestingLevel')->willReturn($transactionNestingLevel);
         $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure());
         $connection->method('fetchAllAssociativeIndexed')->willReturn([
             $productId => ['current_available' => 1, 'calculated_available' => 0],
@@ -82,6 +84,12 @@ class StockStorageTest extends TestCase
 
         $stockStorage = new StockStorage($connection, $dispatcher);
         $stockStorage->index([$productId], $context);
+    }
+
+    public static function transactionNestingLevelProvider(): \Generator
+    {
+        yield 'standalone availability update' => [0];
+        yield 'inside an outer transaction' => [1];
     }
 
     public function testAlterRetriesMariaDbRecordChangedExceptionOutsideTransaction(): void

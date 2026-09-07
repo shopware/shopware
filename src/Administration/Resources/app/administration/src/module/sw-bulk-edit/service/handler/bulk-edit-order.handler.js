@@ -5,13 +5,6 @@ const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 
 const MAX_CONCURRENT_STATUS_TRANSITIONS = 5;
-const STATUS_TRANSITION_RETRY_DELAY = 500;
-const RETRYABLE_STATUS_TRANSITION_ERROR_CODES = new Set([
-    '1020',
-    '1205',
-    '1213',
-    'SYSTEM__STATE_MACHINE_TRANSITION_LOCKED',
-]);
 
 class BulkEditOrderStatusError extends Error {
     constructor(failures) {
@@ -36,7 +29,6 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         this.orderRepository = Shopware.Service('repositoryFactory').create('order');
         this.entityName = 'order';
         this.maxConcurrentStatusTransitions = MAX_CONCURRENT_STATUS_TRANSITIONS;
-        this.statusTransitionRetryDelay = STATUS_TRANSITION_RETRY_DELAY;
     }
 
     async bulkEditStatus(entityIds, payload) {
@@ -107,69 +99,46 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
     }
 
     transitionOrderStatus(order, change, shouldTriggerFlows) {
-        const transition = () => {
-            const options = {
-                documentTypes: change.documentTypes,
-                skipSentDocuments: change.skipSentDocuments,
-                sendMail: change.sendMail,
-                internalComment: change.internalComment,
-            };
-
-            switch (change.field) {
-                case 'orderTransactions':
-                    return this.orderStateMachineService.transitionOrderTransactionState(
-                        order.transactions.first()?.id,
-                        change.value,
-                        options,
-                        {},
-                        {
-                            'sw-skip-trigger-flow': !shouldTriggerFlows,
-                        },
-                    );
-                case 'orderDeliveries':
-                    return this.orderStateMachineService.transitionOrderDeliveryState(
-                        order.deliveries.first()?.id,
-                        change.value,
-                        options,
-                        {},
-                        {
-                            'sw-skip-trigger-flow': !shouldTriggerFlows,
-                        },
-                    );
-                default:
-                    return this.orderStateMachineService.transitionOrderState(
-                        order.id,
-                        change.value,
-                        options,
-                        {},
-                        {
-                            'sw-skip-trigger-flow': !shouldTriggerFlows,
-                        },
-                    );
-            }
+        const options = {
+            documentTypes: change.documentTypes,
+            skipSentDocuments: change.skipSentDocuments,
+            sendMail: change.sendMail,
+            internalComment: change.internalComment,
         };
 
-        return this.retryOrderStatusTransition(transition);
-    }
-
-    async retryOrderStatusTransition(transition) {
-        try {
-            return await transition();
-        } catch (error) {
-            if (!this.isRetryableStatusTransitionError(error)) {
-                throw error;
-            }
-
-            await new Promise((resolve) => {
-                setTimeout(resolve, this.statusTransitionRetryDelay);
-            });
-
-            return transition();
+        // Even lock errors can originate from a listener after the state committed. Surface failures without replaying.
+        switch (change.field) {
+            case 'orderTransactions':
+                return this.orderStateMachineService.transitionOrderTransactionState(
+                    order.transactions.first()?.id,
+                    change.value,
+                    options,
+                    {},
+                    {
+                        'sw-skip-trigger-flow': !shouldTriggerFlows,
+                    },
+                );
+            case 'orderDeliveries':
+                return this.orderStateMachineService.transitionOrderDeliveryState(
+                    order.deliveries.first()?.id,
+                    change.value,
+                    options,
+                    {},
+                    {
+                        'sw-skip-trigger-flow': !shouldTriggerFlows,
+                    },
+                );
+            default:
+                return this.orderStateMachineService.transitionOrderState(
+                    order.id,
+                    change.value,
+                    options,
+                    {},
+                    {
+                        'sw-skip-trigger-flow': !shouldTriggerFlows,
+                    },
+                );
         }
-    }
-
-    isRetryableStatusTransitionError(error) {
-        return RETRYABLE_STATUS_TRANSITION_ERROR_CODES.has(this.getStatusTransitionErrorCode(error));
     }
 
     getStatusTransitionErrorCode(error) {

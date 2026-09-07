@@ -84,7 +84,9 @@ class CustomerMailNameSubscriberTest extends TestCase
 
         (new CustomerMailNameSubscriber())->onMailBeforeValidate($event);
 
-        static::assertSame(['info@acme.example' => 'Acme GmbH'], $event->getData()['recipients']);
+        $data = $event->getData();
+        static::assertArrayHasKey('recipients', $data);
+        static::assertSame(['info@acme.example' => 'Acme GmbH'], $data['recipients']);
     }
 
     public function testAnExistingRecipientNameIsKept(): void
@@ -98,7 +100,9 @@ class CustomerMailNameSubscriberTest extends TestCase
 
         (new CustomerMailNameSubscriber())->onMailBeforeValidate($event);
 
-        static::assertSame(['info@acme.example' => 'Purchasing'], $event->getData()['recipients']);
+        $data = $event->getData();
+        static::assertArrayHasKey('recipients', $data);
+        static::assertSame(['info@acme.example' => 'Purchasing'], $data['recipients']);
     }
 
     public function testAnotherRecipientIsLeftAlone(): void
@@ -112,7 +116,9 @@ class CustomerMailNameSubscriberTest extends TestCase
 
         (new CustomerMailNameSubscriber())->onMailBeforeValidate($event);
 
-        static::assertSame(['shop@example.com' => null], $event->getData()['recipients']);
+        $data = $event->getData();
+        static::assertArrayHasKey('recipients', $data);
+        static::assertSame(['shop@example.com' => null], $data['recipients']);
     }
 
     /**

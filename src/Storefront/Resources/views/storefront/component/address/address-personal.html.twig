@@ -149,14 +149,28 @@
     {% endblock %}
 
     {% block component_address_personal_fields_name %}
-        <div class="row g-2">
-            {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
-            {% set companyNameFieldsRequired = companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
+        {% set companyNameFieldsShown = config('core.loginRegistration.showNameFieldsForCompanyAccounts') %}
+        {% set companyNameFieldsRequired = companyNameFieldsShown and config('core.loginRegistration.nameFieldsRequiredForCompanyAccounts') %}
 
-            {% set companyOnlyForm = onlyCompanyRegistration or hasSelectedBusiness %}
-            {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}
-            {% set personNameShown = companyNameFieldsShown or not companyOnlyForm %}
+        {% set companyOnlyForm = onlyCompanyRegistration or hasSelectedBusiness %}
+        {% set personNameRequired = companyOnlyForm ? companyNameFieldsRequired : true %}
+        {% set personNameShown = companyNameFieldsShown or not companyOnlyForm %}
 
+        {# Only the top level account type decides whether the backend relaxes the names, on every route that can
+           do so, so only the fields next to that selection may follow it. An address block carries its own
+           account type but is judged by the customer or by the top level one, so it keeps the names required. #}
+        {% set accountTypeSwitchable = not prefix
+            and config('core.loginRegistration.showAccountTypeSelection')
+            and not hideCustomerTypeSelect
+            and not hasSelectedBusiness
+            and not onlyCompanyRegistration %}
+
+        <div class="row g-2"{% if accountTypeSwitchable %} data-company-name-fields="true" data-company-name-fields-options="{{ {
+            accountTypeSelector: '#' ~ idPrefix ~ prefix ~ '-accountType',
+            businessValue: constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS'),
+            shown: companyNameFieldsShown,
+            required: companyNameFieldsRequired,
+        }|json_encode }}"{% endif %}>
             {% if personNameShown %}
             {% block component_address_personal_fields_first_name %}
                 {% if prefix !== '' and prefix != 'address' %}

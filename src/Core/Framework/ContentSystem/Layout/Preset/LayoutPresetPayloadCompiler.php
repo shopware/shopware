@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Preset;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -67,7 +68,7 @@ class LayoutPresetPayloadCompiler
                 throw ContentSystemException::layoutPresetInvalidLayout(\sprintf('The "style" of "%s" must be a mapping.', $component));
             }
 
-            $element['style'] = $style;
+            $element['style'] = $this->normalizeStyle($style, $component);
         }
 
         $slots = $this->compileSlots($node['slots'] ?? null, $component);
@@ -76,6 +77,53 @@ class LayoutPresetPayloadCompiler
         }
 
         return $element;
+    }
+
+    /**
+     * @param array<int|string, mixed> $style
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeStyle(array $style, string $component): array
+    {
+        $allowed = Breakpoint::values();
+        $normalized = [];
+
+        foreach ($style as $option => $value) {
+            if (!\is_array($value)) {
+                $normalized[(string) $option] = array_fill_keys($allowed, $value);
+
+                continue;
+            }
+
+            $keys = array_keys($value);
+
+            $unknown = array_diff($keys, $allowed);
+            if ($unknown !== []) {
+                throw ContentSystemException::layoutPresetInvalidLayout(\sprintf(
+                    'Unknown breakpoint(s) "%s" in style option "%s" of "%s". Allowed breakpoints: %s.',
+                    implode(', ', $unknown),
+                    (string) $option,
+                    $component,
+                    implode(', ', $allowed),
+                ));
+            }
+
+            $missing = array_diff($allowed, $keys);
+            if ($missing !== []) {
+                throw ContentSystemException::layoutPresetInvalidLayout(\sprintf(
+                    'Style option "%s" of "%s" is missing breakpoint(s) "%s". A breakpoint mapping must define all: %s.',
+                    (string) $option,
+                    $component,
+                    implode(', ', $missing),
+                    implode(', ', $allowed),
+                ));
+            }
+
+            $normalized[(string) $option] = $value;
+        }
+
+        return $normalized;
     }
 
     /**

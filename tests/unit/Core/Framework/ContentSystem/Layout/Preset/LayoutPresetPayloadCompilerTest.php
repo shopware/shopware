@@ -72,7 +72,10 @@ class LayoutPresetPayloadCompilerTest extends TestCase
         $captured = [];
         $compiler = $this->createCompiler($this->capturingDecoder($captured));
 
-        $style = ['col-span' => ['lg' => 3, 'md' => 4], 'display' => ['lg' => true, 'md' => false]];
+        $style = [
+            'col-span' => ['xs' => 4, 'sm' => 4, 'md' => 4, 'lg' => 3, 'xl' => 3, 'xxl' => 3],
+            'display' => ['xs' => false, 'sm' => false, 'md' => false, 'lg' => true, 'xl' => true, 'xxl' => true],
+        ];
 
         $compiler->compile([
             ['component' => 'Sw:Product:Listing', 'style' => $style],
@@ -85,6 +88,45 @@ class LayoutPresetPayloadCompilerTest extends TestCase
     public function testNonArrayStyleThrows(): void
     {
         $this->assertInvalidLayout([['component' => 'Sw:Content:Text', 'style' => 'nope']]);
+    }
+
+    #[TestDox('accepts every canonical breakpoint key in a style option')]
+    public function testCompileAcceptsCanonicalBreakpoints(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured));
+
+        $style = ['col-span' => ['xs' => 4, 'sm' => 4, 'md' => 4, 'lg' => 3, 'xl' => 3, 'xxl' => 3]];
+
+        $compiler->compile([['component' => 'Sw:Product:Listing', 'style' => $style]]);
+
+        static::assertSame($style, $captured[0]['style']);
+    }
+
+    #[TestDox('throws on a style breakpoint key outside the canonical set')]
+    public function testUnknownStyleBreakpointThrows(): void
+    {
+        $this->assertInvalidLayout([['component' => 'Sw:Product:Listing', 'style' => ['col-span' => ['lg' => 3, 'nope' => 2]]]]);
+    }
+
+    #[TestDox('throws when a breakpoint mapping does not define every breakpoint')]
+    public function testIncompleteBreakpointMapThrows(): void
+    {
+        $this->assertInvalidLayout([['component' => 'Sw:Product:Listing', 'style' => ['col-span' => ['lg' => 3, 'md' => 4]]]]);
+    }
+
+    #[TestDox('broadcasts a scalar style option value across every breakpoint')]
+    public function testScalarStyleOptionBroadcastsToAllBreakpoints(): void
+    {
+        $captured = [];
+        $compiler = $this->createCompiler($this->capturingDecoder($captured));
+
+        $compiler->compile([['component' => 'Sw:Product:Listing', 'style' => ['col-span' => 3]]]);
+
+        static::assertSame(
+            ['xs' => 3, 'sm' => 3, 'md' => 3, 'lg' => 3, 'xl' => 3, 'xxl' => 3],
+            $captured[0]['style']['col-span'],
+        );
     }
 
     #[TestDox('re-encodes the decoded elements into the served payload')]

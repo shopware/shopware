@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater;
 use Shopware\Core\Framework\Context;
@@ -23,6 +25,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -312,6 +316,92 @@ class PromotionRedemptionUpdaterTest extends TestCase
             new EntityWriteResult('id', ['promotionId' => Uuid::randomHex()], 'order_line_item', EntityWriteResult::OPERATION_UPDATE),
             false,
         ];
+    }
+
+    public function testOrderStateChangedIgnoresNonLiveVersion(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $this->getUpdater($connection)->orderStateChanged($this->stateTransition(
+            OrderDefinition::ENTITY_NAME,
+            OrderStates::STATE_OPEN,
+            OrderStates::STATE_CANCELLED,
+            Context::createDefaultContext()->createWithVersionId(Uuid::randomHex())
+        ));
+    }
+
+    public function testOrderStateChangedIgnoresOtherEntities(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $this->getUpdater($connection)->orderStateChanged($this->stateTransition(
+            'order_transaction',
+            OrderStates::STATE_OPEN,
+            OrderStates::STATE_CANCELLED
+        ));
+    }
+
+    public function testOrderStateChangedIgnoresTransitionsNotTouchingCancelled(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $this->getUpdater($connection)->orderStateChanged($this->stateTransition(
+            OrderDefinition::ENTITY_NAME,
+            OrderStates::STATE_OPEN,
+            OrderStates::STATE_IN_PROGRESS
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function cancelledTransitionProvider(): iterable
+    {
+        yield 'entering cancelled' => [OrderStates::STATE_OPEN, OrderStates::STATE_CANCELLED];
+        yield 'leaving cancelled' => [OrderStates::STATE_CANCELLED, OrderStates::STATE_OPEN];
+    }
+
+    #[DataProvider('cancelledTransitionProvider')]
+    public function testOrderStateChangedRecountsBothCancelDirections(string $from, string $to): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->willReturn([]);
+
+        // no promotion line items on the order, so the recount is skipped
+        $connection->expects($this->never())->method('fetchAllAssociative');
+
+        $this->getUpdater($connection)->orderStateChanged(
+            $this->stateTransition(OrderDefinition::ENTITY_NAME, $from, $to)
+        );
+    }
+
+    private function stateTransition(
+        string $entityName,
+        string $fromState,
+        string $toState,
+        ?Context $context = null
+    ): StateMachineTransitionEvent {
+        $from = new StateMachineStateEntity();
+        $from->setUniqueIdentifier(Uuid::randomHex());
+        $from->setTechnicalName($fromState);
+
+        $to = new StateMachineStateEntity();
+        $to->setUniqueIdentifier(Uuid::randomHex());
+        $to->setTechnicalName($toState);
+
+        return new StateMachineTransitionEvent(
+            $entityName,
+            Uuid::randomHex(),
+            $from,
+            $to,
+            $context ?? Context::createDefaultContext()
+        );
     }
 
     private function getUpdater(?Connection $connection = null): PromotionRedemptionUpdater

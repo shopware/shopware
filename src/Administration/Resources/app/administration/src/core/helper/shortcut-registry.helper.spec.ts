@@ -140,6 +140,56 @@ describe('src/core/helper/shortcut-registry.helper', () => {
         expect(onSave).not.toHaveBeenCalled();
     });
 
+    it('blurs the focused field on save so its pending value commits before the handler runs', () => {
+        const order: string[] = [];
+        const onSave = jest.fn(() => order.push('handler'));
+        const input = document.createElement('input');
+
+        jest.spyOn(input, 'blur').mockImplementation(() => order.push('blur'));
+        document.body.appendChild(input);
+        add('SYSTEMKEY+S', onSave);
+
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }));
+
+        expect(order).toEqual([
+            'blur',
+            'handler',
+        ]);
+        document.body.removeChild(input);
+    });
+
+    it('blurs an ace code editor input on save even though it is not a restricted tag', () => {
+        const onSave = jest.fn();
+        const aceInput = document.createElement('div');
+
+        aceInput.classList.add('ace_text-input');
+        const blur = jest.spyOn(aceInput, 'blur').mockImplementation(() => {});
+
+        document.body.appendChild(aceInput);
+        add('SYSTEMKEY+S', onSave);
+
+        aceInput.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }));
+
+        expect(blur).toHaveBeenCalledTimes(1);
+        expect(onSave).toHaveBeenCalledTimes(1);
+        document.body.removeChild(aceInput);
+    });
+
+    it('does not blur the focused field for a non-save shortcut', () => {
+        const focusSearch = jest.fn();
+        const input = document.createElement('input');
+        const blur = jest.spyOn(input, 'blur').mockImplementation(() => {});
+
+        document.body.appendChild(input);
+        add('SYSTEMKEY+F', focusSearch);
+
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true }));
+
+        expect(focusSearch).toHaveBeenCalledTimes(1);
+        expect(blur).not.toHaveBeenCalled();
+        document.body.removeChild(input);
+    });
+
     it('removes only the registration its own unregister function belongs to', () => {
         const first = jest.fn();
         const second = jest.fn();

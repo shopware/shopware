@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
@@ -55,27 +54,31 @@ final readonly class ElementLowering
             );
         }
 
-        $loaderValues = [];
-        $deliveries = [];
         $ambientValues = array_map(static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value, $ambient);
-
-        foreach ($forest as $root) {
-            $rootDelivery = $this->deliveryResolver->resolveRootContext(
-                $root,
-                $ambientValues,
-                new ContextDelivery($root->id),
-            );
-            $this->lowerElement($root, $context, $request, $cacheContext, $loaderValues, $deliveries, $rootDelivery, $ambientValues);
-        }
+        $loaderValues = [];
 
         if ($virtualRoot !== null && $ambient !== []) {
             $loaderValues[$virtualRoot->id] = $ambient;
         }
 
-        return $this->treeFactory->create($forest, new ContextDeliveryIndex($deliveries), $loaderValues, $mode);
+        foreach ($forest as $root) {
+            $this->resolveLoaderValues($root, $context, $request, $cacheContext, $ambientValues, $loaderValues);
+        }
+
+        $deliveries = $this->deliveryResolver->resolve(
+            $forest,
+            $this->plainValues($loaderValues),
+            $ambientValues,
+        );
+
+        return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
     }
 
-    /** @param list<DataRequirement> $requirements @return array<string, DataRequirement> */
+    /**
+     * @param list<DataRequirement> $requirements
+     *
+     * @return array<string, DataRequirement>
+     */
     private function indexByRequirementKey(array $requirements): array
     {
         $indexed = [];
@@ -87,52 +90,58 @@ final readonly class ElementLowering
     }
 
     /**
+     * Root-scoped context is independent of the tree's provider chain and is therefore available while data
+     * loaders are resolved. Parent-scoped context is deliberately delivered only after every loader has run.
+     *
+     * @param array<string, mixed> $ambientValues
      * @param array<string, array<string, ResolvedLoaderValue>> $loaderValues
-     * @param array<string, ContextDelivery> $deliveries
      */
-    private function lowerElement(
+    private function resolveLoaderValues(
         StoredElement $element,
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
-        array &$loaderValues,
-        array &$deliveries,
-        ContextDelivery $delivery,
         array $ambientValues,
+        array &$loaderValues,
     ): void {
-        $deliveries[$element->id] = $delivery;
-        $resolved = $this->dataResolver->resolve($element, $context, $request, $cacheContext, $delivery->context);
+        $rootContext = $this->deliveryResolver->resolveRootContext(
+            $element,
+            $ambientValues,
+            new ContextDelivery($element->id),
+        );
+        $resolved = $this->dataResolver->resolve($element, $context, $request, $cacheContext, $rootContext->context);
 
         if ($resolved !== []) {
             $loaderValues[$element->id] = $resolved;
         }
 
-        $plainValues = array_map(static fn (ResolvedLoaderValue $value): mixed => $value->value, $resolved);
-        $childDeliveries = $this->deliveryResolver->resolveDirectChildren(
-            $element,
-            $plainValues,
-            $delivery->context,
-        );
-        $childIndex = 0;
-
         foreach ($element->slots as $slotChildren) {
             foreach ($slotChildren as $child) {
-                $this->lowerElement(
+                $this->resolveLoaderValues(
                     $child,
                     $context,
                     $request,
                     $cacheContext,
-                    $loaderValues,
-                    $deliveries,
-                    $this->deliveryResolver->resolveRootContext(
-                        $child,
-                        $ambientValues,
-                        $childDeliveries[$childIndex] ?? new ContextDelivery($child->id),
-                    ),
                     $ambientValues,
+                    $loaderValues,
                 );
-                ++$childIndex;
             }
         }
+    }
+
+    /**
+     * @param array<string, array<string, ResolvedLoaderValue>> $loaderValues
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function plainValues(array $loaderValues): array
+    {
+        return array_map(
+            static fn (array $values): array => array_map(
+                static fn (ResolvedLoaderValue $value): mixed => $value->value,
+                $values,
+            ),
+            $loaderValues,
+        );
     }
 }

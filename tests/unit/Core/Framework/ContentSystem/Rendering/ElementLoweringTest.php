@@ -162,12 +162,12 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
-     * The child loader references `product` through its empty config's declared default. The parent has to
-     * load and distribute that object before the child resolves its inputs; resolving every loader before
-     * context delivery would make the second call receive null instead.
+     * The configurator loader references `product` through its empty config's declared default. The product
+     * is a page-level value, so the root-scoped consumer must receive it before this element's loader inputs
+     * are resolved even though ordinary parent delivery still happens after the forest-wide loader walk.
      */
-    #[TestDox('resolves a child loader object input from context delivered by its parent')]
-    public function testFullModeResolvesChildLoaderInputFromParentContext(): void
+    #[TestDox('resolves an element loader object input from root-scoped page context')]
+    public function testFullModeResolvesElementLoaderInputFromRootContext(): void
     {
         $product = new SalesChannelProductEntity();
         $product->setUniqueIdentifier('product-id');
@@ -176,23 +176,22 @@ class ElementLoweringTest extends TestCase
         $context = static::createStub(SalesChannelContext::class);
         $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
         $configuratorLoader->expects($this->once())->method('load')->with($product, $context)->willReturn($configuratorSettings);
-        $parentLoader = $this->loaderReturning(ContentDataLoaderResult::cached($product));
+        $pageLoader = $this->loaderReturning(ContentDataLoaderResult::cached($product));
         $productConfiguratorLoader = new ProductConfiguratorDataLoader($configuratorLoader);
         $provider = static::createStub(DataLoaderProvider::class);
         $provider->method('get')->willReturnMap([
-            ['entity', $parentLoader],
+            ['entity', $pageLoader],
             [ProductConfiguratorDataLoader::SOURCE, $productConfiguratorLoader],
         ]);
 
-        $child = StoredElementBuilder::create('Sw:VariantSelection', 'child-1')
-            ->withConsumer('product', ContextType::Single)
+        $variantSelection = StoredElementBuilder::create('Sw:VariantSelection', 'variant-selection-1')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
             ->withDataRequirement('configuratorSettings', ProductConfiguratorDataLoader::SOURCE, new ProductConfiguratorLoaderConfig())
             ->build();
-        $parent = StoredElementBuilder::create('Sw:Section', 'parent-1')
-            ->withDataRequirement('product', 'entity', new StubLoaderConfig())
-            ->withProvider('product', BroadcastDistributionConfig::simple())
-            ->withSlot('main', [$child])
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [$variantSelection])
             ->build();
+        $wrapper = $this->virtualRoot($root);
 
         $tree = (new ElementLowering(
             new ElementDataResolver(
@@ -213,14 +212,19 @@ class ElementLoweringTest extends TestCase
             ),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry()))
         ))->lower(
-            [$parent],
+            [$wrapper],
             RenderingMode::FULL,
             $context,
             new Request(),
-            new RenderingCacheContext()
+            new RenderingCacheContext(),
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper,
         )->tree;
 
-        static::assertSame($configuratorSettings, $tree[0]->slots['main'][0]->properties['configuratorSettings']);
+        static::assertSame(
+            $configuratorSettings,
+            $tree[0]->slots['__page_roots__'][0]->slots['main'][0]->properties['configuratorSettings'],
+        );
     }
 
     /**

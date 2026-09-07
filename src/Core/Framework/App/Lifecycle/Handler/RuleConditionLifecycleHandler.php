@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppHandlerIdentifier;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
@@ -98,7 +99,7 @@ class RuleConditionLifecycleHandler extends AbstractLifecycleHandler
 
         foreach ($ruleConditions as $ruleCondition) {
             $payload = $ruleCondition->toArray($context->defaultLocale);
-            $payload['identifier'] = \sprintf('app\\%s_%s', $context->manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
+            $payload['identifier'] = AppHandlerIdentifier::build($context->manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
             $payload['script'] = $this->scriptReader->getScriptContent(
                 $app,
                 self::CONDITION_SCRIPT_DIR . $ruleCondition->getScript(),

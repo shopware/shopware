@@ -79,6 +79,8 @@ class ContentPipeline
             $salesChannelContext,
             $specification->request,
             $cacheContext,
+            $specification->dataRequirements,
+            $this->virtualRootOf($preparation->prePruneForest),
         );
 
         $renderedTree = $this->unwrapVirtualRoot($lowered->tree, $scaffolding);
@@ -104,6 +106,29 @@ class ContentPipeline
             $finalizationEvent->layout,
             $collectValueIndex ? $this->indexFactory->create($finishedTree, $lowered->provenance) : null,
         );
+    }
+
+    /**
+     * The virtual-root wrapper the preparation minted, or null when it did not wrap.
+     *
+     * The wrapper heads the forest whenever `requiresWrapping()` was true, so index zero decides and the
+     * identity is confirmed rather than assumed. The render step needs it because the page-level data
+     * requirements resolve their loader inputs against the placeholder values it carries.
+     *
+     * It is read off the PRE-prune forest deliberately. A partial render can prune the wrapper away, and the
+     * post-prune tree would then report no wrapper for a page that has one, silently ending root-context
+     * delivery for the very render a partial request asked for. Whether the wrapper survives the prune
+     * decides one thing only, and it is not this: whether the finishing steps unwrap.
+     *
+     * @param list<StoredElement> $forest
+     */
+    private function virtualRootOf(array $forest): ?StoredElement
+    {
+        if ($forest === []) {
+            return null;
+        }
+
+        return $this->virtualRootWrapper->isVirtualRoot($forest[0]) ? $forest[0] : null;
     }
 
     /**

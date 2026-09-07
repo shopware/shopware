@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -23,6 +24,9 @@ use Shopware\Core\Framework\Log\Package;
  * wiring validation belongs to this component, and a defect in a subtree a partial render is about
  * to discard must still fail the render — so validation runs on the pre-prune forest while
  * derivation runs on the pruned tree the render actually serves, and the class takes both forests.
+ *
+ * The write path rejects these same four conditions earlier, so this validation stays authoritative
+ * only for trees that bypass the DAL boundary: migrations and raw SQL.
  *
  * The planner is mode-blind: the derivation runs identically in FULL and SKELETON, throws nothing
  * (every throw lives in validation), and its result is inert in SKELETON mode, where nothing
@@ -115,8 +119,14 @@ final readonly class WiringPlanner
     }
 
     /**
-     * Rejects a redistributing consumer the derivation could not turn into a provider: one keyed by a
-     * dotted path, and one whose derived provider key an authored provider already holds.
+     * Rejects a redistributing consumer the derivation could not turn into a provider: one scoped to
+     * {@see ConsumerScope::Root}, one keyed by a dotted path, and one whose derived provider key an authored
+     * provider already holds.
+     *
+     * A root-scoped consumer cannot redistribute: the derivation turns a redistributing consumer into a
+     * broadcast provider for what that consumer received off the parent chain, which is parent scope by
+     * definition. The check runs before the two derived-key rules, matching the decode side, where the
+     * per-consumer combination tier finishes before the element-local tier starts.
      *
      * The derived key is the property the consumer writes ({@see generateVirtualProviders()}), so that is
      * what the collision is judged on — a `consumerAlias` renames what children match, not where the value
@@ -130,6 +140,10 @@ final readonly class WiringPlanner
         foreach ($consumers as $contextKey => $consumer) {
             if (!$consumer->redistribute) {
                 continue;
+            }
+
+            if ($consumer->scope === ConsumerScope::Root) {
+                throw ContentSystemException::rootScopeWithRedistribute($contextKey);
             }
 
             if (str_contains($contextKey, '.')) {

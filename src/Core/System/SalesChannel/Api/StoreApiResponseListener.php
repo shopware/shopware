@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Api;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -51,10 +52,15 @@ class StoreApiResponseListener implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        $fields = new ResponseFields(
-            RequestParamHelper::get($request, 'includes', []),
-            RequestParamHelper::get($request, 'excludes', []),
-        );
+        $criteria = $request->attributes->get(PlatformRequest::ATTRIBUTE_CRITERIA);
+        if ($criteria instanceof Criteria) {
+            $fields = new ResponseFields($criteria->getIncludes(), $criteria->getExcludes());
+        } else {
+            $fields = new ResponseFields(
+                RequestParamHelper::get($request, 'includes', []),
+                RequestParamHelper::get($request, 'excludes', []),
+            );
+        }
 
         $encoded = $this->encoder->encode($response->getObject(), $fields);
 

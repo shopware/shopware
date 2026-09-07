@@ -2,7 +2,6 @@
 
 $sw-page-smart-bar-border-color: var(--color-border-secondary-default);
 $sw-page-separator-color: var(--color-border-secondary-default);
-$sw-page-divider-background-color: var(--color-border-secondary-default);
 $sw-page-smart-bar-background-color: var(--color-elevation-surface-default);
 $sw-page-smart-bar-headline-color: var(--color-text-primary-default);
 $sw-page-side-content-default-width: 440px;
@@ -17,6 +16,10 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     display: grid;
     grid-template-rows: 1fr;
 
+    // The head area below queries this. It sits on the parent, an element cannot query its own size.
+    container-type: inline-size;
+    container-name: sw-page;
+
     &.has--head-area {
         grid-template-rows: auto 1fr;
     }
@@ -25,6 +28,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         position: relative;
         display: grid;
         grid-column-gap: var(--scale-size-8);
+        padding-inline: var(--scale-size-16);
         /* stylelint-disable-next-line max-line-length */
         grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-width) [header-content-end] 1fr [smart-bar-end];
         align-items: center;
@@ -34,19 +38,12 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     }
 
     .sw-page__search-bar {
-        grid-row: 1;
         grid-column: header-content-start / header-content-end;
         z-index: $sw-page-search-bar-z-index;
-
-        @media screen and (max-width: 500px) {
-            grid-column: head-start / smart-bar-end;
-        }
     }
 
     .sw-page__top-bar-actions {
-        grid-row: 1;
         grid-column: header-content-end / smart-bar-end;
-        padding-right: var(--scale-size-32);
         display: flex;
         align-content: flex-end;
         justify-content: flex-end;
@@ -54,46 +51,23 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         gap: var(--scale-size-8);
     }
 
-    .sw-page__smart-bar-divider {
-        position: absolute;
-        top: 80px;
-        width: 100%;
-        height: 1px;
-        background-color: $sw-page-divider-background-color;
+    // Expanded keeps 16px to the actions, collapsed joins their plain 8px button row
+    .sw-page__top-bar:has(.sw-search-bar__field-wrapper) .sw-page__top-bar-actions {
+        margin-inline-start: var(--scale-size-8);
     }
 
     .sw-page__back-btn-container {
         grid-column: back-btn-start / back-btn-end;
-        grid-row: 2;
-    }
-
-    .smart-bar__back-btn {
-        width: 54px;
-        height: var(--scale-size-24);
-        line-height: var(--font-line-height-m);
-        display: grid;
-        grid-template-columns: 30px var(--scale-size-24);
-        align-items: center;
-        margin-left: 20px;
-
-        .mt-icon.icon--regular-chevron-left-s {
-            line-height: var(--font-line-height-m);
-            margin: auto;
-        }
     }
 
     .smart-bar__content {
-        min-height: 80px;
+        min-height: 72px;
         max-width: $content-width;
-        padding: 15px 0;
+        padding-block: var(--scale-size-16);
         display: flex;
         justify-content: space-between;
         align-items: center;
         grid-column: header-content-start / header-content-end;
-
-        @media screen and (max-width: 1360px) {
-            padding: 15px;
-        }
     }
 
     .smart-bar__header {
@@ -127,16 +101,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         text-align: right;
         white-space: nowrap;
         align-items: center;
-
-        .mt-button,
-        .sw-button-group,
-        .sw-tooltip--wrapper {
-            margin-left: var(--scale-size-8);
-
-            &:first-child {
-                margin-left: 0;
-            }
-        }
+        gap: var(--scale-size-8);
 
         .sw-context-button__menu-position {
             margin-right: 0;
@@ -172,6 +137,11 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     .sw-page__side-content {
         position: relative;
         height: 100%;
+
+        &:focus,
+        &:focus-visible {
+            outline: none;
+        }
     }
 
     .sw-page__main-content-inner,
@@ -184,5 +154,106 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
     .sw-page__side-content {
         border-right: 1px solid $sw-page-separator-color;
+    }
+
+    // Both rows borrow the head area columns, so they can never drift apart.
+    .sw-page__top-bar,
+    .sw-page__smart-bar {
+        grid-column: head-start / smart-bar-end;
+        display: grid;
+        grid-template-columns: subgrid;
+        align-items: center;
+
+        // Without this the rows keep their min-content width and the headline stops truncating.
+        min-width: 0;
+    }
+
+    .sw-page__top-bar {
+        grid-row: 1;
+    }
+
+    .sw-page__smart-bar {
+        grid-row: 2;
+        position: relative;
+    }
+
+    // Without a search bar both rows share the first row, each on its own tracks.
+    &:not(.has--search-bar) {
+        .sw-page__top-bar {
+            grid-column: header-content-end / smart-bar-end;
+        }
+
+        .sw-page__smart-bar {
+            grid-row: 1;
+            grid-column: head-start / header-content-end;
+        }
+    }
+
+    // Runs edge to edge past the head area inset.
+    .sw-page__smart-bar-divider {
+        position: absolute;
+        top: 0;
+        inset-inline: calc(var(--scale-size-16) * -1);
+        border-top: 1px solid $sw-page-smart-bar-border-color;
+    }
+
+    // The mobile search expands over the whole row, the actions step aside while it is open.
+    @media screen and (max-width: 500px) {
+        .sw-page__top-bar:has(.sw-search-bar__field-wrapper) .sw-page__top-bar-actions {
+            display: none;
+        }
+    }
+
+    // Narrow head area: plain full width flex rows. Declared last to win over the rules above.
+    @container sw-page (max-width: 1400px) {
+        .sw-page__head-area {
+            grid-column-gap: 0;
+            grid-template-columns: 1fr;
+        }
+
+        .sw-page__top-bar,
+        .sw-page__smart-bar {
+            grid-column: 1;
+            display: flex;
+            gap: var(--scale-size-8);
+        }
+
+        // Keeps the title lead identical whether or not the back button is present
+        .sw-page__back-btn-container:empty {
+            display: none;
+        }
+
+        .sw-page__search-bar,
+        .smart-bar__content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .smart-bar__content {
+            max-width: none;
+            margin-inline-start: var(--scale-size-8);
+        }
+
+        // Matched through its own root to outrank the equally specific max-width/centering base rule.
+        .sw-search-bar .sw-search-bar__container {
+            max-width: none;
+            margin-inline: 0;
+        }
+
+        // Stays stacked without a search bar, scoped to beat the merge above at equal specificity.
+        &:not(.has--search-bar) {
+            .sw-page__top-bar,
+            .sw-page__smart-bar {
+                grid-column: 1;
+            }
+
+            .sw-page__smart-bar {
+                grid-row: 2;
+            }
+
+            .sw-page__top-bar {
+                justify-content: flex-end;
+            }
+        }
     }
 }

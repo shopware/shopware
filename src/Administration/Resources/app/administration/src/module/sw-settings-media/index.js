@@ -15,7 +15,7 @@ Module.register('sw-settings-media', {
     description: 'sw-settings-media.general.description',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

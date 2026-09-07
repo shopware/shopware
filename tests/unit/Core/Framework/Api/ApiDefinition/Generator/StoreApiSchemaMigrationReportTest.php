@@ -28,6 +28,15 @@ class StoreApiSchemaMigrationReportTest extends TestCase
         static::assertFalse($this->createReport()->hasMismatches());
     }
 
+    public function testDetectsPhpGeneratedOnlySchemasAsMismatches(): void
+    {
+        $report = $this->createReport(
+            phpGeneratedOnly: ['Product'],
+        );
+
+        static::assertTrue($report->hasMismatches());
+    }
+
     public function testSerializesReportBuckets(): void
     {
         $report = $this->createReport(
@@ -38,40 +47,24 @@ class StoreApiSchemaMigrationReportTest extends TestCase
         static::assertSame([
             'jsonOverridesPhpGenerated' => ['JsonOverrideEntity'],
             'phpGeneratedOnly' => ['Product'],
-            'phpGeneratedOnlyAllowed' => [],
-            'phpGeneratedOnlyWithoutAllowlist' => [],
             'jsonWithoutPhpGenerated' => [],
-            'allowlistWithoutPhpGeneratedOnlySchema' => [],
-            'allowlistWithoutPhpGeneratedSchema' => [],
         ], $report->jsonSerialize());
     }
 
     /**
      * @param list<string> $jsonOverridesPhpGenerated
      * @param list<string> $phpGeneratedOnly
-     * @param list<string> $phpGeneratedOnlyAllowed
-     * @param list<string> $phpGeneratedOnlyWithoutAllowlist
      * @param list<string> $jsonWithoutPhpGenerated
-     * @param list<string> $allowlistWithoutPhpGeneratedOnlySchema
-     * @param list<string> $allowlistWithoutPhpGeneratedSchema
      */
     private function createReport(
         array $jsonOverridesPhpGenerated = [],
         array $phpGeneratedOnly = [],
-        array $phpGeneratedOnlyAllowed = [],
-        array $phpGeneratedOnlyWithoutAllowlist = [],
         array $jsonWithoutPhpGenerated = [],
-        array $allowlistWithoutPhpGeneratedOnlySchema = [],
-        array $allowlistWithoutPhpGeneratedSchema = [],
     ): StoreApiSchemaMigrationReport {
         return new StoreApiSchemaMigrationReport(
             jsonOverridesPhpGenerated: $jsonOverridesPhpGenerated,
             phpGeneratedOnly: $phpGeneratedOnly,
-            phpGeneratedOnlyAllowed: $phpGeneratedOnlyAllowed,
-            phpGeneratedOnlyWithoutAllowlist: $phpGeneratedOnlyWithoutAllowlist,
             jsonWithoutPhpGenerated: $jsonWithoutPhpGenerated,
-            allowlistWithoutPhpGeneratedOnlySchema: $allowlistWithoutPhpGeneratedOnlySchema,
-            allowlistWithoutPhpGeneratedSchema: $allowlistWithoutPhpGeneratedSchema,
         );
     }
 }

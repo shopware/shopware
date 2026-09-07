@@ -65,6 +65,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheClearer::class),
             service(SystemLocker::class),
             service(ClockInterface::class),
+            service(EventDispatcherInterface::class),
         ])
         ->tag('console.command');
 

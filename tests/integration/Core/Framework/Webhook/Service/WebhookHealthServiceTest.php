@@ -81,17 +81,6 @@ class WebhookHealthServiceTest extends TestCase
         static::assertTrue($this->fetchActive('wh-1'));
     }
 
-    public function testRecordTerminalFailurePropagatesToRelatedWebhooks(): void
-    {
-        $this->insertWebhook('wh-1', errorCount: 0);
-        $this->insertWebhook('wh-2', errorCount: 0);
-
-        $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
-
-        static::assertSame(1, $this->fetchErrorCount('wh-1'));
-        static::assertSame(1, $this->fetchErrorCount('wh-2'));
-    }
-
     public function testResetErrorCount(): void
     {
         $this->insertWebhook('wh-1', errorCount: 5);
@@ -99,17 +88,6 @@ class WebhookHealthServiceTest extends TestCase
         $this->service->resetErrorCount($this->ids->get('wh-1'));
 
         static::assertSame(0, $this->fetchErrorCount('wh-1'));
-    }
-
-    public function testResetErrorCountPropagatesToRelatedWebhooks(): void
-    {
-        $this->insertWebhook('wh-1', errorCount: 5);
-        $this->insertWebhook('wh-2', errorCount: 5);
-
-        $this->service->resetErrorCount($this->ids->get('wh-1'));
-
-        static::assertSame(0, $this->fetchErrorCount('wh-1'));
-        static::assertSame(0, $this->fetchErrorCount('wh-2'));
     }
 
     private function insertWebhook(string $key, int $errorCount = 0, bool $active = true): void

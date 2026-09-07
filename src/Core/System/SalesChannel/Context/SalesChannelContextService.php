@@ -3,7 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -64,7 +64,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
      */
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $factory,
-        private readonly CartRuleLoader $ruleLoader,
+        private readonly CartCalculator $cartCalculator,
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly CartService $cartService,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -139,12 +139,12 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             $esiRequest = $currentRequest?->attributes->has('_esi') ?? false;
             if (!$this->cartService->hasCart($token) || !$esiRequest) {
                 // @deprecated tag:v6.8.0 - Permission will always be true
-                $result = $context->withPermissions(
+                $cart = $context->withPermissions(
                     [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => Feature::isActive('DEFERRED_CART_ERRORS')],
-                    fn (SalesChannelContext $context) => $this->ruleLoader->loadByToken($context, $token),
+                    fn (SalesChannelContext $context) => $this->cartCalculator->calculateByToken($token, $context),
                 );
 
-                $this->cartService->setCart($result->getCart());
+                $this->cartService->setCart($cart);
 
                 // the rule loader updates the rules in the context, save them to the session for later reuse
                 $requestSession?->set(self::RULE_IDS, $context->getRuleIds());

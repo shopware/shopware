@@ -13,6 +13,15 @@
                 "responses": {
                     "200": {
                         "description": "Returns the current context.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains sw-context-token value",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -20,6 +29,10 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -95,6 +108,18 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "One of the submitted ids is not a string, or does not reference an entity that is available in the current sales channel."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "A billing or shipping address id was sent without a logged in customer."
                     }
                 },
                 "security": [
@@ -140,10 +165,14 @@
                 "operationId": "contextGateway",
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "$ref": "#/components/responses/GatewayContextTokenResponse"
                     },
                     "400": {
                         "description": "App server communication error"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "422": {
                         "description": "Error provided by App Server with message to show customer"
@@ -190,10 +219,14 @@
                 ],
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "$ref": "#/components/responses/GatewayContextTokenResponse"
                     },
                     "400": {
                         "description": "App server communication error"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "422": {
                         "description": "Error provided by App Server with message to show customer"

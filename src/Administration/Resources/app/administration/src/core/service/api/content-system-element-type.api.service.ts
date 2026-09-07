@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
 
@@ -112,7 +112,7 @@ export interface ContentSystemElementTypeResponse {
  * Gateway for content system element types endpoint.
  */
 class ContentSystemElementTypeApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'content-system-element-types') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system-element-types') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'contentSystemElementTypeService';
     }

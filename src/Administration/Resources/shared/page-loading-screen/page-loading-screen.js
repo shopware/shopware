@@ -3,6 +3,18 @@
  */
 
 (() => {
+    try {
+        let theme = window.localStorage.getItem('mt-theme');
+
+        if (theme !== 'light' && theme !== 'dark') {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        document.documentElement.setAttribute('data-theme', theme);
+    } catch {
+        // no-op: theme is applied again at boot time
+    }
+
     const pageLoadTime = Date.now();
 
     const addErrorMessage = (message) => {

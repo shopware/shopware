@@ -6,9 +6,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @extends EntityCollection<DocumentFileEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class DocumentFileCollection extends EntityCollection

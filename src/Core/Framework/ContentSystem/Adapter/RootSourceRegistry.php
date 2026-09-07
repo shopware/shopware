@@ -66,11 +66,26 @@ class RootSourceRegistry
      * knownRootSources() (it never returns [] for an unknown id, which would be silent degradation); callers gate
      * membership first.
      *
+     * Every entry is normalized to `root: true`, so the flag is structural rather than something each
+     * providedRootContext() override has to remember: everything this method returns is root-ambient by
+     * definition. An entry already carrying the flag is passed through unchanged.
+     *
      * @return list<ProvidedContext>
      */
     public function resolve(string $rootSource, Context $context): array
     {
-        return $this->sourceFor($rootSource)->providedRootContext($context);
+        return array_map(
+            static fn (ProvidedContext $provided): ProvidedContext => $provided->root ? $provided : new ProvidedContext(
+                contextKey: $provided->contextKey,
+                fqcn: $provided->fqcn,
+                contextType: $provided->contextType,
+                providerElementId: $provided->providerElementId,
+                distribution: $provided->distribution,
+                path: $provided->path,
+                root: true,
+            ),
+            $this->sourceFor($rootSource)->providedRootContext($context),
+        );
     }
 
     /**

@@ -321,6 +321,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                             return Promise.resolve();
                         },
                     },
+                    documentV2Service: {},
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},

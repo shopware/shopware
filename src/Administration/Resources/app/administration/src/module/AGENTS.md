@@ -150,7 +150,7 @@ export default {
       // ✅ CRITICAL: Reload to sync origin for change tracking
       this.entity = await this.repository.get(this.entity.id, Shopware.Context.api);
 
-      this.createNotificationSuccess({ message: this.$tc('sw.product.detail.messageSaved') });
+      this.createNotificationSuccess({ message: this.$t('sw.product.detail.messageSaved') });
     }
   }
 };
@@ -176,7 +176,7 @@ export default {
 }
 ```
 
-**Usage**: `this.$tc('sw.product.list.title')`
+**Usage**: `this.$t('sw.product.list.title')`
 
 
 ## Anti-Patterns
@@ -184,7 +184,7 @@ export default {
 ❌ Cross-module imports (modules must be independent)
 ❌ Missing ACL checks in routes/templates
 ❌ Not reloading after save
-❌ Hardcoded strings (use `$tc()` for translations)
+❌ Hardcoded strings (use `$t()` for translations)
 ❌ Large components (split into views/components)
 ❌ Business logic in templates
 

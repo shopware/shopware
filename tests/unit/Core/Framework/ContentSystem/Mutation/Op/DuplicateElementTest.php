@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
@@ -88,6 +90,30 @@ class DuplicateElementTest extends TestCase
         static::assertSame(['product' => $requirement], $result->roots[1]->dataRequirements);
         static::assertSame($contextDefinitions, $result->roots[1]->contextDefinitions);
         static::assertSame($style->toArray(), $result->roots[1]->style->toArray());
+    }
+
+    /**
+     * The consumer-scope carry-through, read as the VALUE rather than as instance identity: the clone is
+     * reconstructed with fresh ids, and a reconstruction that rebuilt each consumer field by field would keep
+     * the type and the required flag while silently dropping the scope back to its `parent` default. That
+     * defect turns a duplicated element from one that receives the page's root context into one that
+     * receives nothing, with no error anywhere.
+     */
+    #[TestDox('carries the root consumer scope over to the reconstructed clone')]
+    public function testDuplicatePreservesTheRootConsumerScopeOnClone(): void
+    {
+        $original = StoredElementBuilder::create('Sw:Card', 'original')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $tree = new StoredTree([$original]);
+
+        $result = (new DuplicateElement('original'))->apply($tree);
+
+        $clone = $result->roots[1];
+        static::assertNotSame('original', $clone->id);
+        $consumer = $clone->contextDefinitions->getAllConsumers()['product'] ?? null;
+        static::assertInstanceOf(ContextConsumer::class, $consumer);
+        static::assertSame(ConsumerScope::Root, $consumer->scope);
     }
 
     #[TestDox('carries attributed specifications over to the reconstructed clone unchanged')]

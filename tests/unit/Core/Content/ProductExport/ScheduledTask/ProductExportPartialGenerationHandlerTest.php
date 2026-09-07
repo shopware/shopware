@@ -130,7 +130,7 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
         $salesChannelContextService
             ->expects($this->once())
             ->method('get')
-            ->willReturn($this->createConfiguredMock(SalesChannelContext::class, [
+            ->willReturn(static::createConfiguredStub(SalesChannelContext::class, [
                 'getContext' => $this->context,
             ]));
 
@@ -279,7 +279,7 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
         $salesChannel->setId($salesChannelId);
         $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
-        return $this->createConfiguredMock(SalesChannelContext::class, [
+        return static::createConfiguredStub(SalesChannelContext::class, [
             'getSalesChannel' => $salesChannel,
             'getContext' => $context,
         ]);

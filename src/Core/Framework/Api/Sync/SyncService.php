@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Sync;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -33,11 +34,20 @@ class SyncService implements SyncServiceInterface
         private readonly EntitySearcherInterface $searcher,
         private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly AclCriteriaValidator $criteriaValidator,
-        private readonly SyncFkResolver $syncFkResolver
+        private readonly SyncFkResolver $syncFkResolver,
+        private readonly SyncMetricsInstrumentor $syncMetrics,
     ) {
     }
 
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
+    {
+        return $this->syncMetrics->measure($operations, $behavior, fn (): SyncResult => $this->doSync($operations, $context, $behavior));
+    }
+
+    /**
+     * @param list<SyncOperation> $operations
+     */
+    private function doSync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
         ReplicaConnection::ensurePrimary();
 

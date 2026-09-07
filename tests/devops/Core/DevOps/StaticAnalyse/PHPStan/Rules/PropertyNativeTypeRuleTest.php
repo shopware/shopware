@@ -25,6 +25,10 @@ class PropertyNativeTypeRuleTest extends RuleTestCase
             ['Native type for property "stringPropertyNotTyped" is missing', 12],
             ['Native type for property "promotedStringPropertyNotTyped" is missing', 18],
         ]);
+
+        $this->analyse([__DIR__ . '/data/PropertyNativeTypeRule/PromotedPropertiesNotTypedWithoutDocBlock.php'], [
+            ['Native type for property "promotedStringPropertyNotTyped" is missing', 10],
+        ]);
     }
 
     protected function getRule(): Rule

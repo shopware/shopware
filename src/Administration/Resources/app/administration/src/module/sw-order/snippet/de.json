@@ -47,7 +47,7 @@
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
       "labelManualOrder": "Erstellt von Admin",
-      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichern die Bestellung, bevor Du diese Seite verlässt.",
+      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichere die Bestellung, bevor Du diese Seite verlässt.",
       "messageEmptyLineItems": "Bestellung konnte nicht gespeichert werden. Es gibt keine Positionen."
     },
     "create": {
@@ -90,6 +90,7 @@
       "placeholderCurrency": "Wähle Währung ...",
       "helpTextPaymentMethod": "Es werden nur Zahlungsarten angezeigt, die nach dem Bestellabschluss gewechselt werden können.",
       "labelToggleAutomaticPromotions": "Automatische hinzugefügte Rabattaktionen deaktivieren",
+      "labelSendOrderConfirmationMail": "Bestellbestätigung per E-Mail an Kunden senden",
       "labelPromotions": "Rabattaktionen",
       "generalTab": {
         "labelLineItemsCard": "Positionen"
@@ -331,6 +332,7 @@
       "labelShowHistoryModal": "Statusverlauf anzeigen",
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
+      "labelCustomer": "Kunde",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
       "labelInternalComment": "Interner Kommentar",
       "labelSelectStateButton": "Status aktualisieren",
@@ -365,7 +367,10 @@
       "labelAttach": "Anhängen",
       "labelAmount": "Bestellwert",
       "labelOpenDocument": "Dokument öffnen",
+      "labelOpenFormat": "{format} öffnen",
       "labelDownloadPdf": "Dokument herunterladen",
+      "labelDownloadFormat": "{format} herunterladen",
+      "labelDownloadAllFormats": "Alle Formate herunterladen",
       "labelPrintDocument": "Dokument drucken",
       "labelSendDocument": "Dokument senden",
       "labelMarkAsSent": "Als gesendet markieren",
@@ -375,8 +380,21 @@
       "messageEmptyTitle": "Noch keine Dokumente",
       "messageNoDocumentFound": "Keine Dokumente vorhanden",
       "messageEmptySubline": "Verwaltung von Dokumenten.",
+      "notificationDeleteErrorMessage": "Das Dokument konnte nicht gelöscht werden.",
       "error": {
-        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung."
+        "DOCUMENT__NUMBER_ALREADY_EXISTS": "Die Dokumentnummer {number} ist bereits in Verwendung.",
+        "createDocument": "Das Erstellen des Dokuments ist fehlgeschlagen.",
+        "downloadDocument": "Das Herunterladen des Dokuments ist fehlgeschlagen.",
+        "downloadDocumentArchive": "Das Herunterladen des Dokumentarchives ist fehlgeschlagen.",
+        "loadSendingDocument": "Das Laden des zu versendenden Dokumentes ist fehlgeschlagen.",
+        "uploadDocument": "Das Hochladen des Dokumentes ist fehlgeschlagen.",
+        "attachMediaToDocumentUpload": "Das Anfügen des ausgewählten Mediums an das Dokument ist fehlgeschlagen.",
+        "loadDocumentPreview": "Das Laden der Dokumentenvorschau ist fehlgeschlagen.",
+        "openDocument": "Das Öffnen des ausgewählten Dokumentes ist fehlgeschlagen.",
+        "loadDocumentTypes": "Das Laden der verfügbaren Dokumenttypen ist fehlgeschlagen.",
+        "missingCompanyInformation": "Das Feld \"{field}\" in Deinen Unternehmensinformationen (Einstellungen > Stammdaten) ist leer. Stelle bitte sicher, dass das Feld mit Deinen Daten gefüllt ist, bevor Dokumente generiert werden.",
+        "noUnprocessedCreditLineItems": "Zu allen Gutschriften in dieser Bestellung sind bereits Gutschriftdokumente erstellt worden.",
+        "duplicateDocumentNumber": "Ein Dokument mit der Nummer \"{documentNumber}\" existiert bereits."
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Doppelte Dokumentnummer. Eine Folgenummer aus dem entsprechenden Nummernkreis wurde automatisch zugewiesen."
@@ -403,7 +421,7 @@
       "promotionsField": {
         "labelPromotions": "Rabattaktionen mit Code",
         "placeholderPromotions": "Rabattcode eingeben ...",
-        "automaticPromotion":  "automatisch hinzugefügt",
+        "automaticPromotion": "automatisch hinzugefügt",
         "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren",
         "automaticPromotions": {
           "title": "Rabattaktionen aktualisieren",
@@ -429,6 +447,7 @@
       "labelDocumentStornoNumber": "Stornonummer",
       "labelInvoiceNumber": "Rechnung",
       "selectInvoiceNumber": "Rechnung wählen",
+      "errorInvoiceMissingCreditItem": "Die ausgewählte Rechnung enthält keine Gutschriftsposition.",
       "labelDeliveryNoteNumber": "Lieferscheinnummer",
       "labelDocumentComment": "Kommentar",
       "labelCreateDownload": "Erstellen und herunterladen",
@@ -459,6 +478,7 @@
       "modalTitle": "Statusverlauf",
       "labelSystemUser": "System",
       "labelIntegration": "Integration",
+      "labelCustomer": "Kunde",
       "column": {
         "createdAt": "Datum",
         "entity": "Geändert",
@@ -623,6 +643,50 @@
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
     },
     "components": {
+      "createDocumentModal": {
+        "title": "Dokument generieren",
+        "openButtonLabel": "Neues Dokument generieren",
+        "labelDocumentType": "Dokumenttyp",
+        "placeholderDocumentType": "Dokumenttyp auswählen ...",
+        "labelFileFormats": "Dateiformate",
+        "placeholderFileFormats": "Dateiformate auswählen ...",
+        "generate": "Generieren",
+        "generateAndDownload": "Generieren und herunterladen",
+        "generateAndSend": "Generieren und senden",
+        "placeholderComment": "Kommentar schreiben ...",
+        "emptyStateTitle": "Dokumenttyp fehlt",
+        "emptyStateDescription": "Wähle einen Dokumenttyp aus, um das Dokument zu konfigurieren",
+        "fileFormats": {
+          "pdf": "PDF",
+          "html": "HTML",
+          "zugferdEmbeddedPdf": "PDF (ZUGFeRD eingebettet)",
+          "zugferdXml": "ZUGFeRD XML"
+        },
+        "documentTypes": {
+          "invoice": "Rechnung",
+          "creditNote": "Gutschrift",
+          "cancellationInvoice": "Stornorechnung",
+          "deliveryNote": "Lieferschein"
+        },
+        "error": {
+          "loadDocumentTypes": "Das Laden der verfügbaren Dokumenttypen ist fehlgeschlagen.",
+          "loadSupportedDocumentFileFormats": "Das Laden der verfügbaren Dateiformaten je Dokumenttyp ist fehlgeschlagen.",
+          "loadDocumentNumber": "Das Laden der Dokumentennummer ist fehlgeschlagen.",
+          "loadUploadedDocument": "Das Laden der hochgeladenen Datei ist fehlgeschlagen."
+        }
+      },
+      "uploadDocumentModal": {
+        "title": "Dokument hochladen",
+        "labelFileFormat": "Dateiformat",
+        "placeholderFileFormat": "Dateiformat auswählen ...",
+        "helpTextFileFormat": "Wähle das Dateiformat der Datei aus, die hochgeladen werden soll.",
+        "labelDocumentUpload": "Dokumentenupload",
+        "buttonUploadFile": "Datei hochladen",
+        "openAction": "Dokument hochladen",
+        "upload": "Hochladen",
+        "uploadAndDownload": "Hochladen und herunterladen",
+        "uploadAndSend": "Hochladen und senden"
+      },
       "selectDocumentTypeModal": {
         "title": "Dokument erstellen",
         "primaryAction": "Dokument erstellen",

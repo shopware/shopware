@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class TextStruct extends Struct
 {

@@ -229,7 +229,6 @@
                             <sw-cms-inherit-wrapper
                                 field="autoplayTimeout"
                                 :element="element"
-                                :label="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
                             >
                                 <template #default="{ isInherited }">
                                     <mt-number-field
@@ -238,6 +237,7 @@
                                         number-type="int"
                                         :min="0"
                                         :max="3600000"
+                                        :label="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
                                         :placeholder="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
                                         :help-text="$t('sw-cms.elements.general.config.helpText.autoplayTimeout')"
                                         :disabled="isInherited"
@@ -599,7 +599,6 @@
                                     <sw-cms-inherit-wrapper
                                         field="autoplayTimeout"
                                         :element="element"
-                                        :label="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
                                     >
                                         <template #default="{ isInherited }">
                                             <mt-number-field
@@ -608,6 +607,7 @@
                                                 number-type="int"
                                                 :min="0"
                                                 :max="3600000"
+                                                :label="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
                                                 :placeholder="$t('sw-cms.elements.general.config.label.autoplayTimeout')"
                                                 :help-text="$t('sw-cms.elements.general.config.helpText.autoplayTimeout')"
                                                 :disabled="isInherited"

@@ -45,6 +45,22 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `orderId` parameter is missing."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the order can no longer be cancelled from its current state."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No order exists for the given `orderId`."
                     }
                 },
                 "security": [
@@ -170,6 +186,22 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in and the request did not provide a `deepLinkCode` with matching guest credentials."
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429",
+                        "description": "Too many failed guest authentication attempts for this deep link code and client IP."
                     }
                 },
                 "security": [
@@ -229,6 +261,22 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `orderId` is not a valid UUID."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the payment method of this order can no longer be changed."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The order, its transaction, or the requested payment method was not found."
                     }
                 },
                 "security": [
@@ -281,6 +329,22 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `orderId` or `downloadId` route parameter is missing."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The download does not exist, or does not belong to a paid order of the logged in customer."
                     }
                 },
                 "security": [

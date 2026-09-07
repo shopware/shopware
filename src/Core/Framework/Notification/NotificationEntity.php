@@ -12,10 +12,12 @@ use Shopware\Core\System\User\UserEntity;
 
 if (class_exists(AdminNotificationEntity::class)) {
     /**
+     * @codeCoverageIgnore
+     *
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     #[Package('framework')]
-    #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend \Shopware\Administration\Notification\NotificationEntity but directly \Shopware\Core\Framework\DataAbstractionLayer\Entity.')]
+    #[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend \Shopware\Administration\Notification\NotificationEntity but directly \Shopware\Core\Framework\DataAbstractionLayer\Entity.', newParentClass: Entity::class)]
     class NotificationEntity extends AdminNotificationEntity
     {
         use EntityIdTrait;
@@ -126,6 +128,9 @@ if (class_exists(AdminNotificationEntity::class)) {
         }
     }
 } else {
+    /**
+     * @codeCoverageIgnore
+     */
     #[Package('framework')]
     class NotificationEntity extends Entity
     {

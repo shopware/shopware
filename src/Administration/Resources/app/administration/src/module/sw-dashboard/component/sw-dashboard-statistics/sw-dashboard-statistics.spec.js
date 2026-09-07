@@ -223,9 +223,15 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         wrapper = await createWrapper(['order.viewer']);
         await flushPromises();
 
-        const dateRanges = wrapper.get('#sw-field--selectedRange').findAll('option');
+        const dateRanges = wrapper.getComponent({ name: 'mt-select' }).props('options');
 
-        expect(dateRanges.at(dateRanges.length - 2).text()).toBe('["sw-dashboard.monthStats.dateRanges.72Hours"]');
-        expect(dateRanges.at(dateRanges.length - 1).text()).toBe('["sw-dashboard.monthStats.dateRanges.90Days"]');
+        expect(dateRanges.at(dateRanges.length - 2)).toEqual({
+            value: '72Hours',
+            label: '["sw-dashboard.monthStats.dateRanges.72Hours"]',
+        });
+        expect(dateRanges.at(dateRanges.length - 1)).toEqual({
+            value: '90Days',
+            label: '["sw-dashboard.monthStats.dateRanges.90Days"]',
+        });
     });
 });

@@ -367,7 +367,7 @@ export default {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
+                return this.conditionRepository.search(this.createConditionCriteria(1), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }
@@ -377,7 +377,7 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria(conditions.criteria.page + 1, conditions.criteria.limit);
+            const criteria = this.createConditionCriteria(conditions.criteria.page + 1);
 
             if (conditions.entity === 'product') {
                 criteria.addAssociation('options.group');
@@ -654,6 +654,16 @@ export default {
                         return false;
                     });
             });
+        },
+
+        createConditionCriteria(page) {
+            const criteria = new Criteria(page);
+
+            criteria.addSorting(Criteria.sort('parentId'));
+            criteria.addSorting(Criteria.sort('position'));
+            criteria.addSorting(Criteria.sort('id'));
+
+            return criteria;
         },
     },
 };

@@ -1,3 +1,15 @@
+html,
+body {
+    /* the fallback hex value needs to be kept in sync with the meteor token color manually */
+    background: var(--color-elevation-surface-default, #ffffff);
+}
+
+html[data-theme='dark'],
+html[data-theme='dark'] body {
+    /* the fallback hex value needs to be kept in sync with the meteor token color manually */
+    background: var(--color-elevation-surface-default, #101013);
+}
+
 #page-loading-screen {
     width: 100%;
     height: 100%;
@@ -10,15 +22,16 @@
     top: 0;
     left: 0;
     z-index: 400;
-    background: var(--color-background-tertiary-default, #f2f3f8);
-    background: color-mix(
-        in oklab,
-        var(--color-background-tertiary-default, #f2f3f8) 80%,
-        white
-    );
+    /* the fallback hex value needs to be kept in sync with the meteor token color manually */
+    background: var(--color-elevation-surface-default, #ffffff);
     opacity: 0;
     /* `animation-delay` matches `DELAY` that is used in `vue.adapter.ts` > `createApp({ mounted() {...} })` */
     animation: 100ms loading-screen-appear 2s 1 forwards;
+}
+
+html[data-theme='dark'] #page-loading-screen {
+    /* the fallback hex value needs to be kept in sync with the meteor token color manually */
+    background: var(--color-elevation-surface-default, #101013);
 }
 
 #page-loading-screen .loading-indicator__elements div {

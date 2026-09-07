@@ -20,6 +20,27 @@ import reduceToSingleRoot from '../reduce-to-single-root';
 import useLegacyConditionContext from '../shim/legacy-condition-context';
 
 /**
+ * Builds the key under which a block registers and resolves its slots.
+ *
+ * Native `<sw-block>` scopes block matching to `componentName + blockName`, mirroring Twig, so that block
+ * `foo` in one component never resolves overrides meant for block `foo` in another. The `componentScope`
+ * is stamped onto every `<sw-block>` by the Shopware setup transform when it lowers the SFC. When it is
+ * absent — a `<sw-block>` mounted directly in a test — the block falls back to matching on the block name
+ * alone.
+ *
+ * @example
+ * scopedBlockKey('sw-product-detail', 'sw_product_detail_base'); // 'sw-product-detail sw_product_detail_base'
+ * scopedBlockKey(undefined, 'sw_product_detail_base'); // 'sw_product_detail_base'
+ */
+function scopedBlockKey(componentScope: string | undefined, blockName: string | undefined): string | undefined {
+    if (blockName === undefined) {
+        return undefined;
+    }
+
+    return componentScope ? `${componentScope} ${blockName}` : blockName;
+}
+
+/**
  * @private
  *
  * @component sw-block
@@ -77,6 +98,10 @@ export default Shopware.Component.wrapComponentConfig({
         extends: {
             type: String,
         },
+        blockScope: {
+            type: String,
+            default: undefined,
+        },
         data: {
             type: Object as PropType<ComponentInternalInstance['proxy']>,
             default: null,
@@ -88,12 +113,13 @@ export default Shopware.Component.wrapComponentConfig({
         const instance = getCurrentInstance();
 
         if (props.extends) {
+            const scopedExtends = scopedBlockKey(props.blockScope, props.extends);
             // addBlock is a no-op for undefined, so an explicit guard is not needed.
-            addBlock(props.extends, slots.default);
+            addBlock(scopedExtends, slots.default);
 
             onBeforeUnmount(() => {
                 if (props.extends) {
-                    removeBlock(props.extends, slots.default);
+                    removeBlock(scopedExtends, slots.default);
                 }
             });
 
@@ -116,8 +142,8 @@ export default Shopware.Component.wrapComponentConfig({
         // multiple simultaneous instances of <sw-block name="foo"> each maintain
         // their own isolated shim slots and cannot double-render each other's content.
         const shimSlots: Slot[] =
-            props.name && hasBlockEntries(props.name)
-                ? getBlockEntries(props.name).map((entry) => {
+            props.name && props.blockScope !== undefined && hasBlockEntries(props.blockScope, props.name)
+                ? getBlockEntries(props.blockScope, props.name).map((entry) => {
                       // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
                       const shimSlot = createShimSlot(entry, props.name!);
 
@@ -154,7 +180,7 @@ export default Shopware.Component.wrapComponentConfig({
             // at boot time) are positioned below native <sw-block extends> overrides
             // (registered at mount time), matching the expected stacking order:
             //   default → shim (legacy plugin) → native (newer plugin or core extension)
-            const nativeBlocks = getBlocks(props.name);
+            const nativeBlocks = getBlocks(scopedBlockKey(props.blockScope, props.name)!);
             const blocksAndParent = [
                 slots.default ?? (() => []),
                 ...shimSlots,

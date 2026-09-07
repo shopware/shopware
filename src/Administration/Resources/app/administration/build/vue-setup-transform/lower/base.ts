@@ -62,16 +62,18 @@ function formatStateMap(names: string[], spaces: number): string {
 }
 
 /**
- * The generated attribute through which a base `<sw-block>` reads the data scope its overrides write.
+ * The generated attributes wired onto a base `<sw-block>`: the component scope and the data scope.
  *
- * `$dataScope` resolves against the scope `attachOverrides()` registers for the instance; authoring the
- * attribute is rejected, so the transform owns the whole binding.
+ * `block-scope` carries the owning component name so block matching is scoped to `componentName + blockName`
+ * like Twig, keeping the same block name in two components isolated. `$dataScope` resolves against the scope
+ * `attachOverrides()` registers for the instance; authoring either attribute is rejected, so the transform
+ * owns the whole binding.
  */
-function toDataScopeEdit(at: number): SourceEdit {
+function toDataScopeEdit(at: number, componentName: string): SourceEdit {
     return {
         start: at,
         end: at,
-        replacement: ' :data="$dataScope"',
+        replacement: ` block-scope='${escapeSingleQuoted(componentName)}' :data="$dataScope"`,
     };
 }
 
@@ -116,7 +118,7 @@ function buildBaseScript(
     ].join('\n');
 
     return [
-        ...templateAnalysis.dataScopeInsertions.map(toDataScopeEdit),
+        ...templateAnalysis.dataScopeInsertions.map((at) => toDataScopeEdit(at, block.componentName)),
         {
             start: block.contentStart,
             end: block.contentEnd,

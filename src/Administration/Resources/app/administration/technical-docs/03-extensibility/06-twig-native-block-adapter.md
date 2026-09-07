@@ -168,6 +168,13 @@ export function hasBlockEntries(blockName: string): boolean {
 }
 ```
 
+> **Component scoping.** Each entry already records the `componentName` it was indexed under (the
+> overridden component). Both lookups accept an optional component name and, when given, return only the
+> entries for that component — so a Twig override of block `foo` on component A is not applied to a
+> `<sw-block name="foo">` in component B. `sw-block` passes its owning component (read from the
+> `block-scope` attribute the Shopware setup transform stamps on every native block) so the shim path matches Twig's
+> `componentName + blockName` identity. Omitting the component name keeps the legacy global lookup.
+
 ### 2. Template Reconstruction — `src/core/factory/reconstruct-twig-template.ts`
 
 Walks the TwigJS token tree and reconstructs the raw Vue-compatible template string without invoking TwigJS's renderer. The `{% parent %}` custom tag is registered with `type: 'parent'` via `Twig.extendTag` in `template.factory.js`, and block tokens are identified by their `blockName` property.
@@ -266,15 +273,15 @@ const configResolveMethod = async (): Promise<ComponentConfig> => {
 
 Two separate function namespaces are involved here:
 
-- `hasBlockEntries` / `getBlockEntries` — from `twig-block-index.ts`; they query the Twig block index built during boot.
-- `addBlock` / `removeBlock` — from `useBlockContext()`; they register/deregister slots in the sw-block slot context (used by the `extends` path).
+- `hasBlockEntries` / `getBlockEntries` — from `twig-block-index.ts`; they query the Twig block index built during boot. Both take the owning component name (`props.blockScope`) so overrides of the same block name in another component are ignored.
+- `addBlock` / `removeBlock` — from `useBlockContext()`; they register/deregister slots in the sw-block slot context (used by the `extends` path). The key is `componentScope + blockName`, so `name` and `extends` blocks only pair up within the same component.
 
 For the `name`-prop path, shim slots are **not** registered via `addBlock`. They are created once in `setup()` and stored in a local variable, keeping each `<sw-block name="...">` instance isolated:
 
 ```ts
 const shimSlots: Slot[] =
-    props.name && hasBlockEntries(props.name)
-        ? getBlockEntries(props.name).map((entry) => createShimSlot(entry, props.name!))
+    props.name && hasBlockEntries(props.blockScope, props.name)
+        ? getBlockEntries(props.blockScope, props.name).map((entry) => createShimSlot(entry, props.name!))
         : [];
 ```
 

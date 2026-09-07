@@ -36,7 +36,7 @@ describe('build/vue-setup-transform override template forwarding', () => {
         const result = transformOrFail(source, 'src/plugin/sw-example-component.override.vue').code;
 
         expect(result).toContain(
-            `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { [__swSetupNamespace]: { info } }, body }">`,
+            `<sw-block block-scope='sw-example-component' extends="sw_example_component_body" #default="{ __swOverride: { [__swSetupNamespace]: { info } }, body }">`,
         );
         expect(stripWhitespace(result)).toContain(stripWhitespace`
             return {
@@ -69,7 +69,9 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         const result = transformOrFail(source, 'override-sw-block-data.override.vue').code;
 
-        expect(result).toContain('<sw-block extends="sw_example_component_headline" #default="{ headline }">');
+        expect(result).toContain(
+            `<sw-block block-scope='override-sw-block-data' extends="sw_example_component_headline" #default="{ headline }">`,
+        );
         expect(result).not.toContain(':data="$dataScope"');
     });
 

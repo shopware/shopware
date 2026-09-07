@@ -2865,6 +2865,10 @@ See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migrat
 
 A runtime adapter has been added that bridges legacy Twig block overrides (`{% block %}` / `{% parent %}`) with the new native `<sw-block>` / `<sw-block-parent />` system. When core components migrate from `.html.twig` blocks to `<sw-block name="...">`, existing plugin overrides continue to work automatically. A deprecation warning is emitted to guide plugin developers toward the new native syntax.
 
+### [Internal] Native `<sw-block>` names are scoped by component
+
+Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS scopes a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` — or a legacy Twig override of `foo` — could bleed into a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name`/`extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.
+
 ### Fixed mixin-based route guards for lazy-loaded administration routes
 
 Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.

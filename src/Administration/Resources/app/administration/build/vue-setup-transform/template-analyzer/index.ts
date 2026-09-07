@@ -52,6 +52,9 @@ type OverrideSlotScope = {
 type TemplateAnalysis = {
     // Absolute offsets on base `<sw-block>` opening tags where the generated data scope is inserted.
     dataScopeInsertions: number[];
+    // Absolute offsets on override `<sw-block extends>` opening tags where the generated component scope
+    // is inserted. Base blocks receive their scope folded into the data-scope insertion instead.
+    blockScopeInsertions: number[];
     slotScopes: OverrideSlotScope[];
     privateBindings: Set<string>;
     // Static names of the base `<sw-block name="...">` blocks this component owns. Emitted so a later
@@ -72,6 +75,7 @@ type TemplateAnalysis = {
 function emptyTemplateAnalysis(): TemplateAnalysis {
     return {
         dataScopeInsertions: [],
+        blockScopeInsertions: [],
         slotScopes: [],
         privateBindings: new Set<string>(),
         ownedBlockNames: [],
@@ -113,6 +117,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
     assertOverrideTemplateTopLevel(ast.children, templateOffset);
 
     const slotScopes: OverrideSlotScope[] = [];
+    const blockScopeInsertions: number[] = [];
     const privateBindings = new Set<string>();
     const extendedBlockNames: string[] = [];
     const overrideLocalNames = new Set<string>(analysis.overrideEntries);
@@ -128,6 +133,8 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
             if (extendedName !== null) {
                 extendedBlockNames.push(extendedName);
             }
+
+            blockScopeInsertions.push(templateOffset + findOpeningTagNameEnd(template.content, element.loc.start.offset));
 
             const { references, writeTargets } = collectTemplateReferences(element.children, new Set());
 
@@ -184,6 +191,7 @@ function analyzeOverrideTemplate(block: ShopwareSetupBlock, analysis: OverrideSe
 
     return {
         dataScopeInsertions: [],
+        blockScopeInsertions,
         slotScopes,
         privateBindings,
         ownedBlockNames: [],
@@ -225,6 +233,7 @@ function analyzeBaseTemplate(block: ShopwareSetupBlock): TemplateAnalysis {
 
     return {
         dataScopeInsertions,
+        blockScopeInsertions: [],
         slotScopes: [],
         privateBindings: new Set<string>(),
         ownedBlockNames,

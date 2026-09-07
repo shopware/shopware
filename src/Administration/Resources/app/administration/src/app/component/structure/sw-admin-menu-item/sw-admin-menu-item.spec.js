@@ -602,7 +602,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             const wrapper = await createWrapper({ props: { entry: catalogues } });
             await flushPromises();
 
-            expect(wrapper.attributes('style')).toContain('--sw-admin-menu-module-color: var(--sw-color-module-green-default)');
+            expect(wrapper.attributes('style')).toContain(
+                '--sw-admin-menu-module-color: var(--sw-color-module-green-default)',
+            );
         });
 
         it('should not expose a module color while the preference is off', async () => {

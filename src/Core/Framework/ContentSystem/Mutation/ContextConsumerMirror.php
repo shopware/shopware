@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementWiringDecoder;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerBaseKey;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerBaseKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
@@ -101,6 +101,7 @@ class ContextConsumerMirror
         $consumers = $definitions->getAllConsumers();
         $providers = $definitions->getAllProviders();
         $added = false;
+        $consumerBaseKey = new ConsumerBaseKeyResolver();
 
         foreach ($resolutions[$element->id] ?? [] as $resolution) {
             $mirrored = $this->consumerFor($resolution);
@@ -112,7 +113,7 @@ class ContextConsumerMirror
             [$contextKey, $consumer] = $mirrored;
             $writtenKey = $resolution->key;
 
-            if (isset($consumers[$contextKey]) || $this->collidesOnBaseKey($writtenKey, $consumers)) {
+            if (isset($consumers[$contextKey]) || $this->collidesOnBaseKey($consumerBaseKey, $writtenKey, $consumers)) {
                 continue;
             }
 
@@ -134,13 +135,12 @@ class ContextConsumerMirror
      *
      * @param array<string, ContextConsumer> $consumers
      */
-    private function collidesOnBaseKey(string $writtenKey, array $consumers): bool
+    private function collidesOnBaseKey(ConsumerBaseKeyResolver $consumerBaseKey, string $writtenKey, array $consumers): bool
     {
-        $consumerBaseKey = new ConsumerBaseKey();
-        $baseKey = $consumerBaseKey->of($writtenKey);
+        $baseKey = $consumerBaseKey->resolve($writtenKey);
 
         foreach ($consumers as $consumerKey => $consumer) {
-            if ($consumerBaseKey->of($consumer->propertyAlias ?? $consumerKey) === $baseKey) {
+            if ($consumerBaseKey->resolve($consumer->propertyAlias ?? $consumerKey) === $baseKey) {
                 return true;
             }
         }

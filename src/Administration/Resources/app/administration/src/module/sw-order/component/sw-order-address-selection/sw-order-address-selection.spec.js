@@ -51,6 +51,13 @@ function createCustomerMock() {
 }
 
 async function createWrapper(propsData, customerResponse = createCustomerMock()) {
+    // The customer is shared between all address selections of an order, so it is loaded through the store.
+    jest.spyOn(Shopware.Store.get('swOrderDetail'), 'loadCustomer').mockImplementation(() => {
+        Shopware.Store.get('swOrderDetail').customer = customerResponse;
+
+        return Promise.resolve(customerResponse);
+    });
+
     return mount(await wrapTestComponent('sw-order-address-selection', { sync: true }), {
         global: {
             directives: {
@@ -120,7 +127,6 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
                         save: () => {
                             return Promise.resolve();
                         },
-                        get: () => Promise.resolve(customerResponse),
                         create: () => ({
                             _isNew: true,
                             getEntityName: () => 'customer_address',
@@ -171,38 +177,32 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
 describe('src/module/sw-order/component/sw-order-address-selection', () => {
     let wrapper;
 
-    beforeAll(() => {
-        Shopware.Store.unregister('swOrderDetail');
-        Shopware.Store.register({
-            id: 'swOrderDetail',
-            state: () => ({
-                isLoading: false,
-                isSavedSuccessful: false,
-                versionContext: {},
-                order: {
-                    addresses: [
-                        {
-                            street: 'Denesik Bridge',
-                            zipcode: '05132',
-                            city: 'Bernierstad',
-                            id: '38e8895864a649a1b2ec806dad02ab87',
-                            country: {
-                                translated: {
-                                    name: 'Buzbach',
-                                },
-                            },
+    beforeEach(async () => {
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+
+        orderDetailStore.$reset();
+        orderDetailStore.resetCustomer();
+        orderDetailStore.versionContext = {};
+        orderDetailStore.order = {
+            addresses: [
+                {
+                    street: 'Denesik Bridge',
+                    zipcode: '05132',
+                    city: 'Bernierstad',
+                    id: '38e8895864a649a1b2ec806dad02ab87',
+                    country: {
+                        translated: {
+                            name: 'Buzbach',
                         },
-                    ],
-                    billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
-                    orderCustomer: {
-                        customerId: '63e27affb5804538b5b06cb4e344b130',
                     },
                 },
-            }),
-        });
-    });
+            ],
+            billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
+            orderCustomer: {
+                customerId: '63e27affb5804538b5b06cb4e344b130',
+            },
+        };
 
-    beforeEach(async () => {
         wrapper = await createWrapper();
     });
 
@@ -331,6 +331,37 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                 },
             ],
         ]);
+    });
+
+    it('should read the customer from the order detail store so all address selections stay in sync', async () => {
+        await flushPromises();
+
+        expect(wrapper.vm.customer).toBe(Shopware.Store.get('swOrderDetail').customer);
+        expect(Shopware.Store.get('swOrderDetail').loadCustomer).toHaveBeenCalledWith('63e27affb5804538b5b06cb4e344b130');
+    });
+
+    it('should reload the shared customer after saving an address, so it is selectable in the other selections', async () => {
+        await flushPromises();
+
+        wrapper.vm.createNewCustomerAddress();
+        Object.assign(wrapper.vm.currentAddress, {
+            id: 'newCustomerAddressId',
+            firstName: 'Ada',
+            lastName: 'Lovelace',
+            street: 'Example Street 1',
+            zipcode: '12345',
+            city: 'Example City',
+            countryId: 'countryId',
+        });
+
+        wrapper.vm.isValidAddress = jest.fn(() => true);
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(Shopware.Store.get('swOrderDetail').loadCustomer).toHaveBeenCalledWith(
+            '63e27affb5804538b5b06cb4e344b130',
+            true,
+        );
     });
 
     it('should keep id on options for addresses where id is not enumerable via spread', async () => {

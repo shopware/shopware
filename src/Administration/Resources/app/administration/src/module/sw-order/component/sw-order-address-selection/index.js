@@ -61,7 +61,6 @@ export default {
 
     data() {
         return {
-            customer: {},
             currentAddress: null,
             customerAddressCustomFieldSets: null,
             orderAddressId: cloneDeep(this.address?.id),
@@ -78,6 +77,12 @@ export default {
             return this.order.orderCustomer;
         },
 
+        /**
+         * Shared with the other address selections of the order through the store, so that an address created or
+         * edited here is immediately selectable in all of them.
+         */
+        customer: () => Store.get('swOrderDetail').customer,
+
         orderRepository() {
             return this.repositoryFactory.create('order');
         },
@@ -88,13 +93,6 @@ export default {
 
         customerRepository() {
             return this.repositoryFactory.create('customer');
-        },
-
-        customerCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addAssociation('addresses.country');
-
-            return criteria;
         },
 
         customFieldSetRepository() {
@@ -244,11 +242,16 @@ export default {
 
             this.customer.addresses.push(address);
 
-            return this.customerRepository.save(this.customer).then(() => {
-                this.currentAddress = null;
+            const customerId = this.customer.id;
 
-                this.onAddressChange(address.id);
-            });
+            return this.customerRepository
+                .save(this.customer)
+                .then(() => Store.get('swOrderDetail').loadCustomer(customerId, true))
+                .then(() => {
+                    this.currentAddress = null;
+
+                    this.onAddressChange(address.id);
+                });
         },
 
         isValidAddress(address) {
@@ -352,11 +355,7 @@ export default {
                 return Promise.reject();
             }
 
-            return this.customerRepository
-                .get(this.orderCustomer.customerId, Shopware.Context.api, this.customerCriteria)
-                .then((customer) => {
-                    this.customer = customer;
-                });
+            return Store.get('swOrderDetail').loadCustomer(this.orderCustomer.customerId);
         },
 
         getCustomFieldSet() {

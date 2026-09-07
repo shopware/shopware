@@ -9,11 +9,16 @@ function press(key: string, init: KeyboardEventInit = {}): void {
 }
 
 function register(key: string, handler: () => void, active: () => boolean = () => true): () => void {
-    return registerShortcut({ key, handler, active, systemKey: () => 'CTRL' });
+    return registerShortcut({ key, handler, active });
 }
 
 describe('src/core/helper/shortcut-registry.helper', () => {
     let unregisterFunctions: (() => void)[] = [];
+
+    // systemKey() reads the platform, and SYSTEMKEY maps to CTRL only on macOS.
+    beforeAll(() => {
+        Object.defineProperty(window.navigator, 'platform', { value: 'MacIntel', configurable: true });
+    });
 
     const add = (key: string, handler: () => void, active?: () => boolean): void => {
         unregisterFunctions.push(register(key, handler, active));

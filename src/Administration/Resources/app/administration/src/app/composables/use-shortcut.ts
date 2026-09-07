@@ -5,21 +5,6 @@
 import { getCurrentInstance, onScopeDispose } from 'vue';
 import { registerShortcut } from 'src/core/helper/shortcut-registry.helper';
 
-type DeviceHelper = { getSystemKey: () => string };
-
-let deviceHelper: DeviceHelper | null = null;
-
-/**
- * `$device` is an Options API global property, so a setup-mode caller cannot read it. The helper
- * behind it only reads the platform for `getSystemKey()`, so one shared instance answers for every
- * shortcut this composable registers.
- */
-function systemKey(): string {
-    deviceHelper ??= new Shopware.Helper.DeviceHelper() as DeviceHelper;
-
-    return deviceHelper.getSystemKey();
-}
-
 /** @private */
 export interface UseShortcutOptions {
     /**
@@ -54,8 +39,7 @@ export default function useShortcut(key: string, handler: () => void, options: U
     const unregister = registerShortcut({
         key,
         handler,
-        systemKey,
-        active: typeof active === 'boolean' ? () => active : active,
+        active: typeof active === 'function' ? active : () => active,
     });
 
     onScopeDispose(unregister);

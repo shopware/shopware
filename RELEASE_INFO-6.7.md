@@ -254,6 +254,12 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### An empty string can be saved on fields that allow one
+
+The changeset generator turned an empty string into `null` for every field. Fields flagged `Required` and `AllowEmptyString` reject `null` but accept an empty string, so clearing such a field in the Administration always failed with "This value should not be null." The generator now keeps the empty string for exactly those fields; every other field is unchanged.
+
+This affects `snippet.value` and `app_administration_snippet.value`, where clearing the field now saves an empty value instead of returning an error.
+
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.

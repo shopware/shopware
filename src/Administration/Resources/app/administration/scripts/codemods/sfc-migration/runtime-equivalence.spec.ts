@@ -26,6 +26,7 @@ import {
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
     SHORTCUT_FIXTURE,
+    SHORTCUT_QUOTED_KEY_FIXTURE,
     SIBLING_DATA_FIXTURE,
 } from './runtime-equivalence-fixtures';
 import {
@@ -215,6 +216,14 @@ describe('SFC migration runtime equivalence', () => {
             'esc',
         ]);
         expect(generated).toEqual(original);
+    });
+
+    it('escapes a shortcut key that would break a single-quoted emit', async () => {
+        const result = await convertFixture(SHORTCUT_QUOTED_KEY_FIXTURE);
+
+        // A raw single-quote splice would make prettier reject the output and downgrade the outcome.
+        expect(result.outcome).toBe('full');
+        expect(result.sfc).toContain("a'b");
     });
 
     it('does not confuse class-local this with component this', async () => {

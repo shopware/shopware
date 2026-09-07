@@ -1137,13 +1137,15 @@ function collectShortcuts(ctx: Ctx, collected: Collected): CollectedShortcut[] {
 
 /** Render phase — only valid once the `this` rewrite has run over the MagicString. */
 function renderShortcut(ctx: Ctx, shortcut: CollectedShortcut): string {
+    const key = JSON.stringify(shortcut.key);
+
     if (shortcut.active === null) {
-        return `useShortcut('${shortcut.key}', ${shortcut.handler});`;
+        return `useShortcut(${key}, ${shortcut.handler});`;
     }
 
     const activeText = typeof shortcut.active === 'string' ? shortcut.active : arrowText(ctx, shortcut.active);
 
-    return `useShortcut('${shortcut.key}', ${shortcut.handler}, { active: ${activeText} });`;
+    return `useShortcut(${key}, ${shortcut.handler}, { active: ${activeText} });`;
 }
 
 /** Render phase — only valid once the `this` rewrite has run over the MagicString. */

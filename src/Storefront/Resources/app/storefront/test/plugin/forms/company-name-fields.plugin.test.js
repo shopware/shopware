@@ -43,6 +43,15 @@ describe('CompanyNameFieldsPlugin', () => {
     const firstName = () => document.querySelector('#firstName');
 
     beforeEach(() => {
+        window.validationMessages = {
+            required: 'Input should not be empty.',
+            email: 'Invalid email address.',
+            confirmation: 'Confirmation field does not match.',
+            minLength: 'Input is too short.',
+            pattern: 'Input does not match the pattern.',
+            grecaptcha: 'Captcha validation failed.',
+        };
+
         window.formValidation = new FormValidation();
     });
 

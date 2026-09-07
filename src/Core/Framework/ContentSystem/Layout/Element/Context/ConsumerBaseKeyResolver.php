@@ -10,10 +10,12 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final readonly class ConsumerBaseKey
+final readonly class ConsumerBaseKeyResolver
 {
-    public function of(string $key): string
+    public function resolve(string $key): string
     {
-        return str_contains($key, '.') ? substr($key, 0, (int) strpos($key, '.')) : $key;
+        $position = strpos($key, '.');
+
+        return $position === false ? $key : substr($key, 0, $position);
     }
 }

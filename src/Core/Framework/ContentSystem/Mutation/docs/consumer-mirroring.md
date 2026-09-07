@@ -1,6 +1,6 @@
 # Consumer Mirroring
 
-`PageContextConsumerWiring` is the creation-time step `MutationPipeline` runs after the diagnostics pass. It mirrors
+`ContextConsumerMirror` is the creation-time step `MutationPipeline` runs after the diagnostics pass. It mirrors
 onto the created elements the `acceptsContext` consumers their own resolutions already prove, and nothing else. It
 is `@internal`, `#[Package('framework')]` like everything else here, and absent from `InternalClassRule`'s
 public-surface allowlist. Only the draft pipeline calls it, so a persisted mutation commits without mirrored wiring.

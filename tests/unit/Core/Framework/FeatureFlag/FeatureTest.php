@@ -230,7 +230,7 @@ class FeatureTest extends TestCase
 
     /**
      * @return \Generator<string, array{
-     *     list<string>|array<string, array<string, bool>>,
+     *     list<string>|array<string, FeatureFlagConfig>,
      *     array<string, string>,
      *     string,
      *     bool

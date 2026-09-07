@@ -68,8 +68,8 @@ export default {
             return [...registry.keys()].some((combination) => combination.toUpperCase().startsWith(sequence));
         }
 
-        function getMatchedShortcut(shortcutKey) {
-            if (isSystemShortcut(shortcutKey)) {
+        function getMatchedShortcut(shortcutKey, allowSequence) {
+            if (isSystemShortcut(shortcutKey) || !allowSequence) {
                 resetSequenceNow();
 
                 return findShortcut(shortcutKey);
@@ -130,15 +130,16 @@ export default {
 
             // create combined key name and look for matching shortcut
             const combinedKey = (systemKeyPressed ? 'SYSTEMKEY+' : '') + key.toUpperCase();
-            const isModifiedKey = altKey || ctrlKey || metaKey;
 
-            if (!isSystemShortcut(combinedKey) && (isModifiedKey || isRestrictedSource(event))) {
+            if (!isSystemShortcut(combinedKey) && isRestrictedSource(event)) {
                 resetComponentShortcutState();
 
                 return;
             }
 
-            const matchedShortcut = getMatchedShortcut(combinedKey);
+            // Browser shortcuts like Ctrl+C keep matching single keys, but never start or continue a key sequence
+            const isModifiedKey = altKey || ctrlKey || metaKey;
+            const matchedShortcut = getMatchedShortcut(combinedKey, !isModifiedKey);
 
             if (!matchedShortcut) {
                 return;

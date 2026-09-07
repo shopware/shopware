@@ -21,9 +21,14 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
 
-Shopware.Utils.debounce = function debounce() {
-    const execFunction = jest.fn();
-    execFunction.cancel = jest.fn();
+Shopware.Utils.debounce = function debounce(callback, delay) {
+    let timeout = null;
+
+    const execFunction = jest.fn(() => {
+        clearTimeout(timeout);
+        timeout = setTimeout(callback, delay);
+    });
+    execFunction.cancel = jest.fn(() => clearTimeout(timeout));
 
     return execFunction;
 };
@@ -723,8 +728,10 @@ describe('app/plugins/shortcut.plugin', () => {
         wrapper.unmount();
     });
 
-    it('should not trigger a single key shortcut when a modifier key is pressed', async () => {
+    it('should trigger the standalone shortcut again once the sequence delay has passed', async () => {
         const onToggleMock = jest.fn();
+        const shortcutFactory = Shopware.Application.getContainer('factory').shortcut;
+        shortcutFactory.register('GS', '/sw/settings/index');
 
         wrapper = await createWrapper({
             shortcuts: {
@@ -737,16 +744,79 @@ describe('app/plugins/shortcut.plugin', () => {
             },
         });
 
+        jest.useFakeTimers();
+
+        await wrapper.trigger('keydown', {
+            key: 'g',
+        });
+        jest.advanceTimersByTime(1000);
         await wrapper.trigger('keydown', {
             key: 's',
+        });
+
+        expect(onToggleMock).toHaveBeenCalledTimes(1);
+
+        jest.useRealTimers();
+        shortcutFactory.getShortcutRegistry().clear();
+        wrapper.unmount();
+    });
+
+    it('should still trigger a single key shortcut when a non system modifier key is pressed', async () => {
+        const onFocusMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                f: 'onFocus',
+            },
+            methods: {
+                onFocus() {
+                    onFocusMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'f',
+            metaKey: true,
+        });
+
+        expect(onFocusMock).toHaveBeenCalledTimes(1);
+
+        wrapper.unmount();
+    });
+
+    it('should not start a key sequence when a modifier key is pressed', async () => {
+        const onCycleMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                CT: 'onCycle',
+            },
+            methods: {
+                onCycle() {
+                    onCycleMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'c',
             metaKey: true,
         });
         await wrapper.trigger('keydown', {
-            key: 's',
-            ctrlKey: true,
+            key: 't',
         });
 
-        expect(onToggleMock).not.toHaveBeenCalled();
+        expect(onCycleMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 'c',
+        });
+        await wrapper.trigger('keydown', {
+            key: 't',
+        });
+
+        expect(onCycleMock).toHaveBeenCalledTimes(1);
 
         wrapper.unmount();
     });

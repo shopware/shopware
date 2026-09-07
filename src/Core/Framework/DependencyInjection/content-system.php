@@ -80,6 +80,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
+use Shopware\Core\Framework\ContentSystem\Mutation\PageContextConsumerWiring;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder;
@@ -729,9 +730,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Mutation Pipeline
+    $services->set(PageContextConsumerWiring::class);
+
     $services->set(MutationPipeline::class)
         ->args([
             service(LayoutDiagnostics::class),
+            service(PageContextConsumerWiring::class),
         ]);
 
     // Layout Mutation Actions (Admin API)

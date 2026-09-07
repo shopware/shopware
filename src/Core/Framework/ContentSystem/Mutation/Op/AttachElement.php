@@ -37,6 +37,7 @@ final class AttachElement extends AbstractLayoutMutation
 
         $clone = $this->cloneWithNewIds($this->element);
         $this->affected = $this->subtreeIds($clone);
+        $this->created = $this->affected;
 
         if ($this->parentElementId === null) {
             return $tree->insertAtRoot($this->index, [$clone]);

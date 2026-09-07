@@ -64,6 +64,23 @@ class AttachElementTest extends TestCase
         static::assertSame([$attached->id, $attached->slots['content'][0]->id], $attach->affected());
     }
 
+    #[TestDox('reports every reminted subtree id as created, because the whole splice is new to the layout')]
+    public function testCreatedAreEveryMintedSubtreeId(): void
+    {
+        $incoming = new StoredElement('incoming', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('incoming-child', 'Sw:Card'), new StoredElement('incoming-sibling', 'Sw:Card')],
+        ]);
+
+        $attach = new AttachElement($this->registry(), $incoming);
+        $result = $attach->apply(new StoredTree([]));
+
+        $attached = $result->roots[0];
+        static::assertSame(
+            [$attached->id, $attached->slots['content'][0]->id, $attached->slots['content'][1]->id],
+            $attach->created(),
+        );
+    }
+
     #[TestDox('attaches the subtree into a parent slot at an explicit index')]
     public function testAttachesIntoParentSlotAtIndex(): void
     {

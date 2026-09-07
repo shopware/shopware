@@ -71,12 +71,14 @@
       "stagingBarText": "The Shop is in staging mode.",
       "theme": {
         "changed": "Appearance changed to \"{theme}\"",
-        "saveError": "The appearance could not be changed",
-        "names": {
-          "system": "System",
-          "light": "Light",
-          "dark": "Dark"
-        }
+        "saveError": "The appearance could not be changed"
+      }
+    },
+    "theme": {
+      "names": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
       }
     },
     "sw-skip-link": {

@@ -71,12 +71,14 @@
       "stagingBarText": "Der Shop befindet sich im Staging-Modus.",
       "theme": {
         "changed": "Erscheinungsbild zu \"{theme}\" geändert",
-        "saveError": "Erscheinungsbild konnte nicht gewechselt werden",
-        "names": {
-          "system": "System",
-          "light": "Hell",
-          "dark": "Dunkel"
-        }
+        "saveError": "Erscheinungsbild konnte nicht gewechselt werden"
+      }
+    },
+    "theme": {
+      "names": {
+        "light": "Hell",
+        "dark": "Dunkel",
+        "system": "System"
       }
     },
     "sw-skip-link": {

@@ -1,20 +1,8 @@
 import template from './sw-desktop.html.twig';
-import useTheme from 'src/app/composables/use-theme';
+import useTheme, { THEMES, THEME_LABELS } from 'src/app/composables/use-theme';
 import './sw-desktop.scss';
 
 const { hasOwnProperty } = Shopware.Utils.object;
-
-const THEME_CYCLE = [
-    'system',
-    'light',
-    'dark',
-];
-
-const THEME_LABELS = {
-    system: 'global.sw-desktop.theme.names.system',
-    light: 'global.sw-desktop.theme.names.light',
-    dark: 'global.sw-desktop.theme.names.dark',
-};
 
 /**
  * @sw-package framework
@@ -120,7 +108,7 @@ export default {
 
         async onCycleTheme() {
             const currentTheme = useTheme().theme.value;
-            const nextTheme = THEME_CYCLE[(THEME_CYCLE.indexOf(currentTheme) + 1) % THEME_CYCLE.length];
+            const nextTheme = THEMES[(THEMES.indexOf(currentTheme) + 1) % THEMES.length];
 
             try {
                 await useTheme().saveUserTheme(nextTheme);

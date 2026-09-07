@@ -45,9 +45,11 @@ final readonly class ElementDataResolver
     }
 
     /**
-     * The identity is minted here and nowhere later: the resolved inputs do not outlive this loop, and the
-     * value's fingerprint has to be taken from what the LOADER returned rather than from whatever the response
-     * finally carries.
+     * The ordinary case: an element runs its OWN data requirements, and is also the element whose stored
+     * properties the loader inputs are dereferenced against. `$rootContext` contains that element's
+     * root-scoped page context and overrides stored properties with the same key.
+     *
+     * @param array<string, mixed> $rootContext
      *
      * @return array<string, ResolvedLoaderValue> every requirement's resolved value, keyed by requirement key
      */
@@ -56,16 +58,26 @@ final readonly class ElementDataResolver
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
-        array $deliveredContext = [],
+        array $rootContext = [],
     ): array {
-        return $this->resolveRequirements($stored, $stored->dataRequirements, $context, $request, $cacheContext, $deliveredContext);
+        return $this->resolveRequirements($stored, $stored->dataRequirements, $context, $request, $cacheContext, $rootContext);
     }
 
     /**
-     * @param array<string, DataRequirement> $requirements
-     * @param array<string, mixed> $deliveredContext
+     * The same run with the requirements supplied separately, for the page-level requirements the virtual root
+     * carries none of: they belong to the rendering specification, not to any element, while their
+     * `propertyReference` inputs still have to dereference against SOME element's stored properties: the
+     * wrapper's, which is where the placeholder values live. `$inputSource` is that element and nothing more;
+     * its own `dataRequirements` are not consulted, so it cannot load twice.
      *
-     * @return array<string, ResolvedLoaderValue>
+     * The identity is minted here and nowhere later: the resolved inputs do not outlive this loop, and the
+     * value's fingerprint has to be taken from what the LOADER returned rather than from whatever the response
+     * finally carries.
+     *
+     * @param array<string, DataRequirement> $requirements keyed by requirement key
+     * @param array<string, mixed> $rootContext
+     *
+     * @return array<string, ResolvedLoaderValue> every requirement's resolved value, keyed by requirement key
      */
     public function resolveRequirements(
         StoredElement $inputSource,
@@ -73,13 +85,13 @@ final readonly class ElementDataResolver
         SalesChannelContext $context,
         Request $request,
         RenderingCacheContext $cacheContext,
-        array $deliveredContext = [],
+        array $rootContext = [],
     ): array {
         if ($requirements === []) {
             return [];
         }
 
-        $properties = array_merge($this->unwrapProperties($inputSource->properties()), $deliveredContext);
+        $properties = array_merge($this->unwrapProperties($inputSource->properties()), $rootContext);
         $resolved = [];
 
         foreach ($requirements as $key => $requirement) {

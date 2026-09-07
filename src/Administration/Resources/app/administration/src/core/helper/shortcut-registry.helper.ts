@@ -19,14 +19,26 @@ export type ShortcutRegistration = {
     handler: () => void;
     /** Whether the shortcut may fire right now — evaluated on every keystroke, never cached. */
     active: () => boolean;
-    /** `CTRL` or `ALT`, read from the registering component's device helper. */
-    systemKey: () => string;
 };
+
+type DeviceHelper = { getSystemKey: () => string };
 
 let activeShortcuts: ShortcutRegistration[] = [];
 let listenerAttached = false;
 let sequenceBuffer: string[] = [];
 let sequenceTimeout: ReturnType<typeof setTimeout> | null = null;
+let deviceHelper: DeviceHelper | null = null;
+
+/**
+ * `CTRL` on macOS, `ALT` elsewhere. The system key is a platform property, the same for every
+ * shortcut, so the registry resolves it once through its own device helper rather than letting each
+ * registration carry one. `$device` is an Options API global the registry cannot reach anyway.
+ */
+function systemKey(): string {
+    deviceHelper ??= new Shopware.Helper.DeviceHelper() as unknown as DeviceHelper;
+
+    return deviceHelper.getSystemKey();
+}
 
 function areShortcutsDisabled(): boolean {
     const shortcutService = Shopware.Service('shortcutService') as { isShortcutsDisabled?: () => boolean } | undefined;
@@ -79,7 +91,7 @@ function hasLongerSequenceThan(sequence: string): boolean {
     });
 }
 
-function getMatchedShortcut(shortcutKey: string): ShortcutRegistration | undefined | null {
+function getMatchedShortcut(shortcutKey: string): ShortcutRegistration | undefined {
     if (isSystemShortcut(shortcutKey)) {
         resetSequenceNow();
 
@@ -102,8 +114,10 @@ function getMatchedShortcut(shortcutKey: string): ShortcutRegistration | undefin
         return matchedShortcut;
     }
 
+    // Prefix of a longer sequence: keep the buffer and wait for the next key instead of falling
+    // through to a single-key match.
     if (hasLongerSequenceThan(sequence)) {
-        return null;
+        return undefined;
     }
 
     resetSequenceNow();
@@ -126,9 +140,8 @@ function handleKeyDown(event: KeyboardEvent): void {
         return;
     }
 
-    const systemKey = activeShortcuts[0]?.systemKey();
     const { key, altKey, ctrlKey } = event;
-    const systemKeyPressed = systemKey === 'CTRL' ? ctrlKey : altKey;
+    const systemKeyPressed = systemKey() === 'CTRL' ? ctrlKey : altKey;
     const combinedKey = (systemKeyPressed ? 'SYSTEMKEY+' : '') + key.toUpperCase();
 
     if (!isSystemShortcut(combinedKey) && isRestrictedSource(event)) {
@@ -172,8 +185,8 @@ export function registerShortcut(registration: ShortcutRegistration): () => void
 
     if (!listenerAttached) {
         listenerAttached = true;
-        // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
-        document.addEventListener('keydown', (event) => handleKeyDown(event));
+        // eslint-disable-next-line listeners/no-missing-remove-event-listener
+        document.addEventListener('keydown', handleKeyDown);
     }
 
     return () => {

@@ -23,8 +23,6 @@ export default {
                     return;
                 }
 
-                const systemKey = () => this.$device.getSystemKey();
-
                 unregisterFunctions.set(
                     this,
                     Object.entries(shortcuts).map(
@@ -39,7 +37,6 @@ export default {
                             return registerShortcut({
                                 key,
                                 active,
-                                systemKey,
                                 handler: () => {
                                     if (typeof this[functionName] === 'function') {
                                         this[functionName]();

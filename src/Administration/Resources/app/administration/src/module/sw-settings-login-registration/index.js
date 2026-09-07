@@ -14,7 +14,7 @@ Module.register('sw-settings-login-registration', {
     description: 'sw-settings-login-registration.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-neutral-default)',
+    color: 'var(--sw-color-module-neutral-default)',
     icon: 'regular-sign-in',
     favicon: 'icon-module-settings.svg',
 

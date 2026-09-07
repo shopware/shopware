@@ -34,7 +34,7 @@ Module.register('sw-theme-manager', {
     description: 'sw-theme-manager.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-pink-default)',
+    color: 'var(--sw-color-module-pink-default)',
     icon: 'regular-tools',
     favicon: 'icon-module-content.svg',
     entity: 'theme',
@@ -61,7 +61,7 @@ Module.register('sw-theme-manager', {
         {
             id: 'sw-theme-manager',
             label: 'sw-theme-manager.general.mainMenuItemGeneral',
-            color: 'var(--color-module-pink-default)',
+            color: 'var(--sw-color-module-pink-default)',
             icon: 'regular-tools',
             path: 'sw.theme.manager.index',
             privilege: 'theme.viewer',

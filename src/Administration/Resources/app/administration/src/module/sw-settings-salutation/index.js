@@ -18,7 +18,7 @@ Module.register('sw-settings-salutation', {
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-neutral-default)',
+    color: 'var(--sw-color-module-neutral-default)',
     icon: 'regular-comments',
     favicon: 'icon-module-settings.svg',
     entity: 'salutation',

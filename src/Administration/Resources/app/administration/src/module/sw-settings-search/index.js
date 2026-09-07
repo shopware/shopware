@@ -53,7 +53,7 @@ Module.register('sw-settings-search', {
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-module-neutral-default)',
+    color: 'var(--sw-color-module-neutral-default)',
     icon: 'regular-search',
     favicon: 'icon-module-settings.svg',
     entity: 'product_search_config',

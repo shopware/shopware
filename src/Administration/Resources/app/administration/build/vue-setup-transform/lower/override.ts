@@ -83,11 +83,11 @@ function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
  * Carries the target component name so the override registers against `componentName + blockName`, matching
  * the base block's own scope and mirroring how Twig scopes a `{% block %}`.
  */
-function toBlockScopeEdit(at: number, componentName: string): SourceEdit {
+function toComponentNameEdit(at: number, componentName: string): SourceEdit {
     return {
         start: at,
         end: at,
-        replacement: ` block-scope='${escapeSingleQuoted(componentName)}'`,
+        replacement: ` component-name='${escapeSingleQuoted(componentName)}'`,
     };
 }
 
@@ -181,7 +181,7 @@ function buildOverrideScript(
 
     return [
         ...registrationTemplate,
-        ...templateAnalysis.blockScopeInsertions.map((at) => toBlockScopeEdit(at, block.componentName)),
+        ...templateAnalysis.componentNameInsertions.map((at) => toComponentNameEdit(at, block.componentName)),
         ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
         {
             start: block.contentStart,

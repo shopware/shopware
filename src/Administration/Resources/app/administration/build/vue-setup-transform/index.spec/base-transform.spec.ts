@@ -70,7 +70,7 @@ describe('build/vue-setup-transform base transforms', () => {
         const result = transformOrFail(source, 'base-deeper-child-named-slot.vue').code;
 
         expect(result).toContain(
-            `<sw-block block-scope='base-deeper-child-named-slot' :data="$dataScope" name="sw_example_component_body">`,
+            `<sw-block component-name='base-deeper-child-named-slot' :data="$dataScope" name="sw_example_component_body">`,
         );
     });
 
@@ -116,7 +116,7 @@ describe('build/vue-setup-transform base transforms', () => {
         // Vue round-trip below is what guarantees the result is still valid code.
         const expected = stripWhitespace`
             <template>
-                <sw-block block-scope='sw-example' :data="$dataScope" name="sw_example_headline">
+                <sw-block component-name='sw-example' :data="$dataScope" name="sw_example_headline">
                     <h1>{{ title }}</h1>
                     <p>{{ doubled }}</p>
                 </sw-block>
@@ -222,7 +222,7 @@ describe('build/vue-setup-transform base transforms', () => {
         const result = transformOrFail(source, 'base-sw-block-data.vue').code;
 
         expect(result).toContain(
-            `<sw-block block-scope='base-sw-block-data' :data="$dataScope" name="sw_example_component_headline">`,
+            `<sw-block component-name='base-sw-block-data' :data="$dataScope" name="sw_example_component_headline">`,
         );
     });
 
@@ -306,8 +306,8 @@ describe('build/vue-setup-transform base transforms', () => {
 
         const result = transformOrFail(source, 'base-nested-sw-block-data.vue').code;
 
-        expect(result).toContain(`<sw-block block-scope='base-nested-sw-block-data' :data="$dataScope" name="outer">`);
-        expect(result).toContain(`<sw-block block-scope='base-nested-sw-block-data' :data="$dataScope" name="inner" />`);
+        expect(result).toContain(`<sw-block component-name='base-nested-sw-block-data' :data="$dataScope" name="outer">`);
+        expect(result).toContain(`<sw-block component-name='base-nested-sw-block-data' :data="$dataScope" name="inner" />`);
     });
 
     it.each([

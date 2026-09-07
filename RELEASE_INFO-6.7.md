@@ -254,6 +254,10 @@ Store API responses requested with the `sw-include-seo-urls` header now also inc
 
 ## Administration
 
+### [Internal] Native `<sw-block>` names are scoped by component
+
+Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS scopes a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.
+
 ### Order drafts are cleaned up when leaving the detail page
 
 Reloading or leaving an order detail page now reliably removes the temporary order version created by the Administration. This prevents unused order versions from accumulating; no action is required.
@@ -2864,10 +2868,6 @@ See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migrat
 ### [Internal] Twig to Native Block Runtime Adapter
 
 A runtime adapter has been added that bridges legacy Twig block overrides (`{% block %}` / `{% parent %}`) with the new native `<sw-block>` / `<sw-block-parent />` system. When core components migrate from `.html.twig` blocks to `<sw-block name="...">`, existing plugin overrides continue to work automatically. A deprecation warning is emitted to guide plugin developers toward the new native syntax.
-
-### [Internal] Native `<sw-block>` names are scoped by component
-
-Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS scopes a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` — or a legacy Twig override of `foo` — could bleed into a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name`/`extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.
 
 ### Fixed mixin-based route guards for lazy-loaded administration routes
 

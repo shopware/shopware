@@ -3,8 +3,8 @@
  * @group disabledCompat
  *
  * Scoping behaviour of `<sw-block>`: block matching is scoped to `componentName + blockName` via the
- * `block-scope` attribute that the template factory stamps on every native block. These tests mount the
- * blocks directly and set `block-scope` explicitly to stand in for that stamping.
+ * `component-name` attribute that the template factory stamps on every native block. These tests mount the
+ * blocks directly and set `component-name` explicitly to stand in for that stamping.
  */
 import { mount } from '@vue/test-utils';
 import blockOverrideStore from '../../../../store/block-override.store';
@@ -36,11 +36,11 @@ describe('sw-block component scoping', () => {
         const wrapper = await createWrapper(`
             <div>
                 <div class="host-a">
-                    <sw-block name="scoped_block" block-scope="component-a" :data="$dataScope">
+                    <sw-block name="scoped_block" component-name="component-a" :data="$dataScope">
                         <div class="default-a"></div>
                     </sw-block>
                 </div>
-                <sw-block extends="scoped_block" block-scope="component-b" :data="$dataScope">
+                <sw-block extends="scoped_block" component-name="component-b" :data="$dataScope">
                     <div class="override-b"></div>
                 </sw-block>
             </div>
@@ -54,11 +54,11 @@ describe('sw-block component scoping', () => {
         const wrapper = await createWrapper(`
             <div>
                 <div class="host-a">
-                    <sw-block name="same_scope_block" block-scope="component-a" :data="$dataScope">
+                    <sw-block name="same_scope_block" component-name="component-a" :data="$dataScope">
                         <div class="default-a"></div>
                     </sw-block>
                 </div>
-                <sw-block extends="same_scope_block" block-scope="component-a" :data="$dataScope">
+                <sw-block extends="same_scope_block" component-name="component-a" :data="$dataScope">
                     <div class="override-a"></div>
                 </sw-block>
             </div>
@@ -72,16 +72,16 @@ describe('sw-block component scoping', () => {
         const wrapper = await createWrapper(`
             <div>
                 <div class="host-a">
-                    <sw-block name="dup_block" block-scope="component-a" :data="$dataScope">
+                    <sw-block name="dup_block" component-name="component-a" :data="$dataScope">
                         <div class="default-a"></div>
                     </sw-block>
                 </div>
                 <div class="host-b">
-                    <sw-block name="dup_block" block-scope="component-b" :data="$dataScope">
+                    <sw-block name="dup_block" component-name="component-b" :data="$dataScope">
                         <div class="default-b"></div>
                     </sw-block>
                 </div>
-                <sw-block extends="dup_block" block-scope="component-a" :data="$dataScope">
+                <sw-block extends="dup_block" component-name="component-a" :data="$dataScope">
                     <sw-block-parent />
                     <div class="override-a"></div>
                 </sw-block>

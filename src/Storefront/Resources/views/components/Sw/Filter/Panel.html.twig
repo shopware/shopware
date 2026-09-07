@@ -17,6 +17,8 @@
 
 {% set filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'] %}
 
+{% set offcanvasId = 'filter-offcanvas-' ~ random() %}
+
 {% set filterPanelOptions = {
     visibleFilterCount: visibleFilterCount,
 } %}
@@ -163,7 +165,7 @@
         {% endblock %}
     {% endset %}
 
-    <twig:Sw:Content:Offcanvas id="filter-offcanvas" title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
+    <twig:Sw:Content:Offcanvas :id="offcanvasId" title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
         <div class="sw-filter-panel__filter">
 
             {{ filterTemplate }}
@@ -186,9 +188,9 @@
     <twig:Sw:Button
         variant="filter"
         class="d-block d-md-none"
-        aria-controls="filter-offcanvas"
+        aria-controls="{{ offcanvasId }}"
         data-bs-toggle="offcanvas"
-        data-bs-target="#filter-offcanvas">
+        data-bs-target="#{{ offcanvasId }}">
         {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
     </twig:Sw:Button>
 

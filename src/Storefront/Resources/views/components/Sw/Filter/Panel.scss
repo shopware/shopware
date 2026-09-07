@@ -4,12 +4,16 @@
     align-items: start;
     gap: 0.5rem;
     background-color: var(--bs-body-bg);
-    position: sticky;
-    top: 0;
-    z-index: 10;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
+}
+
+// Only the inline variant pins
+.sw-filter-panel.is--inline {
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .sw-filter-panel__filter {

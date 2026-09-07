@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 import type { ContextSwitchParameters } from '../../../module/sw-order/order.types';
@@ -14,7 +14,7 @@ import type { ContextSwitchParameters } from '../../../module/sw-order/order.typ
  * @extends ApiService
  */
 class StoreContextService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'sales-channel-context') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'sales-channel-context') {
         super(httpClient, loginService, apiEndpoint, 'application/json');
 
         this.name = 'contextStoreService';

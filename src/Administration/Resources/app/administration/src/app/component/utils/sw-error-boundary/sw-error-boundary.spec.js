@@ -67,12 +67,12 @@ describe('src/app/component/utils/sw-error-boundary', () => {
             },
         });
 
-        const postHistory = global.repositoryFactoryMock.clientMock.history.post;
-
-        expect(postHistory).toHaveLength(0);
+        expect(global.repositoryFactoryMock.clientMock.history.post).toHaveLength(0);
 
         // wait until the component finished all requests
         await flushPromises();
+
+        const postHistory = global.repositoryFactoryMock.clientMock.history.post;
         expect(postHistory).toHaveLength(1);
 
         // should send post request for logging the error

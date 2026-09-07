@@ -67,6 +67,8 @@ class SimulateRequestResolverTest extends TestCase
             'eventName' => 'checkout.customer.before.login',
         ]);
 
+        $this->salesChannelProvider->expects($this->never())->method('getData');
+
         $result = $this->resolveRequest($request);
 
         static::assertSame(['contentHtml' => 'Hello {{ email }}'], $result->templateParts);
@@ -82,6 +84,8 @@ class SimulateRequestResolverTest extends TestCase
             'templateParts' => 'invalid',
             'eventName' => 'checkout.customer.before.login',
         ]);
+
+        $this->salesChannelProvider->expects($this->never())->method('getData');
 
         $this->expectExceptionObject(
             MailTemplateException::invalidRequestParameterType('templateParts', 'array|object', 'string')
@@ -99,6 +103,8 @@ class SimulateRequestResolverTest extends TestCase
             'strictRendering' => 'invalid',
         ]);
 
+        $this->salesChannelProvider->expects($this->never())->method('getData');
+
         $this->expectExceptionObject(
             MailTemplateException::invalidRequestParameterType('strictRendering', 'bool', 'string')
         );
@@ -114,6 +120,8 @@ class SimulateRequestResolverTest extends TestCase
             'eventName' => 'checkout.customer.before.login',
             'salesChannelId' => 1,
         ]);
+
+        $this->salesChannelProvider->expects($this->never())->method('getData');
 
         $this->expectExceptionObject(
             MailTemplateException::invalidRequestParameterType('salesChannelId', 'string', 'int')

@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -117,7 +118,15 @@ class PromotionCalculator
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$isAutomaticDiscount) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $calculated);
+                    $name = $discountItem->getLabel() ?? $discountItem->getId();
+                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                        $calculated->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                    } else {
+                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                            : [];
+                        $calculated->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                    }
                 }
 
                 continue;
@@ -273,6 +282,10 @@ class PromotionCalculator
         // check if no result is found,
         // then this would mean -> no discount
         if ($packages->count() <= 0) {
+            if (!$this->isAutomaticDiscount($item) && $this->isRestrictedToMissingProducts($discount, $calculatedCart, $context)) {
+                $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel(), 'specific-products'));
+            }
+
             return new DiscountCalculatorResult(
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
                 []
@@ -303,6 +316,15 @@ class PromotionCalculator
         // and run it through the advanced rules if existing
         if ($discount->getScope() !== PromotionDiscountEntity::SCOPE_SETGROUP) {
             $packages = $this->advancedRules->filter($discount, $packages, $context);
+
+            if ($packages->count() === 0 && !$this->isAutomaticDiscount($item) && $this->isRestrictedToMissingProducts($discount, $calculatedCart, $context)) {
+                $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel(), 'specific-products'));
+
+                return new DiscountCalculatorResult(
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+                    []
+                );
+            }
         }
 
         // depending on the selected picker of our
@@ -448,6 +470,34 @@ class PromotionCalculator
         }
 
         return new DiscountPackageCollection($validPackages);
+    }
+
+    private function isRestrictedToMissingProducts(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): bool
+    {
+        if (!$discount->isConsiderAdvancedRules()) {
+            return false;
+        }
+
+        $priceDefinition = $discount->getPriceDefinition();
+        $filter = $priceDefinition instanceof FilterableInterface ? $priceDefinition->getFilter() : null;
+
+        if ($filter === null) {
+            return false;
+        }
+
+        $products = $cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        if ($products->count() === 0) {
+            return false;
+        }
+
+        foreach ($products as $product) {
+            if ($filter->match(new LineItemScope($product, $context))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function isAutomaticDiscount(LineItem $discountItem): bool

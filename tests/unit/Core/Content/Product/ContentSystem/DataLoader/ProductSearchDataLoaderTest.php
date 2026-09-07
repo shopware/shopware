@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\ContentSystem\DataLoader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchLoaderConfig;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
@@ -16,6 +18,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -303,6 +307,84 @@ class ProductSearchDataLoaderTest extends TestCase
         static::assertNull($result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    #[DataProvider('sampleDomainExceptionProvider')]
+    #[TestDox('degrades to notFound when the search route throws the Shopware exception $_dataName')]
+    public function testLoadReturnsNotFoundWhenSearchRouteThrows(\Throwable $exception): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $searchRoute = $this->createMock(AbstractProductSearchRoute::class);
+        $searchRoute
+            ->expects($this->once())
+            ->method('load')
+            ->willThrowException($exception);
+
+        $loader = new ProductSearchDataLoader($searchRoute);
+        $result = $loader->load(
+            new LoaderInputs(['searchTermProperty' => 'shoes', 'associations' => []]),
+            self::requirement(),
+            $context,
+            new Request(),
+        );
+
+        static::assertNull($result->data);
+        static::assertTrue($result->isCacheAware());
+        static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('lets a TypeError from the search route propagate instead of degrading')]
+    public function testLoadLetsThrowableOutsideShopwareHttpExceptionPropagate(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $typeError = new \TypeError('Argument #3 ($criteria) must be of type Criteria, null given');
+
+        $searchRoute = static::createStub(AbstractProductSearchRoute::class);
+        $searchRoute
+            ->method('load')
+            ->willThrowException($typeError);
+
+        $loader = new ProductSearchDataLoader($searchRoute);
+
+        try {
+            $loader->load(
+                new LoaderInputs(['searchTermProperty' => 'shoes', 'associations' => []]),
+                self::requirement(),
+                $context,
+                new Request(),
+            );
+
+            static::fail('Expected the TypeError to propagate out of load() instead of degrading to notFound');
+        } catch (\TypeError $caught) {
+            static::assertSame($typeError, $caught);
+        }
+    }
+
+    /**
+     * Sample domain exceptions off the search chain, not one row per catch arm: the loader catches the
+     * single covering ancestor `ShopwareHttpException`, so no row maps to a clause of its own.
+     *
+     * @return iterable<string, array{\Throwable}>
+     */
+    public static function sampleDomainExceptionProvider(): iterable
+    {
+        // Reachable via CompositeListingProcessor::prepare() -> SortingListingProcessor::prepare() when
+        // the configured default sorting id points to a deleted sorting entity; SortingListingProcessor
+        // itself calls the factory with an empty key. Not flag-dependent.
+        yield 'default sorting entity missing' => [ProductException::sortingNotFoundException('')];
+
+        // Flag-off form of ProductException::missingRequestParameter('search'), thrown directly rather than
+        // via the factory so this row holds regardless of v6.8.0.0 state.
+        yield 'missing search parameter, flag-off form' => [RoutingException::missingRequestParameter('search')];
+
+        // AppScriptProductPriceCalculator decorates ProductPriceCalculator on the search chain, and
+        // ScriptExecutor rewraps any Throwable an app script raises into ScriptExecutionFailedException, so
+        // no enumeration of the chain's own exception classes can cover it.
+        yield 'app script failure rewrapped as ScriptExecutionFailedException' => [
+            ScriptException::scriptExecutionFailed('product-pricing', 'product-pricing.twig', new \RuntimeException('app script failed')),
+        ];
     }
 
     /**

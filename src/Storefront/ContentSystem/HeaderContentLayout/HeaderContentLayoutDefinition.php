@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\ContentSystem\HeaderContentLayout;
 
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -53,11 +54,11 @@ class HeaderContentLayoutDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(AdminApiSource::class), new PrimaryKey(), new Required()),
 
-            (new FkField('domain_id', 'domainId', SalesChannelDomainDefinition::class))->addFlags(new ApiAware()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
-            (new FkField('content_layout_id', 'contentLayoutId', ContentLayoutDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('domain_id', 'domainId', SalesChannelDomainDefinition::class))->addFlags(new ApiAware(AdminApiSource::class)),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(AdminApiSource::class)),
+            (new FkField('content_layout_id', 'contentLayoutId', ContentLayoutDefinition::class))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
 
             new ManyToOneAssociationField('domain', 'domain_id', SalesChannelDomainDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),

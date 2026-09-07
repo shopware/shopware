@@ -13,7 +13,7 @@ use Shopware\Core\Test\Assert\Serialization;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(CartCompressor::class)]
 class CartCompressorTest extends TestCase
 {

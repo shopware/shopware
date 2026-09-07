@@ -43,10 +43,11 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 | `entityType` matches no specification source | 400 | `unknownEntityType` |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child; or an element config that is a client defect | 400 | `invalidLayoutStructure` |
 | Layout has any intrinsic-scope error `LayoutDiagnostics` reports | 400 | `elementTypesInvalid` (via `DraftLayoutChecker`, which surfaces every intrinsic-scope error from `LayoutDiagnostics`; the message carries the violation, not its code) |
-| Target entity not found / unresolvable data requirement | 500 | data-loader / hydration exception (e.g. `ContentSystemException::dataLoaderNotRegistered`) |
+| Data-loader source not registered | 500 | `ContentSystemException::dataLoaderNotRegistered` — thrown while resolving the loader for a source (`DataLoaderProvider`), outside any loader's `load()` |
+| Non-degradable hydration fault (`\TypeError`, a database failure, any exception outside `ShopwareHttpException`) | 500 | propagates through `load()` by design |
 | Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |
 | The cache rejects the payload write | 500 | `ContentSystemException::previewPayloadStoreFailed` |
 
-Entity resolution and hydration run at mint time as well as when the URL is opened, so `unknownEntityType` and hydration faults surface here too.
+Entity resolution and hydration run at mint time as well as when the URL is opened, so `unknownEntityType` and hydration faults surface here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all: the loader degrades that element to `notFound()` and the preview renders without it.
 
 The gate is the write's own decoder, `Layout/Codec/StoredElementCodec`, so preview and write refuse the same drafts: a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list is a 400 here exactly as it is on write, rather than being emptied and then passing.

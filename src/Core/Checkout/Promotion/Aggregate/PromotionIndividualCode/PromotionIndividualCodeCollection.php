@@ -7,6 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PromotionIndividualCodeEntity>
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\ImportExport\ImportExportTest
  */
 #[Package('checkout')]
 class PromotionIndividualCodeCollection extends EntityCollection

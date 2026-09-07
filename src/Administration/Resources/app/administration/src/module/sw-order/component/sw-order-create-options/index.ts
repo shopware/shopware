@@ -27,6 +27,12 @@ export default Component.wrapComponentConfig({
             required: true,
         },
 
+        sendOrderConfirmationMail: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
         context: {
             type: Object as PropType<ContextSwitchParameters>,
             required: true,
@@ -184,6 +190,10 @@ export default Component.wrapComponentConfig({
 
         onToggleAutoPromotion(value: boolean): void {
             this.$emit('auto-promotion-toggle', value);
+        },
+
+        onToggleSendOrderConfirmationMail(value: boolean): void {
+            this.$emit('send-order-confirmation-mail-toggle', value);
         },
 
         changePromotionCodes(value: string[]): void {

@@ -1,4 +1,6 @@
 import './service';
+import { grantPermissionsFromSdk, isPermissionGrantedFromSdk } from './composables/permissions';
+
 /**
  * @private
  */
@@ -31,7 +33,7 @@ Shopware.Module.register('sw-settings-services', {
     description: 'sw-settings-services.general.description',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'store_settings',
 
     routes: {
@@ -52,6 +54,9 @@ Shopware.Module.register('sw-settings-services', {
         privilege: 'system.plugin_maintain',
     },
 });
+
+Shopware.ExtensionAPI.handle('servicePermissionGrant', grantPermissionsFromSdk);
+Shopware.ExtensionAPI.handle('servicePermissionIsGranted', isPermissionGrantedFromSdk);
 
 /**
  * @sw-package framework

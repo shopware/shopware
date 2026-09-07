@@ -53,4 +53,8 @@ describe('sw-bulk-edit-order-documents-generate-delivery-note', () => {
         expect(wrapper.vm.generateData.documentDate).toBe('I am a date');
         expect(wrapper.vm.generateData.documentComment).toBe('I am a comment');
     });
+
+    it('should resolve the document type technical name to delivery_note', async () => {
+        expect(wrapper.vm.documentTypeTechnicalName).toBe('delivery_note');
+    });
 });

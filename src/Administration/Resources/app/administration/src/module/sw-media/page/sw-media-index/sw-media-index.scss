@@ -14,6 +14,10 @@
     .sw-media-index__navigation-breadcrumb {
         color: var(--color-text-brand-default);
         height: 28px;
+
+        // The folder thumbnail component defaults to width 100% — let the
+        // aspect ratio derive the width from the fixed height instead.
+        width: auto;
     }
 
     .sw-media-index__navigation-label {

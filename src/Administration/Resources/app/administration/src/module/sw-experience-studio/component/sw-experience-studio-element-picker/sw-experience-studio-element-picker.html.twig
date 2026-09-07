@@ -1,9 +1,9 @@
 {% block sw_experience_studio_element_picker %}
 <div
     v-if="open"
+    v-click-outside="() => $emit('close')"
     class="sw-experience-studio-element-picker"
     :style="flyoutStyle()"
-    v-click-outside="() => $emit('close')"
 >
     <div class="sw-experience-studio-element-picker__header">
         <span>{{ title }}</span>
@@ -44,9 +44,9 @@
                     <button
                         v-for="element in group.elements"
                         :key="element.name"
+                        v-tooltip="{ message: element.label }"
                         class="sw-experience-studio-element-picker__item"
                         type="button"
-                        v-tooltip="{ message: element.label }"
                         @click="onSelect(element.name)"
                     >
                         <div class="sw-experience-studio-element-picker__icon-square">

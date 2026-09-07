@@ -406,7 +406,7 @@ export default {
             this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
-            this.currencyRepository.search(new Criteria(1, 25)).then((response) => {
+            this.currencyRepository.search(new Criteria(1, 500)).then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find((currency) => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;

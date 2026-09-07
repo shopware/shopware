@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentBaseConfigSalesChannelEntity extends Entity
 {
@@ -19,6 +22,8 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
     protected ?string $salesChannelId = null;
 
     protected string $documentTypeId;
+
+    protected ?string $typeName = null;
 
     protected ?DocumentTypeEntity $documentType = null;
 
@@ -46,21 +51,43 @@ class DocumentBaseConfigSalesChannelEntity extends Entity
         $this->salesChannelId = $salesChannelId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentTypeId(): string
     {
         return $this->documentTypeId;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentTypeId(string $documentTypeId): void
     {
         $this->documentTypeId = $documentTypeId;
     }
 
+    public function getTypeName(): ?string
+    {
+        return $this->typeName;
+    }
+
+    public function setTypeName(?string $typeName): void
+    {
+        $this->typeName = $typeName;
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     */
     public function getDocumentType(): ?DocumentTypeEntity
     {
         return $this->documentType;
     }
 
+    /**
+     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
         $this->documentType = $documentType;

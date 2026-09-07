@@ -18,18 +18,15 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-tabs', () => {
-    it('should render the deprecated tabs when major feature flag is disabled', async () => {
-        global.activeFeatureFlags = [''];
-
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy tabs implementation.
+    it.deprecated('v6.8.0.0')('should render the deprecated tabs', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('sw-tabs-deprecated');
         expect(wrapper.html()).not.toContain('mt-tabs');
     });
 
-    it('should render the mt-tabs when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['V6_8_0_0'];
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should render the mt-tabs', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-tabs');

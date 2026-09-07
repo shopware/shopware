@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * This attribute class is intentionally not final, as it's extended by other field attributes
  *
+ * @codeCoverageIgnore
+ *
  * @phpstan-ignore shopware.attributeNotFinal
  */
 #[Package('framework')]

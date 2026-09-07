@@ -12,10 +12,11 @@
         padding: 24px;
         overflow: auto;
         background-color: var(--color-background-secondary-default);
-        background-image: radial-gradient(
-            var(--color-border-primary-default) 1px,
-            transparent 1px
-        );
+        background-image:
+            radial-gradient(
+                var(--color-border-primary-default) 1px,
+                transparent 1px
+            );
         background-size: 24px 24px;
     }
 

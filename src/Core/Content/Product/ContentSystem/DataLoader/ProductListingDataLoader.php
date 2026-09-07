@@ -13,6 +13,8 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputs;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -63,13 +65,28 @@ class ProductListingDataLoader extends AbstractContentDataLoader
 
         $navigationId = u($navigationId)->lower()->toString();
 
+        // An unsubstituted placeholder such as "{{categoryId}}" passes LoaderInputResolver::dereference()
+        // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
+        // Uuid::fromHexToBytes() when ProductListingRoute searches the category by id.
+        if (!Uuid::isValid($navigationId)) {
+            return ContentDataLoaderResult::notFound();
+        }
+
         $criteria = $this->buildCriteria($inputs);
 
-        $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
-        $result = $response->getResult();
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // Known local throws: a category assigned to a deleted or filterless product stream surfaces as
+        // EntityNotFoundException or NoFilterException out of ProductStreamBuilder.
+        try {
+            $response = $this->listingRoute->load($navigationId, $request, $context, $criteria);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
 
         // ProductListingRoute internally adds cache tags via CacheTagCollector
-        return ContentDataLoaderResult::cachedExternally($result);
+        return ContentDataLoaderResult::cachedExternally($response->getResult());
     }
 
     /**

@@ -100,6 +100,7 @@ use Shopware\Storefront\Controller\VerificationHashController;
 use Shopware\Storefront\Controller\WellKnownController;
 use Shopware\Storefront\Controller\WishlistController;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
@@ -362,6 +363,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel_domain.repository'),
             service(HeaderPageletLoader::class),
             service(FooterPageletLoader::class),
+            service(DoubleSubmitGuard::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

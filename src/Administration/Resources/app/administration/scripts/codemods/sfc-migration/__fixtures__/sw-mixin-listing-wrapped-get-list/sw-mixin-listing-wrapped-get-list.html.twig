@@ -1,0 +1,5 @@
+{% block sw_mixin_listing_wrapped_get_list %}
+    <div class="sw-mixin-listing-wrapped-get-list">
+        <sw-pagination :page="page" :limit="limit" :total="total" @page-change="onPageChange" />
+    </div>
+{% endblock %}

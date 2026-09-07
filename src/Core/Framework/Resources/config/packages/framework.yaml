@@ -54,6 +54,8 @@ framework:
                 adapter: cache.app
             cache.rate_limiter:
                 adapter: cache.app
+            cache.double_submit:
+                adapter: cache.app
     messenger:
         failure_transport: failed
         serializer:
@@ -144,8 +146,6 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException:
             log_level: notice
-        Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
-            log_level: notice
         Shopware\Core\Checkout\Order\Exception\EmptyCartException:
             log_level: notice
         Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException:
@@ -180,8 +180,6 @@ framework:
             log_level: notice
         Shopware\Core\Framework\Uuid\Exception\InvalidUuidException:
             log_level: notice
-        Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException:
-            log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException:
             log_level: notice
         Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException:
@@ -206,23 +204,15 @@ framework:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException:
             log_level: notice
-        Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException:
-            log_level: notice
         Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException:
             log_level: notice
         Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
-            log_level: notice
-        Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException:
             log_level: notice
         Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException:
             log_level: notice
         Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException:
             log_level: notice
         Shopware\Core\Framework\App\Exception\AppRegistrationException:
-            log_level: notice
-        Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException:
-            log_level: notice
-        Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException:
             log_level: notice
         Shopware\Core\Content\Seo\Exception\InvalidTemplateException:
             log_level: notice

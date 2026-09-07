@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateEntitiesCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateHydratorCommand;
@@ -146,6 +147,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -873,6 +875,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RequestCriteriaBuilder::class),
             service(AclCriteriaValidator::class),
             service(SyncFkResolver::class),
+            service(SyncMetricsInstrumentor::class),
+        ]);
+
+    $services->set(SyncMetricsInstrumentor::class)
+        ->args([
+            service(Meter::class),
+            service(EntityGroupResolver::class),
         ]);
 
     $services->set(SyncFkResolver::class)
@@ -944,6 +953,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             param('shopware.dal.versioning.expire_days'),
             service(ClockInterface::class),
+            service(EventDispatcherInterface::class),
         ])
         ->tag('messenger.message_handler');
 

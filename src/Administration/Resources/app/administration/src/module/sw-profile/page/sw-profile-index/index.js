@@ -3,6 +3,8 @@
  */
 import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
+import useTheme from 'src/app/composables/use-theme';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-profile-index.html.twig';
 import '../../store/sw-profile.store';
 
@@ -48,6 +50,8 @@ export default {
             mediaDefaultFolderId: null,
             showMediaModal: false,
             timezoneOptions: [],
+            userTheme: useTheme().theme.value,
+            userModuleIconColors: useModuleIconColors().enabled.value,
         };
     },
 
@@ -346,6 +350,8 @@ export default {
                         }
 
                         await this.updateCurrentUser();
+                        await this.saveUserTheme();
+                        await this.saveUserModuleIconColors();
 
                         this.isLoading = false;
                         this.isSaveSuccessful = true;
@@ -382,6 +388,8 @@ export default {
                     }
 
                     await this.updateCurrentUser();
+                    await this.saveUserTheme();
+                    await this.saveUserModuleIconColors();
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
                     this.isLoading = false;
@@ -451,6 +459,30 @@ export default {
 
         onChangeNewPasswordConfirm(newPasswordConfirm) {
             this.newPasswordConfirm = newPasswordConfirm;
+        },
+
+        onChangeUserTheme(userTheme) {
+            this.userTheme = userTheme;
+        },
+
+        onChangeUserModuleIconColors(userModuleIconColors) {
+            this.userModuleIconColors = userModuleIconColors;
+        },
+
+        saveUserTheme() {
+            return useTheme()
+                .saveUserTheme(this.userTheme)
+                .catch(() => {
+                    this.createErrorMessage(this.$t('sw-profile.index.notificationSaveErrorMessage'));
+                });
+        },
+
+        saveUserModuleIconColors() {
+            return useModuleIconColors()
+                .saveUserModuleIconColors(this.userModuleIconColors)
+                .catch(() => {
+                    this.createErrorMessage(this.$t('sw-profile.index.notificationSaveErrorMessage'));
+                });
         },
 
         onMediaSelectionChange([mediaEntity]) {

@@ -24,6 +24,8 @@ use Shopware\Core\System\User\UserDefinition;
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed in 6.8.0. Use Shopware\Core\Framework\Notification\NotificationDefinition instead
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class NotificationDefinition extends EntityDefinition

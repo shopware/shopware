@@ -14,7 +14,7 @@ Module.register('sw-settings-store', {
     description: 'sw-settings-store.general.description',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

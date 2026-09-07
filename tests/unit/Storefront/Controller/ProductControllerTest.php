@@ -306,7 +306,7 @@ class ProductControllerTest extends TestCase
         $productReview->setUniqueIdentifier($ids->get('productReview'));
         $reviewResult = ProductReviewResult::fromSearchResult(
             new EntitySearchResult(
-                'review',
+                'product_review',
                 1,
                 new ProductReviewCollection([$productReview]),
                 null,

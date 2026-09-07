@@ -61,6 +61,25 @@ class TranslationControllerTest extends TestCase
         static::assertArrayHasKey('name', $item);
         static::assertArrayHasKey('lastUpdate', $item);
         static::assertArrayHasKey('progress', $item);
+        static::assertArrayHasKey('updateAvailable', $item);
+        static::assertArrayHasKey('isPseudoLanguage', $item);
+        // meta moved to its own endpoint and must no longer be part of the list response
+        static::assertArrayNotHasKey('meta', $content);
+    }
+
+    public function testMeta(): void
+    {
+        $browser = $this->getBrowser();
+        $browser->jsonRequest('GET', '/api/_action/translation/meta');
+
+        $response = $browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $content = $this->decodeResponse($response->getContent());
+        static::assertArrayHasKey('builtInLocales', $content);
+        static::assertArrayHasKey('communityTranslationsUrl', $content);
+        static::assertArrayHasKey('documentationUrlSnippetKey', $content);
+        static::assertArrayHasKey('completenessThreshold', $content);
     }
 
     public function testInstall(): void

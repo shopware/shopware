@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import useTheme from 'src/app/composables/use-theme';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
@@ -59,6 +60,8 @@ export default {
             timezoneOptions: [],
             mediaDefaultFolderId: null,
             showMediaModal: false,
+            // Only edited for the own user — the theme select is hidden otherwise.
+            userTheme: useTheme().theme.value,
         };
     },
 
@@ -423,6 +426,7 @@ export default {
                         await this.updateAuthToken();
                     }
                     await this.updateCurrentUser();
+                    await useTheme().saveUserTheme(this.userTheme);
                 }
 
                 this.createdComponent();

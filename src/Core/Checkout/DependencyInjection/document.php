@@ -39,6 +39,8 @@ use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -183,6 +185,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document.repository'),
             service(Connection::class),
             service(ClockInterface::class),
+            service(DocumentFileResolver::class),
+            service('event_dispatcher'),
         ]);
 
     $services->set(DocumentMerger::class)
@@ -208,7 +212,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(DocumentGenerator::class),
+            service(DocumentReader::class),
             service('document.repository'),
+            service('shopware.rate_limiter'),
             service(GuestAuthenticator::class),
             tagged_iterator('document_type.renderer', 'key'),
         ]);
@@ -301,6 +307,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document.repository'),
             service('media.repository'),
+            service('event_dispatcher'),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -258,11 +258,14 @@ class OrderRoute extends AbstractOrderRoute
         }
 
         // Verify email and zip code with this order
-        if ($request->get('email', false) && $request->get('zipcode', false)) {
-            $zipCode = $order->getBillingAddress()?->getZipcode();
-            if ($zipCode === null
-                || strtolower($request->get('email')) !== strtolower($orderCustomer->getEmail())
-                || strtoupper($request->get('zipcode')) !== strtoupper($zipCode)) {
+        $email = RequestParamHelper::get($request, 'email', false);
+        $zipcode = RequestParamHelper::get($request, 'zipcode', false);
+
+        if ($email && $zipcode) {
+            $billingZipCode = $order->getBillingAddress()?->getZipcode();
+            if ($billingZipCode === null
+                || strtolower($email) !== strtolower($orderCustomer->getEmail())
+                || strtoupper($zipcode) !== strtoupper($billingZipCode)) {
                 throw OrderException::wrongGuestCredentials();
             }
         } else {

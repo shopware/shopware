@@ -62,9 +62,28 @@ class PdfRendererTest extends TestCase
         static::assertSame(DocumentFormat::PDF->value, $result->format);
         static::assertSame('pdf', $result->fileExtension);
         static::assertSame('application/pdf', $result->mimeType);
-        static::assertSame('invoice_12345_pdf', $result->fileName);
+        static::assertSame('invoice_12345', $result->fileName);
         static::assertStringStartsWith('%PDF-', $result->content);
         static::assertSame('application/pdf', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($result->content));
+    }
+
+    public function testRenderToStringUsesConfiguredInfix(): void
+    {
+        $renderer = new PdfRenderer(self::DOMPDF_OPTIONS);
+        $html = $this->htmlResult('<html><body><p>invoice body</p></body></html>');
+
+        $state = new RenderState();
+        $state->add($html);
+
+        $meta = $this->createMeta(filenamePrefix: 'invoice_', filenameInfixes: ['pdf' => '_custom']);
+
+        $result = $renderer->renderToString(
+            $this->createInput($meta),
+            $state,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('invoice_12345_custom', $result->fileName);
     }
 
     public function testThrowsWhenHtmlDependencyMissing(): void
@@ -188,7 +207,10 @@ class PdfRendererTest extends TestCase
         return $order;
     }
 
-    private function createMeta(?string $filenamePrefix = null): DocumentMetaRenderData
+    /**
+     * @param array<string, string> $filenameInfixes
+     */
+    private function createMeta(?string $filenamePrefix = null, array $filenameInfixes = []): DocumentMetaRenderData
     {
         return new DocumentMetaRenderData(
             config: new DocumentConfig(
@@ -196,6 +218,7 @@ class PdfRendererTest extends TestCase
                 pageOrientation: 'portrait',
                 itemsPerPage: 10,
                 filenamePrefix: $filenamePrefix,
+                filenameInfixes: $filenameInfixes,
             ),
             company: new DocumentCompanyInfo(
                 'company',

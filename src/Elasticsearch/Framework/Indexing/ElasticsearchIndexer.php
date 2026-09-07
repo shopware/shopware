@@ -90,6 +90,18 @@ class ElasticsearchIndexer
     }
 
     /**
+     * Creates empty indices and aliases without populating documents.
+     */
+    public function createIndices(): void
+    {
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
+
+        $this->createIndex(\DateTime::createFromImmutable($this->clock->now()));
+    }
+
+    /**
      * @param array<string> $ids
      */
     private function generateMessage(EntityDefinition $definition, array $ids): ElasticsearchIndexingMessage

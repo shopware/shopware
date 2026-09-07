@@ -68,7 +68,7 @@
         text-transform: uppercase;
 
         &::after {
-            content: '';
+            content: "";
             flex: 1;
             border-top: 1px solid var(--color-border-primary-default);
             min-width: 8px;

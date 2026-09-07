@@ -2,13 +2,13 @@
 <div class="sw-experience-studio-sidebar-tree-node">
     {% block sw_experience_studio_sidebar_tree_node_element %}
     <div
+        v-draggable="dragConfig()"
+        v-droppable="dropConfigForElement()"
         class="sw-experience-studio-sidebar-tree-node__element"
         :class="{
             'is--active': isSelected,
             'is--expandable': hasSlots
         }"
-        v-draggable="dragConfig()"
-        v-droppable="dropConfigForElement()"
         role="button"
         tabindex="0"
         @click="onSelectElement"
@@ -150,8 +150,8 @@
                     />
                 </div>
                 <div
-                    class="sw-experience-studio-sidebar-tree-node__slot-drop-target"
                     v-droppable="dropConfigForSlot(slot.name)"
+                    class="sw-experience-studio-sidebar-tree-node__slot-drop-target"
                 ></div>
                 {% endblock %}
             </div>

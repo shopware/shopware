@@ -19,7 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundExc
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -125,13 +127,34 @@ class EntityLoader extends AbstractContentDataLoader
         }
 
         $entityId = u($entityId)->lower()->toString();
-        $entity = $this->loadEntity($entityName, $entityId, $inputs->stringList('associations'), $context);
 
-        if ($entity === null) {
+        // An unsubstituted placeholder such as "{{productId}}" passes LoaderInputResolver::dereference()
+        // untouched; guard after the lowercase (Uuid::VALID_PATTERN is lowercase-only) instead of reaching
+        // Uuid::fromHexToBytes() in EntityDefinitionQueryHelper::addIdCondition().
+        if (!Uuid::isValid($entityId)) {
             return ContentDataLoaderResult::notFound();
         }
 
-        $definition = $this->definitionRegistry->getByEntityName($entityName);
+        // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError
+        // or a database driver failure, propagates. Why the catch is the covering ancestor and never an
+        // enumerated union: src/Core/Framework/ContentSystem/Hydration/DataLoader/README.md#degradation-boundary
+        // The set is fully open here: this loader searches an arbitrary registered entity.
+        try {
+            $entity = $this->loadEntity($entityName, $entityId, $inputs->stringList('associations'), $context);
+
+            if ($entity === null) {
+                return ContentDataLoaderResult::notFound();
+            }
+
+            // The has() check above only proves the entity name is in the registry's map
+            // (DefinitionInstanceRegistry::has() is an isset on it); getByEntityName() still throws
+            // DefinitionNotFoundException when the mapped definition service is absent from the container, so
+            // it sits inside the catch rather than after it.
+            $definition = $this->definitionRegistry->getByEntityName($entityName);
+        } catch (ShopwareHttpException) {
+            return ContentDataLoaderResult::notFound();
+        }
+
         $cacheTag = $this->cacheTagResolver->resolve($definition, $entityId);
 
         if ($cacheTag === null) {

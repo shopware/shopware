@@ -43,7 +43,11 @@ import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import Store from 'src/app/store';
-import { createExtendableSetup, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
+import {
+    attachOverrides,
+    createExtendableSetup,
+    overrideComponentSetup,
+} from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
@@ -140,16 +144,23 @@ class ShopwareClass implements CustomShopwareProperties {
         isSyncComponent: AsyncComponentFactory.isSyncComponent,
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
         createExtendableSetup: createExtendableSetup,
+        attachOverrides: attachOverrides,
         overrideComponentSetup: overrideComponentSetup,
 
         /**
-         * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+         * @private
+         *
+         * Mounting hook for generated override components. An override SFC's body is what registers its
+         * callback, and a `<script setup>` body only runs when the component is instantiated - so
+         * `sw-admin` renders every registered override once, hidden, at boot. Not for author use.
          */
         registerOverrideComponent: (component: DefineComponent<unknown, unknown, unknown>) => {
             ShopwareClass.#overrideComponents.value.push(component);
         },
         /**
-         * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+         * @private
+         *
+         * Counterpart to `registerOverrideComponent`, read by `sw-admin`'s hidden container.
          */
         getOverrideComponents: () => {
             return ShopwareClass.#overrideComponents.value;

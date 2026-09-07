@@ -1,0 +1,110 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    products = null,
+    productIds = [],
+    title = null,
+    showNavigationArrows = true,
+    showScrollbar = true,
+    itemSizing = 'fixed',
+    scrollBehaviour = 'snap',
+%}
+
+{% set titleId = 'sw-product-slider-title-' ~ random() %}
+
+{% set sliderCVA = cva({
+    base: 'sw-product-slider',
+    variants: {
+        itemSizing: {
+            fixed: null,
+            fit: 'is--fit-content',
+        },
+        scrollBehaviour: {
+            snap: 'is--scroll-snap',
+            natural: null,
+        },
+        showScrollbar: {
+            true: null,
+            false: 'is--scrollbar-hidden',
+        },
+    },
+}) %}
+
+{% set componentOptions = {} %}
+
+{% set isEmpty = products|length == 0 %}
+
+{% set attributeDefaults = {
+    class: sliderCVA.apply({ itemSizing, scrollBehaviour, showScrollbar }),
+    'data-component': 'Sw:Product:Slider',
+    'data-component-options': componentOptions|json_encode,
+} %}
+
+{% if isEmpty %}
+    {# An empty slider holds nothing but decorative placeholders, so it stays out of the accessibility tree entirely #}
+    {% set attributeDefaults = attributeDefaults|merge({ 'aria-hidden': true }) %}
+{% elseif title %}
+    {# When a headline title is set, use it to label the slider section #}
+    {% set attributeDefaults = attributeDefaults|merge({ 'aria-labelledby': titleId }) %}
+{% else %}
+    {# When no headline title is set, use a generic aria-label to describe the slider section #}
+    {% set attributeDefaults = attributeDefaults|merge({
+        'aria-label': 'listing.productSliderAriaLabel'|trans({ '%total%': products|length })|striptags,
+    }) %}
+{% endif %}
+
+<section {{ attributes.defaults(attributeDefaults) }}>
+    {% if title %}
+        <h2 {{ attributes.nested('title').defaults({ id: titleId, class: 'sw-product-slider__title' }) }}>{{ title }}</h2>
+    {% endif %}
+
+    <div {{ attributes.nested('inner').defaults({ class: 'sw-product-slider__inner' }) }}>
+        {% if not isEmpty %}
+            <ul {{ attributes.nested('list').defaults({ class: 'sw-product-slider__list list-unstyled' }) }}>
+                {% block items %}
+                    {% for product in products %}
+                        <li {{ attributes.nested('item').defaults({ class: 'sw-product-slider__item' }) }}>
+                            <twig:Sw:Product:Card :product="product"></twig:Sw:Product:Card>
+                        </li>
+                    {% endfor %}
+                {% endblock %}
+            </ul>
+
+            {% block navigation %}
+                {% if showNavigationArrows %}
+                    <twig:Sw:Button
+                        class="sw-product-slider__nav-button is--backward"
+                        variant="light"
+                        :iconOnly="true"
+                        aria-label="{{ 'listing.productSliderScrollBackward'|trans|striptags }}"
+                        hidden="hidden"
+                        tabindex="-1"
+                    >
+                        <twig:Sw:Icon name="arrow-head-left" size="sm" />
+                    </twig:Sw:Button>
+
+                    <twig:Sw:Button
+                        class="sw-product-slider__nav-button is--forward"
+                        variant="light"
+                        :iconOnly="true"
+                        aria-label="{{ 'listing.productSliderScrollForward'|trans|striptags }}"
+                        hidden="hidden"
+                        tabindex="-1"
+                    >
+                        <twig:Sw:Icon name="arrow-head-right" size="sm" />
+                    </twig:Sw:Button>
+                {% endif %}
+            {% endblock %}
+        {% else %}
+            <div class="sw-product-slider__list">
+                {% for i in 1..8 %}
+                    <div class="sw-product-slider__item">
+                        <twig:Sw:Product:Card></twig:Sw:Product:Card>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>

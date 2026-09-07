@@ -21,6 +21,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         stateRequired: 'data-state-required',
         stateDisplayed: 'data-display-state-in-registration',
         zipcodeRequired: 'data-zipcode-required',
+        zipcodePattern: 'data-zipcode-pattern',
+        checkZipcodePattern: 'data-check-zipcode-pattern',
         scopeElementSelector: null,
         prefix: null,
     };
@@ -65,6 +67,8 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
         const zipcodeRequired = !!countrySelectCurrentOption.getAttribute(this.options.zipcodeRequired);
+        const zipcodePattern = countrySelectCurrentOption.getAttribute(this.options.zipcodePattern);
+        const checkZipcodePattern = countrySelectCurrentOption.getAttribute(this.options.checkZipcodePattern) === '1';
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
 
@@ -76,6 +80,8 @@ export default class CountryStateSelectPlugin extends Plugin {
         if (zipcodeRequired) {
             this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
         }
+
+        this._updateZipcodePattern(zipcodeInputs, zipcodePattern, checkZipcodePattern);
 
         if (!vatIdInput) {
             return;
@@ -98,11 +104,16 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
         const zipcodeRequired = !!countrySelect.getAttribute(this.options.zipcodeRequired);
+        const zipcodePattern = countrySelect.getAttribute(this.options.zipcodePattern);
+        const checkZipcodePattern = countrySelect.getAttribute(this.options.checkZipcodePattern) === '1';
 
         this._updateZipcodeFields(zipcodeInputs, zipcodeRequired);
+        this._updateZipcodePattern(zipcodeInputs, zipcodePattern, checkZipcodePattern);
+        this._revalidateFilledFields(zipcodeInputs);
 
         if (vatIdInput) {
             this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
+            this._revalidateVatIdField(vatIdInput);
         }
     }
 
@@ -127,7 +138,7 @@ export default class CountryStateSelectPlugin extends Plugin {
      * @private
      */
     _updateVatIdField(vatIdFieldInput, vatIdRequired, vatIdPattern = null, checkVatIdPattern = false) {
-        if (this._differentShippingCheckbox && this.options.prefix === 'billingAddress') {
+        if (!this._ownsVatIdField()) {
             return;
         }
 
@@ -142,10 +153,30 @@ export default class CountryStateSelectPlugin extends Plugin {
         } else {
             vatIdFieldInput.removeAttribute('pattern');
         }
+    }
 
-        if (vatIdFieldInput.value.trim().length > 0) {
-            window.formValidation.validateField(vatIdFieldInput);
+    /**
+     * Whether this instance is responsible for the shared VAT ID input.
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _ownsVatIdField() {
+        return !(this._differentShippingCheckbox && this.options.prefix === 'billingAddress');
+    }
+
+    /**
+     * Re-validates the VAT ID field if this instance owns it.
+     *
+     * @param {HTMLElement} vatIdFieldInput
+     * @private
+     */
+    _revalidateVatIdField(vatIdFieldInput) {
+        if (!this._ownsVatIdField()) {
+            return;
         }
+
+        this._revalidateFilledFields([vatIdFieldInput]);
     }
 
     /**
@@ -165,6 +196,48 @@ export default class CountryStateSelectPlugin extends Plugin {
                 window.formValidation.setFieldRequired(input);
             } else {
                 window.formValidation.setFieldNotRequired(input);
+            }
+        });
+    }
+
+    /**
+     * Updates the pattern validation of the zip code fields.
+     *
+     * @param {NodeList} inputs
+     * @param {string|null} pattern
+     * @param {boolean} checkPattern
+     * @private
+     */
+    _updateZipcodePattern(inputs, pattern = null, checkPattern = false) {
+        if (!inputs) {
+            return;
+        }
+
+        inputs.forEach((input) => {
+            if (checkPattern && pattern) {
+                input.setAttribute('pattern', pattern);
+            } else {
+                input.removeAttribute('pattern');
+            }
+        });
+    }
+
+    /**
+     * Re-validates fields that already hold a value, so a pending error is resolved against the
+     * rules of the newly selected country. Only call this on user interaction: on page load it
+     * would reset feedback rendered by the server.
+     *
+     * @param {NodeList|HTMLElement[]} fields
+     * @private
+     */
+    _revalidateFilledFields(fields) {
+        if (!fields) {
+            return;
+        }
+
+        fields.forEach((field) => {
+            if (field && field.value.trim().length > 0) {
+                window.formValidation.validateField(field);
             }
         });
     }
@@ -259,6 +332,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         }
 
         this._updateVatIdField(vatIdInput, vatIdRequired, vatIdPattern, checkVatIdPattern);
+        this._revalidateVatIdField(vatIdInput);
     }
 
     _getStateDisplayed(countrySelectOption, stateRequired) {

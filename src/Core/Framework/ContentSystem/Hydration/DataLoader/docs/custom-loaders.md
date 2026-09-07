@@ -94,6 +94,8 @@ final class WeatherLoader extends AbstractContentDataLoader
 </service>
 ```
 
+A loader whose `PropertyReference` config key resolves to an entity id, and whose collaborator throws, additionally needs an id guard and a degradation wrap: [entity-id-guard-example.md](entity-id-guard-example.md).
+
 ## Cache Awareness
 
 All data loaders must return `ContentDataLoaderResult` to indicate cache behavior:

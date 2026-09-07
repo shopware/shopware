@@ -54,8 +54,8 @@ class InsertPresetTest extends TestCase
         static::assertSame('Sw:Card', $inserted->slots['content'][0]->component);
     }
 
-    #[TestDox('reports every reminted subtree id across all roots as affected')]
-    public function testAffectedAreAllMintedSubtreeIds(): void
+    #[TestDox('reports every reminted subtree id across all roots as affected and created')]
+    public function testAffectedAndCreatedAreAllMintedSubtreeIds(): void
     {
         $elements = [
             new StoredElement('root', 'Sw:Block', [], [], [
@@ -69,10 +69,10 @@ class InsertPresetTest extends TestCase
 
         $first = $result->roots[0];
         $second = $result->roots[1];
-        static::assertSame(
-            [$first->id, $first->slots['content'][0]->id, $second->id],
-            $insert->affected(),
-        );
+        $expected = [$first->id, $first->slots['content'][0]->id, $second->id];
+
+        static::assertSame($expected, $insert->affected());
+        static::assertSame($expected, $insert->created());
     }
 
     #[TestDox('inserts the whole preset into a parent slot at an explicit index')]

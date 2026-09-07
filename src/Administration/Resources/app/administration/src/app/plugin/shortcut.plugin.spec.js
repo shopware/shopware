@@ -5,7 +5,9 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { defineComponent } from 'vue';
 import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
+import useShortcut from 'src/app/composables/use-shortcut';
 import 'src/app/component/form/sw-text-editor';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button';
@@ -66,6 +68,11 @@ function defineJsdomProperties() {
 
 describe('app/plugins/shortcut.plugin', () => {
     let wrapper;
+
+    // systemKey() reads the platform, and SYSTEMKEY maps to CTRL only on macOS.
+    beforeAll(() => {
+        Object.defineProperty(window.navigator, 'platform', { value: 'MacIntel', configurable: true });
+    });
 
     it('String: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
@@ -684,5 +691,69 @@ describe('app/plugins/shortcut.plugin', () => {
         await flushPromises();
 
         expect(onSaveMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('lets an option shortcut win a shared key when it registered before a composable', async () => {
+        const onOption = jest.fn();
+        const onComposable = jest.fn();
+
+        // The option shortcut registers first, in the component's created hook.
+        wrapper = await createWrapper({
+            shortcuts: {
+                'SYSTEMKEY+S': 'onSave',
+            },
+            methods: {
+                onSave: onOption,
+            },
+        });
+
+        // A composable then claims the same key through the shared registry.
+        const composableWrapper = mount(
+            defineComponent({
+                setup() {
+                    useShortcut('SYSTEMKEY+S', onComposable);
+                },
+                template: '<div />',
+            }),
+        );
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }));
+
+        expect(onOption).toHaveBeenCalledTimes(1);
+        expect(onComposable).not.toHaveBeenCalled();
+
+        composableWrapper.unmount();
+    });
+
+    it('lets a composable win a shared key when it registered before an option shortcut', async () => {
+        const onOption = jest.fn();
+        const onComposable = jest.fn();
+
+        // The composable registers first, in its setup.
+        const composableWrapper = mount(
+            defineComponent({
+                setup() {
+                    useShortcut('SYSTEMKEY+S', onComposable);
+                },
+                template: '<div />',
+            }),
+        );
+
+        // An option shortcut then claims the same key.
+        wrapper = await createWrapper({
+            shortcuts: {
+                'SYSTEMKEY+S': 'onSave',
+            },
+            methods: {
+                onSave: onOption,
+            },
+        });
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }));
+
+        expect(onComposable).toHaveBeenCalledTimes(1);
+        expect(onOption).not.toHaveBeenCalled();
+
+        composableWrapper.unmount();
     });
 });

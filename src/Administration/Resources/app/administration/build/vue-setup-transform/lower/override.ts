@@ -87,7 +87,7 @@ function toComponentNameEdit(at: number, componentName: string): SourceEdit {
     return {
         start: at,
         end: at,
-        replacement: ` component-name='${escapeSingleQuoted(componentName)}'`,
+        replacement: ` sw-internal-component-name='${escapeSingleQuoted(componentName)}'`,
     };
 }
 

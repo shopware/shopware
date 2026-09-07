@@ -153,7 +153,7 @@ async function createWrapper({
             template: `
                 <div>
                     <div v-if="renderHost" class="component-root">
-                        <sw-block name="${blockName}" component-name="${componentName}" :data="$dataScope">
+                        <sw-block name="${blockName}" sw-internal-component-name="${componentName}" :data="$dataScope">
                             ${defaultContent}
                         </sw-block>
                     </div>
@@ -198,7 +198,7 @@ async function createMultiBlockWrapper(blocks: MultiBlockWrapperConfig[], compon
                         .map(
                             ({ rootClass, blockName, defaultContent }) => `
                                 <div class="${rootClass}">
-                                    <sw-block name="${blockName}" component-name="${componentName}" :data="$dataScope">
+                                    <sw-block name="${blockName}" sw-internal-component-name="${componentName}" :data="$dataScope">
                                         ${defaultContent}
                                     </sw-block>
                                 </div>
@@ -416,12 +416,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                     template: `
                         <div>
                             <div class="root-a">
-                                <sw-block name="shim_multi_diff_block_a" component-name="sw-product-detail" :data="$dataScope">
+                                <sw-block name="shim_multi_diff_block_a" sw-internal-component-name="sw-product-detail" :data="$dataScope">
                                     <div class="default-a"></div>
                                 </sw-block>
                             </div>
                             <div class="root-b">
-                                <sw-block name="shim_multi_diff_block_b" component-name="sw-product-detail" :data="$dataScope">
+                                <sw-block name="shim_multi_diff_block_b" sw-internal-component-name="sw-product-detail" :data="$dataScope">
                                     <div class="default-b"></div>
                                 </sw-block>
                             </div>
@@ -692,7 +692,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             const wrapper = await createWrapper({
                 blockName: 'shim_interop_native_on_shim',
                 nativeExtensions: `
-                    <sw-block extends="shim_interop_native_on_shim" component-name="sw-product-detail">
+                    <sw-block extends="shim_interop_native_on_shim" sw-internal-component-name="sw-product-detail">
                         <sw-block-parent />
                         <div class="native-content"></div>
                     </sw-block>
@@ -720,7 +720,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             const wrapper = await createWrapper({
                 blockName: 'shim_interop_shim_below_native',
                 nativeExtensions: `
-                    <sw-block extends="shim_interop_shim_below_native" component-name="sw-product-detail">
+                    <sw-block extends="shim_interop_shim_below_native" sw-internal-component-name="sw-product-detail">
                         <sw-block-parent />
                         <div class="native-content"></div>
                     </sw-block>
@@ -744,7 +744,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             const wrapper = await createWrapper({
                 blockName: 'shim_interop_native_no_parent',
                 nativeExtensions: `
-                    <sw-block extends="shim_interop_native_no_parent" component-name="sw-product-detail">
+                    <sw-block extends="shim_interop_native_no_parent" sw-internal-component-name="sw-product-detail">
                         <div class="native-content"></div>
                     </sw-block>
                 `,
@@ -767,7 +767,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             const wrapper = await createWrapper({
                 blockName: 'shim_interop_twig_base_native_ext',
                 nativeExtensions: `
-                    <sw-block extends="shim_interop_twig_base_native_ext" component-name="sw-product-detail">
+                    <sw-block extends="shim_interop_twig_base_native_ext" sw-internal-component-name="sw-product-detail">
                         <sw-block-parent />
                         <div class="native-content"></div>
                     </sw-block>
@@ -971,8 +971,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 {
                     template: `
                         <div>
-                            <sw-block name="shim_warn_separate_a" component-name="sw-product-detail" :data="$dataScope"></sw-block>
-                            <sw-block name="shim_warn_separate_b" component-name="sw-product-detail" :data="$dataScope"></sw-block>
+                            <sw-block name="shim_warn_separate_a" sw-internal-component-name="sw-product-detail" :data="$dataScope"></sw-block>
+                            <sw-block name="shim_warn_separate_b" sw-internal-component-name="sw-product-detail" :data="$dataScope"></sw-block>
                         </div>
                     `,
                 },
@@ -1365,7 +1365,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 {
                     template: `
                         <div class="component-root">
-                            <sw-block name="shim_global_component_ref" component-name="sw-product-detail" :data="$dataScope"></sw-block>
+                            <sw-block name="shim_global_component_ref" sw-internal-component-name="sw-product-detail" :data="$dataScope"></sw-block>
                         </div>
                     `,
                 },
@@ -1481,12 +1481,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                     template: `
                         <div>
                             <div class="root-a">
-                                <sw-block name="shim_edge_multi_top_a" component-name="sw-product-detail" :data="$dataScope">
+                                <sw-block name="shim_edge_multi_top_a" sw-internal-component-name="sw-product-detail" :data="$dataScope">
                                     <div class="default-a"></div>
                                 </sw-block>
                             </div>
                             <div class="root-b">
-                                <sw-block name="shim_edge_multi_top_b" component-name="sw-product-detail" :data="$dataScope">
+                                <sw-block name="shim_edge_multi_top_b" sw-internal-component-name="sw-product-detail" :data="$dataScope">
                                     <div class="default-b"></div>
                                 </sw-block>
                             </div>
@@ -1536,12 +1536,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                     template: `
                         <div>
                             <div class="instance-a">
-                                <sw-block name="shim_multi_instance_isolation" component-name="sw-product-detail" :data="$dataScope">
+                                <sw-block name="shim_multi_instance_isolation" sw-internal-component-name="sw-product-detail" :data="$dataScope">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>
                             <div class="instance-b">
-                                <sw-block name="shim_multi_instance_isolation" component-name="sw-product-detail" :data="$dataScope">
+                                <sw-block name="shim_multi_instance_isolation" sw-internal-component-name="sw-product-detail" :data="$dataScope">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>
@@ -1584,12 +1584,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                     template: `
                         <div>
                             <div class="instance-a">
-                                <sw-block name="shim_multi_instance_parent_isolation" component-name="sw-product-detail" :data="$dataScope">
+                                <sw-block name="shim_multi_instance_parent_isolation" sw-internal-component-name="sw-product-detail" :data="$dataScope">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>
                             <div class="instance-b">
-                                <sw-block name="shim_multi_instance_parent_isolation" component-name="sw-product-detail" :data="$dataScope">
+                                <sw-block name="shim_multi_instance_parent_isolation" sw-internal-component-name="sw-product-detail" :data="$dataScope">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>

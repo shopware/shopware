@@ -64,7 +64,7 @@ function formatStateMap(names: string[], spaces: number): string {
 /**
  * The generated attributes wired onto a base `<sw-block>`: the owning component name and the data scope.
  *
- * `component-name` scopes block matching to `componentName + blockName` like Twig, keeping the same block
+ * `sw-internal-component-name` scopes block matching to `componentName + blockName` like Twig, keeping the same block
  * name in two components isolated. `$dataScope` resolves against the scope `attachOverrides()` registers for
  * the instance; authoring either attribute is rejected, so the transform owns the whole binding.
  */
@@ -72,7 +72,7 @@ function toDataScopeEdit(at: number, componentName: string): SourceEdit {
     return {
         start: at,
         end: at,
-        replacement: ` component-name='${escapeSingleQuoted(componentName)}' :data="$dataScope"`,
+        replacement: ` sw-internal-component-name='${escapeSingleQuoted(componentName)}' :data="$dataScope"`,
     };
 }
 

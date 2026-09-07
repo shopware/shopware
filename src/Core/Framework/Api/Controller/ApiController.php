@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -200,6 +201,9 @@ class ApiController extends AbstractController
         }
 
         $versionContext = $context->createWithVersionId($versionId);
+
+        // A version discard must not enter the change set: merge() replays recorded deletions against its target version.
+        $versionContext->addState(VersionManager::DISABLE_AUDIT_LOG);
 
         $entityRepository = $this->definitionRegistry->getRepository($entityDefinition->getEntityName());
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiException;
@@ -98,8 +98,19 @@ class ApiControllerVersionTest extends TestCase
 
         $this->assertEntityExists($browser, 'product', $id);
 
-        /** @var EntityRepository<ProductCollection> $productRepo */
+        $actions = static::getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT commit_data.action
+             FROM version_commit_data AS commit_data
+             INNER JOIN version_commit ON version_commit.id = commit_data.version_commit_id
+             WHERE version_commit.version_id = :version',
+            ['version' => Uuid::fromHexToBytes($versionId)]
+        );
+
+        static::assertNotContains('delete', $actions, 'a discard must not be recorded as a deletion that merge() would replay');
+
         $productRepo = static::getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        static::assertInstanceOf(EntityRepository::class, $productRepo);
+
         $criteria = new Criteria([$id]);
         $criteria->addFilter(
             new EqualsFilter('versionId', $versionId)
@@ -140,5 +151,54 @@ class ApiControllerVersionTest extends TestCase
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(ApiException::deleteLiveVersion()->getErrorCode(), $content['errors'][0]['code']);
+    }
+
+    public function testMergeOfADiscardedVersionKeepsTheLiveEntity(): void
+    {
+        $id = Uuid::randomHex();
+        $browser = $this->getBrowser();
+
+        $browser->jsonRequest('POST', '/api/product', [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'live name',
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'manufacturer' => ['name' => 'test'],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+        ]);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->jsonRequest('POST', '/api/_action/version/product/' . $id);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $versionId = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['versionId'];
+        static::assertIsString($versionId);
+
+        $browser->jsonRequest('PATCH', '/api/product/' . $id, ['name' => 'draft name'], ['HTTP_SW_VERSION_ID' => $versionId]);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->jsonRequest('POST', '/api/_action/version/' . $versionId . '/product/' . $id);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        // The discard removed the version row. Recreating it puts the merge below into the window
+        // where a client discards a version while a merge of the same version still runs.
+        static::getContainer()->get('version.repository')->create([['id' => $versionId]], Context::createDefaultContext());
+
+        $browser->jsonRequest('POST', '/api/_action/version/merge/product/' . $versionId);
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $live = ['id' => Uuid::fromHexToBytes($id), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)];
+
+        static::assertSame(1, (int) $connection->fetchOne('SELECT COUNT(*) FROM product WHERE id = :id AND version_id = :version', $live));
+
+        $name = $connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id AND product_version_id = :version', $live);
+        static::assertSame('draft name', $name, 'the merge still applied the draft edit');
     }
 }

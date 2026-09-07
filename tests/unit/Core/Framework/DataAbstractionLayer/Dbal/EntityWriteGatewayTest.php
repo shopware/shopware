@@ -145,7 +145,9 @@ class EntityWriteGatewayTest extends TestCase
         $successCallbacks = 0;
         $errorCallbacks = 0;
         $this->dispatcher->addListener(EntityWriteEvent::class, static function (EntityWriteEvent $event) use (&$successCallbacks, &$errorCallbacks): void {
-            $event->addSuccess(static function () use (&$successCallbacks): void {
+            static::assertFalse($event->getWriteContext()->hasState(WriteContext::STATE_WRITE_CALLBACKS_STARTED));
+            $event->addSuccess(static function () use ($event, &$successCallbacks): void {
+                static::assertTrue($event->getWriteContext()->hasState(WriteContext::STATE_WRITE_CALLBACKS_STARTED));
                 ++$successCallbacks;
             });
             $event->addError(static function () use (&$errorCallbacks): void {

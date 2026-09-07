@@ -47,7 +47,6 @@ function createApiError(code: string) {
 function createHandler(orders = [createOrder('1')]) {
     const handler = new BulkEditOrderHandler() as unknown as BulkEditOrderHandlerTestDouble;
 
-    handler.statusTransitionRetryDelay = 0;
     handler.orderRepository = {
         search: jest.fn().mockResolvedValue(orders),
     };
@@ -142,25 +141,64 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
         ]);
     });
 
+    it('reports a lock failure without repeating the status transition', async () => {
+        const handler = createHandler();
+        const transition = handler.orderStateMachineService.transitionOrderState;
+        const error = createApiError('SYSTEM__STATE_MACHINE_TRANSITION_LOCKED');
+
+        transition.mockRejectedValueOnce(error).mockResolvedValueOnce({});
+
+        await expect(handler.bulkEditStatus(['1'], [{ field: 'orders', value: 'cancel' }])).rejects.toMatchObject({
+            failures: [
+                expect.objectContaining({
+                    orderId: '1',
+                    field: 'orders',
+                    code: 'SYSTEM__STATE_MACHINE_TRANSITION_LOCKED',
+                    error,
+                }),
+            ],
+        });
+
+        expect(transition).toHaveBeenCalledTimes(1);
+    });
+
     it.each([
         '1020',
         '1205',
         '1213',
         'SYSTEM__STATE_MACHINE_TRANSITION_LOCKED',
-    ])('retries status transition error %s once', async (code) => {
+    ])('reports post-commit listener error %s without replaying the transition', async (code) => {
         const handler = createHandler();
         const transition = handler.orderStateMachineService.transitionOrderState;
+        const error = createApiError(code);
+        let state = 'open';
 
-        transition.mockRejectedValueOnce(createApiError(code)).mockResolvedValueOnce({});
+        transition.mockImplementation(() => {
+            if (state === 'cancelled') {
+                // Repeating the transition succeeds without rerunning the failed listener.
+                return Promise.resolve({});
+            }
 
-        await handler.bulkEditStatus(
-            ['1'],
-            [
-                { field: 'orders', value: 'cancel' },
+            // A listener can fail after this commit, including when it starts another locked transition.
+            state = 'cancelled';
+
+            return Promise.reject(error);
+        });
+
+        await expect(handler.bulkEditStatus(['1'], [{ field: 'orders', value: 'cancel' }])).rejects.toMatchObject({
+            failures: [
+                expect.objectContaining({
+                    orderId: '1',
+                    orderNumber: 'order-1',
+                    field: 'orders',
+                    code,
+                    error,
+                }),
             ],
-        );
+        });
 
-        expect(transition).toHaveBeenCalledTimes(2);
+        expect(state).toBe('cancelled');
+        expect(transition).toHaveBeenCalledTimes(1);
     });
 
     it.each([
@@ -264,7 +302,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-order.handler', () => {
             ],
         });
 
-        expect(transition).toHaveBeenCalledTimes(3);
+        expect(transition).toHaveBeenCalledTimes(2);
         expect(transition).toHaveBeenCalledWith('2', 'cancel', expect.any(Object), {}, { 'sw-skip-trigger-flow': false });
     });
 });

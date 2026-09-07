@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(RetryableTransaction::class)]
 class RetryableTransactionTest extends TestCase
 {
+    private int $attempts = 0;
+
     public function testRetryableTransactionRetriesOnDeadlock(): void
     {
         $this->expectException(DeadlockException::class);
@@ -89,6 +91,44 @@ class RetryableTransactionTest extends TestCase
             );
         } finally {
             static::assertSame(11, $counter);
+        }
+    }
+
+    public function testRetryPredicateCanStopAfterAnEarlierAttemptWasRetried(): void
+    {
+        $exception = self::createDriverException(1020, 'Record has changed since last read');
+        $connection = $this->createTransactionConnectionStub();
+
+        $this->expectExceptionObject($exception);
+
+        try {
+            RetryableTransaction::retryableWithPredicate($connection, function () use ($exception): never {
+                ++$this->attempts;
+
+                throw $exception;
+            }, fn (): bool => $this->attempts < 2);
+        } finally {
+            static::assertSame(2, $this->attempts);
+        }
+    }
+
+    public function testRetryPredicatePreventsReplayWhenRollbackMasksTheFailure(): void
+    {
+        $underlyingException = self::createDriverException(1020, 'Record has changed since last read');
+        $savepointException = self::createDriverException(1305, 'SAVEPOINT DOCTRINE_2 does not exist', $underlyingException);
+        $attempts = 0;
+        $connection = $this->createTransactionConnectionStub();
+
+        $this->expectExceptionObject($underlyingException);
+
+        try {
+            RetryableTransaction::retryableWithPredicate($connection, static function () use (&$attempts, $savepointException): never {
+                ++$attempts;
+
+                throw $savepointException;
+            }, static fn (): bool => false);
+        } finally {
+            static::assertSame(1, $attempts);
         }
     }
 

@@ -245,9 +245,7 @@ class StateMachineRegistry implements ResetInterface
 
         $stateMachineHistoryEntity['id'] = Uuid::randomHex();
 
-        // A single command queue lets EntityWriteGateway retry the database transaction without replaying
-        // entity-written events. Dispatch those events only after the complete batch has succeeded.
-        $result = $this->entityWriter->sync([
+        $operations = [
             new SyncOperation(
                 'state-machine-history',
                 StateMachineHistoryDefinition::ENTITY_NAME,
@@ -260,19 +258,36 @@ class StateMachineRegistry implements ResetInterface
                 SyncOperation::ACTION_UPSERT,
                 $data,
             ),
-        ], WriteContext::createFromContext($context));
+        ];
 
-        $written = $result->getWritten();
-        $historyWritten = [];
+        $writeContext = WriteContext::createFromContext($context);
+        try {
+            RetryableTransaction::retryableWithPredicate($this->connection, function () use ($operations, $context, &$writeContext): void {
+                // Each attempt owns its validation errors and deferred error notifications.
+                $writeContext = WriteContext::createFromContext($context);
+                $writeContext->addState(WriteContext::STATE_DEFER_ERROR_CALLBACKS);
+                $result = $this->entityWriter->sync($operations, $writeContext);
+                $writeContext->addState(WriteContext::STATE_WRITE_CALLBACKS_STARTED);
 
-        if (isset($written[StateMachineHistoryDefinition::ENTITY_NAME])) {
-            $historyWritten[StateMachineHistoryDefinition::ENTITY_NAME] = $written[StateMachineHistoryDefinition::ENTITY_NAME];
-            unset($written[StateMachineHistoryDefinition::ENTITY_NAME]);
+                $written = $result->getWritten();
+                $historyWritten = [];
+
+                if (isset($written[StateMachineHistoryDefinition::ENTITY_NAME])) {
+                    $historyWritten[StateMachineHistoryDefinition::ENTITY_NAME] = $written[StateMachineHistoryDefinition::ENTITY_NAME];
+                    unset($written[StateMachineHistoryDefinition::ENTITY_NAME]);
+                }
+
+                // Keep written-event failures atomic with the transition without replaying listener side effects.
+                $this->dispatchWrittenEvent($historyWritten, $context);
+                $this->dispatchWrittenEvent($written, $context);
+            }, static function () use (&$writeContext): bool {
+                return !$writeContext->hasState(WriteContext::STATE_WRITE_CALLBACKS_STARTED);
+            });
+        } catch (\Throwable $exception) {
+            $writeContext->dispatchWriteErrors();
+
+            throw $exception;
         }
-
-        // Preserve the previous repository event order for subscribers: history first, then the state entity.
-        $this->dispatchWrittenEvent($historyWritten, $context);
-        $this->dispatchWrittenEvent($written, $context);
     }
 
     /**

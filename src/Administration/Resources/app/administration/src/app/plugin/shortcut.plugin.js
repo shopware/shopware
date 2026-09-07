@@ -31,7 +31,7 @@ export default {
                             value,
                         ]) => {
                             const functionName = typeof value === 'string' ? value : value.method;
-                            const activeOption = typeof value === 'string' ? true : value.active;
+                            const activeOption = typeof value === 'string' ? true : (value.active ?? true);
                             const active = typeof activeOption === 'boolean' ? () => activeOption : activeOption.bind(this);
 
                             return registerShortcut({

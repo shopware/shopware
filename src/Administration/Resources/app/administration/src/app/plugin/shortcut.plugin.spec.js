@@ -258,6 +258,31 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onSaveMock).not.toHaveBeenCalledWith();
     });
 
+    it('Object without active: should default to active and call the onSave method', async () => {
+        const onSaveMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                s: {
+                    method: 'onSave',
+                },
+            },
+            methods: {
+                onSave() {
+                    onSaveMock();
+                },
+            },
+        });
+
+        expect(onSaveMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 's',
+        });
+
+        expect(onSaveMock).toHaveBeenCalledWith();
+    });
+
     it('Object with function active: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 

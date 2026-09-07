@@ -168,7 +168,7 @@ export function hasBlockEntries(blockName: string): boolean {
 }
 ```
 
-> **Component scoping.** Each entry records the `componentName` it was indexed under (the overridden
+> **Component qualification.** Each entry records the `componentName` it was indexed under (the overridden
 > component). Both lookups require the owning component name and return only the entries for that component,
 > so a Twig override of block `foo` on component A is not applied to a `<sw-block name="foo">` in component
 > B. `sw-block` reads its owning component from the `sw-internal-component-name` attribute the Shopware setup transform

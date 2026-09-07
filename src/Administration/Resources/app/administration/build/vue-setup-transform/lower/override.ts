@@ -78,10 +78,10 @@ function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
 }
 
 /**
- * The generated attribute that scopes an override `<sw-block extends>` to the component it overrides.
+ * The generated attribute that binds an override `<sw-block extends>` to the component it overrides.
  *
  * Carries the target component name so the override registers against `componentName + blockName`, matching
- * the base block's own scope and mirroring how Twig scopes a `{% block %}`.
+ * the base block's own qualifier and mirroring how Twig identifies a `{% block %}` by its component.
  */
 function toComponentNameEdit(at: number, componentName: string): SourceEdit {
     return {

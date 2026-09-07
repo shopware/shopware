@@ -50,7 +50,7 @@ In a component template:
 </sw-block>
 ```
 
-- `name` — identifier for this block, scoped to the owning component. Like a TwigJS `{% block %}`, a block is addressed by `componentName + blockName`, so the same block name in two different components never collide: a `<sw-block extends="...">` only resolves against the `<sw-block name="...">` in the same component. The Shopware setup transform stamps the owning component name onto every `<sw-block>` (the `sw-internal-component-name` attribute) when it lowers the SFC; authors do not write it. Block names follow the same convention as TwigJS blocks: `sw_` prefix + snake_case (e.g., `sw_product_detail_summary`).
+- `name` — identifier for this block, qualified by the owning component. Like a TwigJS `{% block %}`, a block is addressed by `componentName + blockName`, so the same block name in two different components never collide: a `<sw-block extends="...">` only resolves against the `<sw-block name="...">` in the same component. The Shopware setup transform stamps the owning component name onto every `<sw-block>` (the `sw-internal-component-name` attribute) when it lowers the SFC; authors do not write it. Block names follow the same convention as TwigJS blocks: `sw_` prefix + snake_case (e.g., `sw_product_detail_summary`).
 - The block's data scope is wired by the Shopware setup transform; `name` (or `extends`) is the only binding an author writes on `<sw-block>`.
 
 ### Complete end-to-end example

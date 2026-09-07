@@ -22,17 +22,17 @@ import useLegacyConditionContext from '../shim/legacy-condition-context';
 /**
  * Builds the key under which a block registers and resolves its slots.
  *
- * Native `<sw-block>` scopes block matching to `componentName + blockName`, mirroring Twig, so that block
+ * Native `<sw-block>` identifies a block by `componentName + blockName`, mirroring Twig, so that block
  * `foo` in one component never resolves overrides meant for block `foo` in another. The owning component
  * name reaches this component through the `sw-internal-component-name` attribute that the Shopware setup
  * transform stamps onto every `<sw-block>` when it lowers the SFC. When it is absent — a `<sw-block>`
  * mounted directly in a test — the block falls back to matching on the block name alone.
  *
  * @example
- * scopedBlockKey('sw-product-detail', 'sw_product_detail_base'); // 'sw-product-detail sw_product_detail_base'
- * scopedBlockKey(undefined, 'sw_product_detail_base'); // 'sw_product_detail_base'
+ * qualifiedBlockKey('sw-product-detail', 'sw_product_detail_base'); // 'sw-product-detail sw_product_detail_base'
+ * qualifiedBlockKey(undefined, 'sw_product_detail_base'); // 'sw_product_detail_base'
  */
-function scopedBlockKey(componentName: string | undefined, blockName: string | undefined): string | undefined {
+function qualifiedBlockKey(componentName: string | undefined, blockName: string | undefined): string | undefined {
     if (blockName === undefined) {
         return undefined;
     }
@@ -113,13 +113,13 @@ export default Shopware.Component.wrapComponentConfig({
         const instance = getCurrentInstance();
 
         if (props.extends) {
-            const scopedExtends = scopedBlockKey(props.swInternalComponentName, props.extends);
+            const qualifiedExtends = qualifiedBlockKey(props.swInternalComponentName, props.extends);
             // addBlock is a no-op for undefined, so an explicit guard is not needed.
-            addBlock(scopedExtends, slots.default);
+            addBlock(qualifiedExtends, slots.default);
 
             onBeforeUnmount(() => {
                 if (props.extends) {
-                    removeBlock(scopedExtends, slots.default);
+                    removeBlock(qualifiedExtends, slots.default);
                 }
             });
 
@@ -182,7 +182,7 @@ export default Shopware.Component.wrapComponentConfig({
             // at boot time) are positioned below native <sw-block extends> overrides
             // (registered at mount time), matching the expected stacking order:
             //   default → shim (legacy plugin) → native (newer plugin or core extension)
-            const nativeBlocks = getBlocks(scopedBlockKey(props.swInternalComponentName, props.name)!);
+            const nativeBlocks = getBlocks(qualifiedBlockKey(props.swInternalComponentName, props.name)!);
             const blocksAndParent = [
                 slots.default ?? (() => []),
                 ...shimSlots,

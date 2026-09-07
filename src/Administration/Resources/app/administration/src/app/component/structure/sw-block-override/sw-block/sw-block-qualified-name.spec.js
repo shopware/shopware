@@ -2,7 +2,7 @@
  * @sw-package framework
  * @group disabledCompat
  *
- * Scoping behaviour of `<sw-block>`: block matching is scoped to `componentName + blockName` via the
+ * Component qualification of `<sw-block>`: a block is identified by `componentName + blockName` via the
  * `sw-internal-component-name` attribute that the Shopware setup transform stamps on every native block.
  * These tests mount the blocks directly and set `sw-internal-component-name` explicitly to stand in for
  * that stamping.
@@ -28,12 +28,12 @@ async function createWrapper(template) {
     );
 }
 
-describe('sw-block component scoping', () => {
+describe('sw-block component qualification', () => {
     beforeAll(() => {
         Shopware.Store.register('blockOverride', blockOverrideStore);
     });
 
-    it('does not apply an override from a different component scope', async () => {
+    it('does not apply an override from a different component', async () => {
         const wrapper = await createWrapper(`
             <div>
                 <div class="host-a">
@@ -51,7 +51,7 @@ describe('sw-block component scoping', () => {
         expect(wrapper.find('.override-b').exists()).toBe(false);
     });
 
-    it('applies an override registered under the same component scope', async () => {
+    it('applies an override registered for the same component', async () => {
         const wrapper = await createWrapper(`
             <div>
                 <div class="host-a">
@@ -69,7 +69,7 @@ describe('sw-block component scoping', () => {
         expect(wrapper.find('.host-a > .override-a').exists()).toBe(true);
     });
 
-    it('isolates same-named blocks in two different component scopes from each other', async () => {
+    it('isolates same-named blocks in two different components from each other', async () => {
         const wrapper = await createWrapper(`
             <div>
                 <div class="host-a">
@@ -98,7 +98,7 @@ describe('sw-block component scoping', () => {
         expect(wrapper.find('.host-b > .override-a').exists()).toBe(false);
     });
 
-    it('still matches on the block name alone when no component scope is stamped', async () => {
+    it('still matches on the block name alone when no component name is stamped', async () => {
         const wrapper = await createWrapper(`
             <div>
                 <div class="host">

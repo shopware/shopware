@@ -12,10 +12,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElements;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\BindElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
-use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertPreset;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
@@ -135,7 +135,8 @@ class LayoutMutationController
         AttachElementRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new AttachElement($this->registry, $this->decoder->decodeOne($payload->element), $payload->parentElementId, $payload->slot, $payload->index);
+        $element = $this->decoder->decodeOne($payload->element);
+        $mutation = new AttachElement($this->registry, $element, $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot, $payload->index);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
@@ -148,7 +149,7 @@ class LayoutMutationController
     ): Response {
         $preset = $this->presetRegistry->get($payload->presetId);
         $elements = $this->decoder->decode($preset->payload);
-        $mutation = new InsertPreset($this->registry, $elements, $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot);
+        $mutation = new AttachElements($this->registry, $elements, $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

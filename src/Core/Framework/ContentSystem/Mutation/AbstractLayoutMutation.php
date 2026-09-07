@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -184,6 +185,38 @@ abstract class AbstractLayoutMutation implements LayoutMutation
             $type,
             array_map(static fn (BindingSpecification $specification): string => $specification->qualifiedId(), $defaults),
         );
+    }
+
+    protected function applyDefaultBinding(
+        AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        BindingApplicator $bindingApplicator,
+        StoredElement $element,
+    ): StoredElement {
+        $default = $this->resolveDefaultSpecification($bindingRegistry, $element->component);
+
+        if ($default === null) {
+            return $element;
+        }
+
+        return $bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId());
+    }
+
+    protected function applyDefaultBindingToSubtree(
+        AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        BindingApplicator $bindingApplicator,
+        StoredElement $element,
+    ): StoredElement {
+        $bound = $this->applyDefaultBinding($bindingRegistry, $bindingApplicator, $element);
+
+        $slots = [];
+        foreach ($bound->slots as $name => $children) {
+            $slots[$name] = array_values(array_map(
+                fn (StoredElement $child): StoredElement => $this->applyDefaultBindingToSubtree($bindingRegistry, $bindingApplicator, $child),
+                $children,
+            ));
+        }
+
+        return $bound->withSlots($slots);
     }
 
     /**

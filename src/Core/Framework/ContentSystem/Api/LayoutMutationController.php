@@ -148,7 +148,7 @@ class LayoutMutationController
     ): Response {
         $preset = $this->presetRegistry->get($payload->presetId);
         $elements = $this->decoder->decode($preset->payload);
-        $mutation = new InsertPreset($this->registry, $elements, $payload->parentElementId, $payload->slot);
+        $mutation = new InsertPreset($this->registry, $elements, $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

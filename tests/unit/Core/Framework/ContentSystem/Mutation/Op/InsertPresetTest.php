@@ -5,7 +5,10 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -26,7 +29,7 @@ class InsertPresetTest extends TestCase
         $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
         $elements = [new StoredElement('first', 'Sw:Card'), new StoredElement('second', 'Sw:Block')];
 
-        $result = (new InsertPreset($this->registry(), $elements))->apply($tree);
+        $result = ($this->op($elements))->apply($tree);
 
         static::assertCount(3, $result->roots);
         static::assertSame('existing', $result->roots[0]->id);
@@ -46,7 +49,7 @@ class InsertPresetTest extends TestCase
             ]),
         ];
 
-        $result = (new InsertPreset($this->registry(), $elements))->apply(new StoredTree([]));
+        $result = ($this->op($elements))->apply(new StoredTree([]));
 
         $inserted = $result->roots[0];
         static::assertNotSame('root', $inserted->id);
@@ -64,7 +67,7 @@ class InsertPresetTest extends TestCase
             new StoredElement('second', 'Sw:Card'),
         ];
 
-        $insert = new InsertPreset($this->registry(), $elements);
+        $insert = $this->op($elements);
         $result = $insert->apply(new StoredTree([]));
 
         $first = $result->roots[0];
@@ -83,7 +86,7 @@ class InsertPresetTest extends TestCase
         ])]);
         $elements = [new StoredElement('a', 'Sw:Card'), new StoredElement('b', 'Sw:Card')];
 
-        $result = (new InsertPreset($this->registry(), $elements, 'parent', 'content', 0))->apply($tree);
+        $result = ($this->op($elements, 'parent', 'content', 0))->apply($tree);
 
         $children = $result->roots[0]->slots['content'];
         static::assertCount(3, $children);
@@ -94,7 +97,7 @@ class InsertPresetTest extends TestCase
     #[TestDox('an empty preset inserts nothing')]
     public function testEmptyPresetInsertsNothing(): void
     {
-        $insert = new InsertPreset($this->registry(), []);
+        $insert = $this->op([]);
         $result = $insert->apply(new StoredTree([new StoredElement('existing', 'Sw:Block')]));
 
         static::assertCount(1, $result->roots);
@@ -104,7 +107,7 @@ class InsertPresetTest extends TestCase
     #[TestDox('rejects an unregistered root component with a 400')]
     public function testUnregisteredComponentRejected(): void
     {
-        $insert = new InsertPreset($this->registry(), [new StoredElement('ghost', 'Sw:Ghost')]);
+        $insert = $this->op([new StoredElement('ghost', 'Sw:Ghost')]);
 
         $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
         $insert->apply(new StoredTree([]));
@@ -113,7 +116,7 @@ class InsertPresetTest extends TestCase
     #[TestDox('rejects inserting into a parent absent from the tree with a 400')]
     public function testInsertIntoMissingParentRejected(): void
     {
-        $insert = new InsertPreset($this->registry(), [new StoredElement('a', 'Sw:Card')], 'ghost', 'content');
+        $insert = $this->op([new StoredElement('a', 'Sw:Card')], 'ghost', 'content');
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $insert->apply(new StoredTree([new StoredElement('other', 'Sw:Block')]));
@@ -122,10 +125,26 @@ class InsertPresetTest extends TestCase
     #[TestDox('rejects inserting into a parent without naming a slot with a 400')]
     public function testInsertIntoParentWithoutSlotRejected(): void
     {
-        $insert = new InsertPreset($this->registry(), [new StoredElement('a', 'Sw:Card')], 'parent');
+        $insert = $this->op([new StoredElement('a', 'Sw:Card')], 'parent');
 
         $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
         $insert->apply(new StoredTree([new StoredElement('parent', 'Sw:Block')]));
+    }
+
+    /**
+     * @param list<StoredElement> $elements
+     */
+    private function op(array $elements, ?string $parentElementId = null, ?string $slot = null, ?int $index = null): InsertPreset
+    {
+        return new InsertPreset(
+            $this->registry(),
+            $elements,
+            static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            $parentElementId,
+            $slot,
+            $index,
+        );
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

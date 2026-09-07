@@ -166,6 +166,12 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame('Sw:Media:Image', $container['slots']['content'][0]['component']);
         static::assertSame('Sw:Content:Text', $container['slots']['content'][1]['component']);
 
+        // the inserted elements are fill-applied their type default binding, exactly like a manual insert, so the
+        // image carries the core media wiring even though the preset spec authors no data requirements
+        $image = $container['slots']['content'][0];
+        static::assertSame(['media' => self::CORE_MEDIA_BINDING_ID], $image['attributedSpecifications']);
+        static::assertArrayHasKey('media', $image['dataRequirements']);
+
         static::assertSame($container['id'], $body['affectedElementIds'][0]);
         static::assertNotContains('block-a', $body['affectedElementIds']);
         static::assertArrayHasKey('resolutions', $body);

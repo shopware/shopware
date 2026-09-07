@@ -12,8 +12,10 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
+use Shopware\Core\Checkout\Cart\Order\Error\ProductPriceDefinitionRestoredError;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\CheckoutPermissions;
@@ -271,6 +273,40 @@ class RecalculationService
         $this->orderAddressRepository->upsert([$newOrderAddress], $context);
     }
 
+    private function restoreMissingProductPriceDefinitions(Cart $cart, SalesChannelContext $context): void
+    {
+        if (!$context->hasPermission(CheckoutPermissions::SKIP_PRODUCT_RECALCULATION)
+            || !$context->hasPermission(CheckoutPermissions::KEEP_INACTIVE_PRODUCT)
+        ) {
+            return;
+        }
+
+        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE || $lineItem->getPriceDefinition() !== null) {
+                continue;
+            }
+
+            $price = $lineItem->getPrice();
+            if (!$price instanceof CalculatedPrice) {
+                continue;
+            }
+
+            $definition = new QuantityPriceDefinition(
+                $price->getUnitPrice(),
+                $price->getTaxRules(),
+                $lineItem->getQuantity(),
+            );
+            $definition->setListPrice($price->getListPrice()?->getPrice());
+            $definition->setRegulationPrice($price->getRegulationPrice()?->getPrice());
+
+            $lineItem->setPriceDefinition($definition);
+            $cart->addErrors(new ProductPriceDefinitionRestoredError(
+                $lineItem->getId(),
+                $lineItem->getLabel() ?? $lineItem->getId(),
+            ));
+        }
+    }
+
     /**
      * @param array<string, mixed> $orderData
      */
@@ -471,6 +507,8 @@ class RecalculationService
 
     private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
     {
+        $this->restoreMissingProductPriceDefinitions($cart, $context);
+
         // we switch to the live version that we don't have to consider live version fallbacks inside the calculation
         return $context->live(function ($live) use ($cart): Cart {
             /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed */

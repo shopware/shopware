@@ -26,6 +26,7 @@
         "shipping-address-invalid": "The selected shipping address is not valid or incomplete. Please check your entries <a href=\"%url%\">here</a>.",
         "billing-address-invalid": "The selected billing address is not valid or incomplete. Please check your entries <a href=\"%url%\">here</a>.",
         "product-not-found": "The product could not be found.",
+        "product-price-definition-restored": "The saved price definition for product \"%name%\" was missing and has been restored from the order price. Review the price before saving the order.",
         "salutation-missing": "A salutation is missing from your profile, please choose one during checkout.",
         "salutation-missing-billing-address": "There's no salutation configured for your active billing address, please set one <a href=\"%url%\">here</a>.",
         "salutation-missing-shipping-address": "There's no salutation configured for your active shipping address, please set one <a href=\"%url%\">here</a>.",

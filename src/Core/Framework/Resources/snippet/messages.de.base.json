@@ -26,6 +26,7 @@
         "shipping-address-invalid": "Die gewählte Versandadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie <a href=\"%url%\">hier</a> Ihre Angaben.",
         "billing-address-invalid": "Die gewählte Rechnungsadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie <a href=\"%url%\">hier</a> Ihre Angaben.",
         "product-not-found": "Das Produkt wurde nicht gefunden.",
+        "product-price-definition-restored": "Die gespeicherte Preisdefinition für das Produkt \"%name%\" fehlte und wurde aus dem Bestellpreis wiederhergestellt. Prüfen Sie den Preis, bevor Sie die Bestellung speichern.",
         "salutation-missing": "Es wurde keine Anrede konfiguriert, bitte wählen Sie beim Abschluss Ihrer Bestellung eine Anrede aus.",
         "salutation-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
         "salutation-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",

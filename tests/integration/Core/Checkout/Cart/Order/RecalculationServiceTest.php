@@ -16,11 +16,14 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\Order\Error\ProductPriceDefinitionRestoredError;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -1219,6 +1222,88 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(224.07, $order->getPrice()->getNetPrice());
         static::assertSame(249.98, $order->getPrice()->getTotalPrice());
         static::assertSame(239.98, $order->getPrice()->getPositionPrice());
+    }
+
+    public function testRecalculateOrderRestoresMissingProductPriceDefinition(): void
+    {
+        $productId = Uuid::randomHex();
+        $orderId = $this->persistCart($this->generateDemoCart($productId))['orderId'];
+
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+        $criteria = (new Criteria([$orderId]))->addAssociation('lineItems');
+
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->get($orderId);
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $lineItem = $order->getLineItems()?->filter(
+            static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $productId,
+        )->first();
+        static::assertInstanceOf(OrderLineItemEntity::class, $lineItem);
+
+        $price = $lineItem->getPrice();
+        static::assertInstanceOf(CalculatedPrice::class, $price);
+
+        $expectedAmountTotal = $order->getAmountTotal();
+        $expectedUnitPrice = $price->getUnitPrice();
+        $expectedTotalPrice = $price->getTotalPrice();
+        $listPrice = $expectedUnitPrice + 10;
+        $regulationPrice = $expectedUnitPrice - 10;
+        $priceWithMetadata = new CalculatedPrice(
+            $expectedUnitPrice,
+            $expectedTotalPrice,
+            $price->getCalculatedTaxes(),
+            $price->getTaxRules(),
+            $lineItem->getQuantity(),
+            null,
+            ListPrice::createFromUnitPrice($expectedUnitPrice, $listPrice),
+            new RegulationPrice($regulationPrice),
+        );
+
+        static::getContainer()->get('order_line_item.repository')->update([[
+            'id' => $lineItem->getId(),
+            'price' => $priceWithMetadata,
+            'priceDefinition' => null,
+        ]], $versionContext);
+        static::getContainer()->get('product.repository')->update([[
+            'id' => $productId,
+            'active' => false,
+        ]], $this->context);
+
+        $errors = static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        $restoredErrors = $errors->filterInstance(ProductPriceDefinitionRestoredError::class);
+        static::assertCount(1, $restoredErrors);
+        $restoredError = $restoredErrors->first();
+        static::assertInstanceOf(ProductPriceDefinitionRestoredError::class, $restoredError);
+        static::assertSame($lineItem->getIdentifier(), $restoredError->getLineItemId());
+        static::assertSame($lineItem->getLabel(), $restoredError->getName());
+
+        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->get($orderId);
+        static::assertInstanceOf(OrderEntity::class, $order);
+        static::assertSame($expectedAmountTotal, $order->getAmountTotal());
+
+        $lineItem = $order->getLineItems()?->filter(
+            static fn (OrderLineItemEntity $lineItem) => $lineItem->getIdentifier() === $productId,
+        )->first();
+        static::assertInstanceOf(OrderLineItemEntity::class, $lineItem);
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItem->getType());
+        static::assertSame($productId, $lineItem->getProductId());
+        static::assertSame($productId, $lineItem->getReferencedId());
+
+        $definition = $lineItem->getPriceDefinition();
+        static::assertInstanceOf(QuantityPriceDefinition::class, $definition);
+        static::assertSame($expectedUnitPrice, $definition->getPrice());
+        static::assertSame($lineItem->getQuantity(), $definition->getQuantity());
+        static::assertEquals($price->getTaxRules(), $definition->getTaxRules());
+        static::assertTrue($definition->isCalculated());
+        static::assertSame($listPrice, $definition->getListPrice());
+        static::assertSame($regulationPrice, $definition->getRegulationPrice());
+
+        $restoredPrice = $lineItem->getPrice();
+        static::assertInstanceOf(CalculatedPrice::class, $restoredPrice);
+        static::assertSame($expectedUnitPrice, $restoredPrice->getUnitPrice());
+        static::assertSame($expectedTotalPrice, $restoredPrice->getTotalPrice());
     }
 
     public function testForeachLoopInCalculateDeliveryFunction(): void

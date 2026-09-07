@@ -369,6 +369,87 @@ class PromotionDeliveryCalculatorTest extends TestCase
         static::assertSame(20.0, $cart->getShippingCosts()->getTotalPrice(), 'Should set shipping to lowest fixed price of 20');
     }
 
+    public function testNotApplicableFixedDeliveryDiscountDoesNotSuppressApplicableOne(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition, SalesChannelContext $context) {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $applicableDiscount = $this->getDiscountItem('applicable-fixed')
+            ->setPayloadValue('code', 'SHIP50')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 50)
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new AbsolutePriceDefinition(50));
+
+        // cheaper, so it wins the reduction, but its requirement does not match the current cart
+        $notApplicableDiscount = $this->getDiscountItem('not-applicable-fixed')
+            ->setPayloadValue('code', 'SHIP20')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 20)
+            ->setPayloadValue('priority', 2)
+            ->setPriceDefinition(new AbsolutePriceDefinition(20));
+        $notApplicableDiscount->setRequirement(new FalseRule());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$applicableDiscount, $notApplicableDiscount]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(50.0, $cart->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testAllFixedDeliveryDiscountsNotApplicableKeepsNotEligibleError(): void
+    {
+        $notApplicableDiscount = $this->getDiscountItem('not-applicable-fixed')
+            ->setPayloadValue('code', 'SHIP20')
+            ->setPayloadValue('discountType', PromotionDiscountEntity::TYPE_FIXED_UNIT)
+            ->setPayloadValue('value', 20)
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new AbsolutePriceDefinition(20));
+        $notApplicableDiscount->setRequirement(new FalseRule());
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$notApplicableDiscount]),
+            $cart,
+            $cart,
+            $context
+        );
+
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice());
+        static::assertCount(1, $cart->getErrors());
+        static::assertInstanceOf(PromotionNotEligibleError::class, $cart->getErrors()->first());
+    }
+
     public function testNotLoggedInAddsSpecificErrorForDeliveryDiscount(): void
     {
         $discountItem = $this->getDiscountItem('delivery-promotion')

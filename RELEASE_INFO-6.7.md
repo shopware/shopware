@@ -131,9 +131,6 @@ The first and last name fields of `customer`, `customer_address`, `order_custome
 
 `CustomerEntity::getDisplayName()` returns the person name, and falls back to the company name when a commercial account has no contact person. Prefer it over concatenating `firstName` and `lastName` when rendering a customer. `CustomerTransformer` fills the order customer snapshot from the company name when a commercial account has no contact person, so documents and mail templates keep naming the buyer.
 
-The Administration changeset generator keeps an empty string instead of turning it into `null` when the field carries both the `Required` and the `AllowEmptyString` flag. Those fields reject `null`, so an empty string was impossible to save from the Administration before. Every other field is unchanged.
-
-
 ### Invoice buyer names no longer repeat the company name
 
 The buyer name on documents rendered through `DocumentV2` no longer repeats the company name when the person name and the company name are identical, and no longer starts with a `-` when only a company name is present.

@@ -7,11 +7,13 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   release:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     if: github.repository == 'shopware/shopware'
     steps:
       - name: Checkout repository

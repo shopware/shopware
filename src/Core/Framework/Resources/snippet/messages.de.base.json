@@ -11,6 +11,7 @@
         "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",
         "promotion-discount-deleted": "Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
         "promotion-discount-added": "Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
+        "promotion-discount-unknown-condition": "Der Rabatt \"%name%\" wurde entfernt, da eine seiner Voraussetzungen nicht mehr erfüllt ist.",
         "promotion-not-found": "Gutscheincode \"%code%\" existiert nicht.",
         "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht länger gültig!",
         "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",

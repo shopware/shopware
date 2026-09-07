@@ -159,4 +159,37 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
 
         expect(Shopware.Store.get('context').api.languageId).toBe('1234');
     });
+
+    it('should only show successfully applied promotion codes', async () => {
+        const orderStore = Shopware.Store.get('swOrder');
+
+        orderStore.setPromotionCodes([
+            { code: 'VALID-CODE' },
+            { code: 'INVALID-CODE' },
+        ]);
+        orderStore.setCart({
+            token: null,
+            lineItems: [
+                {
+                    id: 'promotion-line-item',
+                    type: 'promotion',
+                    payload: {
+                        code: 'VALID-CODE',
+                        discountId: 'promotion-discount-id',
+                    },
+                },
+            ],
+        });
+
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.promotionCodeTags).toEqual([
+            {
+                code: 'VALID-CODE',
+                discountId: 'promotion-discount-id',
+                isInvalid: false,
+            },
+        ]);
+        expect(wrapper.vm.promotionError).toBeNull();
+    });
 });

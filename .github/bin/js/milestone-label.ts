@@ -196,13 +196,18 @@ type IssuesClient = {
     };
 };
 
-type MergeGroupClient = {
+type PullRequestClient = {
     rest: {
         pulls: {
             get(options: { owner: string; repo: string; pull_number: number }): Promise<{
-                data: { number: number; draft?: boolean; base: { ref: string }; labels: { name: string }[] };
+                data: { number: number; draft?: boolean; base: { ref: string }; head: { sha: string }; labels: { name: string }[] };
             }>;
         };
+    };
+};
+
+type MergeGroupClient = {
+    rest: {
         repos: {
             compareCommitsWithBasehead(options: { owner: string; repo: string; basehead: string }): Promise<{ data: { commits: { sha: string }[] } }>;
             listPullRequestsAssociatedWithCommit(options: { owner: string; repo: string; commit_sha: string }): Promise<{ data: { number: number }[] }>;
@@ -285,7 +290,7 @@ type PullRequestContext = {
 };
 
 type Toolkit = {
-    github: GraphqlClient & IssuesClient & MergeGroupClient & StatusClient;
+    github: GraphqlClient & IssuesClient & PullRequestClient & MergeGroupClient & StatusClient;
     core: Logger;
     context: PullRequestContext;
 };
@@ -306,7 +311,7 @@ function defaultBranchOf(context: PullRequestContext): string {
 /** `refs/heads/gh-readonly-queue/trunk/pr-18791-<base sha>` -> 18791 */
 const MERGE_GROUP_REF_PATTERN = /\/pr-(\d+)-[0-9a-f]+$/;
 
-type CheckedPullRequest = { number: number; baseRefName: string; labels: string[]; isDraft: boolean; labelerPending: boolean };
+type CheckedPullRequest = { number: number; baseRefName: string; headSha: string; labels: string[]; isDraft: boolean; labelerPending: boolean };
 
 /**
  * The queue may batch several PRs into one group while the ref names only the last,
@@ -344,34 +349,37 @@ export async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, c
     return [...numbers].sort((left, right) => left - right);
 }
 
+/**
+ * Deliberately the API and not `context.payload.pull_request`: the payload is frozen at the
+ * moment the event fired, so a label the labeler adds a second later stays invisible to the
+ * run racing it — and nothing re-judges the PR afterwards, because a re-run replays that same
+ * payload and a label set with the `GITHUB_TOKEN` emits no event of its own (#20073).
+ */
+async function fetchPullRequest(github: PullRequestClient, repo: Repo, number: number, labelerPending: boolean): Promise<CheckedPullRequest> {
+    const { data } = await github.rest.pulls.get({ ...repo, pull_number: number });
+
+    return {
+        number: data.number,
+        baseRefName: data.base.ref,
+        headSha: data.head.sha,
+        labels: data.labels.map((label) => label.name),
+        isDraft: data.draft ?? false,
+        labelerPending,
+    };
+}
+
 async function pullRequestsToCheck({ github, core, context }: Toolkit): Promise<CheckedPullRequest[]> {
     const mergeGroup = context.payload.merge_group;
 
     if (context.eventName !== 'merge_group' || !mergeGroup) {
-        const pullRequest = pullRequestOf(context);
+        const labelerPending = context.payload.action === 'opened' || context.payload.action === 'reopened';
 
-        return [{
-            number: pullRequest.number,
-            baseRefName: pullRequest.base.ref,
-            labels: (pullRequest.labels ?? []).map((label) => label.name),
-            isDraft: pullRequest.draft ?? false,
-            labelerPending: context.payload.action === 'opened' || context.payload.action === 'reopened',
-        }];
+        return [await fetchPullRequest(github, context.repo, pullRequestOf(context).number, labelerPending)];
     }
 
     const numbers = await pullRequestNumbersInMergeGroup(github, core, context.repo, mergeGroup);
 
-    return Promise.all(numbers.map(async (number) => {
-        const { data } = await github.rest.pulls.get({ ...context.repo, pull_number: number });
-
-        return {
-            number: data.number,
-            baseRefName: data.base.ref,
-            labels: data.labels.map((label) => label.name),
-            isDraft: data.draft ?? false,
-            labelerPending: false,
-        };
-    }));
+    return Promise.all(numbers.map((number) => fetchPullRequest(github, context.repo, number, false)));
 }
 
 export const STATUS_CONTEXT = 'milestone/label';
@@ -384,10 +392,10 @@ function truncate(text: string): string {
 }
 
 /** The commit the status belongs to: the merge group for the queue, the head otherwise. */
-function statusShaOf(context: PullRequestContext): string {
+function statusShaOf(context: PullRequestContext, pullRequests: CheckedPullRequest[]): string {
     const mergeGroup = context.payload.merge_group;
 
-    return context.eventName === 'merge_group' && mergeGroup ? mergeGroup.head_sha : pullRequestOf(context).head.sha;
+    return context.eventName === 'merge_group' && mergeGroup ? mergeGroup.head_sha : pullRequests[0].headSha;
 }
 
 /** The only link a commit status carries, so point it at the run holding the long form. */
@@ -406,13 +414,13 @@ function runUrl({ owner, repo }: Repo): string | undefined {
  * is keyed by context: the next run overwrites it and the pull request turns green
  * without a new commit.
  */
-async function postVerdictStatus(toolkit: Toolkit, state: 'success' | 'failure', description: string): Promise<void> {
+async function postVerdictStatus(toolkit: Toolkit, pullRequests: CheckedPullRequest[], state: 'success' | 'failure', description: string): Promise<void> {
     const { github, context } = toolkit;
     const target = runUrl(context.repo);
 
     await github.rest.repos.createCommitStatus({
         ...context.repo,
-        sha: statusShaOf(context),
+        sha: statusShaOf(context, pullRequests),
         state,
         context: STATUS_CONTEXT,
         description: truncate(description),
@@ -460,7 +468,7 @@ export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
             ? `all ${judged.length} queued pull requests carry a valid milestone label`
             : invalid.map(({ pullRequest, verdict }) => `#${pullRequest.number} ${verdict.short}`).join('; ');
 
-    await postVerdictStatus(toolkit, invalid.length === 0 ? 'success' : 'failure', description);
+    await postVerdictStatus(toolkit, pullRequests, invalid.length === 0 ? 'success' : 'failure', description);
 }
 
 /**

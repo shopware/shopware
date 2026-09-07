@@ -137,6 +137,9 @@ describe('groupByDomain / buildIssuePayload', () => {
     assert.equal(issue.label, null);
     assert.ok(issue.issueBody.includes('`Integration\\Core\\FooTest::testCase00`: boom'));
     assert.ok(issue.issueBody.includes('…and 5 more'));
+    assert.ok(issue.issueBody.includes('<summary>Failing tests: 45</summary>'));
+    assert.ok(issue.issueBody.includes('</details>'));
+    assert.ok(issue.commentBody.includes('<summary>Failing tests: 45</summary>'));
     assert.ok(!issue.issueBody.includes('testCase44'));
     assert.ok(!issue.issueBody.includes('—'));
     assert.ok(issue.issueBody.includes('deep-triage pass'));

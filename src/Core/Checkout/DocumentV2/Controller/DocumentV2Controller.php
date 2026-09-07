@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]

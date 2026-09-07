@@ -55,22 +55,6 @@ properties:
     adminUI:
       panel: "sorting"
 
-  defaultSorting:
-    type: string
-    title: "Default Sorting"
-    description: "Sorting preselected when the request carries no explicit order. A visitor's own choice always wins."
-    required: false
-    adminUI:
-      component: "entity-single-select"
-      entity: "product_sorting"
-      panel: "sorting"
-      props:
-        labelProperty: "label"
-        showClearableButton: true
-      visibleWhen:
-        field: "showSorting"
-        equals: true
-
   showLayoutSwitch:
     type: boolean
     title: "Show Layout Switch"

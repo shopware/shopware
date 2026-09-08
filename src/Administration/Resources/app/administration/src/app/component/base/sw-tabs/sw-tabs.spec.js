@@ -32,7 +32,6 @@ describe('src/app/component/base/sw-tabs', () => {
         expect(wrapper.html()).toContain('mt-tabs');
     });
 
-    // Regression test for https://github.com/shopware/shopware/issues/18863
     it.activeFeatureFlags(['v6.8.0.0'])('should resolve labels from slot text for v-for / fragment tab items', async () => {
         const wrapper = await createWrapper({
             global: {

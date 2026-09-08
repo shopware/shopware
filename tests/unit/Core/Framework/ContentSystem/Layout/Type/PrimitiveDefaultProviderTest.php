@@ -9,6 +9,9 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 
@@ -19,7 +22,7 @@ use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationB
 #[CoversClass(PrimitiveDefaultProvider::class)]
 class PrimitiveDefaultProviderTest extends TestCase
 {
-    #[TestDox('returns only primitives with a non-null default, skipping defaultless primitives and references')]
+    #[TestDox('returns top-level primitives with a non-null default, skipping defaultless primitives and references')]
     public function testForTypeSkipsNullDefaultsAndReferences(): void
     {
         $specs = [
@@ -34,5 +37,36 @@ class PrimitiveDefaultProviderTest extends TestCase
         $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
 
         static::assertSame(['withDefault' => 'seeded'], (new PrimitiveDefaultProvider())->forType($registry, 'Sw:Mixed'));
+    }
+
+    #[TestDox('returns nested object member defaults')]
+    public function testForTypeReturnsNestedObjectDefaults(): void
+    {
+        $nestedProperties = [
+            'xs' => new PropertySpecification('xs', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
+            'sm' => new PropertySpecification('sm', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
+        ];
+        $specs = [
+            'Sw:Grid:Container' => new ContentSystemElementTypeSpecification(
+                'Sw:Grid:Container',
+                'Grid Container',
+                '',
+                null,
+                null,
+                new CopilotSpecification('', []),
+                [
+                    'padding' => new PropertySpecification('padding', new PropertyType(['string', 'object'], false, null, null, $nestedProperties), false, '', '', null),
+                ],
+                [],
+            ),
+        ];
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('get')->willReturnCallback(static fn (string $name): ContentSystemElementTypeSpecification => $specs[$name]);
+
+        static::assertSame(
+            ['padding' => ['xs' => '0 20px 0 20px', 'sm' => '0 20px 0 20px']],
+            (new PrimitiveDefaultProvider())->forType($registry, 'Sw:Grid:Container'),
+        );
     }
 }

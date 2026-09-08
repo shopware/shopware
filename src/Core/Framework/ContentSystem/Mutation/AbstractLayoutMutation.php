@@ -135,10 +135,10 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     }
 
     /**
-     * The type's primitive property defaults to seed into a stored element, keyed by property key and wrapped
-     * for storage. The single rule lives in {@see PrimitiveDefaultProvider}, shared with the write-boundary
-     * seeder so a type's defaults are defined once; the wrapping is applied here, at the one place a mutation
-     * puts a raw default into a stored element.
+     * The type's property defaults to seed into a stored element, keyed by property key and wrapped for storage.
+     * The single rule lives in {@see PrimitiveDefaultProvider}, shared with the write-boundary seeder so a type's
+     * defaults are defined once; the wrapping is applied here, at the one place a mutation puts a raw default into
+     * a stored element.
      *
      * @return array<string, StoredValue>
      */

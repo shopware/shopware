@@ -9,12 +9,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Seeds an element forest's primitive type defaults into stored properties at the DAL write boundary, so every tree
- * written to content_layout carries its type defaults regardless of how it was built (direct DAL write, Sync API,
- * import, fixtures) — the paths that never pass through the layout mutations. Per node it fills each primitive
- * property of the node's component type whose default is non-null and whose key is absent, then recurses every
- * slot's children; an existing value is never overwritten and an unregistered component is left untouched (the write
- * gate reports that separately).
+ * Seeds an element forest's type defaults into stored properties at the DAL write boundary, so every tree written to
+ * content_layout carries its type defaults regardless of how it was built (direct DAL write, Sync API, import,
+ * fixtures) — the paths that never pass through the layout mutations. Per node it fills each primitive property and
+ * nested object member of the node's component type whose default is non-null and whose key is absent, then recurses
+ * every slot's children; an existing value is never overwritten and an unregistered component is left untouched (the
+ * write gate reports that separately).
  *
  * A {@see StoredElement} is immutable, so seeding it rebuilds the subtree through its `with*()` methods and hands
  * back a new forest rather than filling the one it was given. Shares the per-type rule with the layout mutations
@@ -75,7 +75,7 @@ class LayoutDefaultSeeder
     }
 
     /**
-     * @return array<string, string|int|float|bool>
+     * @return array<string, mixed>
      */
     private function defaultsFor(string $component): array
     {

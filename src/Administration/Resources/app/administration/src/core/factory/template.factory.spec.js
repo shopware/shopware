@@ -4,6 +4,7 @@
 
 import TemplateFactory from 'src/core/factory/template.factory';
 import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
+import { compile } from '@vue/compiler-dom';
 
 describe('core/factory/template.factory.js - native block extension points', () => {
     beforeEach(() => {
@@ -189,5 +190,85 @@ describe('core/factory/template.factory.js - native block extension points', () 
         expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-angle').html).toBe(
             '<sw-card><template #header :show="a > 1"><sw-block name="tf_angle_block" :data="$dataScope" :sw-internal-legacy-shim="false"><b>h</b></sw-block></template></sw-card>',
         );
+    });
+
+    describe('v-if chains split by an extension point', () => {
+        const WRAP_OPEN = (name) => `<sw-block name="${name}" :data="$dataScope" :sw-internal-legacy-shim="false">`;
+        const GUARD = '<!-- Keeps the conditional chain connected across sw-block. -->';
+
+        function resolve(name, template, blocks) {
+            registerNativeExtensionTargets({ component: name, blocks });
+            TemplateFactory.registerComponentTemplate(name, template);
+            TemplateFactory.resolveTemplates();
+
+            return TemplateFactory.getNormalizedTemplateRegistry().get(name).html;
+        }
+
+        function compilerErrors(template) {
+            const errors = [];
+
+            compile(template, { onError: (error) => errors.push(error.message) });
+
+            return errors;
+        }
+
+        const chain = (prefix) =>
+            `<div>{% block ${prefix}_if %}<p v-if="c1">one</p>{% endblock %}{% block ${prefix}_else %}<p v-else>two</p>{% endblock %}</div>`;
+
+        it('reconnects a v-else whose block is the only target', () => {
+            const html = resolve('tf-else-target', chain('tf_et'), ['tf_et_else']);
+
+            // The guard opens a chain inside the wrapper, which the legacy transform then rewrites as a
+            // whole. Without the guard the v-else alone would be rewritten to a helper call that never
+            // finds its chain and the branch would silently never render.
+            expect(html).toBe(
+                '<div><p v-if="c1">one</p>' +
+                    WRAP_OPEN('tf_et_else') +
+                    `<template v-if="$swLegacyBlockIf('tf_et_else:0', (c1), { segmentCaseIndex: 0, isStartingCondition: true, renderOrderSegment: 'defaultSlot' })">${GUARD}</template>\n` +
+                    `<p v-if="$swLegacyBlockElse('tf_et_else:0', { segmentCaseIndex: 1, isStartingCondition: false, renderOrderSegment: 'defaultSlot' })">two</p>` +
+                    '</sw-block></div>',
+            );
+            expect(compilerErrors(html)).toEqual([]);
+        });
+
+        it('reconnects a v-else that follows the only target block', () => {
+            const html = resolve('tf-if-target', chain('tf_it'), ['tf_it_if']);
+
+            // Outside the wrapper the chain stays native: the guard gives the v-else its adjacent v-if
+            // back. Without it Vue would reject the template with "v-else has no adjacent v-if".
+            expect(html).toBe(
+                '<div>' +
+                    WRAP_OPEN('tf_it_if') +
+                    `<p v-if="$swLegacyBlockIf('tf_it_if:0', c1, { segmentCaseIndex: 0, isStartingCondition: true, renderOrderSegment: 'defaultSlot' })">one</p>` +
+                    `</sw-block><template v-if="(c1)">${GUARD}</template>\n<p v-else>two</p></div>`,
+            );
+            expect(compilerErrors(html)).toEqual([]);
+        });
+
+        it('guards both sides of a target block in the middle of a chain', () => {
+            const html = resolve(
+                'tf-middle-target',
+                '<div>{% block tf_mt_if %}<p v-if="c1">1</p>{% endblock %}{% block tf_mt_else_if %}<p v-else-if="c2">2</p>{% endblock %}{% block tf_mt_else %}<p v-else>3</p>{% endblock %}</div>',
+                ['tf_mt_else_if'],
+            );
+
+            expect(html).toContain(`<template v-if="$swLegacyBlockIf('tf_mt_else_if:0', (c1)`);
+            expect(html).toContain(`</sw-block><template v-if="(c1) || (c2)">${GUARD}</template>\n<p v-else>3</p>`);
+            expect(compilerErrors(html)).toEqual([]);
+        });
+
+        it('still compiles when both blocks of the chain are targets', () => {
+            const html = resolve('tf-both-targets', chain('tf_bt'), [
+                'tf_bt_if',
+                'tf_bt_else',
+            ]);
+
+            expect(html).toContain(`<template v-if="$swLegacyBlockIf('tf_bt_else:0', (c1)`);
+            expect(compilerErrors(html)).toEqual([]);
+        });
+
+        it('leaves a chain alone when none of its blocks is a target', () => {
+            expect(resolve('tf-no-target', chain('tf_nt'), [])).toBe('<div><p v-if="c1">one</p><p v-else>two</p></div>');
+        });
     });
 });

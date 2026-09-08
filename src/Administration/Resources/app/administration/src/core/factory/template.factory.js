@@ -6,6 +6,7 @@
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import transformNativeLegacyBlockConditionals from './transform-legacy-block-conditionals';
+import { reconnectCrossBlockConditionals } from './reconnect-cross-block-conditionals';
 import { getNativeBlockExtensionTargets } from './native-extension-targets';
 
 /**
@@ -198,6 +199,24 @@ function registerTemplateOverride(componentName, templateOverride = null, overri
     return true;
 }
 
+/**
+ * Two passes make the conditional chains of a Twig template survive `<sw-block>` extension points.
+ *
+ * 1. Static: a wrapper inserted around a block splits any `v-if` chain running through the block
+ *    boundary. Every condition is known here, so guard branches reconnect the chain and Vue compiles
+ *    it natively.
+ * 2. Runtime: a chain member can still arrive from another template when a Twig override targets a
+ *    native block. Those chains are rewritten to the `$swLegacyBlock*` helpers, which share state at
+ *    render time.
+ *
+ * The static pass runs first so that the runtime pass sees a chain that is complete inside each block.
+ */
+function normalizeBlockConditionals(html, componentName) {
+    const reconnected = reconnectCrossBlockConditionals(html, componentName);
+
+    return transformNativeLegacyBlockConditionals(reconnected, componentName);
+}
+
 function registerNormalizedTemplate(item) {
     let templateDefinition = resolveExtendsComponent(item);
 
@@ -235,7 +254,7 @@ function registerNormalizedTemplate(item) {
     // Apply overrides
     templateDefinition = applyTemplateOverrides(templateDefinition.name);
     templateDefinition.html = templateDefinition.html.replace(parentRegExp, '');
-    templateDefinition.html = transformNativeLegacyBlockConditionals(templateDefinition.html, templateDefinition.name);
+    templateDefinition.html = normalizeBlockConditionals(templateDefinition.html, templateDefinition.name);
 
     // Final template will be written to the registry
     normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);

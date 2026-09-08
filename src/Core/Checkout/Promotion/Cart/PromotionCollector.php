@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
@@ -220,7 +221,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 if (isset($redeemedCodes[(string) $code])) {
                     $this->addPromotionAlreadyRedeemedError($sanitizedCode, $original);
                 } else {
-                    $this->addPromotionNotFoundError($sanitizedCode, $original);
+                    $original->addErrors(new PromotionNotFoundError($sanitizedCode));
                 }
             }
 

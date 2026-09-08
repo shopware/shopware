@@ -1,6 +1,6 @@
 import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import { DOCUMENT_TYPES, INVOICE_DOCUMENT_TYPES, FILE_FORMATS } from '../../service/documentV2.service';
-import type { DocumentConfig } from '../../service/documentV2.service';
+import type { DocumentConfig, DeliveryNoteConfig } from '../../service/documentV2.service';
 import template from './sw-order-create-document-modal.html.twig';
 import './sw-order-create-document-modal.scss';
 
@@ -159,7 +159,8 @@ export default Component.wrapComponentConfig({
                 !this.documentConfig.documentDate ||
                 this.documentConfig.requestedFileFormats.length === 0 ||
                 (this.isReferencingOtherDocument && !this.referencedDocumentNumber) ||
-                (this.isCreditNoteDocument && this.creditItems.length === 0)
+                (this.isCreditNoteDocument && this.creditItems.length === 0) ||
+                (this.isDeliveryNoteDocument && !(this.documentConfig as DeliveryNoteConfig).deliveryDate)
             );
         },
 

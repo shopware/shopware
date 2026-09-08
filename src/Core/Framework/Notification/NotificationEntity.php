@@ -12,6 +12,8 @@ use Shopware\Core\System\User\UserEntity;
 
 if (class_exists(AdminNotificationEntity::class)) {
     /**
+     * @codeCoverageIgnore
+     *
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
     #[Package('framework')]
@@ -126,6 +128,9 @@ if (class_exists(AdminNotificationEntity::class)) {
         }
     }
 } else {
+    /**
+     * @codeCoverageIgnore
+     */
     #[Package('framework')]
     class NotificationEntity extends Entity
     {

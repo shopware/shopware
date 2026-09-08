@@ -24,9 +24,11 @@
 {% set monthName = namePrefix ? namePrefix ~ '[birthdayMonth]' : 'birthdayMonth' %}
 {% set yearName = namePrefix ? namePrefix ~ '[birthdayYear]' : 'birthdayYear' %}
 
-{% set dayId = idPrefix ~ 'birthdayDay' %}
-{% set monthId = idPrefix ~ 'birthdayMonth' %}
-{% set yearId = idPrefix ~ 'birthdayYear' %}
+{% set idSuffix = random() %}
+
+{% set dayId = "#{idPrefix}birthdayDay-#{idSuffix}" %}
+{% set monthId = "#{idPrefix}birthdayMonth-#{idSuffix}" %}
+{% set yearId = "#{idPrefix}birthdayYear-#{idSuffix}" %}
 
 {% set dayLabel = 'account.personalBirthdaySelectDay'|trans|sw_sanitize %}
 {% set monthLabel = 'account.personalBirthdaySelectMonth'|trans|sw_sanitize %}
@@ -46,7 +48,7 @@
 
 <fieldset {{ attributes.defaults(attributeDefaults) }}>
     {% block label %}
-        <twig:Sw:Form:FieldsetLabel
+        <twig:Sw:Form:Field:FieldsetLabel
             :label="label"
             :required="required"
         />

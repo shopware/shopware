@@ -14,10 +14,10 @@
         },
         "id": {
             "control": "text",
-            "description": "Id the description element is derived from.",
+            "description": "Id the description element is derived from. Generated with a random suffix when omitted, so the same field can render twice on one page.",
             "table": {
                 "defaultValue": {
-                    "summary": "name"
+                    "summary": "name + random suffix"
                 }
             }
         },

@@ -23,10 +23,10 @@
         },
         "id": {
             "control": "text",
-            "description": "Id of the radio.",
+            "description": "Id of the radio. Generated with a random suffix when omitted, so the same field can render twice on one page.",
             "table": {
                 "defaultValue": {
-                    "summary": "name-value"
+                    "summary": "name-value + random suffix"
                 }
             }
         },
@@ -62,10 +62,6 @@
         "isInvalid": {
             "control": "boolean",
             "description": "Marks the control invalid. Sw:Form:RadioGroup passes its own state down."
-        },
-        "additionalInputClass": {
-            "control": "text",
-            "description": "Additional classes on the radio. `class` on the component tag dresses the wrapper instead."
         }
     },
     "stories": [

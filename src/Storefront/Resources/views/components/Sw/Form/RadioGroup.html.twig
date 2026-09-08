@@ -4,7 +4,7 @@
 
 {% props
     name,
-    id = name,
+    id = "#{name}-#{random()}",
     label = null,
     options = [],
     value = null,
@@ -36,7 +36,7 @@
 
 <fieldset {{ attributes.defaults(attributeDefaults) }}>
     {% block label %}
-        <twig:Sw:Form:FieldsetLabel
+        <twig:Sw:Form:Field:FieldsetLabel
             :label="label"
             :required="required"
             class="sw-form-radio-group__legend fs-5 fw-bold"
@@ -44,7 +44,7 @@
     {% endblock %}
 
     {% block description %}
-        <twig:Sw:Form:Description
+        <twig:Sw:Form:Field:Description
             :id="descriptionId"
             :description="description"
         />
@@ -67,7 +67,7 @@
     {% endblock %}
 
     {% block feedback %}
-        <twig:Sw:Form:Feedback
+        <twig:Sw:Form:Field:Feedback
             :id="feedbackId"
             :violationPath="violationPath"
             :formViolations="formViolations"

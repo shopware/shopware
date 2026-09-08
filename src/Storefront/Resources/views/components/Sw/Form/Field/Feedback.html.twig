@@ -19,7 +19,7 @@
 } %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
-    {% block violations %}
+    {% block content %}
         {% if hasViolations and violationPath is not empty %}
             {% for violation in formViolations.getViolations(violationPath) %}
                 {% set snippetName = violation.messageTemplate starts with 'VIOLATION::'
@@ -37,5 +37,5 @@
         {% endif %}
     {% endblock %}
 
-    {% block content %}{% endblock %}
+    {% block additional_feedback %}{% endblock %}
 </div>

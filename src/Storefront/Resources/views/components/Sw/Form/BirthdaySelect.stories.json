@@ -22,7 +22,7 @@
         },
         "idPrefix": {
             "control": "text",
-            "description": "Prefix of the three select ids, needed when the component is used more than once per page."
+            "description": "Prefix for the three select ids. Uniqueness is already handled by a random suffix, so this only makes the ids predictable and readable, e.g. \"billing-birthdayDay-1234\"."
         },
         "day": {
             "control": "number",

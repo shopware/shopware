@@ -4,7 +4,7 @@
 
 {% props
     name,
-    id = name,
+    id = "#{name}-#{random()}",
     label = null,
     value = null,
     options = [],
@@ -16,7 +16,6 @@
     required = validationRules is not empty and 'required' in validationRules,
     formViolations = formViolations|default(null),
     isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
-    additionalInputClass = null,
 %}
 
 {% set feedbackId = "#{id}-feedback" %}
@@ -27,7 +26,7 @@
     ? (validationRules is empty ? 'required' : "required,#{validationRules}")
     : validationRules %}
 
-{% set controlAttributes = attributes.without('class', 'style') %}
+{% set controlAttributes = attributes.without('class', 'style').defaults(attributes.nested('control')) %}
 
 {% if label is not empty %}
     {% set controlAttributes = controlAttributes.without('aria-label') %}
@@ -53,7 +52,7 @@
 } %}
 
 {% set selectAttributeDefaults = {
-    class: selectCVA.apply({ isInvalid }, additionalInputClass),
+    class: selectCVA.apply({ isInvalid }),
     id: id,
     name: name,
     'aria-describedby': describedBy,
@@ -64,7 +63,7 @@
 
 <div {{ attributes.only('class', 'style').defaults(attributeDefaults) }}>
     {% block label %}
-        <twig:Sw:Form:Label
+        <twig:Sw:Form:Field:Label
             :fieldId="id"
             :label="label"
             :required="required"
@@ -88,14 +87,14 @@
     {% endblock %}
 
     {% block description %}
-        <twig:Sw:Form:Description
+        <twig:Sw:Form:Field:Description
             :id="descriptionId"
             :description="description"
         />
     {% endblock %}
 
     {% block feedback %}
-        <twig:Sw:Form:Feedback
+        <twig:Sw:Form:Field:Feedback
             :id="feedbackId"
             :violationPath="violationPath"
             :formViolations="formViolations"

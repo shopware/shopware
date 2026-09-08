@@ -14,10 +14,10 @@
         },
         "id": {
             "control": "text",
-            "description": "Id of the input. The label, description and feedback element are derived from it.",
+            "description": "Id of the input. Generated with a random suffix when omitted, so the same field can render twice on one page.",
             "table": {
                 "defaultValue": {
-                    "summary": "name"
+                    "summary": "name + random suffix"
                 }
             }
         },
@@ -118,10 +118,6 @@
                     "summary": "violationPath has violations"
                 }
             }
-        },
-        "additionalInputClass": {
-            "control": "text",
-            "description": "Additional classes on the input. `class` on the component tag dresses the wrapper instead."
         }
     },
     "stories": [

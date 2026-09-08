@@ -153,18 +153,18 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
             const output = token.token!.output ?? [];
             const innerTemplate = reconstructInnerTemplate(output);
 
-            const existing = getBlockEntries(blockName);
+            const existing = blockIndex.get(blockName) ?? [];
             existing.push({ componentName, innerTemplate });
             blockIndex.set(blockName, existing);
         });
 }
 
-export function getBlockEntries(blockName: string): BlockEntry[] {
-    return blockIndex.get(blockName) ?? [];
+export function getBlockEntries(componentName: string, blockName: string): BlockEntry[] {
+    return (blockIndex.get(blockName) ?? []).filter((entry) => entry.componentName === componentName);
 }
 
-export function hasBlockEntries(blockName: string): boolean {
-    return blockIndex.has(blockName);
+export function hasBlockEntries(componentName: string, blockName: string): boolean {
+    return getBlockEntries(componentName, blockName).length > 0;
 }
 ```
 

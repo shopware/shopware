@@ -9,9 +9,10 @@ import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 
 function createService(): { service: ContentSystemLayoutPresetApiService; clientMock: MockAdapter } {
-    const client = createHTTPClient();
+    const context = Shopware.Context?.api || {};
+    const client = createHTTPClient(context);
     const clientMock = new MockAdapter(client);
-    const loginService = createLoginService(client, Shopware.Context.api);
+    const loginService = createLoginService(client, context);
     const service = new ContentSystemLayoutPresetApiService(client, loginService);
 
     return { service, clientMock };

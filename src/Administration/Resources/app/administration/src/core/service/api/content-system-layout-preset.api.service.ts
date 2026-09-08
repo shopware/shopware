@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { ContentElementNode } from '../content-element.types';
 import type { LoginService } from '../login.service';
 import ApiService from '../api.service';
@@ -26,7 +26,7 @@ export interface ContentSystemLayoutPresetResponse {
 }
 
 class ContentSystemLayoutPresetApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'content-system-layout-presets') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system-layout-presets') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'contentSystemLayoutPresetService';
     }

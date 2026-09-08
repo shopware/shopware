@@ -1463,99 +1463,95 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 />
 ```
 
-## Axios v1 is now the default HTTP client
+## Axios 1.x is the only HTTP client of the Administration
 
-Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2.
-This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
+The Administration used to ship two HTTP transports side by side: axios 0.30.2 and axios 1.x. Axios 1.x is now the only transport. Axios 0.x, the per-request version switch, and the compatibility layer that kept both transports in sync were removed. This also resolves CVE-2023-45857 and eleven further advisories that only affect the axios 0.x line.
 
-### What changed
+The removal was announced with Shopware 6.7.15.0.
 
-**Shopware 6.7.x:**
-- Default: axios 0.30.2
-- Opt-in to v1: `useAxiosV1: true`
-- Repository requests use axios 1.x internally so the standard data-access path is migrated before the global switch. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
+### What was removed
 
-**Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
-- Direct HTTP request default: axios 1.x
-- Direct HTTP request opt-out to v0: `useAxiosV1: false`
+| Removed | Replacement |
+| --- | --- |
+| The `useAxiosV1` flag in a request configuration | Nothing. Every request uses axios 1.x. Delete the flag. |
+| `httpClient.axiosV0`, `httpClient.axiosV1` | `httpClient` itself. The concrete axios instance is not part of the public contract. |
+| `httpClient.interceptorsV0`, `httpClient.interceptorsV1` | `httpClient.interceptors` |
+| `httpClient.defaultsV0`, `httpClient.defaultsV1` | `httpClient.defaults` |
+| The `axios-v1` package alias | `axios`, which now resolves to 1.x |
+| `src/core/factory/http-client-adapter` with `HttpClientAdapter`, `createAxiosV0Adapter` and `createAxiosV1Adapter` | Nothing. Call the HTTP client directly. |
 
-### Key differences between axios 0.30.2 and axios 1.x
+### Remove the version switch from requests
 
-**Request Cancellation:**
+The flag no longer exists in either direction.
+
+Before:
+
 ```javascript
-// Axios 0.30.2 (deprecated CancelToken)
-const { CancelToken } = Axios;
-const source = CancelToken.source();
+httpClient.get('/api/endpoint', { useAxiosV1: true });
+httpClient.request({ method: 'get', url: '/api/endpoint', useAxiosV1: false });
+```
 
-httpClient.get('/api/endpoint', {
-    cancelToken: source.token,
-});
+After:
+
+```javascript
+httpClient.get('/api/endpoint');
+httpClient.request({ method: 'get', url: '/api/endpoint' });
+```
+
+An unknown property in a request configuration is ignored, so a leftover `useAxiosV1` does not throw. It silently stops selecting a transport, which is why code that relied on `useAxiosV1: false` must be migrated rather than left in place.
+
+### Migrate code that relied on axios 0.x behaviour
+
+Request cancellation is the most common case. Axios 0.x used `CancelToken`, axios 1.x uses `AbortController`:
+
+```javascript
+// Before
+const source = httpClient.CancelToken.source();
+httpClient.get('/api/endpoint', { cancelToken: source.token, useAxiosV1: false });
 source.cancel('Operation cancelled');
 
-// Axios 1.x (modern AbortController)
+// After
 const controller = new AbortController();
-
-httpClient.get('/api/endpoint', {
-    signal: controller.signal,
-    useAxiosV1: true,
-});
+httpClient.get('/api/endpoint', { signal: controller.signal });
 controller.abort();
 ```
 
-**Error Detection:**
-```javascript
-// Works for both versions
-if (httpClient.isCancel(error)) {
-    // Handle cancellation
-}
+`httpClient.isCancel(error)` keeps working and is the recommended way to detect a cancelled request. Axios 1.x additionally reports `error.name === 'CanceledError'` and `error.code === 'ERR_CANCELED'`.
 
-// Axios 1.x specific
-if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
-    // Handle cancellation
-}
+`httpClient.CancelToken` and the `cancelToken` request option still exist, because axios 1.x still supports them. Both are deprecated by axios itself; use `AbortController` in new code.
+
+### Import `axios` instead of `axios-v1`
+
+Axios 1.x is installed under its own name again:
+
+```javascript
+// Before
+import type { AxiosResponse } from 'axios-v1';
+
+// After
+import type { AxiosResponse } from 'axios';
 ```
 
-**Interceptors and Defaults:**
+New Administration code should not import axios types at all. Use Shopware's own contract instead:
 
-The Administration HTTP client is a Shopware-owned compatibility facade. Interceptors and defaults registered through its existing public API are mirrored to both internal axios clients:
+```typescript
+import type { HttpClient, HttpRequestConfig, HttpResponse } from 'src/core/factory/http-client.types';
+```
+
+### Interceptors and defaults
+
+Registering interceptors and defaults is unchanged:
 
 ```javascript
 const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
 httpClient.defaults.headers.common['my-header'] = 'value';
 
-// Removes the interceptor from both internal clients
 httpClient.interceptors.request.eject(interceptorId);
 ```
 
-Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
+With a single transport there is nothing left to mirror, so a handler is registered exactly once. Code that registered a handler on `interceptorsV0` or `interceptorsV1` to avoid the previous mirroring must move to `httpClient.interceptors`.
 
-### Migration guide
-
-Most code will work without changes.
-However, if you use request cancellation or depend on specific axios behavior:
-
-1. **Update cancellation logic** to use `AbortController` instead of `CancelToken`
-2. **Test your plugin** with axios v1 before the 6.8 release
-3. **Review error handling** for version-specific error codes
-
-**If a direct HTTP request needs axios 0.30.2 temporarily:**
-```javascript
-// Explicitly opt-out to use axios 0.30.2
-httpClient.request({
-    method: 'get',
-    url: '/api/endpoint',
-    useAxiosV1: false, // Force axios 0.30.2
-});
-```
-
-### Future removal
-
-Axios 0.30.2 support will be completely removed in a future major release.
-The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
-Plan to migrate all code to axios v1 as soon as possible.
-
-For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
-The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
+The architectural rationale for the facade is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
 
 ## Removal of "sw-empty-state"
 

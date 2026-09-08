@@ -2,6 +2,8 @@
  * @sw-package framework
  *
  * @module core/factory/http
+ *
+ * @deprecated tag:v6.8.0 - The version dispatcher will be removed. Axios 1.x becomes the only transport.
  */
 import Axios from 'axios';
 import AxiosV1 from 'axios-v1';
@@ -46,7 +48,7 @@ function createClient() {
         timeout: 30000, // 30 second timeout
     };
 
-    // Create both axios v0 and v1 instances
+    // @deprecated tag:v6.8.0 - Only the axios 1.x instance will remain.
     const axiosV0 = Axios.create(baseConfig);
     const axiosV1 = AxiosV1.create(baseConfig);
 
@@ -86,6 +88,8 @@ function createClient() {
     /**
      * Dispatcher function that routes requests to the appropriate axios version
      * based on the useAxiosV1 flag in the request config
+     *
+     * @deprecated tag:v6.8.0 - Version routing will be removed. Every request will be handled by axios 1.x.
      *
      * @param {Object|string} configOrUrl - Axios request config or URL
      * @param {Object} config - Axios request config when a URL is passed
@@ -136,8 +140,13 @@ function createClient() {
     };
     dispatcher.defaults = createMirroredDefaults(axiosV0.defaults, axiosV1.defaults, isV68);
 
-    // Keep the former runtime escape hatches for extensions that already use them.
-    // They intentionally stay out of the TypeScript contract so new code uses the version-agnostic facade.
+    /**
+     * Runtime escape hatches to the concrete axios instances. They intentionally stay out of the
+     * TypeScript contract so new code uses the version-agnostic facade.
+     *
+     * @deprecated tag:v6.8.0 - All six properties will be removed. Register interceptors through
+     * `httpClient.interceptors` and defaults through `httpClient.defaults` instead.
+     */
     dispatcher.axiosV0 = axiosV0;
     dispatcher.axiosV1 = axiosV1;
     dispatcher.interceptorsV0 = axiosV0.interceptors;
@@ -161,6 +170,10 @@ function createFormConfig(method, url, data, config) {
     };
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed. With a single transport the facade exposes the axios
+ * interceptor managers directly, so nothing has to be mirrored.
+ */
 function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Interceptors) {
     // Keep the public facade separate from Axios' internal interceptor stacks. The
     // initial handlers contain version-specific closures (notably the cache
@@ -242,10 +255,16 @@ function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Intercepto
     };
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed together with the second transport.
+ */
 function cloneInterceptorHandler(handler) {
     return handler === null || handler === undefined ? handler : { ...handler };
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed together with the second transport.
+ */
 function createMirroredDefaults(axiosV0Defaults, axiosV1Defaults, isV68) {
     const primaryDefaults = isV68 ? axiosV1Defaults : axiosV0Defaults;
     const secondaryDefaults = isV68 ? axiosV0Defaults : axiosV1Defaults;
@@ -257,6 +276,9 @@ function createMirroredDefaults(axiosV0Defaults, axiosV1Defaults, isV68) {
     return createMirroredObject(primaryDefaults, secondaryDefaults, originalAdapters);
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed together with the second transport.
+ */
 function createMirroredObject(primary, secondary, originalAdapters = null) {
     return new Proxy(primary, {
         get(target, property) {
@@ -293,6 +315,8 @@ function isObject(value) {
 /**
  * Sets up an interceptor to handle automatic cache of same requests in short time amount
  * for Axios v0.x
+ *
+ * @deprecated tag:v6.8.0 - Will be removed with axios 0.x. Use `requestCacheAdapterInterceptorV1`.
  *
  * @param {AxiosInstance} client
  * @returns {AxiosInstance}

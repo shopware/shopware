@@ -6,6 +6,10 @@ import { fileReader } from 'src/core/service/util.service';
 import { UploadEvents } from './media.api.service';
 import ApiService from '../api.service';
 
+/**
+ * Standalone client for the direct-to-S3 PUT. It bypasses the Administration HTTP client so no API
+ * interceptor, base URL or auth header is applied to a presigned upload.
+ */
 const s3Client = Axios.create();
 
 /**

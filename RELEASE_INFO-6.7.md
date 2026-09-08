@@ -433,6 +433,27 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
+### Axios 0.x support in the Administration is deprecated
+
+The Administration currently ships two HTTP transports: axios 0.x and axios 1.x. Axios 0.x, and the compatibility layer that lets both run side by side, are deprecated and will be removed with Shopware 6.8. Axios 1.x then becomes the only transport.
+
+Deprecated for removal in 6.8:
+
+- The `useAxiosV1` request-configuration flag on `httpClient` requests.
+- The `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` properties on the HTTP client. Use `httpClient.interceptors` and `httpClient.defaults`, which already apply to the active transport.
+- The `axios-v1` package alias. Axios 1.x will be installed as `axios`, so `import ... from 'axios-v1'` becomes `import ... from 'axios'`.
+- The `src/core/factory/http-client-adapter` module with `HttpClientAdapter`, `createAxiosV0Adapter` and `createAxiosV1Adapter`.
+
+What to do now:
+
+- Remove every `useAxiosV1: true` from your request configurations. With the `V6_8_0_0` feature flag active, axios 1.x is already the default, so the flag has no effect.
+- Replace every `useAxiosV1: false` with axios 1.x compatible code. The most common change is switching request cancellation from `CancelToken` to `AbortController`, and reading `error.code === 'ERR_CANCELED'` or `httpClient.isCancel(error)` instead of axios 0.x error shapes.
+- Import `axios` instead of `axios-v1` once the alias is gone. Until then, keep importing `axios-v1` if you need the 1.x types directly; new code should use `HttpClient`, `HttpRequestConfig` and `HttpResponse` from `src/core/factory/http-client.types` instead.
+
+Verify your extension with `FEATURE_ALL=major` so requests run through axios 1.x. The full migration path is described in the [Axios migration guide](src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md).
+
+Removing axios 0.x also removes twelve suppressed npm audit advisories that only affect the 0.x line, among them CVE-2023-45857.
+
 ## Storefront
 
 ### Passive privacy notices without a checkbox

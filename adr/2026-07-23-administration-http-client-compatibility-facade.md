@@ -19,6 +19,18 @@ During the transition, direct HTTP requests can select the legacy or new transpo
 
 Repository requests always use Axios v1 internally. Repository options cannot select the transport. Any repository incompatibility is fixed centrally in Shopware rather than worked around by each extension.
 
+## Version 6.8 Major Checklist
+
+The transitional half of this decision ends with Shopware 6.8. The facade stays, the second transport does not.
+
+- Remove the axios 0.x dependency and rename the `axios-v1` alias back to `axios`.
+- Remove the `useAxiosV1` request flag and the version dispatcher in `src/core/factory/http.factory.js`.
+- Remove the mirrored interceptor manager and mirrored defaults; a single transport needs no mirroring.
+- Remove `src/core/factory/http-client-adapter.ts` and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` escape hatches.
+- Drop the axios 0.x advisory suppressions from `scripts/runNpmAudit.ts`.
+
+Structural `AxiosInstance` compatibility stops being a goal at that point. `HttpClient`, `HttpRequestConfig` and `HttpResponse` are the contract.
+
 ## Consequences
 
 Extensions can adopt Axios v1 incrementally: repository calls migrate without source changes, while transport-sensitive direct requests retain a temporary fallback. Existing interceptor setup and common test infrastructure continue to work across both transports.

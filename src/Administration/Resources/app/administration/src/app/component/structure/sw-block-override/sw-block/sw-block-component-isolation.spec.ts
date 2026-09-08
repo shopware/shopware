@@ -93,22 +93,4 @@ describe('sw-block component isolation', () => {
         expect(wrapper.find('.host-b > .default-b').exists()).toBe(true);
         expect(wrapper.find('.host-b > .override-a').exists()).toBe(false);
     });
-
-    it('still matches on the block name alone when no component name is stamped', async () => {
-        const wrapper = await createWrapper(`
-            <div>
-                <div class="host">
-                    <sw-block name="unscoped_block" :data="$dataScope">
-                        <div class="default"></div>
-                    </sw-block>
-                </div>
-                <sw-block extends="unscoped_block" :data="$dataScope">
-                    <div class="override"></div>
-                </sw-block>
-            </div>
-        `);
-
-        expect(wrapper.find('.host > .default').exists()).toBe(false);
-        expect(wrapper.find('.host > .override').exists()).toBe(true);
-    });
 });

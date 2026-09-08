@@ -25,6 +25,12 @@ They stay available in Flow Builder, so `{{ contextToken }}`, `{{ confirmUrl }}`
 
 A flow event value is kept out of webhook payloads by passing `[EventDataCollection::HIDDEN_FROM_WEBHOOK => true]` as the options argument of `EventDataCollection::add()`.
 
+## Core
+
+### `EventDataCollection` will become final
+
+`\Shopware\Core\Framework\Event\EventData\EventDataCollection` will be declared `final` in Shopware 6.8.
+
 ## API
 
 ### User and integration cloning is no longer available
@@ -150,10 +156,6 @@ Assigning a new `languageId` to a sales channel and removing the previous defaul
 Removing the language that the same write assigns as the new default is now rejected with that error code instead of being applied. Such a write previously succeeded and left the sales channel with a default language that was missing from its language list.
 
 ## Core
-
-### `EventDataCollection` will become final
-
-`\Shopware\Core\Framework\Event\EventData\EventDataCollection` will be declared `final` in Shopware 6.8.
 
 ### Document V1/V2 file compatibility
 

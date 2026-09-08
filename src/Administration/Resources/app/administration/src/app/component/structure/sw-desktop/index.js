@@ -1,4 +1,5 @@
 import template from './sw-desktop.html.twig';
+import useTheme, { THEMES, THEME_LABELS } from 'src/app/composables/use-theme';
 import './sw-desktop.scss';
 
 const { hasOwnProperty } = Shopware.Utils.object;
@@ -14,7 +15,12 @@ export default {
     inject: [
         'shopIdChangeService',
         'userActivityApiService',
+        'snackbarService',
     ],
+
+    shortcuts: {
+        CT: 'onCycleTheme',
+    },
 
     data() {
         return {
@@ -98,6 +104,30 @@ export default {
 
         closeModal() {
             this.shopIdCheck = null;
+        },
+
+        async onCycleTheme() {
+            const currentTheme = useTheme().theme.value;
+            const nextTheme = THEMES[(THEMES.indexOf(currentTheme) + 1) % THEMES.length];
+
+            try {
+                await useTheme().saveUserTheme(nextTheme);
+            } catch {
+                useTheme().setTheme(currentTheme);
+                this.snackbarService.addSnackbar({
+                    message: this.$t('global.sw-desktop.theme.saveError'),
+                    variant: 'error',
+                });
+
+                return;
+            }
+
+            this.snackbarService.addSnackbar({
+                message: this.$t('global.sw-desktop.theme.changed', {
+                    theme: this.$t(THEME_LABELS[nextTheme]),
+                }),
+                variant: 'success',
+            });
         },
 
         onUpdateSearchFrequently() {

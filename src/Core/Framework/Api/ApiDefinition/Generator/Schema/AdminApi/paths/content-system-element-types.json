@@ -231,6 +231,11 @@
                                                                 "default": {
                                                                     "type": ["string", "integer", "number", "boolean"],
                                                                     "description": "The default stored value. Present only on a `property` entry whose property declares a default, and never on a `resolvedByStorage` or `config` entry, because a config key's default is a reference token (a property name) rather than a stored value."
+                                                                },
+                                                                "translatable": {
+                                                                    "type": "boolean",
+                                                                    "enum": [true],
+                                                                    "description": "Present, and always `true`, only on a `property` entry whose declared property is translatable; omitted otherwise, the way `default` is omitted where none is declared. The stored value under such a key is a language map — language id in lowercase UUID hex to string, anchored on the system language `2fbb5fe2e29a4d70aa5854ce7ce3e20b` — rather than a bare value of `type`. `default` beside it stays the declared scalar; storage seeds that scalar under the anchor key."
                                                                 }
                                                             }
                                                         }

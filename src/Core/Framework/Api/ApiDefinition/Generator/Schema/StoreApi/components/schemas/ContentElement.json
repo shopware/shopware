@@ -18,7 +18,7 @@
                         "description": "Element component type (e.g. Sw:Grid:Container, Sw:Content:Text, Sw:Product:Card)."
                     },
                     "properties": {
-                        "description": "Element properties keyed by property name, always present. The map draws no distinction between a statically authored value, a value a data loader produced and a value delivered by context. An empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).",
+                        "description": "Element properties keyed by property name, always present. The map draws no distinction between a statically authored value, a value a data loader produced and a value delivered by context. An empty map is serialized as `[]` (consistent with Shopware's JSON-map fields).\n\nA translatable property is served as the plain string selected for the request language, never as a language map: storage keys one string per language, and preparation collapses that map to the value of the first entry along the request's language chain, verbatim. The map shape reaches the Admin API only. A translatable property whose map carries no entry for any language in the chain is absent from this map, exactly like a property that was never authored.",
                         "oneOf": [
                             {
                                 "type": "array",

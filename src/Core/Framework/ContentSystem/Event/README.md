@@ -7,14 +7,15 @@ the same way: `replaceTree()`. Neither exposes `RenderingMode`.
 
 ## Key Classes
 
-- `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step
-- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the duplicate-element-id check that judges what it hands back; allows layout finalization
+- `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step, so a translatable property still carries its whole language map here
+- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the duplicate-element-id check that judges what it hands back; allows layout finalization. In FULL mode language reduction has already run, so the forest carries plain strings; in SKELETON the mint carries no property value at all. A listener returns a map-free tree either way
 
 ## Lifecycle
 
 ```
 ContentTreePreparationEvent
-  → StoredTreePreparer: placeholder resolution (FULL mode only)
+  → StoredTreePreparer: language reduction, then placeholder resolution
+      (both FULL mode only)
       → virtual-root wrap → partial prune
   → duplicate-element-id check + wiring validation (on the pre-prune forest)
   → redistribute derivation (on the pruned tree)

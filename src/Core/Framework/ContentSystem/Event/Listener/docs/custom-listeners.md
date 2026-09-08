@@ -6,10 +6,12 @@ Listeners modify elements before or after rendering: computing derived values, t
 
 | Event                         | When                                               | Purpose                                  |
 |-------------------------------|----------------------------------------------------|------------------------------------------|
-| `ContentTreePreparationEvent` | Before every pipeline step and before data loading | Modify layout tree, resolve placeholders |
-| `RenderedTreeFinalizationEvent` | After data loading and every step that shapes the tree | Enrich data, transform property values |
+| `ContentTreePreparationEvent` | Before every pipeline step, so before data loading | Modify layout tree, resolve placeholders |
+| `RenderedTreeFinalizationEvent` | After data loading and every tree-shaping step | Enrich data, transform property values |
 
-`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before placeholder resolution, the virtual-root wrap, the partial prune, the duplicate-element-id check, the wiring validation, the redistribute derivation and the render step. A `RenderedTreeFinalizationEvent` listener sees the finished rendered tree, after the virtual-root unwrap and the partial extract, and before the pipeline's second duplicate-element-id check, which judges the tree the listener handed back.
+`ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before every step in [Execution Order](../README.md#execution-order). A `RenderedTreeFinalizationEvent` listener sees the finished rendered tree, after the virtual-root unwrap and the partial extract, and before the pipeline's second duplicate-element-id check, which judges the tree the listener handed back.
+
+That places the two events on opposite sides of language reduction, the preparer's first pass. A `translatable: true` property is stored as a language map, language id to string. A preparation listener reads and writes that whole map and must keep it a map — a non-map value there reaches reduction as `CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID` (500). A finalization listener reads the selected string, or in SKELETON no property value at all, and returns a map-free tree either way; a map reintroduced there is its own defect, unscanned for.
 
 The two carry the tree in the model of their own position, and each exposes one way to put a changed tree back:
 
@@ -37,11 +39,11 @@ The tree a listener hands back through `replaceTree()` is what the response carr
 | Add an element with a new id | Supported |
 | Duplicate an existing element id | Fails the render, `CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID` (500) |
 
-Element ids are a rendered-model contract, not bookkeeping: partial extraction addresses by id, the storefront emits `data-element-id`, and the decomposed format's `assignments` are keyed by it. The pipeline rejects a repeated id twice — once over the pre-prune stored forest before the render step, and once over the forest this event hands back — so a stored forest carrying one (a raw-SQL or migration write, or a preparation listener) fails just as a listener's duplicate does. Structural validity is otherwise the listener's responsibility; nothing repairs a tree a listener hands back.
+Element ids are a rendered-model contract, not bookkeeping: partial extraction addresses by id, the storefront emits `data-element-id`, and the decomposed format's `assignments` are keyed by it. The pipeline rejects a repeated id twice — once over the pre-prune stored forest, once over the forest this event hands back — so a stored forest carrying one fails just as a listener's duplicate does. Structural validity is otherwise the listener's responsibility; nothing repairs a tree a listener hands back.
 
-`RenderedTreeEditor::mapNodes()` is the whole-tree edit idiom: it visits every existing node exactly once and replaces it with exactly one node, so the idiom itself neither mints nor drops nodes. That guarantee is about cardinality only. The mapper's signature is `callable(RenderedElement): RenderedElement` and whatever it returns is what lands in the tree, so nothing stops it returning an element whose id already exists elsewhere in the forest, or one carrying extra slot children. Using the idiom therefore does not discharge the id obligation — that stays with the listener, as above.
+`RenderedTreeEditor::mapNodes()` is the whole-tree edit idiom: it visits every existing node exactly once and replaces it with exactly one node, so it neither mints nor drops nodes. That guarantee is about cardinality only. The mapper's signature is `callable(RenderedElement): RenderedElement` and whatever it returns lands in the tree, so nothing stops it returning an element whose id already exists elsewhere in the forest, or one carrying extra slot children. Using the idiom does not discharge the id obligation — that stays with the listener, as above.
 
-Placeholder resolution runs in FULL mode only, and it runs before this event, so a listener that introduces a `{{token}}` resolves it itself either way rather than expecting the pipeline to.
+Placeholder resolution runs in FULL mode only and before this event, so a listener introducing a `{{token}}` resolves it itself rather than expecting the pipeline to.
 
 ## Working with RenderedElement
 

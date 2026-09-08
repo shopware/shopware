@@ -36,6 +36,7 @@ Response:
       ],
       "storageSchema": {
         "<propertyName>": { "kind": "property", "type": "string", "required": true },
+        "<translatablePropertyName>": { "kind": "property", "type": "string", "required": false, "translatable": true },
         "<referenceStorageKey>": { "kind": "resolvedByStorage", "type": "string", "required": true }
       }
     }
@@ -49,7 +50,7 @@ Response:
 
 `properties` publishes the *hydrated* output schema: what a rendered element of this type carries. `storageSchema` publishes the other half, what an element of this type **stores**, keyed by stored key. A client reads it instead of deriving storage keys from binding-specification internals itself. Derived per type by `Layout/Type/StoredSchemaResolver`; encodes as `{}` for a type that stores nothing.
 
-Each entry is `{ kind, type, required }` plus an optional `default`, and `kind` says where the key comes from:
+Each entry is `{ kind, type, required }` plus an optional `default` and an optional `translatable`, and `kind` says where the key comes from:
 
 | `kind` | The stored key is | `type` is |
 | --- | --- | --- |
@@ -60,6 +61,8 @@ Each entry is `{ kind, type, required }` plus an optional `default`, and `kind` 
 A declared FQCN property gets no entry at all: nothing is stored under the reference key itself, only under its `resolvedBy` storage key.
 
 On the two binding-derived kinds, `type` is the loader config key's *referenced-value* type, not the type of the reference token — the token is always a string naming a property, while the value stored under it may be a list of ids. Neither carries a `default`: a config key's default is a default *token* (a property name), never a default stored value. Only a `property` entry has a `default`, and only when the declared property has one.
+
+`translatable` follows the same shape: present, and always `true`, only on a `property` entry whose declared property is translatable, and omitted rather than published as `false` everywhere else. It is what tells a client the stored value under that key is a language map — language id in lowercase UUID hex to string, anchored on the system language `2fbb5fe2e29a4d70aa5854ce7ce3e20b` — rather than a bare value of `type`. `type` stays `string`, because that is the type of each entry, and `default` beside it stays the declared scalar; storage seeds that scalar under the anchor key. The same flag appears per property in the hydrated `properties` schema above, where it is published for every property as a plain boolean.
 
 One key claimed by more than one kind yields exactly one entry, by precedence `property` > `resolvedByStorage` > `config`: a declared property is the most specific statement about a stored key, and between the two binding-derived kinds the `resolvedBy` shorthand's own storage key is the more specific.
 

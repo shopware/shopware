@@ -46,13 +46,14 @@
                             "mismatched_property_type",
                             "unknown_style_option",
                             "orphaned_provider",
+                            "dangling_language",
                             "unresolved_required",
                             "ambiguous_required",
                             "broken_required_chain",
                             "unresolved_optional",
                             "unfilled_required_input"
                         ],
-                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `mismatched_reference_type`, `mismatched_property_type`, `unknown_style_option`, `orphaned_provider`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`, `unfilled_required_input`) describe resolvability against a bound source. `mismatched_reference_type` flags a stored reference wiring whose resolved produced type is not assignable to the property's declared FQCN. `mismatched_property_type` flags a stored property value that disagrees with the primitive type its element type declares for that key; `key` carries the property name. `unknown_style_option` flags an element `style` entry naming an option the style option registry does not know; `key` carries the option name. `unfilled_required_input` flags a required reference whose stored wiring references an element property that holds no value."
+                        "description": "The defect code. Intrinsic-scope codes (`unregistered_component`, `duplicate_element_id`, `invalid_config`, `mismatched_reference_type`, `mismatched_property_type`, `unknown_style_option`, `orphaned_provider`, `dangling_language`) describe the layout in isolation; binding-scope codes (`unresolved_required`, `ambiguous_required`, `broken_required_chain`, `unresolved_optional`, `unfilled_required_input`) describe resolvability against a bound source. `mismatched_reference_type` flags a stored reference wiring whose resolved produced type is not assignable to the property's declared FQCN. `mismatched_property_type` flags a stored property value the type its element type declares for that key does not admit — for a translatable property, anything other than a non-empty language map of strings, a bare string and a present `null` included; `key` carries the property name. `unknown_style_option` flags an element `style` entry naming an option the style option registry does not know; `key` carries the option name. `dangling_language` flags a language-map entry on a translatable property whose key is not an existing language id; `key` carries the property name and the message names the language id. It is a warning: reduction never selects a key outside the request's language chain, so the layout serves correctly with the entry sitting unread. `unfilled_required_input` flags a required reference whose stored wiring references an element property that holds no value."
                     },
                     "scope": {
                         "type": "string",

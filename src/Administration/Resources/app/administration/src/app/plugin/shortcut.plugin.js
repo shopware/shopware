@@ -145,7 +145,7 @@ export default {
                 return;
             }
 
-            if (!matchedShortcut.active()) {
+            if (!matchedShortcut.active(event)) {
                 return;
             }
 

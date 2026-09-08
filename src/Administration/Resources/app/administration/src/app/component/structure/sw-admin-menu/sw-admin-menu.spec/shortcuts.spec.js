@@ -38,9 +38,18 @@ describe('src/app/component/structure/sw-admin-menu: shortcuts', () => {
         expect(shortcut.method).toBe('onToggleSidebar');
 
         wrapper.vm.viewportWidth = 1920;
-        expect(shortcut.active.call(wrapper.vm)).toBe(true);
+        expect(shortcut.active.call(wrapper.vm, { key: 's' })).toBe(true);
 
         wrapper.vm.viewportWidth = 1280;
-        expect(shortcut.active.call(wrapper.vm)).toBe(false);
+        expect(shortcut.active.call(wrapper.vm, { key: 's' })).toBe(false);
+    });
+
+    it('should not toggle the sidebar with the S shortcut while a modifier key is held', async () => {
+        const shortcut = wrapper.vm.$options.shortcuts.S;
+        wrapper.vm.viewportWidth = 1920;
+
+        expect(shortcut.active.call(wrapper.vm, { key: 's', ctrlKey: true })).toBe(false);
+        expect(shortcut.active.call(wrapper.vm, { key: 's', metaKey: true })).toBe(false);
+        expect(shortcut.active.call(wrapper.vm, { key: 's', altKey: true })).toBe(false);
     });
 });

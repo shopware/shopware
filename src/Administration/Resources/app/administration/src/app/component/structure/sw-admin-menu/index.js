@@ -35,8 +35,8 @@ export default {
 
     shortcuts: {
         S: {
-            active() {
-                return !this.isMobileViewport;
+            active(event) {
+                return !this.isMobileViewport && !(event?.ctrlKey || event?.altKey || event?.metaKey);
             },
             method: 'onToggleSidebar',
         },

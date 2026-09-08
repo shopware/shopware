@@ -821,6 +821,39 @@ describe('app/plugins/shortcut.plugin', () => {
         wrapper.unmount();
     });
 
+    it('should pass the keydown event to the active check of a shortcut', async () => {
+        const activeMock = jest.fn(() => true);
+        const onToggleMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                S: {
+                    active: activeMock,
+                    method: 'onToggle',
+                },
+            },
+            methods: {
+                onToggle() {
+                    onToggleMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 's',
+            metaKey: true,
+        });
+
+        expect(activeMock).toHaveBeenCalledTimes(1);
+        const [event] = activeMock.mock.calls[0];
+        expect(event).toBeInstanceOf(KeyboardEvent);
+        expect(event.key).toBe('s');
+        expect(event.metaKey).toBe(true);
+        expect(onToggleMock).toHaveBeenCalledTimes(1);
+
+        wrapper.unmount();
+    });
+
     it('should not trigger shortcuts from inside a meteor modal', async () => {
         const onToggleMock = jest.fn();
 

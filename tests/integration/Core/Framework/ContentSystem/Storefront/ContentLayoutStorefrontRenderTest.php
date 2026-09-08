@@ -6,14 +6,12 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\ContentSystem\ContentLayoutFixtureBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -35,6 +33,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class ContentLayoutStorefrontRenderTest extends TestCase
 {
+    use ContentLayoutFixtureBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
@@ -134,49 +133,36 @@ class ContentLayoutStorefrontRenderTest extends TestCase
 
     private function persistLayout(): void
     {
-        $context = Context::createDefaultContext();
+        $this->persistContentLayout($this->ids->get('layout'), 'storefront-render', '1.0.0', 'category', [[
+            'id' => $this->ids->get('root-grid'),
+            'component' => 'Sw:Grid:Container',
+            'properties' => [],
+            'slots' => [
+                'content' => [[
+                    'id' => $this->ids->get('image'),
+                    'component' => 'Sw:Media:Image',
+                    'properties' => [
+                        'mediaId' => $this->ids->get('media'),
+                        'height' => self::IMAGE_HEIGHT,
+                        'loading' => self::IMAGE_LOADING,
+                    ],
+                    'dataRequirements' => [
+                        'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                    ],
+                ]],
+            ],
+        ]]);
 
-        $this->repository('content_layout.repository')->create([[
-            'id' => $this->ids->get('layout'),
-            'name' => 'storefront-render',
-            'version' => '1.0.0',
-            'rootSource' => 'category',
-            'layout' => [[
-                'id' => $this->ids->get('root-grid'),
-                'component' => 'Sw:Grid:Container',
-                'properties' => [],
-                'slots' => [
-                    'content' => [[
-                        'id' => $this->ids->get('image'),
-                        'component' => 'Sw:Media:Image',
-                        'properties' => [
-                            'mediaId' => $this->ids->get('media'),
-                            'height' => self::IMAGE_HEIGHT,
-                            'loading' => self::IMAGE_LOADING,
-                        ],
-                        'dataRequirements' => [
-                            'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
-                        ],
-                    ]],
-                ],
-            ]],
-        ]], $context);
-
-        $this->repository('category_content_layout.repository')->create([[
-            'id' => $this->ids->get('assignment'),
-            'categoryId' => $this->ids->get('category'),
-            'salesChannelId' => null,
-            'contentLayoutId' => $this->ids->get('layout'),
-        ]], $context);
+        $this->assignLayoutToCategory(
+            $this->ids->get('assignment'),
+            $this->ids->get('category'),
+            $this->ids->get('layout'),
+        );
     }
 
     private function createCategory(): void
     {
-        $this->repository('category.repository')->create([[
-            'id' => $this->ids->create('category'),
-            'name' => 'Storefront render category',
-            'active' => true,
-        ]], Context::createDefaultContext());
+        $this->createTestCategory($this->ids->create('category'), 'Storefront render category');
     }
 
     private function createMedia(): void
@@ -201,16 +187,5 @@ class ContentLayoutStorefrontRenderTest extends TestCase
         static::assertInstanceOf(MediaEntity::class, $media);
 
         return $media;
-    }
-
-    /**
-     * @return EntityRepository<EntityCollection<Entity>>
-     */
-    private function repository(string $serviceId): EntityRepository
-    {
-        $repository = static::getContainer()->get($serviceId);
-        static::assertInstanceOf(EntityRepository::class, $repository);
-
-        return $repository;
     }
 }

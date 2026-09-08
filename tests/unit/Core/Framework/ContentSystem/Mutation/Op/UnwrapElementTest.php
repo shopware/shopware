@@ -123,7 +123,7 @@ class UnwrapElementTest extends TestCase
         $german = Uuid::randomHex();
         $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
         $child = StoredElementBuilder::create('Sw:Block', 'kid')->withProperty('text', $translations)->build();
-        $container = new StoredElement('container', 'Sw:Container', [], [], ['content' => [$child]]);
+        $container = StoredElementBuilder::create('Sw:Container', 'container')->withSlot('content', [$child])->build();
 
         $result = (new UnwrapElement('container'))->apply(new StoredTree([$container]));
 

@@ -14,14 +14,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Integration\Core\Framework\ContentSystem\ContentLayoutFixtureBehaviour;
 use Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\LayoutDefaultSeederTest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,6 +56,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class ContentRouteResponseSchemaConformanceTest extends TestCase
 {
+    use ContentLayoutFixtureBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -442,22 +441,20 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
      */
     private function persistLayout(string $section, array $tree): void
     {
-        $context = Context::createDefaultContext();
-
         if ($section === self::SECTION_MAIN) {
             $this->createCategory();
         }
 
-        $this->repository('content_layout.repository')->create([[
-            'id' => $this->ids->get('layout'),
-            'name' => self::LAYOUT_NAME,
-            'version' => self::LAYOUT_VERSION,
-            'rootSource' => self::ROOT_SOURCE_BY_SECTION[$section],
-            'layout' => $tree,
-        ]], $context);
+        $this->persistContentLayout(
+            $this->ids->get('layout'),
+            self::LAYOUT_NAME,
+            self::LAYOUT_VERSION,
+            self::ROOT_SOURCE_BY_SECTION[$section],
+            $tree,
+        );
 
         $this->repository(self::ASSIGNMENT_REPOSITORY_BY_SECTION[$section])
-            ->create([$this->assignmentPayload($section)], $context);
+            ->create([$this->assignmentPayload($section)], Context::createDefaultContext());
     }
 
     /**
@@ -488,11 +485,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
 
     private function createCategory(): void
     {
-        $this->repository('category.repository')->create([[
-            'id' => $this->ids->create('category'),
-            'name' => 'Content route schema category',
-            'active' => true,
-        ]], Context::createDefaultContext());
+        $this->createTestCategory($this->ids->create('category'), 'Content route schema category');
     }
 
     private function createMedia(): void
@@ -505,16 +498,5 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
             'path' => self::MEDIA_PATH,
             'private' => false,
         ]], Context::createDefaultContext());
-    }
-
-    /**
-     * @return EntityRepository<EntityCollection<Entity>>
-     */
-    private function repository(string $serviceId): EntityRepository
-    {
-        $repository = static::getContainer()->get($serviceId);
-        static::assertInstanceOf(EntityRepository::class, $repository);
-
-        return $repository;
     }
 }

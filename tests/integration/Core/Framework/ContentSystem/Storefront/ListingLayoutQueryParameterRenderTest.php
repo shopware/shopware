@@ -8,14 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\ContentSystem\ContentLayoutFixtureBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -51,6 +49,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('framework')]
 class ListingLayoutQueryParameterRenderTest extends TestCase
 {
+    use ContentLayoutFixtureBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
@@ -196,31 +195,22 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
 
     private function persistLayout(): void
     {
-        $context = Context::createDefaultContext();
+        $this->persistContentLayout($this->ids->create('layout'), 'listing-layout-parameter', '1.0.0', 'category', [[
+            'id' => $this->ids->create('listing'),
+            'component' => 'Sw:Product:Listing',
+            'properties' => [
+                'navigationId' => $this->ids->get('category'),
+            ],
+            'dataRequirements' => [
+                'listing' => ['source' => 'product_listing', 'config' => ['property' => 'navigationId']],
+            ],
+        ]]);
 
-        $this->repository('content_layout.repository')->create([[
-            'id' => $this->ids->create('layout'),
-            'name' => 'listing-layout-parameter',
-            'version' => '1.0.0',
-            'rootSource' => 'category',
-            'layout' => [[
-                'id' => $this->ids->create('listing'),
-                'component' => 'Sw:Product:Listing',
-                'properties' => [
-                    'navigationId' => $this->ids->get('category'),
-                ],
-                'dataRequirements' => [
-                    'listing' => ['source' => 'product_listing', 'config' => ['property' => 'navigationId']],
-                ],
-            ]],
-        ]], $context);
-
-        $this->repository('category_content_layout.repository')->create([[
-            'id' => $this->ids->create('assignment'),
-            'categoryId' => $this->ids->get('category'),
-            'salesChannelId' => null,
-            'contentLayoutId' => $this->ids->get('layout'),
-        ]], $context);
+        $this->assignLayoutToCategory(
+            $this->ids->create('assignment'),
+            $this->ids->get('category'),
+            $this->ids->get('layout'),
+        );
     }
 
     private function createCategoryWithProducts(): void
@@ -268,16 +258,5 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
         }
 
         return $products;
-    }
-
-    /**
-     * @return EntityRepository<EntityCollection<Entity>>
-     */
-    private function repository(string $serviceId): EntityRepository
-    {
-        $repository = static::getContainer()->get($serviceId);
-        static::assertInstanceOf(EntityRepository::class, $repository);
-
-        return $repository;
     }
 }

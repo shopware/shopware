@@ -26,8 +26,6 @@ use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -38,6 +36,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\ContentSystem\ContentLayoutFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,6 +73,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class ContentRouteRenderingTest extends TestCase
 {
+    use ContentLayoutFixtureBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -1689,31 +1689,24 @@ class ContentRouteRenderingTest extends TestCase
      */
     private function persistLayout(array $tree): void
     {
-        $context = Context::createDefaultContext();
+        $this->persistContentLayout(
+            $this->ids->get('layout'),
+            self::LAYOUT_NAME,
+            self::LAYOUT_VERSION,
+            'category',
+            $tree,
+        );
 
-        $this->layoutRepository()->create([[
-            'id' => $this->ids->get('layout'),
-            'name' => self::LAYOUT_NAME,
-            'version' => self::LAYOUT_VERSION,
-            'rootSource' => 'category',
-            'layout' => $tree,
-        ]], $context);
-
-        $this->repository('category_content_layout.repository')->create([[
-            'id' => $this->ids->get('assignment'),
-            'categoryId' => $this->ids->get('category'),
-            'salesChannelId' => null,
-            'contentLayoutId' => $this->ids->get('layout'),
-        ]], $context);
+        $this->assignLayoutToCategory(
+            $this->ids->get('assignment'),
+            $this->ids->get('category'),
+            $this->ids->get('layout'),
+        );
     }
 
     private function createCategory(): void
     {
-        $this->repository('category.repository')->create([[
-            'id' => $this->ids->create('category'),
-            'name' => 'Content route category',
-            'active' => true,
-        ]], Context::createDefaultContext());
+        $this->createTestCategory($this->ids->create('category'), 'Content route category');
     }
 
     private function createMedia(): void
@@ -1850,17 +1843,6 @@ class ContentRouteRenderingTest extends TestCase
     private function layoutRepository(): EntityRepository
     {
         $repository = static::getContainer()->get('content_layout.repository');
-        static::assertInstanceOf(EntityRepository::class, $repository);
-
-        return $repository;
-    }
-
-    /**
-     * @return EntityRepository<EntityCollection<Entity>>
-     */
-    private function repository(string $serviceId): EntityRepository
-    {
-        $repository = static::getContainer()->get($serviceId);
         static::assertInstanceOf(EntityRepository::class, $repository);
 
         return $repository;

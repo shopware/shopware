@@ -248,11 +248,7 @@ class SnippetService
             ['locales' => ArrayParameterType::STRING]
         );
 
-        if (isset($sets[$locale])) {
-            return $sets[$locale];
-        }
-
-        return array_pop($sets);
+        return $sets[$locale] ?? array_pop($sets);
     }
 
     /**

@@ -8,7 +8,7 @@
  * that stamping.
  */
 import { mount } from '@vue/test-utils';
-import blockOverrideStore from '../../../../store/block-override.store';
+import '../../../../store/block-override.store';
 import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
 
 async function createWrapper(template: string) {
@@ -29,10 +29,6 @@ async function createWrapper(template: string) {
 }
 
 describe('sw-block component qualification', () => {
-    beforeAll(() => {
-        Shopware.Store.register('blockOverride', blockOverrideStore);
-    });
-
     it('does not apply an override from a different component', async () => {
         const wrapper = await createWrapper(`
             <div>

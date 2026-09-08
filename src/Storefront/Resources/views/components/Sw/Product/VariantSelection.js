@@ -7,9 +7,11 @@ export default class VariantSelection extends ShopwareComponent {
 
     init() {
         if (this.el.nodeName.toLowerCase() !== 'form') {
-            throw new Error(
-                'This component can only be applied to a form element!',
+            console.error(
+                new Error('This component can only be applied to a form element!'),
             );
+
+            return;
         }
 
         this.onChange = this.handleChange.bind(this);

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
@@ -144,6 +145,16 @@ class PromotionCollector implements CartDataCollectorInterface
 
             $foundCodes = $discountLineItems->fmap(static fn (LineItem $item) => $item->getReferencedId());
 
+            // maps the id of an already applied promotion to the code that added it, so additional
+            // codes referencing the same promotion can be rejected (a promotion applies once per cart)
+            $appliedPromotionCodes = [];
+            foreach ($discountLineItems as $pinned) {
+                $pinnedPromotionId = $pinned->getPayloadValue('promotionId');
+                if (\is_string($pinnedPromotionId) && $pinnedPromotionId !== '') {
+                    $appliedPromotionCodes[$pinnedPromotionId] = (string) $pinned->getReferencedId();
+                }
+            }
+
             // codes excluded because their redemption limit was reached
             $redeemedCodes = [];
 
@@ -165,7 +176,21 @@ class PromotionCollector implements CartDataCollectorInterface
                     continue;
                 }
 
-                $foundCodes[] = $tuple->getCode();
+                $code = $tuple->getCode();
+                $promotionId = $tuple->getPromotion()->getId();
+
+                // a promotion may only be applied once per cart. if it was already added through
+                // another code (e.g. a second individual code of the same promotion), drop the
+                // redundant code and inform the customer instead of silently ignoring it.
+                if ($code !== '' && \array_key_exists($promotionId, $appliedPromotionCodes) && $appliedPromotionCodes[$promotionId] !== $code) {
+                    $foundCodes[] = $code;
+                    $cartExtension->removeCode($code);
+                    $this->addPromotionAlreadyAddedError($this->htmlSanitizer->sanitize($code, null, true), $original);
+
+                    continue;
+                }
+
+                $foundCodes[] = $code;
 
                 // skip adding a discount if we don't have a line item to apply a discount on
                 if (!$this->hasLineItemToDiscount($original)) {
@@ -180,6 +205,10 @@ class PromotionCollector implements CartDataCollectorInterface
                         $discountLineItems->add($nested);
                     }
                 }
+
+                if ($code !== '') {
+                    $appliedPromotionCodes[$promotionId] = $code;
+                }
             }
 
             // now iterate through all codes that have been added and add errors for all removed promotions
@@ -192,7 +221,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 if (isset($redeemedCodes[(string) $code])) {
                     $this->addPromotionAlreadyRedeemedError($sanitizedCode, $original);
                 } else {
-                    $this->addPromotionNotFoundError($sanitizedCode, $original);
+                    $original->addErrors(new PromotionNotFoundError($sanitizedCode));
                 }
             }
 

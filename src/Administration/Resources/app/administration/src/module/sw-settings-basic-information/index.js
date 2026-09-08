@@ -25,7 +25,7 @@ Module.register('sw-settings-basic-information', {
     targetVersion: '1.0.0',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

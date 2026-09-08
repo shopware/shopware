@@ -9,8 +9,69 @@ import {
     transformOrFail,
     transformShopwareSetupSfc,
 } from './helpers';
+import { ShopwareSetupTransformError } from '../utils/transform-error';
+
+function getDirectNamedSlotDiagnostic(source: string, filename: string): ShopwareSetupTransformError {
+    let thrown: unknown;
+
+    try {
+        transformShopwareSetupSfc(source, filename);
+    } catch (error) {
+        thrown = error;
+    }
+
+    if (!(thrown instanceof ShopwareSetupTransformError)) {
+        throw new Error('Expected a direct named-slot diagnostic.');
+    }
+
+    return thrown;
+}
 
 describe('build/vue-setup-transform base transforms', () => {
+    it.each([
+        '#footer',
+        '#[slotName]',
+        'v-slot:footer',
+        'v-slot:[slotName]',
+    ])('rejects a direct non-default named slot %s on a base sw-block', (slotDirective) => {
+        const source = stripIndent`
+            <template>
+            <sw-block name="sw_example_component_body">
+                <template ${slotDirective}>content</template>
+            </sw-block>
+            </template>
+            <script setup>
+            const slotName = 'footer';
+
+            swDefinePublic({});
+            </script>
+        `;
+
+        const diagnostic = getDirectNamedSlotDiagnostic(source, 'base-direct-named-slot.vue');
+
+        expect(diagnostic.message).toContain('A direct non-default named slot below <sw-block> is not supported.');
+        expect(diagnostic.index).toBe(source.indexOf(`<template ${slotDirective}>`));
+    });
+
+    it('allows a named slot that belongs to a deeper child component', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block name="sw_example_component_body">
+                <ChildComponent>
+                    <template #footer>content</template>
+                </ChildComponent>
+            </sw-block>
+            </template>
+            <script setup>
+            swDefinePublic({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-deeper-child-named-slot.vue').code;
+
+        expect(result).toContain('<sw-block :data="$dataScope" name="sw_example_component_body">');
+    });
+
     it('pins the whole generated output for a base component with props, private state and an <sw-block>', () => {
         const source = stripIndent`
             <template>

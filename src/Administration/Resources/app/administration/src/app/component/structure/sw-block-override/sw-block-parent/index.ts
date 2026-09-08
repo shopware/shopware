@@ -1,5 +1,6 @@
-import { computed, h, inject } from 'vue';
+import { computed, inject } from 'vue';
 import parentsInjectionKey from '../sw-block/parents-injection-key';
+import reduceToSingleRoot from '../reduce-to-single-root';
 
 /**
  * @sw-package framework
@@ -31,7 +32,11 @@ export default Shopware.Component.wrapComponentConfig({
             parent,
         };
     },
+    // The parent content is returned directly instead of through a wrapping functional component:
+    // a fresh arrow function as the VNode type on every render reads to Vue as a different
+    // component and makes it unmount plus remount the content, and a functional component would
+    // additionally swallow every fallthrough attribute except class, style and listeners.
     render() {
-        return h(() => this.parent);
+        return reduceToSingleRoot(this.parent);
     },
 });

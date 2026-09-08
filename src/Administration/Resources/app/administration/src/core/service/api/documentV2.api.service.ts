@@ -6,6 +6,7 @@ import fileReaderUtils from '../utils/file-reader.utils';
 
 type DocumentTypeFormats = {
     formats: string[];
+    label?: Record<string, string>;
 };
 
 type AvailableDocumentTypesResponse = {
@@ -195,12 +196,16 @@ export default class DocumentV2ApiService extends ApiService {
             });
     }
 
-    public getDocumentArchive(documentId: string): Promise<DocumentFileResponse> {
+    public getDocumentArchive(documentIds: string[]): Promise<DocumentFileResponse> {
         return this.httpClient
-            .get<Blob>(`/_action/order/document-v2/${documentId}/download-archive`, {
-                responseType: 'blob',
-                headers: this.getBasicHeaders(),
-            })
+            .post<Blob>(
+                '/_action/order/document-v2/download-archive',
+                { documentIds },
+                {
+                    responseType: 'blob',
+                    headers: this.getBasicHeaders(),
+                },
+            )
             .then((response) => {
                 return {
                     file: ApiService.handleResponse<Blob>(response),

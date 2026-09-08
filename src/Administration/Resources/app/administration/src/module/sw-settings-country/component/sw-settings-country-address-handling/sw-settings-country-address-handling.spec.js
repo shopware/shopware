@@ -76,6 +76,9 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                         <slot></slot>
                     </div>`,
         },
+        'mt-floating-ui': {
+            template: '<div><slot /></div>',
+        },
         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
         'sw-select-result': await wrapTestComponent('sw-select-result'),
         'sw-highlight-text': true,
@@ -1193,7 +1196,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await flushPromises();
 
-        const selectResult = wrapper.get('.sw-select-result-list-popover-wrapper');
+        const selectResult = wrapper.get('.sw-select-result-list__content');
 
         await selectResult.findAll('li')[0].trigger('click');
 
@@ -1215,7 +1218,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await wrapper.get('.sw-entity-single-select input').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-select-result-list-popover-wrapper').findAll('li')[0].trigger('click');
+        await wrapper.get('.sw-select-result-list__content').findAll('li')[0].trigger('click');
         await flushPromises();
 
         renderMock.mockResolvedValueOnce({

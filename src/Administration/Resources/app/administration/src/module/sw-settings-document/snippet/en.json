@@ -8,7 +8,7 @@
     "list": {
       "textHeadline": "Documents",
       "textDeleteConfirm": "Are you sure you want to delete the document \"{name}\"?",
-      "columnName": "Technical name",
+      "columnName": "Name",
       "columnType": "Type",
       "columnAssignment": "Assignment",
       "buttonAddDocument": "Add document",
@@ -26,7 +26,7 @@
       "companySettingsMovedBannerTitle": "Company settings has moved",
       "companySettingsMovedBannerDescription": "Company settings for documents are now managed in Settings > Basic information > Company information.",
       "assignmentCard": "Assignment",
-      "labelName": "Technical name",
+      "labelName": "Name",
       "labelFileNamePrefix": "Filename prefix",
       "placeholderFileNamePrefix": "Enter prefix...",
       "labelFileNameSuffix": "Filename suffix",

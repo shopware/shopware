@@ -3,6 +3,7 @@
 namespace Shopware\Core\Test\Stub\DataAbstractionLayer;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -126,7 +127,7 @@ class StaticEntityRepository extends EntityRepository
 
         if ($result instanceof EntityCollection) {
             /** @var TEntityCollection $result */
-            return new EntitySearchResult($this->getDummyEntityName(), $result->count(), $result, null, $criteria, $context);
+            return new EntitySearchResult($this->getDummyEntityName($result), $result->count(), $result, null, $criteria, $context);
         }
 
         if ($result instanceof AggregationResultCollection) {
@@ -313,10 +314,13 @@ class StaticEntityRepository extends EntityRepository
         return $primaryKeys;
     }
 
-    private function getDummyEntityName(): string
+    /**
+     * @param EntityCollection<Entity>|null $entities
+     */
+    private function getDummyEntityName(?EntityCollection $entities = null): string
     {
         if (!$this->definition) {
-            return 'mock';
+            return $entities?->first()?->getApiAlias() ?? 'mock';
         }
 
         return $this->definition->getEntityName();

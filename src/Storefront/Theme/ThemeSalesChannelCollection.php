@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<ThemeSalesChannel>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class ThemeSalesChannelCollection extends Collection

@@ -1,0 +1,8 @@
+{% block sw_mixin_composable %}
+    <div class="sw-mixin-composable">
+        {# `salutation` is used here only — the composable still has to be declared for it. #}
+        <p class="sw-mixin-composable__name">{{ salutation(customer, 'no name') }}</p>
+
+        <button class="sw-mixin-composable__greet" @click="onGreet">Greet</button>
+    </div>
+{% endblock %}

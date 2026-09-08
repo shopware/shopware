@@ -44,7 +44,7 @@ Module.register('sw-settings-rule', {
     description: 'sw-settings-rule.general.descriptionTextModule',
     color: 'var(--color-red-300)',
     icon: 'regular-rule',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
     entity: 'rule',
     defaultSearchConfiguration,
 

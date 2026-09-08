@@ -261,7 +261,7 @@
                 </sw-container>
 
                 {% block sw_settings_document_detail_filename_field_infixes %}
-                <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && supportedFormats.length">
+                <template v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && supportedFormats.length && !isLoading">
                     <div class="sw-settings-document-detail__filename_infix_headline">
                         <h3>{{ $t('sw-settings-document.detail.filenameInfixHeadline') }}</h3>
                         <sw-help-text :text="$t('sw-settings-document.detail.filenameInfixHelpText')" />

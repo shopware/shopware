@@ -140,3 +140,7 @@ After setting up [Shopware locally for development](https://developer.shopware.c
 The preferred way of extending Shopware is through the [App System](https://developer.shopware.com/docs/guides/plugins/apps/app-base-guide).
 If the feature you want to implement needs direct access to the Shopware process and the database, you can also use the [plugin system](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide).    
 You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/concepts/extensions).
+
+### Privacy
+
+Find out more about [privacy and data protection](https://www.shopware.com/en/privacy/website/).

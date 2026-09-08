@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar-item';
 import 'src/app/component/base/sw-highlight-text';
 import RecentlySearchService from 'src/app/service/recently-search.service';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const searchTypeServiceTypes = {
     product: {
@@ -137,6 +138,50 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
         });
 
         expect(wrapper.vm.productDisplayName).toBe('Product test (color: red | size: 39)');
+    });
+
+    describe('module icon colors', () => {
+        const moduleItem = {
+            entityIconName: 'regular-shopping-basket',
+            entityIconColor: '#57D9A3',
+            column: 1,
+            index: 1,
+            type: 'module',
+            item: {
+                name: 'sw-order',
+                color: 'var(--color-purple-500)',
+                icon: 'regular-shopping-bag',
+                route: 'sw.order.index',
+            },
+        };
+
+        afterEach(() => {
+            useModuleIconColors().enabled.value = false;
+        });
+
+        it('should use the neutral icon color by default', async () => {
+            wrapper = await createWrapper(moduleItem);
+
+            expect(wrapper.vm.iconColor).toBe('var(--color-icon-primary-default)');
+        });
+
+        it('should use the module color when the preference is enabled', async () => {
+            useModuleIconColors().enabled.value = true;
+            wrapper = await createWrapper(moduleItem);
+
+            expect(wrapper.vm.iconColor).toBe('var(--color-purple-500)');
+        });
+
+        it('should fall back to the entity icon color for entity results', async () => {
+            useModuleIconColors().enabled.value = true;
+            wrapper = await createWrapper({
+                ...moduleItem,
+                type: 'product',
+                item: { id: 'productId', name: 'Awesome Product' },
+            });
+
+            expect(wrapper.vm.iconColor).toBe('#57D9A3');
+        });
     });
 
     it('should return filters from filter registry', async () => {

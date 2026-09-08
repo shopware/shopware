@@ -2,9 +2,9 @@
 
 ## Security Fixes
 
-### Self-service profile updates reject nested associations in `avatarMedia`
+### Self-service profile updates accept only an avatar link in `avatarMedia`
 
-`PATCH /api/_info/me` now rejects an `avatarMedia` payload that contains associations of the media entity, such as `user` or `avatarUsers`, with a `403` and the error code `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
+`PATCH /api/_info/me` now accepts `avatarMedia` only in the form `{"id": "<media-id>"}`. Every other payload is rejected with a `403` and the error code `FRAMEWORK__MISSING_PRIVILEGE_ERROR`. This includes a nested `user` or `avatarUsers` association, a field of the media entity such as `private`, and `null`. To set the avatar by id, send `avatarId`.
 
 # 6.7.14.0
 

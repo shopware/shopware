@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -106,8 +105,8 @@ class UserController extends AbstractController
             throw ApiException::missingPrivileges(['user:update']);
         }
 
-        if (isset($changes['avatarMedia'])) {
-            $this->assertAvatarMediaWritesNoAssociations($changes['avatarMedia']);
+        if (\array_key_exists('avatarMedia', $changes)) {
+            $this->assertAvatarMediaIsLinkOnly($changes['avatarMedia']);
         }
 
         return $context->scope(
@@ -357,26 +356,14 @@ class UserController extends AbstractController
     }
 
     /**
-     * The write runs in SYSTEM_SCOPE, where ACL and write-protection are off, so a nested media
-     * association (e.g. user, avatarUsers) could set a protected field like `admin` on a user.
+     * A self-service profile edit may link an avatar, nothing more. The write runs in SYSTEM_SCOPE,
+     * where ACL and write protection are off, so any other field would be written to the media
+     * entity and, through its associations (user, avatarUsers), to other users.
      */
-    private function assertAvatarMediaWritesNoAssociations(mixed $avatarMedia): void
+    private function assertAvatarMediaIsLinkOnly(mixed $avatarMedia): void
     {
-        if (!\is_array($avatarMedia)) {
-            return;
-        }
-
-        $avatarField = $this->userDefinition->getField('avatarMedia');
-        if (!$avatarField instanceof AssociationField) {
-            return;
-        }
-
-        $mediaDefinition = $avatarField->getReferenceDefinition();
-
-        foreach (array_keys($avatarMedia) as $field) {
-            if ($mediaDefinition->getField((string) $field) instanceof AssociationField) {
-                throw ApiException::missingPrivileges(['user:update']);
-            }
+        if (!\is_array($avatarMedia) || array_keys($avatarMedia) !== ['id'] || !\is_string($avatarMedia['id'])) {
+            throw ApiException::missingPrivileges(['user:update']);
         }
     }
 

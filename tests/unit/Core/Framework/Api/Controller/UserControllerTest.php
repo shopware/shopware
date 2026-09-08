@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoService;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -87,9 +88,7 @@ class UserControllerTest extends TestCase
 
     /**
      * updateMe() must reject any field outside the self-service profile allow-list before the
-     * SYSTEM_SCOPE write, including escalation-relevant ones such as `admin` and `aclRoles`. The
-     * nested avatarMedia association guard needs the real DAL definition and is covered by the
-     * integration test.
+     * SYSTEM_SCOPE write, including escalation-relevant ones such as `admin` and `aclRoles`.
      *
      * @param array<string, mixed> $payload
      */
@@ -120,6 +119,81 @@ class UserControllerTest extends TestCase
 
         yield 'field outside the profile allow-list' => [[
             'title' => 'Dr.',
+        ]];
+    }
+
+    public function testUpdateMeAllowsLinkingAnAvatarMedia(): void
+    {
+        $userId = 'test-user-id';
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext(new AdminApiSource($userId));
+        $request = Request::create('/', Request::METHOD_PATCH, ['avatarMedia' => ['id' => $mediaId]]);
+        $userDefinition = new UserDefinition();
+        $userRepository = StaticEntityRepository::of(UserCollection::class, [], $userDefinition);
+        $responseFactory = $this->createMock(ResponseFactoryInterface::class);
+        $responseFactory->expects($this->once())
+            ->method('createRedirectResponse')
+            ->willReturn(new Response());
+
+        $controller = $this->createController(userRepository: $userRepository, userDefinition: $userDefinition);
+        $controller->updateMe($context, $request, $responseFactory);
+
+        static::assertSame(['id' => $mediaId], $userRepository->upserts[0][0]['avatarMedia']);
+    }
+
+    /**
+     * A self-service profile edit may link an avatar, nothing more. Any other media field would be
+     * written in SYSTEM_SCOPE, so updateMe() must reject it before the write.
+     *
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('forbiddenAvatarMediaPayloadProvider')]
+    public function testUpdateMeRejectsAvatarMediaBeyondAnIdLink(array $payload): void
+    {
+        static::expectExceptionObject(ApiException::missingPrivileges(['user:update']));
+
+        $controller = $this->createController();
+        $context = Context::createDefaultContext(new AdminApiSource('test-user-id'));
+        $request = Request::create('/', Request::METHOD_PATCH, $payload);
+
+        $controller->updateMe($context, $request, static::createStub(ResponseFactoryInterface::class));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function forbiddenAvatarMediaPayloadProvider(): iterable
+    {
+        yield 'nested user association' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'user' => ['id' => Uuid::randomHex(), 'admin' => true]],
+        ]];
+
+        yield 'nested avatarUsers association' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'avatarUsers' => [['id' => Uuid::randomHex(), 'admin' => true]]],
+        ]];
+
+        yield 'scalar field of the media entity' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'private' => true],
+        ]];
+
+        yield 'link without an id' => [[
+            'avatarMedia' => ['fileName' => 'renamed'],
+        ]];
+
+        yield 'empty link' => [[
+            'avatarMedia' => [],
+        ]];
+
+        yield 'non string id' => [[
+            'avatarMedia' => ['id' => ['nested']],
+        ]];
+
+        yield 'plain id instead of a link' => [[
+            'avatarMedia' => Uuid::randomHex(),
+        ]];
+
+        yield 'null' => [[
+            'avatarMedia' => null,
         ]];
     }
 

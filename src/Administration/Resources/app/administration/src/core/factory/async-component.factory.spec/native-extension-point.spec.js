@@ -5,7 +5,12 @@
 import { mount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
-import { setupComponentFactoryHooks } from './native-block-condition.fixtures';
+import {
+    expectOnlyBranch,
+    mountNativeBlockComponent,
+    settleLegacyChain,
+    setupComponentFactoryHooks,
+} from './native-block-condition.fixtures';
 
 async function mountWithOverride(componentName) {
     const swBlock = (await import('src/app/component/structure/sw-block-override/sw-block/index')).default;
@@ -57,5 +62,57 @@ describe('core/factory/async-component.factory.ts - native extension points in T
         expect(wrapper.find('header').html().replace(/\s+/g, '')).toBe(
             '<header><p>original</p><em>fromoverride</em></header>',
         );
+    });
+
+    describe('v-if chains split by an extension point', () => {
+        const branches = [
+            '.on',
+            '.off',
+        ];
+
+        async function mountChain(componentName, blocks) {
+            registerNativeExtensionTargets({ component: componentName, blocks });
+            ComponentFactory.register(componentName, {
+                template:
+                    '<div class="wrap">' +
+                    '{% block nep_chain_if %}<p class="on" v-if="active">on</p>{% endblock %}' +
+                    '{% block nep_chain_else %}<p class="off" v-else>off</p>{% endblock %}' +
+                    '</div>',
+                data() {
+                    return { active: true };
+                },
+            });
+
+            return mountNativeBlockComponent(componentName);
+        }
+
+        it.each([
+            [
+                'the v-if block',
+                'nep-chain-if',
+                ['nep_chain_if'],
+            ],
+            [
+                'the v-else block',
+                'nep-chain-else',
+                ['nep_chain_else'],
+            ],
+        ])('renders exactly one branch and follows the condition when %s is the target', async (_label, name, blocks) => {
+            const wrapper = await mountChain(name, blocks);
+
+            expectOnlyBranch(wrapper, branches, '.on');
+
+            await wrapper.setData({ active: false });
+            await settleLegacyChain(wrapper);
+
+            expectOnlyBranch(wrapper, branches, '.off');
+
+            await wrapper.setData({ active: true });
+            await settleLegacyChain(wrapper);
+
+            expectOnlyBranch(wrapper, branches, '.on');
+
+            wrapper.unmount();
+        });
     });
 });

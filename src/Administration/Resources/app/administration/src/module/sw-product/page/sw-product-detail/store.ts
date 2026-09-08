@@ -22,7 +22,7 @@ type LoadingProperties =
      */
     | 'advancedMode';
 
-type ProductDetailProduct = EntitySchema.product & {
+type ProductDetailProduct = Entity<'product'> & {
     isNew: () => boolean;
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use `type` instead.
@@ -36,13 +36,13 @@ const swProductDetail = Shopware.Store.register({
     state() {
         return {
             product: {} as ProductDetailProduct,
-            parentProduct: {} as EntitySchema.product,
-            currencies: [] as EntitySchema.currency[],
+            parentProduct: {} as Entity<'product'>,
+            currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
-            taxes: [] as EntitySchema.tax[],
+            taxes: [] as Entity<'tax'>[],
             variants: [],
-            customFieldSets: [] as { id: string }[],
-            defaultFeatureSet: {} as EntitySchema.product_feature_set,
+            customFieldSets: [] as { id: EntityKey<'custom_field_set'> }[],
+            defaultFeatureSet: {} as Entity<'product_feature_set'>,
             loading: {
                 init: false,
                 product: false,
@@ -94,7 +94,7 @@ const swProductDetail = Shopware.Store.register({
             return Object.values(state.loading).some((loadState) => loadState);
         },
 
-        defaultCurrency(state): EntitySchema.currency | { id: undefined } {
+        defaultCurrency(state): Entity<'currency'> | { id: undefined } {
             if (!state.currencies || !state.currencies.length) {
                 return { id: undefined };
             }
@@ -125,7 +125,7 @@ const swProductDetail = Shopware.Store.register({
             );
         },
 
-        getDefaultFeatureSet(state): EntitySchema.product_feature_set | object {
+        getDefaultFeatureSet(state): Entity<'product_feature_set'> | object {
             if (!state.defaultFeatureSet) {
                 return {};
             }
@@ -133,7 +133,7 @@ const swProductDetail = Shopware.Store.register({
             return state.defaultFeatureSet;
         },
 
-        productTaxRate(state): EntitySchema.tax | object {
+        productTaxRate(state): Entity<'tax'> | object {
             if (!state.taxes) {
                 return {};
             }
@@ -218,7 +218,7 @@ const swProductDetail = Shopware.Store.register({
             return this.modeSettings?.includes(key);
         },
 
-        setCustomFields(fieldSet: { id: string }) {
+        setCustomFields(fieldSet: { id: EntityKey<'custom_field_set'> }) {
             this.customFieldSets = this.customFieldSets.map((set) => {
                 if (set.id === fieldSet.id) {
                     return fieldSet;
@@ -247,7 +247,7 @@ const swProductDetail = Shopware.Store.register({
             id,
             collection,
         }: {
-            id: string;
+            id: EntityKey<'product_cross_selling'>;
             collection: EntityCollection<'product_cross_selling_assigned_products'>;
         }) {
             const entity = this.product.crossSellings?.get(id);
@@ -255,7 +255,7 @@ const swProductDetail = Shopware.Store.register({
             entity.assignedProducts = collection;
         },
 
-        setTaxes(newTaxes: EntitySchema.tax[]) {
+        setTaxes(newTaxes: Entity<'tax'>[]) {
             this.taxes = newTaxes;
 
             // if product has no tax id and is not a child product, set the first tax id
@@ -264,7 +264,7 @@ const swProductDetail = Shopware.Store.register({
             }
         },
 
-        setDefaultFeatureSet(newDefaultFeatureSet: EntitySchema.product_feature_set) {
+        setDefaultFeatureSet(newDefaultFeatureSet: Entity<'product_feature_set'>) {
             this.defaultFeatureSet = newDefaultFeatureSet;
         },
 

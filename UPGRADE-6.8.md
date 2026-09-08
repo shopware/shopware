@@ -314,6 +314,19 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `AbstractCartPersister::exists()` is abstract
+
+`Shopware\Core\Checkout\Cart\AbstractCartPersister::exists()` was introduced in 6.7.15.0 with a default implementation that delegated to the decorated persister. It is abstract now, so every cart persister declares it itself:
+
+```php
+public function exists(string $token, SalesChannelContext $context): bool
+{
+    return $this->getDecorated()->exists($token, $context);
+}
+```
+
+Answer it from the storage a persister that does not decorate another one owns. Placing an order rejects a cart token that `exists()` reports as gone, so a persister that always answers `true` reintroduces duplicate orders on overlapping checkout submits.
+
 ## `AbstractCartLoadRoute::load()` takes the cart
 
 `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute::load()` takes the cart to respond with as an optional third parameter. Call sites are unaffected, but decorations had to add the parameter to their own `load()` declaration and forward it, otherwise the declaration is no longer compatible:

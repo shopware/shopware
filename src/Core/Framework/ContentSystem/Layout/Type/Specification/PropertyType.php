@@ -11,7 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * $type accepts primitives (`string`, `integer`, `boolean`, `number`), `object`,
  * class-string<Struct> FQCNs, and lists for union-like declarations.
- * `enum` and `translatable` are ignored for non-primitive types. {@see TypedEnumValidator} {@see TranslatableTypeValidator}
+ * `enum` is ignored for non-primitive types; `translatable` is a declaration error on any type but the lone
+ * `string`. {@see TypedEnumValidator} {@see TranslatableTypeValidator}
  *
  * Three members serve the stored tree rather than the published schema: {@see translatable()} reads the flag,
  * {@see storedDefault()} is the one shape rule for a declared default in storage, and {@see admits()} is the one

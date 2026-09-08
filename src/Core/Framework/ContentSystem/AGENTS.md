@@ -41,7 +41,7 @@
 
 - `RenderingSpecificationResolver`: iterates sources via `supports()` bool check, first match wins — NOT null-return
 - OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
-- The constraints that moved: pipeline step order and language reduction ([docs/pipeline-steps.md](docs/pipeline-steps.md)), introspection assembly and the `storageSchema` fold ([docs/introspection-endpoints.md](docs/introspection-endpoints.md)), primitive property satisfaction and what each write-time gate admits ([docs/layout-write-gates.md](docs/layout-write-gates.md)), and which error codes count as a client defect ([docs/client-defect-codes.md](docs/client-defect-codes.md))
+- Constraints owned by a reference document: pipeline step order and language reduction — [docs/pipeline-steps.md](docs/pipeline-steps.md); introspection assembly and the `storageSchema` fold — [docs/introspection-endpoints.md](docs/introspection-endpoints.md); primitive property satisfaction and what each write-time gate admits — [docs/layout-write-gates.md](docs/layout-write-gates.md); which error codes count as a client defect — [docs/client-defect-codes.md](docs/client-defect-codes.md)
 
 ## Quick Reference
 

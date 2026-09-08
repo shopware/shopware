@@ -384,7 +384,7 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * @param string|list<string> $value
+     * @param string|array<array-key, mixed> $value
      */
     #[DataProvider('nonMapTranslatableValueProvider')]
     #[TestDox('rejects a $_dataName on a translatable property as an internal fault')]
@@ -414,12 +414,15 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string|list<string>, string}>
+     * @return iterable<string, array{string|array<array-key, mixed>, string}>
      */
     public static function nonMapTranslatableValueProvider(): iterable
     {
         yield 'bare string' => ['plain copy', 'string'];
         yield 'list' => [['anchor copy'], 'list'];
+        // The outer shape is a map; the selected entry is what reaches the encoders, so it is judged too.
+        yield 'map with a nested-map entry' => [[Defaults::LANGUAGE_SYSTEM => ['inner' => 'copy']], 'a map with a non-string entry'];
+        yield 'map with an integer entry' => [[Defaults::LANGUAGE_SYSTEM => 7], 'a map with a non-string entry'];
     }
 
     private function preparer(): StoredTreePreparer

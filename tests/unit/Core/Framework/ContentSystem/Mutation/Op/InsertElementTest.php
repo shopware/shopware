@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
@@ -19,7 +21,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -29,6 +33,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 
 /**
  * @internal
@@ -221,6 +226,84 @@ class InsertElementTest extends TestCase
         static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
     }
 
+    /**
+     * The three default producers share one shape rule and keep no copy of it, so each is asserted against
+     * {@see PropertyType::storedDefault()} rather than against a literal: a producer that diverged from the
+     * rule would have to diverge from the rule's own output to pass. Driven through {@see InsertElement::apply()}
+     * scaffolding a fresh element of the declaring type, the same path a real insert takes.
+     */
+    #[DataProvider('seedingPropertyProvider')]
+    #[TestDox('every default producer emits the stored shape the property type defines: $_dataName')]
+    public function testInsertScaffoldsPrimitiveDefaultsAgreeingWithTheStoredShapeRule(string $key, PropertyType $propertyType): void
+    {
+        $produced = $this->produceDefaults($key, $propertyType);
+
+        static::assertSame([$key => $propertyType->storedDefault()], $produced['provider']);
+        static::assertSame([$key => $propertyType->storedDefault()], $produced['seeder']);
+        static::assertSame([$key => $propertyType->storedDefault()], $produced['insert']);
+    }
+
+    /**
+     * @return iterable<string, array{string, PropertyType}>
+     */
+    public static function seedingPropertyProvider(): iterable
+    {
+        yield 'translatable string with a declared default' => [
+            'text',
+            new PropertyType('string', true, null, 'Willkommen'),
+        ];
+
+        yield 'non-translatable string with a declared default' => [
+            'mode',
+            new PropertyType('string', false, null, 'auto-fit'),
+        ];
+
+        yield 'non-translatable integer with a declared default' => [
+            'maxImageWidth',
+            new PropertyType('integer', false, null, 1360),
+        ];
+
+        // A false default is not an absent default, so a producer testing truthiness instead of identity fails.
+        yield 'non-translatable boolean with a false default' => [
+            'reverse',
+            new PropertyType('boolean', false, null, false),
+        ];
+    }
+
+    #[DataProvider('nonSeedingPropertyProvider')]
+    #[TestDox('every default producer emits no key for a property that seeds nothing: $_dataName')]
+    public function testInsertScaffoldsNoKeyForAPropertyThatSeedsNothing(string $key, PropertyType $propertyType): void
+    {
+        $produced = $this->produceDefaults($key, $propertyType);
+
+        static::assertSame([], $produced['provider']);
+        static::assertSame([], $produced['seeder']);
+        static::assertSame([], $produced['insert']);
+    }
+
+    /**
+     * @return iterable<string, array{string, PropertyType}>
+     */
+    public static function nonSeedingPropertyProvider(): iterable
+    {
+        yield 'translatable string without a declared default' => [
+            'ariaLabel',
+            new PropertyType('string', true, null, null),
+        ];
+
+        yield 'non-translatable string without a declared default' => [
+            'alt',
+            new PropertyType('string', false, null, null),
+        ];
+
+        // A reference property carries a default the primitive gate must drop, so a producer that stopped
+        // consulting isPrimitive() fails here rather than only on a type declaring no reference property.
+        yield 'reference property carrying a default' => [
+            'product',
+            new PropertyType(SalesChannelProductEntity::class, false, null, 'ignored-default'),
+        ];
+    }
+
     #[TestDox('rejects an unregistered type with a 400')]
     public function testInsertUnknownTypeRejected(): void
     {
@@ -305,6 +388,31 @@ class InsertElementTest extends TestCase
     private function rawProperties(StoredElement $element): array
     {
         return array_map(static fn (StoredValue $value): mixed => $value->jsonSerialize(), $element->properties());
+    }
+
+    /**
+     * The output of all three default producers for a one-property type, each unwrapped to raw PHP values so
+     * the three are directly comparable. `insert` goes through {@see InsertElement::apply()}'s scaffold path
+     * rather than calling the protected `primitiveDefaults()` directly, so no test subclasses the abstract
+     * mutation.
+     *
+     * @return array{provider: array<string, mixed>, seeder: array<string, mixed>, insert: array<string, mixed>}
+     */
+    private function produceDefaults(string $key, PropertyType $propertyType): array
+    {
+        $registry = $this->registry(['Sw:Block' => $this->spec('Sw:Block', [$key => new PropertySpecification('prop', $propertyType, false, '', '', null)])]);
+
+        $seeded = (new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider()))
+            ->seed([StoredElementBuilder::create('Sw:Block', 'el')->build()]);
+
+        $insert = new InsertElement($registry, 'Sw:Block', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply(new StoredTree([]));
+
+        return [
+            'provider' => (new PrimitiveDefaultProvider())->forType($registry, 'Sw:Block'),
+            'seeder' => $this->rawProperties($seeded[0]),
+            'insert' => $this->rawProperties($result->roots[0]),
+        ];
     }
 
     private function registryWith(string $type): AbstractContentSystemElementTypeRegistry

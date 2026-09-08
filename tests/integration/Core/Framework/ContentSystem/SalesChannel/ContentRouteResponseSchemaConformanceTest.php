@@ -424,7 +424,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
      *
      * The authored-null-survives-seeding axis is pinned at unit level by
      * {@see LayoutDefaultSeederTest::testKeepsAuthoredNull()} and is dropped here on purpose: a present `null`
-     * on the translatable `Sw:Content:Text.text` is now a 400 at the strict write, and that type declares no
+     * on the translatable `Sw:Content:Text.text` is a 400 at the strict write, and that type declares no
      * other primitive.
      */
     private function createEmptyCaseLayout(string $section): void

@@ -1203,10 +1203,10 @@ class LayoutDiagnosticsTest extends TestCase
      */
     public static function rejectsTranslatableShapeProvider(): iterable
     {
+        // The full reject-row set for the translatable shape (empty map, present null, non-string entry) is
+        // pinned once at {@see PropertyTypeTest}; this keeps only the row that a surviving private match table
+        // would judge with a different message, to prove the call to PropertyType::admits() is wired.
         yield 'a bare string' => ['Hallo', 'string'];
-        yield 'an empty map' => [[], 'array'];
-        yield 'a present null' => [null, 'null'];
-        yield 'a non-string entry' => [[Defaults::LANGUAGE_SYSTEM => 5], 'array'];
     }
 
     /**

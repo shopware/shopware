@@ -2,18 +2,6 @@
 > directory. The references and constraints below cover most code changes; read
 > the README when you need the mental model.
 
-## Source Code References
-
-- `LayoutMutation` - The operation contract, `@internal`. `apply(StoredTree $tree): StoredTree` is a pure transform returning a NEW tree; `affected()`, `created()`, `orphaned()`, `droppedWiring()`, `droppedProperties()` report the change computed during `apply()`.
-- `AbstractLayoutMutation` - `@internal` base implementing `LayoutMutation`: what `StoredTree` does not carry. Holds the protected `$affected` / `$created` / `$orphaned` / `$droppedWiring` / `$droppedProperties` stash plus their getters, and the element-level primitives the ops share ([docs/shared-primitives.md](docs/shared-primitives.md)). `$created` defaults to the empty list, so an op that mints no node needs no assignment. No tree edits of its own: `find`, `remove`, `insertAtRoot`, `insertIntoSlot` and `replace` are `Layout/StoredTree`'s and the ops call them there.
-- `ElementLocation` - `@internal final readonly`. `public StoredElement $node`, `public int $index`, `public ?ParentSlot $parent = null`. A `null` parent marks a root element; `$index` is then the root-list index.
-- `ParentSlot` - `@internal final readonly`. `public string $parentId`, `public string $slot`.
-- `MutationResult` - `@internal final readonly`, private constructor. Two named constructors, `fromAnalyzedMutation()` (the single owner of result assembly) and `fromParts()`: [docs/runners.md](docs/runners.md).
-- `MutationPipeline` - `@internal`, `@final` annotation. The stateless runner over an already-decoded tree: apply, diagnose, mirror onto `created()`, re-diagnose only when the wiring changed the tree, assemble. Never persists. Instance-identity gate: [docs/runners.md](docs/runners.md).
-- `ContextConsumerMirror` - `@internal`, `@final` annotation. Mirrors onto the created elements the `acceptsContext` consumers their own resolutions prove, and nothing else. Match rules and the four skips: [docs/consumer-mirroring.md](docs/consumer-mirroring.md).
-- `PersistedLayoutMutator` - `@internal`, `@final` annotation. Commits one mutation to a stored `content_layout` under a named lock and an optimistic `updatedAt` token; runs no mirroring. Codes and interim limitations: [docs/runners.md](docs/runners.md).
-- `Op/` - The nine operations, all extending `AbstractLayoutMutation`: `InsertElement`, `RemoveElement`, `MoveElement`, `ReplaceElement`, `DuplicateElement`, `WrapElements`, `UnwrapElement`, `AttachElement`, `BindElement`. Per-op contracts: [docs/operations.md](docs/operations.md).
-
 ## Constraints
 
 - Immutability is the core invariant, enforced by the types: `StoredTree` and `StoredElement` are `final readonly`, so `apply()` cannot mutate the input, and a result tree may safely alias an input subtree by reference.
@@ -33,6 +21,7 @@
 
 ## Navigation
 
+- [docs/symbols.md](docs/symbols.md) - the classes, their roles, and their paths
 - [docs/operations.md](docs/operations.md) - per-operation contracts, constructors, error codes
 - [docs/replace-element.md](docs/replace-element.md) - carry-over and drop rules
 - [docs/shared-primitives.md](docs/shared-primitives.md) - the helpers every op inherits

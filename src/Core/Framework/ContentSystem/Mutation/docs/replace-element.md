@@ -17,7 +17,7 @@ wins).
 the diagnostics also read, behind an `isPrimitive()` pre-gate on the new type's declaration. Two consequences follow
 from the predicate rather than from any rule of this operation's own. A translatable property carries its whole
 language map across, provided both the old and the new type declare that key translatable — a bare string under a
-translatable key was never carryable, because `admits()` rejects it. And an authored present `null` under a
+translatable key is not carryable, because `admits()` rejects it. And an authored present `null` under a
 non-translatable primitive carries rather than being dropped: `admits()` admits the null variant for every such
 declaration, since whether a key may be null is the required-rule's business. The default overlay then leaves that
 null in place, because `+` fills only an absent key. The element's `style` carries over unconditionally, being universal and type-independent, and

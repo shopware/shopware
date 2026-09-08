@@ -137,9 +137,9 @@ final class StoredTreePreparer
      * to the null variant, which the rendered-tree mint skips.
      *
      * The map variant is recognised the way {@see StoredValue::fromDecoded()} assigns it — an unwrapped array
-     * whose keys are not a zero-based sequence — because no variant predicate is exposed. Anything else is an
-     * internal fault: every client-supplied path rejects a non-map value on a translatable property before a
-     * render can reach one.
+     * whose keys are not a zero-based sequence — because no variant predicate is exposed. Anything else, and a
+     * selected entry that is not a string, is an internal fault: every client-supplied path rejects both on a
+     * translatable property before a render can reach one.
      *
      * @param non-empty-list<string> $languageIdChain
      */
@@ -158,9 +158,19 @@ final class StoredTreePreparer
         $map = $value->asMap();
 
         foreach ($languageIdChain as $languageId) {
-            if (\array_key_exists($languageId, $map)) {
-                return $map[$languageId];
+            if (!\array_key_exists($languageId, $map)) {
+                continue;
             }
+
+            $selected = $map[$languageId];
+
+            // The map shape alone does not make every downstream stage see a plain string: the entry is what
+            // is served, so a non-string entry is the same internal fault as a non-map value.
+            if (!$selected->isString()) {
+                throw ContentSystemException::translationShapeInvalid($elementId, $key, 'a map with a non-string entry');
+            }
+
+            return $selected;
         }
 
         return StoredValue::ofNull();

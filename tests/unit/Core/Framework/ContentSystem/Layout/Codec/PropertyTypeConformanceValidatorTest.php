@@ -117,10 +117,10 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a string under a number declaration' => [['ratio' => '1.5'], 'ratio', 'number', 'string'];
         yield 'an integer under a boolean declaration' => [['featured' => 1], 'featured', 'boolean', 'int'];
         yield 'a value matching no member of an all-primitive union' => [['spread' => true], 'spread', 'string|integer', 'bool'];
+        // The full reject-row set for the translatable shape (empty map, present null, non-string entry) is
+        // pinned once at {@see PropertyTypeTest}; this keeps only the row that a surviving private match table
+        // would judge with a different message, to prove the call to PropertyType::admits() is wired.
         yield 'a bare string under a translatable declaration' => [['text' => 'Hallo'], 'text', 'string (translatable)', 'string'];
-        yield 'an empty map under a translatable declaration' => [['text' => []], 'text', 'string (translatable)', 'array'];
-        yield 'a null under a translatable declaration' => [['text' => null], 'text', 'string (translatable)', 'null'];
-        yield 'a non-string entry in a language map' => [['text' => [Defaults::LANGUAGE_SYSTEM => 5]], 'text', 'string (translatable)', 'array'];
     }
 
     #[DataProvider('rejectsLanguageKeyProvider')]

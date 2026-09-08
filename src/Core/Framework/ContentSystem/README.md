@@ -32,13 +32,13 @@ Each section supports four response formats: full, decomposed, skeleton, and dat
 
 The pipeline is source-independent — specification sources translate entity IDs into a `ResolvedContentLayout` (layout ID plus `RenderingSpecification`), and `ContentPipeline` renders without knowing the original data source.
 
-1. **Specification Resolution** — Route calls `RenderingSpecificationResolver` (Adapter/) which iterates sources via `supports()` check, then assembles the `ResolvedContentLayout`. See Adapter/.
-2. **Layout Loading** — `ContentRoute` retrieves the `ContentLayoutEntity` from the content-layout repository and wraps it in a `RenderableLayout` passed into the pipeline.
-3. **Preparation** — `Layout/Scaffolding/StoredTreePreparer` brings the stored forest into shape: language reduction, then placeholder resolution (both FULL mode only), then the virtual-root wrap, then the partial prune, and it records the outcome as a `Layout/Scaffolding/TreePreparationResult` (the pruned tree, the pre-prune forest, and the `RenderScaffolding`). Reduction opens the sequence because it is what collapses a translatable property's language map to the one string the request's language selects; placeholder substitution touches string values and never descends into a map, so it has to follow. `ContentPipeline` then checks for a repeated element id and hands both forests to `Rendering/WiringPlanner::plan()`, which validates the context wiring and derives the redistribute providers. Everything up to and including the derivation runs on stored elements. `ContentTreePreparationEvent` is dispatched before all of them, over the stored tree, so a listener sees raw author content. See Rendering/ and Event/Listener/.
-4. **Rendering** — `Rendering/ElementLowering` turns the derived stored forest into the rendered forest: it resolves each element's data requirements across the whole forest, then resolves what context every element received, then mints the `RenderedElement` tree. FULL mode runs all three; SKELETON resolves no data, computes no deliveries, and mints structure only. See Rendering/.
-5. **Finishing** — `ContentPipeline` finishes the rendered tree itself: virtual root cleanup, partial extraction, both driven by the `RenderScaffolding` recorded during preparation. `RenderedTreeFinalizationEvent` is then dispatched over that finished rendered tree, in both modes, so a listener sees and replaces the rendered model. Last, the pipeline checks element ids once more, over the forest the event handed back, because a listener's replacement arrives after the first check. See Event/Listener/.
+1. **Specification Resolution** — the route picks a source through `RenderingSpecificationResolver` and assembles the `ResolvedContentLayout`. See Adapter/.
+2. **Layout Loading** — the route loads the `ContentLayoutEntity` and wraps it in a `RenderableLayout` for the pipeline.
+3. **Preparation** — `Layout/Scaffolding/StoredTreePreparer` brings the stored forest into renderable shape, then `Rendering/WiringPlanner::plan()` validates the context wiring and derives the redistribute providers. Everything here runs on stored elements, and `ContentTreePreparationEvent` is dispatched ahead of all of it, so a listener sees raw author content. See Rendering/ and Event/Listener/.
+4. **Rendering** — `Rendering/ElementLowering` turns the derived stored forest into the rendered forest. FULL resolves data and context and mints from both; SKELETON mints structure only. See Rendering/.
+5. **Finishing** — `ContentPipeline` unwraps the virtual root and extracts the partial target, then dispatches `RenderedTreeFinalizationEvent` over the finished rendered tree in both modes, so a listener sees and replaces the rendered model. See Event/Listener/.
 
-See [docs/data-flow.md](docs/data-flow.md) for a diagram of this pipeline's data flow.
+The step order, the passes inside preparation, and the checks between them are owned by [docs/pipeline-steps.md](docs/pipeline-steps.md); [docs/data-flow.md](docs/data-flow.md) diagrams the data flow.
 
 ## Key Classes
 
@@ -100,15 +100,4 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mut
 
 ## Reference Documents
 
-- [NAMING.md](NAMING.md) - How classes in this module are named, routing on to [docs/stored-and-rendered.md](docs/stored-and-rendered.md) (which of the two element models a class is about) and [docs/role-suffixes.md](docs/role-suffixes.md) (what each role suffix promises)
-- [docs/pipeline-steps.md](docs/pipeline-steps.md) - The order `ContentPipeline::load()` runs its steps in, and the orderings inside preparation that are load-bearing
-- [docs/layout-write-gates.md](docs/layout-write-gates.md) - What a `content_layout` write passes through before the DAL admits it, and what a delete is refused by
-- [docs/layout-mutation.md](docs/layout-mutation.md) - The two structural-edit runners and what they guarantee about content
-- [docs/binding-specifications.md](docs/binding-specifications.md) - What one binding specification declares, and the two modes it is applied in
-- [docs/element-styles.md](docs/element-styles.md) - The universal style options and where an element's `style` is stored, validated and served
-- [docs/introspection-endpoints.md](docs/introspection-endpoints.md) - The registries, compiler passes, and `/api/_info/` endpoints that publish the module's own shape
-- [docs/client-defect-codes.md](docs/client-defect-codes.md) - Which error codes mark a defect in client-supplied layout input rather than an internal fault
-- [docs/product-detail-page.md](docs/product-detail-page.md) - A worked layout combining entity rendering, data loading, and context distribution
-- [docs/service-tags-and-types.md](docs/service-tags-and-types.md) - The DI tags and the base classes, value objects, enums, and events an extension uses
-- [docs/extending.md](docs/extending.md) - The six extension mechanisms and where each one is authored
-- [docs/data-flow.md](docs/data-flow.md) - A diagram of the rendering pipeline's data flow
+- [docs/README.md](docs/README.md) - Index of the module's reference documents, one subject per file

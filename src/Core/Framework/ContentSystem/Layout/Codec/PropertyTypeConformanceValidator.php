@@ -74,7 +74,13 @@ final class PropertyTypeConformanceValidator extends ConstraintValidator
                 continue;
             }
 
-            if (!$type->translatable() || !\is_array($raw)) {
+            if (!$type->translatable()) {
+                continue;
+            }
+
+            if (!\is_array($raw)) {
+                // Unreachable: admits() already established a translatable value is a map before this point.
+                // The check exists only so PHPStan narrows $raw for reportNonLanguageKeys().
                 continue;
             }
 

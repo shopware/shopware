@@ -6,6 +6,9 @@
  * file via "files" so extension code sees exactly the API of the installed
  * Shopware version, including the installation-specific entity schema.
  *
+ * The `shopware:*` module declarations travel with it, so an extension can import them the same way the
+ * Administration does.
+ *
  * The entity schema import resolves to the generated
  * `src/entity-schema-definition.d.ts`. When that file has not been generated
  * yet, the setup command writes a stub that keeps `EntitySchema.Entities`
@@ -17,6 +20,7 @@
 import '../src/global.types';
 import '../src/entity-schema-definition';
 import '../src/html-shim';
+import '../src/shopware-virtual-modules';
 
 // The native-setup compile-time macros (`swDefinePublic`, `swDefineOverride`,
 // `useSw*`). The Shopware setup transform strips them, but extension code

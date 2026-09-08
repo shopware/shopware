@@ -392,6 +392,27 @@ The update API endpoints enforce both flags server-side: all `GET /api/_action/u
 ### Consent page for OAuth clients
 
 The new route `#/oauth/authorize` renders a standalone consent page showing which client wants access to the shop as which user, with Approve and Deny buttons. Logged-out users are sent through the login first and return to the consent page afterwards. The page is backed by the new `oauthAuthorizeApiService`.
+### Import the global Shopware object with `shopware:*` modules
+
+The Administration now resolves a set of `shopware:*` module specifiers, so the global `Shopware` object can be reached with ordinary named imports:
+
+```ts
+import { createId } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
+import { swFormFieldMixin } from 'shopware:mixins';
+import { useSwOrderDetailStore } from 'shopware:stores';
+```
+
+| Specifier | Exposes | Export per entry |
+| --- | --- | --- |
+| `shopware:utils` | `Shopware.Utils` | its own name, e.g. `createId` |
+| `shopware:data` | `Shopware.Data` | its own name, e.g. `Criteria` |
+| `shopware:mixins` | the mixins on `Shopware.Mixin` | camelCase plus `Mixin`, e.g. `sw-form-field` becomes `swFormFieldMixin` |
+| `shopware:stores` | the Pinia stores on `Shopware.Store` | `use<Id>Store`, e.g. `swOrderDetail` becomes `useSwOrderDetailStore` |
+
+Every export is the object the global already holds, so the two styles are interchangeable and can be mixed in one file. Nothing has to be migrated, and `Shopware.*` stays fully supported.
+
+The specifiers work in plugin builds and in Jest, and are typed for extension programs. Store exports resolve their store when called, mixin exports resolve on import. A store or mixin an extension registers itself is not exported by these modules; keep using `Shopware.Store.get()` and `Shopware.Mixin.getByName()` for those.
 
 ### Order drafts are cleaned up when leaving the detail page
 

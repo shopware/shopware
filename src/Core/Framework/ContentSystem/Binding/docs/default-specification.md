@@ -12,18 +12,19 @@ Fill-only application wires a `resolves` entry only into a key the element carri
 
 Auto-application at scaffold supersedes the earlier stance that every binding application is an explicit client act; that stance now applies only to a non-default specification, applied via `bind-element` or an explicit `bindingSpecificationId`.
 
-## The six core defaults
+## The seven core defaults
 
-Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry, so every core binding specification is a synthesized default, six in all, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
+Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry, so every core binding specification is a synthesized default, seven in all, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
 
 - `core:Sw:Media:Image` — `media` from the `mediaId` storage key, `media/image.yaml`
 - `core:Sw:Grid:Container` — `backgroundImage` from `backgroundImageId`, `grid/container.yaml`
 - `core:Sw:Media:Youtube` — `previewMedia` from `previewMediaId`, `media/youtube.yaml`
 - `core:Sw:Media:Vimeo` — `previewMedia` from `previewMediaId`, `media/vimeo.yaml`
 - `core:Sw:Media:Gallery` — `mediaItems` from `mediaIds`, `media/gallery.yaml`
+- `core:Sw:Product:Slider` — `products` from `productIds`, `product/slider.yaml`
 - `core:Sw:Navigation:Tree` — `navigationTree`, `navigation/tree.yaml`
 
-The first four wire the `entity` loader. `Sw:Media:Gallery` wires `entity_collection`, its property being a `MediaCollection` rather than a `MediaEntity`. `Sw:Navigation:Tree` is the odd one: its `resolvedBy` is a tier-B loader block (`navigation: {rootId: main-navigation}`) rather than a bare storage key, so it wires the `navigation` loader and names no storage key at all.
+The first four wire the `entity` loader, their properties each being a `MediaEntity`. `Sw:Media:Gallery` and `Sw:Product:Slider` wire `entity_collection`, their properties being a `MediaCollection` and a `SalesChannelProductCollection`. `Sw:Navigation:Tree` is the odd one: its `resolvedBy` is a tier-B loader block (`navigation: {rootId: main-navigation}`) rather than a bare storage key, so it wires the `navigation` loader and names no storage key at all.
 
 ## Overriding a core default
 

@@ -12,7 +12,7 @@ Core ships no listener on either event. `ContentPipeline::load()` (module root) 
 
 After `ContentTreePreparationEvent` is dispatched:
 1. Language reduction — replaces each translatable property's language map with the value of the first entry along the request's language chain, in FULL mode only (`Layout/Scaffolding/StoredTreePreparer`, whose remaining steps follow); a map carrying no chain entry collapses to the null variant, which the mint skips
-2. Placeholder resolution — resolves `{{variable}}` placeholders from the specification on the stored tree, in FULL mode only, after the reduction: substitution touches string values only and never descends into a map, so a placeholder inside a translated string resolves only once the map is collapsed
+2. Placeholder resolution — resolves `{{variable}}` placeholders from the specification on the stored tree, in FULL mode only, after the reduction: substitution touches string values only and never descends into a map, so a placeholder inside a translatable property resolves only once the map is collapsed to a plain string
 3. Virtual-root wrap: wraps the stored roots with a temporary container carrying the page-level placeholder values (`Layout/Scaffolding/VirtualRootWrapper`), after the placeholder resolution
 4. Partial prune — prunes the stored tree when `targetElementId` is specified (`Output/PartialRenderer`), after the virtual-root wrap; it ends the preparer's work, which hands back both the pruned tree and the forest as it stood before this step
 5. Duplicate-element-id check — rejects a repeated id (`CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID`, 500), judging the pre-prune forest

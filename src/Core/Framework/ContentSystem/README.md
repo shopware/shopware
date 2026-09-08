@@ -94,11 +94,21 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the nine draft mut
 - **SalesChannel/** - [SalesChannel/README.md](SalesChannel/README.md) - Store API endpoints
 - **Schema/** - Data loader type introspection and schema generation
 - **Validation/** - [Validation/README.md](Validation/README.md) - DAL write-time resolvability gate (`PreWriteValidationEvent` validators)
+- **Storefront/ContentSystem/** - [Storefront/ContentSystem/README.md](../../../Storefront/ContentSystem/README.md) - Header and footer sections, which are Storefront-owned.
+
+`Helper/` and `Schema/` carry no documentation surface of their own.
+
+## Reference Documents
+
 - [NAMING.md](NAMING.md) - How classes in this module are named, routing on to [docs/stored-and-rendered.md](docs/stored-and-rendered.md) (which of the two element models a class is about) and [docs/role-suffixes.md](docs/role-suffixes.md) (what each role suffix promises)
+- [docs/pipeline-steps.md](docs/pipeline-steps.md) - The order `ContentPipeline::load()` runs its steps in, and the orderings inside preparation that are load-bearing
+- [docs/layout-write-gates.md](docs/layout-write-gates.md) - What a `content_layout` write passes through before the DAL admits it, and what a delete is refused by
+- [docs/layout-mutation.md](docs/layout-mutation.md) - The two structural-edit runners and what they guarantee about content
+- [docs/binding-specifications.md](docs/binding-specifications.md) - What one binding specification declares, and the two modes it is applied in
+- [docs/element-styles.md](docs/element-styles.md) - The universal style options and where an element's `style` is stored, validated and served
+- [docs/introspection-endpoints.md](docs/introspection-endpoints.md) - The registries, compiler passes, and `/api/_info/` endpoints that publish the module's own shape
+- [docs/client-defect-codes.md](docs/client-defect-codes.md) - Which error codes mark a defect in client-supplied layout input rather than an internal fault
 - [docs/product-detail-page.md](docs/product-detail-page.md) - A worked layout combining entity rendering, data loading, and context distribution
 - [docs/service-tags-and-types.md](docs/service-tags-and-types.md) - The DI tags and the base classes, value objects, enums, and events an extension uses
 - [docs/extending.md](docs/extending.md) - The six extension mechanisms and where each one is authored
 - [docs/data-flow.md](docs/data-flow.md) - A diagram of the rendering pipeline's data flow
-- **Storefront/ContentSystem/** - [Storefront/ContentSystem/README.md](../../../Storefront/ContentSystem/README.md) - Header and footer sections, which are Storefront-owned.
-
-`Helper/` and `Schema/` carry no documentation surface of their own.

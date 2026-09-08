@@ -6,7 +6,7 @@ Content layout tree structure and processing. Layouts are reusable templates con
 
 1. **Element Structure** (Element/) — the stored element model (`StoredElement`, `StoredValue`) plus `RenderedTreeEditor`, the whole-tree edit idiom for a rendered forest
 2. **DAL Definitions** (Entity/, Field/) — Database schema and custom field serializers
-3. **Scaffolding** (Scaffolding/) — The stored-tree preparer and the virtual-root wrapper it drives, plus the two records the preparer hands back: `TreePreparationResult` and, inside it, the `RenderScaffolding` carrying the wrap outcome to the finishing steps. Preparation opens with language reduction, the pass that collapses each translatable property's language map to the request language; the passes after it see plain strings
+3. **Scaffolding** (Scaffolding/) — The stored-tree preparer and the virtual-root wrapper it drives, plus the two records the preparer hands back: `TreePreparationResult` and, inside it, the `RenderScaffolding` carrying the wrap outcome to the finishing steps. Preparation opens with language reduction, the pass that collapses each translatable property's language map to the request language, in FULL mode only; the passes after it see plain strings. SKELETON skips reduction, and its mint carries no property value at all, so neither mode puts a language map on the wire
 4. **Default Seeding** (`LayoutDefaultSeeder`) seeds element-type primitive defaults into the stored tree at the DAL write boundary, invoked from the `Field/` layout serializer's `normalize` hook
 
 ## Default Seeding

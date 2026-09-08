@@ -11,6 +11,7 @@ use Shopware\Core\Content\Breadcrumb\ContentSystem\DataLoader\BreadcrumbDataLoad
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoader;
@@ -112,6 +113,10 @@ class DataLoaderConfigSerializerContractTest extends TestCase
         yield CrossSellingDataLoader::SOURCE => [
             'source' => CrossSellingDataLoader::SOURCE,
             'config' => ['property' => 'productId', 'associations' => ['media']],
+        ];
+        yield ProductConfiguratorDataLoader::SOURCE => [
+            'source' => ProductConfiguratorDataLoader::SOURCE,
+            'config' => ['productProperty' => 'customProduct'],
         ];
         yield ProductReviewDataLoader::SOURCE => [
             'source' => ProductReviewDataLoader::SOURCE,

@@ -10,9 +10,11 @@ public-surface allowlist. Only the draft pipeline calls it, so a persisted mutat
 ## What proves a consumer
 
 A resolution yields a consumer only when its `kind` is `Reference`, its `resolved` candidate is non-null with a
-non-empty `contextKey` and a non-null `contextType`, and that candidate's origin is `Parent` or `Root`
-(`scope: ConsumerScope::Root`). `Loader` and `Stored` origins fill themselves and are skipped, as is a `null`
-`resolved`.
+non-empty, non-integer-like `contextKey` and a non-null `contextType`, and that candidate's origin is `Parent` or
+`Root` (`scope: ConsumerScope::Root`). `Loader` and `Stored` origins fill themselves and are skipped, as is a `null`
+`resolved`. An integer-like `contextKey` (e.g. `"0"`, `"42"`) is skipped too: PHP coerces such a key to an int on
+the consumer-map write, and `StoredElementWiringDecoder::decodeConsumers()` rejects a non-string consumer key at
+decode time.
 
 The consumer is keyed by the resolved `contextKey`. It carries `propertyAlias: $resolution->key` whenever the
 resolution's own key differs from that `contextKey`, and `null` when they are equal, because the property key the
@@ -56,4 +58,8 @@ reads.
 
 Restricting mirroring to `created()` is what makes an explicit unwiring durable: the ambient offer that proved the
 reference does not go away, so mirroring on a non-creating mutation would write back in the same response the
-consumer that was just removed.
+consumer that was just removed. That durability holds through every mutation except one: `ReplaceElement`
+re-scaffolds the target element under the same id, which counts as `created()` (see
+[replace-element.md](replace-element.md)), so mirroring re-applies to it and restores every consumer the node's own
+resolutions still prove, including one an explicit unwiring had just removed. That is wanted: a type swap is a
+fresh scaffold, and the removal applied to the old node, not the new one.

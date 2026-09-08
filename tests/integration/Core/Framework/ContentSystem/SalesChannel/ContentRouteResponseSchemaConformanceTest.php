@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Context;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\LayoutDefaultSeederTest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -92,6 +94,11 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
 
     private const LAYOUT_VERSION = '1.0.0';
 
+    /**
+     * The string the populated fixture stores under {@see Defaults::LANGUAGE_SYSTEM} on the translatable
+     * `Sw:Content:Text.text` property. The browser requests the system language, so language reduction picks
+     * that entry and the wire carries this string bare — which is the shape the schema declares.
+     */
     private const TEXT_VALUE = 'Alpha copy';
 
     private const MEDIA_FILE_NAME = 'content-route-schema-probe';
@@ -185,7 +192,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
 
         $element = $elements[0];
         static::assertIsArray($element);
-        static::assertSame($this->ids->get('bare-text'), $element['id'] ?? null);
+        static::assertSame($this->ids->get('bare-element'), $element['id'] ?? null);
         static::assertSame([], $element['properties'] ?? null, 'The empty property map must reach the wire as [].');
         static::assertArrayNotHasKey('slots', $element);
         static::assertArrayNotHasKey('style', $element);
@@ -386,7 +393,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
                     [
                         'id' => $this->ids->get('text'),
                         'component' => 'Sw:Content:Text',
-                        'properties' => ['text' => self::TEXT_VALUE],
+                        'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
                     ],
                     [
                         'id' => $this->ids->get('inner-grid'),
@@ -410,18 +417,23 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
     }
 
     /**
-     * Both empty cases in one layout. The single element declares no slots, carries no style, and holds an
-     * authored null under its type's only declared primitive: the write-boundary default seeding skips a key
-     * that is already present, and the render admits no key whose stored value is the null variant, so the
-     * element renders with zero properties. Zero rendered properties across the whole page is also what leaves
-     * the resolved-value index empty, which is what makes `data` and `assignments` empty maps.
+     * Both empty cases in one layout. The element declares no slots, no style, and its type seeds no default —
+     * `Sw:Product:QuantitySelector` declares one property, an optional reference with no declared default — so
+     * the write-boundary seeding adds no key and the element renders zero properties. Zero rendered properties
+     * across the whole page is also what leaves the resolved-value index empty, which is what makes `data` and
+     * `assignments` empty maps.
+     *
+     * The authored-null-survives-seeding axis is pinned at unit level by
+     * {@see LayoutDefaultSeederTest::testKeepsAuthoredNull()} and is dropped here on purpose: a present `null`
+     * on the translatable `Sw:Content:Text.text` is now a 400 at the strict write, and that type declares no
+     * other primitive.
      */
     private function createEmptyCaseLayout(string $section): void
     {
         $this->persistLayout($section, [[
-            'id' => $this->ids->get('bare-text'),
-            'component' => 'Sw:Content:Text',
-            'properties' => ['text' => null],
+            'id' => $this->ids->get('bare-element'),
+            'component' => 'Sw:Product:QuantitySelector',
+            'properties' => [],
         ]]);
     }
 

@@ -154,6 +154,44 @@ class ContentPreviewControllerTest extends TestCase
     }
 
     /**
+     * `Sw:Content:Text.text` is declared translatable, so its stored shape is a language map and a bare string
+     * is a mismatched property type. The codec decodes any value shape, so the draft reaches the check intact
+     * and the check is the only thing that can refuse it.
+     *
+     * The 400 is what pins that the refusal precedes the pipeline: a bare string reaching language reduction
+     * throws `translationShapeInvalid`, a 500, so a pipeline that ran first could not produce this status.
+     */
+    #[TestDox('previewUrl rejects a bare string on a translatable property with 400 elementTypesInvalid')]
+    public function testPreviewUrlReturns400ForABareStringOnATranslatableProperty(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => 'A bare string where a language map belongs'],
+            ]],
+            'entityType' => 'product',
+            'entityId' => 'some-product-id',
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        // The message quotes the declared type, so it is compared after decoding rather than against the
+        // JSON-escaped body.
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($body);
+        static::assertContains(ContentSystemException::ELEMENT_TYPES_INVALID, array_column($body['errors'], 'code'));
+        static::assertStringContainsString(
+            'Property "text" is declared as "string (translatable)" but carries a value of type "string".',
+            implode("\n", array_column($body['errors'], 'detail')),
+        );
+        static::assertStringNotContainsString('"url"', (string) $response->getContent());
+    }
+
+    /**
      * The refusal runs ahead of the build gate, so the envelope below is deliberately one the builder would
      * itself reject: a 400 naming the parameter rather than the component is what shows the order.
      */

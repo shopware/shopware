@@ -78,7 +78,7 @@ class ContentSystemPreviewControllerTest extends TestCase
                 'slots' => ['content' => [[
                     'id' => $textId,
                     'component' => 'Sw:Content:Text',
-                    'properties' => ['text' => '<p>Preview body</p>'],
+                    'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => '<p>Preview body</p>']],
                 ], [
                     'id' => $manufacturerId,
                     'component' => 'Sw:Product:Manufacturer',
@@ -117,6 +117,87 @@ class ContentSystemPreviewControllerTest extends TestCase
         // depend on the request global itself.
         static::assertStringContainsString('data-element-id="' . $manufacturerId . '"', $content);
         static::assertStringContainsString('Manufacturer not available', $content);
+    }
+
+    /**
+     * The envelope's `languageId` is what `ContentPreviewPageBuilder::build()` hands the context service, so it
+     * decides the language chain reduction runs against — the layout translation as well as the entity data
+     * language.
+     *
+     * The map carries three entries and the requested one sits in the middle, so the requested copy can only
+     * be reached by walking the chain: a selection that took the map's first entry would serve the anchor, and
+     * one that took its last would serve the unreachable entry. Draft maps travel through the payload store
+     * rather than a JSON column, so the authored order really is the order reduction sees.
+     */
+    #[TestDox('serves the layout translation the preview request languageId names')]
+    public function testPreviewLanguageIdSelectsTheLayoutTranslation(): void
+    {
+        $productId = $this->createProduct();
+        $languageId = $this->createSalesChannelLanguage();
+        $textId = Uuid::randomHex();
+
+        $store = static::getContainer()->get(ContentPreviewPayloadStore::class);
+        $token = $store->store(new ContentPreviewRequest(
+            layout: [[
+                'id' => $textId,
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => [
+                    Defaults::LANGUAGE_SYSTEM => '<p>Anchor copy</p>',
+                    $languageId => '<p>Requested language copy</p>',
+                    // A language id no `language` row carries, so it is on no chain and reachable by nothing.
+                    Uuid::randomHex() => '<p>Unreachable copy</p>',
+                ]],
+            ]],
+            entityType: 'product',
+            entityId: $productId,
+            salesChannelId: $this->getSalesChannelId(),
+            languageId: $languageId,
+        ));
+
+        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        // The element really rendered, so the copy assertions below are about which entry was picked rather
+        // than about a blank content region.
+        static::assertStringContainsString('data-element-id="' . $textId . '"', $content);
+        static::assertStringContainsString('Requested language copy', $content);
+        static::assertStringNotContainsString('Anchor copy', $content);
+        static::assertStringNotContainsString('Unreachable copy', $content);
+    }
+
+    /**
+     * A child of the system language, added to the sales channel the preview renders against: the context
+     * factory refuses a language outside `sales_channel_language` before any content code runs. The
+     * many-to-many write adds the mapping row rather than replacing the existing languages.
+     */
+    private function createSalesChannelLanguage(): string
+    {
+        $languageId = Uuid::randomHex();
+        $localeId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        static::getContainer()->get('language.repository')->create([[
+            'id' => $languageId,
+            'name' => 'Preview language',
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+            'active' => true,
+            'locale' => [
+                'id' => $localeId,
+                'name' => 'Preview language',
+                'territory' => 'Preview territory',
+                // The language and region subtags must be real ISO codes; only the trailing subtag is free.
+                'code' => 'de-CH-preview',
+            ],
+            'translationCodeId' => $localeId,
+        ]], $context);
+
+        static::getContainer()->get('sales_channel.repository')->update([[
+            'id' => $this->getSalesChannelId(),
+            'languages' => [['id' => $languageId]],
+        ]], $context);
+
+        return $languageId;
     }
 
     private function createProduct(): string

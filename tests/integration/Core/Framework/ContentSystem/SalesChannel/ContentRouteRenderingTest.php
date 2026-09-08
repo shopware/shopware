@@ -77,6 +77,11 @@ class ContentRouteRenderingTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    /**
+     * The string every fixture stores under {@see Defaults::LANGUAGE_SYSTEM} on the translatable
+     * `Sw:Content:Text.text` property. The browser requests the system language, so language reduction picks
+     * that entry and the served value is this string bare.
+     */
     private const TEXT_VALUE = 'Alpha copy';
 
     private const LAYOUT_NAME = 'content-route-rendering';
@@ -1456,7 +1461,7 @@ class ContentRouteRenderingTest extends TestCase
                     [
                         'id' => $this->ids->get('text'),
                         'component' => 'Sw:Content:Text',
-                        'properties' => ['text' => self::TEXT_VALUE],
+                        'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
                     ],
                     [
                         'id' => $this->ids->get('inner-grid'),
@@ -1513,7 +1518,7 @@ class ContentRouteRenderingTest extends TestCase
                         'content' => [[
                             'id' => $this->ids->get('text'),
                             'component' => 'Sw:Content:Text',
-                            'properties' => ['text' => self::TEXT_VALUE],
+                            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
                         ]],
                     ],
                 ]],
@@ -1649,7 +1654,7 @@ class ContentRouteRenderingTest extends TestCase
         return [
             'id' => $this->ids->get('text'),
             'component' => 'Sw:Content:Text',
-            'properties' => ['text' => self::TEXT_VALUE],
+            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
             'acceptsContext' => [
                 'categoryPlaceholder' => [
                     'type' => 'single',

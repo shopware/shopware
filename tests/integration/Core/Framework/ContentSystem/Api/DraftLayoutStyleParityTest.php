@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
@@ -28,7 +29,7 @@ class DraftLayoutStyleParityTest extends TestCase
         $raw = [[
             'id' => Uuid::randomHex(),
             'component' => 'Sw:Content:Text',
-            'properties' => ['text' => '<p>Parity</p>'],
+            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => '<p>Parity</p>']],
             'style' => ['align-self' => ['xs' => 'center']],
         ]];
 

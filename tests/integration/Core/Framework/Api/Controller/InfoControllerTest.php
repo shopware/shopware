@@ -797,8 +797,9 @@ class InfoControllerTest extends TestCase
         }
 
         // content/text.yaml declares `text` as a translatable string with a default and no `required`, so the
-        // property tier publishes it as a non-required string carrying its default. The default itself is a
-        // long editorial paragraph, so only its presence and type are pinned.
+        // property tier publishes it as a non-required string carrying its default, flagged translatable so a
+        // client knows the stored value is a language map of that scalar. The default itself is a long
+        // editorial paragraph, so only its presence and type are pinned.
         static::assertArrayHasKey('Sw:Content:Text', $typesByName);
         $text = $typesByName['Sw:Content:Text']['storageSchema']['text'];
         static::assertSame('property', $text['kind']);
@@ -806,6 +807,15 @@ class InfoControllerTest extends TestCase
         static::assertFalse($text['required']);
         static::assertArrayHasKey('default', $text);
         static::assertIsString($text['default']);
+        static::assertTrue($text['translatable']);
+
+        // grid/container.yaml declares `mode` as a plain string, so the flag is omitted rather than published
+        // as false — the same treatment `default` gets where none is declared.
+        static::assertArrayHasKey('Sw:Grid:Container', $typesByName);
+        static::assertArrayNotHasKey(
+            'translatable',
+            $typesByName['Sw:Grid:Container']['storageSchema']['mode'],
+        );
 
         // media/image.yaml declares `media` with `resolvedBy: mediaId`, so the storage key is derived from the
         // synthesized `core:Sw:Media:Image` specification's `resolves.media.config.property`, and its type is

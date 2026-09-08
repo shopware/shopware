@@ -64,7 +64,7 @@ function formatStateMap(names: string[], spaces: number): string {
 /**
  * The generated attributes wired onto a base `<sw-block>`: the owning component name and the data scope.
  *
- * `sw-internal-component-name` qualifies the block name with its owning component (`componentName + blockName`)
+ * `sw-internal-component-name` identifies the block by its owning component (`componentName + blockName`)
  * like Twig, keeping the same block name in two components isolated. `$dataScope` resolves against the data
  * scope `attachOverrides()` registers for the instance; authoring either attribute is rejected, so the
  * transform owns the whole binding.

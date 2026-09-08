@@ -2,7 +2,7 @@
  * @sw-package framework
  * @group disabledCompat
  *
- * Component qualification of `<sw-block>`: a block is identified by `componentName + blockName` via the
+ * Component isolation of `<sw-block>`: a block is identified by `componentName + blockName` via the
  * `sw-internal-component-name` attribute that the Shopware setup transform stamps on every native block.
  * These tests mount the blocks directly and set `sw-internal-component-name` explicitly to stand in for
  * that stamping.
@@ -28,7 +28,7 @@ async function createWrapper(template: string) {
     );
 }
 
-describe('sw-block component qualification', () => {
+describe('sw-block component isolation', () => {
     it('does not apply an override from a different component', async () => {
         const wrapper = await createWrapper(`
             <div>

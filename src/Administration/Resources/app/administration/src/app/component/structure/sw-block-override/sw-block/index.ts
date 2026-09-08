@@ -29,10 +29,10 @@ import useLegacyConditionContext from '../shim/legacy-condition-context';
  * mounted directly in a test — the block falls back to matching on the block name alone.
  *
  * @example
- * qualifiedBlockKey('sw-product-detail', 'sw_product_detail_base'); // 'sw-product-detail sw_product_detail_base'
- * qualifiedBlockKey(undefined, 'sw_product_detail_base'); // 'sw_product_detail_base'
+ * componentBlockKey('sw-product-detail', 'sw_product_detail_base'); // 'sw-product-detail sw_product_detail_base'
+ * componentBlockKey(undefined, 'sw_product_detail_base'); // 'sw_product_detail_base'
  */
-function qualifiedBlockKey(componentName: string | undefined, blockName: string): string {
+function componentBlockKey(componentName: string | undefined, blockName: string): string {
     return componentName ? `${componentName} ${blockName}` : blockName;
 }
 
@@ -109,13 +109,13 @@ export default Shopware.Component.wrapComponentConfig({
         const instance = getCurrentInstance();
 
         if (props.extends) {
-            const qualifiedExtends = qualifiedBlockKey(props.swInternalComponentName, props.extends);
+            const extendsKey = componentBlockKey(props.swInternalComponentName, props.extends);
             // addBlock is a no-op for undefined, so an explicit guard is not needed.
-            addBlock(qualifiedExtends, slots.default);
+            addBlock(extendsKey, slots.default);
 
             onBeforeUnmount(() => {
                 if (props.extends) {
-                    removeBlock(qualifiedExtends, slots.default);
+                    removeBlock(extendsKey, slots.default);
                 }
             });
 
@@ -178,7 +178,7 @@ export default Shopware.Component.wrapComponentConfig({
             // at boot time) are positioned below native <sw-block extends> overrides
             // (registered at mount time), matching the expected stacking order:
             //   default → shim (legacy plugin) → native (newer plugin or core extension)
-            const nativeBlocks = getBlocks(qualifiedBlockKey(props.swInternalComponentName, props.name));
+            const nativeBlocks = getBlocks(componentBlockKey(props.swInternalComponentName, props.name));
             const blocksAndParent = [
                 slots.default ?? (() => []),
                 ...shimSlots,

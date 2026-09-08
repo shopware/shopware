@@ -152,7 +152,7 @@ class InstallTranslationCommand extends Command
     private function getLocales(InputInterface $input, OutputInterface $output): array
     {
         if ($input->getOption('all')) {
-            return $this->config->locales;
+            return $this->localesWithoutPseudo();
         }
 
         $locales = $input->getOption('locales');
@@ -170,6 +170,14 @@ class InstallTranslationCommand extends Command
         $this->config->assertLocalesAreConfigured($locales);
 
         return $locales;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function localesWithoutPseudo(): array
+    {
+        return array_values(array_diff($this->config->locales, $this->config->pseudoLocales));
     }
 
     /**

@@ -152,6 +152,25 @@ export default {
             return 'extension-apps';
         },
 
+        emptyStateHeadline() {
+            return this.isThemeRoute
+                ? this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState')
+                : this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState');
+        },
+
+        emptyStateDescription() {
+            return this.isThemeRoute
+                ? this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState')
+                : this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState');
+        },
+
+        noActivePluginsHeadline() {
+            return this.isThemeRoute
+                ? this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins')
+                : this.$t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins');
+        },
+
+        /** @deprecated tag:v6.9.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

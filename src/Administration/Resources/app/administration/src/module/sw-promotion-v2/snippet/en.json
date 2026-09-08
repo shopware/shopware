@@ -118,10 +118,13 @@
                     "placeholderPromotionSalesChannel": "Add sales channel...",
                     "labelCustomerSelect": "Customer rules",
                     "placeholderCustomerSelect": "Select customer rules...",
+                    "helpTextCustomerSelect": "When a customer rule blocks redemption and no customer is logged in, a dedicated login prompt is shown automatically. For all other failures you can show a custom message by creating a storefront snippet with the key \"checkout.promotion-not-eligible-{ruleId}\".",
                     "labelCartConditionSelect": "Shopping cart rules",
                     "placeholderCartConditionSelect": "Select shopping cart rules...",
+                    "helpTextCartConditionSelect": "To show a custom error message when a cart rule blocks code redemption, create a storefront snippet with the key \"checkout.promotion-not-eligible-{ruleId}\".",
                     "labelOrderConditionSelect": "Order rules",
-                    "placeholderOrderConditionSelect": "Select order rules..."
+                    "placeholderOrderConditionSelect": "Select order rules...",
+                    "helpTextOrderConditionSelect": "To show a custom error message when an order rule blocks code redemption, create a storefront snippet with the key \"checkout.promotion-not-eligible-{ruleId}\"."
                 },
                 "setgroups": {
                     "switchGroupsEnabled": "Promote sets of products",

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
@@ -18,25 +19,34 @@ use Shopware\Core\Content\Seo\SalesChannel\StoreApiSeoResolver;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
+use Shopware\Core\Content\Seo\SeoUrlRoute\ProductStoreApiUrlRoute;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -313,6 +323,86 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertNull($productEntity->getSeoUrls());
     }
 
+    /**
+     * @return \Generator<string, array{bool, bool, list<string>, 3?: bool}>
+     */
+    public static function routeNameFilterCases(): \Generator
+    {
+        yield 'storefront sales channels query only the storefront route names' => [
+            false,
+            true,
+            [TestProductSeoUrlRoute::ROUTE_NAME],
+        ];
+
+        yield 'headless sales channels query the store-api route names, storefront names stay as fallback' => [
+            true,
+            true,
+            [ProductStoreApiUrlRoute::ROUTE_NAME, TestProductSeoUrlRoute::ROUTE_NAME],
+        ];
+
+        yield 'headless sales channels work without any storefront routes registered' => [
+            true,
+            false,
+            [ProductStoreApiUrlRoute::ROUTE_NAME],
+        ];
+
+        yield 'headless sales channels fall back to the storefront names for entities without a store-api route' => [
+            true,
+            true,
+            [TestProductSeoUrlRoute::ROUTE_NAME],
+            false,
+        ];
+    }
+
+    /**
+     * @param list<string> $expectedRouteNames
+     */
+    #[DataProvider('routeNameFilterCases')]
+    public function testRouteNameFilterMatchesSalesChannelType(bool $headless, bool $withStorefrontRoutes, array $expectedRouteNames, bool $withStoreApiRoutes = true): void
+    {
+        $context = $headless ? $this->createHeadlessSalesChannelContext() : Generator::generateSalesChannelContext();
+
+        $productEntity = $this->createProductEntity();
+        $event = $this->createProductListResponseEvent($productEntity, $context);
+
+        $capturedCriteria = null;
+        $storeApiSeoResolver = $this->createStoreApiSeoResolver(
+            seoUrlRouteRegistry: $withStorefrontRoutes ? null : new SeoUrlRouteRegistry([]),
+            withStoreApiRoutes: $withStoreApiRoutes,
+            onSearch: static function (Criteria $criteria) use (&$capturedCriteria): void {
+                $capturedCriteria = $criteria;
+            },
+        );
+        $storeApiSeoResolver->addSeoInformation($event);
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertSame($expectedRouteNames, $this->getRouteNameFilterValues($capturedCriteria));
+        static::assertNotEmpty($productEntity->getSeoUrls());
+    }
+
+    private function createProductListResponseEvent(SalesChannelProductEntity $productEntity, SalesChannelContext $context): ResponseEvent
+    {
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+
+        $response = new ProductListResponse(new EntitySearchResult(
+            'product',
+            1,
+            new ProductCollection([$productEntity]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext(),
+        ));
+
+        return new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            $response
+        );
+    }
+
     private function createProductEntity(string $identifier = 'random'): SalesChannelProductEntity
     {
         $productEntity = new SalesChannelProductEntity();
@@ -322,11 +412,39 @@ class StoreApiSeoResolverTest extends TestCase
         return $productEntity;
     }
 
+    private function createHeadlessSalesChannelContext(): SalesChannelContext
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_API);
+        $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
+
+        return Generator::generateSalesChannelContext(salesChannel: $salesChannel);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getRouteNameFilterValues(Criteria $criteria): array
+    {
+        foreach ($criteria->getFilters() as $filter) {
+            if ($filter instanceof EqualsAnyFilter && $filter->getField() === 'routeName') {
+                return array_values(array_map('strval', $filter->getValue()));
+            }
+        }
+
+        return [];
+    }
+
     /**
      * @param array<string> $foreignKeys
      */
-    private function createStoreApiSeoResolver(array $foreignKeys = ['random']): StoreApiSeoResolver
-    {
+    private function createStoreApiSeoResolver(
+        array $foreignKeys = ['random'],
+        ?SeoUrlRouteRegistry $seoUrlRouteRegistry = null,
+        ?\Closure $onSearch = null,
+        bool $withStoreApiRoutes = true,
+    ): StoreApiSeoResolver {
         $definitionInstanceRegistry = $this->getDefinitionRegistry();
 
         $seoUrlCollection = new SeoUrlCollection();
@@ -356,13 +474,25 @@ class StoreApiSeoResolverTest extends TestCase
         $salesChannelRepository = static::createStub(SalesChannelRepository::class);
         $salesChannelRepository
             ->method('search')
-            ->willReturn($entitySearchResult);
+            ->willReturnCallback(static function (Criteria $criteria) use ($entitySearchResult, $onSearch): EntitySearchResult {
+                if ($onSearch !== null) {
+                    $onSearch($criteria);
+                }
+
+                return $entitySearchResult;
+            });
 
         return new StoreApiSeoResolver(
             $salesChannelRepository,
             $definitionInstanceRegistry,
             static::createStub(SalesChannelDefinitionInstanceRegistry::class),
-            new SeoUrlRouteRegistry([new TestProductSeoUrlRoute($productDefinition)]),
+            $seoUrlRouteRegistry ?? new SeoUrlRouteRegistry([new TestProductSeoUrlRoute($productDefinition)]),
+            new EntityRouteResolver(
+                new SeoUrlRouteRegistry([]),
+                static::createStub(SeoUrlPlaceholderHandlerInterface::class),
+                static::createStub(RouterInterface::class),
+                $withStoreApiRoutes ? [new ProductStoreApiUrlRoute($productDefinition)] : [],
+            ),
         );
     }
 

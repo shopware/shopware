@@ -232,7 +232,10 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
             return false;
         }
 
-        return (bool) preg_match('/@codeCoverageIgnore(?![A-Za-z])/', $doc->getText());
+        // match only a real docblock TAG (first token of its line, allowing the `/**` of a
+        // single-line docblock): a prose mention like "classes annotated with
+        // `@codeCoverageIgnore` stay valid targets" must not count as the annotation
+        return (bool) preg_match('/^[ \t]*(?:\/\*\*)?[ \t]*\**[ \t]*@codeCoverageIgnore(?![A-Za-z])/m', $doc->getText());
     }
 
     /**

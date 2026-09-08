@@ -6,7 +6,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 function getCollection(entity, collection) {
     return new EntityCollection(

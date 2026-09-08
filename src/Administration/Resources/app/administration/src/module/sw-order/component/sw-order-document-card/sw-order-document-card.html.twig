@@ -437,6 +437,7 @@
         {% endblock %}
     </template>
 
+    {# @deprecated tag:v6.9.0 - Removed with document generation v1. #}
     {% block sw_order_document_card_grid_column_modal %}
     <div v-if="showModal">
         <component
@@ -474,6 +475,8 @@
         @page-leave="onCloseUploadDocumentModal"
         @document-upload="onUploadDocument"
     />
+
+    {# @deprecated tag:v6.9.0 - Removed with document generation v1. #}
     <sw-order-select-document-type-modal
         v-else-if="showSelectDocumentTypeModal"
         v-model:value="currentDocumentType"

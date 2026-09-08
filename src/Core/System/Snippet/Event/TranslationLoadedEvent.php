@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Dispatched after the translations for a locale have been downloaded and installed.
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class TranslationLoadedEvent implements ShopwareEvent

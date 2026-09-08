@@ -1653,7 +1653,7 @@
         "explanationHeader": "Fehler bei der Verbindung mit deinen Erweiterungen.",
         "explanation": "Erweiterungen können keine Verbindung zu deinem Shop aufbauen, aufgrund einer Fehlkonfiguration in deinem System.",
         "textDetails": "Technische Details: Die Konfiguration der APP_URL ist fehlerhaft.",
-        "labelLearnMoreButton": "Lerne mehr",
+        "labelLearnMoreButton": "Erfahre mehr",
         "linkToDocsArticle": "https://docs.shopware.com/de/shopware-6-de/tutorials-und-faq/hinweise-zur-app-url"
       }
     }

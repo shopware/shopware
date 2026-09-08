@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
@@ -287,6 +288,110 @@ class DocumentConfigLoaderTest extends TestCase
         );
 
         static::assertSame(['pdf' => '_channel'], $bundle->config->filenameInfixes);
+    }
+
+    public static function filenamePrefixAndSuffixProvider(): \Generator
+    {
+        yield 'sales channel empty string falls back to global' => [
+            'channelPrefix' => '',
+            'channelSuffix' => '',
+            'globalPrefix' => 'invoice_',
+            'globalSuffix' => '_global',
+            'expectedPrefix' => 'invoice_',
+            'expectedSuffix' => '_global',
+        ];
+
+        yield 'sales channel value overrides global' => [
+            'channelPrefix' => 'channel_',
+            'channelSuffix' => '_channel',
+            'globalPrefix' => 'invoice_',
+            'globalSuffix' => '_global',
+            'expectedPrefix' => 'channel_',
+            'expectedSuffix' => '_channel',
+        ];
+
+        yield 'nothing configured stays null' => [
+            'channelPrefix' => null,
+            'channelSuffix' => null,
+            'globalPrefix' => null,
+            'globalSuffix' => null,
+            'expectedPrefix' => null,
+            'expectedSuffix' => null,
+        ];
+
+        yield 'global empty string counts as unconfigured' => [
+            'channelPrefix' => null,
+            'channelSuffix' => null,
+            'globalPrefix' => '',
+            'globalSuffix' => '',
+            'expectedPrefix' => null,
+            'expectedSuffix' => null,
+        ];
+
+        yield 'empty strings on both sides stay null' => [
+            'channelPrefix' => '',
+            'channelSuffix' => '',
+            'globalPrefix' => '',
+            'globalSuffix' => null,
+            'expectedPrefix' => null,
+            'expectedSuffix' => null,
+        ];
+    }
+
+    #[DataProvider('filenamePrefixAndSuffixProvider')]
+    public function testLoadResolvesFilenamePrefixAndSuffix(
+        ?string $channelPrefix,
+        ?string $channelSuffix,
+        ?string $globalPrefix,
+        ?string $globalSuffix,
+        ?string $expectedPrefix,
+        ?string $expectedSuffix,
+    ): void {
+        $matchingSalesChannelId = Uuid::randomHex();
+
+        $globalRow = $this->createBaseConfig(
+            global: true,
+            pageSize: 'A4',
+            companyName: 'Global GmbH',
+            filenamePrefix: $globalPrefix,
+            filenameSuffix: $globalSuffix,
+        );
+
+        $matchingRow = $this->createBaseConfig(
+            global: false,
+            pageSize: 'A4',
+            companyName: 'Matching Channel GmbH',
+            salesChannelId: $matchingSalesChannelId,
+            filenamePrefix: $channelPrefix,
+            filenameSuffix: $channelSuffix,
+        );
+
+        $documentRepo = new StaticEntityRepository(
+            [new DocumentBaseConfigCollection([$globalRow, $matchingRow])],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        $countryRepo = new StaticEntityRepository(
+            [new CountryCollection([$this->createCountry()])],
+            new CountryDefinition(),
+        );
+
+        $loader = new DocumentConfigLoader(
+            $documentRepo,
+            $countryRepo,
+            $this->createMediaRepository(),
+            $this->createSystemConfigService(),
+            $this->documentTypeRegistry,
+        );
+
+        $bundle = $loader->load(
+            DocumentType::INVOICE->value,
+            $matchingSalesChannelId,
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame($expectedPrefix, $bundle->config->filenamePrefix);
+        static::assertSame($expectedSuffix, $bundle->config->filenameSuffix);
     }
 
     public function testLoadFallsBackToGlobalWhenNoSalesChannelRowMatches(): void
@@ -630,6 +735,8 @@ class DocumentConfigLoaderTest extends TestCase
         int $itemsPerPage = 10,
         ?string $logoId = null,
         ?array $filenameInfixes = null,
+        ?string $filenamePrefix = null,
+        ?string $filenameSuffix = null,
     ): DocumentBaseConfigEntity {
         $entity = new DocumentBaseConfigEntity();
         $entity->setUniqueIdentifier(Uuid::randomHex());
@@ -639,6 +746,8 @@ class DocumentConfigLoaderTest extends TestCase
         $entity->setPageOrientation('portrait');
         $entity->setItemsPerPage($itemsPerPage);
         $entity->setFilenameInfixes($filenameInfixes);
+        $entity->setFilenamePrefix($filenamePrefix);
+        $entity->setFilenameSuffix($filenameSuffix);
         $entity->setConfig([
             'companyName' => $companyName,
             'companyStreet' => 'Example Street 1',

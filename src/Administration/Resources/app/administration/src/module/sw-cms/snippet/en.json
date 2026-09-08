@@ -5,6 +5,7 @@
       "mainMenuItemGeneral": "Shopping Experiences",
       "moduleTitle": "Shopping Experiences",
       "greeting": "Layouts",
+      "switchLayoutListMode": "Switch between grid and list view",
       "createNewLayout": "Create new layout",
       "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",

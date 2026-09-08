@@ -55,7 +55,7 @@ describe('src/module/sw-sso-error/page/index', () => {
         const wrapper = await createWrapper(false);
         await flushPromises();
 
-        const shopwareLogo = wrapper.get('.sw-sso-error__image-container > img');
+        const shopwareLogo = wrapper.get('img.sw-sso-error__logo');
 
         expect(shopwareLogo.attributes('src')).toBe('administration/administration/static/img/shopware_logo_blue.svg');
     });
@@ -66,17 +66,27 @@ describe('src/module/sw-sso-error/page/index', () => {
 
         expect(wrapper.find('.sw-sso-error__title').text()).toBe('global.sw-sso-error.error-card.title');
         expect(wrapper.find('.sw-sso-error__description').text()).toBe('global.sw-sso-error.error-card.text');
-        expect(wrapper.find('.sw-button.sw-button--primary').text()).toBe('global.sw-sso-error.error-card.button');
-        expect(wrapper.find('.sw-sso-error-card__small-text').text()).toBe(
+        expect(wrapper.find('.mt-button--primary').text()).toBe('global.sw-sso-error.error-card.button');
+        expect(wrapper.find('.sw-sso-error__logged-in-as-text').text()).toBe(
             'global.sw-sso-error.error-card.loggedInAsPrefix',
         );
-        expect(wrapper.find('.sw-sso-error-card__small-text-email').text()).toBe('foo@bar.baz');
+        expect(wrapper.find('.sw-sso-error__logged-in-as-email').text()).toBe('foo@bar.baz');
     });
 
     it('should not render the email if none is available', async () => {
         const wrapper = await createWrapper(false, false);
         await flushPromises();
 
-        expect(wrapper.find('.sw-sso-error-card__small-text-email').exists()).toBe(false);
+        expect(wrapper.find('.sw-sso-error__logged-in-as-email').exists()).toBe(false);
+    });
+
+    it('should render the login button as a native link that opens in the same tab', async () => {
+        const wrapper = await createWrapper(false);
+        await flushPromises();
+
+        const loginButton = wrapper.get('a.mt-button--primary');
+
+        expect(loginButton.attributes('href')).toBe('https://foo.bar.baz&usePromptLogin=1');
+        expect(loginButton.attributes('target')).toBe('_self');
     });
 });

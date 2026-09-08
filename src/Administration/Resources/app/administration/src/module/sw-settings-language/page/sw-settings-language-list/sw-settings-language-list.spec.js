@@ -413,6 +413,33 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         ).toContain('salesChannelCount');
     });
 
+    it('should label the locale with its native name and the UI language', async () => {
+        const wrapper = await createWrapper();
+        const localeNameSpy = jest.spyOn(Shopware.Utils.format, 'localeName').mockReturnValue('Français (French, France)');
+
+        expect(wrapper.vm.localeLabel({ locale: { code: 'fr-FR' } })).toBe('Français (French, France)');
+        expect(localeNameSpy).toHaveBeenCalledWith('fr-FR');
+
+        // languages without a loaded locale association render nothing instead of a broken label
+        expect(wrapper.vm.localeLabel({})).toBe('');
+
+        localeNameSpy.mockRestore();
+    });
+
+    it('should label pseudo languages with their own name instead of the borrowed locale', async () => {
+        const wrapper = await createWrapper();
+        const localeNameSpy = jest.spyOn(Shopware.Utils.format, 'localeName');
+
+        wrapper.vm.translationMetadata = {
+            'ach-UG': { locale: 'ach-UG', name: 'Acholi', isPseudoLanguage: true },
+        };
+
+        expect(wrapper.vm.localeLabel({ locale: { code: 'ach-UG' } })).toBe('Acholi');
+        expect(localeNameSpy).not.toHaveBeenCalled();
+
+        localeNameSpy.mockRestore();
+    });
+
     it('should only expose the update status derived from the translation metadata', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

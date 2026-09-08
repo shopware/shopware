@@ -11,7 +11,6 @@ const { mtTabsValidTests, mtTabsInvalidTests } = require('./no-deprecated-compon
 const { mtSelectValidTests, mtSelectInvalidTests } = require('./no-deprecated-component-usage-checks/mt-select.check');
 const { mtTextareaValidTests, mtTextareaInvalidTests } = require('./no-deprecated-component-usage-checks/mt-textarea.check');
 const { mtBannerValidTests, mtBannerInvalidTests } = require('./no-deprecated-component-usage-checks/mt-banner.check');
-const { mtExternalLinkValidTests, mtExternalLinkInvalidTests } = require('./no-deprecated-component-usage-checks/mt-external-link.check');
 const { mtDatepickerInvalidTests, mtDatepickerValidTests } = require('./no-deprecated-component-usage-checks/mt-datepicker.check');
 const { mtColorpickerValidTests, mtColorpickerInvalidTests } = require('./no-deprecated-component-usage-checks/mt-colorpicker.check');
 const { mtEmailFieldValidTests, mtEmailFieldInvalidTests } = require('./no-deprecated-component-usage-checks/mt-email-field.check');
@@ -45,7 +44,6 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtSelectValidTests,
         ...mtTextareaValidTests,
         ...mtBannerValidTests,
-        ...mtExternalLinkValidTests,
         ...mtDatepickerValidTests,
         ...mtColorpickerValidTests,
         ...mtEmailFieldValidTests,
@@ -67,7 +65,6 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtTextareaInvalidTests,
         ...mtDatepickerInvalidTests,
         ...mtBannerInvalidTests,
-        ...mtExternalLinkInvalidTests,
         ...mtColorpickerInvalidTests,
         ...mtEmailFieldInvalidTests,
         ...mtPasswordFieldInvalidTests,

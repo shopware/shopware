@@ -17,12 +17,12 @@ Module.register('sw-manufacturer', {
     type: 'core',
     name: 'manufacturer',
     title: 'sw-manufacturer.general.mainMenuItemGeneral',
-    description: 'Manages the manufacturer of the application',
+    description: 'sw-manufacturer.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
     icon: 'regular-products',
-    favicon: 'icon-module-products.png',
+    favicon: 'icon-module-products.svg',
     entity: 'product_manufacturer',
 
     routes: {

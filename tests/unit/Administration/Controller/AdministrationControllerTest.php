@@ -54,7 +54,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(AdministrationController::class)]
 class AdministrationControllerTest extends TestCase
 {

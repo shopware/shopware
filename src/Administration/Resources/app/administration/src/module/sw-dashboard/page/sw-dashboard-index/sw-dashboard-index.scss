@@ -134,21 +134,6 @@
         }
     }
 
-    &.sw-page {
-        .sw-page__head-area {
-            grid-template-columns:
-                [head-start back-btn-start] 1fr
-                [back-btn-end header-content-start] minmax(0, 60rem)
-                [header-content-end] 1fr
-                [smart-bar-end];
-        }
-
-        .smart-bar__content,
-        .sw-search-bar__container {
-            max-width: 60rem;
-        }
-    }
-
     .sw-card {
         max-width: 60rem !important;
     }

@@ -204,6 +204,10 @@ export default {
         },
     },
 
+    beforeRouteLeave() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     created() {
         this.createdComponent();
     },
@@ -257,6 +261,8 @@ export default {
         },
 
         async createdComponent() {
+            Shopware.Store.get('shopwareApps').selectedIds = this.customerId ? [this.customerId] : [];
+
             await this.loadCustomer();
         },
 

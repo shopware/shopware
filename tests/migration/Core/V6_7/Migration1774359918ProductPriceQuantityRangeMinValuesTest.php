@@ -16,7 +16,7 @@ use Shopware\Core\Migration\V6_7\Migration1774359918ProductPriceQuantityRangeMin
 /**
  * @internal
  */
-#[Package('data-services')]
+#[Package('inventory')]
 #[CoversClass(Migration1774359918ProductPriceQuantityRangeMinValues::class)]
 class Migration1774359918ProductPriceQuantityRangeMinValuesTest extends TestCase
 {

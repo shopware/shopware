@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 #[Package('framework')]
 class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactory
@@ -19,7 +17,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
      */
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $decorated,
-        private readonly CacheInterface $cache,
+        private readonly InvalidationRaceAwareCache $cache,
     ) {
     }
 
@@ -39,19 +37,16 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         ksort($options);
 
         $key = implode('-', [$name, Hasher::hash($options)]);
-
+        $tags = [$name, self::ALL_TAG];
         $fresh = null;
 
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options, &$fresh) {
-            $item->tag([$name, self::ALL_TAG]);
-
+        $value = $this->cache->get($key, $tags, function () use ($token, $salesChannelId, $options, &$fresh): string {
             $fresh = $this->decorated->create($token, $salesChannelId, $options);
 
             return CacheValueCompressor::compress($fresh);
         });
 
-        // the context was built in this call, return it directly instead of
-        // uncompressing the cache payload that was just compressed from it
+        // The context was built in this call, return it directly instead of uncompressing the cache payload that was just compressed from it.
         if ($fresh instanceof SalesChannelContext) {
             return $fresh;
         }

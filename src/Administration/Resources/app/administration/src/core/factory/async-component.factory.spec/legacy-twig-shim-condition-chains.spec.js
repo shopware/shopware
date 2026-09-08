@@ -40,7 +40,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="twig_shim_test_block" :data="$dataScope">
+                    <sw-block name="twig_shim_test_block" sw-internal-component-name="native-block-legacy-twig-shim-else" :data="$dataScope">
                         <div v-if="isConditionTrue" class="true-case">true</div>
                     </sw-block>
                 </div>
@@ -78,7 +78,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="twig_shim_block">
+                    <sw-block name="twig_shim_block" sw-internal-component-name="native-block-legacy-twig-shim-missing-data-scope">
                         <div v-if="condition1" class="condition-one">one</div>
                     </sw-block>
                 </div>
@@ -103,7 +103,6 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         });
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders legacy Twig shim condition chains across multiple template overrides', async () => {
         ComponentFactory.register('native-block-legacy-twig-shim-override-chain', {
             data() {
@@ -114,7 +113,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="chained_condition_block" :data="$dataScope">
+                    <sw-block name="chained_condition_block" sw-internal-component-name="native-block-legacy-twig-shim-override-chain" :data="$dataScope">
                         <div v-if="condition1" class="condition-one">Condition 1</div>
                     </sw-block>
                 </div>
@@ -179,11 +178,11 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="mixed_chained_condition_block" :data="$dataScope">
+                    <sw-block name="mixed_chained_condition_block" sw-internal-component-name="native-block-legacy-twig-mixed-override-chain" :data="$dataScope">
                         <div v-if="condition1" class="condition-one">Condition 1</div>
                     </sw-block>
 
-                    <sw-block extends="mixed_chained_condition_block">
+                    <sw-block extends="mixed_chained_condition_block" sw-internal-component-name="native-block-legacy-twig-mixed-override-chain">
                         <sw-block-parent />
                         <h1 v-else class="native-fallback-condition">Native fallback</h1>
                     </sw-block>
@@ -223,7 +222,6 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         expect(wrapper.find('.native-fallback-condition').exists()).toBe(true);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('continues adjacent named block condition chains for legacy Twig shim v-else-if cases', async () => {
         ComponentFactory.register('native-block-legacy-twig-adjacent-named-chain', {
             data() {
@@ -235,11 +233,11 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="adjacent_condition_block_one" :data="$dataScope">
+                    <sw-block name="adjacent_condition_block_one" sw-internal-component-name="native-block-legacy-twig-adjacent-named-chain" :data="$dataScope">
                         <div v-if="condition1" class="native-one">one</div>
                     </sw-block>
 
-                    <sw-block name="adjacent_condition_block_two" :data="$dataScope">
+                    <sw-block name="adjacent_condition_block_two" sw-internal-component-name="native-block-legacy-twig-adjacent-named-chain" :data="$dataScope">
                         <div v-else-if="condition2" class="native-two">two</div>
                     </sw-block>
                 </div>
@@ -288,7 +286,6 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         expectOnlyBranch(wrapper, branches, null);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders a later legacy Twig fallback after an earlier legacy Twig v-if misses', async () => {
         ComponentFactory.register('native-block-legacy-twig-started-chain', {
             data() {
@@ -298,7 +295,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             },
             template: `
                 <div>
-                    <sw-block name="twig_started_condition_block" :data="$dataScope">
+                    <sw-block name="twig_started_condition_block" sw-internal-component-name="native-block-legacy-twig-started-chain" :data="$dataScope">
                         <div class="default-content">Default</div>
                     </sw-block>
                 </div>

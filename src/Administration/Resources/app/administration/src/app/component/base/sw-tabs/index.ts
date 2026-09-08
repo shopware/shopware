@@ -27,6 +27,16 @@ function isFragmentVNode(vnode: VNode): boolean {
 }
 
 /**
+ * Returns the text of a `sw-tabs-item`'s default slot, or `undefined` when it has none.
+ * Used as the label fallback for items that provide their label as slot text.
+ */
+function getTabItemSlotText(vnode: VNode): string | undefined {
+    const slotChild = (vnode.children as VNodeChildrenWithDefaultSlot | null)?.default?.()?.[0];
+
+    return slotChild?.type === Text ? (slotChild.children as string) : undefined;
+}
+
+/**
  * Maps a legacy `sw-tabs-item` vnode to the `mt-tabs` item format.
  *
  * The label is resolved from the `title` prop, then the default slot text, so an item whose label is
@@ -35,19 +45,12 @@ function isFragmentVNode(vnode: VNode): boolean {
 function resolveTabItem(vnode: VNode, router: Router): TabItem {
     const props = (vnode.props ?? {}) as SwTabsItemProps;
 
-    let label = props.title;
-    if (label === undefined) {
-        const slotChild = (vnode.children as VNodeChildrenWithDefaultSlot | null)?.default?.()?.[0];
-        if (slotChild?.type === Text) {
-            label = slotChild.children as string;
-        }
-    }
-
+    const label = props.title ?? getTabItemSlotText(vnode) ?? '';
     const name = props.name ?? props.title ?? label;
 
     const tabItem: TabItem = {
-        label: label as string,
-        name: name as string,
+        label,
+        name,
     };
 
     if (props.route) {
@@ -111,12 +114,14 @@ export default Shopware.Component.wrapComponentConfig({
             // Convert the slotted `sw-tabs-item` vnodes into `mt-tabs` items. A `v-for` of items is
             // wrapped in a fragment vnode, so its children are unwrapped and mapped individually.
             return defaultSlotContent.flatMap((item) => {
+                // v-for
                 if (isFragmentVNode(item)) {
                     const children = Array.isArray(item.children) ? (item.children as VNode[]) : [];
 
                     return children.filter(isTabItemVNode).map((child) => resolveTabItem(child, this.$router));
                 }
 
+                // normal cases
                 if (isTabItemVNode(item)) {
                     return [resolveTabItem(item, this.$router)];
                 }

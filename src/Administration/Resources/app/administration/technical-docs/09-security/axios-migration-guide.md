@@ -28,6 +28,10 @@ The resulting behavior is:
 
 Repository requests use Axios v1 before the global switch because repositories are the standard Administration data-access path. Axios is not part of the repository contract, so extensions do not select its transport or need to change repository calls.
 
+If your extension never sets `useAxiosV1`, its direct requests run on legacy Axios today and move to Axios v1 with 6.8. That is the starting point this guide assumes.
+
+`useAxiosV1` is a migration aid, not a permanent option. It lets you move one request at a time onto Axios v1 while still running 6.7. It is deprecated with 6.7.15.0 and removed with 6.8, so delete it again once the migration is done.
+
 ## Migrating direct HTTP requests
 
 Opt in while running Shopware 6.7 by setting `useAxiosV1: true`:

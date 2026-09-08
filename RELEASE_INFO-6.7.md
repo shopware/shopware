@@ -444,13 +444,17 @@ Deprecated for removal in 6.8:
 - The `axios-v1` package alias. Axios 1.x will be installed as `axios`, so `import ... from 'axios-v1'` becomes `import ... from 'axios'`.
 - The `src/core/factory/http-client-adapter` module with `HttpClientAdapter`, `createAxiosV0Adapter` and `createAxiosV1Adapter`.
 
+If you never set `useAxiosV1`, your direct HTTP requests run on axios 0.x today and will run on axios 1.x after the upgrade. That is the case most extensions are in. Repository calls are unaffected; they already use axios 1.x.
+
 What to do now:
 
-- Remove every `useAxiosV1: true` from your request configurations. With the `V6_8_0_0` feature flag active, axios 1.x is already the default, so the flag has no effect.
-- Replace every `useAxiosV1: false` with axios 1.x compatible code. The most common change is switching request cancellation from `CancelToken` to `AbortController`, and reading `error.code === 'ERR_CANCELED'` or `httpClient.isCancel(error)` instead of axios 0.x error shapes.
+- Move your direct requests onto axios 1.x one at a time with `useAxiosV1: true`, and check that cancellation and error handling still behave. The flag exists for exactly this dry run and is itself deprecated for removal in 6.8, so delete it again once the migration is done.
+- Replace `CancelToken` based cancellation with `AbortController`, and read `error.code === 'ERR_CANCELED'` or `httpClient.isCancel(error)` instead of axios 0.x error shapes.
+- Remove every `useAxiosV1: true` you already have. With the `V6_8_0_0` feature flag active, axios 1.x is the default and the flag has no effect.
+- Replace every `useAxiosV1: false` with axios 1.x compatible code. After the removal the flag stops selecting a transport without any warning, because axios ignores unknown request options.
 - Import `axios` instead of `axios-v1` once the alias is gone. Until then, keep importing `axios-v1` if you need the 1.x types directly; new code should use `HttpClient`, `HttpRequestConfig` and `HttpResponse` from `src/core/factory/http-client.types` instead.
 
-Verify your extension with `FEATURE_ALL=major` so requests run through axios 1.x. The full migration path is described in the [Axios migration guide](src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md).
+Verify the whole extension with `FEATURE_ALL=major`, which routes every request through axios 1.x. The full migration path is described in the [Axios migration guide](src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md).
 
 Removing axios 0.x also removes twelve suppressed npm audit advisories that only affect the 0.x line, among them CVE-2023-45857.
 

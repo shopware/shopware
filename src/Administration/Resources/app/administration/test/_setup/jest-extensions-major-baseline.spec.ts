@@ -30,13 +30,16 @@ describe('Jest feature flag extensions with a major baseline', () => {
         // eslint-disable-next-line jest/no-standalone-expect -- Verifies the environment restores the baseline after teardown.
         expect(globalThis.activeFeatureFlags).toEqual(majorFeatureFlags);
 
-        // eslint-disable-next-line jest/no-standalone-expect -- Verifies the normalized major flag skipped the test.
-        expect(deprecatedTestRan).toBeFalsy();
+        // eslint-disable-next-line jest/no-standalone-expect -- The inverted test runs, unlike a skipped one.
+        expect(deprecatedTestRan).toBeTruthy();
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the v6.8 major-baseline fixture.
-    it.deprecated('v6.8.0.0')('skips a deprecated test for the normalized major flag', () => {
+    it.deprecated('v6.8.0.0')('inverts a deprecated test for the normalized major flag', () => {
         deprecatedTestRan = true;
+
+        // Registered through `it.failing` because the flag is on, so this failure is the pass.
+        expect(Shopware.Feature.isActive('v6.8.0.0')).toBeFalsy();
     });
 
     it.activeFeatureFlags(['EXPERIMENTAL_FEATURE'])('adds per-test flags without replacing the major baseline', () => {

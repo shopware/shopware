@@ -29,9 +29,10 @@ declare global {
 
         interface It {
             /**
-             * Skip this test when the given major feature flag is active. The registered test name
-             * gains a ` (removed in <removedIn>)` suffix, so a skip explains itself in the reporter
-             * output and legacy/v6.8 pairs do not share a title.
+             * Expect this test to fail when the given major feature flag is active — the behaviour
+             * it asserts is gone by then, so a test that still passes means `removedIn` names the
+             * wrong version. The registered test name gains a ` (removed in <removedIn>)` suffix,
+             * so legacy/v6.8 pairs do not share a title.
              */
             deprecated(removedIn: string): FeatureFlagTest;
 

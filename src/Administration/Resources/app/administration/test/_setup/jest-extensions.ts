@@ -42,7 +42,11 @@ export function createDeprecatedTest(testFunction: jest.It): jest.It['deprecated
         const isRemoved = getActiveFeatureFlags().some((featureFlag) => {
             return normalizeFeatureFlag(featureFlag) === normalizedRemovedIn;
         });
-        const register = isRemoved ? testFunction.skip : testFunction;
+        // Inverted instead of skipped: with the removal flag on, the behaviour the test asserts is
+        // gone, so the test still passing means `removedIn` names the wrong version. Jest cannot
+        // invert a failure that happens in `beforeEach`, so setup that breaks under the flag still
+        // reports as a plain failure.
+        const register = isRemoved ? testFunction.failing : testFunction;
 
         // Applied before Jest interpolates `%s` and friends, so the suffix trails the whole title.
         const withSuffix = (name: string) => `${name} (removed in ${removedIn})`;

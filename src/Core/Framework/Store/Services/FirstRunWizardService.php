@@ -122,7 +122,11 @@ class FirstRunWizardService
             return false;
         }
 
-        return !($status->isFailed() && $status->getFailureCount() > self::FRW_MAX_FAILURES);
+        if ($status->isFailed() && $status->getFailureCount() > self::FRW_MAX_FAILURES) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

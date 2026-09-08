@@ -8,6 +8,9 @@ import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { attachSetupOverrideShim } from './options-api-setup-shim';
 import { _overridesMap } from './index';
 
+// What the shim hands to an override: every base-state key served as a ref-like accessor.
+type PreviousState = Record<string, { value: unknown }>;
+
 describe('src/app/adapter/composition-extension-system/options-api-setup-shim', () => {
     beforeEach(() => {
         Object.keys(_overridesMap).forEach((key) => {
@@ -17,7 +20,7 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
 
     it('applies a setup override to an Options API component and reads the untouched base state', async () => {
         _overridesMap['sw-shim-test'] = [
-            (previousState: Record<string, { value: unknown }>) => ({
+            (previousState: PreviousState) => ({
                 welcomeSubline: computed(() => `${String(previousState.welcomeSubline.value)} / overridden`),
                 shopName: computed(() => `${String(previousState.shopName.value)} GmbH`),
             }),
@@ -49,7 +52,7 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         let write = (): void => {};
 
         _overridesMap['sw-shim-write'] = [
-            (previousState: Record<string, { value: unknown }>) => {
+            (previousState: PreviousState) => {
                 write = () => {
                     previousState.counter.value = 42;
                 };
@@ -101,7 +104,7 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
 
     it('applies the override even when an immediate watcher read the key first', async () => {
         _overridesMap['sw-shim-watch'] = [
-            (previousState: Record<string, { value: unknown }>) => ({
+            (previousState: PreviousState) => ({
                 label: computed(() => `override ${String(previousState.label.value)}`),
             }),
         ] as never;
@@ -132,7 +135,7 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim', 
         let originalResult = '';
 
         _overridesMap['sw-shim-methods'] = [
-            (previousState: Record<string, { value: unknown }>) => {
+            (previousState: PreviousState) => {
                 const original = previousState.greet.value as () => string;
                 originalResult = original();
 

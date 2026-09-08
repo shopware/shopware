@@ -132,7 +132,7 @@ class LayoutPresetPayloadCompilerTest extends TestCase
     #[TestDox('re-encodes the decoded elements into the served payload')]
     public function testCompileEncodesDecodedElements(): void
     {
-        $decoder = $this->createStub(DraftLayoutDecoder::class);
+        $decoder = static::createStub(DraftLayoutDecoder::class);
         $decoder->method('decode')->willReturn([new StoredElement('el-1', 'Sw:Content:Text')]);
 
         $result = $this->createCompiler($decoder)->compile([['component' => 'Sw:Content:Text']]);
@@ -145,7 +145,7 @@ class LayoutPresetPayloadCompilerTest extends TestCase
     #[TestDox('an empty layout compiles to an empty payload')]
     public function testEmptyLayoutCompilesToEmptyPayload(): void
     {
-        $decoder = $this->createStub(DraftLayoutDecoder::class);
+        $decoder = static::createStub(DraftLayoutDecoder::class);
         $decoder->method('decode')->willReturn([]);
 
         static::assertSame([], $this->createCompiler($decoder)->compile([]));
@@ -193,7 +193,7 @@ class LayoutPresetPayloadCompilerTest extends TestCase
     private function assertInvalidLayout(array $layout): void
     {
         try {
-            $this->createCompiler($this->createStub(DraftLayoutDecoder::class))->compile($layout);
+            $this->createCompiler(static::createStub(DraftLayoutDecoder::class))->compile($layout);
             static::fail('Expected a ContentSystemException.');
         } catch (ContentSystemException $e) {
             static::assertSame(ContentSystemException::LAYOUT_PRESET_INVALID_LAYOUT, $e->getErrorCode());
@@ -205,7 +205,7 @@ class LayoutPresetPayloadCompilerTest extends TestCase
      */
     private function capturingDecoder(array &$captured): DraftLayoutDecoder
     {
-        $decoder = $this->createStub(DraftLayoutDecoder::class);
+        $decoder = static::createStub(DraftLayoutDecoder::class);
         $decoder->method('decode')->willReturnCallback(static function (array $draft) use (&$captured): array {
             $captured = $draft;
 
@@ -219,7 +219,7 @@ class LayoutPresetPayloadCompilerTest extends TestCase
     {
         return new LayoutPresetPayloadCompiler(
             $decoder,
-            new StoredElementCodec($this->createStub(DataLoaderConfigSerializerProvider::class)),
+            new StoredElementCodec(static::createStub(DataLoaderConfigSerializerProvider::class)),
         );
     }
 }

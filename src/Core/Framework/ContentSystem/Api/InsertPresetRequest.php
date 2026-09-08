@@ -7,6 +7,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 final class InsertPresetRequest

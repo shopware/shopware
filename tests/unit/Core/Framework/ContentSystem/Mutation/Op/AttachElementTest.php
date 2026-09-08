@@ -28,7 +28,7 @@ class AttachElementTest extends TestCase
     {
         $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
 
-        $result = ($this->attach(new StoredElement('incoming', 'Sw:Card')))->apply($tree);
+        $result = $this->attach(new StoredElement('incoming', 'Sw:Card'))->apply($tree);
 
         static::assertCount(2, $result->roots);
         static::assertSame('existing', $result->roots[0]->id);
@@ -44,7 +44,7 @@ class AttachElementTest extends TestCase
             'content' => [new StoredElement('incoming-child', 'Sw:Card')],
         ]);
 
-        $result = ($this->attach($incoming))->apply(new StoredTree([]));
+        $result = $this->attach($incoming)->apply(new StoredTree([]));
 
         $attached = $result->roots[0];
         $child = $attached->slots['content'][0];
@@ -91,7 +91,7 @@ class AttachElementTest extends TestCase
             'content' => [new StoredElement('first', 'Sw:Card')],
         ])]);
 
-        $result = ($this->attach(new StoredElement('incoming', 'Sw:Card'), 'parent', 'content', 0))->apply($tree);
+        $result = $this->attach(new StoredElement('incoming', 'Sw:Card'), 'parent', 'content', 0)->apply($tree);
 
         $children = $result->roots[0]->slots['content'];
         static::assertCount(2, $children);
@@ -104,7 +104,7 @@ class AttachElementTest extends TestCase
     {
         $tree = new StoredTree([new StoredElement('block-a', 'Sw:Card'), new StoredElement('block-b', 'Sw:Card')]);
 
-        $result = ($this->attach(new StoredElement('incoming', 'Sw:Card'), null, null, 99))->apply($tree);
+        $result = $this->attach(new StoredElement('incoming', 'Sw:Card'), null, null, 99)->apply($tree);
 
         static::assertCount(3, $result->roots);
         static::assertSame(['block-a', 'block-b'], [$result->roots[0]->id, $result->roots[1]->id]);

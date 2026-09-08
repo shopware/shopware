@@ -10,8 +10,7 @@ describe('core/factory/http-client.types.ts', () => {
     it('keeps common extension TypeScript usage compatible', () => {
         function assertCompatibility(httpClient: HttpClient): void {
             const axiosClient: AxiosInstance = httpClient;
-            const requestConfig: AxiosRequestConfig & { useAxiosV1: boolean } = {
-                useAxiosV1: true,
+            const requestConfig: AxiosRequestConfig = {
                 auth: { username: 'admin', password: 'password' },
                 onUploadProgress: () => {},
                 validateStatus: (status) => status < 500,

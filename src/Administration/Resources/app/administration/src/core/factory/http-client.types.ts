@@ -24,11 +24,6 @@ export interface HttpRequestConfig<Data = HttpClientValue> {
     responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream';
     adapter?: HttpClientValue;
     version?: number;
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. Axios 1.x is the only transport, so the request
-     * no longer selects a version. Remove the flag from the request configuration.
-     */
-    useAxiosV1?: boolean;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

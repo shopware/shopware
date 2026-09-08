@@ -174,7 +174,11 @@ export type SerializeBoxSpacingOptions = {
  * @sw-package discovery
  */
 export function normalizeBoxSpacingCSSValue(value: unknown): string {
-    if (value === null || value === undefined) {
+    if (value === null) {
+        return '0 0 0 0';
+    }
+
+    if (value === undefined) {
         return '';
     }
 

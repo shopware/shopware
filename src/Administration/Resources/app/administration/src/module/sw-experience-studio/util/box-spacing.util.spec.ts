@@ -205,6 +205,24 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
         expect(normalizeBoxSpacingCSSValue('30')).toBe('30px 30px 30px 30px');
     });
 
+    it('presents persisted null values as explicit zero spacing', () => {
+        expect(normalizeBoxSpacingCSSValue(null)).toBe('0 0 0 0');
+    });
+
+    it('keeps all-zero spacing unset for persistence', () => {
+        expect(
+            serializeBoxSpacing(
+                {
+                    top: '0',
+                    right: '0',
+                    bottom: '0',
+                    left: '0',
+                },
+                { explicit: true },
+            ),
+        ).toBe('');
+    });
+
     it('normalizes asymmetric CSS values to explicit four-value strings', () => {
         expect(normalizeBoxSpacingCSSValue('20px 40px 20px 40px')).toBe('20px 40px 20px 40px');
     });

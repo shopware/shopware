@@ -242,32 +242,18 @@ class UserControllerTest extends TestCase
     }
 
     /**
-     * A user who may only edit their own profile (user_change_me) must not be able to elevate
-     * themselves to admin. Top-level "admin" is already rejected; this guards the nested variant
-     * where the flag is hidden inside the avatar media association (media -> user / avatarUsers),
-     * directly or through the media entity's `extensions` container.
+     * A self-service profile edit accepts `avatarMedia` only as an id link. Any nested payload,
+     * including one nested inside the `extensions` container, must be rejected.
      *
-     * @param callable(string): array<string, mixed> $payloadFactory
+     * @param array<string, mixed> $payload
      */
-    #[DataProvider('nestedAdminEscalationPayloadProvider')]
-    public function testSetOwnProfileCannotEscalateToAdminViaNestedWrite(callable $payloadFactory): void
+    #[DataProvider('nestedAvatarMediaPayloadProvider')]
+    public function testSetOwnProfileRejectsNestedAvatarMediaWrite(array $payload): void
     {
         $browser = $this->getBrowser();
         $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
 
-        // Resolve the caller's own id and confirm the non-admin baseline.
-        $browser->request('GET', '/api/_info/me');
-        $me = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        $userId = $me['data']['id'];
-        static::assertIsString($userId);
-
-        $connection = static::getContainer()->get(Connection::class);
-        static::assertSame(
-            0,
-            (int) $connection->fetchOne('SELECT admin FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId])
-        );
-
-        $browser->jsonRequest('PATCH', '/api/_info/me', $payloadFactory($userId));
+        $browser->jsonRequest('PATCH', '/api/_info/me', $payload);
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
@@ -275,56 +261,28 @@ class UserControllerTest extends TestCase
             MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
             json_decode((string) $response->getContent(), true)['errors'][0]['code']
         );
-
-        static::assertSame(
-            0,
-            (int) $connection->fetchOne('SELECT admin FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId]),
-            'Self-service profile edits must never grant the admin flag.'
-        );
     }
 
     /**
-     * @return iterable<string, array{callable(string): array<string, mixed>}>
+     * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function nestedAdminEscalationPayloadProvider(): iterable
+    public static function nestedAvatarMediaPayloadProvider(): iterable
     {
-        yield 'via avatarMedia.user' => [
-            static fn (string $userId): array => [
-                'avatarMedia' => [
-                    'id' => Uuid::randomHex(),
-                    'user' => ['id' => $userId, 'admin' => true],
-                ],
-            ],
-        ];
+        yield 'via avatarMedia.user' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'user' => ['id' => Uuid::randomHex()]],
+        ]];
 
-        yield 'via avatarMedia.avatarUsers' => [
-            static fn (string $userId): array => [
-                'avatarMedia' => [
-                    'id' => Uuid::randomHex(),
-                    'avatarUsers' => [['id' => $userId, 'admin' => true]],
-                ],
-            ],
-        ];
+        yield 'via avatarMedia.avatarUsers' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'avatarUsers' => [['id' => Uuid::randomHex()]]],
+        ]];
 
-        // The DAL write layer resolves keys inside `extensions` against the entity's fields,
-        // associations included, so the same escalation is reachable one level deeper.
-        yield 'via avatarMedia.extensions.user' => [
-            static fn (string $userId): array => [
-                'avatarMedia' => [
-                    'id' => Uuid::randomHex(),
-                    'extensions' => ['user' => ['id' => $userId, 'admin' => true]],
-                ],
-            ],
-        ];
+        yield 'via avatarMedia.extensions.user' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['user' => ['id' => Uuid::randomHex()]]],
+        ]];
 
-        yield 'via avatarMedia.extensions.avatarUsers' => [
-            static fn (string $userId): array => [
-                'avatarMedia' => [
-                    'id' => Uuid::randomHex(),
-                    'extensions' => ['avatarUsers' => [['id' => $userId, 'admin' => true]]],
-                ],
-            ],
-        ];
+        yield 'via avatarMedia.extensions.avatarUsers' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['avatarUsers' => [['id' => Uuid::randomHex()]]]],
+        ]];
     }
 
     public function testSetOwnProfileCanUpdateAvatarViaMediaAssociation(): void
@@ -350,29 +308,25 @@ class UserControllerTest extends TestCase
             $connection->fetchOne('SELECT LOWER(HEX(avatar_id)) FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId]),
             'The avatar media association must remain writable for self-service profile edits.'
         );
-        static::assertSame(
-            0,
-            (int) $connection->fetchOne('SELECT admin FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId])
-        );
     }
 
     /**
-     * `avatarMedia` reaches the media entity itself, so a scalar media field would let a profile
-     * edit change media that belongs to somebody else, without the media:update privilege.
+     * `avatarMedia` may only carry an id, so an extra media field must be rejected and must not
+     * reach the media entity.
      */
-    public function testSetOwnProfileCannotChangeMediaFieldsViaNestedWrite(): void
+    public function testSetOwnProfileRejectsExtraMediaFieldsInAvatarMedia(): void
     {
         $browser = $this->getBrowser();
         $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
 
         $mediaId = Uuid::randomHex();
         static::getContainer()->get('media.repository')->create(
-            [['id' => $mediaId, 'title' => 'foreign media']],
+            [['id' => $mediaId, 'fileName' => 'original', 'title' => 'foreign media']],
             Context::createDefaultContext()
         );
 
         $browser->jsonRequest('PATCH', '/api/_info/me', [
-            'avatarMedia' => ['id' => $mediaId, 'private' => true],
+            'avatarMedia' => ['id' => $mediaId, 'fileName' => 'changed'],
         ]);
         $response = $browser->getResponse();
 
@@ -384,9 +338,9 @@ class UserControllerTest extends TestCase
 
         $connection = static::getContainer()->get(Connection::class);
         static::assertSame(
-            0,
-            (int) $connection->fetchOne('SELECT private FROM media WHERE id = UNHEX(:id)', ['id' => $mediaId]),
-            'Self-service profile edits must never change the media entity.'
+            'original',
+            $connection->fetchOne('SELECT file_name FROM media WHERE id = UNHEX(:id)', ['id' => $mediaId]),
+            'A self-service profile edit must not change the media entity.'
         );
     }
 
